@@ -13,6 +13,8 @@
 *.userprefs
 
 # Build results
+[Bb]uild/
+[Cc]odegen/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -21,6 +23,7 @@ x64/
 x86/
 bld/
 [Bb]in/
+[Bb]inaries/
 [Oo]bj/
 [Ll]og/
 
@@ -177,7 +180,7 @@ publish/
 # in these scripts will be unencrypted
 PublishScripts/
 
-# NuGet Packages
+# NuGet
 *.nupkg
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
@@ -188,6 +191,7 @@ PublishScripts/
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
+nuget.exe
 
 # Microsoft Azure Build Output
 csx/

@@ -42,9 +42,14 @@ namespace Microsoft.Coyote.Runtime
         protected readonly ConcurrentDictionary<MachineId, AsyncMachine> MachineMap;
 
         /// <summary>
+        /// The log writer.
+        /// </summary>
+        protected internal RuntimeLogWriter LogWriter { get; private set; }
+
+        /// <summary>
         /// The installed logger.
         /// </summary>
-        public ILogger Logger { get; private set; }
+        public ILogger Logger => this.LogWriter.Logger;
 
         /// <summary>
         /// Callback that is fired when the Coyote program throws an exception.
@@ -64,8 +69,11 @@ namespace Microsoft.Coyote.Runtime
             this.Configuration = configuration;
             this.MachineMap = new ConcurrentDictionary<MachineId, AsyncMachine>();
             this.MachineIdCounter = 0;
-            this.Logger = configuration.IsVerbose ?
-                (ILogger)new ConsoleLogger(true) : new DisposingLogger();
+            this.LogWriter = new RuntimeLogWriter
+            {
+                Logger = configuration.IsVerbose ? (ILogger)new ConsoleLogger() : new NulLogger()
+            };
+
             this.IsRunning = true;
         }
 
@@ -589,11 +597,34 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Installs the specified <see cref="ILogger"/>.
+        /// Use this method to override the default <see cref="RuntimeLogWriter"/>
+        /// for logging runtime messages.
         /// </summary>
-        public void SetLogger(ILogger logger)
+        public RuntimeLogWriter SetLogWriter(RuntimeLogWriter logWriter)
         {
-            this.Logger = logger ?? throw new InvalidOperationException("Cannot install a null logger.");
+            var logger = this.LogWriter.Logger;
+            var prevLogWriter = this.LogWriter;
+            this.LogWriter = logWriter ?? throw new InvalidOperationException("Cannot install a null log writer.");
+            this.SetLogger(logger);
+            return prevLogWriter;
+        }
+
+        /// <summary>
+        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
+        /// </summary>
+        public ILogger SetLogger(ILogger logger)
+        {
+            var prevLogger = this.LogWriter.Logger;
+            if (this.LogWriter != null)
+            {
+                this.LogWriter.Logger = logger ?? throw new InvalidOperationException("Cannot install a null logger.");
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot install a logger on a null log writer.");
+            }
+
+            return prevLogger;
         }
 
         /// <summary>

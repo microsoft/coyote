@@ -310,10 +310,19 @@ namespace Microsoft.Coyote
         Guid GetCurrentOperationGroupId(MachineId currentMachineId);
 
         /// <summary>
-        /// Installs the specified <see cref="ILogger"/>.
+        /// Use this method to override the default <see cref="RuntimeLogWriter"/>
+        /// for logging runtime messages.
+        /// </summary>
+        /// <param name="logWriter">The runtime log writer to install.</param>
+        /// <returns>The previously installed runtime log writer.</returns>
+        RuntimeLogWriter SetLogWriter(RuntimeLogWriter logWriter);
+
+        /// <summary>
+        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
         /// </summary>
         /// <param name="logger">The logger to install.</param>
-        void SetLogger(ILogger logger);
+        /// <returns>The previously installed logger.</returns>
+        ILogger SetLogger(ILogger logger);
 
         /// <summary>
         /// Terminates the runtime and notifies each active machine to halt execution.

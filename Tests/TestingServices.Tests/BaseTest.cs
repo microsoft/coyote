@@ -246,7 +246,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             return Configuration.Create();
         }
 
-        private static string GetBugReport(ITestingEngine engine)
+        protected static string GetBugReport(ITestingEngine engine)
         {
             string report = string.Empty;
             foreach (var bug in engine.TestReport.BugReports)

@@ -571,7 +571,7 @@ namespace Microsoft.Coyote
                 }
                 else if (status is DequeueStatus.Default)
                 {
-                    this.Runtime.Logger.OnDefault(this.Id, this.CurrentStateName);
+                    this.Runtime.LogWriter.OnDefault(this.Id, this.CurrentStateName);
 
                     // If the default event was handled, then notify the runtime.
                     // This is only used during bug-finding, because the runtime
@@ -714,7 +714,7 @@ namespace Microsoft.Coyote
                     }
 
                     this.DoStatePop();
-                    this.Runtime.Logger.OnPopUnhandledEvent(this.Id, this.CurrentStateName, e.GetType().FullName);
+                    this.Runtime.LogWriter.OnPopUnhandledEvent(this.Id, this.CurrentStateName, e.GetType().FullName);
                     continue;
                 }
 
@@ -984,7 +984,7 @@ namespace Microsoft.Coyote
         /// </summary>
         private async Task GotoState(Type s, string onExitActionName)
         {
-            this.Logger.OnGoto(this.Id, this.CurrentStateName,
+            this.Runtime.LogWriter.OnGoto(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The machine performs the on exit action of the current state.
@@ -1011,7 +1011,7 @@ namespace Microsoft.Coyote
         /// </summary>
         private async Task PushState(Type s)
         {
-            this.Runtime.Logger.OnPush(this.Id, this.CurrentStateName, s.FullName);
+            this.Runtime.LogWriter.OnPush(this.Id, this.CurrentStateName, s.FullName);
 
             var nextState = StateMap[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);
@@ -1036,7 +1036,7 @@ namespace Microsoft.Coyote
             }
 
             this.DoStatePop();
-            this.Runtime.Logger.OnPop(this.Id, prevStateName, this.CurrentStateName);
+            this.Runtime.LogWriter.OnPop(this.Id, prevStateName, this.CurrentStateName);
 
             // Watch out for an extra pop.
             this.Assert(this.CurrentState != null, "Machine '{0}' popped with no matching push.", this.Id);
@@ -1436,7 +1436,7 @@ namespace Microsoft.Coyote
         {
             var info = new TimerInfo(this.Id, dueTime, period, payload);
             var timer = this.Runtime.CreateMachineTimer(info, this);
-            this.Logger.OnCreateTimer(info);
+            this.Runtime.LogWriter.OnCreateTimer(info);
             this.Timers.Add(info, timer);
             return info;
         }
@@ -1451,7 +1451,7 @@ namespace Microsoft.Coyote
                 this.Assert(info.OwnerId == this.Id, "Timer '{0}' is already disposed.", info);
             }
 
-            this.Logger.OnStopTimer(info);
+            this.Runtime.LogWriter.OnStopTimer(info);
             this.Timers.Remove(info);
             timer.Dispose();
         }
@@ -1612,7 +1612,7 @@ namespace Microsoft.Coyote
         /// <returns>False if the exception should continue to get thrown, true if the machine should gracefully halt.</returns>
         private bool OnUnhandledEventExceptionHandler(string methodName, UnhandledEventException ex)
         {
-            this.Logger.OnMachineExceptionThrown(this.Id, ex.CurrentStateName, methodName, ex);
+            this.Runtime.LogWriter.OnMachineExceptionThrown(this.Id, ex.CurrentStateName, methodName, ex);
 
             var ret = this.OnException(methodName, ex);
             this.OnExceptionRequestedGracefulHalt = false;
@@ -1620,7 +1620,7 @@ namespace Microsoft.Coyote
             {
                 case OnExceptionOutcome.HaltMachine:
                 case OnExceptionOutcome.HandledException:
-                    this.Logger.OnMachineExceptionHandled(this.Id, ex.CurrentStateName, methodName, ex);
+                    this.Runtime.LogWriter.OnMachineExceptionHandled(this.Id, ex.CurrentStateName, methodName, ex);
                     this.OnExceptionRequestedGracefulHalt = true;
                     return true;
                 case OnExceptionOutcome.ThrowException:
@@ -1644,7 +1644,7 @@ namespace Microsoft.Coyote
                 return false;
             }
 
-            this.Logger.OnMachineExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
+            this.Runtime.LogWriter.OnMachineExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
 
             var ret = this.OnException(methodName, ex);
             this.OnExceptionRequestedGracefulHalt = false;
@@ -1654,7 +1654,7 @@ namespace Microsoft.Coyote
                 case OnExceptionOutcome.ThrowException:
                     return false;
                 case OnExceptionOutcome.HandledException:
-                    this.Logger.OnMachineExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
+                    this.Runtime.LogWriter.OnMachineExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
                     return true;
                 case OnExceptionOutcome.HaltMachine:
                     this.OnExceptionRequestedGracefulHalt = true;
@@ -1729,7 +1729,7 @@ namespace Microsoft.Coyote
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
 
-            this.Logger.OnHalt(this.Id, this.Inbox.Size);
+            this.Runtime.LogWriter.OnHalt(this.Id, this.Inbox.Size);
             this.Runtime.NotifyHalted(this);
 
             // Dispose any held resources.

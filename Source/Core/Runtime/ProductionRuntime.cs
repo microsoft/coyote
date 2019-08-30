@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.Runtime
             Machine creator, Guid opGroupId)
         {
             Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
-            this.Logger.OnCreateMachine(machine.Id, creator?.Id);
+            this.LogWriter.OnCreateMachine(machine.Id, creator?.Id);
             this.RunMachineEventHandler(machine, e, true);
             return machine.Id;
         }
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.Runtime
             Machine creator, Guid opGroupId)
         {
             Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
-            this.Logger.OnCreateMachine(machine.Id, creator?.Id);
+            this.LogWriter.OnCreateMachine(machine.Id, creator?.Id);
             await this.RunMachineEventHandlerAsync(machine, e, true);
             return machine.Id;
         }
@@ -301,13 +301,13 @@ namespace Microsoft.Coyote.Runtime
             targetMachine = this.GetMachineFromId<Machine>(target);
             if (targetMachine is null)
             {
-                this.Logger.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
+                this.LogWriter.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
                     e.GetType().FullName, opGroupId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, target);
                 return EnqueueStatus.Dropped;
             }
 
-            this.Logger.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
+            this.LogWriter.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
                 e.GetType().FullName, opGroupId, isTargetHalted: false);
 
             EnqueueStatus enqueueStatus = targetMachine.Enqueue(e, opGroupId, null);
@@ -411,7 +411,7 @@ namespace Microsoft.Coyote.Runtime
                 this.Monitors.Add(monitor);
             }
 
-            this.Logger.OnCreateMonitor(type.FullName, monitor.Id);
+            this.LogWriter.OnCreateMonitor(type.FullName, monitor.Id);
 
             monitor.GotoStartState();
         }
@@ -464,7 +464,7 @@ namespace Microsoft.Coyote.Runtime
                 result = true;
             }
 
-            this.Logger.OnRandom(machine?.Id, result);
+            this.LogWriter.OnRandom(machine?.Id, result);
 
             return result;
         }
@@ -487,7 +487,7 @@ namespace Microsoft.Coyote.Runtime
             Random random = new Random(DateTime.Now.Millisecond);
             var result = random.Next(maxValue);
 
-            this.Logger.OnRandom(machine?.Id, result);
+            this.LogWriter.OnRandom(machine?.Id, result);
 
             return result;
         }
@@ -499,7 +499,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMachineState(machine.Id, machine.CurrentStateName, isEntry: true);
+                this.LogWriter.OnMachineState(machine.Id, machine.CurrentStateName, isEntry: true);
             }
         }
 
@@ -511,7 +511,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.Logger.OnMonitorState(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
+                this.LogWriter.OnMonitorState(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
             }
         }
 
@@ -522,7 +522,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMachineState(machine.Id, machine.CurrentStateName, isEntry: false);
+                this.LogWriter.OnMachineState(machine.Id, machine.CurrentStateName, isEntry: false);
             }
         }
 
@@ -534,7 +534,7 @@ namespace Microsoft.Coyote.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.Logger.OnMonitorState(monitor.GetType().FullName, monitor.Id, monitorState, false, monitor.GetHotState());
+                this.LogWriter.OnMonitorState(monitor.GetType().FullName, monitor.Id, monitorState, false, monitor.GetHotState());
             }
         }
 
@@ -545,7 +545,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMachineAction(machine.Id, machine.CurrentStateName, action.Name);
+                this.LogWriter.OnMachineAction(machine.Id, machine.CurrentStateName, action.Name);
             }
         }
 
@@ -556,7 +556,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMachineAction(machine.Id, machine.CurrentStateName, action.Name);
+                this.LogWriter.OnMachineAction(machine.Id, machine.CurrentStateName, action.Name);
             }
         }
 
@@ -567,7 +567,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMachineAction(machine.Id, machine.CurrentStateName, action.Name);
+                this.LogWriter.OnMachineAction(machine.Id, machine.CurrentStateName, action.Name);
             }
         }
 
@@ -578,7 +578,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMonitorAction(monitor.GetType().FullName, monitor.Id, action.Name, monitor.CurrentStateName);
+                this.LogWriter.OnMonitorAction(monitor.GetType().FullName, monitor.Id, action.Name, monitor.CurrentStateName);
             }
         }
 
@@ -589,7 +589,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMachineEvent(machine.Id, machine.CurrentStateName, e.GetType().FullName);
+                this.LogWriter.OnMachineEvent(machine.Id, machine.CurrentStateName, e.GetType().FullName);
             }
         }
 
@@ -600,7 +600,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnMonitorEvent(monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
+                this.LogWriter.OnMonitorEvent(monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
                     e.GetType().FullName, isProcessing: false);
             }
         }
@@ -612,7 +612,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.Logger.OnDequeue(machine.Id, machine.CurrentStateName, e.GetType().FullName);
+                this.LogWriter.OnDequeue(machine.Id, machine.CurrentStateName, e.GetType().FullName);
             }
         }
 
@@ -626,11 +626,11 @@ namespace Microsoft.Coyote.Runtime
                 var eventWaitTypesArray = eventTypes.ToArray();
                 if (eventWaitTypesArray.Length == 1)
                 {
-                    this.Logger.OnWait(machine.Id, machine.CurrentStateName, eventWaitTypesArray[0]);
+                    this.LogWriter.OnWait(machine.Id, machine.CurrentStateName, eventWaitTypesArray[0]);
                 }
                 else
                 {
-                    this.Logger.OnWait(machine.Id, machine.CurrentStateName, eventWaitTypesArray);
+                    this.LogWriter.OnWait(machine.Id, machine.CurrentStateName, eventWaitTypesArray);
                 }
             }
         }
@@ -640,7 +640,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal override void NotifyReceivedEvent(Machine machine, Event e, EventInfo eventInfo)
         {
-            this.Logger.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: true);
+            this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: true);
         }
 
         /// <summary>
@@ -649,7 +649,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal override void NotifyReceivedEventWithoutWaiting(Machine machine, Event e, EventInfo eventInfo)
         {
-            this.Logger.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: false);
+            this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: false);
         }
 
         /// <summary>

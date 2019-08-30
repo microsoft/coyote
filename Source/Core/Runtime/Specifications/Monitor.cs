@@ -235,7 +235,7 @@ namespace Microsoft.Coyote
         /// <param name="e">The event to monitor.</param>
         internal void MonitorEvent(Event e)
         {
-            this.Runtime.Logger.OnMonitorEvent(this.GetType().Name, this.Id, this.CurrentStateName,
+            this.Runtime.LogWriter.OnMonitorEvent(this.GetType().Name, this.Id, this.CurrentStateName,
                 e.GetType().FullName, isProcessing: true);
             this.HandleEvent(e);
         }

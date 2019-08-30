@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// The installed logger.
         /// </summary>
-        protected IO.ILogger Logger;
+        protected ILogger Logger;
 
         /// <summary>
         /// The bug-finding scheduling strategy.
@@ -126,104 +126,6 @@ namespace Microsoft.Coyote.TestingServices
         /// gathered during testing.
         /// </summary>
         public TestReport TestReport { get; set; }
-
-        /// <summary>
-        /// Runs the Coyote testing engine.
-        /// </summary>
-        public ITestingEngine Run()
-        {
-            try
-            {
-                Task task = this.CreateTestingTask();
-
-                if (this.Configuration.AttachDebugger)
-                {
-                    System.Diagnostics.Debugger.Launch();
-                }
-
-                if (this.Configuration.Timeout > 0)
-                {
-                    this.CancellationTokenSource.CancelAfter(
-                        this.Configuration.Timeout * 1000);
-                }
-
-                this.Profiler.StartMeasuringExecutionTime();
-
-                task.Start();
-                task.Wait(this.CancellationTokenSource.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                if (this.CancellationTokenSource.IsCancellationRequested)
-                {
-                    this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} timed out.");
-                }
-            }
-            catch (AggregateException aex)
-            {
-                aex.Handle((ex) =>
-                {
-                    Debug.WriteLine(ex.Message);
-                    Debug.WriteLine(ex.StackTrace);
-                    return true;
-                });
-
-                if (aex.InnerException is FileNotFoundException)
-                {
-                    Error.ReportAndExit($"{aex.InnerException.Message}");
-                }
-
-                Error.ReportAndExit("Exception thrown during testing outside the context of a " +
-                    "machine, possibly in a test method. Please use " +
-                    "/debug /v:2 to print more information.");
-            }
-            catch (Exception ex)
-            {
-                this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} failed due to an internal error: {ex}");
-                this.TestReport.InternalErrors.Add(ex.ToString());
-            }
-            finally
-            {
-                this.Profiler.StopMeasuringExecutionTime();
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Creates a new testing task.
-        /// </summary>
-        protected abstract Task CreateTestingTask();
-
-        /// <summary>
-        /// Stops the Coyote testing engine.
-        /// </summary>
-        public void Stop()
-        {
-            this.CancellationTokenSource.Cancel();
-        }
-
-        /// <summary>
-        /// Tries to emit the testing traces, if any.
-        /// </summary>
-        public virtual void TryEmitTraces(string directory, string file)
-        {
-            // No-op, must be implemented in subclass.
-        }
-
-        /// <summary>
-        /// Registers a callback to invoke at the end of each iteration. The callback takes as
-        /// a parameter an integer representing the current iteration.
-        /// </summary>
-        public void RegisterPerIterationCallBack(Action<int> callback)
-        {
-            this.PerIterationCallbacks.Add(callback);
-        }
-
-        /// <summary>
-        /// Returns a report with the testing results.
-        /// </summary>
-        public abstract string Report();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractTestingEngine"/> class.
@@ -320,7 +222,7 @@ namespace Microsoft.Coyote.TestingServices
         private void Initialize(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.Logger = new ConsoleLogger(true);
+            this.Logger = new ConsoleLogger();
             this.ErrorReporter = new ErrorReporter(this.Configuration, this.Logger);
             this.Profiler = new Profiler();
 
@@ -411,6 +313,104 @@ namespace Microsoft.Coyote.TestingServices
                 ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
                 this.Strategy = new ReplayStrategy(this.Configuration, schedule, isFair, this.Strategy);
             }
+        }
+
+        /// <summary>
+        /// Runs the testing engine.
+        /// </summary>
+        public ITestingEngine Run()
+        {
+            try
+            {
+                Task task = this.CreateTestingTask();
+
+                if (this.Configuration.AttachDebugger)
+                {
+                    System.Diagnostics.Debugger.Launch();
+                }
+
+                if (this.Configuration.Timeout > 0)
+                {
+                    this.CancellationTokenSource.CancelAfter(
+                        this.Configuration.Timeout * 1000);
+                }
+
+                this.Profiler.StartMeasuringExecutionTime();
+
+                task.Start();
+                task.Wait(this.CancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                if (this.CancellationTokenSource.IsCancellationRequested)
+                {
+                    this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} timed out.");
+                }
+            }
+            catch (AggregateException aex)
+            {
+                aex.Handle((ex) =>
+                {
+                    Debug.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.StackTrace);
+                    return true;
+                });
+
+                if (aex.InnerException is FileNotFoundException)
+                {
+                    Error.ReportAndExit($"{aex.InnerException.Message}");
+                }
+
+                Error.ReportAndExit("Exception thrown during testing outside the context of a " +
+                    "machine, possibly in a test method. Please use " +
+                    "/debug /v:2 to print more information.");
+            }
+            catch (Exception ex)
+            {
+                this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} failed due to an internal error: {ex}");
+                this.TestReport.InternalErrors.Add(ex.ToString());
+            }
+            finally
+            {
+                this.Profiler.StopMeasuringExecutionTime();
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Creates a new testing task.
+        /// </summary>
+        protected abstract Task CreateTestingTask();
+
+        /// <summary>
+        /// Stops the testing engine.
+        /// </summary>
+        public void Stop()
+        {
+            this.CancellationTokenSource.Cancel();
+        }
+
+        /// <summary>
+        /// Returns a report with the testing results.
+        /// </summary>
+        public abstract string GetReport();
+
+        /// <summary>
+        /// Tries to emit the testing traces, if any.
+        /// </summary>
+        public virtual void TryEmitTraces(string directory, string file)
+        {
+            // No-op, must be implemented in subclass.
+        }
+
+        /// <summary>
+        /// Registers a callback to invoke at the end of each iteration. The callback takes as
+        /// a parameter an integer representing the current iteration.
+        /// </summary>
+        public void RegisterPerIterationCallBack(Action<int> callback)
+        {
+            this.PerIterationCallbacks.Add(callback);
         }
 
         /// <summary>

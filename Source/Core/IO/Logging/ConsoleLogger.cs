@@ -10,21 +10,25 @@ namespace Microsoft.Coyote.IO
     /// <summary>
     /// Logger that writes text to the console.
     /// </summary>
-    public sealed class ConsoleLogger : MachineLogger
+    public sealed class ConsoleLogger : ILogger
     {
+        /// <summary>
+        /// If true, then messages are logged. The default value is true.
+        /// </summary>
+        public bool IsVerbose { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleLogger"/> class.
         /// </summary>
-        /// <param name="isVerbose">If true, then messages are logged.</param>
-        public ConsoleLogger(bool isVerbose)
-            : base(isVerbose)
+        public ConsoleLogger()
         {
+            this.IsVerbose = true;
         }
 
         /// <summary>
         /// Writes the specified string value.
         /// </summary>
-        public override void Write(string value)
+        public void Write(string value)
         {
             if (this.IsVerbose)
             {
@@ -35,7 +39,7 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Writes the text representation of the specified argument.
         /// </summary>
-        public override void Write(string format, object arg0)
+        public void Write(string format, object arg0)
         {
             if (this.IsVerbose)
             {
@@ -46,7 +50,7 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Writes the text representation of the specified arguments.
         /// </summary>
-        public override void Write(string format, object arg0, object arg1)
+        public void Write(string format, object arg0, object arg1)
         {
             if (this.IsVerbose)
             {
@@ -57,7 +61,7 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Writes the text representation of the specified arguments.
         /// </summary>
-        public override void Write(string format, object arg0, object arg1, object arg2)
+        public void Write(string format, object arg0, object arg1, object arg2)
         {
             if (this.IsVerbose)
             {
@@ -68,7 +72,7 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Writes the text representation of the specified array of objects.
         /// </summary>
-        public override void Write(string format, params object[] args)
+        public void Write(string format, params object[] args)
         {
             if (this.IsVerbose)
             {
@@ -80,7 +84,7 @@ namespace Microsoft.Coyote.IO
         /// Writes the specified string value, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string value)
+        public void WriteLine(string value)
         {
             if (this.IsVerbose)
             {
@@ -92,7 +96,7 @@ namespace Microsoft.Coyote.IO
         /// Writes the text representation of the specified argument, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string format, object arg0)
+        public void WriteLine(string format, object arg0)
         {
             if (this.IsVerbose)
             {
@@ -104,7 +108,7 @@ namespace Microsoft.Coyote.IO
         /// Writes the text representation of the specified arguments, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string format, object arg0, object arg1)
+        public void WriteLine(string format, object arg0, object arg1)
         {
             if (this.IsVerbose)
             {
@@ -116,7 +120,7 @@ namespace Microsoft.Coyote.IO
         /// Writes the text representation of the specified arguments, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string format, object arg0, object arg1, object arg2)
+        public void WriteLine(string format, object arg0, object arg1, object arg2)
         {
             if (this.IsVerbose)
             {
@@ -128,7 +132,7 @@ namespace Microsoft.Coyote.IO
         /// Writes the text representation of the specified array of objects,
         /// followed by the current line terminator.
         /// </summary>
-        public override void WriteLine(string format, params object[] args)
+        public void WriteLine(string format, params object[] args)
         {
             if (this.IsVerbose)
             {
@@ -139,7 +143,7 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Disposes the logger.
         /// </summary>
-        public override void Dispose()
+        public void Dispose()
         {
         }
     }

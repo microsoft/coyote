@@ -36,7 +36,7 @@ if ($null -eq $versions)
 {
     Write-Comment -text "The global.json file is pointing to version: $pattern but no matching version was found in $sdkpath." -color "yellow"
     Write-Comment -text "Please install dotnet sdk version $pattern from https://dotnet.microsoft.com/download/dotnet-core." -color "yellow"
-    exit
+    exit 1
 }
 else
 {

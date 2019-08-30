@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Runtime.Logger.OnEnqueue(this.Machine.Id, e.GetType().FullName);
+            this.Runtime.LogWriter.OnEnqueue(this.Machine.Id, e.GetType().FullName);
 
         /// <summary>
         /// Notifies the machine that an event has been raised.

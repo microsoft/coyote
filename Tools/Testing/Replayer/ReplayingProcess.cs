@@ -37,7 +37,7 @@ namespace Microsoft.Coyote
             ITestingEngine engine = TestingEngineFactory.CreateReplayEngine(this.Configuration);
 
             engine.Run();
-            Console.WriteLine(engine.Report());
+            Console.WriteLine(engine.GetReport());
         }
 
         /// <summary>

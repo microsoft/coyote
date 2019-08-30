@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.Tests.Common
     /// <summary>
     /// Logger that writes to the test output.
     /// </summary>
-    public sealed class TestOutputLogger : MachineLogger
+    public sealed class TestOutputLogger : ILogger
     {
         /// <summary>
         /// Underlying test output.
@@ -19,21 +19,25 @@ namespace Microsoft.Coyote.Tests.Common
         private readonly ITestOutputHelper TestOutput;
 
         /// <summary>
+        /// If true, then messages are logged. The default value is false.
+        /// </summary>
+        public bool IsVerbose { get; set; } = false;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TestOutputLogger"/> class.
         /// </summary>
         /// <param name="output">The test output helper.</param>
         /// <param name="isVerbose">If true, then messages are logged. The default value is false.</param>
         public TestOutputLogger(ITestOutputHelper output, bool isVerbose = false)
-            : base(isVerbose)
         {
             this.TestOutput = output;
+            this.IsVerbose = isVerbose;
         }
 
         /// <summary>
         /// Writes the specified string value.
         /// </summary>
-        /// <param name="value">Text</param>
-        public override void Write(string value)
+        public void Write(string value)
         {
             if (this.IsVerbose)
             {
@@ -44,7 +48,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// <summary>
         /// Writes the text representation of the specified argument.
         /// </summary>
-        public override void Write(string format, object arg0)
+        public void Write(string format, object arg0)
         {
             if (this.IsVerbose)
             {
@@ -55,7 +59,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// <summary>
         /// Writes the text representation of the specified arguments.
         /// </summary>
-        public override void Write(string format, object arg0, object arg1)
+        public void Write(string format, object arg0, object arg1)
         {
             if (this.IsVerbose)
             {
@@ -66,7 +70,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// <summary>
         /// Writes the text representation of the specified arguments.
         /// </summary>
-        public override void Write(string format, object arg0, object arg1, object arg2)
+        public void Write(string format, object arg0, object arg1, object arg2)
         {
             if (this.IsVerbose)
             {
@@ -79,7 +83,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// </summary>
         /// <param name="format">Text</param>
         /// <param name="args">Arguments</param>
-        public override void Write(string format, params object[] args)
+        public void Write(string format, params object[] args)
         {
             if (this.IsVerbose)
             {
@@ -92,7 +96,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// current line terminator.
         /// </summary>
         /// <param name="value">Text</param>
-        public override void WriteLine(string value)
+        public void WriteLine(string value)
         {
             if (this.IsVerbose)
             {
@@ -104,7 +108,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// Writes the text representation of the specified argument, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string format, object arg0)
+        public void WriteLine(string format, object arg0)
         {
             if (this.IsVerbose)
             {
@@ -116,7 +120,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// Writes the text representation of the specified arguments, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string format, object arg0, object arg1)
+        public void WriteLine(string format, object arg0, object arg1)
         {
             if (this.IsVerbose)
             {
@@ -128,7 +132,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// Writes the text representation of the specified arguments, followed by the
         /// current line terminator.
         /// </summary>
-        public override void WriteLine(string format, object arg0, object arg1, object arg2)
+        public void WriteLine(string format, object arg0, object arg1, object arg2)
         {
             if (this.IsVerbose)
             {
@@ -142,7 +146,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// </summary>
         /// <param name="format">Text</param>
         /// <param name="args">Arguments</param>
-        public override void WriteLine(string format, params object[] args)
+        public void WriteLine(string format, params object[] args)
         {
             if (this.IsVerbose)
             {
@@ -161,7 +165,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// <summary>
         /// Disposes the logger.
         /// </summary>
-        public override void Dispose()
+        public void Dispose()
         {
         }
     }

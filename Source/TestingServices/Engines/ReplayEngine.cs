@@ -83,22 +83,6 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Returns a report with the testing results.
-        /// </summary>
-        public override string Report()
-        {
-            StringBuilder report = new StringBuilder();
-
-            report.AppendFormat("... Reproduced {0} bug{1}.", this.TestReport.NumOfFoundBugs,
-                this.TestReport.NumOfFoundBugs == 1 ? string.Empty : "s");
-            report.AppendLine();
-
-            report.Append($"... Elapsed {this.Profiler.Results()} sec.");
-
-            return report.ToString();
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ReplayEngine"/> class.
         /// </summary>
         private ReplayEngine(Configuration configuration)
@@ -172,10 +156,10 @@ namespace Microsoft.Coyote.TestingServices
                     // the standard output and error streams into the runtime logger.
                     if (!this.Configuration.IsVerbose)
                     {
-                        runtimeLogger = new InMemoryLogger(true);
+                        runtimeLogger = new InMemoryLogger();
                         runtime.SetLogger(runtimeLogger);
 
-                        var writer = new LogWriter(new DisposingLogger());
+                        var writer = new LogWriter(new NulLogger());
                         Console.SetOut(writer);
                         Console.SetError(writer);
                     }
@@ -246,6 +230,22 @@ namespace Microsoft.Coyote.TestingServices
                     runtime?.Dispose();
                 }
             }, this.CancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        /// Returns a report with the testing results.
+        /// </summary>
+        public override string GetReport()
+        {
+            StringBuilder report = new StringBuilder();
+
+            report.AppendFormat("... Reproduced {0} bug{1}.", this.TestReport.NumOfFoundBugs,
+                this.TestReport.NumOfFoundBugs == 1 ? string.Empty : "s");
+            report.AppendLine();
+
+            report.Append($"... Elapsed {this.Profiler.Results()} sec.");
+
+            return report.ToString();
         }
     }
 }

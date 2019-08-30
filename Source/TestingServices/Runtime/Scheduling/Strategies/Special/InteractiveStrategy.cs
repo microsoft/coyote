@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// </summary>
         public InteractiveStrategy(Configuration configuration, IO.ILogger logger)
         {
-            this.Logger = logger ?? new ConsoleLogger(true);
+            this.Logger = logger ?? new ConsoleLogger();
             this.Configuration = configuration;
             this.InputCache = new List<string>();
             this.ExploredSteps = 0;

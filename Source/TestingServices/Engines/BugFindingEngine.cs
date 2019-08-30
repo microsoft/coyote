@@ -27,14 +27,14 @@ namespace Microsoft.Coyote.TestingServices
     internal sealed class BugFindingEngine : AbstractTestingEngine
     {
         /// <summary>
-        /// The readable trace, if any.
-        /// </summary>
-        private string ReadableTrace;
-
-        /// <summary>
         /// The bug trace, if any.
         /// </summary>
         private BugTrace BugTrace;
+
+        /// <summary>
+        /// The readable trace, if any.
+        /// </summary>
+        internal string ReadableTrace { get; private set; }
 
         /// <summary>
         /// The reproducable trace, if any.
@@ -71,57 +71,6 @@ namespace Microsoft.Coyote.TestingServices
         internal static BugFindingEngine Create(Configuration configuration, Assembly assembly)
         {
             return new BugFindingEngine(configuration, assembly);
-        }
-
-        /// <summary>
-        /// Tries to emit the testing traces, if any.
-        /// </summary>
-        public override void TryEmitTraces(string directory, string file)
-        {
-            // Emits the human readable trace, if it exists.
-            if (!string.IsNullOrEmpty(this.ReadableTrace))
-            {
-                string[] readableTraces = Directory.GetFiles(directory, file + "_*.txt").
-                    Where(path => new Regex(@"^.*_[0-9]+.txt$").IsMatch(path)).ToArray();
-                string readableTracePath = directory + file + "_" + readableTraces.Length + ".txt";
-
-                this.Logger.WriteLine($"..... Writing {readableTracePath}");
-                File.WriteAllText(readableTracePath, this.ReadableTrace);
-            }
-
-            // Emits the bug trace, if it exists.
-            if (this.BugTrace != null)
-            {
-                string[] bugTraces = Directory.GetFiles(directory, file + "_*.pstrace");
-                string bugTracePath = directory + file + "_" + bugTraces.Length + ".pstrace";
-
-                using (FileStream stream = File.Open(bugTracePath, FileMode.Create))
-                {
-                    DataContractSerializer serializer = new DataContractSerializer(typeof(BugTrace));
-                    this.Logger.WriteLine($"..... Writing {bugTracePath}");
-                    serializer.WriteObject(stream, this.BugTrace);
-                }
-            }
-
-            // Emits the reproducable trace, if it exists.
-            if (!string.IsNullOrEmpty(this.ReproducableTrace))
-            {
-                string[] reproTraces = Directory.GetFiles(directory, file + "_*.schedule");
-                string reproTracePath = directory + file + "_" + reproTraces.Length + ".schedule";
-
-                this.Logger.WriteLine($"..... Writing {reproTracePath}");
-                File.WriteAllText(reproTracePath, this.ReproducableTrace);
-            }
-
-            this.Logger.WriteLine($"... Elapsed {this.Profiler.Results()} sec.");
-        }
-
-        /// <summary>
-        /// Returns a report with the testing results.
-        /// </summary>
-        public override string Report()
-        {
-            return this.TestReport.GetText(this.Configuration, "...");
         }
 
         /// <summary>
@@ -306,10 +255,10 @@ namespace Microsoft.Coyote.TestingServices
                 // the standard output and error streams.
                 if (!this.Configuration.IsVerbose)
                 {
-                    runtimeLogger = new InMemoryLogger(true);
+                    runtimeLogger = new InMemoryLogger();
                     runtime.SetLogger(runtimeLogger);
 
-                    var writer = new LogWriter(new DisposingLogger());
+                    var writer = new LogWriter(new NulLogger());
                     Console.SetOut(writer);
                     Console.SetError(writer);
                 }
@@ -386,6 +335,57 @@ namespace Microsoft.Coyote.TestingServices
                 runtimeLogger?.Dispose();
                 runtime?.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Returns a report with the testing results.
+        /// </summary>
+        public override string GetReport()
+        {
+            return this.TestReport.GetText(this.Configuration, "...");
+        }
+
+        /// <summary>
+        /// Tries to emit the testing traces, if any.
+        /// </summary>
+        public override void TryEmitTraces(string directory, string file)
+        {
+            // Emits the human readable trace, if it exists.
+            if (!string.IsNullOrEmpty(this.ReadableTrace))
+            {
+                string[] readableTraces = Directory.GetFiles(directory, file + "_*.txt").
+                    Where(path => new Regex(@"^.*_[0-9]+.txt$").IsMatch(path)).ToArray();
+                string readableTracePath = directory + file + "_" + readableTraces.Length + ".txt";
+
+                this.Logger.WriteLine($"..... Writing {readableTracePath}");
+                File.WriteAllText(readableTracePath, this.ReadableTrace);
+            }
+
+            // Emits the bug trace, if it exists.
+            if (this.BugTrace != null)
+            {
+                string[] bugTraces = Directory.GetFiles(directory, file + "_*.pstrace");
+                string bugTracePath = directory + file + "_" + bugTraces.Length + ".pstrace";
+
+                using (FileStream stream = File.Open(bugTracePath, FileMode.Create))
+                {
+                    DataContractSerializer serializer = new DataContractSerializer(typeof(BugTrace));
+                    this.Logger.WriteLine($"..... Writing {bugTracePath}");
+                    serializer.WriteObject(stream, this.BugTrace);
+                }
+            }
+
+            // Emits the reproducable trace, if it exists.
+            if (!string.IsNullOrEmpty(this.ReproducableTrace))
+            {
+                string[] reproTraces = Directory.GetFiles(directory, file + "_*.schedule");
+                string reproTracePath = directory + file + "_" + reproTraces.Length + ".schedule";
+
+                this.Logger.WriteLine($"..... Writing {reproTracePath}");
+                File.WriteAllText(reproTracePath, this.ReproducableTrace);
+            }
+
+            this.Logger.WriteLine($"... Elapsed {this.Profiler.Results()} sec.");
         }
 
         /// <summary>

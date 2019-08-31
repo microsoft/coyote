@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\build.props" />
+  <PropertyGroup>
+    <Description>The BoundedAsync sample.</Description>
+    <AssemblyName>BoundedAsync</AssemblyName>
+    <RootNamespace>BoundedAsync</RootNamespace>
+  </PropertyGroup>
+</Project>

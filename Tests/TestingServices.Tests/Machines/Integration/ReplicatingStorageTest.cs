@@ -858,7 +858,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestReplicatingStorageLivenessBug()
         {
             var configuration = GetConfiguration();
@@ -878,7 +878,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestReplicatingStorageLivenessBugWithCycleReplay()
         {
             var configuration = GetConfiguration();

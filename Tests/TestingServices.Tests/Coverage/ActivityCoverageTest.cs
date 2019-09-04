@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         [Fact(Timeout=5000)]
         public void TestMachineStateTransitionActivityCoverage()
         {
-            var configuration = Configuration.Create().WithVerbosityEnabled();
+            var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
             ITestingEngine testingEngine = this.Test(r =>
@@ -108,7 +108,7 @@ Machine event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestMachineRaiseEventActivityCoverage()
         {
-            var configuration = Configuration.Create().WithVerbosityEnabled();
+            var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
             ITestingEngine testingEngine = this.Test(r =>
@@ -179,7 +179,7 @@ Machine event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestMachineSendEventActivityCoverage()
         {
-            var configuration = Configuration.Create().WithVerbosityEnabled();
+            var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
             ITestingEngine testingEngine = this.Test(r =>
@@ -237,7 +237,7 @@ Machine event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestCoverageOnMultipleTests()
         {
-            var configuration = Configuration.Create().WithVerbosityEnabled();
+            var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
             ITestingEngine testingEngine1 = this.Test(r =>
@@ -312,7 +312,7 @@ Machine event coverage: 100.0%
         [Fact(Timeout = 5000)]
         public void TestUncoveredEvents()
         {
-            var configuration = Configuration.Create().WithVerbosityEnabled();
+            var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
             ITestingEngine testingEngine = this.Test(r =>

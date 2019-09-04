@@ -5,62 +5,55 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices
 {
     /// <summary>
-    /// The Coyote testing engine factory.
+    /// The testing engine factory.
     /// </summary>
     public static class TestingEngineFactory
     {
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        public static ITestingEngine CreateBugFindingEngine(Configuration configuration)
-        {
-            return BugFindingEngine.Create(configuration);
-        }
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration) =>
+            BugFindingEngine.Create(configuration);
 
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        public static ITestingEngine CreateBugFindingEngine(
-            Configuration configuration, Assembly assembly)
-        {
-            return BugFindingEngine.Create(configuration, assembly);
-        }
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Assembly assembly) =>
+            BugFindingEngine.Create(configuration, assembly);
 
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        public static ITestingEngine CreateBugFindingEngine(
-            Configuration configuration, Action<ICoyoteRuntime> action)
-        {
-            return BugFindingEngine.Create(configuration, action);
-        }
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Action test) =>
+            BugFindingEngine.Create(configuration, test);
 
         /// <summary>
         /// Creates a new replay engine.
         /// </summary>
-        public static ITestingEngine CreateReplayEngine(Configuration configuration)
-        {
-            return ReplayEngine.Create(configuration);
-        }
+        public static ITestingEngine CreateReplayEngine(Configuration configuration) =>
+            ReplayEngine.Create(configuration);
 
         /// <summary>
         /// Creates a new replay engine.
         /// </summary>
-        public static ITestingEngine CreateReplayEngine(Configuration configuration, Assembly assembly)
-        {
-            return ReplayEngine.Create(configuration, assembly);
-        }
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Assembly assembly) =>
+            ReplayEngine.Create(configuration, assembly);
 
         /// <summary>
         /// Creates a new replay engine.
         /// </summary>
-        public static ITestingEngine CreateReplayEngine(Configuration configuration, Action<ICoyoteRuntime> action)
-        {
-            return ReplayEngine.Create(configuration, action);
-        }
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Action test) =>
+            ReplayEngine.Create(configuration, test);
+
+        /// <summary>
+        /// Creates a new replay engine.
+        /// </summary>
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<Task> test) =>
+            ReplayEngine.Create(configuration, test);
     }
 }

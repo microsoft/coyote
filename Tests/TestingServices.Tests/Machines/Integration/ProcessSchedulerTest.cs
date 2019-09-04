@@ -618,8 +618,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Theory(Timeout = 5000)]
-        // [ClassData(typeof(SeedGenerator))]
+        [Theory(Timeout = 10000)]
         [InlineData(3163)]
         public void TestProcessSchedulerLivenessBugWithCycleReplay(int seed)
         {

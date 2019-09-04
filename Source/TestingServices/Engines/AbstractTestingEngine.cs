@@ -66,14 +66,9 @@ namespace Microsoft.Coyote.TestingServices
         internal MethodInfo TestIterationDisposeMethod;
 
         /// <summary>
-        /// The action to test.
+        /// The method to test.
         /// </summary>
-        internal Action<ICoyoteRuntime> TestAction;
-
-        /// <summary>
-        /// The function to test.
-        /// </summary>
-        internal Func<ICoyoteRuntime, Task> TestFunction;
+        internal Delegate TestMethod;
 
         /// <summary>
         /// The name of the test.
@@ -204,16 +199,10 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractTestingEngine"/> class.
         /// </summary>
-        protected AbstractTestingEngine(Configuration configuration, Action<ICoyoteRuntime> action)
+        protected AbstractTestingEngine(Configuration configuration, Delegate testMethod)
         {
             this.Initialize(configuration);
-            this.TestAction = action;
-        }
-
-        protected AbstractTestingEngine(Configuration configuration, Func<ICoyoteRuntime, Task> function)
-        {
-            this.Initialize(configuration);
-            this.TestFunction = function;
+            this.TestMethod = testMethod;
         }
 
         /// <summary>
@@ -275,20 +264,10 @@ namespace Microsoft.Coyote.TestingServices
             else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.DFS)
             {
                 this.Strategy = new DFSStrategy(this.Configuration.MaxUnfairSchedulingSteps);
-                this.Configuration.PerformFullExploration = false;
             }
             else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.IDDFS)
             {
                 this.Strategy = new IterativeDeepeningDFSStrategy(this.Configuration.MaxUnfairSchedulingSteps);
-                this.Configuration.PerformFullExploration = false;
-            }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.DPOR)
-            {
-                this.Strategy = new DPORStrategy(null, -1, this.Configuration.MaxUnfairSchedulingSteps);
-            }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.RDPOR)
-            {
-                this.Strategy = new DPORStrategy(this.RandomNumberGenerator, -1, this.Configuration.MaxFairSchedulingSteps);
             }
             else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.DelayBounding)
             {
@@ -499,15 +478,16 @@ namespace Microsoft.Coyote.TestingServices
                 Error.ReportAndExit(msg);
             }
 
-            var testMethod = filteredTestMethods[0];
+            MethodInfo testMethod = filteredTestMethods[0];
+            ParameterInfo[] testParams = testMethod.GetParameters();
 
             bool hasExpectedReturnType = (testMethod.ReturnType == typeof(void) &&
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) ||
                 (testMethod.ReturnType == typeof(Task) &&
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
             bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
-                testMethod.GetParameters().Length is 1 &&
-                testMethod.GetParameters()[0].ParameterType == typeof(ICoyoteRuntime);
+                testParams.Length is 1 &&
+                testParams[0].ParameterType == typeof(ICoyoteRuntime);
 
             if (testMethod.IsAbstract || testMethod.IsVirtual || testMethod.IsConstructor ||
                 !testMethod.IsPublic || !testMethod.IsStatic ||
@@ -524,11 +504,11 @@ namespace Microsoft.Coyote.TestingServices
 
             if (testMethod.ReturnType == typeof(void))
             {
-                this.TestAction = (Action<ICoyoteRuntime>)Delegate.CreateDelegate(typeof(Action<ICoyoteRuntime>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Action<ICoyoteRuntime>), testMethod);
             }
             else
             {
-                this.TestFunction = (Func<ICoyoteRuntime, Task>)Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testMethod);
             }
 
             this.TestName = $"{testMethod.DeclaringType}.{testMethod.Name}";

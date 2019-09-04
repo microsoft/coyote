@@ -95,7 +95,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Theory(Timeout = 5000)]
-        // [ClassData(typeof(SeedGenerator))]
         [InlineData(906)]
         public void TestCycleDetectionRandomChoiceNoBug(int seed)
         {
@@ -114,7 +113,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Theory(Timeout = 5000)]
-        // [ClassData(typeof(SeedGenerator))]
         [InlineData(906)]
         public void TestCycleDetectionRandomChoiceBug(int seed)
         {

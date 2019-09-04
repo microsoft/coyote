@@ -22,13 +22,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
         [Fact(Timeout=5000)]
         public void TestCustomLogWriter()
         {
-            Configuration configuration = GetConfiguration().WithStrategy(SchedulingStrategy.DFS);
-            BugFindingEngine engine = BugFindingEngine.Create(configuration,
-                r =>
-                {
-                    r.SetLogWriter(new CustomLogWriter());
-                    r.CreateMachine(typeof(M));
-                });
+            Action<ICoyoteRuntime> test = r =>
+            {
+                r.SetLogWriter(new CustomLogWriter());
+                r.CreateMachine(typeof(M));
+            };
+
+            BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
 
             try
             {

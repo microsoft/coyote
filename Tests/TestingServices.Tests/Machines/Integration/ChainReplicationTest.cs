@@ -1534,8 +1534,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Theory(Timeout = 5000)]
-        // [ClassData(typeof(SeedGenerator))]
+        [Theory(Timeout = 10000)]
         [InlineData(90)]
         public void TestSequenceNotSortedInChainReplicationProtocol(int seed)
         {

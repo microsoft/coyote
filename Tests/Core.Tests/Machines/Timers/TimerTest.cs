@@ -45,7 +45,6 @@ namespace Microsoft.Coyote.Core.Tests
         {
             private TaskCompletionSource<bool> Tcs;
 
-            private TimerInfo Timer;
             private int Count;
 
             [Start]
@@ -61,7 +60,7 @@ namespace Microsoft.Coyote.Core.Tests
                 this.Count = 0;
 
                 // Start a regular timer.
-                this.Timer = this.StartTimer(TimeSpan.FromMilliseconds(10));
+                this.StartTimer(TimeSpan.FromMilliseconds(10));
             }
 
             private void HandleTimeout()
@@ -232,7 +231,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public async Task TestBasicTimerOperation()
         {
             await this.RunAsync(async r =>
@@ -245,7 +244,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public async Task TestBasicPeriodicTimerOperation()
         {
             await this.RunAsync(async r =>
@@ -258,7 +257,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public async Task TestDropTimeoutsAfterTimerDisposal()
         {
             await this.RunAsync(async r =>
@@ -271,7 +270,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public async Task TestIllegalDueTimeSpecification()
         {
             await this.RunAsync(async r =>
@@ -284,7 +283,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public async Task TestIllegalPeriodSpecification()
         {
             await this.RunAsync(async r =>

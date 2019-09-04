@@ -22,7 +22,7 @@ using Microsoft.Coyote.Utilities;
 namespace Microsoft.Coyote.TestingServices
 {
     /// <summary>
-    /// The Coyote bug-finding engine.
+    /// Implementation of the bug-finding engine.
     /// </summary>
     internal sealed class BugFindingEngine : AbstractTestingEngine
     {
@@ -44,17 +44,9 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        public static BugFindingEngine Create(Configuration configuration, Action<ICoyoteRuntime> action)
+        internal static BugFindingEngine Create(Configuration configuration, Delegate testMethod)
         {
-            return new BugFindingEngine(configuration, action);
-        }
-
-        /// <summary>
-        /// Creates a new bug-finding engine.
-        /// </summary>
-        public static BugFindingEngine Create(Configuration configuration, Func<ICoyoteRuntime, Task> function)
-        {
-            return new BugFindingEngine(configuration, function);
+            return new BugFindingEngine(configuration, testMethod);
         }
 
         /// <summary>
@@ -94,17 +86,8 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Initializes a new instance of the <see cref="BugFindingEngine"/> class.
         /// </summary>
-        private BugFindingEngine(Configuration configuration, Action<ICoyoteRuntime> action)
-            : base(configuration, action)
-        {
-            this.Initialize();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BugFindingEngine"/> class.
-        /// </summary>
-        private BugFindingEngine(Configuration configuration, Func<ICoyoteRuntime, Task> function)
-            : base(configuration, function)
+        private BugFindingEngine(Configuration configuration, Delegate testMethod)
+            : base(configuration, testMethod)
         {
             this.Initialize();
         }
@@ -263,17 +246,8 @@ namespace Microsoft.Coyote.TestingServices
                     Console.SetError(writer);
                 }
 
-                // Runs the test inside the test-harness machine.
-                if (this.TestAction != null)
-                {
-                    runtime.RunTestHarness(this.TestAction, this.TestName);
-                }
-                else
-                {
-                    runtime.RunTestHarness(this.TestFunction, this.TestName);
-                }
-
-                // Wait for the test to terminate.
+                // Runs the test and waits for it to terminate.
+                runtime.RunTest(this.TestMethod, this.TestName);
                 runtime.WaitAsync().Wait();
 
                 // Invokes user-provided cleanup for this iteration.
@@ -431,9 +405,9 @@ namespace Microsoft.Coyote.TestingServices
                     Append(Environment.NewLine);
             }
 
-            for (int idx = 0; idx < runtime.ScheduleTrace.Count; idx++)
+            for (int idx = 0; idx < runtime.Scheduler.ScheduleTrace.Count; idx++)
             {
-                ScheduleStep step = runtime.ScheduleTrace[idx];
+                ScheduleStep step = runtime.Scheduler.ScheduleTrace[idx];
                 if (step.Type == ScheduleStepType.SchedulingChoice)
                 {
                     stringBuilder.Append($"({step.ScheduledOperationId})");
@@ -447,7 +421,7 @@ namespace Microsoft.Coyote.TestingServices
                     stringBuilder.Append(step.IntegerChoice.Value);
                 }
 
-                if (idx < runtime.ScheduleTrace.Count - 1)
+                if (idx < runtime.Scheduler.ScheduleTrace.Count - 1)
                 {
                     stringBuilder.Append(Environment.NewLine);
                 }

@@ -98,14 +98,6 @@ namespace Microsoft.Coyote.Utilities
                 {
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.IDDFS;
                 }
-                else if (IsMatch(scheduler, @"^dpor$"))
-                {
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.DPOR;
-                }
-                else if (IsMatch(scheduler, @"^rdpor$"))
-                {
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.RDPOR;
-                }
                 else if (IsMatch(scheduler, @"^db"))
                 {
                     int i = 0;
@@ -149,27 +141,6 @@ namespace Microsoft.Coyote.Utilities
                 }
 
                 this.Configuration.ScheduleFile = option.Substring(8);
-            }
-            else if (IsMatch(option, @"^[\/|-]reduction:"))
-            {
-                string reduction = option.Substring(11);
-                if (IsMatch(reduction, @"^none$"))
-                {
-                    this.Configuration.ReductionStrategy = ReductionStrategy.None;
-                }
-                else if (IsMatch(reduction, @"^omit$"))
-                {
-                    this.Configuration.ReductionStrategy = ReductionStrategy.OmitSchedulingPoints;
-                }
-                else if (IsMatch(reduction, @"^force$"))
-                {
-                    this.Configuration.ReductionStrategy = ReductionStrategy.ForceSchedule;
-                }
-                else
-                {
-                    Error.ReportAndExit("Please give a valid reduction strategy " +
-                        "'-reduction:[x]', where [x] is 'none', 'omit' or 'force'.");
-                }
             }
             else if (IsMatch(option, @"^[\/|-]i:") && option.Length > 3)
             {
@@ -288,7 +259,6 @@ namespace Microsoft.Coyote.Utilities
             else if (IsMatch(option, @"^[\/|-]max-steps:") && option.Length > 11)
             {
                 int i = 0;
-                int j = 0;
                 var tokens = option.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 if (tokens.Length > 3 || tokens.Length <= 1)
                 {
@@ -304,6 +274,7 @@ namespace Microsoft.Coyote.Utilities
                     }
                 }
 
+                int j;
                 if (tokens.Length == 3)
                 {
                     if (!int.TryParse(tokens[2], out j) && j >= 0)
@@ -378,8 +349,6 @@ namespace Microsoft.Coyote.Utilities
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.FairPCT &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.DFS &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.IDDFS &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.DPOR &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.RDPOR &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.DelayBounding &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.RandomDelayBounding)
             {

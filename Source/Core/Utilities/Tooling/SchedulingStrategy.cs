@@ -69,18 +69,6 @@ namespace Microsoft.Coyote.Utilities
         IDDFS,
 
         /// <summary>
-        /// Dynamic partial-order reduction (DPOR) scheduling.
-        /// </summary>
-        [EnumMember(Value = "DPOR")]
-        DPOR,
-
-        /// <summary>
-        /// Randomized dynamic partial-order reduction (rDPOR) scheduling.
-        /// </summary>
-        [EnumMember(Value = "rDPOR")]
-        RDPOR,
-
-        /// <summary>
         /// Delay-bounding scheduling.
         /// </summary>
         [EnumMember(Value = "DelayBounding")]

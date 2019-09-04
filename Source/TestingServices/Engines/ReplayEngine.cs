@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new replaying engine.
         /// </summary>
-        public static ReplayEngine Create(Configuration configuration)
+        internal static ReplayEngine Create(Configuration configuration)
         {
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
             return new ReplayEngine(configuration);
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new replaying engine.
         /// </summary>
-        public static ReplayEngine Create(Configuration configuration, Assembly assembly)
+        internal static ReplayEngine Create(Configuration configuration, Assembly assembly)
         {
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
             return new ReplayEngine(configuration, assembly);
@@ -47,39 +47,20 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new replaying engine.
         /// </summary>
-        public static ReplayEngine Create(Configuration configuration, Action<ICoyoteRuntime> action)
+        internal static ReplayEngine Create(Configuration configuration, Delegate testMethod)
         {
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
-            return new ReplayEngine(configuration, action);
+            return new ReplayEngine(configuration, testMethod);
         }
 
         /// <summary>
         /// Creates a new replaying engine.
         /// </summary>
-        public static ReplayEngine Create(Configuration configuration, Action<ICoyoteRuntime> action, string trace)
+        internal static ReplayEngine Create(Configuration configuration, Delegate testMethod, string trace)
         {
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
             configuration.ScheduleTrace = trace;
-            return new ReplayEngine(configuration, action);
-        }
-
-        /// <summary>
-        /// Creates a new replaying engine.
-        /// </summary>
-        public static ReplayEngine Create(Configuration configuration, Func<ICoyoteRuntime, Task> function)
-        {
-            configuration.SchedulingStrategy = SchedulingStrategy.Replay;
-            return new ReplayEngine(configuration, function);
-        }
-
-        /// <summary>
-        /// Creates a new replaying engine.
-        /// </summary>
-        public static ReplayEngine Create(Configuration configuration, Func<ICoyoteRuntime, Task> function, string trace)
-        {
-            configuration.SchedulingStrategy = SchedulingStrategy.Replay;
-            configuration.ScheduleTrace = trace;
-            return new ReplayEngine(configuration, function);
+            return new ReplayEngine(configuration, testMethod);
         }
 
         /// <summary>
@@ -101,16 +82,8 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayEngine"/> class.
         /// </summary>
-        private ReplayEngine(Configuration configuration, Action<ICoyoteRuntime> action)
-            : base(configuration, action)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReplayEngine"/> class.
-        /// </summary>
-        private ReplayEngine(Configuration configuration, Func<ICoyoteRuntime, Task> function)
-            : base(configuration, function)
+        private ReplayEngine(Configuration configuration, Delegate testMethod)
+            : base(configuration, testMethod)
         {
         }
 
@@ -164,17 +137,8 @@ namespace Microsoft.Coyote.TestingServices
                         Console.SetError(writer);
                     }
 
-                    // Runs the test inside the test-harness machine.
-                    if (this.TestAction != null)
-                    {
-                        runtime.RunTestHarness(this.TestAction, this.TestName);
-                    }
-                    else
-                    {
-                        runtime.RunTestHarness(this.TestFunction, this.TestName);
-                    }
-
-                    // Wait for the test to terminate.
+                    // Runs the test and waits for it to terminate.
+                    runtime.RunTest(this.TestMethod, this.TestName);
                     runtime.WaitAsync().Wait();
 
                     // Invokes user-provided cleanup for this iteration.
@@ -209,11 +173,22 @@ namespace Microsoft.Coyote.TestingServices
                     report.CoverageInfo.Merge(runtime.CoverageInfo);
                     this.TestReport.Merge(report);
                 }
-                catch (TargetInvocationException ex)
+                catch (Exception ex)
                 {
-                    if (!(ex.InnerException is TaskCanceledException))
+                    Exception innerException = ex;
+                    while (innerException is TargetInvocationException)
                     {
-                        ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                        innerException = innerException.InnerException;
+                    }
+
+                    if (innerException is AggregateException)
+                    {
+                        innerException = innerException.InnerException;
+                    }
+
+                    if (!(innerException is TaskCanceledException))
+                    {
+                        ExceptionDispatchInfo.Capture(innerException).Throw();
                     }
                 }
                 finally

@@ -17,7 +17,7 @@ using Microsoft.Coyote.Timers;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Runtime for executing machines asynchronously.
+    /// Runtime for executing explicit and implicit asynchronous state machines.
     /// </summary>
     internal abstract class MachineRuntime : ICoyoteRuntime
     {
@@ -381,11 +381,9 @@ namespace Microsoft.Coyote.Runtime
         /// or null if no such machine exists.
         /// </summary>
         internal TMachine GetMachineFromId<TMachine>(MachineId id)
-            where TMachine : AsyncMachine
-        {
-            return id != null && this.MachineMap.TryGetValue(id, out AsyncMachine value) &&
-                value is TMachine machine ? machine : null;
-        }
+            where TMachine : AsyncMachine =>
+            id != null && this.MachineMap.TryGetValue(id, out AsyncMachine value) &&
+            value is TMachine machine ? machine : null;
 
         /// <summary>
         /// Notifies that a machine entered a state.
@@ -393,7 +391,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyEnteredState(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -402,7 +399,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyEnteredState(Monitor monitor)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -411,7 +407,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyExitedState(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -420,7 +415,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyExitedState(Monitor monitor)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -429,7 +423,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyInvokedAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -438,7 +431,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyCompletedAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -447,7 +439,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyInvokedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -456,7 +447,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyCompletedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -465,7 +455,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyInvokedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -474,7 +463,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyCompletedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -483,7 +471,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -492,7 +479,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyRaisedEvent(Machine machine, Event e, EventInfo eventInfo)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -501,7 +487,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -510,7 +495,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyDequeuedEvent(Machine machine, Event e, EventInfo eventInfo)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -519,7 +503,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyPop(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -528,7 +511,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyReceiveCalled(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -537,7 +519,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyHandleRaisedEvent(Machine machine, Event e)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -546,7 +527,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyWaitEvent(Machine machine, IEnumerable<Type> eventTypes)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -555,7 +535,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyReceivedEvent(Machine machine, Event e, EventInfo eventInfo)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -565,7 +544,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyReceivedEventWithoutWaiting(Machine machine, Event e, EventInfo eventInfo)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -574,7 +552,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyHalted(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -584,7 +561,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyDefaultEventHandlerCheck(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>
@@ -593,7 +569,6 @@ namespace Microsoft.Coyote.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyDefaultHandlerFired(Machine machine)
         {
-            // Override to implement the notification.
         }
 
         /// <summary>

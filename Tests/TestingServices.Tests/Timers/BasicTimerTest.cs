@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestBasicTimerOperation()
         {
             this.Test(r =>
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestBasicPeriodicTimerOperation()
         {
             this.Test(r =>
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestDropTimeoutsAfterTimerDisposal()
         {
             this.Test(r =>
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestIllegalDueTimeSpecification()
         {
             this.TestWithError(r =>
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestIllegalPeriodSpecification()
         {
             this.TestWithError(r =>
@@ -244,7 +244,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestTimerDisposedByNonOwner()
         {
             this.TestWithError(r =>
@@ -284,7 +284,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout=10000)]
         public void TestExplicitHaltWithTimer()
         {
             this.Test(r =>

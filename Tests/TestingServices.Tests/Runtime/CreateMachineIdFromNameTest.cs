@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(m1, typeof(M2));
                 r.CreateMachine(m1, typeof(M2));
             },
-            expectedError: "Machine with id '' is already bound to an existing machine.",
+            expectedError: "Machine id '' is used by an existing machine.",
             replay: true);
         }
 
@@ -157,7 +157,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 // Note: because RunMachineEventHandler is async, the halted machine
                 // may or may not be removed by the time we call CreateMachine.
-                "Machine with id '' is already bound to an existing machine.",
+                "Machine id '' is used by an existing machine.",
                 "Machine id '' of a previously halted machine cannot be reused to create a new machine of type 'M2'"
             });
         }
@@ -206,7 +206,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             var configuration = Configuration.Create();
             configuration.SchedulingIterations = 100;
-            configuration.ReductionStrategy = Utilities.ReductionStrategy.None;
 
             this.TestWithError(r =>
             {
@@ -253,7 +252,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(M6));
                 r.CreateMachine(typeof(M6));
             },
-            expectedError: "Machine with id '' is already bound to an existing machine.",
+            expectedError: "Machine id '' is used by an existing machine.",
             replay: true);
         }
 

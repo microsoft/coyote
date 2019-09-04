@@ -868,8 +868,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        [Theory(Timeout = 5000)]
-        // [ClassData(typeof(SeedGenerator))]
+        [Theory(Timeout = 10000)]
         [InlineData(0)]
         public void TestLivenessBugInChordProtocol(int seed)
         {
@@ -890,8 +889,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        [Theory(Timeout = 5000)]
-        // [ClassData(typeof(SeedGenerator))]
+        [Theory(Timeout = 10000)]
         [InlineData(2)]
         public void TestLivenessBugInChordProtocolWithCycleReplay(int seed)
         {

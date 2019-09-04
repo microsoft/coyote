@@ -59,18 +59,26 @@ namespace Microsoft.Coyote.Utilities
         /// </summary>
         private void Write(string value, ConsoleColor color)
         {
-            ConsoleColor previousForegroundColor = default;
-            if (this.Configuration.EnableColoredConsoleOutput)
+            lock (Error.ColorLock)
             {
-                previousForegroundColor = Console.ForegroundColor;
-                Console.ForegroundColor = color;
-            }
+                ConsoleColor previousForegroundColor = default;
+                if (this.Configuration.EnableColoredConsoleOutput)
+                {
+                    previousForegroundColor = Console.ForegroundColor;
+                    Console.ForegroundColor = color;
+                }
 
-            this.Logger.Write(value);
-
-            if (this.Configuration.EnableColoredConsoleOutput)
-            {
-                Console.ForegroundColor = previousForegroundColor;
+                try
+                {
+                    this.Logger.Write(value);
+                }
+                finally
+                {
+                    if (this.Configuration.EnableColoredConsoleOutput)
+                    {
+                        Console.ForegroundColor = previousForegroundColor;
+                    }
+                }
             }
         }
     }

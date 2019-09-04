@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Tries to emit the testing traces, if any.
         /// </summary>
-        public override void TryEmitTraces(string directory, string file)
+        public override IEnumerable<string> TryEmitTraces(string directory, string file)
         {
             // Emits the human readable trace, if it exists.
             if (!string.IsNullOrEmpty(this.ReadableTrace))
@@ -334,6 +334,7 @@ namespace Microsoft.Coyote.TestingServices
 
                 this.Logger.WriteLine($"..... Writing {readableTracePath}");
                 File.WriteAllText(readableTracePath, this.ReadableTrace);
+                yield return readableTracePath;
             }
 
             // Emits the bug trace, if it exists.
@@ -348,6 +349,8 @@ namespace Microsoft.Coyote.TestingServices
                     this.Logger.WriteLine($"..... Writing {bugTracePath}");
                     serializer.WriteObject(stream, this.BugTrace);
                 }
+
+                yield return bugTracePath;
             }
 
             // Emits the reproducable trace, if it exists.
@@ -358,6 +361,7 @@ namespace Microsoft.Coyote.TestingServices
 
                 this.Logger.WriteLine($"..... Writing {reproTracePath}");
                 File.WriteAllText(reproTracePath, this.ReproducableTrace);
+                yield return reproTracePath;
             }
 
             this.Logger.WriteLine($"... Elapsed {this.Profiler.Results()} sec.");

@@ -1,4 +1,4 @@
-<!-- This file may be overwritten by automation. Only values allowed here are VersionPrefix and VersionSuffix.  -->
+<!-- This file may be overwritten by automation. Only values allowed here are VersionPrefix and VersionSuffix. -->
 <Project>
   <PropertyGroup>
     <VersionPrefix>1.0.0</VersionPrefix>

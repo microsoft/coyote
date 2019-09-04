@@ -13,7 +13,6 @@ namespace Microsoft.Coyote.TestingServices
     /// </summary>
     internal sealed class Reporter
     {
-#if NET46
         /// <summary>
         /// Emits the testing coverage report.
         /// </summary>
@@ -37,7 +36,6 @@ namespace Microsoft.Coyote.TestingServices
 
             EmitTestingCoverageOutputFiles(report, directory, file);
         }
-#endif
 
         /// <summary>
         /// Returns (and creates if it does not exist) the output directory with an optional suffix.

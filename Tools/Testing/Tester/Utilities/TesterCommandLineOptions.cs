@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net;
 using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Utilities
@@ -151,13 +152,39 @@ namespace Microsoft.Coyote.Utilities
             }
             else if (IsMatch(option, @"^[\/|-]parallel:") && option.Length > 10)
             {
-                if (!uint.TryParse(option.Substring(10), out uint i) || i <= 1)
+                if (!uint.TryParse(option.Substring(10), out uint i) || i < 1)
                 {
                     Error.ReportAndExit("Please give a valid number of " +
                         "parallel tasks '-parallel:[x]', where [x] > 1.");
                 }
 
                 this.Configuration.ParallelBugFindingTasks = i;
+            }
+            else if (IsMatch(option, @"^[\/|-]wait-for-testing-processes$"))
+            {
+                this.Configuration.WaitForTestingProcesses = true;
+            }
+            else if (IsMatch(option, @"^[\/|-]testing-scheduler-ipaddress:") && option.Length > "-testing-scheduler-ipaddress:".Length)
+            {
+                var ipAddress = option.Substring("-testing-scheduler-ipaddress:".Length);
+                int port = 0;
+                if (ipAddress.Contains(":"))
+                {
+                    string[] parts = ipAddress.Split(':');
+                    if (parts.Length != 2 || !int.TryParse(parts[1], out port))
+                    {
+                        Error.ReportAndExit("Please give a valid port number for -testing-scheduler-ipaddress option");
+                    }
+
+                    ipAddress = parts[0];
+                }
+
+                if (!IPAddress.TryParse(ipAddress, out IPAddress addr))
+                {
+                    Error.ReportAndExit("Please give a valid ip address for -testing-scheduler-ipaddress option");
+                }
+
+                this.Configuration.TestingSchedulerIpAddress = ipAddress + ":" + port;
             }
             else if (IsMatch(option, @"^[\/|-]run-as-parallel-testing-task$"))
             {
@@ -166,23 +193,7 @@ namespace Microsoft.Coyote.Utilities
             else if (IsMatch(option, @"^[\/|-]testing-scheduler-endpoint:") && option.Length > 28)
             {
                 string endpoint = option.Substring(28);
-                if (endpoint.Length != 36)
-                {
-                    Error.ReportAndExit("Please give a valid testing scheduler endpoint " +
-                        "'-testing-scheduler-endpoint:[x]', where [x] is a unique GUID.");
-                }
-
                 this.Configuration.TestingSchedulerEndPoint = endpoint;
-            }
-            else if (IsMatch(option, @"^[\/|-]testing-scheduler-process-id:") && option.Length > 30)
-            {
-                if (!int.TryParse(option.Substring(30), out int i) && i >= 0)
-                {
-                    Error.ReportAndExit("Please give a valid testing scheduler " +
-                        "process id '-testing-scheduler-process-id:[x]', where [x] >= 0.");
-                }
-
-                this.Configuration.TestingSchedulerProcessId = i;
             }
             else if (IsMatch(option, @"^[\/|-]testing-process-id:") && option.Length > 20)
             {
@@ -365,11 +376,6 @@ namespace Microsoft.Coyote.Utilities
             }
 
 #if NETCOREAPP2_1
-            if (this.Configuration.ParallelBugFindingTasks > 1)
-            {
-                Error.ReportAndExit("We do not yet support parallel testing when using the .NET Core runtime.");
-            }
-
             if (this.Configuration.ReportCodeCoverage || this.Configuration.ReportActivityCoverage)
             {
                 Error.ReportAndExit("We do not yet support coverage reports when using the .NET Core runtime.");
@@ -422,10 +428,19 @@ namespace Microsoft.Coyote.Utilities
             help += "\n Systematic testing options:";
             help += "\n ---------------------------";
             help += "\n  -i:[x]\t\t Number of schedules to explore for bugs";
-            help += "\n  -parallel:[x]\t\t Number of parallel testing tasks ('1' by default)";
             help += "\n  -sch:[x]\t\t Choose a systematic testing strategy ('random' by default)";
             help += "\n  -max-steps:[x]\t Max scheduling steps to be explored (disabled by default)";
             help += "\n  -replay:[x]\t Tries to replay the schedule, and then switches to the specified strategy";
+
+            help += "\n\n ---------------------------";
+            help += "\n Parallel testing options:";
+            help += "\n ---------------------------";
+            help += "\n  -parallel:[x]\t\tRun a test server with a number of parallel testing child processes";
+            help += "\n  \t\t\t('0' by default runs the test in-proc)";
+            help += "\n  -explore\t\tKeep running each parallel test until they all find a bug or reach max-steps";
+            help += "\n  -wait-for-testing-processes\t\t\tWait for testing processes to start (default is to launch them)";
+            help += "\n  -testing-scheduler-ipaddress:addr[:port]\tSpecify server ip address and optional port (default: 127.0.0.1:0))";
+            help += "\n  -testing-scheduler-endpoint:name\t\tSpecify a name for the server (default: CoyoteTestScheduler)";
 
             help += "\n\n ---------------------------";
             help += "\n Testing code coverage options:";

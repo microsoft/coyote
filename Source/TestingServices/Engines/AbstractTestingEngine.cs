@@ -336,9 +336,11 @@ namespace Microsoft.Coyote.TestingServices
                 }
 
                 this.Profiler.StartMeasuringExecutionTime();
-
-                task.Start();
-                task.Wait(this.CancellationTokenSource.Token);
+                if (!this.CancellationTokenSource.IsCancellationRequested)
+                {
+                    task.Start();
+                    task.Wait(this.CancellationTokenSource.Token);
+                }
             }
             catch (OperationCanceledException)
             {

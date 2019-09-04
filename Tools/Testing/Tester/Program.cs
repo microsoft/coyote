@@ -27,10 +27,9 @@ namespace Microsoft.Coyote
             configuration = new TesterCommandLineOptions(args).Parse();
             Console.CancelKeyPress += (sender, eventArgs) => CancelProcess();
 
-#if NET46
             if (configuration.RunAsParallelBugFindingTask)
             {
-                // Creates and runs a testing process.
+                // This is being run as the child test process.
                 TestingProcess testingProcess = TestingProcess.Create(configuration);
                 testingProcess.Run();
                 return;
@@ -44,13 +43,14 @@ namespace Microsoft.Coyote
 
             if (configuration.ReportCodeCoverage)
             {
+#if NET46
                 // Instruments the program under test for code coverage.
                 CodeCoverageInstrumentation.Instrument(configuration);
 
                 // Starts monitoring for code coverage.
                 CodeCoverageMonitor.Start(configuration);
-            }
 #endif
+            }
 
             Console.WriteLine(". Testing " + configuration.AssemblyToBeAnalyzed);
             if (!string.IsNullOrEmpty(configuration.TestMethodName))

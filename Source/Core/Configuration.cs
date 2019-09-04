@@ -140,6 +140,19 @@ namespace Microsoft.Coyote
         public uint ParallelBugFindingTasks;
 
         /// <summary>
+        /// Specify ip address if you want to use something other than localhost.
+        /// </summary>
+        [DataMember]
+        public string TestingSchedulerIpAddress;
+
+        /// <summary>
+        /// Do not automatically launch the TestingProcesses in parallel mode, instead wait for them
+        /// to be launched independently.
+        /// </summary>
+        [DataMember]
+        public bool WaitForTestingProcesses;
+
+        /// <summary>
         /// Runs this process as a parallel bug-finding task.
         /// </summary>
         [DataMember]
@@ -150,12 +163,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public string TestingSchedulerEndPoint;
-
-        /// <summary>
-        /// The testing scheduler process id.
-        /// </summary>
-        [DataMember]
-        public int TestingSchedulerProcessId;
 
         /// <summary>
         /// The unique testing process id.
@@ -341,10 +348,10 @@ namespace Microsoft.Coyote
             this.MaxFairSchedulingSteps = 0;
             this.MaxUnfairSchedulingSteps = 0;
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ParallelBugFindingTasks = 1;
+            this.ParallelBugFindingTasks = 0;
             this.RunAsParallelBugFindingTask = false;
-            this.TestingSchedulerEndPoint = Guid.NewGuid().ToString();
-            this.TestingSchedulerProcessId = -1;
+            this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
+            this.TestingSchedulerIpAddress = "127.0.0.1:0";
             this.TestingProcessId = 0;
             this.ConsiderDepthBoundHitAsBug = false;
             this.PrioritySwitchBound = 0;

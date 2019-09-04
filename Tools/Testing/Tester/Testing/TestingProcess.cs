@@ -4,34 +4,30 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-#if NET46
-using System.ServiceModel;
-using System.ServiceModel.Description;
-#endif
-using System.Timers;
-
-using Microsoft.Coyote.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using CoyoteTester.Interfaces;
+using Microsoft.Coyote.SmartSockets;
+using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.TestingServices
 {
     /// <summary>
-    /// A testing process.
+    /// A testing process, this can also be the client side of a multi-process test
     /// </summary>
-#if NET46
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-#endif
-    internal sealed class TestingProcess : ITestingProcess
+    internal sealed class TestingProcess
     {
-#if NET46
         /// <summary>
-        /// The notification listening service.
+        /// Whether this process is terminating.
         /// </summary>
-        private ServiceHost NotificationService;
-#endif
+        private bool Terminating;
+
+        /// <summary>
+        /// A name for the test client
+        /// </summary>
+        private readonly string Name = "CoyoteTestingProcess";
 
         /// <summary>
         /// Configuration.
@@ -44,28 +40,15 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         private readonly ITestingEngine TestingEngine;
 
-#if NET46
         /// <summary>
-        /// The remote testing scheduler.
+        /// The channel to the TestProcessScheduler.
         /// </summary>
-        private ITestingProcessScheduler TestingScheduler;
-#endif
+        private SmartSocketClient Server;
 
         /// <summary>
-        /// Returns the test report.
+        /// A way to synchronouse background progress task with the main thread.
         /// </summary>
-        TestReport ITestingProcess.GetTestReport()
-        {
-            return this.TestingEngine.TestReport.Clone();
-        }
-
-        /// <summary>
-        /// Stops testing.
-        /// </summary>
-        void ITestingProcess.Stop()
-        {
-            this.TestingEngine.Stop();
-        }
+        private ProgressLock ProgressTask;
 
         /// <summary>
         /// Creates a Coyote testing process.
@@ -76,25 +59,47 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
+        /// Get the current test report.
+        /// </summary>
+        public TestReport GetTestReport()
+        {
+            return this.TestingEngine.TestReport.Clone();
+        }
+
+        // Gets a handle to the standard output and error streams.
+        private readonly TextWriter StdOut = Console.Out;
+
+        /// <summary>
         /// Runs the Coyote testing process.
         /// </summary>
         internal void Run()
         {
-#if NET46
-            // Opens the remote notification listener.
-            this.OpenNotificationListener();
+            this.RunAsync().Wait();
+        }
 
-            Timer timer = null;
+        internal async Task RunAsync()
+        {
             if (this.Configuration.RunAsParallelBugFindingTask)
             {
-                timer = this.CreateParentStatusMonitorTimer();
-                timer.Start();
+                // Opens the remote notification listener.
+                await this.ConnectToServer();
+
+                this.StartProgressMonitorTask();
             }
-#endif
 
             this.TestingEngine.Run();
 
-#if NET46
+            Console.SetOut(this.StdOut);
+
+            this.Terminating = true;
+
+            // wait for any pending progress
+            var task = this.ProgressTask;
+            if (task != null)
+            {
+                task.Wait(30000);
+            }
+
             if (this.Configuration.RunAsParallelBugFindingTask)
             {
                 if (this.TestingEngine.TestReport.InternalErrors.Count > 0)
@@ -104,12 +109,11 @@ namespace Microsoft.Coyote.TestingServices
                 else if (this.TestingEngine.TestReport.NumOfFoundBugs > 0)
                 {
                     Environment.ExitCode = (int)ExitCode.BugFound;
-                    this.NotifyBugFound();
+                    await this.NotifyBugFound();
                 }
 
-                this.SendTestReport();
+                await this.SendTestReport();
             }
-#endif
 
             if (!this.Configuration.PerformFullExploration)
             {
@@ -125,15 +129,13 @@ namespace Microsoft.Coyote.TestingServices
                 }
             }
 
-#if NET46
             // Closes the remote notification listener.
-            this.CloseNotificationListener();
-
-            if (timer != null)
+            if (this.Configuration.IsVerbose)
             {
-                timer.Stop();
+                Console.WriteLine($"... ### Task {this.Configuration.TestingProcessId} is terminating");
             }
-#endif
+
+            this.Disconnect();
         }
 
         /// <summary>
@@ -141,6 +143,8 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         private TestingProcess(Configuration configuration)
         {
+            this.Name = this.Name + "." + configuration.TestingProcessId;
+
             if (configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
             {
                 TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
@@ -158,42 +162,58 @@ namespace Microsoft.Coyote.TestingServices
                 this.Configuration);
         }
 
-#if NET46
+        ~TestingProcess()
+        {
+            this.Terminating = true;
+        }
+
         /// <summary>
         /// Opens the remote notification listener. If this is
         /// not a parallel testing process, then this operation
         /// does nothing.
         /// </summary>
-        private void OpenNotificationListener()
+        private async Task ConnectToServer()
         {
-            if (!this.Configuration.RunAsParallelBugFindingTask)
+            string serviceName = this.Configuration.TestingSchedulerEndPoint;
+            var source = new System.Threading.CancellationTokenSource();
+
+            var resolver = new SmartSocketTypeResolver(typeof(BugFoundMessage),
+                                                       typeof(TestReportMessage),
+                                                       typeof(TestServerMessage),
+                                                       typeof(TestProgressMessage),
+                                                       typeof(TestReport),
+                                                       typeof(CoverageInfo),
+                                                       typeof(Configuration));
+
+            SmartSocketClient client = await SmartSocketClient.FindServerAsync(serviceName, this.Name, resolver, source.Token);
+            client.Error += this.OnClientError;
+            client.ServerName = serviceName;
+            this.Server = client;
+
+            // open back channel so server can also send messages to us any time.
+            await client.OpenBackChannel(this.OnBackChannelConnected);
+        }
+
+        private void OnBackChannelConnected(object sender, SmartSocketClient e)
+        {
+            Task.Run(() => this.HandleBackChannel(e));
+        }
+
+        private async void HandleBackChannel(SmartSocketClient server)
+        {
+            while (!this.Terminating && server.IsConnected)
             {
-                return;
+                var msg = await server.ReceiveAsync();
+                if (msg is TestServerMessage)
+                {
+                    this.HandleServerMessage((TestServerMessage)msg);
+                }
             }
+        }
 
-            Uri address = new Uri("net.pipe://localhost/coyote/testing/process/" +
-                $"{this.Configuration.TestingProcessId}/" +
-                $"{this.Configuration.TestingSchedulerEndPoint}");
-
-            NetNamedPipeBinding binding = new NetNamedPipeBinding();
-            binding.MaxReceivedMessageSize = int.MaxValue;
-
-            this.NotificationService = new ServiceHost(this);
-            this.NotificationService.AddServiceEndpoint(typeof(ITestingProcess), binding, address);
-
-            ServiceDebugBehavior debug = this.NotificationService.Description.Behaviors.Find<ServiceDebugBehavior>();
-            debug.IncludeExceptionDetailInFaults = true;
-
-            try
-            {
-                this.NotificationService.Open();
-            }
-            catch (AddressAccessDeniedException)
-            {
-                Error.ReportAndExit("Your process does not have access " +
-                    "rights to open the remote testing notification listener. " +
-                    "Please run the process as administrator.");
-            }
+        private void OnClientError(object sender, Exception e)
+        {
+            // todo: error handling, happens if we fail to get a message to the server for some reason.
         }
 
         /// <summary>
@@ -201,29 +221,13 @@ namespace Microsoft.Coyote.TestingServices
         /// not a parallel testing process, then this operation
         /// does nothing.
         /// </summary>
-        private void CloseNotificationListener()
+        private void Disconnect()
         {
-            if (this.Configuration.RunAsParallelBugFindingTask &&
-                this.NotificationService.State == CommunicationState.Opened)
+            using (this.Server)
             {
-                try
+                if (this.Server != null)
                 {
-                    this.NotificationService.Close();
-                }
-                catch (CommunicationException)
-                {
-                    this.NotificationService.Abort();
-                    throw;
-                }
-                catch (TimeoutException)
-                {
-                    this.NotificationService.Abort();
-                    throw;
-                }
-                catch (Exception)
-                {
-                    this.NotificationService.Abort();
-                    throw;
+                    this.Server.Close();
                 }
             }
         }
@@ -232,47 +236,19 @@ namespace Microsoft.Coyote.TestingServices
         /// Notifies the remote testing scheduler
         /// about a discovered bug.
         /// </summary>
-        private void NotifyBugFound()
+        private async Task NotifyBugFound()
         {
-            Uri address = new Uri("net.pipe://localhost/coyote/testing/scheduler/" +
-                $"{this.Configuration.TestingSchedulerEndPoint}");
-
-            NetNamedPipeBinding binding = new NetNamedPipeBinding();
-            binding.MaxReceivedMessageSize = int.MaxValue;
-
-            EndpointAddress endpoint = new EndpointAddress(address);
-
-            if (this.TestingScheduler is null)
-            {
-                this.TestingScheduler = ChannelFactory<ITestingProcessScheduler>.
-                    CreateChannel(binding, endpoint);
-            }
-
-            this.TestingScheduler.NotifyBugFound(this.Configuration.TestingProcessId);
+            await this.Server.SendReceiveAsync(new BugFoundMessage("BugFoundMessage", this.Name, this.Configuration.TestingProcessId));
         }
 
         /// <summary>
         /// Sends the test report associated with this testing process.
         /// </summary>
-        private void SendTestReport()
+        private async Task SendTestReport()
         {
-            Uri address = new Uri("net.pipe://localhost/coyote/testing/scheduler/" +
-                $"{this.Configuration.TestingSchedulerEndPoint}");
-
-            NetNamedPipeBinding binding = new NetNamedPipeBinding();
-            binding.MaxReceivedMessageSize = int.MaxValue;
-
-            EndpointAddress endpoint = new EndpointAddress(address);
-
-            if (this.TestingScheduler is null)
-            {
-                this.TestingScheduler = ChannelFactory<ITestingProcessScheduler>.
-                    CreateChannel(binding, endpoint);
-            }
-
-            this.TestingScheduler.SetTestReport(this.TestingEngine.TestReport.Clone(), this.Configuration.TestingProcessId);
+            var report = this.TestingEngine.TestReport.Clone();
+            await this.Server.SendReceiveAsync(new TestReportMessage("TestReportMessage", this.Name, this.Configuration.TestingProcessId, report));
         }
-#endif
 
         /// <summary>
         /// Emits the testing traces.
@@ -289,31 +265,105 @@ namespace Microsoft.Coyote.TestingServices
             this.TestingEngine.TryEmitTraces(CodeCoverageInstrumentation.OutputDirectory, file);
         }
 
-#if NET46
         /// <summary>
-        /// Creates a timer that monitors the status of the parent process.
+        /// Creates a task that pings the server with a heartbeat telling the server our current progress..
         /// </summary>
-        private Timer CreateParentStatusMonitorTimer()
+        private async void StartProgressMonitorTask()
         {
-            Timer timer = new Timer(5000);
-            timer.Elapsed += this.CheckParentStatus;
-            timer.AutoReset = true;
-            return timer;
+            while (!this.Terminating)
+            {
+                await Task.Delay(100);
+                using (this.ProgressTask = new ProgressLock())
+                {
+                    await this.SendProgressMessage();
+                }
+            }
         }
 
         /// <summary>
-        /// Checks the status of the parent process. If the parent
-        /// process exits, then this process should also exit.
+        /// Sends the TestProgressMessage and if server cannot be reached, stop the testing.
         /// </summary>
-        private void CheckParentStatus(object sender, ElapsedEventArgs e)
+        private async Task SendProgressMessage()
         {
-            Process parent = Process.GetProcesses().FirstOrDefault(val
-                => val.Id == this.Configuration.TestingSchedulerProcessId);
-            if (parent is null || !parent.ProcessName.Equals("CoyoteTester"))
+            if (this.Server != null && !this.Terminating && this.Server.IsConnected)
             {
-                Environment.Exit(1);
+                double progress = 0.0; // todo: get this from the TestingEngine.
+                try
+                {
+                    await this.Server.SendReceiveAsync(new TestProgressMessage("TestProgressMessage", this.Name, this.Configuration.TestingProcessId, progress));
+                }
+                catch (Exception)
+                {
+                    // can't contact the server, so perhaps it died, time to stop.
+                    this.TestingEngine.Stop();
+                }
             }
         }
-#endif
+
+        private void HandleServerMessage(TestServerMessage tsr)
+        {
+            if (tsr.Stop)
+            {
+                // server wants us to stop!
+                if (this.Configuration.IsVerbose)
+                {
+                    this.StdOut.WriteLine($"... ### Client {this.Configuration.TestingProcessId} is being told to stop!");
+                }
+
+                this.TestingEngine.Stop();
+                this.Terminating = true;
+            }
+        }
+
+        internal class ProgressLock : IDisposable
+        {
+            private bool Disposed;
+            private bool WaitingOnProgress;
+            private readonly object SyncObject = new object();
+            private readonly ManualResetEvent ProgressEvent = new ManualResetEvent(false);
+
+            public ProgressLock()
+            {
+            }
+
+            ~ProgressLock()
+            {
+                this.Dispose();
+            }
+
+            public void Wait(int timeout = 10000)
+            {
+                bool wait = false;
+                lock (this.SyncObject)
+                {
+                    if (this.Disposed)
+                    {
+                        return;
+                    }
+
+                    this.WaitingOnProgress = true;
+                    wait = true;
+                }
+
+                if (wait)
+                {
+                    this.ProgressEvent.WaitOne(timeout);
+                }
+            }
+
+            public void Dispose()
+            {
+                lock (this.SyncObject)
+                {
+                    this.Disposed = true;
+                    if (this.WaitingOnProgress)
+                    {
+                        this.ProgressEvent.Set();
+                    }
+                }
+
+                GC.SuppressFinalize(this);
+            }
+        }
     }
 }

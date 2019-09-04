@@ -3,6 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -21,9 +22,15 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         public static Process Create(uint id, Configuration configuration)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo(
-                Assembly.GetExecutingAssembly().Location,
+            string assembly = Assembly.GetExecutingAssembly().Location;
+            Console.WriteLine("Launching " + assembly);
+#if NET46
+            ProcessStartInfo startInfo = new ProcessStartInfo(assembly,
                 CreateArgumentsFromConfiguration(id, configuration));
+#else
+            ProcessStartInfo startInfo = new ProcessStartInfo("dotnet", assembly + " " +
+                CreateArgumentsFromConfiguration(id, configuration));
+#endif
             startInfo.UseShellExecute = false;
 
             Process process = new Process();
@@ -35,13 +42,13 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates arguments from the specified configuration.
         /// </summary>
-        private static string CreateArgumentsFromConfiguration(uint id, Configuration configuration)
+        internal static string CreateArgumentsFromConfiguration(uint id, Configuration configuration)
         {
             StringBuilder arguments = new StringBuilder();
 
             if (configuration.EnableDebugging)
             {
-                arguments.Append($"/debug ");
+                arguments.Append("/debug ");
             }
 
             arguments.Append($"/test:{configuration.AssemblyToBeAnalyzed} ");
@@ -92,27 +99,27 @@ namespace Microsoft.Coyote.TestingServices
 
             if (configuration.PerformFullExploration)
             {
-                arguments.Append($"/explore ");
+                arguments.Append("/explore ");
             }
 
             arguments.Append($"/timeout-delay:{configuration.TimeoutDelay} ");
 
             if (configuration.ReportCodeCoverage && configuration.ReportActivityCoverage)
             {
-                arguments.Append($"/coverage ");
+                arguments.Append("/coverage ");
             }
             else if (configuration.ReportCodeCoverage)
             {
-                arguments.Append($"/coverage:code ");
+                arguments.Append("/coverage:code ");
             }
             else if (configuration.ReportActivityCoverage)
             {
-                arguments.Append($"/coverage:activity ");
+                arguments.Append("/coverage:activity ");
             }
 
             if (configuration.EnableCycleDetection)
             {
-                arguments.Append($"/cycle-detection ");
+                arguments.Append("/cycle-detection ");
             }
 
             if (configuration.OutputFilePath.Length > 0)
@@ -120,9 +127,8 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append($"/o:{configuration.OutputFilePath} ");
             }
 
-            arguments.Append($"/run-as-parallel-testing-task ");
+            arguments.Append("/run-as-parallel-testing-task ");
             arguments.Append($"/testing-scheduler-endpoint:{configuration.TestingSchedulerEndPoint} ");
-            arguments.Append($"/testing-scheduler-process-id:{Process.GetCurrentProcess().Id} ");
             arguments.Append($"/testing-process-id:{id}");
 
             return arguments.ToString();

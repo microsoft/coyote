@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.IO
     {
         /// <summary>
         /// Used to log messages. To set a custom logger, use the runtime
-        /// method <see cref="IMachineRuntime.SetLogger{ILogger}"/>.
+        /// method <see cref="ICoyoteRuntime.SetLogger(ILogger)"/>.
         /// </summary>
         protected internal ILogger Logger { get; internal set; }
 

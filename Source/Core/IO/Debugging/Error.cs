@@ -14,6 +14,12 @@ namespace Microsoft.Coyote.IO
     internal static class Error
     {
         /// <summary>
+        /// If you play with Console.ForegroundColor then you should grab this lock in order
+        /// to avoid color leakage (wrong color becomes set permanently).
+        /// </summary>
+        public static readonly object ColorLock = new object();
+
+        /// <summary>
         /// Reports a generic error to the user.
         /// </summary>
         public static void Report(string format, params object[] args)
@@ -52,10 +58,19 @@ namespace Microsoft.Coyote.IO
         /// </summary>
         private static void Write(ConsoleColor color, string value)
         {
-            var previousForegroundColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.Error.Write(value);
-            Console.ForegroundColor = previousForegroundColor;
+            lock (ColorLock)
+            {
+                var previousForegroundColor = Console.ForegroundColor;
+                Console.ForegroundColor = color;
+                try
+                {
+                    Console.Error.Write(value);
+                }
+                finally
+                {
+                    Console.ForegroundColor = previousForegroundColor;
+                }
+            }
         }
     }
 }

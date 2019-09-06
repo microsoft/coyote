@@ -1,13 +1,15 @@
 - name: Install Coyote
-  link: /install.html
+  link: /Coyote/install.html
 - name: Learn
-  link: /learn/
+  link: /Coyote/learn/
 - name: About
-  link: /about.html
+  link: /Coyote/about.html
 - name: Contact us
-  link: /contact-us.html
+  link: /Coyote/contact-us.html
 - name: Contribute
-  link: /contribute.html
+  link: /Coyote/contribute.html
+- name: Code
+  link: https://github.com/microsoft/Coyote
 #- name: Blog (dev)
 #  link: /blog.html
 #- name: Staff (dev)

@@ -2,13 +2,13 @@
 toc:
 - title: Overview
   subfolderitems:
-    - name: What Foo is
-      link: /learn.html
-    - name: Foo’s benefits
+    - name: What Coyote is
+      link: /Coyote/learn/
+    - name: Coyote’s benefits
       link: /#
-    - name: Why distributed systems need Foo
+    - name: Why distributed systems need Coyote
       link: /#
-    - name: What’s new in Foo
+    - name: What’s new in Coyote
       link: /#
     - name: FAQ
       link: /#
@@ -58,7 +58,7 @@ toc:
       link: /#
 - title: Get involved
   subfolderitems:
-    - name: Contribute to Foo
-      link: /#
+    - name: Contribute to Coyote
+      link: /Coyote/contribute.html
     - name: We are hiring interns
       link: /#

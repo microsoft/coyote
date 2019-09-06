@@ -1,0 +1,25 @@
+
+<nav class="navbar navbar-default navbar-fixed-top mb-0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand {% if page.url == "/" %}brand-home{% endif %}" href="/">
+            {{ site.data.global.alt-title }}
+            <span> {% if page.url == "/" %}For rapid development of reliable asynchronous software{% endif %}</span>
+             </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+
+            <ul class="nav navbar-nav navbar-right">
+                {% for item in site.data.navigation %}
+                <li class="pl-20 pr-20 {% if page.url == item.link %}active{% endif %}" ><a class="pt-15 pb-10 pl-0 pr-0" href="{{ item.link }}">{{ item.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include head.html %}
+    {% feed_meta %}
+    {% seo %}
+</head>
+<body class="{{ page.title | downcase | slugify }}">
+    {% include navigation.html %}
+    <main class="wrapper">
+        <section class="section-main">
+            <div class="container-fluid ">
+                <!-- Example row of columns -->
+                <div class="row display-flex">
+                    <div class="col-md-3 p-0 navmenu-fixed-left-wrapper">
+                        {% include navigation-learn.html %}
+                    </div>
+                    <div class="col-md-9 pt-80">
+                        <div class="row">
+                            <div class="col-md-10 ">
+                                <article class="ml-20">
+                                {{content}}
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% include footer.html %}
+    </main>
+    {% include scripts.html %}
+
+
+</body>
+</html>

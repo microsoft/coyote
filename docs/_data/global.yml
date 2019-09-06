@@ -1,0 +1,21 @@
+# Site Settings
+title: 'Coyote'
+alt-title: 'Coyote'
+description: 'Coyote - for rapid development of reliable asynchronous software'
+footer_text: '&copy; 2019 Microsoft Corporation'
+
+#Global content
+footer-join: 'Join our community'
+footer-join-descrip: 'Coyote welcomes new developers and contributors. We depend on you to help make Coyote the framework of choice for highly reliable reactive systems.'
+footer-join-social:
+- i: github
+  p: Keep up to date with what's happening in Coyote. Help us build
+  link: /#
+- i: stack-overflow
+  p: Ask questions and discuss Coyote with fellow programmers.
+  link: /#
+
+
+# Admin Settings
+admin_name: 'Chris Lovett'
+admin_email: 'coyote@microsoft.com'

@@ -1,0 +1,40 @@
+# Footer navigation
+dark:
+- title: Coyote
+  subfolderitems:
+    - name: About
+      link: /#
+    - name: Origin story
+      link: /#
+    - name: Vision statement
+      link: /#
+    - name: Team
+      link: /#
+    - name: Contact us
+      link: /#
+    - name: Intern
+      link: /#
+- title: Resources
+  subfolderitems:
+    - name: Overview
+      link: /#
+    - name: Install
+      link: /#
+    - name: Core concepts
+      link: /#
+    - name: Tutorials
+      link: /#
+    - name: Get involved
+      link: /#
+- title: Join community
+  subfolderitems:
+    - name: GitHub
+      link: /#
+    - name: Gitter
+      link: /#
+
+footnote:
+- name: Terms
+  link: /#
+- name: Privacy
+  link: /#

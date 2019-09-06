@@ -1,0 +1,26 @@
+<div class="navmenu navmenu-default navmenu-fixed-left in pt-100 pl-40 pr-30 pb-100">
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        {% for item in site.data.navigation-learn.toc %}
+        <div class="panel panel-default">
+<!--               panel-heading active-->
+            <div class="panel-heading pl-0" role="tab" id="heading-{{ item.title | downcase | slugify }}">
+                <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ item.title | downcase | slugify }}" aria-expanded="true" aria-controls="collapse-{{ item.title | downcase | slugify }}">
+                        {{ item.title }}
+                    </a>
+                </h4>
+            </div>
+<!--                collapse in-->
+            <div id="collapse-{{ item.title | downcase | slugify }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-{{ item.title | downcase | slugify }}">
+                <div class="panel-body p-0">
+                    <ul class="list-unstyled ml--10">
+                        {% for entry in item.subfolderitems %}
+                        <li class="pt-5 pb-5"><a {% if page.url ==  entry.link %}class="active"{% endif %} href="{{ entry.link }}">{{ entry.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

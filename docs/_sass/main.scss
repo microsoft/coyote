@@ -1,0 +1,531 @@
+$brand-color: #FF6633;
+$inline-link: #666;
+$light-gray: #F3F3F3;
+$bg-gray: #403D3B;
+$dark-gray: #333;
+$learn-gray: #EAEAEA;
+$text-font-stack: 'Helvetica',
+'Helvetica Neue Light',
+'Helvetica Neue',
+'Arial',
+'Open Sans',
+sans-serif;
+
+
+/* ==========================================================================
+   Coyote's custom styles
+   ========================================================================== */
+
+//@breakpoints mixin stub
+//.foo {
+//  @include screen(lg) {
+//    width: 20%;
+//  }
+//  @include screen(md) {
+//    width: 40%;
+//  }
+//  @include screen(sm) {
+//    width: 60%;
+//  }
+//  @include screen(xs) {
+//    width: 80%;
+//  }
+//  @include screen(custom, max, 400) {
+//    width: 100%;
+//  }
+//}
+
+
+//@animations mixin stub
+//    // Define animation name, and properties
+//@include keyframes(fade-out) {
+//  0% { opacity: 1; }
+//  90% { opacity: 0; }
+//}
+//// Add animation to element
+//.element {
+//  width: 100px;
+//  height: 100px;
+//  background: black;
+//  @include animation('fade-out 5s 3');
+//}
+
+
+
+
+/*  typography
+*/
+
+body {
+    font-family: $text-font-stack;
+}
+
+i {
+    color: $brand-color;
+}
+
+a,
+a:hover,
+a:active,
+a:link {
+    color: $inline-link;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+    color: $dark-gray;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+
+
+/* end typograpy
+*/
+
+
+
+/*  navigation
+*/
+
+.navbar-default li.active a,
+.navbar-default li a:hover,
+.navbar-default li a:focus {
+    border-bottom: 3px solid $brand-color;
+    color: $dark-gray;
+}
+
+.home .navbar-header {
+    position: relative;
+}
+
+.home .brand-home {
+    background-color: $brand-color;
+    color: #fff;
+    position: absolute;
+    display: block;
+    width: 300px;
+    height: 300px;
+     transition: all .4s ease-in;
+}
+.home .brand-home.brand-shrink {
+    background-color: transparent;
+    width: 300px;
+    height: 40px;
+    color: #000;
+}
+.home .brand-home span {
+    opacity: 1;
+    transition: all .4s ease-in;
+}
+.home .brand-home.brand-shrink span {
+    opacity: 0;
+}
+
+.navbar-brand span {
+    font-size: 30px;
+    line-height: 122.2%;
+    display: block;
+    margin-top: 40px;
+}
+
+
+
+//sidebar navigation
+.panel-heading a:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e259";
+    transition: all 0.5s;
+    font-size: 14px;
+    font-weight: 100;
+}
+
+.panel-heading.active a:after {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.panel-heading.active .panel-title > a {
+    color: #000;
+}
+
+.panel-title > a:focus,
+.panel-title > a:hover {
+    text-decoration: none
+}
+
+.navmenu-fixed-left .panel-body .active,
+.navmenu-fixed-left .panel-body a:hover {
+    border-left: 2px solid $brand-color;
+    padding: 0 0 0 10px;
+    text-decoration: none;
+    color: $brand-color;
+}
+
+.navmenu-fixed-left .panel-body a {
+    border-left: 2px solid $learn-gray;
+    padding: 0 0 0 10px;
+    font-size: 14px;
+}
+
+
+@mixin bg-white {
+    background-color: #fff;
+}
+
+.bg-white {
+    @include bg-white;
+}
+
+@mixin white {
+    background-color: #fff;
+}
+
+.bg-white {
+    @include bg-white;
+}
+
+.container-gray {
+    background-color: $light-gray;
+}
+.home .carousel {
+
+}
+.carousel-caption h1 {
+    text-align: right
+}
+.carousel-caption p:first-of-type {
+    margin-top: 100px
+}
+.carousel-caption p,
+.carousel-caption .btn {
+    margin-left: 450px;
+}
+
+/*  footer
+*/
+
+footer h4 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 40px;
+    color: #fff;
+}
+
+footer p {
+    font-size: 18px;
+}
+
+.footnote p {
+    font-size: 14px;
+}
+
+footer a {
+    color: #fff;
+    text-decoration: none
+}
+
+.footer-join {
+    background-color: $light-gray;
+    color: $dark-gray;
+}
+
+.footer-join ul {
+    border-bottom: 2px solid #ccc;
+}
+
+.footer-join a {
+    color: $inline-link;
+    font-weight: bold;
+}
+
+.footer-dark {
+    background-color: $bg-gray;
+    color: #fff;
+}
+
+.navbar.navbar-footer {
+    height: auto;
+}
+
+.footer-dark a,
+.footer-dark a:hover,
+.footer-dark a:active,
+.footer-dark a:visited {
+    color: #fff;
+    font-size: 16px;
+    line-height: 33px;
+}
+
+.footnote,
+.footnote a {
+    font-size: 14px;
+    line-height: 16px;
+}
+
+
+.footnote-legal li {
+    //  @include screen(large) {
+    //    display: inline-block;
+    //      float: left;
+    //  }
+    //  @include screen(med) {
+    //    width: 40%;
+    //  }
+    //  @include screen(med-small) {
+    //    width: 60%;
+    //  }
+    //  @include screen(small) {
+    //    width: 80%;
+    //  }
+
+}
+
+/* end footer
+*/
+
+
+
+
+
+.img-shadow {
+    box-shadow: 0px 30px 20px rgba(141, 141, 141, 0.187868);
+    -webkit-box-shadow: 0px 30px 20px rgba(141, 141, 141, 0.187868);
+    -moz-box-shadow: 0px 30px 20px rgba(141, 141, 141, 0.187868);
+}
+
+
+// helpers
+.center-wrapper {
+    position: relative;
+}
+
+.center-vertical {
+    @include center(vertical);
+}
+
+.center-horizontal {
+    @include center(horizontal);
+}
+
+.center-both {
+    @include center(both);
+}
+
+.install-p-sharp {
+    background-color: $light-gray;
+}
+
+.install-p-sharp article {
+    background-color: #fff;
+}
+
+.row.display-flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.row.display-flex > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+}
+
+/* bootstrap - override default styles
+*/
+
+.navbar-default .navbar-nav > li > a {
+    color: $dark-gray;
+}
+
+.btn {
+    border-radius: 0;
+    -webkit-box-shadow: 0px 16px 20px rgba(255, 102, 51, 0.277146);
+    -moz-box-shadow: 0px 16px 20px rgba(255, 102, 51, 0.277146);
+    box-shadow: 0px 16px 20px rgba(255, 102, 51, 0.277146);
+    padding: 8px 22px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: $brand-color;
+    border-color: $brand-color;
+}
+
+.btn-primary:hover,
+.btn-primary.active,
+.btn-primary:active,
+.open > .dropdown-toggle.btn-primary,
+.btn-primary.focus,
+.btn-primary:focus {
+    color: #fff;
+    background-color: darken($brand-color, 10%);
+    border-color: darken($brand-color, 10%);
+}
+
+.btn-default {
+    border-radius: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    border-color: #fff;
+}
+
+.btn-default:hover {
+    background-color: #fff;
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a:hover {
+    background-color: transparent;
+}
+
+//learn sidenav
+.panel,
+.panel-default > .panel-heading,
+.panel-group .panel,
+.panel-group,
+.panel-default > .panel-heading + .panel-collapse > .panel-body,
+.panel-group .panel-heading + .panel-collapse > .list-group,
+.panel-group .panel-heading + .panel-collapse > .panel-body,
+.nav-tabs {
+    color: inherit;
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+}
+
+.nav-tabs > li > a,
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover,
+.nav-tabs,
+.nav-tabs > li > a:hover {
+    border-color: transparent;
+    border: none;
+}
+
+.panel-title {
+    font-size: 18px;
+}
+
+
+//fixed topnav - shrink onscroll
+.navbar-default {
+    background-color: transparent;
+    height: 110px;
+    border: 1px solid transparent;
+    transition: all .2s ease-in;
+}
+
+.navbar-default.shrink {
+    background-color: #fff;
+    height: 70px;
+    border: 1px solid $light-gray;
+}
+
+.navbar-default .navbar-nav > li {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    transition: all .3s ease-in;
+}
+
+.navbar-default.shrink .navbar-nav > li {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.navmenu-fixed-left-wrapper {
+    background-color: $learn-gray;
+}
+
+blockquote {
+    font-family: Georgia, sans-serif;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 36px;
+    line-height: 41px;
+    border-left: none;
+}
+
+blockquote::before {
+    content: "\201C";
+    display: block;
+    font-size: 180px;
+    color: $brand-color;
+}
+
+blockquote footer {
+    font-family: $text-font-stack;
+    font-style: normal;
+    font-size: 18px;
+}
+.carousel-indicators {
+    position: absolute;
+    bottom: auto;
+    left: 0;
+    top: 50%;
+    z-index: 15;
+    width: auto;
+    padding-left: 0;
+    margin-left: -80px;
+    text-align: left;
+}
+.carousel-indicators li {
+    display: inline-block;
+    width: auto;
+    height: auto;
+    margin: auto;
+    text-indent: inherit;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    color: rgba(0, 0, 0, 0.15);
+    display: block;
+    float: none;
+    padding: 2px 0 2px 30px;
+
+}
+.carousel-indicators .active {
+    width: auto;
+    height: auto;
+    margin: 0;
+    background-color: transparent;
+    color: #000;
+    border-bottom: 1px solid $brand-color;
+    padding: 2px 0 2px 30px;
+}
+.carousel-caption {
+    position: absolute;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    top: 50px;
+    width: 70%;
+    z-index: 10;
+    padding-top: 0;
+    padding-bottom: 0;
+    color: inherit;
+    text-align: left;
+    text-shadow: none;
+}
+
+/* end boostrap overrides
+*/

@@ -1,0 +1,14 @@
+- name: Install Coyote
+  link: /install.html
+- name: Learn
+  link: /learn/
+- name: About
+  link: /about.html
+- name: Contact us
+  link: /contact-us.html
+- name: Contribute
+  link: /contribute.html
+#- name: Blog (dev)
+#  link: /blog.html
+#- name: Staff (dev)
+#  link: /staff.html

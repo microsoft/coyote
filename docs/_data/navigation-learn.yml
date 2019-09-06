@@ -1,0 +1,64 @@
+#Learn Coyote sidebar navigation
+toc:
+- title: Overview
+  subfolderitems:
+    - name: What Foo is
+      link: /learn.html
+    - name: Foo’s benefits
+      link: /#
+    - name: Why distributed systems need Foo
+      link: /#
+    - name: What’s new in Foo
+      link: /#
+    - name: FAQ
+      link: /#
+- title: Get started with Coyote
+  subfolderitems:
+    - name: Get started
+      link: /#
+    - name: Install package
+      link: /#
+    - name: Build from source
+      link: /#
+    - name: Ways to use Coyote
+      link: /#
+- title: Core concepts
+  subfolderitems:
+    - name: Defining an actor
+      link: /#
+    - name: Learning about the actor model
+      link: /#
+    - name: Terminating a machine
+      link: /#
+    - name: Specifying models and safety/liveness properties
+      link: /#
+    - name: Using async/await in a machine
+      link: /#
+    - name: Sharing objects across machines
+      link: /#
+    - name: Implementing synchronous execution of machines
+      link: /#
+    - name: Using timers in Coyote
+      link: /#
+    - name: Logging and tracking operation groups
+      link: /#
+    - name: Choosing optimal bug coverage
+      link: /#
+- title: Tutorials
+  subfolderitems:
+    - name: Coyote basics
+      link: /#
+    - name: Building your first Coyote application
+      link: /#
+    - name: Learning about using actors
+      link: /#
+    - name: Choosing parameter to maximize bug coverage
+      link: /#
+    - name: Using debugging visualizer
+      link: /#
+- title: Get involved
+  subfolderitems:
+    - name: Contribute to Foo
+      link: /#
+    - name: We are hiring interns
+      link: /#

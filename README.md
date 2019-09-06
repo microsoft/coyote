@@ -1,5 +1,8 @@
 Coyote (previously known as P#) is a framework for rapid development of reliable asynchronous software. Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design, implement and automatically test production distributed systems and services.
 
+See our [lovely website](https://microsoft.github.io/microsoft/coyote) for more
+information about the project, case studies, and reference documentation.
+
 # Why should I use Coyote?
 
 The key value of Coyote is that it allows you to easily test your code against concurrency and nondeterminism, as well as write and check safety and liveness specifications. During testing, Coyote serializes your program, captures and controls all (implicit as well as specified) nondeterminism, and thoroughly explores the executable code (in your local dev machine) to automatically discover deep concurrency bugs. If a bug is found, Coyote reports a reproducible bug trace that provides a global order of all asynchrony and events in the system, and thus is significantly easier to debug that regular unit-/integration-tests and logs from production or stress tests, which are typically nondeterministic.

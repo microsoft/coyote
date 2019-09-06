@@ -1,0 +1,99 @@
+
+# Setup
+title:        Coyote
+alt-title:    Coyote
+tagline:      Coyote - for rapid development of reliable asynchronous code.
+baseurl:      "/Coyote"
+
+
+author:
+  name:       Microsoft
+  url:        https://github.com/Microsoft/Coyote
+
+# permalink: pretty #removes .html from generated links
+
+collections:
+  authors:
+    output: true
+
+source: docs
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-relative-links
+ # - jekyll-livereload
+
+
+#livereload: true     # no longer need to include --livereload
+
+
+
+#destination: ./_site
+#layouts_dir:     ./_layouts
+#data_dir: ./_data
+
+source: docs
+
+relative_links:
+  enabled:     false
+  collections: true
+
+#relative_links:
+#  exclude:
+#    - directory
+#    - file.md
+
+# Handling Reading
+safe:         false
+include:      [".htaccess"]
+exclude:      []
+keep_files:   [".git", ".svn"]
+encoding:     "utf-8"
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"
+
+
+# Conversion
+markdown:    kramdown
+highlighter: rouge
+
+
+# Markdown Processors
+rdiscount:
+  extensions: []
+
+redcarpet:
+  extensions: []
+
+kramdown:
+  auto_ids:       true
+  footnote_nr:    1
+  entity_output:  as_char
+  toc_levels:     1..6
+  smart_quotes:   lsquo,rsquo,ldquo,rdquo
+  enable_coderay: false
+
+  syntax_highlighter_opts:
+    coderay_wrap:              div
+    coderay_line_numbers:      inline
+    coderay_line_number_start: 1
+    coderay_tab_width:         4
+    coderay_bold_every:        10
+    coderay_css:               style
+
+
+
+

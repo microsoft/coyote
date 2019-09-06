@@ -21,7 +21,7 @@ function Invoke-ToolCommand([String]$tool, [String]$command, [String]$error_msg)
     Invoke-Expression "$tool $command"
     if (-not ($LASTEXITCODE -eq 0)) {
         Write-Error $error_msg
-        exit
+        exit $LASTEXITCODE
     }
 }
 

@@ -13,9 +13,13 @@ if (-not (Test-Path $nuget)) {
     Invoke-WebRequest "$nuget_exe_url" -OutFile "$nuget_exe_dir\nuget.exe"
     if (-not (Test-Path $nuget)) {
         Write-Error "Unable to download 'nuget.exe'. Please download '$nuget_exe_url' and place in '$nuget_exe_dir\' directory."
-        exit
+        exit 1
     }
     Write-Comment -prefix "..." -text "Installed 'nuget.exe' in '$nuget_exe_dir'" -color "white"
+}
+
+if (Test-Path $PSScriptRoot\..\bin\nuget) {
+    Remove-Item $PSScriptRoot\..\bin\nuget\*
 }
 
 $command = "pack $nuget_exe_dir\Coyote.nuspec -OutputDirectory $PSScriptRoot\..\bin\nuget"

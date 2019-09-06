@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using CoyoteTester.Interfaces;
 using Microsoft.Coyote.SmartSockets;
@@ -38,6 +39,16 @@ namespace Microsoft.Coyote.TestingServices
         private readonly Dictionary<string, SmartSocketClient> TestingProcessChannels;
 
         /// <summary>
+        /// Total number of remote test processes that have called home.
+        /// </summary>
+        private int TestProcessesConnected;
+
+        /// <summary>
+        /// Time that last message was received from a parallel test.
+        /// </summary>
+        private int LastMessageTime;
+
+        /// <summary>
         /// Records if we want certain child test processes to terminate, this key here is the
         /// SmartSocketClient Name.
         /// </summary>
@@ -47,6 +58,11 @@ namespace Microsoft.Coyote.TestingServices
         /// The test reports per process.
         /// </summary>
         private readonly ConcurrentDictionary<uint, TestReport> TestReports;
+
+        /// <summary>
+        /// Test Trace files.
+        /// </summary>
+        private readonly ConcurrentDictionary<uint, string> TraceFiles;
 
         /// <summary>
         /// The global test report, which contains merged information
@@ -65,8 +81,7 @@ namespace Microsoft.Coyote.TestingServices
         private readonly object SchedulerLock;
 
         /// <summary>
-        /// The process id of the process that
-        /// discovered a bug, else null.
+        /// The process id of the process that discovered a bug, else null.
         /// </summary>
         private uint? BugFoundByProcess;
 
@@ -93,6 +108,7 @@ namespace Microsoft.Coyote.TestingServices
             this.TestingProcesses = new Dictionary<uint, Process>();
             this.TestingProcessChannels = new Dictionary<string, SmartSocketClient>();
             this.TestReports = new ConcurrentDictionary<uint, TestReport>();
+            this.TraceFiles = new ConcurrentDictionary<uint, string>();
             this.GlobalTestReport = new TestReport(configuration);
             this.Profiler = new Profiler();
             this.SchedulerLock = new object();
@@ -139,35 +155,42 @@ namespace Microsoft.Coyote.TestingServices
 
         private async void CleanupTestProcesses(uint bugProcessId, int maxWait = 60000)
         {
-            string serverName = this.Configuration.TestingSchedulerEndPoint;
-            var stopRequest = new TestServerMessage("TestServerMessage", serverName)
+            try
             {
-                Stop = true
-            };
-
-            var snapshot = new Dictionary<uint, Process>(this.TestingProcesses);
-
-            foreach (var testingProcess in snapshot)
-            {
-                if (testingProcess.Key != bugProcessId)
+                string serverName = this.Configuration.TestingSchedulerEndPoint;
+                var stopRequest = new TestServerMessage("TestServerMessage", serverName)
                 {
-                    string name = "CoyoteTestingProcess." + testingProcess.Key;
+                    Stop = true
+                };
 
-                    lock (this.Terminating)
-                    {
-                        this.Terminating.Add(name);
-                    }
+                var snapshot = new Dictionary<uint, Process>(this.TestingProcesses);
 
-                    if (this.TestingProcessChannels.TryGetValue(name, out SmartSocketClient client) && client.BackChannel != null)
+                foreach (var testingProcess in snapshot)
+                {
+                    if (testingProcess.Key != bugProcessId)
                     {
-                        // use the back channel to stop the client immediately, which will trigger client
-                        // to also send us their TestReport (on the regular channel).
-                        await client.BackChannel.SendAsync(stopRequest);
+                        string name = "CoyoteTestingProcess." + testingProcess.Key;
+
+                        lock (this.Terminating)
+                        {
+                            this.Terminating.Add(name);
+                        }
+
+                        if (this.TestingProcessChannels.TryGetValue(name, out SmartSocketClient client) && client.BackChannel != null)
+                        {
+                            // use the back channel to stop the client immediately, which will trigger client
+                            // to also send us their TestReport (on the regular channel).
+                            await client.BackChannel.SendAsync(stopRequest);
+                        }
                     }
                 }
-            }
 
-            await this.WaitForParallelTestReports(maxWait);
+                await this.WaitForParallelTestReports(maxWait);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"... Exception: {ex.Message}");
+            }
         }
 
         private void KillTestingProcesses()
@@ -273,14 +296,12 @@ namespace Microsoft.Coyote.TestingServices
 
         private async Task WaitForParallelTestingProcesses()
         {
-            if (this.Configuration.WaitForTestingProcesses)
+            if (this.TestingProcesses.Count > 0)
             {
-                Console.WriteLine($"... Waiting for testing processes to start with these command lines:");
-                foreach (var item in this.TestingProcesses)
-                {
-                    Process p = item.Value;
-                    Console.WriteLine($"{p.StartInfo.FileName} {p.StartInfo.Arguments}");
-                }
+                Console.WriteLine($"... Waiting for testing processes to start.  Use the following command line to launch each test");
+                Console.WriteLine($"... Make sure to change /testing-process-id:x so that x goes from 0 to {this.TestingProcesses.Count}");
+                Process p = this.TestingProcesses[0];
+                Console.WriteLine($"{p.StartInfo.FileName} {p.StartInfo.Arguments}");
             }
 
             await this.WaitForParallelTestReports();
@@ -288,17 +309,32 @@ namespace Microsoft.Coyote.TestingServices
 
         private async Task WaitForParallelTestReports(int maxWait = 60000)
         {
-            int reportCount = this.TestingProcesses.Count;
-            // wait 60 seconds for tasks to call back with all their reports...
-            while (this.TestReports.Count < reportCount)
+            this.LastMessageTime = Environment.TickCount;
+
+            // wait for the parallel tasks to connect to us
+            while (this.TestProcessesConnected < this.TestingProcesses.Count)
             {
                 await Task.Delay(100);
-                maxWait -= 100;
-                if (maxWait <= 0)
-                {
-                    // oh dear, some testing processes are not responding, so kill them all !
-                    this.KillTestingProcesses();
-                }
+                this.AssertTestProcessActivity(maxWait);
+            }
+
+            // wait 60 seconds for tasks to call back with all their reports and disconnect.
+            // and reset the click each time a message is received
+            while (this.TestingProcessChannels.Count > 0)
+            {
+                await Task.Delay(100);
+                this.AssertTestProcessActivity(maxWait);
+            }
+        }
+
+        private void AssertTestProcessActivity(int maxWait)
+        {
+            if (this.LastMessageTime + maxWait < Environment.TickCount)
+            {
+                // oh dear, haven't heard from anyone in 60 seconds, and they have not
+                // disconnected, so time to get out the sledge hammer and kill them!
+                this.KillTestingProcesses();
+                throw new Exception("Terminating TestProcesses due to inactivity");
             }
         }
 
@@ -366,6 +402,7 @@ namespace Microsoft.Coyote.TestingServices
                                                        typeof(TestReportMessage),
                                                        typeof(TestServerMessage),
                                                        typeof(TestProgressMessage),
+                                                       typeof(TestTraceMessage),
                                                        typeof(TestReport),
                                                        typeof(CoverageInfo),
                                                        typeof(Configuration));
@@ -374,7 +411,10 @@ namespace Microsoft.Coyote.TestingServices
             server.ClientDisconnected += this.OnClientDisconnected;
             server.BackChannelOpened += this.OnBackChannelOpened;
 
-            IO.Debug.WriteLine($"... Server listening on TCP port '{server.IpPort}'");
+            // pass this along to the TestingProcesses.
+            this.Configuration.TestingSchedulerIpAddress = server.EndPoint.ToString();
+
+            IO.Debug.WriteLine($"... Server listening on '{server.EndPoint}'");
 
             this.Server = server;
         }
@@ -430,12 +470,14 @@ namespace Microsoft.Coyote.TestingServices
                 SocketMessage e = await client.ReceiveAsync();
                 if (e != null)
                 {
+                    this.LastMessageTime = Environment.TickCount;
                     uint processId = 0;
 
                     if (e.Id == SmartSocketClient.ConnectedMessageId)
                     {
                         lock (this.SchedulerLock)
                         {
+                            this.TestProcessesConnected++;
                             this.TestingProcessChannels.Add(e.Sender, client);
                         }
                     }
@@ -463,6 +505,13 @@ namespace Microsoft.Coyote.TestingServices
 
                         this.SetTestReport(report.TestReport, report.ProcessId);
                     }
+                    else if (e is TestTraceMessage)
+                    {
+                        TestTraceMessage report = (TestTraceMessage)e;
+                        processId = report.ProcessId;
+                        await client.SendAsync(new SocketMessage("ok", this.Configuration.TestingSchedulerEndPoint));
+                        this.SaveTraceReport(report);
+                    }
                     else if (e is TestProgressMessage)
                     {
                         TestProgressMessage progress = (TestProgressMessage)e;
@@ -471,6 +520,25 @@ namespace Microsoft.Coyote.TestingServices
                         // todo: do something fun with progress info.
                     }
                 }
+            }
+        }
+
+        private void SaveTraceReport(TestTraceMessage report)
+        {
+            if (report.Contents != null)
+            {
+                string fileName = this.Configuration.AssemblyToBeAnalyzed;
+                string targetDir = Path.GetDirectoryName(fileName);
+                string outputDir = Path.Combine(targetDir, "Output", Path.GetFileName(fileName), "CoyoteTesterOutput");
+                string remoteFileName = Path.GetFileName(report.FileName);
+                string localTraceFile = Path.Combine(outputDir, remoteFileName);
+                File.WriteAllText(localTraceFile, report.Contents);
+                Console.WriteLine($"... Saved trace report: {localTraceFile}");
+            }
+            else
+            {
+                // tests ran locally so the file name is good!
+                Console.WriteLine($"... See trace report: {report.FileName}");
             }
         }
 

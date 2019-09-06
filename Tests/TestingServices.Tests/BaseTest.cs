@@ -239,7 +239,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             if (!expectedErrors.Contains(string.Empty))
             {
-                Assert.Equal(1, engine.TestReport.NumOfFoundBugs);
+                Assert.True(engine.TestReport.NumOfFoundBugs > 0);
             }
 
             foreach (var bugReport in engine.TestReport.BugReports)

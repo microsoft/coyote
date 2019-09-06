@@ -107,7 +107,7 @@ namespace Microsoft.Coyote
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs args)
         {
             var ex = (Exception)args.ExceptionObject;
-            Error.Report("[CoyoteTester] internal failure: {0}: {1}", ex.GetType().ToString(), ex.Message);
+            Error.Report("[CoyoteTester] failure: {0}: {1}", ex.GetType().ToString(), ex.Message);
             Console.WriteLine(ex.StackTrace);
             Shutdown();
             Environment.Exit(1);

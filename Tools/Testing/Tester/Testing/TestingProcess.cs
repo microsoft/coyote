@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CoyoteTester.Interfaces;
@@ -125,7 +127,7 @@ namespace Microsoft.Coyote.TestingServices
 
                 if (this.TestingEngine.TestReport.NumOfFoundBugs > 0)
                 {
-                    this.EmitTraces();
+                    await this.EmitTraces();
                 }
             }
 
@@ -181,11 +183,34 @@ namespace Microsoft.Coyote.TestingServices
                                                        typeof(TestReportMessage),
                                                        typeof(TestServerMessage),
                                                        typeof(TestProgressMessage),
+                                                       typeof(TestTraceMessage),
                                                        typeof(TestReport),
                                                        typeof(CoverageInfo),
                                                        typeof(Configuration));
 
-            SmartSocketClient client = await SmartSocketClient.FindServerAsync(serviceName, this.Name, resolver, source.Token);
+            SmartSocketClient client = null;
+            if (!string.IsNullOrEmpty(this.Configuration.TestingSchedulerIpAddress))
+            {
+                string[] parts = this.Configuration.TestingSchedulerIpAddress.Split(':');
+                if (parts.Length == 2)
+                {
+                    var endPoint = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
+                    while (!source.IsCancellationRequested && client == null)
+                    {
+                        client = await SmartSocketClient.ConnectAsync(endPoint, this.Name, resolver);
+                    }
+                }
+            }
+            else
+            {
+                client = await SmartSocketClient.FindServerAsync(serviceName, this.Name, resolver, source.Token);
+            }
+
+            if (client == null)
+            {
+                throw new Exception("Failed to connect to server");
+            }
+
             client.Error += this.OnClientError;
             client.ServerName = serviceName;
             this.Server = client;
@@ -253,7 +278,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Emits the testing traces.
         /// </summary>
-        private void EmitTraces()
+        private async Task EmitTraces()
         {
             string file = Path.GetFileNameWithoutExtension(this.Configuration.AssemblyToBeAnalyzed);
             file += "_" + this.Configuration.TestingProcessId;
@@ -262,7 +287,30 @@ namespace Microsoft.Coyote.TestingServices
             CodeCoverageInstrumentation.SetOutputDirectory(this.Configuration, makeHistory: false);
 
             Console.WriteLine($"... Emitting task {this.Configuration.TestingProcessId} traces:");
-            this.TestingEngine.TryEmitTraces(CodeCoverageInstrumentation.OutputDirectory, file);
+            var traces = new List<string>(this.TestingEngine.TryEmitTraces(CodeCoverageInstrumentation.OutputDirectory, file));
+
+            if (this.Server != null && this.Server.IsConnected)
+            {
+                await this.SendTraces(traces);
+            }
+        }
+
+        private async Task SendTraces(List<string> traces)
+        {
+            IPEndPoint localEndPoint = (IPEndPoint)this.Server.Socket.LocalEndPoint;
+            IPEndPoint serverEndPoint = (IPEndPoint)this.Server.Socket.RemoteEndPoint;
+            bool differentMachine = localEndPoint.Address.ToString() != serverEndPoint.Address.ToString();
+            foreach (var filename in traces)
+            {
+                string contents = null;
+                if (differentMachine)
+                {
+                    Console.WriteLine($"... Sending trace file: {filename}");
+                    contents = File.ReadAllText(filename);
+                }
+
+                await this.Server.SendReceiveAsync(new TestTraceMessage("TestTraceMessage", this.Name, this.Configuration.TestingProcessId, filename, contents));
+            }
         }
 
         /// <summary>

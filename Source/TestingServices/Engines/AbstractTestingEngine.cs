@@ -380,9 +380,10 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Tries to emit the testing traces, if any.
         /// </summary>
-        public virtual void TryEmitTraces(string directory, string file)
+        public virtual IEnumerable<string> TryEmitTraces(string directory, string file)
         {
             // No-op, must be implemented in subclass.
+            throw new NotImplementedException();
         }
 
         /// <summary>

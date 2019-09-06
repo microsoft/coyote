@@ -26,7 +26,6 @@ namespace Microsoft.Coyote.SmartSockets
     /// </summary>
     public class SmartSocketServer
     {
-        private int Port;
         private bool Stopped;
         private Socket Listener;
         private readonly string ServiceName;
@@ -34,6 +33,21 @@ namespace Microsoft.Coyote.SmartSockets
         private readonly List<SmartSocketClient> Clients = new List<SmartSocketClient>();
         private readonly SmartSocketTypeResolver Resolver;
         private UdpClient UdpListener;
+
+        /// <summary>
+        /// Address for UDP group.
+        /// </summary>
+        public IPAddress GroupAddress { get; internal set; }
+
+        /// <summary>
+        /// Port used for UDP broadcasts.
+        /// </summary>
+        public int GroupPort { get; internal set; }
+
+        /// <summary>
+        /// The end point we are listening on (valid after calling StartServer)
+        /// </summary>
+        public IPEndPoint EndPoint { get; set; }
 
         /// <summary>
         /// Raised when a new client is connected
@@ -59,10 +73,8 @@ namespace Microsoft.Coyote.SmartSockets
         /// <param name="name">The name the client will check in UDP broadcasts to make sure it is connecting to the right server</param>
         /// <param name="resolver">A way of providing custom Message types for serialization</param>
         /// <param name="ipAddress">An optional ipAddress so you can decide which network interface to use</param>
-        private SmartSocketServer(string name, SmartSocketTypeResolver resolver,
-                                   string ipAddress = "127.0.0.1:0",
-                                   string udpGroupAddress = "226.10.10.2",
-                                   int udpGroupPort = 37992)
+        private SmartSocketServer(string name, SmartSocketTypeResolver resolver, string ipAddress = "127.0.0.1:0",
+            string udpGroupAddress = "226.10.10.2", int udpGroupPort = 37992)
         {
             this.ServiceName = name;
             this.Resolver = resolver;
@@ -91,16 +103,6 @@ namespace Microsoft.Coyote.SmartSockets
         }
 
         /// <summary>
-        /// Address for UDP group.
-        /// </summary>
-        public IPAddress GroupAddress { get; internal set; }
-
-        /// <summary>
-        /// Port used for UDP broadcasts.
-        /// </summary>
-        public int GroupPort { get; internal set; }
-
-        /// <summary>
         /// Start a new server that listens for connections from anyone.
         /// </summary>
         /// <param name="name">The unique name of the server</param>
@@ -109,11 +111,14 @@ namespace Microsoft.Coyote.SmartSockets
         /// <param name="udpGroupAddress">Optional request to setup UDP listener, pass null if you don't want that</param>
         /// <param name="udpGroupPort">Optional port required if you provide udpGroupAddress</param>
         /// <returns>Returns the new server object</returns>
-        public static SmartSocketServer StartServer(string name, SmartSocketTypeResolver resolver,
-                                             string ipAddress = "127.0.0.1:0",
-                                             string udpGroupAddress = "226.10.10.2",
-                                             int udpGroupPort = 37992)
+        public static SmartSocketServer StartServer(string name, SmartSocketTypeResolver resolver, string ipAddress,
+            string udpGroupAddress = "226.10.10.2", int udpGroupPort = 37992)
         {
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                ipAddress = "127.0.0.1:0";
+            }
+
             SmartSocketServer server = new SmartSocketServer(name, resolver, ipAddress, udpGroupAddress, udpGroupPort);
             server.StartListening();
             return server;
@@ -129,7 +134,7 @@ namespace Microsoft.Coyote.SmartSockets
             this.Listener.Bind(ep);
 
             IPEndPoint ip = this.Listener.LocalEndPoint as IPEndPoint;
-            this.Port = ip.Port;
+            this.EndPoint = ip;
             this.Listener.Listen(10);
 
             // now start a background thread to process incoming requests.
@@ -196,11 +201,6 @@ namespace Microsoft.Coyote.SmartSockets
                 await client.SendAsync(message);
             }
         }
-
-        /// <summary>
-        /// The port we are listening to.
-        /// </summary>
-        public int IpPort => this.Port;
 
         /// <summary>
         /// Call this method on a background thread to listen to our port.

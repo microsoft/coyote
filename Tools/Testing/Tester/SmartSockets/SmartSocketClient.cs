@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.SmartSockets
             // start a new server that does not use UDP.
             var server = SmartSocketServer.StartServer(this.Name, this.Resolver, ipe.Address.ToString(), null, 0);
             server.ClientConnected += connectedHandler;
-            int port = server.IpPort;
+            int port = server.EndPoint.Port;
             // tell the server we've opened another channel and pass the "port" number
             var response = await this.SendReceiveAsync(new SocketMessage(OpenBackChannelMessageId, this.Name + ":" + port));
             if (response.Id == ErrorMessageId)

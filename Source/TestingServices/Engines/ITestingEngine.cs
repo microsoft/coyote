@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Coyote.TestingServices
 {
@@ -35,7 +36,8 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Tries to emit the testing traces, if any.
         /// </summary>
-        void TryEmitTraces(string directory, string file);
+        /// <returns> Each filename created. </returns>
+        IEnumerable<string> TryEmitTraces(string directory, string file);
 
         /// <summary>
         /// Registers a callback to invoke at the end of each iteration. The callback

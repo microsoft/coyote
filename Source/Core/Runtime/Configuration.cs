@@ -344,7 +344,7 @@ namespace Microsoft.Coyote
             this.ParallelBugFindingTasks = 0;
             this.RunAsParallelBugFindingTask = false;
             this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
-            this.TestingSchedulerIpAddress = "127.0.0.1:0";
+            this.TestingSchedulerIpAddress = null;
             this.TestingProcessId = 0;
             this.ConsiderDepthBoundHitAsBug = false;
             this.PrioritySwitchBound = 0;

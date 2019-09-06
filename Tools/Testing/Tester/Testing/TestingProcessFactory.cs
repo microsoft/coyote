@@ -129,7 +129,8 @@ namespace Microsoft.Coyote.TestingServices
 
             arguments.Append("/run-as-parallel-testing-task ");
             arguments.Append($"/testing-scheduler-endpoint:{configuration.TestingSchedulerEndPoint} ");
-            arguments.Append($"/testing-process-id:{id}");
+            arguments.Append($"/testing-scheduler-ipaddress:{configuration.TestingSchedulerIpAddress} ");
+            arguments.Append($"/testing-process-id:{id} ");
 
             return arguments.ToString();
         }

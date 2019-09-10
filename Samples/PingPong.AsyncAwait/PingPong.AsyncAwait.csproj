@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\build.props" />
-  <PropertyGroup>
-    <Description>The PingPong sample.</Description>
-    <AssemblyName>PingPong.AsyncAwait</AssemblyName>
-    <RootNamespace>PingPong.AsyncAwait</RootNamespace>
-  </PropertyGroup>
-</Project>

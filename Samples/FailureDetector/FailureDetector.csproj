@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\build.props" />
-  <PropertyGroup>
-    <Description>The FailureDetector sample.</Description>
-    <AssemblyName>FailureDetector</AssemblyName>
-    <RootNamespace>FailureDetector</RootNamespace>
-  </PropertyGroup>
-</Project>

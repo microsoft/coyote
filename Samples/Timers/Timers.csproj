@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\build.props" />
-  <PropertyGroup>
-    <Description>P# sample using Timers.</Description>
-    <AssemblyName>Timers</AssemblyName>
-    <RootNamespace>Timers</RootNamespace>
-  </PropertyGroup>
-</Project>

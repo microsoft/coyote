@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\build.props" />
-  <PropertyGroup>
-    <Description>The MultiPaxos sample.</Description>
-    <AssemblyName>MultiPaxos</AssemblyName>
-    <RootNamespace>MultiPaxos</RootNamespace>
-  </PropertyGroup>
-</Project>

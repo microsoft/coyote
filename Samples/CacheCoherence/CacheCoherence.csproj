@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\build.props" />
-  <PropertyGroup>
-    <Description>The CacheCoherence sample.</Description>
-    <AssemblyName>CacheCoherence</AssemblyName>
-    <RootNamespace>CacheCoherence</RootNamespace>
-  </PropertyGroup>
-</Project>

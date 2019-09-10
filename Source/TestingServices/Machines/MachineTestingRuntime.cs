@@ -8,11 +8,16 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Timers;
+using Microsoft.Coyote.Threading;
+using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Timers;
+
+using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {
@@ -296,6 +301,227 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
             });
         }
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
+            CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+            CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
+        /// </summary>
+        internal override ControlledTask CreateControlledTaskDelay(int millisecondsDelay, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
+        /// </summary>
+        internal override ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> associated with a completion source.
+        /// </summary>
+        internal override ControlledTask CreateControlledTaskCompletionSource(Task task) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask{TResult}"/> associated with a completion source.
+        /// </summary>
+        internal override ControlledTask<TResult> CreateControlledTaskCompletionSource<TResult>(Task<TResult> task) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(params Task[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
+        /// </summary>
+        internal override int WaitAnyTask(params ControlledTask[] tasks) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Ends the wait for the completion of the yield operation.
+        /// </summary>
+        internal override void OnGetYieldResult(DefaultYieldAwaiter awaiter) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Sets the action to perform when the yield operation completes.
+        /// </summary>
+        internal override void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Schedules the continuation action that is invoked when the yield operation completes.
+        /// </summary>
+        internal override void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
+        /// Creates a mutual exclusion lock that is compatible with <see cref="ControlledTask"/> objects.
+        /// </summary>
+        internal override ControlledLock CreateControlledLock() =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner machine.

@@ -33,6 +33,24 @@ namespace Microsoft.Coyote.TestingServices
             BugFindingEngine.Create(configuration, test);
 
         /// <summary>
+        /// Creates a new bug-finding engine.
+        /// </summary>
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Action<ICoyoteRuntime> test) =>
+            BugFindingEngine.Create(configuration, test);
+
+        /// <summary>
+        /// Creates a new bug-finding engine.
+        /// </summary>
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Func<Task> test) =>
+            BugFindingEngine.Create(configuration, test);
+
+        /// <summary>
+        /// Creates a new bug-finding engine.
+        /// </summary>
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Func<ICoyoteRuntime, Task> test) =>
+            BugFindingEngine.Create(configuration, test);
+
+        /// <summary>
         /// Creates a new replay engine.
         /// </summary>
         public static ITestingEngine CreateReplayEngine(Configuration configuration) =>
@@ -53,7 +71,19 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new replay engine.
         /// </summary>
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Action<ICoyoteRuntime> test) =>
+            ReplayEngine.Create(configuration, test);
+
+        /// <summary>
+        /// Creates a new replay engine.
+        /// </summary>
         public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<Task> test) =>
+            ReplayEngine.Create(configuration, test);
+
+        /// <summary>
+        /// Creates a new replay engine.
+        /// </summary>
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<ICoyoteRuntime, Task> test) =>
             ReplayEngine.Create(configuration, test);
     }
 }

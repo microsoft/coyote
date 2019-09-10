@@ -20,6 +20,7 @@ using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.TestingServices
@@ -484,32 +485,43 @@ namespace Microsoft.Coyote.TestingServices
 
             bool hasExpectedReturnType = (testMethod.ReturnType == typeof(void) &&
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) ||
-                (testMethod.ReturnType == typeof(Task) &&
+                (testMethod.ReturnType == typeof(ControlledTask) &&
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
             bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
-                testParams.Length is 1 &&
-                testParams[0].ParameterType == typeof(ICoyoteRuntime);
+                (testParams.Length is 0 ||
+                (testParams.Length is 1 && testParams[0].ParameterType == typeof(ICoyoteRuntime)));
 
             if (testMethod.IsAbstract || testMethod.IsVirtual || testMethod.IsConstructor ||
                 !testMethod.IsPublic || !testMethod.IsStatic ||
                 !hasExpectedReturnType || !hasExpectedParameters)
             {
                 Error.ReportAndExit("Incorrect test method declaration. Please " +
-                    "declare the test method as follows:\n" +
-                    $"  [{typeof(TestAttribute).FullName}] public static void " +
-                    $"{testMethod.Name}(ICoyoteRuntime runtime) {{ ... }}\n" +
-                    "or:\n" +
-                    $"  [{typeof(TestAttribute).FullName}] public static async Task " +
-                    $"{testMethod.Name}(ICoyoteRuntime runtime) {{ ... }}");
+                    "use one of the following supported declarations:\n\n" +
+                    $"  [{typeof(TestAttribute).FullName}]\n" +
+                    $"  public static void {testMethod.Name}() {{ ... }}\n\n" +
+                    $"  [{typeof(TestAttribute).FullName}]\n" +
+                    $"  public static void {testMethod.Name}(ICoyoteRuntime runtime) {{ ... await ... }}\n\n" +
+                    $"  [{typeof(TestAttribute).FullName}]\n" +
+                    $"  public static async ControlledTask {testMethod.Name}() {{ ... }}\n\n" +
+                    $"  [{typeof(TestAttribute).FullName}]\n" +
+                    $"  public static async ControlledTask {testMethod.Name}(ICoyoteRuntime runtime) {{ ... await ... }}");
             }
 
-            if (testMethod.ReturnType == typeof(void))
+            if (testMethod.ReturnType == typeof(void) && testParams.Length == 1)
             {
                 this.TestMethod = Delegate.CreateDelegate(typeof(Action<ICoyoteRuntime>), testMethod);
             }
+            else if (testMethod.ReturnType == typeof(void))
+            {
+                this.TestMethod = Delegate.CreateDelegate(typeof(Action), testMethod);
+            }
+            else if (testParams.Length == 1)
+            {
+                this.TestMethod = Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, ControlledTask>), testMethod);
+            }
             else
             {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Func<ControlledTask>), testMethod);
             }
 
             this.TestName = $"{testMethod.DeclaringType}.{testMethod.Name}";

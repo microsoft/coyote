@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.Runtime;
@@ -53,6 +54,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         public ulong TargetId { get; private set; }
 
         /// <summary>
+        /// Set of tasks that this operation is waiting to join. All tasks
+        /// in the set must complete before this operation can resume.
+        /// </summary>
+        private readonly HashSet<Task> JoinDependencies;
+
+        /// <summary>
         /// Set of events that this operation is waiting to receive. Receiving any
         /// event in the set allows this operation to resume.
         /// </summary>
@@ -91,6 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.Status = AsyncOperationStatus.None;
             this.Target = AsyncOperationTarget.Task;
             this.TargetId = machine.Id.Value;
+            this.JoinDependencies = new HashSet<Task>();
             this.EventDependencies = new HashSet<Type>();
             this.IsActive = false;
             this.IsHandlerRunning = false;
@@ -107,6 +115,16 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.IsActive = false;
             this.IsHandlerRunning = false;
             this.MatchingSendIndex = (ulong)sendIndex;
+        }
+
+        /// <summary>
+        /// Invoked when the operation is waiting to join the specified task.
+        /// </summary>
+        internal void OnWaitTask(Task task, bool waitAll = true)
+        {
+            IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.SourceId, task.Id);
+            this.JoinDependencies.Add(task);
+            this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
         }
 
         /// <summary>
@@ -137,6 +155,37 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.IsHandlerRunning = false;
             this.SkipNextReceiveSchedulingPoint = true;
             this.MatchingSendIndex = 0;
+        }
+
+        /// <summary>
+        /// Tries to enable the operation, if it was not already enabled.
+        /// </summary>
+        internal void TryEnable()
+        {
+            if (this.Status == AsyncOperationStatus.BlockedOnWaitAll)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Try enable operation '{0}'.", this.SourceId);
+                if (!this.JoinDependencies.All(task => task.IsCompleted))
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for all join tasks to complete.", this.SourceId);
+                    return;
+                }
+
+                this.JoinDependencies.Clear();
+                this.Status = AsyncOperationStatus.Enabled;
+            }
+            else if (this.Status == AsyncOperationStatus.BlockedOnWaitAny)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Try enable operation '{0}'.", this.SourceId);
+                if (!this.JoinDependencies.Any(task => task.IsCompleted))
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for any join task to complete.", this.SourceId);
+                    return;
+                }
+
+                this.JoinDependencies.Clear();
+                this.Status = AsyncOperationStatus.Enabled;
+            }
         }
 
         /// <summary>

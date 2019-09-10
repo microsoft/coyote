@@ -6,7 +6,7 @@
 namespace Microsoft.Coyote.TestingServices.Scheduling
 {
     /// <summary>
-    /// Interface of an asynchronous operation that can be scheduled during testing.
+    /// Interface of an asynchronous operation that can be controlled during testing.
     /// </summary>
     public interface IAsyncOperation
     {

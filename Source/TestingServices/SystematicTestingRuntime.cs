@@ -16,12 +16,19 @@ using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
+using Microsoft.Coyote.TestingServices.Specifications;
 using Microsoft.Coyote.TestingServices.StateCaching;
+using Microsoft.Coyote.TestingServices.Threading;
+using Microsoft.Coyote.TestingServices.Threading.Tasks;
 using Microsoft.Coyote.TestingServices.Timers;
 using Microsoft.Coyote.TestingServices.Tracing.Error;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.Threading;
+using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Timers;
 using Microsoft.Coyote.Utilities;
+
+using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {
@@ -33,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Stores the runtime that executes each operation in a given asynchronous context.
         /// </summary>
-        private static readonly AsyncLocal<SystematicTestingRuntime> AsyncLocalMachineId =
+        private static readonly AsyncLocal<SystematicTestingRuntime> AsyncLocalRuntime =
             new AsyncLocal<SystematicTestingRuntime>();
 
         /// <summary>
@@ -42,9 +49,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal OperationScheduler Scheduler;
 
         /// <summary>
-        /// The controlled task scheduler.
+        /// The intercepting task scheduler.
         /// </summary>
-        private readonly ControlledTaskScheduler TaskScheduler;
+        private readonly InterceptingTaskScheduler TaskScheduler;
 
         /// <summary>
         /// The bug trace.
@@ -58,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal CoverageInfo CoverageInfo;
 
         /// <summary>
-        /// The Coyote program state cache.
+        /// The program state cache.
         /// </summary>
         internal StateCache StateCache;
 
@@ -114,7 +121,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, this.Configuration);
-            this.TaskScheduler = new ControlledTaskScheduler(this.Scheduler.ControlledTaskMap);
+            this.TaskScheduler = new InterceptingTaskScheduler(this.Scheduler.ControlledTaskMap);
+
+            // Set the specification checker and current runtime to this runtime.
+            Specification.CurrentChecker = new SpecificationChecker(this);
+            Current = this;
         }
 
         /// <summary>
@@ -262,77 +273,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal void RunTest(Delegate testMethod, string testName)
         {
-            this.Assert(Task.CurrentId != null, "The test harness machine must execute inside a task.");
-            this.Assert(testMethod != null, "The test harness machine cannot execute a null test.");
+            this.Assert(testMethod != null, "Unable to run a null test method.");
+            this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
 
-            TestHarnessMachine harness = new TestHarnessMachine(testMethod, testName);
-            MachineId mid = new MachineId(typeof(TestHarnessMachine), null, this);
-            harness.Initialize(this, mid);
+            testName = string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'";
+            this.Logger.WriteLine($"<TestLog> Running test{testName}.");
 
-            MachineOperation op = this.MachineOperations.GetOrAdd(mid.Value, new MachineOperation(harness));
-
-            bool result = this.MachineMap.TryAdd(mid, harness);
-            this.Assert(result, "Machine id '{0}' is used by an existing machine.", mid.Value);
-
-            Task task = new Task(async () =>
-            {
-                // Set the id of the executing machine in the local asynchronous context,
-                // allowing future retrieval in the same asynchronous call stack.
-                AsyncLocalMachineId.Value = this;
-
-                try
-                {
-                    OperationScheduler.NotifyOperationStarted(op);
-
-                    await harness.RunAsync();
-
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed event handler of the test harness machine.");
-                    op.OnCompleted();
-                    this.Scheduler.ScheduleNextOperation(AsyncOperationType.Stop, AsyncOperationTarget.Task, harness.Id.Value);
-                    IO.Debug.WriteLine($"<ScheduleDebug> Terminated event handler of the test harness machine.");
-                }
-                catch (Exception ex)
-                {
-                    Exception innerException = ex;
-                    while (innerException is TargetInvocationException)
-                    {
-                        innerException = innerException.InnerException;
-                    }
-
-                    if (innerException is AggregateException)
-                    {
-                        innerException = innerException.InnerException;
-                    }
-
-                    if (innerException is ExecutionCanceledException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown in the test harness.");
-                    }
-                    else if (innerException is TaskSchedulerException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> TaskSchedulerException was thrown in the test harness.");
-                    }
-                    else
-                    {
-                        // Reports the unhandled exception.
-                        string message = string.Format(CultureInfo.InvariantCulture,
-                            $"Exception '{ex.GetType()}' was thrown in {harness.TestName}, " +
-                            $"'{ex.Source}':\n" +
-                            $"   {ex.Message}\n" +
-                            $"The stack trace is:\n{ex.StackTrace}");
-                        this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
-                    }
-                }
-                finally
-                {
-                    this.MachineMap.TryRemove(mid, out AsyncMachine _);
-                }
-            });
-
-            op.OnCreated(0);
-            this.Scheduler.NotifyOperationCreated(op, task);
-            task.Start(this.TaskScheduler);
-            this.Scheduler.WaitForOperationToStart(op);
+            var machine = new TestEntryPointWorkMachine(this, testMethod);
+            this.DispatchWork(machine, null);
         }
 
         /// <summary>
@@ -620,7 +568,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 // Set the executing runtime in the local asynchronous context,
                 // allowing future retrieval in the same asynchronous call stack.
-                AsyncLocalMachineId.Value = this;
+                AsyncLocalRuntime.Value = this;
 
                 try
                 {
@@ -638,7 +586,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         this.EnqueueEvent(syncCaller, new QuiescentEvent(machine.Id), machine, machine.OperationGroupId, null, out EventInfo _);
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed event handler of '{machine.Id}' on task id '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Completed event handler of '{machine.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
 
                     if (machine.IsHalted)
@@ -650,7 +598,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         this.Scheduler.ScheduleNextOperation(AsyncOperationType.Receive, AsyncOperationTarget.Inbox, machine.Id.Value);
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Terminated event handler of '{machine.Id}' on task id '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Terminated event handler of '{machine.Id}' on task '{Task.CurrentId}'.");
                     ResetProgramCounter(machine);
                 }
                 catch (Exception ex)
@@ -700,17 +648,598 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             op.OnCreated(enablingEvent?.SendStep ?? 0);
             this.Scheduler.NotifyOperationCreated(op, task);
+
             task.Start(this.TaskScheduler);
             this.Scheduler.WaitForOperationToStart(op);
         }
 
         /// <summary>
-        /// Waits until all machines have finished execution.
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
         /// </summary>
-        internal async Task WaitAsync()
+        internal override ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken)
         {
-            await this.Scheduler.WaitAsync();
-            this.IsRunning = false;
+            this.Assert(action != null, "The task cannot execute a null action.");
+            var machine = new ActionWorkMachine(this, action);
+            this.DispatchWork(machine, null);
+            return new MachineTask(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken)
+        {
+            this.Assert(function != null, "The task cannot execute a null function.");
+            var machine = new FuncWorkMachine(this, function);
+            this.DispatchWork(machine, null);
+            return new MachineTask(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
+            CancellationToken cancellationToken)
+        {
+            this.Assert(function != null, "The task cannot execute a null function.");
+            var machine = new FuncWorkMachine<TResult>(this, function);
+            this.DispatchWork(machine, null);
+            return new MachineTask<TResult>(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+            CancellationToken cancellationToken)
+        {
+            this.Assert(function != null, "The task cannot execute a null function.");
+            var machine = new FuncTaskWorkMachine<TResult>(this, function);
+            this.DispatchWork(machine, null);
+            return new MachineTask<TResult>(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
+        /// </summary>
+        internal override ControlledTask CreateControlledTaskDelay(int millisecondsDelay, CancellationToken cancellationToken) =>
+            this.CreateControlledTaskDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
+        /// </summary>
+        internal override ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            if (delay.TotalMilliseconds == 0)
+            {
+                // If the delay is 0, then complete synchronously.
+                return ControlledTask.CompletedTask;
+            }
+
+            var machine = new DelayWorkMachine(this);
+            this.DispatchWork(machine, null);
+            return new MachineTask(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> associated with a completion source.
+        /// </summary>
+        internal override ControlledTask CreateControlledTaskCompletionSource(Task task)
+        {
+            if (AsyncLocalRuntime.Value != this)
+            {
+                throw new ExecutionCanceledException();
+            }
+
+            this.Scheduler.CheckNoExternalConcurrencyUsed();
+            return new MachineTask(this, task, MachineTaskType.CompletionSourceTask);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask{TResult}"/> associated with a completion source.
+        /// </summary>
+        internal override ControlledTask<TResult> CreateControlledTaskCompletionSource<TResult>(Task<TResult> task)
+        {
+            if (AsyncLocalRuntime.Value != this)
+            {
+                throw new ExecutionCanceledException();
+            }
+
+            this.Scheduler.CheckNoExternalConcurrencyUsed();
+            return new MachineTask<TResult>(this, task, MachineTaskType.CompletionSourceTask);
+        }
+
+        /// <summary>
+        /// Schedules the specified work machine to be executed asynchronously.
+        /// This is a fire and forget invocation.
+        /// </summary>
+        internal void DispatchWork(WorkMachine machine, Task parentTask)
+        {
+            // this.Scheduler.ScheduleNextOperation(AsyncOperationType.Create, AsyncOperationTarget.Task, ulong.MaxValue);
+
+            MachineOperation op = new MachineOperation(machine);
+
+            this.MachineOperations.GetOrAdd(machine.Id.Value, op);
+            this.MachineMap.TryAdd(machine.Id, machine);
+            this.CreatedMachineIds.Add(machine.Id);
+
+            Task task = new Task(async () =>
+            {
+                // Set the executing runtime in the local asynchronous context,
+                // allowing future retrieval in the same asynchronous call stack.
+                AsyncLocalRuntime.Value = this;
+
+                // SynchronizationContext.SetSynchronizationContext(this.SyncContext);
+
+                try
+                {
+                    OperationScheduler.NotifyOperationStarted(op);
+
+                    try
+                    {
+                        await machine.ExecuteAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Reports the unhandled exception.
+                        string message = string.Format(CultureInfo.InvariantCulture,
+                            $"Exception '{ex.GetType()}' was thrown in task {Task.CurrentId}, " +
+                            $"'{ex.Source}':\n" +
+                            $"   {ex.Message}\n" +
+                            $"The stack trace is:\n{ex.StackTrace}");
+                        IO.Debug.WriteLine($"<Exception> {message}");
+                        machine.TryCompleteWithException(ex);
+                    }
+
+                    IO.Debug.WriteLine($"<ScheduleDebug> Completed '{machine.Id}' on task '{Task.CurrentId}'.");
+                    op.OnCompleted();
+
+                    this.Scheduler.ScheduleNextOperation(AsyncOperationType.Stop, AsyncOperationTarget.Task, machine.Id.Value);
+
+                    IO.Debug.WriteLine($"<ScheduleDebug> Terminated '{machine.Id}' on task '{Task.CurrentId}'.");
+                }
+                catch (Exception ex)
+                {
+                    Exception innerException = ex;
+                    while (innerException is TargetInvocationException)
+                    {
+                        innerException = innerException.InnerException;
+                    }
+
+                    if (innerException is AggregateException)
+                    {
+                        innerException = innerException.InnerException;
+                    }
+
+                    if (innerException is ExecutionCanceledException)
+                    {
+                        IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from task '{Task.CurrentId}'.");
+                    }
+                    else if (innerException is TaskSchedulerException)
+                    {
+                        IO.Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from task '{Task.CurrentId}'.");
+                    }
+                    else
+                    {
+                        // Reports the unhandled exception.
+                        string message = string.Format(CultureInfo.InvariantCulture,
+                            $"Exception '{ex.GetType()}' was thrown in task {Task.CurrentId}, " +
+                            $"'{ex.Source}':\n" +
+                            $"   {ex.Message}\n" +
+                            $"The stack trace is:\n{ex.StackTrace}");
+                        this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
+                    }
+                }
+                finally
+                {
+                    // TODO: properly cleanup controlled tasks.
+                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                }
+            });
+
+            IO.Debug.WriteLine($"<CreateLog> Machine '{machine.Id}' was created to execute task '{task.Id}'.");
+
+            op.OnCreated(0);
+            if (parentTask != null)
+            {
+                op.OnWaitTask(parentTask);
+            }
+
+            this.Scheduler.NotifyOperationCreated(op, task);
+
+            task.Start();
+            this.Scheduler.WaitForOperationToStart(op);
+
+            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Yield, AsyncOperationTarget.Task, machine.Id.Value);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks) =>
+            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(params Task[] tasks) =>
+            this.WaitAllTasksAsync(tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks) =>
+            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            if (caller is null)
+            {
+                // TODO: throw an error, as a non-controlled task is awaiting?
+                return new ControlledTask(Task.WhenAll(tasks));
+            }
+
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            foreach (var task in tasks)
+            {
+                if (!task.IsCompleted)
+                {
+                    callerOp.OnWaitTask(task, true);
+                }
+            }
+
+            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAll)
+            {
+                // Only schedule if the task is not already completed.
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
+            }
+
+            return ControlledTask.CompletedTask;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
+            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks) =>
+            this.WaitAllTasksAsync(tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
+            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            if (caller is null)
+            {
+                // TODO: throw an error, as a non-controlled task is awaiting?
+                return new ControlledTask<TResult[]>(Task.WhenAll(tasks));
+            }
+
+            int size = 0;
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            foreach (var task in tasks)
+            {
+                size++;
+                if (!task.IsCompleted)
+                {
+                    callerOp.OnWaitTask(task, true);
+                }
+            }
+
+            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAll)
+            {
+                // Only schedule if the task is not already completed.
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
+            }
+
+            int idx = 0;
+            TResult[] result = new TResult[size];
+            foreach (var task in tasks)
+            {
+                result[idx] = task.Result;
+                idx++;
+            }
+
+            return ControlledTask.FromResult(result);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks) =>
+            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks) =>
+            this.WaitAnyTaskAsync(tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks) =>
+            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            if (caller is null)
+            {
+                // TODO: throw an error, as a non-controlled task is awaiting?
+                return new ControlledTask<Task>(Task.WhenAny(tasks));
+            }
+
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            foreach (var task in tasks)
+            {
+                if (!task.IsCompleted)
+                {
+                    callerOp.OnWaitTask(task, false);
+                }
+            }
+
+            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAny)
+            {
+                // Only schedule if the task is not already completed.
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
+            }
+
+            Task result = null;
+            foreach (var task in tasks)
+            {
+                if (task.IsCompleted)
+                {
+                    result = task;
+                    break;
+                }
+            }
+
+            return ControlledTask.FromResult(result);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
+            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks) =>
+            this.WaitAnyTaskAsync(tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
+            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            if (caller is null)
+            {
+                // TODO: throw an error, as a non-controlled task is awaiting?
+                return new ControlledTask<Task<TResult>>(Task.WhenAny(tasks));
+            }
+
+            int size = 0;
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            foreach (var task in tasks)
+            {
+                size++;
+                if (!task.IsCompleted)
+                {
+                    callerOp.OnWaitTask(task, false);
+                }
+            }
+
+            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAny)
+            {
+                // Only schedule if the task is not already completed.
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
+            }
+
+            Task<TResult> result = null;
+            foreach (var task in tasks)
+            {
+                if (task.IsCompleted)
+                {
+                    result = task;
+                    break;
+                }
+            }
+
+            return ControlledTask.FromResult(result);
+        }
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
+        /// </summary>
+        internal override int WaitAnyTask(params ControlledTask[] tasks) =>
+            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout) =>
+            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken) =>
+            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        internal override int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout) =>
+            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+
+        /// <summary>
+        /// Waits for any of the specified tasks to complete.
+        /// </summary>
+        private int WaitAnyTask(Task[] tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            if (caller is null)
+            {
+                // TODO: throw an error, as a non-controlled task is awaiting?
+                return Task.WaitAny(tasks.ToArray());
+            }
+
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            foreach (var task in tasks)
+            {
+                if (!task.IsCompleted)
+                {
+                    callerOp.OnWaitTask(task, false);
+                }
+            }
+
+            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAny)
+            {
+                // Only schedule if the task is not already completed.
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
+            }
+
+            int result = -1;
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                if (tasks[i].IsCompleted)
+                {
+                    result = i;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Ends the wait for the completion of the yield operation.
+        /// </summary>
+        internal override void OnGetYieldResult(DefaultYieldAwaiter awaiter)
+        {
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Yield, AsyncOperationTarget.Task, caller.Id.Value);
+            awaiter.GetResult();
+        }
+
+        /// <summary>
+        /// Sets the action to perform when the yield operation completes.
+        /// </summary>
+        internal override void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+            this.DispatchYield(continuation);
+
+        /// <summary>
+        /// Schedules the continuation action that is invoked when the yield operation completes.
+        /// </summary>
+        internal override void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+            this.DispatchYield(continuation);
+
+        /// <summary>
+        /// Dispatches the work.
+        /// </summary>
+        private void DispatchYield(Action continuation)
+        {
+            try
+            {
+                AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+                this.Assert(caller != null,
+                    "Task with id '{0}' that is not controlled by the Coyote runtime invoked yield operation.",
+                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+
+                if (caller is Machine machine)
+                {
+                    this.Assert((machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler,
+                        "Machine '{0}' is executing a yield operation inside a handler that does not return a 'ControlledTask'.", caller.Id);
+                }
+
+                IO.Debug.WriteLine("<ControlledTask> Machine '{0}' is executing a yield operation.", caller.Id);
+                this.DispatchWork(new ActionWorkMachine(this, continuation), null);
+                IO.Debug.WriteLine("<ControlledTask> Machine '{0}' is executing a yield operation.", caller.Id);
+            }
+            catch (ExecutionCanceledException)
+            {
+                IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from task '{Task.CurrentId}'.");
+            }
+        }
+
+        /// <summary>
+        /// Creates a mutual exclusion lock that is compatible with <see cref="ControlledTask"/> objects.
+        /// </summary>
+        internal override ControlledLock CreateControlledLock()
+        {
+            var id = (ulong)Interlocked.Increment(ref this.LockIdCounter) - 1;
+            return new MachineLock(this, id);
         }
 
         /// <summary>
@@ -737,6 +1266,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(type.IsSubclassOf(typeof(Monitor)), "Type '{0}' is not a subclass of Monitor.", type.FullName);
 
             MachineId mid = new MachineId(type, null, this);
+
             Monitor monitor = Activator.CreateInstance(type) as Monitor;
             monitor.Initialize(this, mid);
             monitor.InitializeStateInformation();
@@ -768,7 +1298,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     }
 
                     m.MonitorEvent(e);
-
                     break;
                 }
             }
@@ -863,7 +1392,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Asserts that the machine calling a Coyote machine method is also
+        /// Asserts that the machine calling a machine method is also
         /// the machine that is currently executing.
         /// </summary>
         private void AssertCorrectCallerMachine(Machine callerMachine, string calledAPI)
@@ -976,6 +1505,19 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
+        /// Injects a context switch point that can be systematically explored during testing.
+        /// </summary>
+        internal override void ExploreContextSwitch()
+        {
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            if (caller != null)
+            {
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Default,
+                    AsyncOperationTarget.Task, caller.Id.Value);
+            }
+        }
+
+        /// <summary>
         /// Notifies that a machine entered a state.
         /// </summary>
         internal override void NotifyEnteredState(Machine machine)
@@ -1020,6 +1562,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
+            if (action.ReturnType == typeof(ControlledTask))
+            {
+                (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = true;
+            }
+
             string machineState = machine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(machine.Id, machineState, action);
             this.LogWriter.OnMachineAction(machine.Id, machineState, action.Name);
@@ -1031,6 +1578,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyCompletedAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
+            (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = false;
         }
 
         /// <summary>
@@ -1039,6 +1587,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
+            if (action.ReturnType == typeof(ControlledTask))
+            {
+                (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = true;
+            }
+
             string machineState = machine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(machine.Id, machineState, action);
             this.LogWriter.OnMachineAction(machine.Id, machineState, action.Name);
@@ -1050,6 +1603,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyCompletedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
+            (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = false;
         }
 
         /// <summary>
@@ -1059,6 +1613,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             (machine.StateManager as SerializedMachineStateManager).IsInsideOnExit = true;
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
+            if (action.ReturnType == typeof(ControlledTask))
+            {
+                (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = true;
+            }
+
             string machineState = machine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(machine.Id, machineState, action);
             this.LogWriter.OnMachineAction(machine.Id, machineState, action.Name);
@@ -1071,6 +1630,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             (machine.StateManager as SerializedMachineStateManager).IsInsideOnExit = false;
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
+            (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = false;
         }
 
         /// <summary>
@@ -1089,10 +1649,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyRaisedEvent(Machine machine, Event e, EventInfo eventInfo)
         {
             this.AssertTransitionStatement(machine);
-
             string machineState = machine.CurrentStateName;
             this.BugTrace.AddRaiseEventStep(machine.Id, machineState, eventInfo);
-
             this.LogWriter.OnMachineEvent(machine.Id, machineState, eventInfo.EventName);
         }
 
@@ -1103,7 +1661,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateName;
             this.BugTrace.AddRaiseEventStep(monitor.Id, monitorState, eventInfo);
-
             this.LogWriter.OnMonitorEvent(monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
                 eventInfo.EventName, isProcessing: false);
         }
@@ -1171,6 +1728,30 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.ReportActivityCoverage)
             {
                 this.ReportActivityCoverageOfStateTransition(machine, e);
+            }
+        }
+
+        /// <summary>
+        /// Notifies that a machine is waiting for the specified task to complete.
+        /// </summary>
+        internal override void NotifyWaitTask(AsyncMachine machine, Task task)
+        {
+            this.Assert(task != null, "Cannot wait for a null task to complete.");
+            MachineOperation callerOp = this.GetAsynchronousOperation(machine.Id.Value);
+            if (callerOp == null)
+            {
+                return;
+            }
+
+            if (!task.IsCompleted)
+            {
+                callerOp.OnWaitTask(task);
+            }
+
+            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAll)
+            {
+                // Only schedule if the task is not already completed.
+                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, machine.Id.Value);
             }
         }
 
@@ -1529,6 +2110,15 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string message = string.Format(CultureInfo.InvariantCulture, s, args);
             this.Scheduler.NotifyAssertionFailure(message);
+        }
+
+        /// <summary>
+        /// Waits until all machines have finished execution.
+        /// </summary>
+        internal async Task WaitAsync()
+        {
+            await this.Scheduler.WaitAsync();
+            this.IsRunning = false;
         }
 
         /// <summary>

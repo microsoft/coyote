@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Timers;
 using Microsoft.Coyote.Utilities;
 
@@ -840,6 +841,18 @@ namespace Microsoft.Coyote
                         // false to process the exception normally.
                     }
                 }
+                else if (cachedAction.Handler is Func<ControlledTask> controlledTaskFunc)
+                {
+                    try
+                    {
+                        // We have no reliable stack for awaited operations.
+                        await controlledTaskFunc();
+                    }
+                    catch (Exception ex) when (this.OnExceptionHandler(cachedAction.MethodInfo.Name, ex))
+                    {
+                        // user handled the exception, return normally
+                    }
+                }
                 else if (cachedAction.Handler is Func<Task> taskFunc)
                 {
                     try
@@ -1519,7 +1532,8 @@ namespace Microsoft.Coyote
 
             if (method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null)
             {
-                this.Assert(method.ReturnType == typeof(Task), "Async action '{0}' in machine '{1}' must have 'Task' return type.",
+                this.Assert(method.ReturnType == typeof(Task) || method.ReturnType == typeof(ControlledTask),
+                    "Async action '{0}' in machine '{1}' must have 'Task' or 'ControlledTask' return type.",
                     method.Name, this.GetType().Name);
             }
             else

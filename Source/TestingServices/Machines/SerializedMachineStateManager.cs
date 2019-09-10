@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {
@@ -48,6 +49,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal bool IsTransitionStatementCalledInCurrentAction;
 
         /// <summary>
+        /// True if the machine is currently executing an asynchronous handler
+        /// that returns a <see cref="ControlledTask"/>, else false.
+        /// </summary>
+        internal bool IsInsideControlledTaskHandler;
+
+        /// <summary>
         /// True if the machine is executing an on exit action, else false.
         /// </summary>
         internal bool IsInsideOnExit;
@@ -63,6 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.OperationGroupId = operationGroupId;
             this.ProgramCounter = 0;
             this.IsTransitionStatementCalledInCurrentAction = false;
+            this.IsInsideControlledTaskHandler = false;
             this.IsInsideOnExit = false;
         }
 

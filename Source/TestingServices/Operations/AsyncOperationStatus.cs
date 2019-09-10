@@ -21,9 +21,24 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         Enabled,
 
         /// <summary>
+        /// The operation is waiting for all of its dependencies to complete.
+        /// </summary>
+        BlockedOnWaitAll,
+
+        /// <summary>
+        /// The operation is waiting for any of its dependencies to complete.
+        /// </summary>
+        BlockedOnWaitAny,
+
+        /// <summary>
         /// The operation is waiting to receive an event.
         /// </summary>
         BlockedOnReceive,
+
+        /// <summary>
+        /// The operation is waiting to acquire a resource.
+        /// </summary>
+        BlockedOnResource,
 
         /// <summary>
         /// The operation is completed.

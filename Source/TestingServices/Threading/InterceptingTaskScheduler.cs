@@ -11,12 +11,15 @@ using System.Threading.Tasks;
 
 using Microsoft.Coyote.TestingServices.Scheduling;
 
-namespace Microsoft.Coyote.TestingServices.Runtime
+namespace Microsoft.Coyote.TestingServices.Threading
 {
     /// <summary>
-    /// A task scheduler that can be controlled during testing.
+    /// A task scheduler that intercepts (non-controlled) tasks during testing.
+    /// This is currently used only by <see cref="Machine"/> handlers.
+    ///
+    /// TODO: figure out if this is still needed.
     /// </summary>
-    internal sealed class ControlledTaskScheduler : TaskScheduler
+    internal sealed class InterceptingTaskScheduler : TaskScheduler
     {
         /// <summary>
         /// Map from ids of tasks that are controlled by the runtime to operations.
@@ -24,9 +27,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         private readonly ConcurrentDictionary<int, MachineOperation> ControlledTaskMap;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ControlledTaskScheduler"/> class.
+        /// Initializes a new instance of the <see cref="InterceptingTaskScheduler"/> class.
         /// </summary>
-        internal ControlledTaskScheduler(ConcurrentDictionary<int, MachineOperation> controlledTaskMap)
+        internal InterceptingTaskScheduler(ConcurrentDictionary<int, MachineOperation> controlledTaskMap)
         {
             this.ControlledTaskMap = controlledTaskMap;
         }

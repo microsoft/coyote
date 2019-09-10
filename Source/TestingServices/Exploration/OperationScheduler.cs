@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         internal readonly Configuration Configuration;
 
         /// <summary>
-        /// The Coyote testing runtime.
+        /// The testing runtime.
         /// </summary>
         private readonly SystematicTestingRuntime Runtime;
 
@@ -133,6 +133,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             MachineOperation current = this.ScheduledOperation;
             current.SetNextOperation(type, target, targetId);
 
+            // Try enable any operation that is currently waiting, but has
+            // its dependencies already satisfied.
+            foreach (var op in this.OperationMap.Values)
+            {
+                op.TryEnable();
+                Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.SourceId, op.Status);
+            }
+
             // Get and order the operations by their id.
             var ops = this.OperationMap.Values.OrderBy(op => op.SourceId).Select(op => op as IAsyncOperation).ToList();
             if (!this.Strategy.GetNext(out IAsyncOperation next, ops, current))
@@ -165,6 +173,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                     if (!current.IsHandlerRunning)
                     {
                         return;
+                    }
+
+                    if (!this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
+                    {
+                        this.ControlledTaskMap.TryAdd(Task.CurrentId.Value, current);
+                        Debug.WriteLine($"<ScheduleDebug> Operation '{current.SourceId}' is associated with task '{Task.CurrentId}'.");
                     }
 
                     while (!current.IsActive)
@@ -403,7 +417,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         }
 
         /// <summary>
-        /// Checks that no task that is not controlled by the runtime is executing.
+        /// Checks that no task that is not controlled by the runtime is currently executing.
         /// </summary>
         internal void CheckNoExternalConcurrencyUsed()
         {
@@ -428,7 +442,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         private void CheckIfProgramHasLivelocked(IEnumerable<MachineOperation> ops)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
-            if (blockedOnReceiveOperations.Count == 0)
+            var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
+                op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
+            var blockedOnResourceSynchronization = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
+            if (blockedOnReceiveOperations.Count == 0 &&
+                blockedOnWaitOperations.Count == 0 &&
+                blockedOnResourceSynchronization.Count == 0)
             {
                 return;
             }
@@ -451,6 +470,45 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
 
                 message += blockedOnReceiveOperations.Count == 1 ? " is " : " are ";
                 message += "waiting to receive an event, but no other controlled tasks are enabled.";
+            }
+
+            if (blockedOnWaitOperations.Count > 0)
+            {
+                for (int i = 0; i < blockedOnWaitOperations.Count; i++)
+                {
+                    message += string.Format(CultureInfo.InvariantCulture, " '{0}'", blockedOnWaitOperations[i].SourceName);
+                    if (i == blockedOnWaitOperations.Count - 2)
+                    {
+                        message += " and";
+                    }
+                    else if (i < blockedOnWaitOperations.Count - 1)
+                    {
+                        message += ",";
+                    }
+                }
+
+                message += blockedOnWaitOperations.Count == 1 ? " is " : " are ";
+                message += "waiting for a task to complete, but no other controlled tasks are enabled.";
+            }
+
+            if (blockedOnResourceSynchronization.Count > 0)
+            {
+                for (int i = 0; i < blockedOnResourceSynchronization.Count; i++)
+                {
+                    message += string.Format(CultureInfo.InvariantCulture, " '{0}'", blockedOnResourceSynchronization[i].SourceName);
+                    if (i == blockedOnResourceSynchronization.Count - 2)
+                    {
+                        message += " and";
+                    }
+                    else if (i < blockedOnResourceSynchronization.Count - 1)
+                    {
+                        message += ",";
+                    }
+                }
+
+                message += blockedOnResourceSynchronization.Count == 1 ? " is " : " are ";
+                message += "waiting to access a concurrent resource that is acquired by another task, ";
+                message += "but no other controlled tasks are enabled.";
             }
 
             this.NotifyAssertionFailure(message);

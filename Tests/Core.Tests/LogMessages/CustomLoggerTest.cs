@@ -40,6 +40,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 <ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' invoked action 'InitOnEntry'.
 <CreateLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' was created by machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()'.
 <StateLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' enters state 'Init'.
+<ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Init' invoked action 'InitOnEntry'.
 <SendLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' sent event 'Microsoft.Coyote.Core.Tests.LogMessages.E' to machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()'.
 <EnqueueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' enqueued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
 <DequeueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Init' dequeued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
@@ -50,11 +51,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 <ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' invoked action 'Act'.
 ";
             string actual = Regex.Replace(logger.ToString(), "[0-9]", string.Empty);
-
-            HashSet<string> expectedSet = new HashSet<string>(Regex.Split(expected, "\r\n|\r|\n"));
-            HashSet<string> actualSet = new HashSet<string>(Regex.Split(actual, "\r\n|\r|\n"));
-
-            Assert.True(expectedSet.SetEquals(actualSet));
+            Assert.Equal(expected, actual);
 
             logger.Dispose();
         }

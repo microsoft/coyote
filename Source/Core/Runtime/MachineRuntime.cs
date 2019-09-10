@@ -9,22 +9,42 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Threading;
+using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Timers;
+
+using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Runtime for executing explicit and implicit asynchronous state machines.
+    /// Runtime for executing explicit and implicit asynchronous machines.
     /// </summary>
     internal abstract class MachineRuntime : ICoyoteRuntime
     {
         /// <summary>
+        /// The currently executing runtime.
+        /// </summary>
+        internal static MachineRuntime Current { get; set; } = new ProductionRuntime(Configuration.Create());
+
+        /// <summary>
         /// The configuration used by the runtime.
         /// </summary>
         internal readonly Configuration Configuration;
+
+        /// <summary>
+        /// Map from unique machine ids to machines.
+        /// </summary>
+        protected readonly ConcurrentDictionary<MachineId, AsyncMachine> MachineMap;
+
+        /// <summary>
+        /// Map from task ids to <see cref="ControlledTask"/> objects.
+        /// </summary>
+        protected readonly ConcurrentDictionary<int, ControlledTask> TaskMap;
 
         /// <summary>
         /// Monotonically increasing machine id counter.
@@ -32,14 +52,19 @@ namespace Microsoft.Coyote.Runtime
         internal long MachineIdCounter;
 
         /// <summary>
+        /// Monotonically increasing lock id counter.
+        /// </summary>
+        internal long LockIdCounter;
+
+        /// <summary>
         /// Records if the runtime is running.
         /// </summary>
         internal volatile bool IsRunning;
 
         /// <summary>
-        /// Map from unique machine ids to machines.
+        /// Returns the id of the currently executing <see cref="ControlledTask"/>.
         /// </summary>
-        protected readonly ConcurrentDictionary<MachineId, AsyncMachine> MachineMap;
+        internal virtual int? CurrentTaskId => Task.CurrentId;
 
         /// <summary>
         /// The log writer.
@@ -68,7 +93,9 @@ namespace Microsoft.Coyote.Runtime
         {
             this.Configuration = configuration;
             this.MachineMap = new ConcurrentDictionary<MachineId, AsyncMachine>();
+            this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
             this.MachineIdCounter = 0;
+            this.LockIdCounter = 0;
             this.LogWriter = new RuntimeLogWriter
             {
                 Logger = configuration.IsVerbose ? (ILogger)new ConsoleLogger() : new NulLogger()
@@ -289,6 +316,194 @@ namespace Microsoft.Coyote.Runtime
             Guid opGroupId, SendOptions options);
 
         /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal abstract ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal abstract ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal abstract ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        internal abstract ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
+        /// </summary>
+        internal abstract ControlledTask CreateControlledTaskDelay(int millisecondsDelay, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
+        /// </summary>
+        internal abstract ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> associated with a completion source.
+        /// </summary>
+        internal abstract ControlledTask CreateControlledTaskCompletionSource(Task task);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask{TResult}"/> associated with a completion source.
+        /// </summary>
+        internal abstract ControlledTask<TResult> CreateControlledTaskCompletionSource<TResult>(Task<TResult> task);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask WaitAllTasksAsync(params Task[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
+
+        /// <summary>
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
+        /// </summary>
+        internal abstract int WaitAnyTask(params ControlledTask[] tasks);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        internal abstract int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        internal abstract int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        internal abstract int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        internal abstract int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout);
+
+        /// <summary>
+        /// Ends the wait for the completion of the yield operation.
+        /// </summary>
+        internal abstract void OnGetYieldResult(DefaultYieldAwaiter awaiter);
+
+        /// <summary>
+        /// Sets the action to perform when the yield operation completes.
+        /// </summary>
+        internal abstract void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter);
+
+        /// <summary>
+        /// Schedules the continuation action that is invoked when the yield operation completes.
+        /// </summary>
+        internal abstract void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter);
+
+        /// <summary>
+        /// Creates a mutual exclusion lock that is compatible with <see cref="ControlledTask"/> objects.
+        /// </summary>
+        internal abstract ControlledLock CreateControlledLock();
+
+        /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner machine.
         /// </summary>
         internal abstract IMachineTimer CreateMachineTimer(TimerInfo info, Machine owner);
@@ -375,6 +590,14 @@ namespace Microsoft.Coyote.Runtime
         /// controlled during analysis or testing.
         /// </summary>
         internal abstract int GetNondeterministicIntegerChoice(AsyncMachine machine, int maxValue);
+
+        /// <summary>
+        /// Injects a context switch point that can be systematically explored during testing.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void ExploreContextSwitch()
+        {
+        }
 
         /// <summary>
         /// Gets the machine of type <typeparamref name="TMachine"/> with the specified id,
@@ -522,6 +745,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Notifies that a machine is waiting for the specified task to complete.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyWaitTask(AsyncMachine machine, Task task)
+        {
+        }
+
+        /// <summary>
         /// Notifies that a machine is waiting to receive an event of one of the specified types.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -572,7 +803,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Use this method to override the default <see cref="RuntimeLogWriter"/>
+        /// Use this method to abstract the default <see cref="RuntimeLogWriter"/>
         /// for logging runtime messages.
         /// </summary>
         public RuntimeLogWriter SetLogWriter(RuntimeLogWriter logWriter)
@@ -585,7 +816,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
+        /// Use this method to abstract the default <see cref="ILogger"/> for logging messages.
         /// </summary>
         public ILogger SetLogger(ILogger logger)
         {

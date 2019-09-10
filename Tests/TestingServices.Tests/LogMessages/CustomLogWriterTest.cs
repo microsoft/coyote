@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
                 Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 
-                string expected = @"<TestHarnessLog> Running anonymous test.
+                string expected = @"<TestLog> Running test.
 <CreateLog>.
 <StateLog>.
 <ActionLog> Machine 'Microsoft.Coyote.TestingServices.Tests.LogMessages.M()' in state 'Init' invoked action 'InitOnEntry'.

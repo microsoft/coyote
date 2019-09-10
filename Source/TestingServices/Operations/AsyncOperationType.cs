@@ -11,43 +11,53 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     public enum AsyncOperationType
     {
         /// <summary>
-        /// An asynchronous operation performs a default context switch.
+        /// An operation performs a default context switch.
         /// </summary>
         Default = 0,
 
         /// <summary>
-        /// An asynchronous operation starts executing.
+        /// An operation starts executing.
         /// </summary>
         Start,
 
         /// <summary>
-        /// An asynchronous operation creates another asynchronous operation.
+        /// An operation creates another operation.
         /// </summary>
         Create,
 
         /// <summary>
-        /// An asynchronous operation sends an event.
+        /// An operation sends an event.
         /// </summary>
         Send,
 
         /// <summary>
-        /// An asynchronous operation receives an event.
+        /// An operation receives an event.
         /// </summary>
         Receive,
 
         /// <summary>
-        /// An asynchronous operation stops executing.
+        /// An operation stops executing.
         /// </summary>
         Stop,
 
         /// <summary>
-        /// An asynchronous operation yields.
+        /// An operation yields.
         /// </summary>
         Yield,
 
         /// <summary>
-        /// An asynchronous operation waits for another asynchronous operation to stop.
+        /// An operation waits for another operation to stop.
         /// </summary>
-        Join
+        Join,
+
+        /// <summary>
+        /// An operation acquires a synchronized resource.
+        /// </summary>
+        Acquire,
+
+        /// <summary>
+        /// An operation releases a synchronized resource.
+        /// </summary>
+        Release
     }
 }

@@ -11,7 +11,7 @@ Besides testing, Coyote can be directly used in production as it offers fast, ef
 
 # Supported programming models in Coyote
 For designing and implementing reliable asynchronous software, Coyote provides the following two programming models:
-- **Asynchronous tasks**, which follows the [task-based asynchronous pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap). This programming model is based on the `MachineTask` type, which represents an asynchronous operation that you can coordinate using the `async` and `await` keywords of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/).
+- **Asynchronous tasks**, which follows the [task-based asynchronous pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap). This programming model is based on the `ControlledTask` type, a drop-in replacement type for `System.Threading.Tasks.Task` that can be controlled by Coyote during testing.
 - **Asynchronous communicating state-machines**, an [actor-based programming model](https://en.wikipedia.org/wiki/Actor_model) that allows you to express your design and concurrency at a higher-level. This programming model is based on the `Machine` type, which represents an asynchronous entity that can create new machines, send events to other machines, and handle received events with user-specified logic.
 
 # Getting started

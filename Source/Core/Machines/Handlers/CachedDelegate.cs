@@ -7,6 +7,8 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Microsoft.Coyote.Threading.Tasks;
+
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -28,9 +30,17 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Action), machine, methodInfo);
             }
-            else
+            else if (methodInfo.ReturnType == typeof(ControlledTask))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<ControlledTask>), machine, methodInfo);
+            }
+            else if (methodInfo.ReturnType == typeof(Task))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Func<Task>), machine, methodInfo);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Machine '{machine.Id}' is trying to cache invalid delegate '{methodInfo.Name}'.");
             }
         }
     }

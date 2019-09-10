@@ -12,8 +12,8 @@
     <OutputPath>..\bin\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Coyote" Version="1.0.0" >
-      <HintPath>..\..\bin\nuget\Microsoft.Coyote.1.0.0.nupkg</HintPath>
+    <PackageReference Include="Microsoft.Coyote" Version="1.0.0-internal.1" >
+      <HintPath>..\..\bin\nuget\Microsoft.Coyote.1.0.0-internal.1.nupkg</HintPath>
     </PackageReference>
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Microsoft.Coyote</id>
-    <version>1.0.0-internal.1</version>
+    <version>1.0.0-internal.2</version>
     <authors>Microsoft</authors>
     <projectUrl>https://github.com/Microsoft/Coyote</projectUrl>
     <license type="expression">MIT</license>
@@ -22,12 +22,17 @@
     <file src="..\..\bin\netcoreapp2.1\*.mdb" target="lib\netcoreapp2.1" />
     <file src="..\..\bin\netcoreapp2.1\*.xml" target="lib\netcoreapp2.1" />
     <file src="..\..\bin\netcoreapp2.1\*.runtimeconfig.json" target="lib\netcoreapp2.1" />
+    <!-- .NET Framework 4.7 -->
+    <file src="..\..\bin\net47\*.dll" target="lib\net47" />
+    <file src="..\..\bin\net47\*.mdb" target="lib\net47" />
+    <file src="..\..\bin\net47\*.xml" target="lib\net47" />
+    <file src="..\..\bin\net47\*.exe" target="lib\net47" />
+    <file src="..\..\bin\net47\*.exe.config" target="lib\net47" />
     <!-- .NET Framework 4.6 -->
     <file src="..\..\bin\net46\*.dll" target="lib\net46" />
     <file src="..\..\bin\net46\*.mdb" target="lib\net46" />
     <file src="..\..\bin\net46\*.xml" target="lib\net46" />
     <file src="..\..\bin\net46\*.exe" target="lib\net46" />
     <file src="..\..\bin\net46\*.exe.config" target="lib\net46" />
-    <file src="..\..\bin\net46\*.targets" target="lib\net46" />
   </files>
 </package>

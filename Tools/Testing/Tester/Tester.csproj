@@ -11,7 +11,7 @@
     <OutputPath>..\..\..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net46;net47</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='UNIX'">
     <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
@@ -23,7 +23,7 @@
     <ProjectReference Include="..\..\..\Source\SharedObjects\SharedObjects.csproj" />
     <ProjectReference Include="..\..\..\Source\TestingServices\TestingServices.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net46'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>

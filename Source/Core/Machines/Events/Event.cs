@@ -3,15 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-using System;
+using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Attribute for checking liveness properties in monitors.
+    /// Abstract class representing an event.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class ColdAttribute : Attribute
+    [DataContract]
+    public abstract class Event
     {
     }
 }

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
+using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.Utilities
 {

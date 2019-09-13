@@ -7,15 +7,215 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-using Microsoft.Coyote.Runtime;
-
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Abstract class representing a state of a Coyote machine.
     /// </summary>
     public abstract class MachineState
     {
+        /// <summary>
+        /// Attribute for declaring that a state of a machine
+        /// is the start one.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class)]
+        protected sealed class StartAttribute : Attribute
+        {
+        }
+
+        /// <summary>
+        /// Attribute for declaring what action to perform
+        /// when entering a machine state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class)]
+        protected sealed class OnEntryAttribute : Attribute
+        {
+            /// <summary>
+            /// Action name.
+            /// </summary>
+            internal readonly string Action;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OnEntryAttribute"/> class.
+            /// </summary>
+            /// <param name="actionName">Action name</param>
+            public OnEntryAttribute(string actionName)
+            {
+                this.Action = actionName;
+            }
+        }
+
+        /// <summary>
+        /// Attribute for declaring what action to perform
+        /// when exiting a machine state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class)]
+        protected sealed class OnExitAttribute : Attribute
+        {
+            /// <summary>
+            /// Action name.
+            /// </summary>
+            internal string Action;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OnExitAttribute"/> class.
+            /// </summary>
+            /// <param name="actionName">Action name</param>
+            public OnExitAttribute(string actionName)
+            {
+                this.Action = actionName;
+            }
+        }
+
+        /// <summary>
+        /// Attribute for declaring which state a machine should transition to
+        /// when it receives an event in a given state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+        protected sealed class OnEventGotoStateAttribute : Attribute
+        {
+            /// <summary>
+            /// Event type.
+            /// </summary>
+            internal readonly Type Event;
+
+            /// <summary>
+            /// State type.
+            /// </summary>
+            internal readonly Type State;
+
+            /// <summary>
+            /// Action name.
+            /// </summary>
+            internal readonly string Action;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OnEventGotoStateAttribute"/> class.
+            /// </summary>
+            /// <param name="eventType">Event type</param>
+            /// <param name="stateType">State type</param>
+            public OnEventGotoStateAttribute(Type eventType, Type stateType)
+            {
+                this.Event = eventType;
+                this.State = stateType;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OnEventGotoStateAttribute"/> class.
+            /// </summary>
+            /// <param name="eventType">Event type</param>
+            /// <param name="stateType">State type</param>
+            /// <param name="actionName">Name of action to perform on exit</param>
+            public OnEventGotoStateAttribute(Type eventType, Type stateType, string actionName)
+            {
+                this.Event = eventType;
+                this.State = stateType;
+                this.Action = actionName;
+            }
+        }
+
+        /// <summary>
+        /// Attribute for declaring which state a machine should push transition to
+        /// when it receives an event in a given state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+        protected sealed class OnEventPushStateAttribute : Attribute
+        {
+            /// <summary>
+            /// Event type.
+            /// </summary>
+            internal Type Event;
+
+            /// <summary>
+            /// State type.
+            /// </summary>
+            internal Type State;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OnEventPushStateAttribute"/> class.
+            /// </summary>
+            /// <param name="eventType">Event type</param>
+            /// <param name="stateType">State type</param>
+            public OnEventPushStateAttribute(Type eventType, Type stateType)
+            {
+                this.Event = eventType;
+                this.State = stateType;
+            }
+        }
+
+        /// <summary>
+        /// Attribute for declaring what action a machine should perform
+        /// when it receives an event in a given state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+        protected sealed class OnEventDoActionAttribute : Attribute
+        {
+            /// <summary>
+            /// Event type.
+            /// </summary>
+            internal Type Event;
+
+            /// <summary>
+            /// Action name.
+            /// </summary>
+            internal string Action;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OnEventDoActionAttribute"/> class.
+            /// </summary>
+            /// <param name="eventType">Event type</param>
+            /// <param name="actionName">Action name</param>
+            public OnEventDoActionAttribute(Type eventType, string actionName)
+            {
+                this.Event = eventType;
+                this.Action = actionName;
+            }
+        }
+
+        /// <summary>
+        /// Attribute for declaring what events should be deferred in
+        /// a machine state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class)]
+        protected sealed class DeferEventsAttribute : Attribute
+        {
+            /// <summary>
+            /// Event types.
+            /// </summary>
+            internal Type[] Events;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="DeferEventsAttribute"/> class.
+            /// </summary>
+            /// <param name="eventTypes">Event types</param>
+            public DeferEventsAttribute(params Type[] eventTypes)
+            {
+                this.Events = eventTypes;
+            }
+        }
+
+        /// <summary>
+        /// Attribute for declaring what events should be ignored in
+        /// a machine state.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Class)]
+        protected sealed class IgnoreEventsAttribute : Attribute
+        {
+            /// <summary>
+            /// Event types.
+            /// </summary>
+            internal Type[] Events;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="IgnoreEventsAttribute"/> class.
+            /// </summary>
+            /// <param name="eventTypes">Event types</param>
+            public IgnoreEventsAttribute(params Type[] eventTypes)
+            {
+                this.Events = eventTypes;
+            }
+        }
+
         /// <summary>
         /// The entry action of the state.
         /// </summary>

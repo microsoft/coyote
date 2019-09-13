@@ -7,7 +7,7 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.TestingServices.Runtime;
 
 namespace Microsoft.Coyote.TestingServices

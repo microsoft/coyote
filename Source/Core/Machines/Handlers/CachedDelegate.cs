@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Coyote.Threading.Tasks;
 
-namespace Microsoft.Coyote.Runtime
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// A machine delegate that has been cached for performance optimization.

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Core.Tests

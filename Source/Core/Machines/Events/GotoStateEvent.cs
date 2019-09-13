@@ -4,28 +4,29 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Attribute for declaring what action to perform
-    /// when exiting a machine state.
+    /// The goto state event.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class OnExitAttribute : Attribute
+    [DataContract]
+    internal sealed class GotoStateEvent : Event
     {
         /// <summary>
-        /// Action name.
+        /// Type of the state to transition to.
         /// </summary>
-        internal string Action;
+        public readonly Type State;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OnExitAttribute"/> class.
+        /// Initializes a new instance of the <see cref="GotoStateEvent"/> class.
         /// </summary>
-        /// <param name="actionName">Action name</param>
-        public OnExitAttribute(string actionName)
+        /// <param name="s">Type of the state.</param>
+        public GotoStateEvent(Type s)
+            : base()
         {
-            this.Action = actionName;
+            this.State = s;
         }
     }
 }

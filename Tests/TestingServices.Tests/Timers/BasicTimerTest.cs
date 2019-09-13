@@ -4,7 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Coyote.Timers;
+using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Machines.Timers;
 using Xunit;
 using Xunit.Abstractions;
 

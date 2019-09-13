@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Coyote.Timers
+namespace Microsoft.Coyote.Machines.Timers
 {
     /// <summary>
     /// Defines a timer elapsed event that is sent from a timer to the machine that owns the timer.

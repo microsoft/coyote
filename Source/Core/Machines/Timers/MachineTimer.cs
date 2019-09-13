@@ -6,7 +6,7 @@
 using System;
 using System.Threading;
 
-namespace Microsoft.Coyote.Timers
+namespace Microsoft.Coyote.Machines.Timers
 {
     /// <summary>
     /// A timer that can send timeout events to its owner machine.

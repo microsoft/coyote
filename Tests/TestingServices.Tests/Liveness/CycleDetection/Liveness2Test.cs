@@ -3,6 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.Core.Tests.LogMessages
 {

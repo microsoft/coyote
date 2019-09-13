@@ -12,6 +12,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Scheduling;
@@ -25,10 +27,10 @@ using Microsoft.Coyote.TestingServices.Tracing.Error;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
-using Microsoft.Coyote.Timers;
 using Microsoft.Coyote.Utilities;
 
 using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
+using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {

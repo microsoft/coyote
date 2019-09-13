@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace Microsoft.Coyote.Runtime
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// The status returned as the result of a dequeue operation.

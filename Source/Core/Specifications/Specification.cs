@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote

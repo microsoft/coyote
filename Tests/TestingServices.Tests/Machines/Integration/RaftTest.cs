@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using Microsoft.Coyote.Machines;
 using Xunit;
 using Xunit.Abstractions;
 

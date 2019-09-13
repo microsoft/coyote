@@ -5,6 +5,7 @@
 
 using System;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.Core.Tests.LogMessages
 {

@@ -13,14 +13,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Threading.Tasks;
-using Microsoft.Coyote.Timers;
 using Microsoft.Coyote.Utilities;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Implements an asynchronous communicating state machine. Inherit from this class

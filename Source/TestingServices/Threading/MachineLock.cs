@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.Threading;

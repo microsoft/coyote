@@ -14,9 +14,10 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Threading.Tasks
 {
     /// <summary>
-    /// Provides the capability to execute work asynchronously using a <see cref="Task"/>.
-    /// During testing, the schedule of a <see cref="ControlledTask"/> is controlled by the
-    /// runtime, which systematically explores interleavings and sources of nondeterminism.
+    /// Represents an asynchronous operation. Each <see cref="ControlledTask"/> is a thin wrapper
+    /// over <see cref="Task"/> and each call simply invokes the wrapped task. During testing, a
+    /// <see cref="ControlledTask"/> is controlled by the runtime and systematically interleaved
+    /// with other asynchronous operations to find bugs.
     /// </summary>
     [AsyncMethodBuilder(typeof(AsyncControlledTaskMethodBuilder))]
     public class ControlledTask : IDisposable
@@ -547,9 +548,10 @@ namespace Microsoft.Coyote.Threading.Tasks
     }
 
     /// <summary>
-    /// Provides the capability to execute work asynchronously on a <see cref="TaskScheduler"/> and produce
-    /// a result at some time in the future. During testing, a <see cref="ControlledTask"/> executes in the
-    /// scope of a <see cref="Machine"/>, which enables systematic exploration for finding bugs.
+    /// Represents an asynchronous operation that can return a value. Each <see cref="ControlledTask{TResult}"/>
+    /// is a thin wrapper over <see cref="Task{TResult}"/> and each call simply invokes the wrapped task. During
+    /// testing, a <see cref="ControlledTask"/> is controlled by the runtime and systematically interleaved with
+    /// other asynchronous operations to find bugs.
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     [AsyncMethodBuilder(typeof(AsyncControlledTaskMethodBuilder<>))]

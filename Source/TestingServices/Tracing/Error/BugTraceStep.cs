@@ -5,6 +5,9 @@
 
 using System.Reflection;
 using System.Runtime.Serialization;
+using Microsoft.Coyote.Machines;
+
+using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.TestingServices.Tracing.Error
 {

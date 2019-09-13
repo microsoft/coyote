@@ -5,13 +5,20 @@
 
 using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Abstract class representing an event.
+    /// The halt event.
     /// </summary>
     [DataContract]
-    public abstract class Event
+    public sealed class Halt : Event
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Halt"/> class.
+        /// </summary>
+        public Halt()
+            : base()
+        {
+        }
     }
 }

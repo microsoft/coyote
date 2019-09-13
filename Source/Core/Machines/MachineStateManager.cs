@@ -6,8 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Runtime
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Manages the state of a machine.

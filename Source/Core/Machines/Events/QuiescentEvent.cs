@@ -3,30 +3,28 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-using System;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// The goto state event.
+    /// Signals that a machine has reached quiescence.
     /// </summary>
     [DataContract]
-    internal sealed class GotoStateEvent : Event
+    internal sealed class QuiescentEvent : Event
     {
         /// <summary>
-        /// Type of the state to transition to.
+        /// The id of the machine that has reached quiescence.
         /// </summary>
-        public readonly Type State;
+        public MachineId MachineId;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GotoStateEvent"/> class.
+        /// Initializes a new instance of the <see cref="QuiescentEvent"/> class.
         /// </summary>
-        /// <param name="s">Type of the state.</param>
-        public GotoStateEvent(Type s)
-            : base()
+        /// <param name="mid">The id of the machine that has reached quiescence.</param>
+        public QuiescentEvent(MachineId mid)
         {
-            this.State = s;
+            this.MachineId = mid;
         }
     }
 }

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.SharedObjects
 {

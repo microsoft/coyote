@@ -5,7 +5,8 @@
 
 using System;
 
-using Microsoft.Coyote.Timers;
+using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.IO

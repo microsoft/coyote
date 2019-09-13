@@ -3,29 +3,27 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-using System;
+using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Attribute for declaring what action to perform
-    /// when entering a machine state.
+    /// The default event.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class OnEntryAttribute : Attribute
+    [DataContract]
+    public sealed class Default : Event
     {
         /// <summary>
-        /// Action name.
+        /// Gets an instance of the default event.
         /// </summary>
-        internal readonly string Action;
+        public static Default Event { get; } = new Default();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OnEntryAttribute"/> class.
+        /// Initializes a new instance of the <see cref="Default"/> class.
         /// </summary>
-        /// <param name="actionName">Action name</param>
-        public OnEntryAttribute(string actionName)
+        private Default()
+            : base()
         {
-            this.Action = actionName;
         }
     }
 }

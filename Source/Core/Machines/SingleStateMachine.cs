@@ -5,7 +5,7 @@
 
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Abstract class representing a single-state machine.

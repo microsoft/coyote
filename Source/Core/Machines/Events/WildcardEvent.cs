@@ -3,16 +3,22 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-using System;
+using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Attribute for declaring that a state of a machine
-    /// is the start one.
+    /// The wild card event.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class StartAttribute : Attribute
+    [DataContract]
+    public sealed class WildCardEvent : Event
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WildCardEvent"/> class.
+        /// </summary>
+        public WildCardEvent()
+            : base()
+        {
+        }
     }
 }

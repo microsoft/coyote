@@ -7,7 +7,6 @@ using System;
 
 namespace Microsoft.Coyote
 {
-#pragma warning disable SA1402 // FileMayOnlyContainASingleType
     /// <summary>
     /// Attribute for declaring the entry point to
     /// a Coyote program test.
@@ -54,5 +53,4 @@ namespace Microsoft.Coyote
     internal sealed class TestRuntimeCreateAttribute : Attribute
     {
     }
-#pragma warning restore SA1402 // FileMayOnlyContainASingleType
 }

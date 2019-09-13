@@ -5,6 +5,7 @@
 
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Benchmarking.Messaging

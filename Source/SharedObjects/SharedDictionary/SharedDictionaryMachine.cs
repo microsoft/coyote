@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.SharedObjects
 {

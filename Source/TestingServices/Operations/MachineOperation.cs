@@ -7,8 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling
 {

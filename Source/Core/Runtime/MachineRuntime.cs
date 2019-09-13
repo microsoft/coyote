@@ -11,13 +11,14 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
-using Microsoft.Coyote.Timers;
 
 using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
+using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -509,12 +510,12 @@ namespace Microsoft.Coyote.Runtime
         internal abstract IMachineTimer CreateMachineTimer(TimerInfo info, Machine owner);
 
         /// <summary>
-        /// Tries to create a new <see cref="Coyote.Monitor"/> of the specified <see cref="Type"/>.
+        /// Tries to create a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
         internal abstract void TryCreateMonitor(Type type);
 
         /// <summary>
-        /// Invokes the specified <see cref="Coyote.Monitor"/> with the specified <see cref="Event"/>.
+        /// Invokes the specification monitor with the specified <see cref="Event"/>.
         /// </summary>
         internal abstract void Monitor(Type type, AsyncMachine sender, Event e);
 

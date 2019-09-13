@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote

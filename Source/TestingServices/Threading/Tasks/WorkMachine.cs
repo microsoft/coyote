@@ -5,8 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
-
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.TestingServices.Runtime;
 
 namespace Microsoft.Coyote.TestingServices.Threading.Tasks

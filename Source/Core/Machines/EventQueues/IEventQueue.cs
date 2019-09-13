@@ -6,7 +6,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Runtime
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Interface of a queue of events.

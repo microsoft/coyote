@@ -10,7 +10,7 @@ using System.Threading;
 
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Unique machine id.

@@ -5,7 +5,6 @@
 
 using System.Runtime.Serialization;
 using Microsoft.Coyote.SmartSockets;
-using Microsoft.Coyote.TestingServices;
 
 namespace CoyoteTester.Interfaces
 {

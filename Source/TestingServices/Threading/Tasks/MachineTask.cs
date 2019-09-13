@@ -7,6 +7,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;

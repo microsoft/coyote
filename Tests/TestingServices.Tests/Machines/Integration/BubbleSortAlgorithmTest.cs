@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Coyote.Machines;
 using Xunit;
 using Xunit.Abstractions;
 

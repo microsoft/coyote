@@ -7,11 +7,13 @@ using System;
 using System.ComponentModel;
 
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Runtime
+namespace Microsoft.Coyote.Machines
 {
     /// <summary>
     /// Implements a machine that can execute asynchronously.
+    /// This type is intended for runtime use only.
     /// </summary>
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]

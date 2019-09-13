@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;

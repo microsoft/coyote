@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
-
+using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.TestingServices.Runtime;
 
 namespace Microsoft.Coyote.SharedObjects

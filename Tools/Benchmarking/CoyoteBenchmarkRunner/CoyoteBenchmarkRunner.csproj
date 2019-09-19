@@ -5,7 +5,6 @@
     <Description>The Coyote benchmark runner.</Description>
     <AssemblyName>CoyoteBenchmarkRunner</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Benchmarking</RootNamespace>
-    <CodeAnalysisRuleSet>.\Properties\codeanalysis.ruleset</CodeAnalysisRuleSet>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
@@ -20,10 +19,5 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.4" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.1" PrivateAssets="All" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Include=".\Properties\stylecop.json" />
   </ItemGroup>
 </Project>

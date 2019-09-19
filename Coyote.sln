@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{458F63
 		Common\build.props = Common\build.props
 		Common\dependencies.props = Common\dependencies.props
 		Common\key.props = Common\key.props
+		Common\stylecop.json = Common\stylecop.json
 		Common\version.props = Common\version.props
 	EndProjectSection
 EndProject

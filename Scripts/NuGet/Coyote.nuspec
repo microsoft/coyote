@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Microsoft.Coyote</id>
-    <version>1.0.0-internal.3</version>
+    <version>1.0.0-internal.4</version>
     <authors>Microsoft</authors>
     <projectUrl>https://github.com/Microsoft/Coyote</projectUrl>
     <license type="expression">MIT</license>

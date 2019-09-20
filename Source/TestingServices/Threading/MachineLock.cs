@@ -56,8 +56,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
             }
 
             this.IsAcquired = true;
-            this.Runtime.Scheduler.ScheduleNextOperation(AsyncOperationType.Acquire,
-                AsyncOperationTarget.Task, caller.Id.Value);
+            this.Runtime.Scheduler.ScheduleNextEnabledOperation();
             this.Runtime.Logger.WriteLine("<SyncLog> Machine '{0}' is acquiring lock '{1}'.", caller.Id, this.Id);
 
             return ControlledTask.FromResult(new Releaser(this));
@@ -77,8 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
             }
 
             this.Runtime.Logger.WriteLine("<SyncLog> Machine '{0}' is releasing lock '{1}'.", caller.Id, this.Id);
-            this.Runtime.Scheduler.ScheduleNextOperation(AsyncOperationType.Release,
-                AsyncOperationTarget.Task, caller.Id.Value);
+            this.Runtime.Scheduler.ScheduleNextEnabledOperation();
         }
     }
 }

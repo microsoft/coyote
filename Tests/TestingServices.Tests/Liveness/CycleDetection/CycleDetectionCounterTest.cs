@@ -16,18 +16,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Configure : Event
-        {
-            public bool CacheCounter;
-            public bool ResetCounter;
-
-            public Configure(bool cacheCounter, bool resetCounter)
-            {
-                this.CacheCounter = cacheCounter;
-                this.ResetCounter = resetCounter;
-            }
-        }
-
         private class Message : Event
         {
         }
@@ -35,8 +23,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class EventHandler : Machine
         {
             private int Counter;
-            private bool CacheCounter;
-            private bool ResetCounter;
 
             [Start]
             [OnEntry(nameof(OnInitEntry))]
@@ -48,8 +34,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitEntry()
             {
                 this.Counter = 0;
-                this.CacheCounter = (this.ReceivedEvent as Configure).CacheCounter;
-                this.ResetCounter = (this.ReceivedEvent as Configure).ResetCounter;
                 this.Send(this.Id, new Message());
             }
 
@@ -57,26 +41,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.Send(this.Id, new Message());
                 this.Counter++;
-                if (this.ResetCounter && this.Counter == 10)
-                {
-                    this.Counter = 0;
-                }
             }
 
             protected override int HashedState
             {
                 get
                 {
-                    if (this.CacheCounter)
-                    {
-                        // The counter contributes to the cached machine state.
-                        // This allows the liveness checker to detect progress.
-                        return this.Counter;
-                    }
-                    else
-                    {
-                        return base.HashedState;
-                    }
+                    // The counter contributes to the cached machine state.
+                    // This allows the liveness checker to detect progress.
+                    return this.Counter;
                 }
             }
         }
@@ -102,7 +75,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(true, false));
+                r.CreateMachine(typeof(EventHandler));
             },
             configuration: configuration);
         }
@@ -112,31 +85,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.EnableUserDefinedStateHashing = true;
             configuration.MaxSchedulingSteps = 200;
 
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(false, false));
-            },
-            configuration: configuration,
-            expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestCycleDetectionCounterResetBug()
-        {
-            var configuration = GetConfiguration();
-            configuration.EnableCycleDetection = true;
-            configuration.EnableUserDefinedStateHashing = true;
-            configuration.MaxSchedulingSteps = 200;
-
-            this.TestWithError(r =>
-            {
-                r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(true, true));
+                r.CreateMachine(typeof(EventHandler));
             },
             configuration: configuration,
             expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",

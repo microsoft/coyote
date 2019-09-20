@@ -13,6 +13,11 @@ namespace Microsoft.Coyote
     public static class CoyoteRuntime
     {
         /// <summary>
+        /// Provides access to the runtime associated with the current execution context.
+        /// </summary>
+        internal static RuntimeProvider Provider { get; set; } = new RuntimeProvider();
+
+        /// <summary>
         /// Creates a new runtime.
         /// </summary>
         /// <returns>The created runtime.</returns>

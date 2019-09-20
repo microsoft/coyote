@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(52)]
+        [InlineData(469)]
         public void TestDiningPhilosophersLivenessBugWithCycleReplay(int seed)
         {
             var configuration = GetConfiguration();

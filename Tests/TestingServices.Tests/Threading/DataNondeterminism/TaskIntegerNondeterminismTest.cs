@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await WriteAsync();
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await WriteWithDelayAsync();
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

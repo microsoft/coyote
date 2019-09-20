@@ -879,15 +879,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        [Fact(Timeout=10000)]
-        public void TestReplicatingStorageLivenessBugWithCycleReplay()
+        [Theory(Timeout = 10000)]
+        [InlineData(855)]
+        public void TestReplicatingStorageLivenessBugWithCycleReplay(int seed)
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
             configuration.MaxUnfairSchedulingSteps = 100;
             configuration.MaxFairSchedulingSteps = 1000;
             configuration.LivenessTemperatureThreshold = 500;
-            configuration.RandomSchedulingSeed = 2;
+            configuration.RandomSchedulingSeed = seed;
             configuration.SchedulingIterations = 1;
 
             this.TestWithError(r =>

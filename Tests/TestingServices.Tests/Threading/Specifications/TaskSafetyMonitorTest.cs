@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 await WriteAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Bug found!",
             replay: true);
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 await WriteWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Bug found!",
             replay: true);
         }
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Bug found!",
             replay: true);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Bug found!",
             replay: true);
         }
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Bug found!",
             replay: true);
         }
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     });
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Bug found!",
             replay: true);
         }

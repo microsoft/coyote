@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace Microsoft.Coyote.Machines
     /// Unique machine id.
     /// </summary>
     [DataContract]
+    [DebuggerStepThrough]
     public sealed class MachineId : IEquatable<MachineId>, IComparable<MachineId>
     {
         /// <summary>

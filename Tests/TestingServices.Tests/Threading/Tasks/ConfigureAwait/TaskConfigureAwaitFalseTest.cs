@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class TaskConfigureAwaitTrueTest : BaseTest
+    public class TaskConfigureAwaitFalseTest : BaseTest
     {
-        public TaskConfigureAwaitTrueTest(ITestOutputHelper output)
+        public TaskConfigureAwaitFalseTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1).ConfigureAwait(true);
+            await ControlledTask.Delay(1).ConfigureAwait(false);
             entry.Value = value;
         }
 
@@ -39,10 +39,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await WriteAsync(entry, 5).ConfigureAwait(true);
+                await WriteAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -51,10 +51,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await WriteAsync(entry, 3).ConfigureAwait(true);
+                await WriteAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -65,10 +65,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await WriteWithDelayAsync(entry, 5).ConfigureAwait(true);
+                await WriteWithDelayAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -77,10 +77,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await WriteWithDelayAsync(entry, 3).ConfigureAwait(true);
+                await WriteWithDelayAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -88,13 +88,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private static async ControlledTask NestedWriteAsync(SharedEntry entry, int value)
         {
             await ControlledTask.CompletedTask;
-            await WriteAsync(entry, value).ConfigureAwait(true);
+            await WriteAsync(entry, value).ConfigureAwait(false);
         }
 
         private static async ControlledTask NestedWriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1).ConfigureAwait(true);
-            await WriteWithDelayAsync(entry, value).ConfigureAwait(true);
+            await ControlledTask.Delay(1).ConfigureAwait(false);
+            await WriteWithDelayAsync(entry, value).ConfigureAwait(false);
         }
 
         [Fact(Timeout = 5000)]
@@ -103,10 +103,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await NestedWriteAsync(entry, 5).ConfigureAwait(true);
+                await NestedWriteAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -115,10 +115,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await NestedWriteAsync(entry, 3).ConfigureAwait(true);
+                await NestedWriteAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -129,10 +129,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await NestedWriteWithDelayAsync(entry, 5).ConfigureAwait(true);
+                await NestedWriteWithDelayAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -141,10 +141,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await NestedWriteWithDelayAsync(entry, 3).ConfigureAwait(true);
+                await NestedWriteWithDelayAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -158,59 +158,59 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private static async ControlledTask<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1).ConfigureAwait(true);
+            await ControlledTask.Delay(1).ConfigureAwait(false);
             entry.Value = value;
             return entry.Value;
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitSynchronousTaskResult()
+        public void TestAwaitSynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await GetWriteResultAsync(entry, 5).ConfigureAwait(true);
+                int value = await GetWriteResultAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitSynchronousTaskResultFailure()
+        public void TestAwaitSynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await GetWriteResultAsync(entry, 3).ConfigureAwait(true);
+                int value = await GetWriteResultAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitAsynchronousTaskResult()
+        public void TestAwaitAsynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await GetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(true);
+                int value = await GetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitAsynchronousTaskResultFailure()
+        public void TestAwaitAsynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await GetWriteResultWithDelayAsync(entry, 3).ConfigureAwait(true);
+                int value = await GetWriteResultWithDelayAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -218,63 +218,63 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private static async ControlledTask<int> NestedGetWriteResultAsync(SharedEntry entry, int value)
         {
             await ControlledTask.CompletedTask;
-            return await GetWriteResultAsync(entry, value).ConfigureAwait(true);
+            return await GetWriteResultAsync(entry, value).ConfigureAwait(false);
         }
 
         private static async ControlledTask<int> NestedGetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1).ConfigureAwait(true);
-            return await GetWriteResultWithDelayAsync(entry, value).ConfigureAwait(true);
+            await ControlledTask.Delay(1).ConfigureAwait(false);
+            return await GetWriteResultWithDelayAsync(entry, value).ConfigureAwait(false);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitNestedSynchronousTaskResult()
+        public void TestAwaitNestedSynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await NestedGetWriteResultAsync(entry, 5).ConfigureAwait(true);
+                int value = await NestedGetWriteResultAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitNestedSynchronousTaskResultFailure()
+        public void TestAwaitNestedSynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await NestedGetWriteResultAsync(entry, 3).ConfigureAwait(true);
+                int value = await NestedGetWriteResultAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitNestedAsynchronousTaskResult()
+        public void TestAwaitNestedAsynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await NestedGetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(true);
+                int value = await NestedGetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitNestedAsynchronousTaskResultFailure()
+        public void TestAwaitNestedAsynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await NestedGetWriteResultWithDelayAsync(entry, 3).ConfigureAwait(true);
+                int value = await NestedGetWriteResultWithDelayAsync(entry, 3).ConfigureAwait(false);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

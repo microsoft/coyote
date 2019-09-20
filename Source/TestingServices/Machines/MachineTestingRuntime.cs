@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +19,6 @@ using Microsoft.Coyote.TestingServices.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 
-using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
         /// </summary>
-        internal override ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken) =>
+        internal override ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
         /// </summary>
-        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<ControlledTask<TResult>> function,
             CancellationToken cancellationToken) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
@@ -502,21 +502,27 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
+        /// Creates a controlled awaiter that switches into a target environment.
+        /// </summary>
+        internal override ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter() =>
+            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
+
+        /// <summary>
         /// Ends the wait for the completion of the yield operation.
         /// </summary>
-        internal override void OnGetYieldResult(DefaultYieldAwaiter awaiter) =>
+        internal override void OnGetYieldResult(YieldAwaitable.YieldAwaiter awaiter) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Sets the action to perform when the yield operation completes.
         /// </summary>
-        internal override void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+        internal override void OnYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the yield operation completes.
         /// </summary>
-        internal override void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+        internal override void OnUnsafeYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>

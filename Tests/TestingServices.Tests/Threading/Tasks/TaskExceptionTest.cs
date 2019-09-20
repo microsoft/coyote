@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -120,16 +120,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 }
 
                 var task = ControlledTask.Run(func);
-                var innerTask = await task;
-                await innerTask;
+                await task;
 
-                Specification.Assert(innerTask.Status == TaskStatus.RanToCompletion,
-                    $"Status is '{innerTask.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         private static async ControlledTask WriteWithExceptionAsync(SharedEntry entry, int value)
@@ -170,7 +167,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -197,7 +194,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -228,7 +225,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -260,7 +257,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -294,7 +291,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
     }
 }

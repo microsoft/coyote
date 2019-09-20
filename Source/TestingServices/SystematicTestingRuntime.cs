@@ -6,9 +6,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +20,6 @@ using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
-using Microsoft.Coyote.TestingServices.Specifications;
 using Microsoft.Coyote.TestingServices.StateCaching;
 using Microsoft.Coyote.TestingServices.Threading;
 using Microsoft.Coyote.TestingServices.Threading.Tasks;
@@ -29,7 +30,6 @@ using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 
-using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
@@ -39,12 +39,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
     /// </summary>
     internal sealed class SystematicTestingRuntime : MachineRuntime
     {
-        /// <summary>
-        /// Stores the runtime that executes each operation in a given asynchronous context.
-        /// </summary>
-        private static readonly AsyncLocal<SystematicTestingRuntime> AsyncLocalRuntime =
-            new AsyncLocal<SystematicTestingRuntime>();
-
         /// <summary>
         /// The asynchronous operation scheduler.
         /// </summary>
@@ -125,9 +119,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, this.Configuration);
             this.TaskScheduler = new InterceptingTaskScheduler(this.Scheduler.ControlledTaskMap);
 
-            // Set the specification checker and current runtime to this runtime.
-            Specification.CurrentChecker = new SpecificationChecker(this);
-            Current = this;
+            // Set a provider to the runtime in each asynchronous control flow.
+            CoyoteRuntime.Provider = new AsyncLocalRuntimeProvider(this);
         }
 
         /// <summary>
@@ -281,7 +274,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             testName = string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'";
             this.Logger.WriteLine($"<TestLog> Running test{testName}.");
 
-            var machine = new TestEntryPointWorkMachine(this, testMethod);
+            var machine = new TestExecutionMachine(this, testMethod);
             this.DispatchWork(machine, null);
         }
 
@@ -311,7 +304,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
 
             this.BugTrace.AddCreateMachineStep(creator, machine.Id, e is null ? null : new EventInfo(e));
-            this.RunMachineEventHandler(machine, e, true, null, null);
+            this.RunMachineEventHandler(machine, e, true, null);
 
             return machine.Id;
         }
@@ -345,7 +338,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
 
             this.BugTrace.AddCreateMachineStep(creator, machine.Id, e is null ? null : new EventInfo(e));
-            this.RunMachineEventHandler(machine, e, true, creator, null);
+            this.RunMachineEventHandler(machine, e, true, creator);
 
             // Wait until the machine reaches quiescence.
             await creator.Receive(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).MachineId == machine.Id);
@@ -362,7 +355,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             // Using ulong.MaxValue because a 'Create' operation cannot specify
             // the id of its target, because the id does not exist yet.
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Create, AsyncOperationTarget.Task, ulong.MaxValue);
+            this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(creator);
 
             if (mid is null)
@@ -404,7 +397,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 "Machine id '{0}' of a previously halted machine cannot be reused to create a new machine of type '{1}'",
                 mid.Value, type.FullName);
             this.CreatedMachineIds.Add(mid);
-            this.MachineOperations.GetOrAdd(mid.Value, new MachineOperation(machine));
+            this.MachineOperations.GetOrAdd(mid.Value, new MachineOperation(machine, this.Scheduler));
 
             this.LogWriter.OnCreateMachine(mid, creator?.Id);
 
@@ -429,11 +422,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             this.AssertCorrectCallerMachine(sender as Machine, "SendEvent");
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options,
-                out Machine targetMachine, out EventInfo eventInfo);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out Machine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
-                this.RunMachineEventHandler(targetMachine, null, false, null, eventInfo);
+                this.RunMachineEventHandler(targetMachine, null, false, null);
             }
         }
 
@@ -450,11 +442,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(e != null, "Machine '{0}' is sending a null event.", sender.Id);
             this.AssertCorrectCallerMachine(sender as Machine, "SendEventAndExecute");
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options,
-                out Machine targetMachine, out EventInfo eventInfo);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out Machine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
-                this.RunMachineEventHandler(targetMachine, null, false, sender as Machine, eventInfo);
+                this.RunMachineEventHandler(targetMachine, null, false, sender as Machine);
 
                 // Wait until the machine reaches quiescence.
                 await (sender as Machine).Receive(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).MachineId == target);
@@ -471,13 +462,13 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Enqueues an event to the machine with the specified id.
         /// </summary>
         private EnqueueStatus EnqueueEvent(MachineId target, Event e, AsyncMachine sender, Guid opGroupId,
-            SendOptions options, out Machine targetMachine, out EventInfo eventInfo)
+            SendOptions options, out Machine targetMachine)
         {
             this.Assert(this.CreatedMachineIds.Contains(target),
                 "Cannot send event '{0}' to machine id '{1}' that was never previously bound to a machine of type '{2}'",
                 e.GetType().FullName, target.Value, target.Type);
 
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Send, AsyncOperationTarget.Inbox, target.Value);
+            this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(sender as Machine);
 
             // The operation group id of this operation is set using the following precedence:
@@ -497,7 +488,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to the halted machine '{1}'.", e.GetType().FullName, target);
                 this.TryHandleDroppedEvent(e, target);
-                eventInfo = null;
                 return EnqueueStatus.Dropped;
             }
 
@@ -506,7 +496,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.AssertNoPendingTransitionStatement(sender as Machine, "send an event");
             }
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetMachine, e, sender, opGroupId, options, out eventInfo);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetMachine, e, sender, opGroupId, options);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
                 this.TryHandleDroppedEvent(e, target);
@@ -518,8 +508,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Enqueues an event to the machine with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(Machine machine, Event e, AsyncMachine sender, Guid opGroupId,
-            SendOptions options, out EventInfo eventInfo)
+        private EnqueueStatus EnqueueEvent(Machine machine, Event e, AsyncMachine sender, Guid opGroupId, SendOptions options)
         {
             EventOriginInfo originInfo;
             if (sender is Machine senderMachine)
@@ -533,7 +522,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 originInfo = new EventOriginInfo(null, "Env", "Env");
             }
 
-            eventInfo = new EventInfo(e, originInfo)
+            EventInfo eventInfo = new EventInfo(e, originInfo)
             {
                 MustHandle = options?.MustHandle ?? false,
                 Assert = options?.Assert ?? -1,
@@ -561,19 +550,18 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <param name="initialEvent">Event for initializing the machine.</param>
         /// <param name="isFresh">If true, then this is a new machine.</param>
         /// <param name="syncCaller">Caller machine that is blocked for quiscence.</param>
-        /// <param name="enablingEvent">If non-null, the event info of the sent event that caused the event handler to be restarted.</param>
-        private void RunMachineEventHandler(Machine machine, Event initialEvent, bool isFresh, Machine syncCaller, EventInfo enablingEvent)
+        private void RunMachineEventHandler(Machine machine, Event initialEvent, bool isFresh, Machine syncCaller)
         {
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
 
             Task task = new Task(async () =>
             {
-                // Set the executing runtime in the local asynchronous context,
-                // allowing future retrieval in the same asynchronous call stack.
-                AsyncLocalRuntime.Value = this;
-
                 try
                 {
+                    // Set the runtime in the async control flow runtime provider, allowing
+                    // future retrieval in the same asynchronous call stack.
+                    CoyoteRuntime.Provider.SetCurrentRuntime(this);
+
                     OperationScheduler.NotifyOperationStarted(op);
 
                     if (isFresh)
@@ -585,21 +573,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
                     if (syncCaller != null)
                     {
-                        this.EnqueueEvent(syncCaller, new QuiescentEvent(machine.Id), machine, machine.OperationGroupId, null, out EventInfo _);
+                        this.EnqueueEvent(syncCaller, new QuiescentEvent(machine.Id), machine, machine.OperationGroupId, null);
                     }
 
                     IO.Debug.WriteLine($"<ScheduleDebug> Completed event handler of '{machine.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
-
-                    if (machine.IsHalted)
-                    {
-                        this.Scheduler.ScheduleNextOperation(AsyncOperationType.Stop, AsyncOperationTarget.Task, machine.Id.Value);
-                    }
-                    else
-                    {
-                        this.Scheduler.ScheduleNextOperation(AsyncOperationType.Receive, AsyncOperationTarget.Inbox, machine.Id.Value);
-                    }
-
                     IO.Debug.WriteLine($"<ScheduleDebug> Terminated event handler of '{machine.Id}' on task '{Task.CurrentId}'.");
                     ResetProgramCounter(machine);
                 }
@@ -648,7 +626,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
             });
 
-            op.OnCreated(enablingEvent?.SendStep ?? 0);
+            op.OnCreated();
             this.Scheduler.NotifyOperationCreated(op, task);
 
             task.Start(this.TaskScheduler);
@@ -658,10 +636,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken)
         {
             this.Assert(action != null, "The task cannot execute a null action.");
-            var machine = new ActionWorkMachine(this, action);
+            var machine = new ActionMachine(this, action);
             this.DispatchWork(machine, null);
             return new MachineTask(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
         }
@@ -669,10 +648,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
         /// </summary>
-        internal override ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken)
+        [DebuggerStepThrough]
+        internal override ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken)
         {
             this.Assert(function != null, "The task cannot execute a null function.");
-            var machine = new FuncWorkMachine(this, function);
+            var machine = new FuncMachine(this, function);
             this.DispatchWork(machine, null);
             return new MachineTask(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
         }
@@ -680,11 +660,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
             CancellationToken cancellationToken)
         {
             this.Assert(function != null, "The task cannot execute a null function.");
-            var machine = new FuncWorkMachine<TResult>(this, function);
+            var machine = new FuncMachine<TResult>(this, function);
             this.DispatchWork(machine, null);
             return new MachineTask<TResult>(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
         }
@@ -692,11 +673,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
         /// </summary>
-        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+        [DebuggerStepThrough]
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<ControlledTask<TResult>> function,
             CancellationToken cancellationToken)
         {
             this.Assert(function != null, "The task cannot execute a null function.");
-            var machine = new FuncTaskWorkMachine<TResult>(this, function);
+            var machine = new FuncTaskMachine<TResult>(this, function);
             this.DispatchWork(machine, null);
             return new MachineTask<TResult>(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
         }
@@ -704,12 +686,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTaskDelay(int millisecondsDelay, CancellationToken cancellationToken) =>
             this.CreateControlledTaskDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
 
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             if (delay.TotalMilliseconds == 0)
@@ -718,7 +702,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return ControlledTask.CompletedTask;
             }
 
-            var machine = new DelayWorkMachine(this);
+            var machine = new DelayMachine(this);
             this.DispatchWork(machine, null);
             return new MachineTask(this, machine.AwaiterTask, MachineTaskType.ExplicitTask);
         }
@@ -726,13 +710,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> associated with a completion source.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTaskCompletionSource(Task task)
         {
-            if (AsyncLocalRuntime.Value != this)
-            {
-                throw new ExecutionCanceledException();
-            }
-
             this.Scheduler.CheckNoExternalConcurrencyUsed();
             return new MachineTask(this, task, MachineTaskType.CompletionSourceTask);
         }
@@ -740,26 +720,21 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a <see cref="ControlledTask{TResult}"/> associated with a completion source.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<TResult> CreateControlledTaskCompletionSource<TResult>(Task<TResult> task)
         {
-            if (AsyncLocalRuntime.Value != this)
-            {
-                throw new ExecutionCanceledException();
-            }
-
             this.Scheduler.CheckNoExternalConcurrencyUsed();
             return new MachineTask<TResult>(this, task, MachineTaskType.CompletionSourceTask);
         }
 
         /// <summary>
-        /// Schedules the specified work machine to be executed asynchronously.
+        /// Schedules the specified <see cref="ControlledTaskMachine"/> to be executed asynchronously.
         /// This is a fire and forget invocation.
         /// </summary>
-        internal void DispatchWork(WorkMachine machine, Task parentTask)
+        [DebuggerStepThrough]
+        internal void DispatchWork(ControlledTaskMachine machine, Task parentTask)
         {
-            // this.Scheduler.ScheduleNextOperation(AsyncOperationType.Create, AsyncOperationTarget.Task, ulong.MaxValue);
-
-            MachineOperation op = new MachineOperation(machine);
+            MachineOperation op = new MachineOperation(machine, this.Scheduler);
 
             this.MachineOperations.GetOrAdd(machine.Id.Value, op);
             this.MachineMap.TryAdd(machine.Id, machine);
@@ -767,15 +742,17 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             Task task = new Task(async () =>
             {
-                // Set the executing runtime in the local asynchronous context,
-                // allowing future retrieval in the same asynchronous call stack.
-                AsyncLocalRuntime.Value = this;
-
-                // SynchronizationContext.SetSynchronizationContext(this.SyncContext);
-
                 try
                 {
+                    // Set the runtime in the async control flow runtime provider, allowing
+                    // future retrieval in the same asynchronous call stack.
+                    CoyoteRuntime.Provider.SetCurrentRuntime(this);
+
                     OperationScheduler.NotifyOperationStarted(op);
+                    if (parentTask != null)
+                    {
+                        op.OnWaitTask(parentTask);
+                    }
 
                     try
                     {
@@ -795,9 +772,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
                     IO.Debug.WriteLine($"<ScheduleDebug> Completed '{machine.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
-
-                    this.Scheduler.ScheduleNextOperation(AsyncOperationType.Stop, AsyncOperationTarget.Task, machine.Id.Value);
-
                     IO.Debug.WriteLine($"<ScheduleDebug> Terminated '{machine.Id}' on task '{Task.CurrentId}'.");
                 }
                 catch (Exception ex)
@@ -841,24 +815,19 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             IO.Debug.WriteLine($"<CreateLog> Machine '{machine.Id}' was created to execute task '{task.Id}'.");
 
-            op.OnCreated(0);
-            if (parentTask != null)
-            {
-                op.OnWaitTask(parentTask);
-            }
-
+            op.OnCreated();
             this.Scheduler.NotifyOperationCreated(op, task);
 
             task.Start();
             this.Scheduler.WaitForOperationToStart(op);
-
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Yield, AsyncOperationTarget.Task, machine.Id.Value);
+            this.Scheduler.ScheduleNextEnabledOperation();
         }
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks) =>
             this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -866,6 +835,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask WaitAllTasksAsync(params Task[] tasks) =>
             this.WaitAllTasksAsync(tasks);
 
@@ -873,6 +843,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks) =>
             this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -880,6 +851,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -893,20 +865,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
-            foreach (var task in tasks)
-            {
-                if (!task.IsCompleted)
-                {
-                    callerOp.OnWaitTask(task, true);
-                }
-            }
-
-            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAll)
-            {
-                // Only schedule if the task is not already completed.
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
-            }
-
+            callerOp.OnWaitTasks(tasks, waitAll: true);
             return ControlledTask.CompletedTask;
         }
 
@@ -914,6 +873,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
             this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -921,6 +881,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks) =>
             this.WaitAllTasksAsync(tasks);
 
@@ -928,6 +889,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
             this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -935,6 +897,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -947,25 +910,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return new ControlledTask<TResult[]>(Task.WhenAll(tasks));
             }
 
-            int size = 0;
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
-            foreach (var task in tasks)
-            {
-                size++;
-                if (!task.IsCompleted)
-                {
-                    callerOp.OnWaitTask(task, true);
-                }
-            }
-
-            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAll)
-            {
-                // Only schedule if the task is not already completed.
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
-            }
+            callerOp.OnWaitTasks(tasks, waitAll: true);
 
             int idx = 0;
-            TResult[] result = new TResult[size];
+            TResult[] result = new TResult[tasks.Count()];
             foreach (var task in tasks)
             {
                 result[idx] = task.Result;
@@ -979,6 +928,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks) =>
             this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -986,6 +936,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks) =>
             this.WaitAnyTaskAsync(tasks);
 
@@ -993,6 +944,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks) =>
             this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -1000,6 +952,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -1013,19 +966,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
-            foreach (var task in tasks)
-            {
-                if (!task.IsCompleted)
-                {
-                    callerOp.OnWaitTask(task, false);
-                }
-            }
-
-            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAny)
-            {
-                // Only schedule if the task is not already completed.
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
-            }
+            callerOp.OnWaitTasks(tasks, waitAll: false);
 
             Task result = null;
             foreach (var task in tasks)
@@ -1044,6 +985,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
             this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -1051,6 +993,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks) =>
             this.WaitAnyTaskAsync(tasks);
 
@@ -1058,6 +1001,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
             this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
 
@@ -1065,6 +1009,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
+        [DebuggerStepThrough]
         internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -1077,22 +1022,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return new ControlledTask<Task<TResult>>(Task.WhenAny(tasks));
             }
 
-            int size = 0;
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
-            foreach (var task in tasks)
-            {
-                size++;
-                if (!task.IsCompleted)
-                {
-                    callerOp.OnWaitTask(task, false);
-                }
-            }
-
-            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAny)
-            {
-                // Only schedule if the task is not already completed.
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
-            }
+            callerOp.OnWaitTasks(tasks, waitAll: false);
 
             Task<TResult> result = null;
             foreach (var task in tasks)
@@ -1110,6 +1041,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
         /// </summary>
+        [DebuggerStepThrough]
         internal override int WaitAnyTask(params ControlledTask[] tasks) =>
             this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
 
@@ -1117,6 +1049,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
         /// execution within a specified number of milliseconds.
         /// </summary>
+        [DebuggerStepThrough]
         internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout) =>
             this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
 
@@ -1125,6 +1058,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// execution within a specified number of milliseconds or until a cancellation
         /// token is cancelled.
         /// </summary>
+        [DebuggerStepThrough]
         internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
 
@@ -1132,6 +1066,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
         /// execution unless the wait is cancelled.
         /// </summary>
+        [DebuggerStepThrough]
         internal override int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken) =>
             this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
 
@@ -1139,12 +1074,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
         /// execution within a specified time interval.
         /// </summary>
+        [DebuggerStepThrough]
         internal override int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout) =>
             this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
 
         /// <summary>
         /// Waits for any of the specified tasks to complete.
         /// </summary>
+        [DebuggerStepThrough]
         private int WaitAnyTask(Task[] tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -1158,19 +1095,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
-            foreach (var task in tasks)
-            {
-                if (!task.IsCompleted)
-                {
-                    callerOp.OnWaitTask(task, false);
-                }
-            }
-
-            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAny)
-            {
-                // Only schedule if the task is not already completed.
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, caller.Id.Value);
-            }
+            callerOp.OnWaitTasks(tasks, waitAll: false);
 
             int result = -1;
             for (int i = 0; i < tasks.Length; i++)
@@ -1186,30 +1111,45 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Ends the wait for the completion of the yield operation.
+        /// Creates a controlled awaiter that switches into a target environment.
         /// </summary>
-        internal override void OnGetYieldResult(DefaultYieldAwaiter awaiter)
+        [DebuggerStepThrough]
+        internal override ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter()
         {
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Yield, AsyncOperationTarget.Task, caller.Id.Value);
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            callerOp.OnGetControlledAwaiter();
+            return new ControlledYieldAwaitable.ControlledYieldAwaiter(this, default);
+        }
+
+        /// <summary>
+        /// Ends the wait for the completion of the yield operation.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal override void OnGetYieldResult(YieldAwaitable.YieldAwaiter awaiter)
+        {
+            this.Scheduler.ScheduleNextEnabledOperation();
             awaiter.GetResult();
         }
 
         /// <summary>
         /// Sets the action to perform when the yield operation completes.
         /// </summary>
-        internal override void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+        [DebuggerHidden]
+        internal override void OnYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
             this.DispatchYield(continuation);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the yield operation completes.
         /// </summary>
-        internal override void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+        [DebuggerHidden]
+        internal override void OnUnsafeYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
             this.DispatchYield(continuation);
 
         /// <summary>
         /// Dispatches the work.
         /// </summary>
+        [DebuggerHidden]
         private void DispatchYield(Action continuation)
         {
             try
@@ -1226,7 +1166,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
 
                 IO.Debug.WriteLine("<ControlledTask> Machine '{0}' is executing a yield operation.", caller.Id);
-                this.DispatchWork(new ActionWorkMachine(this, continuation), null);
+                this.DispatchWork(new ActionMachine(this, continuation), null);
                 IO.Debug.WriteLine("<ControlledTask> Machine '{0}' is executing a yield operation.", caller.Id);
             }
             catch (ExecutionCanceledException)
@@ -1308,6 +1248,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+        [DebuggerHidden]
         public override void Assert(bool predicate)
         {
             if (!predicate)
@@ -1319,6 +1260,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+        [DebuggerHidden]
         public override void Assert(bool predicate, string s, object arg0)
         {
             if (!predicate)
@@ -1330,6 +1272,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+        [DebuggerHidden]
         public override void Assert(bool predicate, string s, object arg0, object arg1)
         {
             if (!predicate)
@@ -1341,6 +1284,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+        [DebuggerHidden]
         public override void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
         {
             if (!predicate)
@@ -1352,6 +1296,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+        [DebuggerHidden]
         public override void Assert(bool predicate, string s, params object[] args)
         {
             if (!predicate)
@@ -1364,6 +1309,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Asserts that a transition statement (raise, goto or pop) has not
         /// already been called. Records that RGP has been called.
         /// </summary>
+        [DebuggerHidden]
         internal void AssertTransitionStatement(Machine machine)
         {
             var stateManager = machine.StateManager as SerializedMachineStateManager;
@@ -1379,6 +1325,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Asserts that a transition statement (raise, goto or pop) has not already been called.
         /// </summary>
+        [DebuggerHidden]
         private void AssertNoPendingTransitionStatement(Machine machine, string action)
         {
             if (!this.Configuration.EnableNoApiCallAfterTransitionStmtAssertion)
@@ -1397,6 +1344,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Asserts that the machine calling a machine method is also
         /// the machine that is currently executing.
         /// </summary>
+        [DebuggerHidden]
         private void AssertCorrectCallerMachine(Machine callerMachine, string calledAPI)
         {
             if (callerMachine is null)
@@ -1415,10 +1363,41 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
+        /// Asserts that the currently executing controlled task is awaiting a controlled awaiter.
+        /// </summary>
+        [DebuggerHidden]
+        internal override void AssertAwaitingControlledAwaiter<TAwaiter>(ref TAwaiter awaiter)
+        {
+            this.AssertAwaitingControlledAwaiter(awaiter.GetType());
+        }
+
+        /// <summary>
+        /// Asserts that the currently executing controlled task is awaiting a controlled awaiter.
+        /// </summary>
+        [DebuggerHidden]
+        internal override void AssertAwaitingUnsafeControlledAwaiter<TAwaiter>(ref TAwaiter awaiter)
+        {
+            this.AssertAwaitingControlledAwaiter(awaiter.GetType());
+        }
+
+        [DebuggerHidden]
+        private void AssertAwaitingControlledAwaiter(Type awaiterType)
+        {
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            this.Assert(callerOp.IsAwaiterControlled, "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
+                "Please make sure to use Coyote APIs to express concurrency (e.g. ControlledTask instead of Task).", Task.CurrentId);
+            this.Assert(awaiterType.Namespace == typeof(ControlledTask).Namespace,
+                "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
+                "Please make sure to use Coyote APIs to express concurrency (e.g. ControlledTask instead of Task).", Task.CurrentId);
+        }
+
+        /// <summary>
         /// Checks that no monitor is in a hot state upon program termination.
         /// If the program is still running, then this method returns without
         /// performing a check.
         /// </summary>
+        [DebuggerHidden]
         internal void CheckNoMonitorInHotStateAtTermination()
         {
             if (!this.Scheduler.HasFullyExploredSchedule)
@@ -1514,8 +1493,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
             if (caller != null)
             {
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Default,
-                    AsyncOperationTarget.Task, caller.Id.Value);
+                this.Scheduler.ScheduleNextEnabledOperation();
             }
         }
 
@@ -1682,8 +1660,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
             else
             {
-                op.MatchingSendIndex = (ulong)eventInfo.SendStep;
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Receive, AsyncOperationTarget.Inbox, machine.Id.Value);
+                this.Scheduler.ScheduleNextEnabledOperation();
                 ResetProgramCounter(machine);
             }
 
@@ -1736,24 +1713,26 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine is waiting for the specified task to complete.
         /// </summary>
-        internal override void NotifyWaitTask(AsyncMachine machine, Task task)
+        internal override void NotifyWaitTask(Machine machine, Task task)
         {
-            this.Assert(task != null, "Cannot wait for a null task to complete.");
-            MachineOperation callerOp = this.GetAsynchronousOperation(machine.Id.Value);
-            if (callerOp == null)
-            {
-                return;
-            }
+            this.Assert(task != null, "Machine '{0}' is waiting for a null task to complete.", machine.Id);
+            this.Assert(task.IsCompleted || task.IsCanceled || task.IsFaulted,
+                "Machine '{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid " +
+                "using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you are " +
+                "using external libraries that are executing concurrently, you will need to mock them during testing.",
+                Task.CurrentId);
+        }
 
+        /// <summary>
+        /// Notifies that a <see cref="ControlledTaskMachine"/> is waiting for the specified task to complete.
+        /// </summary>
+        internal override void NotifyWaitTask(ControlledTaskMachine machine, Task task)
+        {
+            this.Assert(task != null, "Controlled task '{0}' is waiting for a null task to complete.", Task.CurrentId);
+            MachineOperation callerOp = this.GetAsynchronousOperation(machine.Id.Value);
             if (!task.IsCompleted)
             {
                 callerOp.OnWaitTask(task);
-            }
-
-            if (callerOp.Status == AsyncOperationStatus.BlockedOnWaitAll)
-            {
-                // Only schedule if the task is not already completed.
-                this.Scheduler.ScheduleNextOperation(AsyncOperationType.Join, AsyncOperationTarget.Task, machine.Id.Value);
             }
         }
 
@@ -1792,7 +1771,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             this.BugTrace.AddWaitToReceiveStep(machine.Id, machine.CurrentStateName, eventNames);
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Receive, AsyncOperationTarget.Inbox, machine.Id.Value);
+            this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(machine);
         }
 
@@ -1805,7 +1784,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.BugTrace.AddReceivedEventStep(machine.Id, machine.CurrentStateName, eventInfo);
 
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
-            op.OnReceivedEvent((ulong)eventInfo.SendStep);
+            op.OnReceivedEvent();
 
             if (this.Configuration.ReportActivityCoverage)
             {
@@ -1820,11 +1799,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyReceivedEventWithoutWaiting(Machine machine, Event e, EventInfo eventInfo)
         {
             this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: false);
-
-            MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
-            op.MatchingSendIndex = (ulong)eventInfo.SendStep;
-
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Receive, AsyncOperationTarget.Inbox, machine.Id.Value);
+            this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(machine);
         }
 
@@ -1842,12 +1817,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyDefaultEventHandlerCheck(Machine machine)
         {
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Send, AsyncOperationTarget.Inbox, machine.Id.Value);
-
-            // If the default event handler fires, the next receive in NotifyDefaultHandlerFired
-            // will use this as its MatchingSendIndex.
-            // If it does not fire, MatchingSendIndex will be overwritten.
-            this.GetAsynchronousOperation(machine.Id.Value).MatchingSendIndex = (ulong)this.Scheduler.ScheduledSteps;
+            this.Scheduler.ScheduleNextEnabledOperation();
         }
 
         /// <summary>
@@ -1855,8 +1825,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyDefaultHandlerFired(Machine machine)
         {
-            // MatchingSendIndex is set in NotifyDefaultEventHandlerCheck.
-            this.Scheduler.ScheduleNextOperation(AsyncOperationType.Receive, AsyncOperationTarget.Inbox, machine.Id.Value);
+            this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(machine);
         }
 
@@ -2040,6 +2009,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Gets the currently executing machine of type <typeparamref name="TMachine"/>,
         /// or null if no such machine is currently executing.
         /// </summary>
+        [DebuggerStepThrough]
         internal TMachine GetExecutingMachine<TMachine>()
             where TMachine : AsyncMachine
         {
@@ -2061,6 +2031,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Gets the asynchronous operation associated with the specified id.
         /// </summary>
+        [DebuggerStepThrough]
         internal MachineOperation GetAsynchronousOperation(ulong id)
         {
             if (!this.IsRunning)
@@ -2075,6 +2046,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Returns the fingerprint of the current program state.
         /// </summary>
+        [DebuggerStepThrough]
         internal Fingerprint GetProgramState()
         {
             Fingerprint fingerprint = null;
@@ -2089,8 +2061,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     {
                         hash = (hash * 31) + m.GetCachedState();
                     }
-
-                    hash = (hash * 31) + (int)this.GetAsynchronousOperation(machine.Id.Value).Type;
                 }
 
                 foreach (var monitor in this.Monitors)
@@ -2108,6 +2078,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Throws an <see cref="AssertionFailureException"/> exception
         /// containing the specified exception.
         /// </summary>
+        [DebuggerStepThrough]
         internal override void WrapAndThrowException(Exception exception, string s, params object[] args)
         {
             string message = string.Format(CultureInfo.InvariantCulture, s, args);
@@ -2117,6 +2088,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Waits until all machines have finished execution.
         /// </summary>
+        [DebuggerStepThrough]
         internal async Task WaitAsync()
         {
             await this.Scheduler.WaitAsync();
@@ -2126,6 +2098,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Disposes runtime resources.
         /// </summary>
+        [DebuggerStepThrough]
         protected override void Dispose(bool disposing)
         {
             if (disposing)

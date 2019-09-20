@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,7 @@ namespace Microsoft.Coyote.TestingServices
     /// <summary>
     /// Implementation of the bug-finding engine.
     /// </summary>
+    [DebuggerStepThrough]
     internal sealed class BugFindingEngine : AbstractTestingEngine
     {
         /// <summary>

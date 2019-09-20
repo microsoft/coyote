@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var releaser = await mutex.AcquireAsync();
                 releaser.Dispose();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -38,9 +38,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await mutex.AcquireAsync();
                 await mutex.AcquireAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
-            expectedError: "Livelock detected. 'Microsoft.Coyote.TestingServices.Threading.Tasks.TestEntryPointWorkMachine()' is waiting " +
-                "to access a concurrent resource that is acquired by another task, but no other controlled tasks are enabled.",
+            configuration: GetConfiguration().WithNumberOfIterations(200),
+            expectedError: "Deadlock detected. 'ControlledTask()' is waiting to access a concurrent resource " +
+                "that is acquired by another task, but no other controlled tasks are enabled.",
             replay: true);
         }
 
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.WhenAll(task1, task2);
                 Specification.Assert(entry == 5, "Value is '{0}' instead of 5.", entry);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.WhenAll(task1, task2);
                 Specification.Assert(entry == 5, "Value is '{0}' instead of 5.", entry);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is '' instead of 5.",
             replay: true);
         }
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 ControlledTask task2 = WriteAsync(5);
                 await ControlledTask.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
     }
 }

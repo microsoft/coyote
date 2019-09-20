@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace Microsoft.Coyote.Runtime
@@ -12,6 +13,7 @@ namespace Microsoft.Coyote.Runtime
     /// An exception that is thrown by the Coyote runtime.
     /// </summary>
     [Serializable]
+    [DebuggerStepThrough]
     public class RuntimeException : Exception
     {
         /// <summary>

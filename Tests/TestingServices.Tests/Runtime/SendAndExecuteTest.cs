@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(M1A), new Configure(true));
             },
             configuration: Configuration.Create().WithNumberOfIterations(10),
-            expectedError: "Livelock detected. 'M1A()' and 'M1B()' are waiting to receive " +
+            expectedError: "Deadlock detected. 'M1A()' and 'M1B()' are waiting to receive " +
                 "an event, but no other controlled tasks are enabled.",
             replay: true);
         }
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(M2A));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000));
+            configuration: Configuration.Create().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(M2C));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000),
+            configuration: Configuration.Create().WithNumberOfIterations(200),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }

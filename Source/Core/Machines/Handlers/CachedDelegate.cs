@@ -7,8 +7,6 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-using Microsoft.Coyote.Threading.Tasks;
-
 namespace Microsoft.Coyote.Machines
 {
     /// <summary>
@@ -29,10 +27,6 @@ namespace Microsoft.Coyote.Machines
             if (methodInfo.ReturnType == typeof(void))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Action), machine, methodInfo);
-            }
-            else if (methodInfo.ReturnType == typeof(ControlledTask))
-            {
-                this.Handler = Delegate.CreateDelegate(typeof(Func<ControlledTask>), machine, methodInfo);
             }
             else if (methodInfo.ReturnType == typeof(Task))
             {

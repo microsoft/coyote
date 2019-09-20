@@ -4,17 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices.Threading.Tasks
 {
     /// <summary>
-    /// Implements a machine that can execute a test entry point asynchronously.
+    /// Implements a machine that can execute a test asynchronously.
     /// </summary>
-    internal sealed class TestEntryPointWorkMachine : WorkMachine
+    internal sealed class TestExecutionMachine : ControlledTaskMachine
     {
         /// <summary>
         /// Test to be executed asynchronously.
@@ -37,9 +37,10 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         internal override int AwaiterTaskId => this.AwaiterTask.Id;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestEntryPointWorkMachine"/> class.
+        /// Initializes a new instance of the <see cref="TestExecutionMachine"/> class.
         /// </summary>
-        internal TestEntryPointWorkMachine(SystematicTestingRuntime runtime, Delegate test)
+        [DebuggerStepThrough]
+        internal TestExecutionMachine(SystematicTestingRuntime runtime, Delegate test)
             : base(runtime)
         {
             this.Test = test;
@@ -49,6 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Executes the work asynchronously.
         /// </summary>
+        [DebuggerHidden]
         internal override async Task ExecuteAsync()
         {
             IO.Debug.WriteLine($"Machine '{this.Id}' is executing test on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
@@ -82,6 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Tries to complete the machine with the specified exception.
         /// </summary>
+        [DebuggerStepThrough]
         internal override void TryCompleteWithException(Exception exception)
         {
             // The entry point of a test should always report

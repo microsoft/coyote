@@ -4,16 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.TestingServices.Runtime;
+using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.TestingServices.Threading.Tasks
+namespace Microsoft.Coyote.Threading.Tasks
 {
     /// <summary>
-    /// Abstract machine that can execute work asynchronously.
+    /// Abstract machine that can execute a <see cref="ControlledTask"/> asynchronously.
     /// </summary>
-    internal abstract class WorkMachine : AsyncMachine
+    internal abstract class ControlledTaskMachine : AsyncMachine
     {
         /// <summary>
         /// The id of the task that provides access to the completed work.
@@ -26,11 +27,12 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         protected internal override Guid OperationGroupId { get; set; } = Guid.Empty;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorkMachine"/> class.
+        /// Initializes a new instance of the <see cref="ControlledTaskMachine"/> class.
         /// </summary>
-        internal WorkMachine(SystematicTestingRuntime runtime)
+        [DebuggerStepThrough]
+        internal ControlledTaskMachine(MachineRuntime runtime)
         {
-            var mid = new MachineId(this.GetType(), null, runtime);
+            var mid = new MachineId(this.GetType(), "ControlledTask", runtime);
             this.Initialize(runtime, mid);
         }
 

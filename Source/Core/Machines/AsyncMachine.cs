@@ -5,7 +5,7 @@
 
 using System;
 using System.ComponentModel;
-
+using System.Diagnostics;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
@@ -15,6 +15,7 @@ namespace Microsoft.Coyote.Machines
     /// Implements a machine that can execute asynchronously.
     /// This type is intended for runtime use only.
     /// </summary>
+    [DebuggerStepThrough]
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AsyncMachine

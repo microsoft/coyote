@@ -5,11 +5,10 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
@@ -18,8 +17,9 @@ using Microsoft.Coyote.TestingServices.Tracing.Schedule;
 namespace Microsoft.Coyote.TestingServices.Scheduling
 {
     /// <summary>
-    /// Provides methods for controlling the schedule of asynchronous operations.
+    /// Implements a scheduler that serializes and schedules controlled operations.
     /// </summary>
+    [DebuggerStepThrough]
     internal sealed class OperationScheduler
     {
         /// <summary>
@@ -106,9 +106,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         }
 
         /// <summary>
-        /// Schedules the next asynchronous operation.
+        /// Schedules the next enabled operation.
         /// </summary>
-        internal void ScheduleNextOperation(AsyncOperationType type, AsyncOperationTarget target, ulong targetId)
+        internal void ScheduleNextEnabledOperation()
         {
             int? taskId = Task.CurrentId;
 
@@ -130,25 +130,26 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             // Checks if the scheduling steps bound has been reached.
             this.CheckIfSchedulingStepsBoundIsReached();
 
-            MachineOperation current = this.ScheduledOperation;
-            current.SetNextOperation(type, target, targetId);
-
-            // Try enable any operation that is currently waiting, but has
-            // its dependencies already satisfied.
-            foreach (var op in this.OperationMap.Values)
-            {
-                op.TryEnable();
-                Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.SourceId, op.Status);
-            }
-
             // Get and order the operations by their id.
             var ops = this.OperationMap.Values.OrderBy(op => op.SourceId).Select(op => op as IAsyncOperation).ToList();
+
+            // Try enable any operation that is currently waiting, but has its dependencies already satisfied.
+            foreach (var op in ops)
+            {
+                if (op is MachineOperation machineOp)
+                {
+                    machineOp.TryEnable();
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.SourceId, op.Status);
+                }
+            }
+
+            MachineOperation current = this.ScheduledOperation;
             if (!this.Strategy.GetNext(out IAsyncOperation next, ops, current))
             {
-                // Checks if the program has livelocked.
-                this.CheckIfProgramHasLivelocked(ops.Select(op => op as MachineOperation));
+                // Checks if the program has deadlocked.
+                this.CheckIfProgramHasDeadlocked(ops.Select(op => op as MachineOperation));
 
-                Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                 this.HasFullyExploredSchedule = true;
                 this.Stop();
                 throw new ExecutionCanceledException();
@@ -157,7 +158,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.ScheduledOperation = next as MachineOperation;
             this.ScheduleTrace.AddSchedulingChoice(next.SourceId);
 
-            Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.SourceName}'.");
+            IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.SourceName}'.");
 
             if (current != next)
             {
@@ -178,14 +179,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                     if (!this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
                     {
                         this.ControlledTaskMap.TryAdd(Task.CurrentId.Value, current);
-                        Debug.WriteLine($"<ScheduleDebug> Operation '{current.SourceId}' is associated with task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine($"<ScheduleDebug> Operation '{current.SourceId}' is associated with task '{Task.CurrentId}'.");
                     }
 
                     while (!current.IsActive)
                     {
-                        Debug.WriteLine($"<ScheduleDebug> Sleeping the current operation of '{current.SourceName}' on task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the current operation of '{current.SourceName}' on task '{Task.CurrentId}'.");
                         System.Threading.Monitor.Wait(current);
-                        Debug.WriteLine($"<ScheduleDebug> Waking up the current operation of '{current.SourceName}' on task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine($"<ScheduleDebug> Waking up the current operation of '{current.SourceName}' on task '{Task.CurrentId}'.");
                     }
 
                     if (current.Status != AsyncOperationStatus.Enabled)
@@ -209,7 +210,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
 
             if (!this.Strategy.GetNextBooleanChoice(maxValue, out bool choice))
             {
-                Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                 this.Stop();
                 throw new ExecutionCanceledException();
             }
@@ -239,7 +240,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
 
             if (!this.Strategy.GetNextIntegerChoice(maxValue, out int choice))
             {
-                Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                 this.Stop();
                 throw new ExecutionCanceledException();
             }
@@ -277,6 +278,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         internal void NotifyOperationCreated(MachineOperation op, Task task)
         {
+            IO.Debug.WriteLine($"<ScheduleDebug> Mapping operation '{op.SourceName}' to task '{task.Id}'.");
             this.ControlledTaskMap.TryAdd(task.Id, op);
             if (!this.OperationMap.ContainsKey(op.SourceId))
             {
@@ -287,8 +289,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
 
                 this.OperationMap.Add(op.SourceId, op);
             }
-
-            Debug.WriteLine($"<ScheduleDebug> Registering the current operation of '{op.SourceName}'.");
         }
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         internal static void NotifyOperationStarted(MachineOperation op)
         {
-            Debug.WriteLine($"<ScheduleDebug> Starting the current operation of '{op.SourceName}' on task '{Task.CurrentId}'.");
+            IO.Debug.WriteLine($"<ScheduleDebug> Starting the current operation of '{op.SourceName}' on task '{Task.CurrentId}'.");
 
             lock (op)
             {
@@ -304,9 +304,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 System.Threading.Monitor.PulseAll(op);
                 while (!op.IsActive)
                 {
-                    Debug.WriteLine($"<ScheduleDebug> Sleeping the current operation of '{op.SourceName}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the current operation of '{op.SourceName}' on task '{Task.CurrentId}'.");
                     System.Threading.Monitor.Wait(op);
-                    Debug.WriteLine($"<ScheduleDebug> Waking up the current operation of '{op.SourceName}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Waking up the current operation of '{op.SourceName}' on task '{Task.CurrentId}'.");
                 }
 
                 if (op.Status != AsyncOperationStatus.Enabled)
@@ -319,6 +319,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Notify that an assertion has failed.
         /// </summary>
+        [DebuggerHidden]
         internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true)
         {
             if (!this.BugFound)
@@ -332,7 +333,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
 
                 if (this.Configuration.AttachDebugger)
                 {
-                    System.Diagnostics.Debugger.Break();
+                    Debugger.Break();
                 }
             }
 
@@ -419,6 +420,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Checks that no task that is not controlled by the runtime is currently executing.
         /// </summary>
+        [DebuggerHidden]
         internal void CheckNoExternalConcurrencyUsed()
         {
             if (!this.IsSchedulerRunning)
@@ -429,17 +431,20 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             if (!Task.CurrentId.HasValue || !this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
             {
                 this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
-                    "Task with id '{0}' that is not controlled by the Coyote runtime invoked a runtime method.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
+                   "Uncontrolled task with id '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
+                   "such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers or controlled tasks. If you are " +
+                   "using external libraries that are executing concurrently, you will need to mock them during testing.",
+                   Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
             }
         }
 
         /// <summary>
-        /// Checks for a livelock. This happens when there are no more enabled operations,
+        /// Checks for a deadlock. This happens when there are no more enabled operations,
         /// but there is one or more blocked operations that are waiting to receive an event
         /// or for a task to complete.
         /// </summary>
-        private void CheckIfProgramHasLivelocked(IEnumerable<MachineOperation> ops)
+        [DebuggerHidden]
+        private void CheckIfProgramHasDeadlocked(IEnumerable<MachineOperation> ops)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
@@ -452,7 +457,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 return;
             }
 
-            string message = "Livelock detected.";
+            string message = "Deadlock detected.";
             if (blockedOnReceiveOperations.Count > 0)
             {
                 for (int i = 0; i < blockedOnReceiveOperations.Count; i++)
@@ -518,6 +523,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// Checks if the scheduling steps bound has been reached. If yes,
         /// it stops the scheduler and kills all enabled machines.
         /// </summary>
+        [DebuggerHidden]
         private void CheckIfSchedulingStepsBoundIsReached()
         {
             if (this.Strategy.HasReachedMaxSchedulingSteps())
@@ -532,7 +538,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 }
                 else
                 {
-                    Debug.WriteLine($"<ScheduleDebug> {message}");
+                    IO.Debug.WriteLine($"<ScheduleDebug> {message}");
                     this.Stop();
                     throw new ExecutionCanceledException();
                 }

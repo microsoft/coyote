@@ -4,22 +4,22 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices.Threading.Tasks
 {
     /// <summary>
-    /// Implements a machine that can execute a <see cref="Func{Task}"/> asynchronously.
+    /// Implements a machine that can execute a <see cref="Func{ControlledTask}"/> asynchronously.
     /// </summary>
-    internal sealed class FuncWorkMachine : WorkMachine
+    internal sealed class FuncMachine : ControlledTaskMachine
     {
         /// <summary>
         /// Work to be executed asynchronously.
         /// </summary>
-        private readonly Func<Task> Work;
+        private readonly Func<ControlledTask> Work;
 
         /// <summary>
         /// Provides the capability to await for work completion.
@@ -37,9 +37,10 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         internal override int AwaiterTaskId => this.AwaiterTask.Id;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FuncWorkMachine"/> class.
+        /// Initializes a new instance of the <see cref="FuncMachine"/> class.
         /// </summary>
-        internal FuncWorkMachine(SystematicTestingRuntime runtime, Func<Task> work)
+        [DebuggerStepThrough]
+        internal FuncMachine(SystematicTestingRuntime runtime, Func<ControlledTask> work)
             : base(runtime)
         {
             this.Work = work;
@@ -49,11 +50,12 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Executes the work asynchronously.
         /// </summary>
+        [DebuggerHidden]
         internal override async Task ExecuteAsync()
         {
             IO.Debug.WriteLine($"Machine '{this.Id}' is executing function on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
-            Task task = this.Work();
-            this.Runtime.NotifyWaitTask(this, task);
+            ControlledTask task = this.Work();
+            this.Runtime.NotifyWaitTask(this, task.AwaiterTask);
             await task;
             IO.Debug.WriteLine($"Machine '{this.Id}' executed function on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
             this.Awaiter.SetResult(default);
@@ -63,6 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Tries to complete the machine with the specified exception.
         /// </summary>
+        [DebuggerStepThrough]
         internal override void TryCompleteWithException(Exception exception)
         {
             this.Awaiter.SetException(exception);
@@ -72,7 +75,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
     /// <summary>
     /// Implements a machine that can execute a <see cref="Func{TResult}"/> asynchronously.
     /// </summary>
-    internal sealed class FuncWorkMachine<TResult> : WorkMachine
+    internal sealed class FuncMachine<TResult> : ControlledTaskMachine
     {
         /// <summary>
         /// Work to be executed asynchronously.
@@ -95,9 +98,10 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         internal override int AwaiterTaskId => this.AwaiterTask.Id;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FuncWorkMachine{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FuncMachine{TResult}"/> class.
         /// </summary>
-        internal FuncWorkMachine(SystematicTestingRuntime runtime, Func<TResult> work)
+        [DebuggerStepThrough]
+        internal FuncMachine(SystematicTestingRuntime runtime, Func<TResult> work)
             : base(runtime)
         {
             this.Work = work;
@@ -107,19 +111,20 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Executes the work asynchronously.
         /// </summary>
+        [DebuggerHidden]
         internal override async Task ExecuteAsync()
         {
             IO.Debug.WriteLine($"Machine '{this.Id}' is executing function on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
 
-            TResult result = default;
-            if (this.Work is Func<ControlledTask> taskFunc)
+            TResult result = this.Work();
+            if (this.Work is Func<Task> taskFunc)
             {
                 var task = taskFunc();
-                this.Runtime.NotifyWaitTask(this, task.AwaiterTask);
+                this.Runtime.NotifyWaitTask(this, task);
                 await task;
-                if (task is TResult controlledTask)
+                if (task is TResult resultTask)
                 {
-                    result = controlledTask;
+                    result = resultTask;
                 }
             }
             else
@@ -135,6 +140,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Tries to complete the machine with the specified exception.
         /// </summary>
+        [DebuggerStepThrough]
         internal override void TryCompleteWithException(Exception exception)
         {
             this.Awaiter.SetException(exception);
@@ -144,12 +150,12 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
     /// <summary>
     /// Implements a machine that can execute a <see cref="Func{TResult}"/> asynchronously.
     /// </summary>
-    internal sealed class FuncTaskWorkMachine<TResult> : WorkMachine
+    internal sealed class FuncTaskMachine<TResult> : ControlledTaskMachine
     {
         /// <summary>
         /// Work to be executed asynchronously.
         /// </summary>
-        private readonly Func<Task<TResult>> Work;
+        private readonly Func<ControlledTask<TResult>> Work;
 
         /// <summary>
         /// Provides the capability to await for work completion.
@@ -167,9 +173,10 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         internal override int AwaiterTaskId => this.AwaiterTask.Id;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FuncTaskWorkMachine{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FuncTaskMachine{TResult}"/> class.
         /// </summary>
-        internal FuncTaskWorkMachine(SystematicTestingRuntime runtime, Func<Task<TResult>> work)
+        [DebuggerStepThrough]
+        internal FuncTaskMachine(SystematicTestingRuntime runtime, Func<ControlledTask<TResult>> work)
             : base(runtime)
         {
             this.Work = work;
@@ -179,12 +186,13 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Executes the work asynchronously.
         /// </summary>
+        [DebuggerHidden]
         internal override async Task ExecuteAsync()
         {
             IO.Debug.WriteLine($"Machine '{this.Id}' is executing function on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
-            Task<TResult> task = this.Work();
+            ControlledTask<TResult> task = this.Work();
             IO.Debug.WriteLine($"Machine '{this.Id}' is getting result on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
-            this.Runtime.NotifyWaitTask(this, task);
+            this.Runtime.NotifyWaitTask(this, task.AwaiterTask);
             TResult result = await task;
             IO.Debug.WriteLine($"Machine '{this.Id}' executed function on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
             this.Awaiter.SetResult(result);
@@ -194,6 +202,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Tries to complete the machine with the specified exception.
         /// </summary>
+        [DebuggerStepThrough]
         internal override void TryCompleteWithException(Exception exception)
         {
             this.Awaiter.SetException(exception);

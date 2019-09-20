@@ -10,9 +10,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class TaskWhenAnyTest : BaseTest
+    public class TaskWaitAnyTest : BaseTest
     {
-        public TaskWhenAnyTest(ITestOutputHelper output)
+        public TaskWaitAnyTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -35,44 +35,46 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoSynchronousTasks()
+        public void TestWaitAnyWithTwoSynchronousTasks()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
                 ControlledTask task1 = WriteAsync(entry, 5);
                 ControlledTask task2 = WriteAsync(entry, 3);
-                await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
                     "Both task have completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Both task have completed.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoAsynchronousTasks()
+        public void TestWaitAnyWithTwoAsynchronousTasks()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
                 ControlledTask task1 = WriteWithDelayAsync(entry, 3);
                 ControlledTask task2 = WriteWithDelayAsync(entry, 5);
-                await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoParallelTasks()
+        public void TestWaitAnyWithTwoParallelTasks()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -86,12 +88,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     await WriteAsync(entry, 5);
                 });
 
-                await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
 
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -111,44 +114,48 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoSynchronousTaskResults()
+        public void TestWaitAnyWithTwoSynchronousTaskWithResults()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
                 ControlledTask<int> task1 = GetWriteResultAsync(entry, 5);
                 ControlledTask<int> task2 = GetWriteResultAsync(entry, 3);
-                Task<int> result = await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
+                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
                     "Both task have completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Both task have completed.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoAsynchronousTaskResults()
+        public void TestWaitAnyWithTwoAsynchronousTaskWithResults()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
                 ControlledTask<int> task1 = GetWriteResultWithDelayAsync(entry, 5);
                 ControlledTask<int> task2 = GetWriteResultWithDelayAsync(entry, 3);
-                Task<int> result = await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
+                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoParallelSynchronousTaskResults()
+        public void TestWaitAnyWithTwoParallelSynchronousTaskWithResults()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -162,20 +169,22 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     return await GetWriteResultAsync(entry, 3);
                 });
 
-                Task<int> result = await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
+                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
 
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithTwoParallelAsynchronousTaskResults()
+        public void TestWaitAnyWithTwoParallelAsynchronousTaskWithResults()
         {
-            this.TestWithError(async () =>
+            this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -189,12 +198,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     return await GetWriteResultWithDelayAsync(entry, 3);
                 });
 
-                Task<int> result = await ControlledTask.WhenAny(task1, task2);
+                int index = ControlledTask.WaitAny(task1, task2);
+                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
 
+                Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }

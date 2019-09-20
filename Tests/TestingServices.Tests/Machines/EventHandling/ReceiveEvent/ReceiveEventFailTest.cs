@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Livelock detected. 'Client()' is waiting to receive an event, but no other controlled tasks are enabled.",
+            expectedError: "Deadlock detected. 'Client()' is waiting to receive an event, but no other controlled tasks are enabled.",
             replay: true);
         }
 
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Livelock detected. 'Client()' and 'Client()' are waiting to " +
+            expectedError: "Deadlock detected. 'Client()' and 'Client()' are waiting to " +
                 "receive an event, but no other controlled tasks are enabled.",
             replay: true);
         }
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Livelock detected. 'Client()', 'Client()' and 'Client()' are " +
+            expectedError: "Deadlock detected. 'Client()', 'Client()' and 'Client()' are " +
                 "waiting to receive an event, but no other controlled tasks are enabled.",
             replay: true);
         }

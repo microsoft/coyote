@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T1));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
 
         private class T2 : Machine
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T2));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000));
+            configuration: Configuration.Create().WithNumberOfIterations(200));
         }
 
         private class T3 : Machine
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T3));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
 
         private class T4 : Machine
@@ -173,7 +173,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T4));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000).WithMaxSteps(200),
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
             expectedError: "Machine 'T4()' registered a timer with a negative due time.",
             replay: true);
         }
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T5));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000).WithMaxSteps(200),
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
             expectedError: "Machine 'T5()' registered a periodic timer with a negative period.",
             replay: true);
         }
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T6));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000).WithMaxSteps(200),
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
             expectedError: "Machine 'T7()' is not allowed to dispose timer '', which is owned by machine 'T6()'.",
             replay: true);
         }
@@ -292,7 +292,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(T8));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
     }
 }

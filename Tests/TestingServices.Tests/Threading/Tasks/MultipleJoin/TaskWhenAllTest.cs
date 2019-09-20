@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoSynchronousTaskResults()
+        public void TestWhenAllWithTwoSynchronousTaskWithResults()
         {
             this.TestWithError(async () =>
             {
@@ -118,13 +118,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
                 Specification.Assert(results[0] == results[1], "Results are not equal.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Results are not equal.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoAsynchronousTaskResults()
+        public void TestWhenAllWithTwoAsynchronousTaskWithResults()
         {
             this.TestWithError(async () =>
             {
@@ -135,13 +135,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoParallelSynchronousTaskResults()
+        public void TestWhenAllWithTwoParallelSynchronousTaskWithResults()
         {
             this.TestWithError(async () =>
             {
@@ -163,13 +163,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
                 Specification.Assert(results[0] == results[1], "Results are not equal.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Results are not equal.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoParallelAsynchronousTaskResults()
+        public void TestWhenAllWithTwoParallelAsynchronousTaskWithResults()
         {
             this.TestWithError(async () =>
             {
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }

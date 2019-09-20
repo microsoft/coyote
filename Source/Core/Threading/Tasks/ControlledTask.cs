@@ -5,11 +5,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Threading.Tasks
 {
@@ -30,7 +29,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Returns the id of the currently executing <see cref="ControlledTask"/>.
         /// </summary>
-        public static int? CurrentId => MachineRuntime.Current.CurrentTaskId;
+        public static int? CurrentId => CoyoteRuntime.Provider.Current.CurrentTaskId;
 
         /// <summary>
         /// Internal task used to execute the work.
@@ -77,6 +76,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTask"/> class.
         /// </summary>
+        [DebuggerStepThrough]
         internal ControlledTask(Task task)
         {
             this.InternalTask = task ?? throw new ArgumentNullException(nameof(task));
@@ -139,7 +139,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <param name="action">The work to execute asynchronously.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask Run(Action action) => MachineRuntime.Current.CreateControlledTask(action, default);
+        public static ControlledTask Run(Action action) =>
+            CoyoteRuntime.Provider.Current.CreateControlledTask(action, default);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -150,7 +151,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Run(Action action, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.CreateControlledTask(action, cancellationToken);
+            CoyoteRuntime.Provider.Current.CreateControlledTask(action, cancellationToken);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -159,7 +160,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <param name="function">The work to execute asynchronously.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask Run(Func<Task> function) => MachineRuntime.Current.CreateControlledTask(function, default);
+        public static ControlledTask Run(Func<ControlledTask> function) =>
+            CoyoteRuntime.Provider.Current.CreateControlledTask(function, default);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -169,8 +171,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <param name="cancellationToken">Cancellation token that can be used to cancel the work.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask Run(Func<Task> function, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.CreateControlledTask(function, cancellationToken);
+        public static ControlledTask Run(Func<ControlledTask> function, CancellationToken cancellationToken) =>
+            CoyoteRuntime.Provider.Current.CreateControlledTask(function, cancellationToken);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -181,7 +183,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult> Run<TResult>(Func<TResult> function) =>
-            MachineRuntime.Current.CreateControlledTask(function, default);
+            CoyoteRuntime.Provider.Current.CreateControlledTask(function, default);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -193,7 +195,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.CreateControlledTask(function, cancellationToken);
+            CoyoteRuntime.Provider.Current.CreateControlledTask(function, cancellationToken);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -203,8 +205,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <param name="function">The work to execute asynchronously.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<TResult> Run<TResult>(Func<Task<TResult>> function) =>
-            MachineRuntime.Current.CreateControlledTask(function, default);
+        public static ControlledTask<TResult> Run<TResult>(Func<ControlledTask<TResult>> function) =>
+            CoyoteRuntime.Provider.Current.CreateControlledTask(function, default);
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="ControlledTask"/>
@@ -215,8 +217,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <param name="cancellationToken">Cancellation token that can be used to cancel the work.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<TResult> Run<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.CreateControlledTask(function, cancellationToken);
+        public static ControlledTask<TResult> Run<TResult>(Func<ControlledTask<TResult>> function, CancellationToken cancellationToken) =>
+            CoyoteRuntime.Provider.Current.CreateControlledTask(function, cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that completes after a time delay.
@@ -227,7 +229,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Delay(int millisecondsDelay) =>
-            MachineRuntime.Current.CreateControlledTaskDelay(millisecondsDelay, default);
+            CoyoteRuntime.Provider.Current.CreateControlledTaskDelay(millisecondsDelay, default);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that completes after a time delay.
@@ -239,7 +241,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Delay(int millisecondsDelay, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.CreateControlledTaskDelay(millisecondsDelay, cancellationToken);
+            CoyoteRuntime.Provider.Current.CreateControlledTaskDelay(millisecondsDelay, cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that completes after a specified time interval.
@@ -251,7 +253,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Delay(TimeSpan delay) =>
-            MachineRuntime.Current.CreateControlledTaskDelay(delay, default);
+            CoyoteRuntime.Provider.Current.CreateControlledTaskDelay(delay, default);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that completes after a specified time interval.
@@ -264,7 +266,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Delay(TimeSpan delay, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.CreateControlledTaskDelay(delay, cancellationToken);
+            CoyoteRuntime.Provider.Current.CreateControlledTaskDelay(delay, cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -274,7 +276,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask WhenAll(params ControlledTask[] tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -284,7 +286,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask WhenAll(params Task[] tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -294,7 +296,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask WhenAll(IEnumerable<ControlledTask> tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -304,7 +306,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask WhenAll(IEnumerable<Task> tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -315,7 +317,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult[]> WhenAll<TResult>(params ControlledTask<TResult>[] tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -326,7 +328,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -337,7 +339,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult[]> WhenAll<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
@@ -348,7 +350,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            MachineRuntime.Current.WaitAllTasksAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -356,7 +358,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task> WhenAny(params ControlledTask[] tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -364,7 +366,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task> WhenAny(params Task[] tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -372,7 +374,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task> WhenAny(IEnumerable<ControlledTask> tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -380,7 +382,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task> WhenAny(IEnumerable<Task> tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -388,7 +390,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task<TResult>> WhenAny<TResult>(params ControlledTask<TResult>[] tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -396,7 +398,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -404,7 +406,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task<TResult>> WhenAny<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
@@ -412,14 +414,14 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            MachineRuntime.Current.WaitAnyTaskAsync(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(params ControlledTask[] tasks) =>
-            MachineRuntime.Current.WaitAnyTask(tasks);
+            CoyoteRuntime.Provider.Current.WaitAnyTask(tasks);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
@@ -427,7 +429,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, int millisecondsTimeout) =>
-            MachineRuntime.Current.WaitAnyTask(tasks, millisecondsTimeout);
+            CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, millisecondsTimeout);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
@@ -436,7 +438,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.WaitAnyTask(tasks, millisecondsTimeout, cancellationToken);
+            CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, millisecondsTimeout, cancellationToken);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
@@ -444,7 +446,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, CancellationToken cancellationToken) =>
-            MachineRuntime.Current.WaitAnyTask(tasks, cancellationToken);
+            CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, cancellationToken);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
@@ -452,13 +454,13 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, TimeSpan timeout) =>
-            MachineRuntime.Current.WaitAnyTask(tasks, timeout);
+            CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, timeout);
 
         /// <summary>
         /// Creates an awaitable that asynchronously yields back to the current context when awaited.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static YieldAwaitable Yield() => default;
+        public static ControlledYieldAwaitable Yield() => default;
 
         /// <summary>
         /// Converts the specified <see cref="ControlledTask"/> into a <see cref="Task"/>.
@@ -504,7 +506,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Injects a context switch point that can be systematically explored during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExploreContextSwitch() => MachineRuntime.Current.ExploreContextSwitch();
+        public static void ExploreContextSwitch() => CoyoteRuntime.Provider.Current.ExploreContextSwitch();
 
         /// <summary>
         /// Ends the wait for the completion of the task.
@@ -570,6 +572,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTask{TResult}"/> class.
         /// </summary>
+        [DebuggerStepThrough]
         internal ControlledTask(Task<TResult> task)
             : base(task)
         {

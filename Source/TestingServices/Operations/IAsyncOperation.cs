@@ -11,11 +11,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     public interface IAsyncOperation
     {
         /// <summary>
-        /// The type of the operation.
-        /// </summary>
-        AsyncOperationType Type { get; }
-
-        /// <summary>
         /// Unique id of the source of the operation.
         /// </summary>
         ulong SourceId { get; }
@@ -30,21 +25,5 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
         /// </summary>
         AsyncOperationStatus Status { get; set; }
-
-        /// <summary>
-        /// The target of the operation (which can be the source).
-        /// </summary>
-        AsyncOperationTarget Target { get; }
-
-        /// <summary>
-        /// Unique id of the target of the operation.
-        /// </summary>
-        ulong TargetId { get; }
-
-        /// <summary>
-        /// If the operation is of type <see cref="AsyncOperationType.Receive"/>, then this value
-        /// gives the step index of the corresponding <see cref="AsyncOperationType.Send"/>.
-        /// </summary>
-        ulong MatchingSendIndex { get; }
     }
 }

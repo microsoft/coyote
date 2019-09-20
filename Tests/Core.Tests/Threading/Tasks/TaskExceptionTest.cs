@@ -98,13 +98,9 @@ namespace Microsoft.Coyote.Core.Tests
             }
 
             var task = ControlledTask.Run(func);
-#pragma warning disable IDE0067 // Dispose objects before losing scope
-            var innerTask = await task;
-#pragma warning restore IDE0067 // Dispose objects before losing scope
-            await innerTask;
+            await task;
 
             Assert.Equal(TaskStatus.RanToCompletion, task.Status);
-            Assert.Equal(TaskStatus.RanToCompletion, innerTask.Status);
             Assert.Equal(5, entry.Value);
         }
 
@@ -228,14 +224,10 @@ namespace Microsoft.Coyote.Core.Tests
 
             var task = ControlledTask.Run(func);
 
-            ControlledTask innerTask = null;
             Exception exception = null;
             try
             {
-#pragma warning disable IDE0067 // Dispose objects before losing scope
-                innerTask = await task;
-#pragma warning restore IDE0067 // Dispose objects before losing scope
-                await innerTask;
+                await task;
             }
             catch (Exception ex)
             {

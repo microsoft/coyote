@@ -71,8 +71,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Send(m, new E1());
                 this.Send(m, new E2(this.Id));
                 var e = await this.Receive(typeof(E2)) as E2;
-
-                // Console.WriteLine("Got Response from {0}", e.mid);
             }
         }
 

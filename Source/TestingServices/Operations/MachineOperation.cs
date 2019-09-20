@@ -5,7 +5,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Machines;
 
@@ -14,8 +16,19 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     /// <summary>
     /// Contains information about a machine operation that can be scheduled.
     /// </summary>
+    [DebuggerStepThrough]
     internal sealed class MachineOperation : IAsyncOperation
     {
+        /// <summary>
+        /// Stores the unique scheduler id that executes this operation.
+        /// </summary>
+        internal static readonly AsyncLocal<Guid> SchedulerId = new AsyncLocal<Guid>();
+
+        /// <summary>
+        /// The scheduler executing this operation.
+        /// </summary>
+        internal readonly OperationScheduler Scheduler;
+
         /// <summary>
         /// The machine that owns this operation.
         /// </summary>
@@ -32,25 +45,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         public string SourceName => this.Machine.Id.Name;
 
         /// <summary>
-        /// The type of the operation.
-        /// </summary>
-        public AsyncOperationType Type { get; private set; }
-
-        /// <summary>
         /// The status of the operation. An operation can be scheduled only
         /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
         /// </summary>
         public AsyncOperationStatus Status { get; set; }
-
-        /// <summary>
-        /// The target of the operation.
-        /// </summary>
-        public AsyncOperationTarget Target { get; private set; }
-
-        /// <summary>
-        /// Unique id of the target of the operation.
-        /// </summary>
-        public ulong TargetId { get; private set; }
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -75,6 +73,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         internal bool IsHandlerRunning;
 
         /// <summary>
+        /// True if the next awaiter is controlled, else false.
+        /// </summary>
+        internal bool IsAwaiterControlled;
+
+        /// <summary>
         /// True if it should skip the next receive scheduling point,
         /// because it was already called in the end of the previous
         /// event handler.
@@ -82,48 +85,70 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         internal bool SkipNextReceiveSchedulingPoint;
 
         /// <summary>
-        /// If the next operation is <see cref="AsyncOperationType.Receive"/>, then this value
-        /// gives the step index of the corresponding <see cref="AsyncOperationType.Send"/>.
-        /// </summary>
-        public ulong MatchingSendIndex { get; internal set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MachineOperation"/> class.
         /// </summary>
-        internal MachineOperation(AsyncMachine machine)
+        internal MachineOperation(AsyncMachine machine, OperationScheduler scheduler)
         {
+            this.Scheduler = scheduler;
             this.Machine = machine;
-            this.Type = AsyncOperationType.Start;
             this.Status = AsyncOperationStatus.None;
-            this.Target = AsyncOperationTarget.Task;
-            this.TargetId = machine.Id.Value;
             this.JoinDependencies = new HashSet<Task>();
             this.EventDependencies = new HashSet<Type>();
             this.IsActive = false;
             this.IsHandlerRunning = false;
+            this.IsAwaiterControlled = false;
             this.SkipNextReceiveSchedulingPoint = false;
         }
 
         /// <summary>
         /// Invoked when the operation has been created.
         /// </summary>
-        /// <param name="sendIndex">The index of the send that caused the handler to be restarted, or 0 if this does not apply.</param>
-        internal void OnCreated(int sendIndex)
+        internal void OnCreated()
         {
             this.Status = AsyncOperationStatus.Enabled;
             this.IsActive = false;
             this.IsHandlerRunning = false;
-            this.MatchingSendIndex = (ulong)sendIndex;
+        }
+
+        internal void OnGetControlledAwaiter()
+        {
+            IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' received a controlled awaiter.", this.SourceId);
+            this.IsAwaiterControlled = true;
         }
 
         /// <summary>
         /// Invoked when the operation is waiting to join the specified task.
         /// </summary>
-        internal void OnWaitTask(Task task, bool waitAll = true)
+        internal void OnWaitTask(Task task)
         {
             IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.SourceId, task.Id);
             this.JoinDependencies.Add(task);
-            this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
+            this.Status = AsyncOperationStatus.BlockedOnWaitAll;
+            this.Scheduler.ScheduleNextEnabledOperation();
+            this.IsAwaiterControlled = false;
+        }
+
+        /// <summary>
+        /// Invoked when the operation is waiting to join the specified tasks.
+        /// </summary>
+        internal void OnWaitTasks(IEnumerable<Task> tasks, bool waitAll)
+        {
+            foreach (var task in tasks)
+            {
+                if (!task.IsCompleted)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.SourceId, task.Id);
+                    this.JoinDependencies.Add(task);
+                }
+            }
+
+            if (this.JoinDependencies.Count > 0)
+            {
+                this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
+                this.Scheduler.ScheduleNextEnabledOperation();
+            }
+
+            this.IsAwaiterControlled = false;
         }
 
         /// <summary>
@@ -138,11 +163,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Invoked when the operation received an event from the specified operation.
         /// </summary>
-        internal void OnReceivedEvent(ulong sendStep)
+        internal void OnReceivedEvent()
         {
             this.EventDependencies.Clear();
             this.Status = AsyncOperationStatus.Enabled;
-            this.MatchingSendIndex = sendStep;
         }
 
         /// <summary>
@@ -153,7 +177,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.Status = AsyncOperationStatus.Completed;
             this.IsHandlerRunning = false;
             this.SkipNextReceiveSchedulingPoint = true;
-            this.MatchingSendIndex = 0;
+            this.Scheduler.ScheduleNextEnabledOperation();
         }
 
         /// <summary>
@@ -185,16 +209,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 this.JoinDependencies.Clear();
                 this.Status = AsyncOperationStatus.Enabled;
             }
-        }
-
-        /// <summary>
-        /// Sets the next operation to schedule.
-        /// </summary>
-        internal void SetNextOperation(AsyncOperationType operationType, AsyncOperationTarget target, ulong targetId)
-        {
-            this.Type = operationType;
-            this.Target = target;
-            this.TargetId = targetId;
         }
 
         /// <summary>

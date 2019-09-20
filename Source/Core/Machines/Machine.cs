@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.Machines
@@ -840,24 +839,14 @@ namespace Microsoft.Coyote.Machines
                         // false to process the exception normally.
                     }
                 }
-                else if (cachedAction.Handler is Func<ControlledTask> controlledTaskFunc)
-                {
-                    try
-                    {
-                        // We have no reliable stack for awaited operations.
-                        await controlledTaskFunc();
-                    }
-                    catch (Exception ex) when (this.OnExceptionHandler(cachedAction.MethodInfo.Name, ex))
-                    {
-                        // user handled the exception, return normally
-                    }
-                }
                 else if (cachedAction.Handler is Func<Task> taskFunc)
                 {
                     try
                     {
                         // We have no reliable stack for awaited operations.
-                        await taskFunc();
+                        Task task = taskFunc();
+                        this.Runtime.NotifyWaitTask(this, task);
+                        await task;
                     }
                     catch (Exception ex) when (this.OnExceptionHandler(cachedAction.MethodInfo.Name, ex))
                     {
@@ -1531,8 +1520,8 @@ namespace Microsoft.Coyote.Machines
 
             if (method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null)
             {
-                this.Assert(method.ReturnType == typeof(Task) || method.ReturnType == typeof(ControlledTask),
-                    "Async action '{0}' in machine '{1}' must have 'Task' or 'ControlledTask' return type.",
+                this.Assert(method.ReturnType == typeof(Task),
+                    "Async action '{0}' in machine '{1}' must have 'Task' return type.",
                     method.Name, this.GetType().Name);
             }
             else

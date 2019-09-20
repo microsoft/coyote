@@ -15,7 +15,6 @@ using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 
-using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.Runtime
@@ -391,45 +390,34 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken) =>
-            new ControlledTask(Task.Run(function, cancellationToken));
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
-            CancellationToken cancellationToken)
+        internal override ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken)
         {
-            if (function is Func<ControlledTask> taskFunc)
+            return new ControlledTask(Task.Run(async () =>
             {
-                var unwrappedTask = Task.Run(async () =>
-                {
-                    var task = taskFunc();
-                    await task;
-                    if (task is TResult result)
-                    {
-                        return result;
-                    }
-
-                    return default;
-                });
-
-                return new ControlledTask<TResult>(unwrappedTask);
-            }
-            else
-            {
-                return new ControlledTask<TResult>(Task.Run(function, cancellationToken));
-            }
+                await function();
+            }, cancellationToken));
         }
 
         /// <summary>
         /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
             CancellationToken cancellationToken) =>
             new ControlledTask<TResult>(Task.Run(function, cancellationToken));
+
+        /// <summary>
+        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<ControlledTask<TResult>> function,
+            CancellationToken cancellationToken)
+        {
+            return new ControlledTask<TResult>(Task.Run(async () =>
+            {
+                return await function();
+            }, cancellationToken));
+        }
 
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
@@ -627,22 +615,30 @@ namespace Microsoft.Coyote.Runtime
             Task.WaitAny(tasks.Select(t => t.AwaiterTask).ToArray(), timeout);
 
         /// <summary>
+        /// Creates a controlled awaiter that switches into a target environment.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter() =>
+            new ControlledYieldAwaitable.ControlledYieldAwaiter(this, default);
+
+        /// <summary>
         /// Ends the wait for the completion of the yield operation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void OnGetYieldResult(DefaultYieldAwaiter awaiter) => awaiter.GetResult();
+        internal override void OnGetYieldResult(YieldAwaitable.YieldAwaiter awaiter) => awaiter.GetResult();
 
         /// <summary>
         /// Sets the action to perform when the yield operation completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) => awaiter.OnCompleted(continuation);
+        internal override void OnYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
+            awaiter.OnCompleted(continuation);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the yield operation completes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter) =>
+        internal override void OnUnsafeYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
             awaiter.UnsafeOnCompleted(continuation);
 
         /// <summary>

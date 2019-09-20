@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 2, "Value is '{0}' instead of 2.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 2, "Value is {0} instead of 2.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 1 instead of 2.",
             replay: true);
         }

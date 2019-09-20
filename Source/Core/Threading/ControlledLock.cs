@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.Threading
@@ -50,7 +48,7 @@ namespace Microsoft.Coyote.Threading
         /// </summary>
         /// <returns>The mutual exclusion lock.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledLock Create() => MachineRuntime.Current.CreateControlledLock();
+        public static ControlledLock Create() => CoyoteRuntime.Provider.Current.CreateControlledLock();
 
         /// <summary>
         /// Tries to acquire the lock asynchronously, and returns a task that completes

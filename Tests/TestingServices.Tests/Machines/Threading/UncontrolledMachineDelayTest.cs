@@ -10,9 +10,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class MachineAsynchronyTest : BaseTest
+    public class UncontrolledMachineDelayTest : BaseTest
     {
-        public MachineAsynchronyTest(ITestOutputHelper output)
+        public UncontrolledMachineDelayTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -39,13 +39,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAsyncDelay()
+        public void TestUncontrolledMachineDelay()
         {
             this.TestWithError(r =>
             {
                 r.CreateMachine(typeof(M1));
             },
-            expectedError: "Task with id '' that is not controlled by the Coyote runtime invoked a runtime method.",
+            expectedError: "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
+                "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you " +
+                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
             replay: true);
         }
 
@@ -67,13 +69,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAsyncDelayWithOtherSynchronizationContext()
+        public void TestUncontrolledMachineDelayWithOtherSynchronizationContext()
         {
             this.TestWithError(r =>
             {
                 r.CreateMachine(typeof(M2));
             },
-            expectedError: "Task with id '<unknown>' that is not controlled by the Coyote runtime invoked a runtime method.",
+            expectedError: "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
+                "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you " +
+                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
             replay: true);
         }
 
@@ -104,13 +108,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAsyncDelayLoopWithOtherSynchronizationContext()
+        public void TestUncontrolledMachineDelayLoopWithOtherSynchronizationContext()
         {
             this.TestWithError(r =>
             {
                 r.CreateMachine(typeof(M3));
             },
-            expectedError: "Task with id '<unknown>' that is not controlled by the Coyote runtime invoked a runtime method.",
+            expectedError: "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
+                "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you " +
+                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
             replay: true);
         }
     }

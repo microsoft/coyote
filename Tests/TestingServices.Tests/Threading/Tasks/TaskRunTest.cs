@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -146,7 +146,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -214,13 +214,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelTaskResult()
+        public void TestRunParallelTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -233,11 +233,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelTaskResultFailure()
+        public void TestRunParallelTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -250,13 +250,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelSynchronousTaskResult()
+        public void TestRunParallelSynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -270,11 +270,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelSynchronousTaskResultFailure()
+        public void TestRunParallelSynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -288,13 +288,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelAsynchronousTaskResult()
+        public void TestRunParallelAsynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -308,11 +308,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelAsynchronousTaskResultFailure()
+        public void TestRunParallelAsynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -326,13 +326,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelSynchronousTaskResult()
+        public void TestRunNestedParallelSynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -349,11 +349,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelSynchronousTaskResultFailure()
+        public void TestRunNestedParallelSynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -370,13 +370,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelAsynchronousTaskResult()
+        public void TestRunNestedParallelAsynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -393,11 +393,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelAsynchronousTaskResultFailure()
+        public void TestRunNestedParallelAsynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -414,7 +414,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

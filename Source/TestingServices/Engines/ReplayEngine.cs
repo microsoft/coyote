@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -19,6 +20,7 @@ namespace Microsoft.Coyote.TestingServices
     /// <summary>
     /// The Coyote replay engine.
     /// </summary>
+    [DebuggerStepThrough]
     internal sealed class ReplayEngine : AbstractTestingEngine
     {
         /// <summary>
@@ -135,6 +137,11 @@ namespace Microsoft.Coyote.TestingServices
                         var writer = new LogWriter(new NulLogger());
                         Console.SetOut(writer);
                         Console.SetError(writer);
+                    }
+
+                    if (this.Configuration.AttachDebugger)
+                    {
+                        Debugger.Launch();
                     }
 
                     // Runs the test and waits for it to terminate.

@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class TaskRunConfigureAwaitFalseTest : BaseTest
+    public class TaskRunConfigureAwaitTrueTest : BaseTest
     {
-        public TaskRunConfigureAwaitFalseTest(ITestOutputHelper output)
+        public TaskRunConfigureAwaitTrueTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -30,11 +30,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.Run(() =>
                 {
                     entry.Value = 5;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -46,11 +46,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.Run(() =>
                 {
                     entry.Value = 3;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -65,11 +65,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     await ControlledTask.CompletedTask;
                     entry.Value = 5;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -82,11 +82,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     await ControlledTask.CompletedTask;
                     entry.Value = 3;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -99,13 +99,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 SharedEntry entry = new SharedEntry();
                 await ControlledTask.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(false);
+                    await ControlledTask.Delay(1).ConfigureAwait(true);
                     entry.Value = 5;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -116,13 +116,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 SharedEntry entry = new SharedEntry();
                 await ControlledTask.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(false);
+                    await ControlledTask.Delay(1).ConfigureAwait(true);
                     entry.Value = 3;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -139,14 +139,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     {
                         await ControlledTask.CompletedTask;
                         entry.Value = 3;
-                    }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
 
                     entry.Value = 5;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -161,14 +161,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     {
                         await ControlledTask.CompletedTask;
                         entry.Value = 5;
-                    }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
 
                     entry.Value = 3;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -183,16 +183,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     await ControlledTask.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(false);
+                        await ControlledTask.Delay(1).ConfigureAwait(true);
                         entry.Value = 3;
-                    }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
 
                     entry.Value = 5;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -205,22 +205,22 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     await ControlledTask.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(false);
+                        await ControlledTask.Delay(1).ConfigureAwait(true);
                         entry.Value = 5;
-                    }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
 
                     entry.Value = 3;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelTaskResult()
+        public void TestRunParallelTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -229,15 +229,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     entry.Value = 5;
                     return entry.Value;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelTaskResultFailure()
+        public void TestRunParallelTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -246,17 +246,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     entry.Value = 3;
                     return entry.Value;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelSynchronousTaskResult()
+        public void TestRunParallelSynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -266,15 +266,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     await ControlledTask.CompletedTask;
                     entry.Value = 5;
                     return entry.Value;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelSynchronousTaskResultFailure()
+        public void TestRunParallelSynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -284,55 +284,55 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     await ControlledTask.CompletedTask;
                     entry.Value = 3;
                     return entry.Value;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelAsynchronousTaskResult()
+        public void TestRunParallelAsynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await ControlledTask.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(false);
+                    await ControlledTask.Delay(1).ConfigureAwait(true);
                     entry.Value = 5;
                     return entry.Value;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunParallelAsynchronousTaskResultFailure()
+        public void TestRunParallelAsynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await ControlledTask.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(false);
+                    await ControlledTask.Delay(1).ConfigureAwait(true);
                     entry.Value = 3;
                     return entry.Value;
-                }).ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelSynchronousTaskResult()
+        public void TestRunNestedParallelSynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -344,16 +344,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         await ControlledTask.CompletedTask;
                         entry.Value = 5;
                         return entry.Value;
-                    }).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelSynchronousTaskResultFailure()
+        public void TestRunNestedParallelSynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -365,18 +365,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         await ControlledTask.CompletedTask;
                         entry.Value = 3;
                         return entry.Value;
-                    }).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelAsynchronousTaskResult()
+        public void TestRunNestedParallelAsynchronousTaskWithResult()
         {
             this.Test(async () =>
             {
@@ -385,19 +385,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     return await ControlledTask.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(false);
+                        await ControlledTask.Delay(1).ConfigureAwait(true);
                         entry.Value = 5;
                         return entry.Value;
-                    }).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000));
+            configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestRunNestedParallelAsynchronousTaskResultFailure()
+        public void TestRunNestedParallelAsynchronousTaskWithResultFailure()
         {
             this.TestWithError(async () =>
             {
@@ -406,15 +406,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     return await ControlledTask.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(false);
+                        await ControlledTask.Delay(1).ConfigureAwait(true);
                         entry.Value = 3;
                         return entry.Value;
-                    }).ConfigureAwait(false);
-                }).ConfigureAwait(false);
+                    }).ConfigureAwait(true);
+                }).ConfigureAwait(true);
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(1000),
+            configuration: GetConfiguration().WithNumberOfIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -36,6 +37,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTaskAwaiter"/> struct.
         /// </summary>
+        [DebuggerStepThrough]
         internal ControlledTaskAwaiter(ControlledTask task, Task awaiterTask)
         {
             this.ControlledTask = task;
@@ -45,17 +47,20 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
+        [DebuggerHidden]
         public void GetResult() => this.ControlledTask.GetResult(this.Awaiter);
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
+        [DebuggerHidden]
         public void OnCompleted(Action continuation) =>
             this.ControlledTask.OnCompleted(continuation, this.Awaiter);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
+        [DebuggerHidden]
         public void UnsafeOnCompleted(Action continuation) =>
             this.ControlledTask.UnsafeOnCompleted(continuation, this.Awaiter);
     }
@@ -88,6 +93,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTaskAwaiter{TResult}"/> struct.
         /// </summary>
+        [DebuggerStepThrough]
         internal ControlledTaskAwaiter(ControlledTask<TResult> task, Task<TResult> awaiterTask)
         {
             this.ControlledTask = task;
@@ -97,17 +103,20 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
+        [DebuggerHidden]
         public TResult GetResult() => this.ControlledTask.GetResult(this.Awaiter);
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
+        [DebuggerHidden]
         public void OnCompleted(Action continuation) =>
             this.ControlledTask.OnCompleted(continuation, this.Awaiter);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
+        [DebuggerHidden]
         public void UnsafeOnCompleted(Action continuation) =>
             this.ControlledTask.UnsafeOnCompleted(continuation, this.Awaiter);
     }

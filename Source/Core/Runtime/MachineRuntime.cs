@@ -17,7 +17,6 @@ using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 
-using DefaultYieldAwaiter = System.Runtime.CompilerServices.YieldAwaitable.YieldAwaiter;
 using EventInfo = Microsoft.Coyote.Machines.EventInfo;
 
 namespace Microsoft.Coyote.Runtime
@@ -27,11 +26,6 @@ namespace Microsoft.Coyote.Runtime
     /// </summary>
     internal abstract class MachineRuntime : ICoyoteRuntime
     {
-        /// <summary>
-        /// The currently executing runtime.
-        /// </summary>
-        internal static MachineRuntime Current { get; set; } = new ProductionRuntime(Configuration.Create());
-
         /// <summary>
         /// The configuration used by the runtime.
         /// </summary>
@@ -324,7 +318,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
         /// </summary>
-        internal abstract ControlledTask CreateControlledTask(Func<Task> function, CancellationToken cancellationToken);
+        internal abstract ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken);
 
         /// <summary>
         /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
@@ -335,7 +329,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
         /// </summary>
-        internal abstract ControlledTask<TResult> CreateControlledTask<TResult>(Func<Task<TResult>> function,
+        internal abstract ControlledTask<TResult> CreateControlledTask<TResult>(Func<ControlledTask<TResult>> function,
             CancellationToken cancellationToken);
 
         /// <summary>
@@ -485,19 +479,24 @@ namespace Microsoft.Coyote.Runtime
         internal abstract int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout);
 
         /// <summary>
+        /// Creates a controlled awaiter that switches into a target environment.
+        /// </summary>
+        internal abstract ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter();
+
+        /// <summary>
         /// Ends the wait for the completion of the yield operation.
         /// </summary>
-        internal abstract void OnGetYieldResult(DefaultYieldAwaiter awaiter);
+        internal abstract void OnGetYieldResult(YieldAwaitable.YieldAwaiter awaiter);
 
         /// <summary>
         /// Sets the action to perform when the yield operation completes.
         /// </summary>
-        internal abstract void OnYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter);
+        internal abstract void OnYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter);
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the yield operation completes.
         /// </summary>
-        internal abstract void OnUnsafeYieldCompleted(Action continuation, DefaultYieldAwaiter awaiter);
+        internal abstract void OnUnsafeYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter);
 
         /// <summary>
         /// Creates a mutual exclusion lock that is compatible with <see cref="ControlledTask"/> objects.
@@ -572,6 +571,24 @@ namespace Microsoft.Coyote.Runtime
             {
                 throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, args));
             }
+        }
+
+        /// <summary>
+        /// Asserts that the currently executing controlled task is awaiting a controlled awaiter.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void AssertAwaitingControlledAwaiter<TAwaiter>(ref TAwaiter awaiter)
+            where TAwaiter : INotifyCompletion
+        {
+        }
+
+        /// <summary>
+        /// Asserts that the currently executing controlled task is awaiting a controlled awaiter.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void AssertAwaitingUnsafeControlledAwaiter<TAwaiter>(ref TAwaiter awaiter)
+            where TAwaiter : ICriticalNotifyCompletion
+        {
         }
 
         /// <summary>
@@ -749,7 +766,15 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine is waiting for the specified task to complete.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyWaitTask(AsyncMachine machine, Task task)
+        internal virtual void NotifyWaitTask(Machine machine, Task task)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a <see cref="ControlledTaskMachine"/> is waiting for the specified task to complete.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyWaitTask(ControlledTaskMachine machine, Task task)
         {
         }
 

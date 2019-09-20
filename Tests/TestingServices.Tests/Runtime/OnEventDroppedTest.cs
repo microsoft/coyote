@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(M3a), new E(m));
                 r.CreateMachine(typeof(M3b), new E(m));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(1000));
+            configuration: Configuration.Create().WithNumberOfIterations(200));
         }
     }
 }

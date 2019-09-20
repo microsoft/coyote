@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 #if NET46
 using System.Configuration;
 #endif
@@ -28,6 +29,7 @@ namespace Microsoft.Coyote.TestingServices
     /// <summary>
     /// The Coyote abstract testing engine.
     /// </summary>
+    [DebuggerStepThrough]
     internal abstract class AbstractTestingEngine : ITestingEngine
     {
         /// <summary>
@@ -303,12 +305,6 @@ namespace Microsoft.Coyote.TestingServices
             try
             {
                 Task task = this.CreateTestingTask();
-
-                if (this.Configuration.AttachDebugger)
-                {
-                    System.Diagnostics.Debugger.Launch();
-                }
-
                 if (this.Configuration.Timeout > 0)
                 {
                     this.CancellationTokenSource.CancelAfter(
@@ -333,8 +329,8 @@ namespace Microsoft.Coyote.TestingServices
             {
                 aex.Handle((ex) =>
                 {
-                    Debug.WriteLine(ex.Message);
-                    Debug.WriteLine(ex.StackTrace);
+                    IO.Debug.WriteLine(ex.Message);
+                    IO.Debug.WriteLine(ex.StackTrace);
                     return true;
                 });
 

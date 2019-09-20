@@ -1,0 +1,69 @@
+---
+layout: default
+---
+
+<section class="section-main">
+
+{% assign template = page.template %}
+{% case template %}
+{% when 'grid' %}
+    <section class="{{page.template}} container-fluid container-fluid-no-gutters {% if page.layout_gray %}container-gray{% endif %} mb-100">
+       {% for item in page.article %}
+        <div class="row display-flex">
+           {% if forloop.first == true %}
+            <div class="col-md-6  mt--20">
+                <figure class="feature-img-bg img-shadow" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
+            </div>
+            <div class="col-md-6">
+                <article>
+                    <h1>{{ item.title }}</h1>
+                    {{ item.content }}
+                </article>
+            </div>
+            {% else %}
+            <div class="col-md-6">
+                <article>
+                    <h1>{{ item.title }}</h1>
+                    {{ item.content }}
+                </article>
+            </div>        
+            <div class="col-md-6  mb--20">
+                <figure class="feature-img-bg img-shadow" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
+            </div>
+             {% endif %}
+        </div>
+        {% endfor %} 
+    </section>
+{% when 'basic' %}
+    <div class="{{page.template}} container">
+        <div class="row">
+            <div class="col-sm-8">
+                <article class="mw-600">
+                    <h1>{{ page.title }}</h1>
+                    {{ content }}
+                </article>
+            </div>
+        </div>
+    </div>
+{% when 'feature-img' %}
+    <div class="{{page.template}} container-fluid container-fluid-no-gutters mb-100">
+        <div class="row row-no-gutters  display-flex">
+            <div class="col-sm-6">
+                <figure class="feature-img-bg img-shadow" style="background-image: url('{{ page.feature-img | relative_url }}')"></figure>
+            </div>
+
+            <div class="col-sm-6">
+                <article>
+                    <h1>{{ page.title }}</h1>
+                    {{ content }}
+                </article>
+            </div>
+        </div>
+    </div>
+{% else %}
+    Please Select a layout template in Front Matter
+{% endcase %}
+
+</section>
+
+

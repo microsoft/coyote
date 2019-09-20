@@ -1,8 +1,8 @@
 ---
 layout: reference
-title: Learn
+title: Get Started
 section: learn
-permalink: /learn/
+permalink: /learn/get-started
 ---
 
 ## Get started with Coyote

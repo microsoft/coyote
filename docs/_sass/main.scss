@@ -1,22 +1,30 @@
-$brand-color: #FF6633;
+/* ==========================================================================
+   Coyote's custom styles
+   ========================================================================== */
+
+$brand-color: #ff6633;
 $inline-link: #666;
-$light-gray: #F3F3F3;
-$bg-gray: #403D3B;
+$light-gray: #f3f3f3;
+$bg-gray: #403d3b;
 $dark-gray: #333;
-$learn-gray: #EAEAEA;
+$learn-gray: #eaeaea;
 $text-font-stack: 'Helvetica',
 'Helvetica Neue Light',
 'Helvetica Neue',
 'Arial',
 'Open Sans',
 sans-serif;
+$white: #fff;
+$black: #000;
 
+.bg-white {
+    background-color: $white;
+}
 
-/* ==========================================================================
-   Coyote's custom styles
-   ========================================================================== */
-
-//@breakpoints mixin stub
+/*
+ * mixin stubs
+ */
+//@breakpoints 
 //.foo {
 //  @include screen(lg) {
 //    width: 20%;
@@ -53,11 +61,14 @@ sans-serif;
 
 
 
-/*  typography
-*/
+/*
+ * Basic typography
+ */
 
 body {
     font-family: $text-font-stack;
+    font-size: 18px;
+    line-height: 132.5%;
 }
 
 i {
@@ -90,15 +101,21 @@ h1 {
     font-size: 40px;
 }
 
+article h2 {
+    font-size: 30px;
+    line-height: 34px;
+    margin-top: 40px;
+}
+
+/*
+ * end typography
+ */
 
 
-/* end typograpy
-*/
 
-
-
-/*  navigation
-*/
+/*
+ * Navigation
+ */
 
 .navbar-default li.active a,
 .navbar-default li a:hover,
@@ -107,199 +124,400 @@ h1 {
     color: $dark-gray;
 }
 
-.home .navbar-header {
+
+// homepage brand
+.home {
+    .navbar-header {
+        position: relative;
+    }
+
+    .brand-home {
+        position: absolute;
+        transition: height .2s ease-in;
+        transition: width .2s ease-in;
+        transition-delay: .5s;
+
+        &:hover {
+            background-color: $brand-color;
+            color: $white;
+        }
+
+        @media only screen and (min-width: 768px) {
+            width: 150px;
+            height: 150px;
+            background-color: $brand-color;
+            color: $white;
+        }
+
+        @media only screen and (min-width: 992px) {
+            width: 300px;
+            height: 300px;
+        }
+
+        span {
+            opacity: 1;
+            transition: opacity .2s ease-in;
+            color: $white;
+            display: none;
+
+            @media only screen and (min-width: 768px) {
+                display: block;
+                font-size: 14px;
+                line-height: 122.2%;
+                margin-top: 10px;
+            }
+
+            @media only screen and (min-width: 992px) {
+                font-size: 30px;
+                margin-top: 40px;
+            }
+        }
+
+        &.brand-shrink {
+            background-color: transparent;
+            width: 300px;
+            height: 0px;
+            color: $black;
+
+            span {
+                opacity: 0;
+            }
+        }
+    }
+}
+
+.external:after {
     position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: "Glyphicons Halflings";
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    content: "\e164";
+    padding: 0 0 0 10px;
 }
-
-.home .brand-home {
-    background-color: $brand-color;
-    color: #fff;
-    position: absolute;
-    display: block;
-    width: 300px;
-    height: 300px;
-     transition: all .4s ease-in;
-}
-.home .brand-home.brand-shrink {
-    background-color: transparent;
-    width: 300px;
-    height: 40px;
-    color: #000;
-}
-.home .brand-home span {
-    opacity: 1;
-    transition: all .4s ease-in;
-}
-.home .brand-home.brand-shrink span {
-    opacity: 0;
-}
-
-.navbar-brand span {
-    font-size: 30px;
-    line-height: 122.2%;
-    display: block;
-    margin-top: 40px;
-}
-
-
 
 //sidebar navigation
-.panel-heading a:after {
-    font-family: 'Glyphicons Halflings';
-    content: "\e259";
-    transition: all 0.5s;
-    font-size: 14px;
-    font-weight: 100;
-}
+.panel-heading {
 
-.panel-heading.active a:after {
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    transform: rotate(180deg);
-}
+    // up/down arrows on click
+    a:after {
+        font-family: 'Glyphicons Halflings';
+        content: "\e259";
+        transition: all 0.5s;
+        font-size: 14px;
+        font-weight: 100;
+    }
 
-.panel-heading.active .panel-title > a {
-    color: #000;
+    &.active a:after {
+        -webkit-transform: rotate(180deg);
+        -moz-transform: rotate(180deg);
+        transform: rotate(180deg);
+    }
 }
 
 .panel-title > a:focus,
 .panel-title > a:hover {
     text-decoration: none
 }
-
-.navmenu-fixed-left .panel-body .active,
-.navmenu-fixed-left .panel-body a:hover {
-    border-left: 2px solid $brand-color;
-    padding: 0 0 0 10px;
-    text-decoration: none;
-    color: $brand-color;
+.panel-title > a.active {
+    color: $black;
 }
 
 .navmenu-fixed-left .panel-body a {
-    border-left: 2px solid $learn-gray;
-    padding: 0 0 0 10px;
     font-size: 14px;
+    position: relative;
+
+    .active,
+    a:hover {
+        text-decoration: none;
+        color: $brand-color;
+
+        &::before {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            left: -10px;
+            width: 2px;
+            height: 14px;
+            background-color: $brand-color;
+            margin-top: 2px;
+        }
+    }
 }
 
 
-@mixin bg-white {
-    background-color: #fff;
-}
+//footer navigation
+footer {
+    h4 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: $white;
+        white-space: nowrap;
+    }
 
-.bg-white {
-    @include bg-white;
-}
+    p {
+        font-size: 18px;
+    }
 
-@mixin white {
-    background-color: #fff;
-}
-
-.bg-white {
-    @include bg-white;
-}
-
-.container-gray {
-    background-color: $light-gray;
-}
-.home .carousel {
-
-}
-.carousel-caption h1 {
-    text-align: right
-}
-.carousel-caption p:first-of-type {
-    margin-top: 100px
-}
-.carousel-caption p,
-.carousel-caption .btn {
-    margin-left: 450px;
-}
-
-/*  footer
-*/
-
-footer h4 {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 40px;
-    color: #fff;
-}
-
-footer p {
-    font-size: 18px;
-}
-
-.footnote p {
-    font-size: 14px;
-}
-
-footer a {
-    color: #fff;
-    text-decoration: none
+    a {
+        color: $white;
+        text-decoration: none
+    }
 }
 
 .footer-join {
     background-color: $light-gray;
     color: $dark-gray;
+
+    ul {
+        border-bottom: 2px solid #ccc;
+    }
+
+    a {
+        color: $inline-link;
+        font-weight: bold;
+    }
 }
 
-.footer-join ul {
-    border-bottom: 2px solid #ccc;
+.footnote {
+    a {
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    p {
+        font-size: 14px;
+    }
 }
 
-.footer-join a {
-    color: $inline-link;
-    font-weight: bold;
+//better text formatting for mobile
+.footer-join .text-center,
+.footer-dark .text-right {
+    @include screen(md) {
+        text-align: left;
+    }
+
+    @include screen(sm) {
+        text-align: left;
+    }
+
+    @include screen(xs) {
+        text-align: left;
+    }
 }
 
 .footer-dark {
     background-color: $bg-gray;
-    color: #fff;
+    color: $white;
+
+    a {
+        color: $white;
+        font-size: 16px;
+        line-height: 33px;
+
+        &:hover,
+        &:focus,
+        &:active {
+            text-decoration: underline;
+        }
+    }
 }
 
-.navbar.navbar-footer {
-    height: auto;
+.footer-dark-col {
+    @include screen(custom, max, 555) {
+        width: 100%;
+    }
 }
 
-.footer-dark a,
-.footer-dark a:hover,
-.footer-dark a:active,
-.footer-dark a:visited {
-    color: #fff;
-    font-size: 16px;
-    line-height: 33px;
+//end footer
+
+/*
+ * End navigation
+ */
+
+
+/*
+ * Homepage carousel
+ */
+
+
+.home .section-main .container:first-of-type {
+    @include screen(md) {
+        padding: inherit;
+    }
+
+    @include screen(sm) {
+        padding: inherit;
+    }
 }
 
-.footnote,
-.footnote a {
-    font-size: 14px;
-    line-height: 16px;
+
+.carousel {
+    margin-left: 80px;
+
+    @include screen(md) {
+        margin-left: 0;
+    }
+
+    @include screen(lg) {
+        margin-left: 50px;
+    }
 }
 
+.carousel-inner > .item > img {
+    @include screen(custom, max, 1199) {
+        max-width: 650px;
+    }
 
-.footnote-legal li {
-    //  @include screen(large) {
-    //    display: inline-block;
-    //      float: left;
-    //  }
-    //  @include screen(med) {
-    //    width: 40%;
-    //  }
-    //  @include screen(med-small) {
-    //    width: 60%;
-    //  }
-    //  @include screen(small) {
-    //    width: 80%;
-    //  }
+    @include screen(lg) {
+        max-width: 330px;
+    }
 
+    @include screen(sm) {
+        max-width: 330px;
+    }
 }
 
-/* end footer
-*/
+.carousel-indicators {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    left: -80px;
+    bottom: 240px;
+    text-align: left;
+    width: auto;
 
+    @include screen(custom, max, 1199) {
+        bottom: 180px;
+    }
 
+    @include screen(md) {
+        left: 0;
+    }
 
+    @include screen(lg) {
+        left: -60px;
+    }
 
+    li {
+        display: inline-block;
+        width: auto;
+        height: auto;
+        margin: auto;
+        text-indent: inherit;
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        border-radius: 0;
+        color: rgba(0, 0, 0, 0.15);
+        display: block;
+        float: none;
+        padding: 2px 0 2px 30px;
+    }
+
+    .active {
+        width: auto;
+        height: auto;
+        margin: 0;
+        background-color: transparent;
+        color: $black;
+        border-bottom: 1px solid $brand-color;
+        padding: 2px 0 2px 30px;
+
+        @include screen(md) {
+            color: $white;
+        }
+    }
+}
+
+.carousel-caption {
+    //    position: absolute;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    top: 40px;
+    //    width: 50%;
+    //    z-index: 10;
+    padding-top: 0;
+    padding-bottom: 0;
+    color: inherit;
+    text-align: left;
+    text-shadow: none;
+
+    @include screen(custom, max, 1199) {
+        top: 10px;
+    }
+
+    @include screen(lg) {
+        top: 10px;
+    }
+
+    h1 {
+        font-weight: 600;
+        text-align: right;
+        margin-bottom: 70px;
+
+        @include screen(custom, max, 1199) {
+            margin-bottom: 40px;
+        }
+
+        @include screen(lg) {
+            margin-bottom: 40px;
+        }
+    }
+
+    p,
+    .btn {
+        margin: 20px 0 20px 770px;
+
+        @include screen(custom, max, 1199) {
+            margin-left: 665px;
+        }
+
+        @include screen(lg) {
+            max-width: 650px;
+        }
+    }
+
+    .btn {
+        margin-top: 20px;
+    }
+}
+
+/*
+ * End homepage carousel
+ */
+
+/*
+ * Misc
+ */
+
+.section-main {
+    @include screen(xl) {
+        margin-top: 120px;
+    }
+
+    @include screen(lg) {
+        margin-top: 120px;
+    }
+
+    @include screen(md) {
+        margin-top: 120px;
+    }
+
+    @include screen(sm) {
+        margin-top: 70px;
+    }
+}
+
+.reference.section-main {
+    margin-top: 0;
+}
 
 .img-shadow {
     box-shadow: 0px 30px 20px rgba(141, 141, 141, 0.187868);
@@ -307,8 +525,122 @@ footer a {
     -moz-box-shadow: 0px 30px 20px rgba(141, 141, 141, 0.187868);
 }
 
+.container-gray {
+    background-color: $light-gray;
+}
 
-// helpers
+.display-flex article {
+    @include screen(xl) {
+        max-width: 70%;
+        margin: 40px auto;
+    }
+
+    @include screen(lg) {
+        max-width: 80%;
+    }
+
+    @include screen(md) {
+        max-width: 90%;
+    }
+
+    @include screen(sm) {
+        max-width: 100%;
+        margin: 20px;
+    }
+}
+
+.container.basic {
+    margin-bottom: 50px;
+}
+
+
+.reference .display-flex article {
+    max-width: 100%;
+}
+
+body.gray {
+    background-color: $light-gray;
+
+    article {
+        background-color: $white;
+    }
+}
+
+article .btn {
+    margin-top: 30px;
+}
+
+article .btn:first-of-type {
+    margin-right: 30px;
+}
+
+.feature-img-bg {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+
+    @include screen(xl) {
+        min-height: 100%;
+        min-width: 550px;
+    }
+
+    @include screen(lg) {
+        min-height: 500px;
+        min-width: 100vw;
+    }
+
+    @include screen(md) {
+        min-height: 400px;
+        min-width: 100vw;
+    }
+
+    @include screen(sm) {
+        min-height: 300px;
+        min-width: 100vw;
+    }
+}
+
+.feature-img .feature-img-bg {
+    min-height: 500px;
+    max-width: 100%;
+    min-width: 100%;
+
+    @include screen(md) {
+        min-height: 400px;
+        min-width: 100vw;
+    }
+
+    @include screen(sm) {
+        min-height: 300px;
+        min-width: 100vw;
+    }
+}
+
+.section-tabs h1 {
+    margin-bottom: 50px;
+}
+
+/*
+ * End misc
+ */
+
+
+/*
+ * Helpers
+ */
+
+.aligner {
+    @include screen(md) {
+        display: block;
+    }
+}
+
+.aligner-item {
+    @include screen(md) {
+        max-width: 100%;
+    }
+}
+
 .center-wrapper {
     position: relative;
 }
@@ -321,21 +653,19 @@ footer a {
     @include center(horizontal);
 }
 
+.center-margins {
+    margin: 0 auto;
+}
+
 .center-both {
     @include center(both);
-}
-
-.install-p-sharp {
-    background-color: $light-gray;
-}
-
-.install-p-sharp article {
-    background-color: #fff;
 }
 
 .row.display-flex {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
 }
 
 .row.display-flex > [class*='col-'] {
@@ -343,34 +673,56 @@ footer a {
     flex-direction: column;
 }
 
-/* bootstrap - override default styles
-*/
+.grid .row.display-flex {
+    align-items: stretch;
+}
+
+.reference .row.display-flex {
+    align-items: inherit;
+}
+
+.container-fluid-no-gutters {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+/*
+ * End helpers
+ */
+
+
+/*
+ * Bootstrap - override default styles
+ */
+
 
 .navbar-default .navbar-nav > li > a {
     color: $dark-gray;
+    line-height: 30px;
+    padding: 15px 0 10px 0;
 }
 
 .btn {
     border-radius: 0;
-    -webkit-box-shadow: 0px 16px 20px rgba(255, 102, 51, 0.277146);
-    -moz-box-shadow: 0px 16px 20px rgba(255, 102, 51, 0.277146);
-    box-shadow: 0px 16px 20px rgba(255, 102, 51, 0.277146);
+    -webkit-box-shadow: 0px 4px 5px rgba(255, 102, 51, 0.277146);
+    -moz-box-shadow: 0px 4px 5px rgba(255, 102, 51, 0.277146);
+    box-shadow: 0px 4px 5px rgba(255, 102, 51, 0.277146);
     padding: 8px 22px;
 }
 
-.btn-primary {
-    color: #fff;
+a.btn-primary {
+    color: $white;
     background-color: $brand-color;
     border-color: $brand-color;
 }
 
-.btn-primary:hover,
-.btn-primary.active,
-.btn-primary:active,
+a.btn-primary:hover,
+a.btn-primary.active,
+a.btn-primary:active,
 .open > .dropdown-toggle.btn-primary,
-.btn-primary.focus,
-.btn-primary:focus {
-    color: #fff;
+a.btn-primary.focus,
+a.btn-primary:focus {
+    color: $white;
     background-color: darken($brand-color, 10%);
     border-color: darken($brand-color, 10%);
 }
@@ -380,11 +732,11 @@ footer a {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
-    border-color: #fff;
+    border-color: $white;
 }
 
 .btn-default:hover {
-    background-color: #fff;
+    background-color: $white;
 }
 
 .navbar-default .navbar-nav > .active > a,
@@ -419,14 +771,64 @@ footer a {
 .nav-tabs > li > a:hover {
     border-color: transparent;
     border: none;
+    margin-top: -2px;
 }
 
 .panel-title {
     font-size: 18px;
 }
 
+.btn.active.focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn:active:focus,
+.btn:focus {
+    outline: none;
+    outline-offset: 0;
+}
 
-//fixed topnav - shrink onscroll
+.navbar-default .navbar-toggle {
+    border-color: transparent;
+
+    .icon-bar {
+        background-color: $brand-color;
+    }
+}
+
+
+.navbar-collapse.in,
+.navbar-collapse.collapsing {
+    background-color: $white;
+
+    .navbar-nav {
+        margin: 0;
+    }
+
+    .navbar-nav > li {
+        padding-top: 0;
+        padding-bottom: 0;
+        text-align: right;
+
+        &.active a {
+            border-right: 3px solid #ff6633;
+        }
+
+        a {
+            border-bottom: none;
+            line-height: normal;
+            border-right: 3px solid $white;
+            padding: 6px 10px 6px 0;
+
+            &:hover,
+            .active {
+                border-right: 3px solid #ff6633;
+            }
+        }
+    }
+}
+
+
 .navbar-default {
     background-color: transparent;
     height: 110px;
@@ -434,10 +836,57 @@ footer a {
     transition: all .2s ease-in;
 }
 
+.navbar-default {
+    @include screen(md) {
+        background-color: $white;
+    }
+
+    @include screen(sm) {
+        background-color: $white;
+    }
+
+    @include screen(xs) {
+        background-color: $white;
+    }
+}
+
+//fixed topnav - shrink onscroll
 .navbar-default.shrink {
-    background-color: #fff;
-    height: 70px;
+    background-color: $white;
+    height: 60px;
     border: 1px solid $light-gray;
+    -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-default {
+    @include screen(md) {
+        background-color: $white;
+        height: 60px;
+        border: 1px solid $light-gray;
+        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    @include screen(sm) {
+        background-color: $white;
+        height: 60px;
+        border: 1px solid $light-gray;
+        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    @include screen(xs) {
+        background-color: $white;
+        height: 60px;
+        border: 1px solid $light-gray;
+        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    }
 }
 
 .navbar-default .navbar-nav > li {
@@ -451,9 +900,37 @@ footer a {
     padding-bottom: 0;
 }
 
+
+//reference section layouts
 .navmenu-fixed-left-wrapper {
     background-color: $learn-gray;
+    max-width: 300px;
+    @include screen(lg) {
+        width: 27%;
+    }
+    @include screen(md) {
+        width: 100%;
+        max-width: none;
+    }
+    .navmenu-fixed-left {
+        padding: 120px 20px 0;
+        @include screen(md) {
+            padding: 80px 10px 20px 10px;
+        }        
+    }
 }
+
+.reference-content {
+    @include screen(lg) {
+        width: 73%;
+    }
+
+    @include screen(md) {
+        width: 100%;
+    }
+}
+
+
 
 blockquote {
     font-family: Georgia, sans-serif;
@@ -462,70 +939,108 @@ blockquote {
     font-size: 36px;
     line-height: 41px;
     border-left: none;
+
+    &::before {
+        content: "\201C";
+        display: block;
+        font-size: 180px;
+        color: $brand-color;
+    }
+
+    footer {
+        font-family: $text-font-stack;
+        font-style: normal;
+        font-size: 18px;
+    }
 }
 
-blockquote::before {
-    content: "\201C";
+code {
+    padding: 12px 22px 12px 14px;
+    margin: 20px 0;
+    font-size: 90%;
+    color: $white;
+    background-color: #555;
+    border-radius: 4px;
     display: block;
-    font-size: 180px;
-    color: $brand-color;
+
 }
 
-blockquote footer {
-    font-family: $text-font-stack;
-    font-style: normal;
-    font-size: 18px;
-}
-.carousel-indicators {
-    position: absolute;
-    bottom: auto;
-    left: 0;
-    top: 50%;
-    z-index: 15;
-    width: auto;
-    padding-left: 0;
-    margin-left: -80px;
-    text-align: left;
-}
-.carousel-indicators li {
+code::after {
+    font-family: "Font Awesome 5 Free";
+    content: "\f0c5";
+    font-weight: 900;
+    float: right;
+    margin-right: -10px;
+    -webkit-font-smoothing: antialiased;
     display: inline-block;
-    width: auto;
-    height: auto;
-    margin: auto;
-    text-indent: inherit;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    border-radius: 0;
-    color: rgba(0, 0, 0, 0.15);
-    display: block;
-    float: none;
-    padding: 2px 0 2px 30px;
-
-}
-.carousel-indicators .active {
-    width: auto;
-    height: auto;
-    margin: 0;
-    background-color: transparent;
-    color: #000;
-    border-bottom: 1px solid $brand-color;
-    padding: 2px 0 2px 30px;
-}
-.carousel-caption {
-    position: absolute;
-    right: 0;
-    bottom: auto;
-    left: auto;
-    top: 50px;
-    width: 70%;
-    z-index: 10;
-    padding-top: 0;
-    padding-bottom: 0;
-    color: inherit;
-    text-align: left;
-    text-shadow: none;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
 }
 
-/* end boostrap overrides
-*/
+pre code::after {
+    content: none;
+}
+
+//trigger navbar collapse sooner so nav doesn't collide with branding 
+@media (max-width: 1120px) {
+    .navbar-header {
+        float: none;
+    }
+
+    .navbar-left,
+    .navbar-right {
+        float: none !important;
+    }
+
+    .navbar-toggle {
+        display: block;
+    }
+
+    .navbar-collapse.collapse {
+        display: none !important;
+    }
+
+    .navbar-nav {
+        float: none !important;
+        margin-top: 7.5px;
+    }
+
+    .navbar-nav > li {
+        float: none;
+    }
+
+    .navbar-nav > li > a {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    #navbar.collapse.in {
+        display: block !important;
+        padding-right: 0;
+        border: 1px solid #f3f3f3;
+        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    }
+}
+
+.nav-tabs {
+    @include screen(sm) {
+        margin-left: -10px;
+        margin-top: 8px;
+    }
+}
+
+.nav-tabs > li > a,
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li > a:hover {
+    @include screen(sm) {
+        font-size: 16px;
+        padding: 6px 6px;
+
+    }
+}

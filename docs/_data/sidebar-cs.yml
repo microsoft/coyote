@@ -1,0 +1,16 @@
+# Case Studies sidebar navigation
+    
+cs-toc:
+- name: Azure Batch Service 
+  link: /#
+- name: Azure Blockchain Workbench
+  link: /#
+- name: Azure Blockchain Service
+  link: /#
+- name: Project Osaka 
+  link: /#
+    
+
+ 
+
+      

@@ -22,13 +22,13 @@
         </div>
     </section>
     <section class="footer-dark pt-60">
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-6">
+                <div class="hidden-xs col-sm-5 col-md-6">
                     <h4>{{ site.data.global.alt-title }}</h4>
                 </div>
                 {% for item in site.data.navigation-footer.dark %}
-                <div class="col-sm-2">
+                <div class="col-sm-2 col-xs-4 footer-dark-col">
                     <nav class="navbar navbar-footer">
                         <h4>{{ item.title }}</h4>
                         <ul class="list-unstyled">
@@ -40,7 +40,7 @@
                 </div>
                 {% endfor %}
             </div>
-            <div class="row footnote pt-50  pb-20">
+            <div class="row footnote pt-50 pb-20">
                <div class="col-sm-12">
                    <hr>
                </div>

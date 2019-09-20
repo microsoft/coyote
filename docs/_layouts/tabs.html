@@ -1,0 +1,44 @@
+---
+layout: default
+---
+<section class="section-main section-tabs">
+<div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ page.title }}</h1>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row mt-50 bg-white">
+        <div class="col-md-12 mt--40">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                           {% for item in page.tabs %}
+                            <li role="presentation" class="m-0 {% if forloop.first == true %}active{% endif %}"><a href="#{{ item.title | downcase | slugify }}" aria-controls="{{ item.title | downcase | slugify }}" role="tab" data-toggle="tab">{{ item.title }}</a></li>
+                            {% endfor %} 
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                           {% for item in page.tabs %}
+                            <div role="tabpanel" class="tab-pane  {% if forloop.first == true %}active{% endif %}" id="{{ item.title | downcase | slugify }}">
+                                <article class="mb-100">
+                                    {{ item.content }}
+                                </article>
+                            </div>
+                            {% endfor %} 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>

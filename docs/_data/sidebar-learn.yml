@@ -1,5 +1,5 @@
 #Learn Coyote sidebar navigation
-toc:
+learn-toc:
 - title: Overview
   subfolderitems:
     - name: What Coyote is
@@ -62,3 +62,7 @@ toc:
       link: /Coyote/contribute.html
     - name: We are hiring interns
       link: /#
+      
+
+
+      

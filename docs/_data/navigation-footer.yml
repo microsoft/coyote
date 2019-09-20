@@ -3,7 +3,7 @@ dark:
 - title: Coyote
   subfolderitems:
     - name: About
-      link: /#
+      link: /about
     - name: Origin story
       link: /#
     - name: Vision statement
@@ -11,7 +11,7 @@ dark:
     - name: Team
       link: /#
     - name: Contact us
-      link: /#
+      link: /contact-us
     - name: Intern
       link: /#
 - title: Resources
@@ -19,17 +19,17 @@ dark:
     - name: Overview
       link: /#
     - name: Install
-      link: /#
+      link: /install
     - name: Core concepts
       link: /#
     - name: Tutorials
       link: /#
     - name: Get involved
-      link: /#
+      link: /contribute
 - title: Join community
   subfolderitems:
     - name: GitHub
-      link: /#
+      link: https://github.com/microsoft/Coyote
     - name: Gitter
       link: /#
 

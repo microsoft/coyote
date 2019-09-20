@@ -5,12 +5,10 @@
     {% feed_meta %}
     {% seo %}
 </head>
-<body class="{{ page.title | downcase | slugify }}">
+<body class="{{ page.title | downcase | slugify }} {% if page.body-class %}{{page.body-class}}{% endif %}">
     {% include navigation.html %}
     <main class="wrapper">
-        <section class="section-main">
-            {{ content }}
-        </section>
+        {{ content }}
         {% include footer.html %}
     </main>
     {% include scripts.html %}

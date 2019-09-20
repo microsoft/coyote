@@ -1,43 +1,15 @@
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.2.min.js"></script>
     <script>
         window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.11.2.min.js"><\/script>')
 
     </script>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.4.1/bootstrap.min.js" crossorigin="anonymous"></script>
 
-    <!-- until we need them
-    <script src="/assets/js/plugins.js"></script>
-    <script src="/assets/js/main.js"></script>
--->
-    <script>
-        jQuery(document).ready(function($) {
-            // shrink nav onscroll - mobile first ux
-            $(window).scroll(function() {
-                if ($(document).scrollTop() > 20) {
-                    $('.navbar-default').addClass('shrink');
-                } else {
-                    $('.navbar-default').removeClass('shrink');
-                };
-                if ($(document).scrollTop() > 320) {
-                    $('.navbar-brand').addClass('brand-shrink');
-                } else {
-                    $('.navbar-brand').removeClass('brand-shrink');
-                }
-            });
-            //toggle sidenav arrows up or down
-            $('.panel-collapse').on('show.bs.collapse', function() {
-                $(this).siblings('.panel-heading').addClass('active');
-            });
 
-            $('.panel-collapse').on('hide.bs.collapse', function() {
-                $(this).siblings('.panel-heading').removeClass('active');
-            });
-            $('#collapse-overview').addClass('in');
-            $("#carousel_home").carousel({ interval: 75000, pause: "hover" });
-        });
+    <script src="{{ "/assets/js/main.js" | relative_url }}"></script>
+    <script src="{{ "/assets/js/plugins.js" | relative_url }}"></script>
 
-    </script>
 
     {% if jekyll.environment == "production" %}
     <!--
@@ -45,9 +17,7 @@
     https://jekyllrb.com/docs/configuration/environments/
 -->
     <!--
-
         TODO: do we want analytics? if so, google?
-
        . -->
     <script>
         (function(b, o, i, l, e, r) {

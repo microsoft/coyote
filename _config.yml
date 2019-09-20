@@ -10,41 +10,32 @@ author:
   name:       Microsoft
   url:        https://github.com/Microsoft/Coyote
 
-# permalink: pretty #removes .html from generated links
+permalink: pretty #removes .html from generated links
 
-collections:
-  authors:
-    output: true
 
 source: docs
 
 defaults:
   - scope:
       path: ""
-      type: "posts"
-    values:
-      layout: "post"
-  - scope:
-      path: ""
     values:
       layout: "default"
 
-
+collections:
+  learn:
+    output: true
+    permalink: /:collection/:name
+  case-studies:
+    output: true
+    permalink: /:collection/:name
+    
+    
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-relative-links
- # - jekyll-livereload
 
-
-#livereload: true     # no longer need to include --livereload
-
-
-
-#destination: ./_site
-#layouts_dir:     ./_layouts
-#data_dir: ./_data
 
 source: docs
 
@@ -52,10 +43,6 @@ relative_links:
   enabled:     false
   collections: true
 
-#relative_links:
-#  exclude:
-#    - directory
-#    - file.md
 
 # Handling Reading
 safe:         false

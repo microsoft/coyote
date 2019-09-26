@@ -48,89 +48,94 @@ namespace Microsoft.Coyote.TestingServices
 
             if (configuration.EnableDebugging)
             {
-                arguments.Append("/debug ");
+                arguments.Append("--debug ");
             }
 
-            arguments.Append($"/test:{configuration.AssemblyToBeAnalyzed} ");
+            arguments.Append($"--test:{configuration.AssemblyToBeAnalyzed} ");
 
             if (!string.IsNullOrEmpty(configuration.TestingRuntimeAssembly))
             {
-                arguments.Append($"/runtime:{configuration.TestingRuntimeAssembly} ");
+                arguments.Append($"--runtime:{configuration.TestingRuntimeAssembly} ");
             }
 
             if (!string.IsNullOrEmpty(configuration.TestMethodName))
             {
-                arguments.Append($"/method:{configuration.TestMethodName} ");
+                arguments.Append($"--method:{configuration.TestMethodName} ");
             }
 
-            arguments.Append($"/i:{configuration.SchedulingIterations} ");
-            arguments.Append($"/timeout:{configuration.Timeout} ");
+            arguments.Append($"--iterations:{configuration.SchedulingIterations} ");
+            arguments.Append($"--timeout:{configuration.Timeout} ");
 
             if (configuration.UserExplicitlySetMaxFairSchedulingSteps)
             {
-                arguments.Append($"/max-steps:{configuration.MaxUnfairSchedulingSteps}:" +
+                arguments.Append($"--max-steps:{configuration.MaxUnfairSchedulingSteps}:" +
                     $"{configuration.MaxFairSchedulingSteps} ");
             }
             else
             {
-                arguments.Append($"/max-steps:{configuration.MaxUnfairSchedulingSteps} ");
+                arguments.Append($"--max-steps:{configuration.MaxUnfairSchedulingSteps} ");
             }
 
             if (configuration.SchedulingStrategy == SchedulingStrategy.PCT ||
                 configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
             {
-                arguments.Append($"/sch:{configuration.SchedulingStrategy}:" +
+                arguments.Append($"--sch-{configuration.SchedulingStrategy}:".ToLower() +
                     $"{configuration.PrioritySwitchBound} ");
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
             {
-                arguments.Append($"/sch:probabilistic:{configuration.CoinFlipBound} ");
+                arguments.Append($"--sch-probabilistic:{configuration.CoinFlipBound} ");
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.Random ||
                 configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
             {
-                arguments.Append($"/sch:{configuration.SchedulingStrategy} ");
+                arguments.Append($"--sch-{configuration.SchedulingStrategy} ".ToLower());
             }
 
             if (configuration.RandomSchedulingSeed != null)
             {
-                arguments.Append($"/sch-seed:{configuration.RandomSchedulingSeed} ");
+                arguments.Append($"--sch-seed:{configuration.RandomSchedulingSeed} ");
             }
 
             if (configuration.PerformFullExploration)
             {
-                arguments.Append("/explore ");
+                arguments.Append("--explore ");
             }
 
-            arguments.Append($"/timeout-delay:{configuration.TimeoutDelay} ");
+            arguments.Append($"--timeout-delay:{configuration.TimeoutDelay} ");
 
             if (configuration.ReportCodeCoverage && configuration.ReportActivityCoverage)
             {
-                arguments.Append("/coverage ");
+                arguments.Append("--coverage ");
             }
             else if (configuration.ReportCodeCoverage)
             {
-                arguments.Append("/coverage:code ");
+                arguments.Append("--coverage:code ");
             }
             else if (configuration.ReportActivityCoverage)
             {
-                arguments.Append("/coverage:activity ");
+                arguments.Append("--coverage:activity ");
             }
 
             if (configuration.EnableCycleDetection)
             {
-                arguments.Append("/cycle-detection ");
+                arguments.Append("--cycle-detection ");
             }
 
             if (configuration.OutputFilePath.Length > 0)
             {
-                arguments.Append($"/o:{configuration.OutputFilePath} ");
+                arguments.Append($"--outdir:{configuration.OutputFilePath} ");
             }
 
-            arguments.Append("/run-as-parallel-testing-task ");
-            arguments.Append($"/testing-scheduler-endpoint:{configuration.TestingSchedulerEndPoint} ");
-            arguments.Append($"/testing-scheduler-ipaddress:{configuration.TestingSchedulerIpAddress} ");
-            arguments.Append($"/testing-process-id:{id} ");
+            arguments.Append("--run-as-parallel-testing-task ");
+            arguments.Append($"--testing-scheduler-endpoint:{configuration.TestingSchedulerEndPoint} ");
+            arguments.Append($"--testing-scheduler-ipaddress:{configuration.TestingSchedulerIpAddress} ");
+            arguments.Append($"--testing-process-id:{id} ");
+
+            if (configuration.ParallelDebug)
+            {
+                arguments.Append($"--parallel-debug ");
+            }
 
             return arguments.ToString();
         }

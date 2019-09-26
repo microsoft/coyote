@@ -24,12 +24,20 @@ namespace Microsoft.Coyote
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionHandler);
 
             // Parses the command line options to get the configuration.
-            configuration = new TesterCommandLineOptions(args).Parse();
+            configuration = new TesterCommandLineOptions().Parse(args);
+
             Console.CancelKeyPress += (sender, eventArgs) => CancelProcess();
 
             if (configuration.RunAsParallelBugFindingTask)
             {
                 // This is being run as the child test process.
+
+                if (configuration.ParallelDebug)
+                {
+                    Console.WriteLine("Attach Debugger and press ENTER to continue...");
+                    Console.ReadLine();
+                }
+
                 TestingProcess testingProcess = TestingProcess.Create(configuration);
                 testingProcess.Run();
                 return;

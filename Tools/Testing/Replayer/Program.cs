@@ -21,7 +21,7 @@ namespace Microsoft.Coyote
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionHandler);
 
             // Parses the command line options to get the configuration.
-            var configuration = new ReplayerCommandLineOptions(args).Parse();
+            var configuration = new ReplayerCommandLineOptions().Parse(args);
 
             // Creates and starts a replaying process.
             ReplayingProcess.Create(configuration).Start();

@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         {
             IO.Debug.WriteLine($"Machine '{this.Id}' is executing test on task '{ControlledTask.CurrentId}' (tcs: {this.Awaiter.Task.Id})");
 
-            if (this.Test is Action<ICoyoteRuntime> actionWithRuntime)
+            if (this.Test is Action<IMachineRuntime> actionWithRuntime)
             {
                 actionWithRuntime(this.Runtime);
             }
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
             {
                 action();
             }
-            else if (this.Test is Func<ICoyoteRuntime, ControlledTask> functionWithRuntime)
+            else if (this.Test is Func<IMachineRuntime, ControlledTask> functionWithRuntime)
             {
                 await functionWithRuntime(this.Runtime);
             }

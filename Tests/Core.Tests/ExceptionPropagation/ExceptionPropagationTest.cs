@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.Core.Tests
         [Fact(Timeout=5000)]
         public async Task TestAssertFailureNoEventHandler()
         {
-            var runtime = CoyoteRuntime.Create();
+            var runtime = MachineRuntimeFactory.Create();
             var tcs = new TaskCompletionSource<bool>();
             runtime.CreateMachine(typeof(M), new Configure(tcs));
             await tcs.Task;

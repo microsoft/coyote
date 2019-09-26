@@ -4,15 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class Liveness2BugFoundTest : BaseTest
+    public class WarmStateBugTest : BaseTest
     {
-        public Liveness2BugFoundTest(ITestOutputHelper output)
+        public WarmStateBugTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -64,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(HandleEvent))]
+            [OnEventGotoState(typeof(Done), typeof(WaitForUser))]
             private class HandleEvent : MachineState
             {
             }
@@ -72,13 +73,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void HandleEventOnEntry()
             {
                 this.Monitor<WatchDog>(new Computing());
+                this.Send(this.Id, new Done());
             }
         }
 
         private class WatchDog : Monitor
         {
             [Start]
-            [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
             private class CanGetUserInput : MonitorState
@@ -94,7 +95,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestLiveness2BugFound()
+        public void TestWarmStateBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
@@ -106,8 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 r.CreateMachine(typeof(EventHandler));
             },
             configuration: configuration,
-            expectedError: "Monitor 'WatchDog' detected liveness bug in hot state " +
-                "'CannotGetUserInput' at the end of program execution.",
+            expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",
             replay: true);
         }
     }

@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -85,7 +86,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
                 var e = new E1();
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(N1));
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N1));
                 await this.Runtime.SendEventAndExecuteAsync(m, e);
                 this.Assert(e.Value == 1);
                 tcs.SetResult(true);
@@ -154,7 +155,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(N2), new E2(this.Id));
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N2), new E2(this.Id));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.SetResult(true);
@@ -209,7 +210,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(N3));
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N3));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Monitor<SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
@@ -302,7 +303,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config2).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(N4), this.ReceivedEvent);
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N4), this.ReceivedEvent);
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
@@ -400,7 +401,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(N5));
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N5));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);

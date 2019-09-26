@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            var runtime = CoyoteRuntime.Create(config);
+            var runtime = MachineRuntimeFactory.Create(config);
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         {
             CustomLogger logger = new CustomLogger(false);
 
-            var runtime = CoyoteRuntime.Create();
+            var runtime = MachineRuntimeFactory.Create();
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();

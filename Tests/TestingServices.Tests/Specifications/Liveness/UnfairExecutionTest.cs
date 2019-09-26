@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;

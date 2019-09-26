@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout=5000)]
         public void TestProductionSharedRegister()
         {
-            var runtime = CoyoteRuntime.Create();
+            var runtime = MachineRuntimeFactory.Create();
             var counter = SharedRegister.Create<int>(runtime, 0);
             counter.SetValue(5);
 

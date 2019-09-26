@@ -6,6 +6,7 @@
 using System;
 using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Machines.Timers;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 

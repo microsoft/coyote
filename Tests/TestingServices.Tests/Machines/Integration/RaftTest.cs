@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -161,10 +162,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void RefreshLeader()
             {
                 this.UpdateLeader(this.ReceivedEvent as NotifyLeaderUpdate);
-            }
-
-            private void BecomeUnavailable()
-            {
             }
 
             private void ShuttingDown()

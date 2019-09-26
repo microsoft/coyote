@@ -18,12 +18,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Stores the runtime executing an asynchronous control flow.
         /// </summary>
-        private static readonly AsyncLocal<MachineRuntime> AsyncLocalRuntime = new AsyncLocal<MachineRuntime>();
+        private static readonly AsyncLocal<CoyoteRuntime> AsyncLocalRuntime = new AsyncLocal<CoyoteRuntime>();
 
         /// <summary>
         /// The currently executing runtime.
         /// </summary>
-        internal override MachineRuntime Current => AsyncLocalRuntime.Value ??
+        internal override CoyoteRuntime Current => AsyncLocalRuntime.Value ??
             throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                 "Uncontrolled task with id '{0}' tried to access the runtime. Please make sure to avoid using concurrency " +
                 "APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers or controlled tasks. If you " +
@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncLocalRuntimeProvider"/> class.
         /// </summary>
-        internal AsyncLocalRuntimeProvider(MachineRuntime runtime)
+        internal AsyncLocalRuntimeProvider(CoyoteRuntime runtime)
             : base()
         {
             this.SetCurrentRuntime(runtime);
@@ -42,6 +42,6 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Sets the runtime associated with the current execution context.
         /// </summary>
-        internal override void SetCurrentRuntime(MachineRuntime runtime) => AsyncLocalRuntime.Value = runtime;
+        internal override void SetCurrentRuntime(CoyoteRuntime runtime) => AsyncLocalRuntime.Value = runtime;
     }
 }

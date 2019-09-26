@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.TestingServices.Runtime

@@ -5,6 +5,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -286,7 +287,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Runtime.CreateMachineAndExecute(typeof(M6));
+                await this.Runtime.CreateMachineAndExecuteAsync(typeof(M6));
                 var m = this.Runtime.CreateMachineIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, new E());
             }

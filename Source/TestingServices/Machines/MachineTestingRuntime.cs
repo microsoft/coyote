@@ -19,14 +19,15 @@ using Microsoft.Coyote.TestingServices.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 
-using EventInfo = Microsoft.Coyote.Machines.EventInfo;
+using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
+using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {
     /// <summary>
     /// Runtime for testing a machine in isolation.
     /// </summary>
-    internal sealed class MachineTestingRuntime : MachineRuntime
+    internal sealed class MachineTestingRuntime : CoyoteRuntime
     {
         /// <summary>
         /// The machine being tested.
@@ -146,34 +147,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when
-        /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(Type type, Event e = null, Guid opGroupId = default) =>
-            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and name, and with
-        /// the specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when the
-        /// machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This
-        /// event can only be used to access its payload, and cannot be handled. The method
-        /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(MachineId mid, Type type, Event e = null, Guid opGroupId = default) =>
-            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
-
-        /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
         public override void SendEvent(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
@@ -184,13 +157,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
         public override Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
-
-        /// <summary>
-        /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
-        /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
-        /// </summary>
-        public override Task<bool> SendEventAndExecute(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -542,7 +508,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Tries to create a new <see cref="Coyote.Monitor"/> of the specified <see cref="Type"/>.
+        /// Tries to create a new <see cref="Coyote.Specifications.Monitor"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal override void TryCreateMonitor(Type type)
         {
@@ -550,7 +516,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Invokes the specified <see cref="Coyote.Monitor"/> with the specified <see cref="Event"/>.
+        /// Invokes the specified <see cref="Coyote.Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
         internal override void Monitor(Type type, AsyncMachine sender, Event e)
         {

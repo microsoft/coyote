@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Threading.Tasks
 {

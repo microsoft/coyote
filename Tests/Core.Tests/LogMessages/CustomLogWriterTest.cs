@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            var runtime = CoyoteRuntime.Create(config);
+            var runtime = MachineRuntimeFactory.Create(config);
             runtime.SetLogger(logger);
             runtime.SetLogWriter(new CustomLogWriter());
 

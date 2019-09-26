@@ -4,14 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class Liveness3Test : BaseTest
+    public class FairNondet1Test : BaseTest
     {
-        public Liveness3Test(ITestOutputHelper output)
+        public FairNondet1Test(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -25,6 +27,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         private class Done : Event
+        {
+        }
+
+        private class Loop : Event
         {
         }
 
@@ -47,7 +53,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.CreateMachine(typeof(Loop));
                 this.Raise(new Unit());
             }
 
@@ -64,7 +69,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(HandleEvent))]
+            [OnEventGotoState(typeof(Done), typeof(WaitForUser))]
+            [OnEventGotoState(typeof(Loop), typeof(HandleEvent))]
             private class HandleEvent : MachineState
             {
             }
@@ -72,21 +78,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void HandleEventOnEntry()
             {
                 this.Monitor<WatchDog>(new Computing());
-            }
-        }
-
-        private class Loop : Machine
-        {
-            [Start]
-            [OnEntry(nameof(LoopingOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(Looping))]
-            private class Looping : MachineState
-            {
-            }
-
-            private void LoopingOnEntry()
-            {
-                this.Send(this.Id, new Done());
+                if (this.FairRandom())
+                {
+                    this.Send(this.Id, new Done());
+                }
+                else
+                {
+                    this.Send(this.Id, new Loop());
+                }
             }
         }
 
@@ -109,20 +108,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestLiveness3()
+        public void TestFairNondet1()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.SchedulingIterations = 100;
+            configuration.LivenessTemperatureThreshold = 0;
+            configuration.SchedulingStrategy = SchedulingStrategy.DFS;
+            configuration.MaxSchedulingSteps = 300;
 
-            this.TestWithError(r =>
+            this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
                 r.CreateMachine(typeof(EventHandler));
             },
-            configuration: configuration,
-            expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",
-            replay: true);
+            configuration: configuration);
         }
     }
 }

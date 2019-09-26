@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
         [Fact(Timeout=5000)]
         public void TestCustomLogWriter()
         {
-            Action<ICoyoteRuntime> test = r =>
+            Action<IMachineRuntime> test = r =>
             {
                 r.SetLogWriter(new CustomLogWriter());
                 r.CreateMachine(typeof(M));

@@ -4,10 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Specifications
 {
     /// <summary>
     /// Provides static methods that are useful for writing specifications

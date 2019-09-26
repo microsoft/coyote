@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// The runtime that executes the machine being managed.
         /// </summary>
-        private readonly MachineRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The machine being managed.
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineStateManager"/> class.
         /// </summary>
-        internal MachineStateManager(MachineRuntime runtime, Machine machine, Guid operationGroupId)
+        internal MachineStateManager(CoyoteRuntime runtime, Machine machine, Guid operationGroupId)
         {
             this.Runtime = runtime;
             this.Machine = machine;

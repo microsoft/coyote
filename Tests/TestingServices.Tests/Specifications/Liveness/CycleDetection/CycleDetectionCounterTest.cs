@@ -4,26 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class CycleDetectionBasicTest : BaseTest
+    public class CycleDetectionCounterTest : BaseTest
     {
-        public CycleDetectionBasicTest(ITestOutputHelper output)
+        public CycleDetectionCounterTest(ITestOutputHelper output)
             : base(output)
         {
-        }
-
-        private class Configure : Event
-        {
-            public bool ApplyFix;
-
-            public Configure(bool applyFix)
-            {
-                this.ApplyFix = applyFix;
-            }
         }
 
         private class Message : Event
@@ -32,7 +23,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class EventHandler : Machine
         {
-            private bool ApplyFix;
+            private int Counter;
 
             [Start]
             [OnEntry(nameof(OnInitEntry))]
@@ -43,58 +34,55 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void OnInitEntry()
             {
-                this.ApplyFix = (this.ReceivedEvent as Configure).ApplyFix;
+                this.Counter = 0;
                 this.Send(this.Id, new Message());
             }
 
             private void OnMessage()
             {
                 this.Send(this.Id, new Message());
-                if (this.ApplyFix)
+                this.Counter++;
+            }
+
+            protected override int HashedState
+            {
+                get
                 {
-                    this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
+                    // The counter contributes to the cached machine state.
+                    // This allows the liveness checker to detect progress.
+                    return this.Counter;
                 }
             }
         }
 
         private class WatchDog : Monitor
         {
-            public class NotifyMessage : Event
-            {
-            }
-
             [Start]
             [Hot]
-            [OnEventGotoState(typeof(NotifyMessage), typeof(ColdState))]
             private class HotState : MonitorState
-            {
-            }
-
-            [Cold]
-            [OnEventGotoState(typeof(NotifyMessage), typeof(HotState))]
-            private class ColdState : MonitorState
             {
             }
         }
 
         [Fact(Timeout=5000)]
-        public void TestCycleDetectionBasicNoBug()
+        public void TestCycleDetectionCounterNoBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
+            configuration.EnableUserDefinedStateHashing = true;
             configuration.SchedulingIterations = 10;
             configuration.MaxSchedulingSteps = 200;
 
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(true));
+                r.CreateMachine(typeof(EventHandler));
             },
             configuration: configuration);
         }
 
         [Fact(Timeout=5000)]
-        public void TestCycleDetectionBasicBug()
+        public void TestCycleDetectionCounterBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
@@ -103,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(false));
+                r.CreateMachine(typeof(EventHandler));
             },
             configuration: configuration,
             expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",

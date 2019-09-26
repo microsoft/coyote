@@ -15,9 +15,9 @@ using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
 
-using EventInfo = Microsoft.Coyote.Machines.EventInfo;
+using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Specifications
 {
     /// <summary>
     /// Abstract class representing a Coyote monitor.
@@ -48,7 +48,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// The runtime that executes this monitor.
         /// </summary>
-        private MachineRuntime Runtime;
+        private CoyoteRuntime Runtime;
 
         /// <summary>
         /// The monitor state.
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote
         /// </summary>
         /// <param name="runtime">The runtime that executes this monitor.</param>
         /// <param name="mid">The monitor id.</param>
-        internal void Initialize(MachineRuntime runtime, MachineId mid)
+        internal void Initialize(CoyoteRuntime runtime, MachineId mid)
         {
             this.Id = mid;
             this.Runtime = runtime;

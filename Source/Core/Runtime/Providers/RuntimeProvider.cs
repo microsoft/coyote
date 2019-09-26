@@ -3,8 +3,6 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
-using System;
-
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -15,7 +13,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default executing runtime.
         /// </summary>
-        private static readonly MachineRuntime Default = new ProductionRuntime(Configuration.Create());
+        private static readonly CoyoteRuntime Default = new ProductionRuntime(Configuration.Create());
 
         /// <summary>
         /// The currently executing runtime.
@@ -28,12 +26,12 @@ namespace Microsoft.Coyote.Runtime
         /// after the runtime "starts", else it could become really expensive to have a lock here to check it
         /// every time we call these properties.
         /// </remarks>
-        internal virtual MachineRuntime Current => Default;
+        internal virtual CoyoteRuntime Current => Default;
 
         /// <summary>
         /// Sets the runtime associated with the current execution context.
         /// </summary>
-        internal virtual void SetCurrentRuntime(MachineRuntime runtime)
+        internal virtual void SetCurrentRuntime(CoyoteRuntime runtime)
         {
         }
     }

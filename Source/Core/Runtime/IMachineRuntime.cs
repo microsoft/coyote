@@ -14,9 +14,10 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote
 {
     /// <summary>
-    /// Interface of the Coyote runtime.
+    /// Interface that exposes runtime methods for creating and executing
+    /// asynchronous communicating state-machines.
     /// </summary>
-    public interface ICoyoteRuntime : IDisposable
+    public interface IMachineRuntime : IDisposable
     {
         /// <summary>
         /// The installed logger.
@@ -127,48 +128,6 @@ namespace Microsoft.Coyote
         Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when
-        /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        /// <param name="type">Type of the machine.</param>
-        /// <param name="e">Optional event used during initialization.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        /// <returns>Task that represents the asynchronous operation. The task result is the machine id.</returns>
-        [Obsolete("Please use ICoyoteRuntime.CreateMachineAndExecuteAsync(...) instead.")]
-        Task<MachineId> CreateMachineAndExecute(Type type, Event e = null, Guid opGroupId = default);
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and name, and with
-        /// the specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when the
-        /// machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        /// <param name="type">Type of the machine.</param>
-        /// <param name="machineName">Optional machine name used for logging.</param>
-        /// <param name="e">Optional event used during initialization.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        /// <returns>Task that represents the asynchronous operation. The task result is the machine id.</returns>
-        [Obsolete("Please use ICoyoteRuntime.CreateMachineAndExecuteAsync(...) instead.")]
-        Task<MachineId> CreateMachineAndExecute(Type type, string machineName, Event e = null, Guid opGroupId = default);
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This
-        /// event can only be used to access its payload, and cannot be handled. The method
-        /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
-        /// <param name="mid">Unbound machine id.</param>
-        /// <param name="type">Type of the machine.</param>
-        /// <param name="e">Optional event used during initialization.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        /// <returns>Task that represents the asynchronous operation. The task result is the machine id.</returns>
-        [Obsolete("Please use ICoyoteRuntime.CreateMachineAndExecuteAsync(...) instead.")]
-        Task<MachineId> CreateMachineAndExecute(MachineId mid, Type type, Event e = null, Guid opGroupId = default);
-
-        /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
         /// <param name="target">The id of the target machine.</param>
@@ -188,19 +147,6 @@ namespace Microsoft.Coyote
         /// <returns>Task that represents the asynchronous operation. The task result is true if
         /// the event was handled, false if the event was only enqueued.</returns>
         Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null);
-
-        /// <summary>
-        /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
-        /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
-        /// </summary>
-        /// <param name="target">The id of the target machine.</param>
-        /// <param name="e">The event to send.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        /// <param name="options">Optional configuration of a send operation.</param>
-        /// <returns>Task that represents the asynchronous operation. The task result is true if
-        /// the event was handled, false if the event was only enqueued.</returns>
-        [Obsolete("Please use ICoyoteRuntime.SendEventAndExecuteAsync(...) instead.")]
-        Task<bool> SendEventAndExecute(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null);
 
         /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.

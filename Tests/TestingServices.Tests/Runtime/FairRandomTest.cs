@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +27,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Engine
         {
-            public static bool FairRandom(ICoyoteRuntime runtime)
+            public static bool FairRandom(IMachineRuntime runtime)
             {
                 return runtime.FairRandom();
             }

@@ -4,15 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class WarmStateTest : BaseTest
+    public class Liveness1Test : BaseTest
     {
-        public WarmStateTest(ITestOutputHelper output)
+        public Liveness1Test(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -64,6 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
+            [OnEventGotoState(typeof(Done), typeof(WaitForUser))]
             private class HandleEvent : MachineState
             {
             }
@@ -71,18 +73,21 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void HandleEventOnEntry()
             {
                 this.Monitor<WatchDog>(new Computing());
+                this.Send(this.Id, new Done());
             }
         }
 
         private class WatchDog : Monitor
         {
             [Start]
+            [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
             private class CanGetUserInput : MonitorState
             {
             }
 
+            [Hot]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
             private class CannotGetUserInput : MonitorState
@@ -91,14 +96,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestWarmState()
+        public void TestLiveness1()
         {
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
                 r.CreateMachine(typeof(EventHandler));
             },
-            configuration: Configuration.Create().WithStrategy(SchedulingStrategy.DFS));
+            configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS).WithMaxSteps(300));
         }
     }
 }

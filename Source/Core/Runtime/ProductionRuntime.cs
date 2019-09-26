@@ -15,14 +15,14 @@ using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 
-using EventInfo = Microsoft.Coyote.Machines.EventInfo;
+using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Runtime for executing machines in production.
     /// </summary>
-    internal sealed class ProductionRuntime : MachineRuntime
+    internal sealed class ProductionRuntime : CoyoteRuntime
     {
         /// <summary>
         /// List of monitors in the program.
@@ -107,34 +107,6 @@ namespace Microsoft.Coyote.Runtime
             this.CreateMachineAndExecuteAsync(mid, type, null, e, null, opGroupId);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when
-        /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, null, e, null, opGroupId);
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and name, and with
-        /// the specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when the
-        /// machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, machineName, e, null, opGroupId);
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This
-        /// event can only be used to access its payload, and cannot be handled. The method
-        /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(MachineId mid, Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(mid, type, null, e, null, opGroupId);
-
-        /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
         public override void SendEvent(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
@@ -146,13 +118,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public override Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
             this.SendEventAndExecuteAsync(target, e, null, opGroupId, options);
-
-        /// <summary>
-        /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
-        /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
-        /// </summary>
-        public override Task<bool> SendEventAndExecute(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            this.SendEventAndExecuteAsync(target, e, opGroupId, options);
 
         /// <summary>
         /// Returns the operation group id of the specified machine. Returns <see cref="Guid.Empty"/>
@@ -657,7 +622,7 @@ namespace Microsoft.Coyote.Runtime
         internal override IMachineTimer CreateMachineTimer(TimerInfo info, Machine owner) => new MachineTimer(info, owner);
 
         /// <summary>
-        /// Tries to create a new <see cref="Coyote.Monitor"/> of the specified <see cref="Type"/>.
+        /// Tries to create a new <see cref="Coyote.Specifications.Monitor"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal override void TryCreateMonitor(Type type)
         {
@@ -695,7 +660,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Invokes the specified <see cref="Coyote.Monitor"/> with the specified <see cref="Event"/>.
+        /// Invokes the specified <see cref="Coyote.Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
         internal override void Monitor(Type type, AsyncMachine sender, Event e)
         {

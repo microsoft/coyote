@@ -26,13 +26,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
         protected ITestingEngine Test(Action test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected ITestingEngine Test(Action<ICoyoteRuntime> test, Configuration configuration = null) =>
+        protected ITestingEngine Test(Action<IMachineRuntime> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
         protected ITestingEngine Test(Func<ControlledTask> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected ITestingEngine Test(Func<ICoyoteRuntime, ControlledTask> test, Configuration configuration = null) =>
+        protected ITestingEngine Test(Func<IMachineRuntime, ControlledTask> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
         private ITestingEngine Test(Delegate test, Configuration configuration)
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
         }
 
-        protected void TestWithError(Action<ICoyoteRuntime> test, Configuration configuration = null,
+        protected void TestWithError(Action<IMachineRuntime> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
         }
 
-        protected void TestWithError(Func<ICoyoteRuntime, ControlledTask> test, Configuration configuration = null,
+        protected void TestWithError(Func<IMachineRuntime, ControlledTask> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
         }
 
-        protected void TestWithError(Action<ICoyoteRuntime> test, Configuration configuration = null,
+        protected void TestWithError(Action<IMachineRuntime> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
         }
 
-        protected void TestWithError(Func<ICoyoteRuntime, ControlledTask> test, Configuration configuration = null,
+        protected void TestWithError(Func<IMachineRuntime, ControlledTask> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithException<TException>(test as Delegate, configuration, replay);
         }
 
-        protected void TestWithException<TException>(Action<ICoyoteRuntime> test, Configuration configuration = null,
+        protected void TestWithException<TException>(Action<IMachineRuntime> test, Configuration configuration = null,
             bool replay = false)
             where TException : Exception
         {
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithException<TException>(test as Delegate, configuration, replay);
         }
 
-        protected void TestWithException<TException>(Func<ICoyoteRuntime, ControlledTask> test, Configuration configuration = null,
+        protected void TestWithException<TException>(Func<IMachineRuntime, ControlledTask> test, Configuration configuration = null,
             bool replay = false)
             where TException : Exception
         {

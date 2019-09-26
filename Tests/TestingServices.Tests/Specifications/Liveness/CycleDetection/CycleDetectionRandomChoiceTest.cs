@@ -4,16 +4,27 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class CycleDetectionCounterTest : BaseTest
+    public class CycleDetectionRandomChoiceTest : BaseTest
     {
-        public CycleDetectionCounterTest(ITestOutputHelper output)
+        public CycleDetectionRandomChoiceTest(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        private class Configure : Event
+        {
+            public bool ApplyFix;
+
+            public Configure(bool applyFix)
+            {
+                this.ApplyFix = applyFix;
+            }
         }
 
         private class Message : Event
@@ -22,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class EventHandler : Machine
         {
-            private int Counter;
+            private bool ApplyFix;
 
             [Start]
             [OnEntry(nameof(OnInitEntry))]
@@ -33,64 +44,90 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void OnInitEntry()
             {
-                this.Counter = 0;
+                this.ApplyFix = (this.ReceivedEvent as Configure).ApplyFix;
                 this.Send(this.Id, new Message());
             }
 
             private void OnMessage()
             {
                 this.Send(this.Id, new Message());
-                this.Counter++;
+                this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
+                if (this.Choose())
+                {
+                    this.Monitor<WatchDog>(new WatchDog.NotifyDone());
+                    this.Raise(new Halt());
+                }
             }
 
-            protected override int HashedState
+            private bool Choose()
             {
-                get
+                if (this.ApplyFix)
                 {
-                    // The counter contributes to the cached machine state.
-                    // This allows the liveness checker to detect progress.
-                    return this.Counter;
+                    return this.FairRandom();
+                }
+                else
+                {
+                    return this.Random();
                 }
             }
         }
 
         private class WatchDog : Monitor
         {
+            public class NotifyMessage : Event
+            {
+            }
+
+            public class NotifyDone : Event
+            {
+            }
+
             [Start]
             [Hot]
+            [OnEventGotoState(typeof(NotifyMessage), typeof(HotState))]
+            [OnEventGotoState(typeof(NotifyDone), typeof(ColdState))]
             private class HotState : MonitorState
+            {
+            }
+
+            [Cold]
+            private class ColdState : MonitorState
             {
             }
         }
 
-        [Fact(Timeout=5000)]
-        public void TestCycleDetectionCounterNoBug()
+        [Theory(Timeout = 5000)]
+        [InlineData(906)]
+        public void TestCycleDetectionRandomChoiceNoBug(int seed)
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.EnableUserDefinedStateHashing = true;
-            configuration.SchedulingIterations = 10;
+            configuration.RandomSchedulingSeed = seed;
+            configuration.SchedulingIterations = 7;
             configuration.MaxSchedulingSteps = 200;
 
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler));
+                r.CreateMachine(typeof(EventHandler), new Configure(true));
             },
             configuration: configuration);
         }
 
-        [Fact(Timeout=5000)]
-        public void TestCycleDetectionCounterBug()
+        [Theory(Timeout = 5000)]
+        [InlineData(906)]
+        public void TestCycleDetectionRandomChoiceBug(int seed)
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
+            configuration.RandomSchedulingSeed = seed;
+            configuration.SchedulingIterations = 10;
             configuration.MaxSchedulingSteps = 200;
 
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler));
+                r.CreateMachine(typeof(EventHandler), new Configure(false));
             },
             configuration: configuration,
             expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",

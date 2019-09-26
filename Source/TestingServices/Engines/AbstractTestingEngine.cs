@@ -485,7 +485,7 @@ namespace Microsoft.Coyote.TestingServices
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
             bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
                 (testParams.Length is 0 ||
-                (testParams.Length is 1 && testParams[0].ParameterType == typeof(ICoyoteRuntime)));
+                (testParams.Length is 1 && testParams[0].ParameterType == typeof(IMachineRuntime)));
 
             if (testMethod.IsAbstract || testMethod.IsVirtual || testMethod.IsConstructor ||
                 !testMethod.IsPublic || !testMethod.IsStatic ||
@@ -496,16 +496,16 @@ namespace Microsoft.Coyote.TestingServices
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static void {testMethod.Name}() {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}(ICoyoteRuntime runtime) {{ ... await ... }}\n\n" +
+                    $"  public static void {testMethod.Name}(IMachineRuntime runtime) {{ ... await ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static async ControlledTask {testMethod.Name}() {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async ControlledTask {testMethod.Name}(ICoyoteRuntime runtime) {{ ... await ... }}");
+                    $"  public static async ControlledTask {testMethod.Name}(IMachineRuntime runtime) {{ ... await ... }}");
             }
 
             if (testMethod.ReturnType == typeof(void) && testParams.Length == 1)
             {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Action<ICoyoteRuntime>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Action<IMachineRuntime>), testMethod);
             }
             else if (testMethod.ReturnType == typeof(void))
             {
@@ -513,7 +513,7 @@ namespace Microsoft.Coyote.TestingServices
             }
             else if (testParams.Length == 1)
             {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, ControlledTask>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Func<IMachineRuntime, ControlledTask>), testMethod);
             }
             else
             {

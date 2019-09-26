@@ -24,13 +24,13 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
         }
 
-        protected void AssertSucceeded(Action<ICoyoteRuntime> test)
+        protected void AssertSucceeded(Action<IMachineRuntime> test)
         {
             var configuration = GetConfiguration();
             this.AssertSucceeded(configuration, test);
         }
 
-        protected void AssertSucceeded(Configuration configuration, Action<ICoyoteRuntime> test)
+        protected void AssertSucceeded(Configuration configuration, Action<IMachineRuntime> test)
         {
             var logger = new Common.TestOutputLogger(this.TestOutput);
 
@@ -53,35 +53,35 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        protected void AssertFailed(Action<ICoyoteRuntime> test, int numExpectedErrors)
+        protected void AssertFailed(Action<IMachineRuntime> test, int numExpectedErrors)
         {
             var configuration = GetConfiguration();
             this.AssertFailed(configuration, test, numExpectedErrors);
         }
 
-        protected void AssertFailed(Action<ICoyoteRuntime> test, string expectedOutput)
+        protected void AssertFailed(Action<IMachineRuntime> test, string expectedOutput)
         {
             var configuration = GetConfiguration();
             this.AssertFailed(configuration, test, 1, new HashSet<string> { expectedOutput });
         }
 
-        protected void AssertFailed(Action<ICoyoteRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
+        protected void AssertFailed(Action<IMachineRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
         {
             var configuration = GetConfiguration();
             this.AssertFailed(configuration, test, numExpectedErrors, expectedOutputs);
         }
 
-        protected void AssertFailed(Configuration configuration, Action<ICoyoteRuntime> test, int numExpectedErrors)
+        protected void AssertFailed(Configuration configuration, Action<IMachineRuntime> test, int numExpectedErrors)
         {
             this.AssertFailed(configuration, test, numExpectedErrors, new HashSet<string>());
         }
 
-        protected void AssertFailed(Configuration configuration, Action<ICoyoteRuntime> test, string expectedOutput)
+        protected void AssertFailed(Configuration configuration, Action<IMachineRuntime> test, string expectedOutput)
         {
             this.AssertFailed(configuration, test, 1, new HashSet<string> { expectedOutput });
         }
 
-        protected void AssertFailed(Configuration configuration, Action<ICoyoteRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
+        protected void AssertFailed(Configuration configuration, Action<IMachineRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
         {
             var logger = new Common.TestOutputLogger(this.TestOutput);
 
@@ -134,13 +134,13 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        protected void AssertFailedWithException(Action<ICoyoteRuntime> test, Type exceptionType)
+        protected void AssertFailedWithException(Action<IMachineRuntime> test, Type exceptionType)
         {
             var configuration = GetConfiguration();
             this.AssertFailedWithException(configuration, test, exceptionType);
         }
 
-        protected void AssertFailedWithException(Configuration configuration, Action<ICoyoteRuntime> test, Type exceptionType)
+        protected void AssertFailedWithException(Configuration configuration, Action<IMachineRuntime> test, Type exceptionType)
         {
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");

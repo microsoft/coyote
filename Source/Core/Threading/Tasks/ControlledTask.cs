@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Threading.Tasks
 {

@@ -4,15 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class Liveness2Test : BaseTest
+    public class WarmStateTest : BaseTest
     {
-        public Liveness2Test(ITestOutputHelper output)
+        public WarmStateTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -64,7 +65,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(HandleEvent))]
             private class HandleEvent : MachineState
             {
             }
@@ -72,21 +72,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void HandleEventOnEntry()
             {
                 this.Monitor<WatchDog>(new Computing());
-                this.Send(this.Id, new Done());
             }
         }
 
         private class WatchDog : Monitor
         {
             [Start]
-            [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
             private class CanGetUserInput : MonitorState
             {
             }
 
-            [Hot]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
             private class CannotGetUserInput : MonitorState
@@ -95,20 +92,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestLiveness2()
+        public void TestWarmState()
         {
-            var configuration = GetConfiguration();
-            configuration.EnableCycleDetection = true;
-            configuration.SchedulingStrategy = SchedulingStrategy.DFS;
-
-            this.TestWithError(r =>
+            this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
                 r.CreateMachine(typeof(EventHandler));
             },
-            configuration: configuration,
-            expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",
-            replay: true);
+            configuration: Configuration.Create().WithStrategy(SchedulingStrategy.DFS));
         }
     }
 }

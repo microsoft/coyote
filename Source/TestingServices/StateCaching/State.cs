@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-
 using Microsoft.Coyote.IO;
+
+using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.TestingServices.StateCaching
 {

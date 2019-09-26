@@ -3,6 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------------------------------------------
 
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Xunit;

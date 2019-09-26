@@ -4,14 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class CycleDetectionRingOfNodesTest : BaseTest
+    public class CycleDetectionDefaultHandlerTest : BaseTest
     {
-        public CycleDetectionRingOfNodesTest(ITestOutputHelper output)
+        public CycleDetectionDefaultHandlerTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -30,43 +31,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Environment : Machine
+        private class EventHandler : Machine
         {
-            [Start]
-            [OnEntry(nameof(OnInitEntry))]
-            private class Init : MachineState
-            {
-            }
-
-            private void OnInitEntry()
-            {
-                var applyFix = (this.ReceivedEvent as Configure).ApplyFix;
-                var machine1 = this.CreateMachine(typeof(Node), new Configure(applyFix));
-                var machine2 = this.CreateMachine(typeof(Node), new Configure(applyFix));
-                this.Send(machine1, new Node.SetNeighbour(machine2));
-                this.Send(machine2, new Node.SetNeighbour(machine1));
-            }
-        }
-
-        private class Node : Machine
-        {
-            public class SetNeighbour : Event
-            {
-                public MachineId Next;
-
-                public SetNeighbour(MachineId next)
-                {
-                    this.Next = next;
-                }
-            }
-
-            private MachineId Next;
             private bool ApplyFix;
 
             [Start]
             [OnEntry(nameof(OnInitEntry))]
-            [OnEventDoAction(typeof(SetNeighbour), nameof(OnSetNeighbour))]
-            [OnEventDoAction(typeof(Message), nameof(OnMessage))]
+            [OnEventDoAction(typeof(Default), nameof(OnDefault))]
             private class Init : MachineState
             {
             }
@@ -76,22 +47,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.ApplyFix = (this.ReceivedEvent as Configure).ApplyFix;
             }
 
-            private void OnSetNeighbour()
+            private void OnDefault()
             {
-                var e = this.ReceivedEvent as SetNeighbour;
-                this.Next = e.Next;
-                this.Send(this.Id, new Message());
-            }
-
-            private void OnMessage()
-            {
-                if (this.Next != null)
+                if (this.ApplyFix)
                 {
-                    this.Send(this.Next, new Message());
-                    if (this.ApplyFix)
-                    {
-                        this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
-                    }
+                    this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
                 }
             }
         }
@@ -117,7 +77,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestCycleDetectionRingOfNodesNoBug()
+        public void TestCycleDetectionDefaultHandlerNoBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
@@ -127,13 +87,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(Environment), new Configure(true));
+                r.CreateMachine(typeof(EventHandler), new Configure(true));
             },
             configuration: configuration);
         }
 
         [Fact(Timeout=5000)]
-        public void TestCycleDetectionRingOfNodesBug()
+        public void TestCycleDetectionDefaultHandlerBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
@@ -142,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(Environment), new Configure(false));
+                r.CreateMachine(typeof(EventHandler), new Configure(false));
             },
             configuration: configuration,
             expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",

@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// The runtime that executes the machine with this id.
         /// </summary>
-        public ICoyoteRuntime Runtime { get; private set; }
+        public IMachineRuntime Runtime { get; private set; }
 
         /// <summary>
         /// Unique id, when <see cref="NameValue"/> is empty.
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineId"/> class.
         /// </summary>
-        internal MachineId(Type type, string machineName, MachineRuntime runtime, bool useNameForHashing = false)
+        internal MachineId(Type type, string machineName, CoyoteRuntime runtime, bool useNameForHashing = false)
         {
             this.Runtime = runtime;
             this.Endpoint = string.Empty;
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Bind the machine id.
         /// </summary>
-        internal void Bind(MachineRuntime runtime)
+        internal void Bind(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
         }

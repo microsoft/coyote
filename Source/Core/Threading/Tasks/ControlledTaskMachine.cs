@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Initializes a new instance of the <see cref="ControlledTaskMachine"/> class.
         /// </summary>
         [DebuggerStepThrough]
-        internal ControlledTaskMachine(MachineRuntime runtime)
+        internal ControlledTaskMachine(CoyoteRuntime runtime)
         {
             var mid = new MachineId(this.GetType(), "ControlledTask", runtime);
             this.Initialize(runtime, mid);

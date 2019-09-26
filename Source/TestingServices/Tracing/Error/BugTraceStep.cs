@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.Machines;
 
-using EventInfo = Microsoft.Coyote.Machines.EventInfo;
+using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 
 namespace Microsoft.Coyote.TestingServices.Tracing.Error
 {

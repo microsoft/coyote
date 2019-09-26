@@ -4,15 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class WarmStateBugTest : BaseTest
+    public class Liveness2Test : BaseTest
     {
-        public WarmStateBugTest(ITestOutputHelper output)
+        public Liveness2Test(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -64,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(WaitForUser))]
+            [OnEventGotoState(typeof(Done), typeof(HandleEvent))]
             private class HandleEvent : MachineState
             {
             }
@@ -79,6 +80,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class WatchDog : Monitor
         {
             [Start]
+            [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
             private class CanGetUserInput : MonitorState
@@ -94,7 +96,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestWarmStateBug()
+        public void TestLiveness2()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;

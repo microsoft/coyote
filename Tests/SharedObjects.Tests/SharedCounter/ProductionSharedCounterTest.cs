@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout=5000)]
         public void TestProductionSharedCounter1()
         {
-            var runtime = CoyoteRuntime.Create();
+            var runtime = MachineRuntimeFactory.Create();
             var counter = SharedCounter.Create(runtime, 0);
             var tcs1 = new TaskCompletionSource<bool>();
             var tcs2 = new TaskCompletionSource<bool>();
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout=5000)]
         public void TestProductionSharedCounter2()
         {
-            var runtime = CoyoteRuntime.Create();
+            var runtime = MachineRuntimeFactory.Create();
             var counter = SharedCounter.Create(runtime, 0);
             var tcs1 = new TaskCompletionSource<bool>();
             var tcs2 = new TaskCompletionSource<bool>();

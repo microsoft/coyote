@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;

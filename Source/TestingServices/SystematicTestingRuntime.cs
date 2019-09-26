@@ -30,14 +30,15 @@ using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 
-using EventInfo = Microsoft.Coyote.Machines.EventInfo;
+using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
+using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {
     /// <summary>
     /// Runtime for systematically testing machines by controlling the scheduler.
     /// </summary>
-    internal sealed class SystematicTestingRuntime : MachineRuntime
+    internal sealed class SystematicTestingRuntime : CoyoteRuntime
     {
         /// <summary>
         /// The asynchronous operation scheduler.
@@ -120,7 +121,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.TaskScheduler = new InterceptingTaskScheduler(this.Scheduler.ControlledTaskMap);
 
             // Set a provider to the runtime in each asynchronous control flow.
-            CoyoteRuntime.Provider = new AsyncLocalRuntimeProvider(this);
+            Provider = new AsyncLocalRuntimeProvider(this);
         }
 
         /// <summary>
@@ -196,37 +197,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when
-        /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, null, e, opGroupId);
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and name, and with
-        /// the specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when the
-        /// machine is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, machineName, e, opGroupId);
-
-        /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This
-        /// event can only be used to access its payload, and cannot be handled. The method
-        /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
-        public override Task<MachineId> CreateMachineAndExecute(MachineId mid, Type type, Event e = null, Guid opGroupId = default)
-        {
-            this.Assert(mid != null, "Cannot create a machine using a null machine id.");
-            return this.CreateMachineAndExecuteAsync(mid, type, null, e, opGroupId);
-        }
-
-        /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
         public override void SendEvent(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null)
@@ -240,13 +210,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         public override Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
             this.SendEventAndExecuteAsync(target, e, this.GetExecutingMachine<Machine>(), opGroupId, options);
-
-        /// <summary>
-        /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
-        /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
-        /// </summary>
-        public override Task<bool> SendEventAndExecute(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            this.SendEventAndExecuteAsync(target, e, opGroupId, options);
 
         /// <summary>
         /// Returns the operation group id of the specified machine. Returns <see cref="Guid.Empty"/>
@@ -560,7 +523,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 {
                     // Set the runtime in the async control flow runtime provider, allowing
                     // future retrieval in the same asynchronous call stack.
-                    CoyoteRuntime.Provider.SetCurrentRuntime(this);
+                    Provider.SetCurrentRuntime(this);
 
                     OperationScheduler.NotifyOperationStarted(op);
 
@@ -746,7 +709,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 {
                     // Set the runtime in the async control flow runtime provider, allowing
                     // future retrieval in the same asynchronous call stack.
-                    CoyoteRuntime.Provider.SetCurrentRuntime(this);
+                    Provider.SetCurrentRuntime(this);
 
                     OperationScheduler.NotifyOperationStarted(op);
                     if (parentTask != null)

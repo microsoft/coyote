@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// The runtime that executes this machine.
         /// </summary>
-        internal MachineRuntime Runtime { get; private set; }
+        internal CoyoteRuntime Runtime { get; private set; }
 
         /// <summary>
         /// The unique machine id.
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes this machine.
         /// </summary>
-        internal void Initialize(MachineRuntime runtime, MachineId mid)
+        internal void Initialize(CoyoteRuntime runtime, MachineId mid)
         {
             this.Runtime = runtime;
             this.Id = mid;

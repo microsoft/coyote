@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        protected void Run(Action<ICoyoteRuntime> test, Configuration configuration = null)
+        protected void Run(Action<IMachineRuntime> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             try
             {
-                var runtime = CoyoteRuntime.Create(configuration);
+                var runtime = MachineRuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 test(runtime);
             }
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        protected async Task RunAsync(Func<ICoyoteRuntime, Task> test, Configuration configuration = null)
+        protected async Task RunAsync(Func<IMachineRuntime, Task> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             try
             {
-                var runtime = CoyoteRuntime.Create(configuration);
+                var runtime = MachineRuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 await test(runtime);
             }

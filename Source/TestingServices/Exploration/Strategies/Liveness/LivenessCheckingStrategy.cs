@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 
+using Monitor = Microsoft.Coyote.Specifications.Monitor;
+
 namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 {
     /// <summary>

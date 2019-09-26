@@ -4,15 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class FairNondet1Test : BaseTest
+    public class Nondet1Test : BaseTest
     {
-        public FairNondet1Test(ITestOutputHelper output)
+        public Nondet1Test(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -77,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void HandleEventOnEntry()
             {
                 this.Monitor<WatchDog>(new Computing());
-                if (this.FairRandom())
+                if (this.Random())
                 {
                     this.Send(this.Id, new Done());
                 }
@@ -107,20 +108,21 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestFairNondet1()
+        public void TestNondet1()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.LivenessTemperatureThreshold = 0;
             configuration.SchedulingStrategy = SchedulingStrategy.DFS;
-            configuration.MaxSchedulingSteps = 300;
+            configuration.RandomSchedulingSeed = 96;
 
-            this.Test(r =>
+            this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
                 r.CreateMachine(typeof(EventHandler));
             },
-            configuration: configuration);
+            configuration: configuration,
+            expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",
+            replay: true);
         }
     }
 }

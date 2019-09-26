@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             /// <summary>
             /// The runtime executing this awaiter.
             /// </summary>
-            private readonly MachineRuntime Runtime;
+            private readonly CoyoteRuntime Runtime;
 
             /// <summary>
             /// The internal yield awaiter.
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             /// <summary>
             /// Initializes a new instance of the <see cref="ControlledYieldAwaiter"/> struct.
             /// </summary>
-            internal ControlledYieldAwaiter(MachineRuntime runtime, YieldAwaitable.YieldAwaiter awaiter)
+            internal ControlledYieldAwaiter(CoyoteRuntime runtime, YieldAwaitable.YieldAwaiter awaiter)
             {
                 this.Runtime = runtime;
                 this.Awaiter = awaiter;

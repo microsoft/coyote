@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class Liveness1Test : BaseTest
+    public class Liveness2LoopMachineTest : BaseTest
     {
-        public Liveness1Test(ITestOutputHelper output)
+        public Liveness2LoopMachineTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -48,6 +48,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
+                this.CreateMachine(typeof(Loop));
                 this.Raise(new Unit());
             }
 
@@ -59,24 +60,37 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void WaitForUserOnEntry()
             {
-                this.Monitor<WatchDog>(new Waiting());
+                this.Monitor<LivenessMonitor>(new Waiting());
                 this.Send(this.Id, new UserEvent());
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(WaitForUser))]
             private class HandleEvent : MachineState
             {
             }
 
             private void HandleEventOnEntry()
             {
-                this.Monitor<WatchDog>(new Computing());
+                this.Monitor<LivenessMonitor>(new Computing());
+            }
+        }
+
+        private class Loop : Machine
+        {
+            [Start]
+            [OnEntry(nameof(LoopingOnEntry))]
+            [OnEventGotoState(typeof(Done), typeof(Looping))]
+            private class Looping : MachineState
+            {
+            }
+
+            private void LoopingOnEntry()
+            {
                 this.Send(this.Id, new Done());
             }
         }
 
-        private class WatchDog : Monitor
+        private class LivenessMonitor : Monitor
         {
             [Start]
             [Cold]
@@ -95,14 +109,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestLiveness1()
+        public void TestLiveness2LoopMachine()
         {
-            this.Test(r =>
+            var configuration = GetConfiguration();
+            configuration.LivenessTemperatureThreshold = 200;
+            configuration.SchedulingIterations = 1;
+
+            this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(WatchDog));
+                r.RegisterMonitor(typeof(LivenessMonitor));
                 r.CreateMachine(typeof(EventHandler));
             },
-            configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS).WithMaxSteps(300));
+            configuration: configuration,
+            expectedError: "Monitor 'LivenessMonitor' detected potential liveness bug in hot state 'CannotGetUserInput'.",
+            replay: true);
         }
     }
 }

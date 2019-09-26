@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 using System.Runtime.Serialization;
+using Microsoft.Coyote.Machines;
 
-namespace Microsoft.Coyote.Machines
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Contains the origin information of an <see cref="Event"/>.

@@ -18,6 +18,8 @@ using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
 
+using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
+
 namespace Microsoft.Coyote.Machines
 {
     /// <summary>
@@ -193,7 +195,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes this machine.
         /// </summary>
-        internal void Initialize(MachineRuntime runtime, MachineId mid, IMachineStateManager stateManager, IEventQueue inbox)
+        internal void Initialize(CoyoteRuntime runtime, MachineId mid, IMachineStateManager stateManager, IEventQueue inbox)
         {
             this.Initialize(runtime, mid);
             this.StateManager = stateManager;
@@ -802,7 +804,7 @@ namespace Microsoft.Coyote.Machines
         }
 
         /// <summary>
-        /// An exception filter that calls <see cref="MachineRuntime.OnFailure"/>,
+        /// An exception filter that calls <see cref="CoyoteRuntime.OnFailure"/>,
         /// which can choose to fast-fail the app to get a full dump.
         /// </summary>
         /// <param name="action">The machine action being executed when the failure occurred.</param>

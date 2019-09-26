@@ -4,14 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class CycleDetectionRandomChoiceTest : BaseTest
+    public class CycleDetectionBasicTest : BaseTest
     {
-        public CycleDetectionRandomChoiceTest(ITestOutputHelper output)
+        public CycleDetectionBasicTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -50,23 +51,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnMessage()
             {
                 this.Send(this.Id, new Message());
-                this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
-                if (this.Choose())
-                {
-                    this.Monitor<WatchDog>(new WatchDog.NotifyDone());
-                    this.Raise(new Halt());
-                }
-            }
-
-            private bool Choose()
-            {
                 if (this.ApplyFix)
                 {
-                    return this.FairRandom();
-                }
-                else
-                {
-                    return this.Random();
+                    this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
                 }
             }
         }
@@ -77,32 +64,26 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            public class NotifyDone : Event
-            {
-            }
-
             [Start]
             [Hot]
-            [OnEventGotoState(typeof(NotifyMessage), typeof(HotState))]
-            [OnEventGotoState(typeof(NotifyDone), typeof(ColdState))]
+            [OnEventGotoState(typeof(NotifyMessage), typeof(ColdState))]
             private class HotState : MonitorState
             {
             }
 
             [Cold]
+            [OnEventGotoState(typeof(NotifyMessage), typeof(HotState))]
             private class ColdState : MonitorState
             {
             }
         }
 
-        [Theory(Timeout = 5000)]
-        [InlineData(906)]
-        public void TestCycleDetectionRandomChoiceNoBug(int seed)
+        [Fact(Timeout=5000)]
+        public void TestCycleDetectionBasicNoBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.RandomSchedulingSeed = seed;
-            configuration.SchedulingIterations = 7;
+            configuration.SchedulingIterations = 10;
             configuration.MaxSchedulingSteps = 200;
 
             this.Test(r =>
@@ -113,14 +94,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
             configuration: configuration);
         }
 
-        [Theory(Timeout = 5000)]
-        [InlineData(906)]
-        public void TestCycleDetectionRandomChoiceBug(int seed)
+        [Fact(Timeout=5000)]
+        public void TestCycleDetectionBasicBug()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.RandomSchedulingSeed = seed;
-            configuration.SchedulingIterations = 10;
             configuration.MaxSchedulingSteps = 200;
 
             this.TestWithError(r =>

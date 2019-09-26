@@ -5,7 +5,7 @@
 
 using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote.Machines
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Contains an <see cref="Event"/>, and its associated metadata.

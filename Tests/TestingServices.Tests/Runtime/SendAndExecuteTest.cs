@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -62,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 if (e.ExecuteSynchronously)
                 {
-                     b = await this.Runtime.CreateMachineAndExecute(typeof(M1B));
+                     b = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M1B));
                 }
                 else
                 {
@@ -120,7 +121,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private async Task InitOnEntry()
             {
                 var b = this.CreateMachine(typeof(M2B));
-                var handled = await this.Runtime.SendEventAndExecute(b, new E1());
+                var handled = await this.Runtime.SendEventAndExecuteAsync(b, new E1());
                 this.Assert(!handled);
             }
         }
@@ -150,7 +151,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private async Task InitOnEntry()
             {
                 var d = this.CreateMachine(typeof(M2D));
-                var handled = await this.Runtime.SendEventAndExecute(d, new E1());
+                var handled = await this.Runtime.SendEventAndExecuteAsync(d, new E1());
                 this.Assert(handled);
             }
         }
@@ -217,8 +218,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private async Task InitOnEntry()
             {
                 var e = new E4();
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(M3B));
-                var handled = await this.Runtime.SendEventAndExecute(m, e);
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M3B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, e);
                 this.Assert(handled);
                 this.Assert(e.X == 1);
             }
@@ -275,7 +276,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(M4B), new E2(this.Id));
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M4B), new E2(this.Id));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
@@ -318,8 +319,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(M5B));
-                var handled = await this.Runtime.SendEventAndExecute(m, new E1());
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M5B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M5SafetyMonitor>(new SE_Returns());
                 this.Assert(handled);
             }
@@ -415,8 +416,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(M6B), this.ReceivedEvent);
-                var handled = await this.Runtime.SendEventAndExecute(m, new E1());
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M6B), this.ReceivedEvent);
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M6SafetyMonitor>(new SE_Returns());
                 this.Assert(handled);
             }
@@ -502,8 +503,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(M7B));
-                var handled = await this.Runtime.SendEventAndExecute(m, new E1());
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M7B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }
@@ -537,8 +538,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateMachineAndExecute(typeof(M8B));
-                var handled = await this.Runtime.SendEventAndExecute(m, new E1());
+                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(M8B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }

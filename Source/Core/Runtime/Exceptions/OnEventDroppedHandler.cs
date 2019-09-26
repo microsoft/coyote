@@ -8,7 +8,7 @@ using Microsoft.Coyote.Machines;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Handles the <see cref="ICoyoteRuntime.OnEventDropped"/> event.
+    /// Handles the <see cref="IMachineRuntime.OnEventDropped"/> event.
     /// </summary>
     public delegate void OnEventDroppedHandler(Event e, MachineId target);
 }

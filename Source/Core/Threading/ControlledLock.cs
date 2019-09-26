@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.Threading

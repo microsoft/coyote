@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 
 using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class Nondet1Test : BaseTest
+    public class Liveness3Test : BaseTest
     {
-        public Nondet1Test(ITestOutputHelper output)
+        public Liveness3Test(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -26,10 +26,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         private class Done : Event
-        {
-        }
-
-        private class Loop : Event
         {
         }
 
@@ -52,6 +48,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
+                this.CreateMachine(typeof(Loop));
                 this.Raise(new Unit());
             }
 
@@ -68,8 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            [OnEventGotoState(typeof(Done), typeof(WaitForUser))]
-            [OnEventGotoState(typeof(Loop), typeof(HandleEvent))]
+            [OnEventGotoState(typeof(Done), typeof(HandleEvent))]
             private class HandleEvent : MachineState
             {
             }
@@ -77,14 +73,21 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void HandleEventOnEntry()
             {
                 this.Monitor<WatchDog>(new Computing());
-                if (this.Random())
-                {
-                    this.Send(this.Id, new Done());
-                }
-                else
-                {
-                    this.Send(this.Id, new Loop());
-                }
+            }
+        }
+
+        private class Loop : Machine
+        {
+            [Start]
+            [OnEntry(nameof(LoopingOnEntry))]
+            [OnEventGotoState(typeof(Done), typeof(Looping))]
+            private class Looping : MachineState
+            {
+            }
+
+            private void LoopingOnEntry()
+            {
+                this.Send(this.Id, new Done());
             }
         }
 
@@ -107,12 +110,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestNondet1()
+        public void TestLiveness3()
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
-            configuration.SchedulingStrategy = SchedulingStrategy.DFS;
-            configuration.RandomSchedulingSeed = 96;
+            configuration.SchedulingIterations = 100;
 
             this.TestWithError(r =>
             {

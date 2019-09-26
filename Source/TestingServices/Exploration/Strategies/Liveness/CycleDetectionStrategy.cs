@@ -11,6 +11,8 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.TestingServices.StateCaching;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
 
+using Monitor = Microsoft.Coyote.Specifications.Monitor;
+
 namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 {
     /// <summary>

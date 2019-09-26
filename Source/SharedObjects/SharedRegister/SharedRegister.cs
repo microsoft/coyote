@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         /// <param name="runtime">The machine runtime.</param>
         /// <param name="value">The initial value.</param>
-        public static ISharedRegister<T> Create<T>(ICoyoteRuntime runtime, T value = default)
+        public static ISharedRegister<T> Create<T>(IMachineRuntime runtime, T value = default)
             where T : struct
         {
             if (runtime is ProductionRuntime)

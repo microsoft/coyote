@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Coyote.Machines;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Specifications
 {
     /// <summary>
     /// Abstract class representing a state of a specification monitor.

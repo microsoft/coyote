@@ -224,6 +224,8 @@ namespace Microsoft.Coyote.TestingServices
                 Error.ReportAndExit($"[CoyoteTester] required '{settingName}' value is not set in configuration file.");
             }
 
+            toolPath = toolPath.Replace("$(DevEnvDir)", Environment.GetEnvironmentVariable("DevEnvDir"));
+
             if (!File.Exists(toolPath))
             {
                 Error.ReportAndExit($"[CoyoteTester] '{toolName}' tool '{toolPath}' not found.");

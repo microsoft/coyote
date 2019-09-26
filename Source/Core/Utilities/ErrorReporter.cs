@@ -42,19 +42,6 @@ namespace Microsoft.Coyote.Utilities
         }
 
         /// <summary>
-        /// Reports a warning, followed by the current line terminator.
-        /// </summary>
-        public void WriteWarningLine(string value)
-        {
-            if (this.Configuration.ShowWarnings)
-            {
-                this.Write("Warning: ", ConsoleColor.Red);
-                this.Write(value, ConsoleColor.Yellow);
-                this.Logger.WriteLine(string.Empty);
-            }
-        }
-
-        /// <summary>
         /// Writes the specified string value.
         /// </summary>
         private void Write(string value, ConsoleColor color)

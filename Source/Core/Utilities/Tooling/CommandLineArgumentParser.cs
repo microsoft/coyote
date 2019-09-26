@@ -1,0 +1,626 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+
+namespace Microsoft.Coyote.Tooling.Utilities
+{
+    /// <summary>
+    /// A single command line argument.
+    /// </summary>
+    public class CommandLineArgument
+    {
+        /// <summary>
+        /// The long name referenced using two dashes (e.g. "--max-steps").
+        /// </summary>
+        public string LongName;
+
+        /// <summary>
+        /// The short name referenced using single dash (e.g. "-ms").
+        /// </summary>
+        public string ShortName;
+
+        /// <summary>
+        /// Optional datatype (default string). Supported datatypes are primitive types
+        /// only (e.g. int, float, string, bool).
+        /// </summary>
+        public Type DataType;
+
+        /// <summary>
+        /// Help text for the command line option. You can use newlines to format the help content
+        /// but each line will be auto-indented by the PrintHelp function.
+        /// </summary>
+        public string Description;
+
+        /// <summary>
+        /// Wether the arugment is required.
+        /// </summary>
+        public bool IsRequired;
+
+        /// <summary>
+        /// Optional name to a <see cref="CommandLineGroup"/>.
+        /// </summary>
+        public string Group;
+
+        /// <summary>
+        /// Hide this option from the printed help message.
+        /// </summary>
+        public bool IsHidden;
+
+        /// <summary>
+        /// The parsed command line value matching DataType.
+        /// </summary>
+        public object Value;
+
+        /// <summary>
+        /// This is the print help option.
+        /// </summary>
+        public bool PrintHelp;
+
+        /// <summary>
+        /// Defines a list of possible values.
+        /// </summary>
+        public List<string> AllowedValues;
+
+        internal string LongSyntax
+        {
+            get
+            {
+                string text = "--" + this.LongName;
+                if (this.DataType != typeof(bool))
+                {
+                    text += ":x";
+                }
+
+                return text;
+            }
+        }
+
+        internal string ShortSyntax
+        {
+            get
+            {
+                string text = "-" + this.ShortName;
+                if (this.DataType != typeof(bool))
+                {
+                    text += ":x";
+                }
+
+                return text;
+            }
+        }
+
+        internal object ParseValue(string value)
+        {
+            Type type = this.DataType;
+            if (value == null)
+            {
+                if (type == typeof(bool))
+                {
+                    return true;  // default for boolean options.
+                }
+                else
+                {
+                    if (this.AllowedValues == null || !this.AllowedValues.Contains(string.Empty))
+                    {
+                        throw new Exception(string.Format("Argument: '--{0}' missing a value after ':'", this.LongName));
+                    }
+                }
+            }
+
+            object result = null;
+            if (type == null || type == typeof(string))
+            {
+                result = value;
+            }
+            else if (type == typeof(bool))
+            {
+                if (!bool.TryParse(value, out bool x))
+                {
+                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid bool", this.LongName));
+                }
+
+                result = x;
+            }
+            else if (type == typeof(int))
+            {
+                if (!int.TryParse(value, out int x))
+                {
+                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid integer", this.LongName));
+                }
+
+                result = x;
+            }
+            else if (type == typeof(uint))
+            {
+                if (!uint.TryParse(value, out uint x))
+                {
+                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid unsigned integer", this.LongName));
+                }
+
+                result = x;
+            }
+            else if (type == typeof(double))
+            {
+                if (!double.TryParse(value, out double x))
+                {
+                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid double", this.LongName));
+                }
+
+                result = x;
+            }
+            else
+            {
+                throw new Exception(string.Format("Argument: '--{0}' type '{1}' is not supported, use bool, int, uint, double, string", this.LongName, type.Name));
+            }
+
+            if (this.AllowedValues != null)
+            {
+                if (result == null)
+                {
+                    result = string.Empty;
+                }
+
+                string s = result.ToString();
+                if (!this.AllowedValues.Contains(s))
+                {
+                    throw new Exception(string.Format("Argument: '--{0}' value must be one of [{1}]", this.LongName, string.Join(", ", this.AllowedValues.ToArray())));
+                }
+            }
+
+            return result;
+        }
+
+        internal CommandLineArgument Clone()
+        {
+            return new CommandLineArgument()
+            {
+                LongName = this.LongName,
+                ShortName = this.ShortName,
+                DataType = this.DataType,
+                Description = this.Description,
+                IsRequired = this.IsRequired,
+                Group = this.Group,
+                IsHidden = this.IsHidden,
+                AllowedValues = this.AllowedValues
+            };
+        }
+    }
+
+    /// <summary>
+    /// Provides a way of grouping command line arguments in the help text.
+    /// </summary>
+    public class CommandLineGroup
+    {
+        private readonly CommandLineArgumentParser Parser;
+        private readonly List<string> LongNames;
+
+        internal CommandLineGroup(CommandLineArgumentParser parser, List<string> longNames)
+        {
+            this.Parser = parser;
+            this.LongNames = longNames;
+        }
+
+        /// <summary>
+        /// The unique name of the group.
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Help text for the command line group. You can use newlines to format the help content
+        /// but each line will be auto-indented by the PrintHelp function.
+        /// </summary>
+        public string Description;
+
+        /// <summary>
+        /// The whole group is hidden.
+        /// </summary>
+        public bool IsHidden;
+
+        /// <summary>
+        /// Add a new command line option to the group. The option names still need to be unique.
+        /// </summary>
+        /// <param name="longName">The long name referenced using two dashes (e.g. "--max-steps").</param>
+        /// <param name="shortName">The short name referenced using single dash (e.g. "-ms").</param>
+        /// <param name="description">Help text for the command line option. You can use newlines to format the
+        /// help content but each line will be auto-indented by the PrintHelp function.</param>
+        /// <param name="dataType">Optional datatype (default string). Supported datatypes are primitive types
+        /// only (e.g. int, float, string, bool).</param>
+        /// <param name="required">Whether the argument is required or not.</param>
+        /// <returns>The new <see cref="CommandLineArgument"/> object.</returns>
+        public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false)
+        {
+            var argument = this.Parser.AddArgument(longName, shortName, description, dataType, required);
+            argument.IsHidden = this.IsHidden;
+            argument.Group = this.Name;
+            return argument;
+        }
+    }
+
+    /// <summary>
+    /// A handy command line argument parser.
+    /// </summary>
+    public class CommandLineArgumentParser
+    {
+        private readonly string AppName;
+        private readonly string AppDescription;
+
+        /// <summary>
+        /// To remember the oder in which they were added.
+        /// </summary>
+        private readonly List<string> GroupNames = new List<string>();
+
+        /// <summary>
+        /// To remember the order in which they were added.
+        /// </summary>
+        private readonly List<string> LongNames = new List<string>();
+
+        /// <summary>
+        /// The currnet list of command line groups.
+        /// </summary>
+        public Dictionary<string, CommandLineGroup> Groups = new Dictionary<string, CommandLineGroup>();
+
+        /// <summary>
+        /// The current set of possible command line arguments.
+        /// </summary>
+        public Dictionary<string, CommandLineArgument> Arguments = new Dictionary<string, CommandLineArgument>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandLineArgumentParser"/> class.
+        /// </summary>
+        /// <param name="appName">The name of the application.</param>
+        /// <param name="appDescription">The overview help text for the application..</param>
+        public CommandLineArgumentParser(string appName, string appDescription)
+        {
+            this.AppName = appName;
+            this.AppDescription = appDescription;
+            this.AddArgument("?", "?", "Show this help menu", typeof(bool)).PrintHelp = true;
+        }
+
+        /// <summary>
+        /// Add a new command line group or return the existing group if it already exists.
+        /// </summary>
+        /// <param name="name">The name of the group.</param>
+        /// <param name="description">The help text for the group.</param>
+        /// <returns>The new command line group.</returns>
+        public CommandLineGroup GetOrCreateGroup(string name, string description)
+        {
+            if (this.Groups.TryGetValue(name, out CommandLineGroup group))
+            {
+                return group;
+            }
+
+            group = new CommandLineGroup(this, this.LongNames) { Name = name, Description = description };
+            this.Groups.Add(name, group);
+            this.GroupNames.Add(name);
+            return group;
+        }
+
+        /// <summary>
+        /// Add a new command line option.
+        /// </summary>
+        /// <param name="longName">The long name referenced using two dashes (e.g. "--max-steps").</param>
+        /// <param name="shortName">The short name referenced using single dash (e.g. "-ms").</param>
+        /// <param name="description">Help text for the command line option. You can use newlines to format the
+        /// help content but each line will be auto-indented by the PrintHelp function.</param>
+        /// <param name="dataType">Optional datatype (default string). Supported datatypes are primitive types
+        /// only (e.g. int, float, string, bool).</param>
+        /// <param name="required">Whether argument is required.</param>
+        /// <returns>The new option or throws <see cref="System.Data.DuplicateNameException"/>.</returns>
+        public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false)
+        {
+            if (this.Arguments.TryGetValue(longName, out CommandLineArgument argument))
+            {
+                throw new DuplicateNameException(string.Format("Argument {0} already defined", longName));
+            }
+
+            if (shortName != null)
+            {
+                var existing = (from a in this.Arguments.Values where a.ShortName == shortName select a).FirstOrDefault();
+                if (existing != null)
+                {
+                    throw new DuplicateNameException(string.Format("Argument short name '-{0}' is already being used by '--{1}'", shortName, existing.LongName));
+                }
+            }
+
+            argument = new CommandLineArgument()
+            {
+                LongName = longName,
+                ShortName = shortName,
+                DataType = dataType,
+                Description = description,
+                IsRequired = required
+            };
+            this.Arguments[longName] = argument;
+            this.LongNames.Add(longName);
+            return argument;
+        }
+
+        private class WordWrapper
+        {
+            private readonly TextWriter Output;
+            private readonly int Indent;
+            private readonly int LineLength;
+            private int CurrentLineLength;
+            private readonly string IndentText;
+
+            internal WordWrapper(TextWriter output, int indent, int lineLength)
+            {
+                this.Output = output;
+                this.Indent = indent;
+                this.LineLength = lineLength;
+                this.IndentText = new string(' ', this.Indent);
+            }
+
+            internal void Write(string text)
+            {
+                bool first = true;
+                foreach (string line in text.Split('\n'))
+                {
+                    if (!first)
+                    {
+                        this.NewLine();
+                    }
+
+                    first = false;
+                    foreach (string word in line.Split(' '))
+                    {
+                        this.WriteWord(word);
+                    }
+                }
+            }
+
+            internal void WriteWord(string word)
+            {
+                if (this.CurrentLineLength + word.Length > this.LineLength)
+                {
+                    this.NewLine();
+                }
+
+                this.Output.Write(word);
+                this.Output.Write(" ");
+                this.CurrentLineLength += word.Length + 1;
+            }
+
+            private void NewLine()
+            {
+                this.Output.WriteLine();
+                this.CurrentLineLength = this.Indent;
+                if (this.Indent > 0)
+                {
+                    this.Output.Write(this.IndentText);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parse the command line using the options defined in this argument parser.
+        /// </summary>
+        /// <param name="args">The command line.</param>
+        /// <returns>The parsed arguments.</returns>
+        public List<CommandLineArgument> ParseArguments(string[] args)
+        {
+            List<CommandLineArgument> result = new List<CommandLineArgument>();
+
+            for (int idx = 0; idx < args.Length; idx++)
+            {
+                string arg = args[idx];
+                int i = arg.IndexOf(':');
+                string value = null;
+                if (i > 0)
+                {
+                    value = arg.Substring(i + 1).Trim();
+                    arg = arg.Substring(0, i);
+                }
+
+                CommandLineArgument a = null;
+                if (arg.StartsWith("--"))
+                {
+                    var name = arg.Substring(2);
+                    this.Arguments.TryGetValue(name, out a);
+                }
+                else if (arg.StartsWith("-"))
+                {
+                    var name = arg.Substring(1);
+                    // Note that "/" is not supported as an argument delimiter because it conflicts with unix file paths.
+                    foreach (var s in this.Arguments.Values)
+                    {
+                        if (s.ShortName == name)
+                        {
+                            a = s;
+                            break;
+                        }
+                    }
+
+                    if (a == null)
+                    {
+                        // see if there's a matching long name with no short name defined.
+                        foreach (var s in this.Arguments.Values)
+                        {
+                            if (s.LongName == name && string.IsNullOrEmpty(s.ShortName))
+                            {
+                                a = s;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // positional arguments, do we want to support those?
+                }
+
+                if (a == null)
+                {
+                    throw new Exception(string.Format("Unexpected argument: '{0}'", arg));
+                }
+
+                if (a.PrintHelp)
+                {
+                    this.PrintHelp(Console.Out);
+                    Environment.Exit(1);
+                }
+
+                var temp = a.Clone();
+                temp.Value = a.ParseValue(value);
+                result.Add(temp);
+            }
+
+            foreach (var arg in this.Arguments.Values)
+            {
+                if (arg.IsRequired && !(from r in result where r.LongName == arg.LongName select r).Any())
+                {
+                    throw new Exception(string.Format("Missing required argument: '--{0}'", arg.LongName));
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Shows help.
+        /// </summary>
+        public void PrintHelp(TextWriter output)
+        {
+            const int ArgHelpLineLength = 100;
+            const int ArgHelpIndent = 30;
+
+            string prefix = string.Format("usage: {0} ", this.AppName);
+            output.Write(prefix);
+            int indent = prefix.Length;
+
+            var wrapper = new WordWrapper(output, indent, ArgHelpLineLength);
+            foreach (var name in this.LongNames)
+            {
+                var arg = this.Arguments[name];
+                if (arg.IsHidden)
+                {
+                    continue;
+                }
+
+                string text = arg.LongSyntax;
+
+                if (!arg.IsRequired)
+                {
+                    text = "[" + text + "]";
+                }
+
+                wrapper.WriteWord(text);
+            }
+
+            output.WriteLine();
+            output.WriteLine();
+            wrapper = new WordWrapper(output, 0, ArgHelpLineLength);
+            wrapper.Write(this.AppDescription);
+            output.WriteLine();
+            output.WriteLine();
+            var visitedOptions = new HashSet<string>();
+
+            foreach (var name in this.GroupNames)
+            {
+                CommandLineGroup g = this.Groups[name];
+                if (g.IsHidden)
+                {
+                    continue;
+                }
+
+                output.WriteLine();
+                output.WriteLine(g.Description + ":");
+                output.WriteLine(new string('-', g.Description.Length + 1));
+                foreach (var option in this.LongNames)
+                {
+                    var arg = this.Arguments[option];
+                    if (arg.IsHidden)
+                    {
+                        continue;
+                    }
+
+                    if (arg.Group == name)
+                    {
+                        visitedOptions.Add(option);
+
+                        string syntax = "  ";
+                        if (!string.IsNullOrEmpty(arg.ShortName))
+                        {
+                            syntax += string.Format("{0}, ", arg.ShortSyntax);
+                        }
+
+                        syntax += string.Format("{0} ", arg.LongSyntax);
+                        output.Write(syntax);
+                        if (syntax.Length < ArgHelpIndent)
+                        {
+                            output.Write(new string(' ', ArgHelpIndent - syntax.Length));
+                        }
+                        else
+                        {
+                            output.WriteLine();
+                            output.Write(new string(' ', ArgHelpIndent));
+                        }
+
+                        if (!string.IsNullOrEmpty(arg.Description))
+                        {
+                            wrapper = new WordWrapper(output, ArgHelpIndent, ArgHelpLineLength);
+                            wrapper.Write(arg.Description);
+                        }
+
+                        output.WriteLine();
+                    }
+                }
+
+                output.WriteLine();
+            }
+
+            bool optionalHeader = false;
+            foreach (var option in this.LongNames)
+            {
+                var arg = this.Arguments[option];
+                if (arg.IsHidden)
+                {
+                    continue;
+                }
+
+                if (!visitedOptions.Contains(arg.LongName))
+                {
+                    if (!optionalHeader)
+                    {
+                        optionalHeader = true;
+                        const string optionalBanner = "Optional Arguments:";
+                        output.WriteLine(optionalBanner);
+                        output.WriteLine(new string('-', optionalBanner.Length));
+                    }
+
+                    string syntax = "  ";
+                    if (!string.IsNullOrEmpty(arg.ShortName))
+                    {
+                        syntax += string.Format("{0}, ", arg.ShortSyntax);
+                    }
+
+                    syntax += string.Format("{0} ", arg.LongSyntax);
+                    output.Write(syntax);
+                    if (syntax.Length < ArgHelpIndent)
+                    {
+                        output.Write(new string(' ', ArgHelpIndent - syntax.Length));
+                    }
+                    else
+                    {
+                        output.WriteLine();
+                        output.Write(new string(' ', ArgHelpIndent));
+                    }
+
+                    if (!string.IsNullOrEmpty(arg.Description))
+                    {
+                        wrapper = new WordWrapper(output, ArgHelpIndent, ArgHelpLineLength);
+                        wrapper.Write(arg.Description);
+                    }
+
+                    output.WriteLine();
+                }
+            }
+        }
+    }
+}

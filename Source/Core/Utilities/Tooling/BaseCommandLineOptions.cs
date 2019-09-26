@@ -2,16 +2,20 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text.RegularExpressions;
 using Microsoft.Coyote.IO;
 
-namespace Microsoft.Coyote.Utilities
+namespace Microsoft.Coyote.Tooling.Utilities
 {
     /// <summary>
-    /// The Coyote base command line options.
+    /// Some common command line options shared by all Coyote tools.
     /// </summary>
     public abstract class BaseCommandLineOptions
     {
+        /// <summary>
+        /// The command line parser to use.
+        /// </summary>
+        protected CommandLineArgumentParser Parser;
+
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -25,26 +29,47 @@ namespace Microsoft.Coyote.Utilities
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseCommandLineOptions"/> class.
         /// </summary>
-        /// <param name="args">Array of arguments</param>
-        public BaseCommandLineOptions(string[] args)
+        public BaseCommandLineOptions(string appName, string appDescription)
         {
-            this.Configuration = Configuration.Create();
-            this.Options = args;
+            this.Parser = new CommandLineArgumentParser(appName, appDescription);
+        }
+
+        /// <summary>
+        /// Add common options dealing with timeouts, logging and debugging.
+        /// </summary>
+        public void AddCommonOptions()
+        {
+            var group = this.Parser.GetOrCreateGroup("Basic", "Basic options");
+            group.AddArgument("timeout", null, "Timeout in seconds (disabled by default)", typeof(uint));
+            group.AddArgument("outdir", "o", "Dump output to directory x(absolute path or relative to current directory");
+            group.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
+            group.AddArgument("debug", "d", "Enable debugging", typeof(bool)).IsHidden = true;
         }
 
         /// <summary>
         /// Parses the command line options and returns a configuration.
         /// </summary>
-        /// <returns>Configuration</returns>
-        public Configuration Parse()
+        /// <returns>The Configuration object populated with the parsed command line options.</returns>
+        public Configuration Parse(string[] args)
         {
-            for (int idx = 0; idx < this.Options.Length; idx++)
+            this.Configuration = Configuration.Create();
+            try
             {
-                this.ParseOption(this.Options[idx]);
+                var result = this.Parser.ParseArguments(args);
+
+                foreach (var arg in result)
+                {
+                    this.HandledParsedArgument(arg);
+                }
+
+                this.UpdateConfiguration();
+            }
+            catch (Exception ex)
+            {
+                this.Parser.PrintHelp(Console.Out);
+                Error.ReportAndExit(ex.Message);
             }
 
-            this.CheckForParsingErrors();
-            this.UpdateConfiguration();
             return this.Configuration;
         }
 
@@ -52,81 +77,30 @@ namespace Microsoft.Coyote.Utilities
         /// Parses the given option.
         /// </summary>
         /// <param name="option">Option</param>
-        protected virtual void ParseOption(string option)
+        protected virtual void HandledParsedArgument(CommandLineArgument option)
         {
-            if (IsMatch(option, @"^[\/|-]?$"))
+            switch (option.LongName)
             {
-                this.ShowHelp();
-                Environment.Exit(0);
-            }
-            else if (IsMatch(option, @"^[\/|-]o:") && option.Length > 3)
-            {
-                this.Configuration.OutputFilePath = option.Substring(3);
-            }
-            else if (IsMatch(option, @"^[\/|-]v$"))
-            {
-                this.Configuration.IsVerbose = true;
-            }
-            else if (IsMatch(option, @"^[\/|-]v:") && option.Length > 3)
-            {
-                if (!int.TryParse(option.Substring(3), out int i) && i > 0 && i <= 3)
-                {
-                    Error.ReportAndExit("This option is deprecated; please use '-v'.");
-                }
-
-                this.Configuration.IsVerbose = i > 0;
-            }
-            else if (IsMatch(option, @"^[\/|-]debug$"))
-            {
-                this.Configuration.EnableDebugging = true;
-                Debug.IsEnabled = true;
-            }
-            else if (IsMatch(option, @"^[\/|-]warnings-on$"))
-            {
-                this.Configuration.ShowWarnings = true;
-            }
-            else if (IsMatch(option, @"^[\/|-]timeout:") && option.Length > 9)
-            {
-                if (!int.TryParse(option.Substring(9), out int i) &&
-                    i > 0)
-                {
-                    Error.ReportAndExit("Please give a valid timeout '-timeout:[x]', where [x] > 0 seconds.");
-                }
-
-                this.Configuration.Timeout = i;
-            }
-            else
-            {
-                this.ShowHelp();
-                Error.ReportAndExit("cannot recognise command line option '" + option + "'.");
+                case "outdir":
+                    this.Configuration.OutputFilePath = (string)option.Value;
+                    break;
+                case "verbose":
+                    this.Configuration.IsVerbose = true;
+                    break;
+                case "debug":
+                    this.Configuration.EnableDebugging = true;
+                    break;
+                case "timeout":
+                    this.Configuration.Timeout = (int)(uint)option.Value;
+                    break;
+                default:
+                    throw new Exception(string.Format("Unhandled parsed argument: '{0}'", option.LongName));
             }
         }
 
         /// <summary>
-        /// Checks for parsing errors.
-        /// </summary>
-        protected abstract void CheckForParsingErrors();
-
-        /// <summary>
-        /// Updates the configuration depending on the
-        /// user specified options.
+        /// Updates the configuration depending on the user specified options (set useful defaults, etc).
         /// </summary>
         protected abstract void UpdateConfiguration();
-
-        /// <summary>
-        /// Shows help.
-        /// </summary>
-        protected abstract void ShowHelp();
-
-        /// <summary>
-        /// Checks if the given input is a matches the specified pattern.
-        /// </summary>
-        /// <param name="input">The input to match.</param>
-        /// <param name="pattern">The pattern to match.</param>
-        /// <returns>True if the input matches the pattern.</returns>
-        protected static bool IsMatch(string input, string pattern)
-        {
-            return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
-        }
     }
 }

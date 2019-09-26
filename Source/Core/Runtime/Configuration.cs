@@ -132,6 +132,12 @@ namespace Microsoft.Coyote
         public uint ParallelBugFindingTasks;
 
         /// <summary>
+        /// Put a debug prompt at the beginning of each child TestProcess.
+        /// </summary>
+        [DataMember]
+        public bool ParallelDebug;
+
+        /// <summary>
         /// Specify ip address if you want to use something other than localhost.
         /// </summary>
         [DataMember]
@@ -289,12 +295,6 @@ namespace Microsoft.Coyote
         public bool IsVerbose;
 
         /// <summary>
-        /// Shows warnings.
-        /// </summary>
-        [DataMember]
-        public bool ShowWarnings;
-
-        /// <summary>
         /// Enables debugging.
         /// </summary>
         [DataMember]
@@ -340,6 +340,7 @@ namespace Microsoft.Coyote
             this.MaxUnfairSchedulingSteps = 0;
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
             this.ParallelBugFindingTasks = 0;
+            this.ParallelDebug = false;
             this.RunAsParallelBugFindingTask = false;
             this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
             this.TestingSchedulerIpAddress = null;
@@ -368,7 +369,6 @@ namespace Microsoft.Coyote
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
-            this.ShowWarnings = false;
             this.EnableDebugging = false;
             this.EnableProfiling = false;
 

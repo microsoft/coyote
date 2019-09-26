@@ -1540,7 +1540,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         public void TestSequenceNotSortedInChainReplicationProtocol(int seed)
         {
             var configuration = GetConfiguration();
-            configuration.SchedulingStrategy = Utilities.SchedulingStrategy.FairPCT;
+            configuration.SchedulingStrategy = SchedulingStrategy.FairPCT;
             configuration.PrioritySwitchBound = 1;
             configuration.MaxSchedulingSteps = 100;
             configuration.RandomSchedulingSeed = seed;

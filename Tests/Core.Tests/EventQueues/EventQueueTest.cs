@@ -48,20 +48,22 @@ namespace Microsoft.Coyote.Core.Tests
             var machineStateManager = new MockMachineStateManager(logger,
                 (notification, evt, _) => { });
 
-            var queue = new EventQueue(machineStateManager);
-            Assert.Equal(0, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                Assert.Equal(0, queue.Size);
 
-            var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
-            Assert.Equal(1, queue.Size);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                Assert.Equal(1, queue.Size);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
 
-            enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
-            Assert.Equal(2, queue.Size);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                Assert.Equal(2, queue.Size);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
 
-            enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
-            Assert.Equal(3, queue.Size);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
+                Assert.Equal(3, queue.Size);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -71,39 +73,41 @@ namespace Microsoft.Coyote.Core.Tests
             var machineStateManager = new MockMachineStateManager(logger,
                 (notification, evt, _) => { });
 
-            var queue = new EventQueue(machineStateManager);
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            queue.Enqueue(new E1(), Guid.Empty, null);
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E1>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                queue.Enqueue(new E1(), Guid.Empty, null);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E1>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            queue.Enqueue(new E3(), Guid.Empty, null);
-            queue.Enqueue(new E2(), Guid.Empty, null);
-            queue.Enqueue(new E1(), Guid.Empty, null);
+                queue.Enqueue(new E3(), Guid.Empty, null);
+                queue.Enqueue(new E2(), Guid.Empty, null);
+                queue.Enqueue(new E1(), Guid.Empty, null);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E3>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(2, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E3>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(2, queue.Size);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E2>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(1, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E2>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(1, queue.Size);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E1>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E1>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -113,14 +117,16 @@ namespace Microsoft.Coyote.Core.Tests
             var machineStateManager = new MockMachineStateManager(logger,
                 (notification, evt, _) => { });
 
-            var queue = new EventQueue(machineStateManager);
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerNotRunning, enqueueStatus);
-            Assert.Equal(1, queue.Size);
+                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerNotRunning, enqueueStatus);
+                Assert.Equal(1, queue.Size);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -130,16 +136,18 @@ namespace Microsoft.Coyote.Core.Tests
             var machineStateManager = new MockMachineStateManager(logger,
                 (notification, evt, _) => { });
 
-            var queue = new EventQueue(machineStateManager);
-            queue.Raise(new E1(), Guid.Empty);
-            Assert.True(queue.IsEventRaised);
-            Assert.Equal(0, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                queue.Raise(new E1(), Guid.Empty);
+                Assert.True(queue.IsEventRaised);
+                Assert.Equal(0, queue.Size);
 
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E1>(e);
-            Assert.Equal(DequeueStatus.Raised, deqeueStatus);
-            Assert.False(queue.IsEventRaised);
-            Assert.Equal(0, queue.Size);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E1>(e);
+                Assert.Equal(DequeueStatus.Raised, deqeueStatus);
+                Assert.False(queue.IsEventRaised);
+                Assert.Equal(0, queue.Size);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -159,30 +167,25 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-
-            var task = Task.Run(async () =>
+            using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEvent = await queue.ReceiveAsync(typeof(E1));
+                var receivedEventTask = queue.ReceiveAsync(typeof(E1));
+
+                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.Received, enqueueStatus);
+                Assert.Equal(0, queue.Size);
+
+                var receivedEvent = await receivedEventTask;
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(0, queue.Size);
-            });
 
-            // Small delay to force ordering.
-            await Task.Delay(300);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.Received, enqueueStatus);
-            Assert.Equal(0, queue.Size);
-
-            await task;
-
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
-
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -202,41 +205,36 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-
-            var task = Task.Run(async () =>
+            using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEvent = await queue.ReceiveAsync(typeof(E4), evt => (evt as E4).Value);
+                var receivedEventTask = queue.ReceiveAsync(typeof(E4), evt => (evt as E4).Value);
+
+                var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(1, queue.Size);
+
+                enqueueStatus = queue.Enqueue(new E4(true), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.Received, enqueueStatus);
+                Assert.Equal(1, queue.Size);
+
+                var receivedEvent = await receivedEventTask;
                 Assert.IsType<E4>(receivedEvent);
                 Assert.True((receivedEvent as E4).Value);
                 Assert.Equal(1, queue.Size);
-            });
 
-            // Small delay to force ordering.
-            await Task.Delay(300);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E4>(e);
+                Assert.False((e as E4).Value);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(1, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            enqueueStatus = queue.Enqueue(new E4(true), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.Received, enqueueStatus);
-            Assert.Equal(1, queue.Size);
-
-            await task;
-
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E4>(e);
-            Assert.False((e as E4).Value);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(0, queue.Size);
-
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
-
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -256,32 +254,34 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-            var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(1, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(1, queue.Size);
 
-            enqueueStatus = queue.Enqueue(new E4(true), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(2, queue.Size);
+                enqueueStatus = queue.Enqueue(new E4(true), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(2, queue.Size);
 
-            var receivedEvent = await queue.ReceiveAsync(typeof(E4), evt => (evt as E4).Value);
-            Assert.IsType<E4>(receivedEvent);
-            Assert.True((receivedEvent as E4).Value);
-            Assert.Equal(1, queue.Size);
+                var receivedEvent = await queue.ReceiveAsync(typeof(E4), evt => (evt as E4).Value);
+                Assert.IsType<E4>(receivedEvent);
+                Assert.True((receivedEvent as E4).Value);
+                Assert.Equal(1, queue.Size);
 
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E4>(e);
-            Assert.False((e as E4).Value);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E4>(e);
+                Assert.False((e as E4).Value);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -301,21 +301,23 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-            var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(1, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(1, queue.Size);
 
-            var receivedEvent = await queue.ReceiveAsync(typeof(E1));
-            Assert.IsType<E1>(receivedEvent);
-            Assert.Equal(0, queue.Size);
+                var receivedEvent = await queue.ReceiveAsync(typeof(E1));
+                Assert.IsType<E1>(receivedEvent);
+                Assert.Equal(0, queue.Size);
 
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -335,30 +337,25 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-
-            var task = Task.Run(async () =>
+            using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEvent = await queue.ReceiveAsync(typeof(E1), typeof(E2));
+                var receivedEventTask = queue.ReceiveAsync(typeof(E1), typeof(E2));
+
+                var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.Received, enqueueStatus);
+                Assert.Equal(0, queue.Size);
+
+                var receivedEvent = await receivedEventTask;
                 Assert.IsType<E2>(receivedEvent);
                 Assert.Equal(0, queue.Size);
-            });
 
-            // Small delay to force ordering.
-            await Task.Delay(300);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.Received, enqueueStatus);
-            Assert.Equal(0, queue.Size);
-
-            await task;
-
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
-
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -378,44 +375,39 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-
-            var task = Task.Run(async () =>
+            using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEvent = await queue.ReceiveAsync(typeof(E1));
+                var receivedEventTask = queue.ReceiveAsync(typeof(E1));
+
+                var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(1, queue.Size);
+
+                enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(2, queue.Size);
+
+                enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.Received, enqueueStatus);
+                Assert.Equal(2, queue.Size);
+
+                var receivedEvent = await receivedEventTask;
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(2, queue.Size);
-            });
 
-            // Small delay to force ordering.
-            await Task.Delay(300);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E2>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(1, queue.Size);
 
-            var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(1, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E3>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(2, queue.Size);
-
-            enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.Received, enqueueStatus);
-            Assert.Equal(2, queue.Size);
-
-            await task;
-
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E2>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(1, queue.Size);
-
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E3>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(0, queue.Size);
-
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -435,39 +427,41 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 });
 
-            var queue = new EventQueue(machineStateManager);
-            var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(1, queue.Size);
+            using (var queue = new EventQueue(machineStateManager))
+            {
+                var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(1, queue.Size);
 
-            enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(2, queue.Size);
+                enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(2, queue.Size);
 
-            enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
-            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
-            Assert.Equal(3, queue.Size);
+                enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
+                Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+                Assert.Equal(3, queue.Size);
 
-            var receivedEvent = await queue.ReceiveAsync(typeof(E1));
-            Assert.IsType<E1>(receivedEvent);
-            Assert.Equal(2, queue.Size);
+                var receivedEvent = await queue.ReceiveAsync(typeof(E1));
+                Assert.IsType<E1>(receivedEvent);
+                Assert.Equal(2, queue.Size);
 
-            var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E2>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(1, queue.Size);
+                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E2>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(1, queue.Size);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.IsType<E3>(e);
-            Assert.Equal(DequeueStatus.Success, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.IsType<E3>(e);
+                Assert.Equal(DequeueStatus.Success, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
-            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
-            Assert.Equal(0, queue.Size);
+                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+                Assert.Equal(0, queue.Size);
 
-            await Task.WhenAny(tcs.Task, Task.Delay(500));
-            Assert.True(tcs.Task.IsCompleted);
+                await Task.WhenAny(tcs.Task, Task.Delay(500));
+                Assert.True(tcs.Task.IsCompleted);
+            }
         }
     }
 }

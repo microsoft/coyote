@@ -3,22 +3,30 @@
         window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.11.2.min.js"><\/script>')
 
     </script>
-
     <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.4.1/bootstrap.min.js" crossorigin="anonymous"></script>
-
-
     <script src="{{ "/assets/js/main.js" | relative_url }}"></script>
     <script src="{{ "/assets/js/plugins.js" | relative_url }}"></script>
+    <script src="{{ "/assets/js/vendor/simple-jekyll-search.min.js" | relative_url }}"></script>
 
+    <script type="text/javascript">
+        SimpleJekyllSearch({
+            searchInput: document.getElementById('search-input'),
+            resultsContainer: document.getElementById('results-container'),
+            json: '{{ "/assets/data/search.json" | relative_url }}',
+            searchResultTemplate: '<div class="search-title"><a href="{url}"><h3> {title}</h3></a></div><p>{excerpt}</p></div><hr> ',
+            noResultsText: 'No results found',
+            limit: 10,
+            fuzzy: false,
+            exclude: []
+        })
+
+    </script>
 
     {% if jekyll.environment == "production" %}
     <!--
       see:
     https://jekyllrb.com/docs/configuration/environments/
 -->
-    <!--
-        TODO: do we want analytics? if so, google?
-       . -->
     <script>
         (function(b, o, i, l, e, r) {
             b.GoogleAnalyticsObject = l;

@@ -5,13 +5,11 @@ alt-title:    Coyote
 tagline:      Coyote - for rapid development of reliable asynchronous code.
 baseurl:      "/Coyote"
 
-
 author:
   name:       Microsoft
   url:        https://github.com/Microsoft/Coyote
 
 permalink: pretty #removes .html from generated links
-
 
 source: docs
 
@@ -28,7 +26,9 @@ collections:
   case-studies:
     output: true
     permalink: /:collection/:name
-    
+  portfolio:
+    output: true
+    permalink: /:collection/:name    
     
 plugins:
   - jekyll-feed
@@ -36,13 +36,11 @@ plugins:
   - jekyll-seo-tag
   - jekyll-relative-links
 
-
 source: docs
 
 relative_links:
   enabled:     false
   collections: true
-
 
 # Handling Reading
 safe:         false
@@ -52,11 +50,9 @@ keep_files:   [".git", ".svn"]
 encoding:     "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
-
 # Conversion
 markdown:    kramdown
 highlighter: rouge
-
 
 # Markdown Processors
 rdiscount:
@@ -80,7 +76,3 @@ kramdown:
     coderay_tab_width:         4
     coderay_bold_every:        10
     coderay_css:               style
-
-
-
-

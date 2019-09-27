@@ -2,15 +2,5 @@
     
 cs-toc:
 - name: Azure Batch Service 
-  link: /#
-- name: Azure Blockchain Workbench
-  link: /#
-- name: Azure Blockchain Service
-  link: /#
-- name: Project Osaka 
-  link: /#
-    
-
+  link: /case-studies/azure-batch-service
  
-
-      

@@ -12,23 +12,26 @@ layout: default
         <div class="row display-flex">
            {% if forloop.first == true %}
             <div class="col-md-6  mt--20">
-                <figure class="feature-img-bg img-shadow" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 fade-in-top">
                 <article>
                     <h1>{{ item.title }}</h1>
                     {{ item.content }}
                 </article>
             </div>
             {% else %}
-            <div class="col-md-6">
+            <div class="col-md-6  mb--20  hidden-md hidden-lg">
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
+            </div>
+            <div class="col-md-6 fade-in-top">
                 <article>
                     <h1>{{ item.title }}</h1>
                     {{ item.content }}
                 </article>
             </div>        
-            <div class="col-md-6  mb--20">
-                <figure class="feature-img-bg img-shadow" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
+            <div class="col-md-6  mb--20   hidden-xs hidden-sm">
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('{{ item.feature-img | relative_url }}')"></figure>
             </div>
              {% endif %}
         </div>
@@ -37,7 +40,7 @@ layout: default
 {% when 'basic' %}
     <div class="{{page.template}} container">
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-8 fade-in-top">
                 <article class="mw-600">
                     <h1>{{ page.title }}</h1>
                     {{ content }}
@@ -49,10 +52,10 @@ layout: default
     <div class="{{page.template}} container-fluid container-fluid-no-gutters mb-100">
         <div class="row row-no-gutters  display-flex">
             <div class="col-sm-6">
-                <figure class="feature-img-bg img-shadow" style="background-image: url('{{ page.feature-img | relative_url }}')"></figure>
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('{{ page.feature-img | relative_url }}')"></figure>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-6 fade-in-top">
                 <article>
                     <h1>{{ page.title }}</h1>
                     {{ content }}
@@ -63,7 +66,4 @@ layout: default
 {% else %}
     Please Select a layout template in Front Matter
 {% endcase %}
-
 </section>
-
-

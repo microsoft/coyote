@@ -21,111 +21,144 @@ $black: #000;
     background-color: $white;
 }
 
-/*
- * mixin stubs
- */
-//@breakpoints 
-//.foo {
-//  @include screen(lg) {
-//    width: 20%;
-//  }
-//  @include screen(md) {
-//    width: 40%;
-//  }
-//  @include screen(sm) {
-//    width: 60%;
-//  }
-//  @include screen(xs) {
-//    width: 80%;
-//  }
-//  @include screen(custom, max, 400) {
-//    width: 100%;
-//  }
-//}
-
-
-//@animations mixin stub
-//    // Define animation name, and properties
-//@include keyframes(fade-out) {
-//  0% { opacity: 1; }
-//  90% { opacity: 0; }
-//}
-//// Add animation to element
-//.element {
-//  width: 100px;
-//  height: 100px;
-//  background: black;
-//  @include animation('fade-out 5s 3');
-//}
-
-
-
-
-/*
- * Basic typography
- */
-
-body {
-    font-family: $text-font-stack;
-    font-size: 18px;
-    line-height: 132.5%;
-}
-
-i {
-    color: $brand-color;
-}
-
-a,
-a:hover,
-a:active,
-a:link {
-    color: $inline-link;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-h1 a,
-h2 a,
-h3 a,
-h4 a,
-h5 a,
-h6 a {
-    color: $dark-gray;
-}
-
-h1 {
-    font-size: 40px;
-}
-
-article h2 {
-    font-size: 30px;
-    line-height: 34px;
-    margin-top: 40px;
-}
-
-/*
- * end typography
- */
-
-
 
 /*
  * Navigation
  */
 
-.navbar-default li.active a,
-.navbar-default li a:hover,
-.navbar-default li a:focus {
+.navbar-default {
+    background-color: transparent;
+    height: 110px;
+    border: 1px solid transparent;
+    transition: all .2s ease-in;
+
+}
+
+.navbar-default .navbar-toggle {
+    border-color: transparent;
+
+    .icon-bar {
+        background-color: $brand-color;
+    }
+}
+
+//fixed topnav - shrink onscroll
+.navbar-default.shrink {
+    background-color: $white;
+    height: 60px;
+    border: 1px solid $light-gray;
+    transition: 0.5s;
+    -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-default .navbar-nav > li {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    transition: all .3s ease-in;
+}
+
+.navbar-default.shrink .navbar-nav > li {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.navbar-default .navbar-nav > li > a,
+.navbar-default .navbar-nav > li > a:visited {
+    color: $dark-gray;
+    line-height: 30px;
+    padding: 15px 0 10px 0;
+    transition: 0.2s;
+}
+
+.navbar-default .navbar-nav > li > a:active,
+.navbar-default .navbar-nav > li.active a {
     border-bottom: 3px solid $brand-color;
     color: $dark-gray;
 }
 
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: $brand-color;
+}
+
+//fullscreen menu
+.closebtn {
+    position: absolute;
+    top: 20px;
+    right: 45px;
+    font-size: 60px;
+    display: none;
+}
+
+.closebtn:hover,
+.closebtn:active,
+.closebtn:focus {
+    text-decoration: none;
+}
+
+#navbar.collapse.in,
+#navbar.collapsing {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #403D3B;
+    text-align: center;
+    max-height: none;
+    overflow: hidden;
+
+    a {
+        color: $white;
+        line-height: 20px;
+        border: none;
+
+        &:hover {
+            color: $brand-color;
+        }
+    }
+
+    .closebtn {
+        display: inline;
+    }
+
+    ul {
+        width: 170px;
+        margin: 40px auto 0 auto;
+    }
+
+    .nav > li {
+        padding: 10px;
+    }
+}
 
 // homepage brand
+.navbar-brand {
+    display: block;
+    background: url("/Coyote/assets/images/logo_color.png") no-repeat 30px center;
+    width: 267px;
+    height: 40px;
+    background-size: contain;
+    margin: 30px 0 0 0;
+    transition: .3s;
+
+    @include screen(md) {
+        margin: 15px 0 0 20px;
+        padding: 0;
+        background-position: 10px center;
+        height: 20px;
+        margin-top: 15px;
+    }
+}
+
+.shrink .navbar-brand {
+    height: 20px;
+    margin-top: 15px;
+}
+
 .home {
     .navbar-header {
         position: relative;
@@ -133,72 +166,66 @@ article h2 {
 
     .brand-home {
         position: absolute;
-        transition: height .2s ease-in;
-        transition: width .2s ease-in;
-        transition-delay: .5s;
+        z-index: 10001;
+        background: url("/Coyote/assets/images/logo_rev.png") no-repeat;
+        background-position: center 10px;
+        background-size: 80px auto;
+        transition: all .2s ease-in;
+        //transition-delay: .5s;
+        padding: 0 10px;
+        width: 150px;
+        height: 150px;
+        margin: 0;
+        background-color: $brand-color;
+        color: $white;
 
         &:hover {
             background-color: $brand-color;
             color: $white;
+            text-decoration: none;
         }
 
         @media only screen and (min-width: 768px) {
-            width: 150px;
-            height: 150px;
-            background-color: $brand-color;
-            color: $white;
-        }
-
-        @media only screen and (min-width: 992px) {
             width: 300px;
-            height: 300px;
+            height: 320px;
+            background-size: 180px auto;
+            background-position: center 30px;
+            padding: 0 48px;
         }
 
         span {
             opacity: 1;
-            transition: opacity .2s ease-in;
+            transition: all .2s ease-in;
             color: $white;
-            display: none;
+            display: block;
+            font-size: 14px;
+            line-height: 122.2%;
+            margin: 45px 0 0 25px;
+            font-weight: 100;
 
             @media only screen and (min-width: 768px) {
-                display: block;
-                font-size: 14px;
-                line-height: 122.2%;
-                margin-top: 10px;
-            }
-
-            @media only screen and (min-width: 992px) {
                 font-size: 30px;
-                margin-top: 40px;
+                margin-top: 100px;
+                margin-left: 10px;
             }
         }
 
         &.brand-shrink {
             background-color: transparent;
-            width: 300px;
-            height: 0px;
-            color: $black;
+            background: url("/Coyote/assets/images/logo_color.png") no-repeat 30px center;
+            width: 267px;
+            height: 20px;
+            margin-top: 15px;
+            background-size: contain;
 
             span {
                 opacity: 0;
+                margin-top: -100px;
             }
         }
     }
 }
 
-.external:after {
-    position: relative;
-    top: 1px;
-    display: inline-block;
-    font-family: "Glyphicons Halflings";
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    content: "\e164";
-    padding: 0 0 0 10px;
-}
 
 //sidebar navigation
 .panel-heading {
@@ -223,32 +250,68 @@ article h2 {
 .panel-title > a:hover {
     text-decoration: none
 }
+
 .panel-title > a.active {
     color: $black;
 }
 
-.navmenu-fixed-left .panel-body a {
-    font-size: 14px;
-    position: relative;
-
-    .active,
-    a:hover {
-        text-decoration: none;
-        color: $brand-color;
-
-        &::before {
-            content: '';
-            display: inline-block;
-            position: absolute;
-            left: -10px;
-            width: 2px;
-            height: 14px;
-            background-color: $brand-color;
-            margin-top: 2px;
-        }
-    }
+.navbar-case-studies h1 {
+    margin: 20px 0;
 }
 
+.navbar-case-studies .navbar-nav > li {
+    float: none;
+}
+
+.navbar-case-studies .navbar-nav > li > a {
+    padding: 10px 0;
+    font-size: 14px;
+    line-height: 14px;
+}
+
+.navmenu-fixed-left .panel-body a {
+    font-size: 14px;
+    line-height: 14px;
+    position: relative;
+}
+
+.navmenu-fixed-left a:hover,
+.navmenu-fixed-left .active {
+    text-decoration: none;
+    color: $brand-color;
+}
+
+.navmenu-fixed-left a::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    left: -10px;
+    width: 2px;
+    height: 14px;
+    margin-top: 5px;
+}
+
+.navmenu-fixed-left a.active::before {
+    background-color: $brand-color;
+}
+
+#results-container {
+    p {
+        font-size: 14px;
+    }
+
+    h3 {
+        font-size: 18px;
+
+        &:hover {
+            color: $brand-color;
+        }
+    }
+
+    hr {
+        border-top-color: $black;
+    }
+}
 
 //footer navigation
 footer {
@@ -274,13 +337,19 @@ footer {
     background-color: $light-gray;
     color: $dark-gray;
 
-    ul {
-        border-bottom: 2px solid #ccc;
-    }
-
-    a {
+    a,
+    a:active {
         color: $inline-link;
         font-weight: bold;
+        display: block;
+        border-bottom: 2px solid $black;
+        padding: 10px 0 25px 0;
+    }
+
+    a:hover,
+    a:focus {
+        text-decoration: none;
+        border-bottom: 2px solid $brand-color;
     }
 }
 
@@ -301,28 +370,25 @@ footer {
     @include screen(md) {
         text-align: left;
     }
-
-    @include screen(sm) {
-        text-align: left;
-    }
-
-    @include screen(xs) {
-        text-align: left;
-    }
 }
 
 .footer-dark {
     background-color: $bg-gray;
     color: $white;
 
+    .list-unstyled li {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
     a {
         color: $white;
         font-size: 16px;
-        line-height: 33px;
 
         &:hover,
         &:focus,
         &:active {
+            color: $white;
             text-decoration: underline;
         }
     }
@@ -332,6 +398,10 @@ footer {
     @include screen(custom, max, 555) {
         width: 100%;
     }
+}
+
+.logo-footer {
+    margin: 0 0 0 20px;
 }
 
 //end footer
@@ -350,10 +420,6 @@ footer {
     @include screen(md) {
         padding: inherit;
     }
-
-    @include screen(sm) {
-        padding: inherit;
-    }
 }
 
 
@@ -369,17 +435,31 @@ footer {
     }
 }
 
-.carousel-inner > .item > img {
-    @include screen(custom, max, 1199) {
+.carousel-inner {
+    overflow: visible;
+}
+
+.carousel-inner figure {
+    width: auto;
+    max-width: 750px;
+    min-height: 542px;
+
+    @include screen(xl) {
         max-width: 650px;
+        min-height: 500px;
     }
 
     @include screen(lg) {
-        max-width: 330px;
+        width: 100%;
+        min-height: 390px;
+    }
+
+    @include screen(md) {
+        min-height: 355px;
     }
 
     @include screen(sm) {
-        max-width: 330px;
+        min-height: 250px;
     }
 }
 
@@ -387,22 +467,16 @@ footer {
     position: absolute;
     margin: 0;
     padding: 0;
-    left: -80px;
-    bottom: 240px;
+    left: -62px;
+    bottom: 183px;
     text-align: left;
     width: auto;
 
-    @include screen(custom, max, 1199) {
-        bottom: 180px;
-    }
-
-    @include screen(md) {
-        left: 0;
-    }
-
     @include screen(lg) {
         left: -60px;
+        bottom: 0;
     }
+
 
     li {
         display: inline-block;
@@ -418,6 +492,10 @@ footer {
         display: block;
         float: none;
         padding: 2px 0 2px 30px;
+
+        @include screen(sm) {
+            font-size: 14px;
+        }
     }
 
     .active {
@@ -428,65 +506,87 @@ footer {
         color: $black;
         border-bottom: 1px solid $brand-color;
         padding: 2px 0 2px 30px;
-
-        @include screen(md) {
-            color: $white;
-        }
     }
 }
 
 .carousel-caption {
-    //    position: absolute;
+    position: absolute;
+    top: 0;
     right: 0;
-    bottom: auto;
-    left: auto;
-    top: 40px;
-    //    width: 50%;
-    //    z-index: 10;
-    padding-top: 0;
-    padding-bottom: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0;
     color: inherit;
     text-align: left;
     text-shadow: none;
 
-    @include screen(custom, max, 1199) {
-        top: 10px;
-    }
-
-    @include screen(lg) {
-        top: 10px;
-    }
-
     h1 {
+        position: absolute;
         font-weight: 600;
         text-align: right;
-        margin-bottom: 70px;
+        font-size: 64px;
+        top: 70px;
+        right: 0;
+        max-width: auto;
 
-        @include screen(custom, max, 1199) {
-            margin-bottom: 40px;
+        @include screen(xl) {
+            font-size: 54px;
+            top: 70px;
+            right: 0;
+            margin: 0;
+            max-width: 80%;
         }
 
         @include screen(lg) {
-            margin-bottom: 40px;
+            font-size: 44px;
+            top: 255px;
+
+            margin: 0 20px 0 0;
+        }
+
+        @include screen(md) {
+            font-size: 34px;
+            top: 170px;
+        }
+
+        @include screen(sm) {
+            font-size: 34px;
+            top: 130px;
+            right: 20px;
         }
     }
 
-    p,
-    .btn {
-        margin: 20px 0 20px 770px;
+    .carousel-caption-content {
+        position: absolute;
+        left: 770px;
+        top: auto;
+        bottom: 0;
+        right: auto;
+        width: 200px;
 
-        @include screen(custom, max, 1199) {
-            margin-left: 665px;
+        @include screen(xl) {
+            left: auto;
+            top: auto;
+            bottom: 0;
+            right: 0;
+            width: 200px;
         }
 
         @include screen(lg) {
-            max-width: 650px;
+            top: 400px;
+            width: auto;
+            left: -30px;
+        }
+
+        @include screen(md) {
+            top: 366px;
+        }
+
+        @include screen(sm) {
+            top: 258px;
         }
     }
 
-    .btn {
-        margin-top: 20px;
-    }
 }
 
 /*
@@ -498,20 +598,30 @@ footer {
  */
 
 .section-main {
-    @include screen(xl) {
-        margin-top: 120px;
-    }
+    margin-top: 120px;
 
     @include screen(lg) {
-        margin-top: 120px;
+        margin-top: 110px;
     }
 
     @include screen(md) {
-        margin-top: 120px;
+        margin-top: 60px;
     }
 
     @include screen(sm) {
         margin-top: 70px;
+    }
+}
+
+.container-hero-text {
+    margin: 100px auto;
+
+    @include screen(lg) {
+        margin-top: 214px;
+    }
+
+    @include screen(sm) {
+        margin-top: 290px;
     }
 }
 
@@ -530,10 +640,9 @@ footer {
 }
 
 .display-flex article {
-    @include screen(xl) {
-        max-width: 70%;
-        margin: 40px auto;
-    }
+    margin: 0 auto 40px auto;
+    max-width: 70%;
+
 
     @include screen(lg) {
         max-width: 80%;
@@ -541,18 +650,14 @@ footer {
 
     @include screen(md) {
         max-width: 90%;
+        margin: 0 auto 40px auto;
     }
 
-    @include screen(sm) {
-        max-width: 100%;
-        margin: 20px;
-    }
 }
 
 .container.basic {
     margin-bottom: 50px;
 }
-
 
 .reference .display-flex article {
     max-width: 100%;
@@ -568,6 +673,7 @@ body.gray {
 
 article .btn {
     margin-top: 30px;
+    text-decoration: none;
 }
 
 article .btn:first-of-type {
@@ -578,11 +684,8 @@ article .btn:first-of-type {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
-
-    @include screen(xl) {
-        min-height: 100%;
-        min-width: 550px;
-    }
+    min-height: 100%;
+    min-width: 550px;
 
     @include screen(lg) {
         min-height: 500px;
@@ -591,12 +694,10 @@ article .btn:first-of-type {
 
     @include screen(md) {
         min-height: 400px;
-        min-width: 100vw;
     }
 
     @include screen(sm) {
         min-height: 300px;
-        min-width: 100vw;
     }
 }
 
@@ -618,6 +719,21 @@ article .btn:first-of-type {
 
 .section-tabs h1 {
     margin-bottom: 50px;
+}
+
+.section-quote {
+    margin: 150px auto 100px auto;
+}
+
+
+//hide on page load for transition effects
+#home_figure_1,
+#home_text_1,
+#home_figure_2a,
+#home_figure_2b,
+#home_text_2,
+#home_quote {
+    opacity: 0;
 }
 
 /*
@@ -684,6 +800,10 @@ article .btn:first-of-type {
 .container-fluid-no-gutters {
     padding-right: 0;
     padding-left: 0;
+
+    @include screen(sm) {
+        overflow: hidden;
+    }
 }
 
 /*
@@ -695,19 +815,13 @@ article .btn:first-of-type {
  * Bootstrap - override default styles
  */
 
-
-.navbar-default .navbar-nav > li > a {
-    color: $dark-gray;
-    line-height: 30px;
-    padding: 15px 0 10px 0;
-}
-
 .btn {
     border-radius: 0;
     -webkit-box-shadow: 0px 4px 5px rgba(255, 102, 51, 0.277146);
     -moz-box-shadow: 0px 4px 5px rgba(255, 102, 51, 0.277146);
     box-shadow: 0px 4px 5px rgba(255, 102, 51, 0.277146);
     padding: 8px 22px;
+    transition: .2s;
 }
 
 a.btn-primary {
@@ -716,16 +830,33 @@ a.btn-primary {
     border-color: $brand-color;
 }
 
-a.btn-primary:hover,
-a.btn-primary.active,
-a.btn-primary:active,
-.open > .dropdown-toggle.btn-primary,
-a.btn-primary.focus,
-a.btn-primary:focus {
+a.btn-primary:hover {
     color: $white;
+    background-color: lighten($brand-color, 10%);
+    border-color: lighten($brand-color, 10%);
+
+}
+
+a.btn-primary.active,
+a.btn-primary:active {
     background-color: darken($brand-color, 10%);
     border-color: darken($brand-color, 10%);
 }
+
+a.btn-primary.focus,
+a.btn-primary:focus,
+.btn-primary.active.focus,
+.btn-primary.active:focus,
+.btn-primary.active:hover,
+.btn-primary:active.focus,
+.btn-primary:active:focus,
+.btn-primary:active:hover {
+    background-color: $brand-color;
+    border-color: $brand-color;
+    outline: 1px solid $black;
+    outline-offset: 2px;
+}
+
 
 .btn-default {
     border-radius: 0;
@@ -776,8 +907,33 @@ a.btn-primary:focus {
 
 .panel-title {
     font-size: 18px;
+
+    a {
+        color: $inline-link;
+    }
 }
 
+
+
+.list-unstyled .learn-tertiary {
+    list-style: none;
+    padding: 0 0 0 17px;
+    li {
+        padding: 5px 0;
+    }
+    li:before {
+        /*Using a Bootstrap glyphicon as the bullet point*/
+        content: "\e080";
+        font-family: 'Glyphicons Halflings';
+        font-size: 9px;
+        float: left;
+        margin-top: 4px;
+        margin-left: -17px;
+        color: #ccc;
+    }
+}
+
+//buttons
 .btn.active.focus,
 .btn.active:focus,
 .btn.focus,
@@ -788,135 +944,27 @@ a.btn-primary:focus {
     outline-offset: 0;
 }
 
-.navbar-default .navbar-toggle {
-    border-color: transparent;
-
-    .icon-bar {
-        background-color: $brand-color;
-    }
-}
-
-
-.navbar-collapse.in,
-.navbar-collapse.collapsing {
-    background-color: $white;
-
-    .navbar-nav {
-        margin: 0;
-    }
-
-    .navbar-nav > li {
-        padding-top: 0;
-        padding-bottom: 0;
-        text-align: right;
-
-        &.active a {
-            border-right: 3px solid #ff6633;
-        }
-
-        a {
-            border-bottom: none;
-            line-height: normal;
-            border-right: 3px solid $white;
-            padding: 6px 10px 6px 0;
-
-            &:hover,
-            .active {
-                border-right: 3px solid #ff6633;
-            }
-        }
-    }
-}
-
-
-.navbar-default {
-    background-color: transparent;
-    height: 110px;
-    border: 1px solid transparent;
-    transition: all .2s ease-in;
-}
-
-.navbar-default {
-    @include screen(md) {
-        background-color: $white;
-    }
-
-    @include screen(sm) {
-        background-color: $white;
-    }
-
-    @include screen(xs) {
-        background-color: $white;
-    }
-}
-
-//fixed topnav - shrink onscroll
-.navbar-default.shrink {
-    background-color: $white;
-    height: 60px;
-    border: 1px solid $light-gray;
-    -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-    -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-}
-
-.navbar-default {
-    @include screen(md) {
-        background-color: $white;
-        height: 60px;
-        border: 1px solid $light-gray;
-        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-    }
-
-    @include screen(sm) {
-        background-color: $white;
-        height: 60px;
-        border: 1px solid $light-gray;
-        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-    }
-
-    @include screen(xs) {
-        background-color: $white;
-        height: 60px;
-        border: 1px solid $light-gray;
-        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-    }
-}
-
-.navbar-default .navbar-nav > li {
-    padding-top: 15px;
-    padding-bottom: 15px;
-    transition: all .3s ease-in;
-}
-
-.navbar-default.shrink .navbar-nav > li {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
 
 //reference section layouts
 .navmenu-fixed-left-wrapper {
     background-color: $learn-gray;
     max-width: 300px;
+
     @include screen(lg) {
         width: 27%;
     }
+
     @include screen(md) {
         width: 100%;
         max-width: none;
     }
+
     .navmenu-fixed-left {
-        padding: 120px 20px 0;
+        padding: 120px 20px 0 30px;
+
         @include screen(md) {
-            padding: 80px 10px 20px 10px;
-        }        
+            padding: 80px 20px 20px 30px;
+        }
     }
 }
 
@@ -930,6 +978,20 @@ a.btn-primary:focus {
     }
 }
 
+.has-search .form-control-feedback {
+    right: initial;
+    left: 0;
+    color: #ccc;
+}
+
+.has-search .form-control {
+    padding-right: 12px;
+    padding-left: 34px;
+}
+
+#results-container {
+    padding: 0;
+}
 
 
 blockquote {
@@ -954,7 +1016,7 @@ blockquote {
     }
 }
 
-code {
+code[data-clipboard-target] {
     padding: 12px 22px 12px 14px;
     margin: 20px 0;
     font-size: 90%;
@@ -962,10 +1024,9 @@ code {
     background-color: #555;
     border-radius: 4px;
     display: block;
-
 }
 
-code::after {
+code[data-clipboard-target]::after {
     font-family: "Font Awesome 5 Free";
     content: "\f0c5";
     font-weight: 900;
@@ -983,9 +1044,11 @@ pre code::after {
     content: none;
 }
 
-//trigger navbar collapse sooner so nav doesn't collide with branding 
-@media (max-width: 1120px) {
-    .navbar-header {
+//trigger navbar collapse sooner so topnav doesn't collide with branding 
+@media (max-width: 1110px) {
+
+    .navbar-header,
+    .navbar-brand {
         float: none;
     }
 
@@ -1016,14 +1079,6 @@ pre code::after {
         padding-bottom: 10px;
     }
 
-    #navbar.collapse.in {
-        display: block !important;
-        padding-right: 0;
-        border: 1px solid #f3f3f3;
-        -webkit-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        -moz-box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-        box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.05);
-    }
 }
 
 .nav-tabs {
@@ -1031,6 +1086,11 @@ pre code::after {
         margin-left: -10px;
         margin-top: 8px;
     }
+}
+
+.nav > li > a:focus,
+.nav > li > a:hover {
+    background-color: transparent;
 }
 
 .nav-tabs > li > a,
@@ -1041,6 +1101,92 @@ pre code::after {
     @include screen(sm) {
         font-size: 16px;
         padding: 6px 6px;
-
     }
 }
+
+.list-unstyled li {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.form-control:focus {
+    border-color: $brand-color;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(255, 102, 51, 0.23);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(255, 102, 51, 0.23);
+}
+
+/*
+ *  End Bootstrap overrides 
+ */
+
+/*
+ * Basic typography --
+   keep at botom of this file to avoid inheritence issues
+ */
+
+body {
+    font-family: $text-font-stack;
+    font-size: 18px;
+    line-height: 132.5%;
+    overflow-x: hidden;
+}
+
+i {
+    color: $brand-color;
+}
+
+a {
+    color: $inline-link;
+    text-decoration: none;
+}
+
+a:hover {
+    color: $brand-color;
+    text-decoration: underline;
+}
+
+a:focus,
+a:active {
+    color: $brand-color;
+    text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+    color: $dark-gray;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+article {
+    h2 {
+        font-size: 30px;
+        line-height: 34px;
+        margin-top: 40px;
+    }
+
+    li {
+        margin: 20px 0;
+    }
+
+    a {
+        text-decoration: underline;
+    }
+}
+
+/*
+ * end typography
+ */

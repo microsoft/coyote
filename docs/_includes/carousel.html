@@ -1,5 +1,4 @@
 <div id="carousel_home" class="carousel slide" data-ride="carousel">
-    <!-- Indicators -->
     <ol class="carousel-indicators">
        {% for item in page.carousel %}
         <li data-target="#carousel_home" data-slide-to="{{ forloop.index0 }}" class="{% if forloop.first == true %}active{% endif %}">0{{ forloop.index }}</li>
@@ -8,11 +7,13 @@
     <div class="carousel-inner" role="listbox">
        {% for item in page.carousel %}
         <div class="item {% if forloop.first == true %}active{% endif %}">
-            <img src="{{ item.img }}" alt="{{ item.title }}" class="img-responsive">
+            <figure class="fade-in" style="background-image: url('{{ item.img | relative_url }}')"></figure>
             <div class="carousel-caption">
-                <h1>{{ item.title }}</h1>
-                {{ item.content }}
-                <a href="{{ item.link }}" class="btn btn-primary"> Get started</a>
+                <h1 class="slide-in-fwd-center">{{ item.title }}</h1>
+                <div class="carousel-caption-content slide-in-fwd-center">
+                    {{ item.content }}
+                    <a href="{{ item.link }}" class="btn btn-primary"> Get started</a>
+                </div>
             </div>
         </div>
         {% endfor %} 

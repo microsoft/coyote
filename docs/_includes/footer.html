@@ -14,7 +14,7 @@
                         <li><i class="fab fa-{{ item.i }} fa-3x pb-30"></i>
                         </li>
                         <li><strong>{{ item.p }}</strong></li>
-                        <li><a href="{{ item.link }}">Stay in the loop ></a></li>
+                        <li><a href="{{ item.link }}" {% if item.external == true  %}target="_blank"{% endif %}>{{ item.link-text }}</a></li>
                     </ul>
                 </div>
                 {% endfor %}
@@ -25,7 +25,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="hidden-xs col-sm-5 col-md-6">
-                    <h4>{{ site.data.global.alt-title }}</h4>
+                    <a href="{{ site.baseurl }}/" title="homepage" class="logo-footer"><img src="/Coyote/assets/images/logo_mark.png" alt="Coyote"></a>
                 </div>
                 {% for item in site.data.navigation-footer.dark %}
                 <div class="col-sm-2 col-xs-4 footer-dark-col">
@@ -33,7 +33,7 @@
                         <h4>{{ item.title }}</h4>
                         <ul class="list-unstyled">
                             {% for entry in item.subfolderitems %}
-                            <li><a href="{{ entry.link }}">{{ entry.name }}</a></li>
+                            <li><a href="{{ entry.link   | relative_url  }}"  {% if entry.external == true  %}target="_blank"{% endif %}>{{ entry.name }}</a></li>
                             {% endfor %}
                         </ul>
                     </nav>
@@ -47,7 +47,7 @@
                 <div class="col-sm-6">
                     <ul class="list-unstyled list-inline footnote-legal">
                        {% for item in site.data.navigation-footer.footnote %}
-                        <li><a href="{{ item.link }}">{{ item.name }}</a></li>
+                        <li><a href="{{ item.link   | relative_url  }}">{{ item.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>

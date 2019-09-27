@@ -1,35 +1,35 @@
 ---
 title: Home
+section: home
 carousel:
   - title: Programmatic specifications
     content: |
         <p>Write safety and liveness specifications easily (similar to TLA+) and programmatically in C#.</p>
-    link: /#
-    img: https://via.placeholder.com/750x542    
+    link: /Coyote/install
+    img: /assets/images/bg-slider-1.png   
   - title: Lightweight runtime
     content: |
         <p>Experience an efficient lightweight runtime that’s built on top of the Task Parallel Library.</p>
-        <p> The flexible runtime works with any communication and storage layer and can be used to deploy a Foo program in production.</p>
-    link: /#
-    img: https://via.placeholder.com/750x542    
+        <p> The flexible runtime works with any communication and storage layer and can be used to deploy a Coyote program in production.</p>
+    link: /Coyote/install
+    img: /assets/images/bg-slider-2.png   
   - title: Systematic testing engine
     content: |
         <p>Discover a testing engine that controls program schedule and all declared sources of nondeterminism such as failures and timeouts.</p>
-        <p>Bugs in executable code are reported via a reproducible deterministic trace that can be replayed in Visual Studio’s debugger.</p>  
-    img: https://via.placeholder.com/750x542        
-    link: /#
-    img: https://via.placeholder.com/750x542    
+        <p>Bugs in executable code are reported via a reproducible deterministic trace that can be replayed in Visual Studio’s debugger.</p>      
+    link: /Coyote/install
+    img: /assets/images/bg-slider-3.png     
   - title: A growing community
     content: |
         <p>Contribute and be a part of Coyote's extraordinary community. Help us equip developers to rapidly build reliable asynchronous software.</p>                
-    link: /#
-    img: https://via.placeholder.com/750x542
+    link: /Coyote/install
+    img: /assets/images/bg-slider-4.png
 ---
 <section class="section-main">
     <section class="container">
         {% include carousel.html %}
     </section>
-    <section class="container mt-80 mb-80">
+    <section class="container container-hero-text">
         <div class="row display-flex">
             <div class="col-md-8" style="margin: 0 auto">
                 <h2>Fearless coding for cloud services</h2>
@@ -40,27 +40,54 @@ carousel:
             </div>
         </div>
     </section>
-    <section class="container-fluid container-gray">
-        <!-- Example row of columns -->
-        <div class="row aligner">
-            <div class="col-sm-6">
-                <img src="/Coyote/assets/images/home.jpg" alt="Coyote" class="img-responsive mt--20 mb--20 img-shadow">
+
+   <section class="grid container-fluid container-fluid-no-gutters container-gray mb-100">
+        <div class="row display-flex">
+            <div class="col-md-6  mt--20"  id="home_figure_1">
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('/Coyote/assets/images/home.jpg')"></figure>
             </div>
-            <div class="col-sm-6 aligner-item pl-50 pt-50 pb-50">
-                <h3>{{ site.data.global.alt-title }}</h3>
-                <h4>Autodiscovers nondeterministic bugs</h4>
+            <div class="col-md-6"  id="home_text_1">
+                <article>
+                <h2>{{ site.data.global.alt-title }}'s benefits</h2>
+                <h3>Autodiscovers nondeterministic bugs</h3>
                 <p>Coyote’s testing engine helps find and reproduce hard-to-find safety and liveness bugs. </p>
-                <h4>Bridges the design-to-code gap</h4>
+                <h3>Bridges the design-to-code gap</h3>
                 <p>Coyote ensures design and code remain in sync, dramatically simplifying the addition of new features.</p>
-                <h4>Enables one-box testing</h4>
+                <h3>Enables one-box testing</h3>
                 <p>Coyote’s test-and-report capacity liberates developers to code with confidence and creativity. </p>
-                <h4>Increases productivity up to 60 percent</h4>
+                <h3>Increases productivity up to 60 percent</h3>
                 <p>Coyote's language design and runtime allow developers to focus on application logic.</p>
-                <a href="#">Learn more ></a>
+                <a href="/Coyote/learn/overview/what-is-coyote">Learn more &#62;</a>
+                </article>
             </div>
         </div>
+        <div class="row display-flex">
+           <div class="col-md-6  mb--20 hidden-md hidden-lg"  id="home_figure_2a">
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('/Coyote/assets/images/home-case-studies.jpg')"></figure>
+            </div>
+            <div class="col-md-6" id="home_text_2">
+                <article>
+                    <h2>Case studies</h2>
+                    <h3>Azure Batch Service</h3>
+                    <p> This team wanted to invest in a new architecture of multiple microservices that would reliably scale to meet the demands of their popular cloud-scale job-scheduling service. Each microservice had to: </p> 
+                        <ul>
+                            <li>Process requests asynchronously as they arrived. </li>
+                            <li>Support cancellation of an in-flight request, enabling quick turnaround for auto-scaling.</li>
+                            <li>Be resilient to failures of virtual machines hosting the service. </li>
+                        </ul>
+
+                        <p>Choosing Coyote, the team experienced a previously unheard-of end-to-end test coverage, discovered hard-to-find bugs in a matter of minutes, and saved months of developer time. </p>
+
+                     <p><a href="/Coyote/case-studies/azure-batch-service">Learn more  &#62;</a></p> 
+                </article>
+            </div>        
+            <div class="col-md-6  mb--20  hidden-xs hidden-sm"  id="home_figure_2b">
+                <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('/Coyote/assets/images/home-case-studies.jpg')"></figure>
+            </div>
+        </div>   
     </section>
-    <section class="container section-quote  pb-50">
+    
+    <section class="container section-quote"   id="home_quote">
         <div class="row">
             <div class="col-sm-12">
                 <blockquote class="text-center">

@@ -1,20 +1,51 @@
 <div class="navmenu navmenu-default navmenu-fixed-left in">
+    <div class="form-group has-feedback has-search">
+        <span class="glyphicon glyphicon-search form-control-feedback"></span>
+        <input type="text" class="form-control"  id="search-input" placeholder="Search">
+    </div>
+    <ul id="results-container"></ul>
     {% if page.section == 'learn' %}
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
         {% for item in site.data.sidebar-learn.learn-toc %}
         <div class="panel panel-default">
             <div class="panel-heading pl-0" role="tab" id="heading-{{ item.title | downcase | slugify }}">
                 <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ item.title | downcase | slugify }}" aria-expanded="true" aria-controls="collapse-{{ item.title | downcase | slugify }}">
+                    <a 
+                       role="button" 
+                       data-toggle="collapse" 
+                       data-parent="#accordion" 
+                       href="#collapse-{{ item.title | downcase | slugify }}" 
+                       aria-controls="collapse-{{ item.title | downcase | slugify }}" 
+                       href="{{ entry.link  | relative_url  }}"
+                       {% for entry in item.subfolderitems %}
+                        {% if page.url ==  entry.link %}class="active" {% endif %}
+                       {% endfor %} 
+                       >
                         {{ item.title }}
                     </a>
                 </h4>
             </div>
-            <div id="collapse-{{ item.title | downcase | slugify }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-{{ item.title | downcase | slugify }}">
+            <div 
+               id="collapse-{{ item.title | downcase | slugify }}" 
+               class="panel-collapse collapse {% for entry in item.subfolderitems %}{% if page.url ==  entry.link %}in{% endif %}{% endfor %}" 
+               role="tabpanel" 
+               aria-labelledby="heading-{{ item.title | downcase | slugify }}">
                 <div class="panel-body p-0">
                     <ul class="list-unstyled">
                         {% for entry in item.subfolderitems %}
-                        <li class="pt-5 pb-5"><a {% if page.url ==  entry.link %}class="active" {% endif %} href="{{ entry.link }}">{{ entry.name }}</a></li>
+                        <li class="pt-5 pb-5">
+                            <a 
+                            {% if page.url ==  entry.link %}class="active" {% endif %} 
+                            href="{{ entry.link  | relative_url  }}" 
+                            {% if entry.external == true  %}target="_blank"{% endif %}>{{ entry.name }}</a>
+                            {% if entry.tertiaryitems  %}
+                            <ul class="learn-tertiary">
+                               {% for item in entry.tertiaryitems %}
+                                <li><a href="{{ item.link  | relative_url   }}">{{ item.name }}</a></li>
+                               {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -23,19 +54,16 @@
         {% endfor %}
     </div>
     {% elsif page.section == 'case-studies' %}
-    <nav class="navbar">
-        <ul class="nav navbar-nav">
+    <nav class="navbar navbar-case-studies">
+       <h1 class="panel-title">Case Studies</h1>
+        <ul class="list-unstyled">
             {% for item in site.data.sidebar-cs.cs-toc %}
-            <li><a href="{{ item.url }}">{{ item.name }}</a></li>
+            <li><a 
+            href="{{ item.link  | relative_url }}"
+            {% if page.url ==  item.link %}class="active" {% endif %} 
+            >{{ item.name }}</a></li>
             {% endfor %}
         </ul>
     </nav>
     {% endif %}
 </div>
-
-
-
-
-
-
-

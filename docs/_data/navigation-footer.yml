@@ -4,37 +4,32 @@ dark:
   subfolderitems:
     - name: About
       link: /about
-    - name: Origin story
-      link: /#
-    - name: Vision statement
-      link: /#
-    - name: Team
-      link: /#
     - name: Contact us
       link: /contact-us
-    - name: Intern
-      link: /#
 - title: Resources
   subfolderitems:
     - name: Overview
-      link: /#
+      link: /learn/overview/what-is-coyote
     - name: Install
       link: /install
     - name: Core concepts
-      link: /#
+      link: /learn/core-concepts/what-is-an-actor
     - name: Tutorials
-      link: /#
+      link: /learn/tutorials/coyote-basics
     - name: Get involved
       link: /contribute
 - title: Join community
   subfolderitems:
     - name: GitHub
       link: https://github.com/microsoft/Coyote
+      external: true
     - name: Gitter
-      link: /#
+      link: https://gitter.im/
+      external: true
 
 footnote:
 - name: Terms
-  link: /#
+  link: /terms
 - name: Privacy
-  link: /#
+  link: /privacy
+  

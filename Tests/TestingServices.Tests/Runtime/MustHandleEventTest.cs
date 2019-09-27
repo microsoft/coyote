@@ -16,29 +16,73 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class E : Event
+        private class MustHandleEvent : Event
         {
             public MachineId Id;
 
-            public E()
+            public MustHandleEvent()
             {
             }
 
-            public E(MachineId id)
+            public MustHandleEvent(MachineId id)
             {
                 this.Id = id;
             }
         }
 
-        private class E1 : Event
+        private class MoveEvent : Event
         {
         }
 
         private class M1 : Machine
         {
             [Start]
+            [IgnoreEvents(typeof(MustHandleEvent))]
+            private class Init : MachineState
+            {
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMustHandleEventNotTriggered()
+        {
+            this.Test(r =>
+            {
+                var m = r.CreateMachine(typeof(M1));
+                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
+                r.SendEvent(m, new Halt());
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(100));
+        }
+
+        private class M2 : Machine
+        {
+            [Start]
+            [DeferEvents(typeof(MustHandleEvent))]
+            private class Init : MachineState
+            {
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMustHandleDeferredEvent()
+        {
+            this.TestWithError(r =>
+            {
+                var m = r.CreateMachine(typeof(M2));
+                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
+                r.SendEvent(m, new Halt());
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(1),
+            expectedError: "Machine 'M2()' halted before dequeueing must-handle event 'MustHandleEvent'.",
+            replay: true);
+        }
+
+        private class M3 : Machine
+        {
+            [Start]
             [OnEntry(nameof(InitOnEntry))]
-            [IgnoreEvents(typeof(E))]
+            [DeferEvents(typeof(MustHandleEvent))]
             private class Init : MachineState
             {
             }
@@ -49,56 +93,60 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2 : Machine
+        [Fact(Timeout = 5000)]
+        public void TestMustHandleEventAfterRaisingHalt()
         {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            [IgnoreEvents(typeof(E))]
-            private class Init : MachineState
+            this.TestWithError(r =>
             {
-            }
-
-            private void InitOnEntry()
-            {
-                this.Send(this.Id, new Halt());
-                this.Send(this.Id, new Halt());
-            }
-        }
-
-        private class M3 : Machine
-        {
-            [Start]
-            [IgnoreEvents(typeof(E))]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
-            {
-            }
-
-            private void InitOnEntry()
-            {
-            }
+                var m = r.CreateMachine(typeof(M3));
+                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(500),
+            expectedErrors: new string[]
+                {
+                    "A must-handle event 'MustHandleEvent' was sent to the halted machine 'M3()'.",
+                    "Machine 'M3()' halted before dequeueing must-handle event 'MustHandleEvent'."
+                },
+            replay: true);
         }
 
         private class M4 : Machine
         {
             [Start]
-            [DeferEvents(typeof(E))]
             [OnEntry(nameof(InitOnEntry))]
+            [DeferEvents(typeof(MustHandleEvent))]
             private class Init : MachineState
             {
             }
 
             private void InitOnEntry()
             {
+                this.Send(this.Id, new Halt());
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMustHandleEventAfterSendingHalt()
+        {
+            this.TestWithError(r =>
+            {
+                var m = r.CreateMachine(typeof(M4));
+                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(500),
+            expectedErrors: new string[]
+                {
+                    "A must-handle event 'MustHandleEvent' was sent to the halted machine 'M4()'.",
+                    "Machine 'M4()' halted before dequeueing must-handle event 'MustHandleEvent'."
+                },
+            replay: true);
         }
 
         private class M5 : Machine
         {
             [Start]
-            [DeferEvents(typeof(E), typeof(Halt))]
-            [OnEventGotoState(typeof(E1), typeof(Next))]
-            [OnEntry(nameof(InitOnEntry))]
+            [DeferEvents(typeof(MustHandleEvent), typeof(Halt))]
+            [OnEventGotoState(typeof(MoveEvent), typeof(Next))]
             private class Init : MachineState
             {
             }
@@ -106,86 +154,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private class Next : MachineState
             {
             }
-
-            private void InitOnEntry()
-            {
-            }
         }
 
-        [Fact(Timeout=5000)]
-        public void TestMustHandleFail1()
-        {
-            this.TestWithError(r =>
-            {
-                var m = r.CreateMachine(typeof(M1));
-                r.SendEvent(m, new E(), options: new SendOptions(mustHandle: true));
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(500),
-            expectedErrors: new string[]
-                {
-                    string.Empty, // TODO: sometimes this test doesn't fail! (workitem #675)
-                    "A must-handle event 'E' was sent to the halted machine 'M1()'.",
-                    "Machine 'M1()' halted before dequeueing must-handle event 'E'."
-                },
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestMustHandleFail2()
-        {
-            this.TestWithError(r =>
-            {
-                var m = r.CreateMachine(typeof(M2));
-                r.SendEvent(m, new E());
-                r.SendEvent(m, new E(), options: new SendOptions(mustHandle: true));
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(500),
-            expectedErrors: new string[]
-                {
-                    "A must-handle event 'E' was sent to the halted machine 'M2()'.",
-                    "Machine 'M2()' halted before dequeueing must-handle event 'E'."
-                },
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestMustHandleFail3()
+        [Fact(Timeout = 5000)]
+        public void TestMustHandleDeferredEventAfterStateTransition()
         {
             this.TestWithError(r =>
             {
                 var m = r.CreateMachine(typeof(M5));
                 r.SendEvent(m, new Halt());
-                r.SendEvent(m, new E(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new E1());
+                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
+                r.SendEvent(m, new MoveEvent());
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
-            expectedError: "Machine 'M5()' halted before dequeueing must-handle event 'E'.",
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestMustHandleSuccess()
-        {
-            this.Test(r =>
-            {
-                var m = r.CreateMachine(typeof(M3));
-                r.SendEvent(m, new E(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new Halt());
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(100));
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestMustHandleDeferFail()
-        {
-            this.TestWithError(r =>
-            {
-                var m = r.CreateMachine(typeof(M4));
-                r.SendEvent(m, new E(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new Halt());
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(1),
-            expectedError: "Machine 'M4()' halted before dequeueing must-handle event 'E'.",
+            expectedError: "Machine 'M5()' halted before dequeueing must-handle event 'MustHandleEvent'.",
             replay: true);
         }
     }

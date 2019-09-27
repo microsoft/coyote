@@ -237,11 +237,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private static void CheckErrors(ITestingEngine engine, IEnumerable<string> expectedErrors)
         {
-            if (!expectedErrors.Contains(string.Empty))
-            {
-                Assert.True(engine.TestReport.NumOfFoundBugs > 0);
-            }
-
+            Assert.True(engine.TestReport.NumOfFoundBugs > 0);
             foreach (var bugReport in engine.TestReport.BugReports)
             {
                 var actual = RemoveNonDeterministicValuesFromReport(bugReport);

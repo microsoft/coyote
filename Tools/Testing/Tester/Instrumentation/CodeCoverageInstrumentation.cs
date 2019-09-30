@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.TestingServices
             {
                 if (!string.IsNullOrEmpty(OutputDirectory) && File.Exists(origExe))
                 {
-                    if (TestingProcessScheduler.ProcessCanceled)
+                    if (TestingProcessScheduler.IsProcessCanceled)
                     {
                         File.Delete(assemblyName);
                         File.Delete(instrPdb);

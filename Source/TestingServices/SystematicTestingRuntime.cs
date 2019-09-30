@@ -676,6 +676,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTaskCompletionSource(Task task)
         {
+            if (!this.Scheduler.IsRunning)
+            {
+                return ControlledTask.FromException(new ExecutionCanceledException());
+            }
+
             this.Scheduler.CheckNoExternalConcurrencyUsed();
             return new MachineTask(this, task, MachineTaskType.CompletionSourceTask);
         }
@@ -686,6 +691,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override ControlledTask<TResult> CreateControlledTaskCompletionSource<TResult>(Task<TResult> task)
         {
+            if (!this.Scheduler.IsRunning)
+            {
+                return ControlledTask.FromException<TResult>(new ExecutionCanceledException());
+            }
+
             this.Scheduler.CheckNoExternalConcurrencyUsed();
             return new MachineTask<TResult>(this, task, MachineTaskType.CompletionSourceTask);
         }

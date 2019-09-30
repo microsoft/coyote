@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Checks if the scheduler is running.
         /// </summary>
-        private bool IsSchedulerRunning;
+        internal bool IsRunning { get; private set; }
 
         /// <summary>
         /// The currently scheduled asynchronous operation.
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.ControlledTaskMap = new ConcurrentDictionary<int, MachineOperation>();
             this.ScheduleTrace = trace;
             this.CompletionSource = new TaskCompletionSource<bool>();
-            this.IsSchedulerRunning = true;
+            this.IsRunning = true;
             this.BugFound = false;
             this.HasFullyExploredSchedule = false;
         }
@@ -116,9 +116,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 return;
             }
 
-            if (!this.IsSchedulerRunning)
+            if (!this.IsRunning)
             {
                 this.Stop();
+
+                // If scheduler is not running, throw exception to force terminate the caller.
                 throw new ExecutionCanceledException();
             }
 
@@ -200,6 +202,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         internal bool GetNextNondeterministicBooleanChoice(int maxValue, string uniqueId = null)
         {
+            if (!this.IsRunning)
+            {
+                // If scheduler is not running, throw exception to force terminate the caller.
+                throw new ExecutionCanceledException();
+            }
+
             // Checks if concurrency not controlled by the runtime was used.
             this.CheckNoExternalConcurrencyUsed();
 
@@ -230,6 +238,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         internal int GetNextNondeterministicIntegerChoice(int maxValue)
         {
+            if (!this.IsRunning)
+            {
+                // If scheduler is not running, throw exception to force terminate the caller.
+                throw new ExecutionCanceledException();
+            }
+
             // Checks if concurrency not controlled by the runtime was used.
             this.CheckNoExternalConcurrencyUsed();
 
@@ -421,11 +435,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         [DebuggerHidden]
         internal void CheckNoExternalConcurrencyUsed()
         {
-            if (!this.IsSchedulerRunning)
-            {
-                throw new ExecutionCanceledException();
-            }
-
             if (!Task.CurrentId.HasValue || !this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
             {
                 this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
@@ -553,7 +562,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         private void Stop()
         {
-            this.IsSchedulerRunning = false;
+            this.IsRunning = false;
             this.KillRemainingOperations();
 
             // Check if the completion source is completed. If not synchronize on

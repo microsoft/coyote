@@ -86,12 +86,12 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Set if ctrl-c or ctrl-break occurred.
         /// </summary>
-        internal static bool ProcessCanceled;
+        internal static bool IsProcessCanceled;
 
         /// <summary>
         /// Set true if we have multiple parallel processes or are running code coverage.
         /// </summary>
-        private readonly bool RunOutOfProcess;
+        private readonly bool IsRunOutOfProcess;
 
         /// <summary>
         /// Whether to write verbose output.
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices
 
             // Code coverage should be run out-of-process; otherwise VSPerfMon won't shutdown correctly
             // because an instrumented process (this one) is still running.
-            this.RunOutOfProcess = configuration.ParallelBugFindingTasks > 0 || configuration.ReportCodeCoverage;
+            this.IsRunOutOfProcess = configuration.ParallelBugFindingTasks > 0 || configuration.ReportCodeCoverage;
 
             this.IsVerbose = configuration.IsVerbose;
 
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.TestingServices
 
             this.Profiler.StartMeasuringExecutionTime();
 
-            if (this.RunOutOfProcess)
+            if (this.IsRunOutOfProcess)
             {
                 this.CreateParallelTestingProcesses();
                 if (this.Configuration.WaitForTestingProcesses)
@@ -270,7 +270,7 @@ namespace Microsoft.Coyote.TestingServices
             // Stop listening and close the server.
             this.StopServer();
 
-            if (!ProcessCanceled)
+            if (!IsProcessCanceled)
             {
                 // Merges and emits the test report.
                 this.EmitTestReport();
@@ -391,7 +391,7 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         private void StartServer()
         {
-            if (!this.RunOutOfProcess)
+            if (!this.IsRunOutOfProcess)
             {
                 return;
             }

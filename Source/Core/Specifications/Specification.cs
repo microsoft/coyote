@@ -43,24 +43,6 @@ namespace Microsoft.Coyote.Specifications
             CoyoteRuntime.Provider.Current.Assert(predicate, s, args);
 
         /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be controlled during analysis or testing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ChooseRandomBoolean() => CoyoteRuntime.Provider.Current.GetNondeterministicBooleanChoice(null, 2);
-
-        /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be controlled during analysis or testing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ChooseRandomBoolean(int maxValue) => CoyoteRuntime.Provider.Current.GetNondeterministicBooleanChoice(null, maxValue);
-
-        /// <summary>
-        /// Returns a nondeterministic integer, that can be controlled during analysis or testing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ChooseRandomInteger(int maxValue) => CoyoteRuntime.Provider.Current.GetNondeterministicIntegerChoice(null, maxValue);
-
-        /// <summary>
         /// Registers a new safety or liveness monitor.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

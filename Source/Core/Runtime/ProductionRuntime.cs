@@ -30,12 +30,9 @@ namespace Microsoft.Coyote.Runtime
         private readonly List<Monitor> Monitors;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProductionRuntime"/> class.
+        /// Responsible for generating random values.
         /// </summary>
-        internal ProductionRuntime()
-            : this(Configuration.Create())
-        {
-        }
+        private readonly Random ValueGenerator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductionRuntime"/> class.
@@ -44,6 +41,7 @@ namespace Microsoft.Coyote.Runtime
             : base(configuration)
         {
             this.Monitors = new List<Monitor>();
+            this.ValueGenerator = new Random(DateTime.Now.Millisecond);
         }
 
         /// <summary>
@@ -699,16 +697,13 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal override bool GetNondeterministicBooleanChoice(AsyncMachine machine, int maxValue)
         {
-            Random random = new Random(DateTime.Now.Millisecond);
-
             bool result = false;
-            if (random.Next(maxValue) == 0)
+            if (this.ValueGenerator.Next(maxValue) == 0)
             {
                 result = true;
             }
 
             this.LogWriter.OnRandom(machine?.Id, result);
-
             return result;
         }
 
@@ -716,10 +711,8 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a fair nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override bool GetFairNondeterministicBooleanChoice(AsyncMachine machine, string uniqueId)
-        {
-            return this.GetNondeterministicBooleanChoice(machine, 2);
-        }
+        internal override bool GetFairNondeterministicBooleanChoice(AsyncMachine machine, string uniqueId) =>
+            this.GetNondeterministicBooleanChoice(machine, 2);
 
         /// <summary>
         /// Returns a nondeterministic integer choice, that can be
@@ -727,11 +720,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal override int GetNondeterministicIntegerChoice(AsyncMachine machine, int maxValue)
         {
-            Random random = new Random(DateTime.Now.Millisecond);
-            var result = random.Next(maxValue);
-
+            var result = this.ValueGenerator.Next(maxValue);
             this.LogWriter.OnRandom(machine?.Id, result);
-
             return result;
         }
 

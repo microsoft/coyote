@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 async ControlledTask WriteAsync()
                 {
                     await ControlledTask.CompletedTask;
-                    if (Specification.ChooseRandomBoolean())
+                    if (RandomValueGenerator.GetNextBoolean())
                     {
                         entry.Value = 3;
                     }
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 async ControlledTask WriteWithDelayAsync()
                 {
                     await ControlledTask.Delay(1);
-                    if (Specification.ChooseRandomBoolean())
+                    if (RandomValueGenerator.GetNextBoolean())
                     {
                         entry.Value = 3;
                     }
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 SharedEntry entry = new SharedEntry();
                 await ControlledTask.Run(() =>
                 {
-                    if (Specification.ChooseRandomBoolean())
+                    if (RandomValueGenerator.GetNextBoolean())
                     {
                         entry.Value = 3;
                     }
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.Run(async () =>
                 {
                     await ControlledTask.CompletedTask;
-                    if (Specification.ChooseRandomBoolean())
+                    if (RandomValueGenerator.GetNextBoolean())
                     {
                         entry.Value = 3;
                     }
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.Run(async () =>
                 {
                     await ControlledTask.Delay(1);
-                    if (Specification.ChooseRandomBoolean())
+                    if (RandomValueGenerator.GetNextBoolean())
                     {
                         entry.Value = 3;
                     }
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     await ControlledTask.Run(async () =>
                     {
                         await ControlledTask.CompletedTask;
-                        if (Specification.ChooseRandomBoolean())
+                        if (RandomValueGenerator.GetNextBoolean())
                         {
                             entry.Value = 3;
                         }

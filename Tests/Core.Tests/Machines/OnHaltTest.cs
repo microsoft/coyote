@@ -54,6 +54,26 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
+        [Fact(Timeout = 5000)]
+        public async Task TestHaltCalled()
+        {
+            await this.RunAsync(async r =>
+            {
+                var failed = false;
+                var tcs = new TaskCompletionSource<bool>();
+                r.OnFailure += (ex) =>
+                {
+                    failed = true;
+                    tcs.SetResult(true);
+                };
+
+                r.CreateMachine(typeof(M1));
+
+                await WaitAsync(tcs.Task);
+                Assert.True(failed);
+            });
+        }
+
         private class M2a : Machine
         {
             [Start]
@@ -71,6 +91,26 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 this.Receive(typeof(Event)).Wait();
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public async Task TestReceiveOnHalt()
+        {
+            await this.RunAsync(async r =>
+            {
+                var failed = false;
+                var tcs = new TaskCompletionSource<bool>();
+                r.OnFailure += (ex) =>
+                {
+                    failed = true;
+                    tcs.SetResult(true);
+                };
+
+                r.CreateMachine(typeof(M2a));
+
+                await WaitAsync(tcs.Task);
+                Assert.True(failed);
+            });
         }
 
         private class M2b : Machine
@@ -92,6 +132,26 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
+        [Fact(Timeout = 5000)]
+        public async Task TestRaiseOnHalt()
+        {
+            await this.RunAsync(async r =>
+            {
+                var failed = false;
+                var tcs = new TaskCompletionSource<bool>();
+                r.OnFailure += (ex) =>
+                {
+                    failed = true;
+                    tcs.SetResult(true);
+                };
+
+                r.CreateMachine(typeof(M2b));
+
+                await WaitAsync(tcs.Task);
+                Assert.True(failed);
+            });
+        }
+
         private class M2c : Machine
         {
             [Start]
@@ -109,6 +169,26 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 this.Goto<Init>();
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public async Task TestGotoOnHalt()
+        {
+            await this.RunAsync(async r =>
+            {
+                var failed = false;
+                var tcs = new TaskCompletionSource<bool>();
+                r.OnFailure += (ex) =>
+                {
+                    failed = true;
+                    tcs.SetResult(true);
+                };
+
+                r.CreateMachine(typeof(M2c));
+
+                await WaitAsync(tcs.Task);
+                Assert.True(failed);
+            });
         }
 
         private class Dummy : Machine
@@ -143,94 +223,13 @@ namespace Microsoft.Coyote.Core.Tests
 
             protected override void OnHalt()
             {
-                // no-ops but no failure
+                // No-ops, but no failure.
                 this.Send(this.Id, new E());
                 this.Random();
                 this.Assert(true);
                 this.CreateMachine(typeof(Dummy));
-
                 this.tcs.TrySetResult(true);
             }
-        }
-
-        [Fact(Timeout=5000)]
-        public async Task TestHaltCalled()
-        {
-            await this.RunAsync(async r =>
-            {
-                var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
-                r.OnFailure += (ex) =>
-                {
-                    failed = true;
-                    tcs.SetResult(true);
-                };
-
-                r.CreateMachine(typeof(M1));
-
-                await WaitAsync(tcs.Task);
-                Assert.True(failed);
-            });
-        }
-
-        [Fact(Timeout=5000)]
-        public async Task TestReceiveOnHalt()
-        {
-            await this.RunAsync(async r =>
-            {
-                var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
-                r.OnFailure += (ex) =>
-                {
-                    failed = true;
-                    tcs.SetResult(true);
-                };
-
-                r.CreateMachine(typeof(M2a));
-
-                await WaitAsync(tcs.Task);
-                Assert.True(failed);
-            });
-        }
-
-        [Fact(Timeout=5000)]
-        public async Task TestRaiseOnHalt()
-        {
-            await this.RunAsync(async r =>
-            {
-                var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
-                r.OnFailure += (ex) =>
-                {
-                    failed = true;
-                    tcs.SetResult(true);
-                };
-
-                r.CreateMachine(typeof(M2b));
-
-                await WaitAsync(tcs.Task);
-                Assert.True(failed);
-            });
-        }
-
-        [Fact(Timeout=5000)]
-        public async Task TestGotoOnHalt()
-        {
-            await this.RunAsync(async r =>
-            {
-                var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
-                r.OnFailure += (ex) =>
-                {
-                    failed = true;
-                    tcs.SetResult(true);
-                };
-
-                r.CreateMachine(typeof(M2c));
-
-                await WaitAsync(tcs.Task);
-                Assert.True(failed);
-            });
         }
 
         [Fact(Timeout=5000)]

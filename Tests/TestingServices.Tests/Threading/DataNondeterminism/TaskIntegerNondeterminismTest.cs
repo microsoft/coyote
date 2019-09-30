@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 async ControlledTask WriteAsync()
                 {
                     await ControlledTask.CompletedTask;
-                    if (Specification.ChooseRandomInteger(5) == 0)
+                    if (RandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 async ControlledTask WriteWithDelayAsync()
                 {
                     await ControlledTask.Delay(1);
-                    if (Specification.ChooseRandomInteger(5) == 0)
+                    if (RandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 SharedEntry entry = new SharedEntry();
                 await ControlledTask.Run(() =>
                 {
-                    if (Specification.ChooseRandomInteger(5) == 0)
+                    if (RandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.Run(async () =>
                 {
                     await ControlledTask.CompletedTask;
-                    if (Specification.ChooseRandomInteger(5) == 0)
+                    if (RandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 await ControlledTask.Run(async () =>
                 {
                     await ControlledTask.Delay(1);
-                    if (Specification.ChooseRandomInteger(5) == 0)
+                    if (RandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     await ControlledTask.Run(async () =>
                     {
                         await ControlledTask.CompletedTask;
-                        if (Specification.ChooseRandomInteger(5) == 0)
+                        if (RandomValueGenerator.GetNextInteger(5) == 0)
                         {
                             entry.Value = 3;
                         }

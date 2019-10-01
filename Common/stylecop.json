@@ -3,12 +3,7 @@
   "settings": {
     "documentationRules": {
       "companyName": "Microsoft Corporation",
-      "copyrightText": "{header}\nCopyright (c) {companyName}. All rights reserved.\n{licenseNameInfo}. {licenseFileInfo}.\n{header}",
-      "variables": {
-        "header": "------------------------------------------------------------------------------------------------",
-        "licenseNameInfo": "Licensed under the MIT License (MIT)",
-        "licenseFileInfo": "See License.txt in the repo root for license information"
-      },
+      "copyrightText": "Copyright (c) {companyName}.\nLicensed under the MIT License.",
       "xmlHeader": false,
       "documentInterfaces": true,
       "documentExposedElements": true,

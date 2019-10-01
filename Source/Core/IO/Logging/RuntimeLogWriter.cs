@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-
 using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Machines.Timers;
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.IO
 {

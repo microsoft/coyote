@@ -14,10 +14,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Tracing.Error;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.TestingServices
 {

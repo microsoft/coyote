@@ -8,9 +8,9 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CoyoteTester.Interfaces;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.SmartSockets;
 using Microsoft.Coyote.TestingServices.Coverage;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.TestingServices
 {

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Runtime.Exploration;
 using Xunit;
 using Xunit.Abstractions;
 

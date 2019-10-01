@@ -527,7 +527,7 @@ namespace Microsoft.Coyote.TestingServices
             {
                 string fileName = this.Configuration.AssemblyToBeAnalyzed;
                 string targetDir = Path.GetDirectoryName(fileName);
-                string outputDir = Path.Combine(targetDir, "Output", Path.GetFileName(fileName), "CoyoteTesterOutput");
+                string outputDir = Path.Combine(targetDir, "Output", Path.GetFileName(fileName), "CoyoteOutput");
                 string remoteFileName = Path.GetFileName(report.FileName);
                 string localTraceFile = Path.Combine(outputDir, remoteFileName);
                 File.WriteAllText(localTraceFile, report.Contents);

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Machines;
-
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>

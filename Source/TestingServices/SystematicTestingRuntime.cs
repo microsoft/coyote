@@ -442,7 +442,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             targetMachine = this.GetMachineFromId<Machine>(target);
-            if (targetMachine is null)
+            if (targetMachine is null || targetMachine.IsHalted)
             {
                 this.LogWriter.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
                     e.GetType().FullName, opGroupId, isTargetHalted: true);
@@ -531,19 +531,30 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     }
 
                     await machine.RunEventHandlerAsync();
-
                     if (syncCaller != null)
                     {
                         this.EnqueueEvent(syncCaller, new QuiescentEvent(machine.Id), machine, machine.OperationGroupId, null);
                     }
 
+                    if (machine.IsHalted)
+                    {
+                        this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                    }
+                    else
+                    {
+                        ResetProgramCounter(machine);
+                    }
+
                     IO.Debug.WriteLine($"<ScheduleDebug> Completed event handler of '{machine.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
-                    IO.Debug.WriteLine($"<ScheduleDebug> Terminated event handler of '{machine.Id}' on task '{Task.CurrentId}'.");
-                    ResetProgramCounter(machine);
+
+                    // Machine is inactive or halted, schedule the next enabled operation.
+                    this.Scheduler.ScheduleNextEnabledOperation();
                 }
                 catch (Exception ex)
                 {
+                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+
                     Exception innerException = ex;
                     while (innerException is TargetInvocationException)
                     {
@@ -576,13 +587,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                             $"   {ex.Message}\n" +
                             $"The stack trace is:\n{ex.StackTrace}");
                         this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
-                    }
-                }
-                finally
-                {
-                    if (machine.IsHalted)
-                    {
-                        this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
                     }
                 }
             });
@@ -741,12 +745,20 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         machine.TryCompleteWithException(ex);
                     }
 
+                    // TODO: properly cleanup controlled tasks.
+                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+
                     IO.Debug.WriteLine($"<ScheduleDebug> Completed '{machine.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
-                    IO.Debug.WriteLine($"<ScheduleDebug> Terminated '{machine.Id}' on task '{Task.CurrentId}'.");
+
+                    // Task has completed, schedule the next enabled operation.
+                    this.Scheduler.ScheduleNextEnabledOperation();
                 }
                 catch (Exception ex)
                 {
+                    // TODO: properly cleanup controlled tasks.
+                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+
                     Exception innerException = ex;
                     while (innerException is TargetInvocationException)
                     {
@@ -776,11 +788,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                             $"The stack trace is:\n{ex.StackTrace}");
                         this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
                     }
-                }
-                finally
-                {
-                    // TODO: properly cleanup controlled tasks.
-                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
                 }
             });
 

@@ -16,16 +16,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class MustHandleEvent : Event
         {
-            public MachineId Id;
-
-            public MustHandleEvent()
-            {
-            }
-
-            public MustHandleEvent(MachineId id)
-            {
-                this.Id = id;
-            }
         }
 
         private class MoveEvent : Event

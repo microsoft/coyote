@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Coyote.IO;
 
-namespace Microsoft.Coyote.Tooling.Utilities
+namespace Microsoft.Coyote.Utilities
 {
     /// <summary>
     /// Some common command line options shared by all Coyote tools.
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
         public void AddCommonOptions()
         {
             var group = this.Parser.GetOrCreateGroup("Basic", "Basic options");
-            group.AddArgument("timeout", null, "Timeout in seconds (disabled by default)", typeof(uint));
+            group.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
             group.AddArgument("outdir", "o", "Dump output to directory x(absolute path or relative to current directory");
             group.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
             group.AddArgument("debug", "d", "Enable debugging", typeof(bool)).IsHidden = true;

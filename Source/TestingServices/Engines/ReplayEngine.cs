@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.TestingServices
 {

@@ -3,7 +3,7 @@
 
 using System.Runtime.Serialization;
 
-namespace Microsoft.Coyote.Utilities
+namespace Microsoft.Coyote.Runtime.Exploration
 {
     /// <summary>
     /// Coyote runtime scheduling strategy.

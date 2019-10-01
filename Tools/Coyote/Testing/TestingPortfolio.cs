@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.TestingServices
 {

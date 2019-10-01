@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.TestingServices
             // Exit code 4 means that the file was already instrumented.
             if (exitCode != 0 && exitCode != 4)
             {
-                Error.Report($"[CoyoteTester] 'VSInstr' failed to instrument '{assemblyName}'.");
+                Error.Report($"[Coyote] 'VSInstr' failed to instrument '{assemblyName}'.");
                 IO.Debug.WriteLine(error);
                 return false;
             }
@@ -195,7 +195,7 @@ namespace Microsoft.Coyote.TestingServices
             catch (IOException ex)
             {
                 // Don't exit here as we're already shutting down the app, and we may have more assemblies to restore.
-                Error.Report($"[CoyoteTester] Failed to restore non-instrumented '{assemblyName}': {ex.Message}.");
+                Error.Report($"[Coyote] Failed to restore non-instrumented '{assemblyName}': {ex.Message}.");
             }
         }
 
@@ -221,14 +221,14 @@ namespace Microsoft.Coyote.TestingServices
             }
             catch (ConfigurationErrorsException)
             {
-                Error.ReportAndExit($"[CoyoteTester] required '{settingName}' value is not set in configuration file.");
+                Error.ReportAndExit($"[Coyote] required '{settingName}' value is not set in configuration file.");
             }
 
             toolPath = toolPath.Replace("$(DevEnvDir)", Environment.GetEnvironmentVariable("DevEnvDir"));
 
             if (!File.Exists(toolPath))
             {
-                Error.ReportAndExit($"[CoyoteTester] '{toolName}' tool '{toolPath}' not found.");
+                Error.ReportAndExit($"[Coyote] '{toolName}' tool '{toolPath}' not found.");
             }
 
             return toolPath;
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.TestingServices
 
             // Do not create the output directory yet if we have to scroll back the history first.
             OutputDirectory = Reporter.GetOutputDirectory(configuration.OutputFilePath, configuration.AssemblyToBeAnalyzed,
-                "CoyoteTesterOutput", createDir: !makeHistory);
+                "CoyoteOutput", createDir: !makeHistory);
             if (!makeHistory)
             {
                 return;

@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices;
@@ -12,7 +11,7 @@ using Microsoft.Coyote.Utilities;
 namespace Microsoft.Coyote
 {
     /// <summary>
-    /// The Coyote tester.
+    /// Entry point to the Coyote tool.
     /// </summary>
     internal class Program
     {
@@ -33,9 +32,28 @@ namespace Microsoft.Coyote
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             Console.CancelKeyPress += OnProcessCanceled;
 
-            // Parses the command line options to get the Configuration.
-            Configuration = new TesterCommandLineOptions().Parse(args);
+            // Parses the command line options to get the configuration.
+            Configuration = new CommandLineOptions().Parse(args);
 
+            switch (Configuration.ToolCommand.ToLower())
+            {
+                case "test":
+                    RunTest();
+                    break;
+                case "replay":
+                    ReplayTest();
+                    break;
+            }
+        }
+
+        private static void ReplayTest()
+        {
+            // Creates and starts a replaying process.
+            ReplayingProcess.Create(Configuration).Start();
+        }
+
+        private static void RunTest()
+        {
             if (Configuration.RunAsParallelBugFindingTask)
             {
                 // This is being run as the child test process.

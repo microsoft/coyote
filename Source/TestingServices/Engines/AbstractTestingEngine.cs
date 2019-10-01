@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;

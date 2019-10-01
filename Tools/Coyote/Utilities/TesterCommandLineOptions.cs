@@ -5,56 +5,64 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Tooling.Utilities;
+using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.Utilities
 {
-    public sealed class TesterCommandLineOptions : BaseCommandLineOptions
+    public sealed class CommandLineOptions : BaseCommandLineOptions
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TesterCommandLineOptions"/> class.
+        /// Initializes a new instance of the <see cref="CommandLineOptions"/> class.
         /// </summary>
-        public TesterCommandLineOptions()
-            : base("CoyoteTester", "Tests a given Coyote program and generates a reproducible bug trace if it finds a bug.")
+        public CommandLineOptions()
+            : base("Coyote", "The Coyote tool enables you to systematically test a specified Coyote test, generate " +
+                  "a reproducible bug-trace if a bug is found, and replay a bug-trace using the VS debugger.")
         {
             var basicOptions = this.Parser.GetOrCreateGroup("Basic", "Basic options");
-            basicOptions.AddArgument("test", "t", "Path to the Coyote program to test", required: true);
+            var commandArg = basicOptions.AddPositionalArgument("command", "The operation perform (test, replay)");
+            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay" });
+            basicOptions.AddPositionalArgument("path", "Path to the Coyote program to test");
             basicOptions.AddArgument("method", "m", "Suffix of the test method to execute");
 
             this.AddCommonOptions();
 
-            var testingGroup = this.Parser.GetOrCreateGroup("group1", "Systematic testing options");
+            var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
+            testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
-
-            testingGroup.AddArgument("sch-random", "sr", "Choose the random scheduling strategy (this is the default)", typeof(bool));
+            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored (disabled by default).
+You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
+            testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
+            testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
             testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
 
-            testingGroup.AddArgument("sch-seed", null, "Specify the random seed for the scheduler", typeof(int));
+            var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay and debug options");
+            replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };
+            replayOptions.AddPositionalArgument("schedule", "Schedule file to replay");
+            replayOptions.AddArgument("break", "b", "Attach debugger and break at bug", typeof(bool));
 
-            testingGroup.AddArgument("max-steps", "ms", "Max scheduling steps to be explored (disabled by default)", typeof(string));
-            testingGroup.AddArgument("replay", "r", "Tries to replay the schedule, and then switches to the specified strategy", typeof(string));
-
-            var parallelGroup = this.Parser.GetOrCreateGroup("group2", "Parallel testing options");
-            parallelGroup.AddArgument("parallel", "p", "Run a test server with a number of parallel testing child processes ('0' by default runs the test in-proc)", typeof(uint));
-            parallelGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
-            parallelGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
-            parallelGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
-
-            var coverageGroup = this.Parser.GetOrCreateGroup("group3", "Testing code coverage options");
-            coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) where x is:
-code: Generate code coverage statistics (via VS instrumentation)
-activity: Generate activity (machine, event, etc.) coverage statistics
-activity-debug: Print activity coverage statistics with debug info", typeof(string)).AllowedValues = new List<string>(new string[] { string.Empty, "code", "activity", "activity-debug" });
+            var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
+            var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
+ code: Generate code coverage statistics (via VS instrumentation)
+ activity: Generate activity (machine, event, etc.) coverage statistics
+ activity-debug: Print activity coverage statistics with debug info", typeof(string));
+            coverageArg.AllowedValues = new List<string>(new string[] { string.Empty, "code", "activity", "activity-debug" });
+            coverageArg.IsMultiValue = true;
             coverageGroup.AddArgument("instrument", "instr", "Additional file spec(s) to instrument for code coverage (wildcards supported)", typeof(string));
-            coverageGroup.AddArgument("instrument-list", "instr-list", "File containing the names of additional file(s) to instrument for code coverage, one per line, wildcards supported, lines starting with '//' are skipped", typeof(string));
+            coverageGroup.AddArgument("instrument-list", "instr-list", "File containing the paths to additional file(s) to instrument for code coverage, one per line, wildcards supported, lines starting with '//' are skipped", typeof(string));
 
-            // hidden options (for debugging only).
-            var hiddenGroup = this.Parser.GetOrCreateGroup("group4", "Hidden Options");
+            var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
+            advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
+            advancedGroup.AddArgument("sch-seed", null, "Specify the random seed for the tester", typeof(int));
+            advancedGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
+            advancedGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
+            advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
+
+            // Hidden options (for debugging or experimentation only).
+            var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
             hiddenGroup.AddArgument("timeout-delay", null, "Specifies the default delay on timers created using CreateMachineTimer", typeof(uint));
-            hiddenGroup.AddArgument("explore", "e", "Keep testing until we find a bug or reach max-steps", typeof(bool));
             hiddenGroup.AddArgument("interactive", null, "Test using the interactive test strategy", typeof(bool));
             hiddenGroup.AddArgument("runtime", null, "The path to the testing runtime to use");
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
@@ -79,7 +87,10 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
         {
             switch (option.LongName)
             {
-                case "test":
+                case "command":
+                    this.Configuration.ToolCommand = (string)option.Value;
+                    break;
+                case "path":
                     this.Configuration.AssemblyToBeAnalyzed = (string)option.Value;
                     break;
                 case "runtime":
@@ -123,19 +134,22 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.RandomDelayBounding;
                     this.Configuration.DelayBound = (int)(uint)option.Value;
                     break;
-                case "replay":
+                case "schedule":
                     {
                         string filename = (string)option.Value;
                         string extension = System.IO.Path.GetExtension(filename);
                         if (!extension.Equals(".schedule"))
                         {
                             Error.ReportAndExit("Please give a valid schedule file " +
-                                "'-replay:[x]', where [x] has extension '.schedule'.");
+                                "'--replay x', where 'x' has extension '.schedule'.");
                         }
 
                         this.Configuration.ScheduleFile = filename;
                     }
 
+                    break;
+                case "break":
+                    this.Configuration.AttachDebugger = true;
                     break;
                 case "iterations":
                     this.Configuration.SchedulingIterations = (int)(uint)option.Value;
@@ -164,7 +178,7 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
                             ipAddress = parts[0];
                         }
 
-                        if (!IPAddress.TryParse(ipAddress, out IPAddress addr))
+                        if (!IPAddress.TryParse(ipAddress, out _))
                         {
                             Error.ReportAndExit("Please give a valid ip address for --testing-scheduler-ipaddress option");
                         }
@@ -186,27 +200,30 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
                     this.Configuration.PerformFullExploration = true;
                     break;
                 case "coverage":
-                    if (string.IsNullOrEmpty((string)option.Value))
+                    if (option.Value == null)
                     {
                         this.Configuration.ReportCodeCoverage = true;
                         this.Configuration.ReportActivityCoverage = true;
                     }
                     else
                     {
-                        switch ((string)option.Value)
+                        foreach (var item in (string[])option.Value)
                         {
-                            case "code":
-                                this.Configuration.ReportCodeCoverage = true;
-                                break;
-                            case "activity":
-                                this.Configuration.ReportActivityCoverage = true;
-                                break;
-                            case "activity-debug":
-                                this.Configuration.ReportActivityCoverage = true;
-                                this.Configuration.DebugActivityCoverage = true;
-                                break;
-                            default:
-                                break;
+                            switch (item)
+                            {
+                                case "code":
+                                    this.Configuration.ReportCodeCoverage = true;
+                                    break;
+                                case "activity":
+                                    this.Configuration.ReportActivityCoverage = true;
+                                    break;
+                                case "activity-debug":
+                                    this.Configuration.ReportActivityCoverage = true;
+                                    this.Configuration.DebugActivityCoverage = true;
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
 
@@ -223,32 +240,17 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
                     break;
                 case "max-steps":
                     {
-                        int i = 0;
-                        string value = (string)option.Value;
-                        var tokens = value.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (tokens.Length > 2 || tokens.Length <= 0)
+                        uint[] values = (uint[])option.Value;
+                        if (values.Length > 2)
                         {
                             Error.ReportAndExit("Invalid number of options supplied via '--max-steps'.");
                         }
 
-                        if (tokens.Length >= 1)
+                        uint i = values[0];
+                        uint j;
+                        if (values.Length == 2)
                         {
-                            if (!int.TryParse(tokens[0], out i) && i >= 0)
-                            {
-                                Error.ReportAndExit("Please give a valid number of max scheduling " +
-                                    " steps to explore '--max-steps:[x]', where [x] >= 0.");
-                            }
-                        }
-
-                        int j;
-                        if (tokens.Length == 2)
-                        {
-                            if (!int.TryParse(tokens[1], out j) && j >= 0)
-                            {
-                                Error.ReportAndExit("Please give a valid number of max scheduling " +
-                                    " steps to explore '--max-steps:[x]:[y]', where [y] >= 0.");
-                            }
-
+                            j = values[1];
                             this.Configuration.UserExplicitlySetMaxFairSchedulingSteps = true;
                         }
                         else
@@ -256,8 +258,8 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
                             j = 10 * i;
                         }
 
-                        this.Configuration.MaxUnfairSchedulingSteps = i;
-                        this.Configuration.MaxFairSchedulingSteps = j;
+                        this.Configuration.MaxUnfairSchedulingSteps = (int)i;
+                        this.Configuration.MaxFairSchedulingSteps = (int)j;
                     }
 
                     break;
@@ -287,9 +289,10 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
         /// </summary>
         protected override void UpdateConfiguration()
         {
-            if (string.IsNullOrEmpty(this.Configuration.AssemblyToBeAnalyzed))
+            if (string.IsNullOrEmpty(this.Configuration.AssemblyToBeAnalyzed) &&
+                string.Compare(this.Configuration.ToolCommand, "test", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                Error.ReportAndExit("Please give a valid path to a Coyote program's dll using '-test:[x]'.");
+                Error.ReportAndExit("Please give a valid path to a Coyote program's dll using 'test x'.");
             }
 
             if (this.Configuration.SchedulingStrategy != SchedulingStrategy.Interactive &&
@@ -303,14 +306,12 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.DelayBounding &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.RandomDelayBounding)
             {
-                Error.ReportAndExit("Please give a valid scheduling strategy " +
-                        "'-sch:[x]', where [x] is 'random' or 'pct' (other experimental " +
-                        "strategies also exist, but are not listed here).");
+                Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
             }
 
             if (this.Configuration.MaxFairSchedulingSteps < this.Configuration.MaxUnfairSchedulingSteps)
             {
-                Error.ReportAndExit("For the option '-max-steps:[N]:[M]', please make sure that [M] >= [N].");
+                Error.ReportAndExit("For the option '-max-steps N[,M]', please make sure that M >= N.");
             }
 
             if (this.Configuration.SafetyPrefixBound > 0 &&
@@ -325,7 +326,7 @@ activity-debug: Print activity coverage statistics with debug info", typeof(stri
             {
                 Error.ReportAndExit("The Iterative Deepening DFS scheduler ('iddfs') " +
                     "must have a max scheduling steps bound, which can be given using " +
-                    "'-max-steps:bound', where bound > 0.");
+                    "'--max-steps bound', where bound > 0.");
             }
 
 #if NETCOREAPP2_1

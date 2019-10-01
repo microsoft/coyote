@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\Common\build.props" />
-  <Import Project="..\..\..\Common\key.props" />
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
     <Description>The Coyote systematic tester.</Description>
-    <AssemblyName>CoyoteTester</AssemblyName>
-    <RootNamespace>CoyoteTester</RootNamespace>
+    <AssemblyName>Coyote</AssemblyName>
+    <RootNamespace>Coyote</RootNamespace>
     <PackageTags>systematic;tester;coyote</PackageTags>
     <OutputType>Exe</OutputType>
-    <OutputPath>..\..\..\bin\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
     <TargetFrameworks>net46;netcoreapp2.1;net47</TargetFrameworks>
@@ -19,8 +19,8 @@
     <DefineConstants></DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Source\SharedObjects\SharedObjects.csproj" />
-    <ProjectReference Include="..\..\..\Source\TestingServices\TestingServices.csproj" />
+    <ProjectReference Include="..\..\Source\SharedObjects\SharedObjects.csproj" />
+    <ProjectReference Include="..\..\Source\TestingServices\TestingServices.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47'">
     <Reference Include="System.Configuration" />

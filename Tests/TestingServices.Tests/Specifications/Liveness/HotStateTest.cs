@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 

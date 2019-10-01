@@ -4,8 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote
 {
@@ -116,6 +115,12 @@ namespace Microsoft.Coyote
                 this.MaxFairSchedulingSteps = value;
             }
         }
+
+        /// <summary>
+        /// The user-specified command to perform by the Coyote tool.
+        /// </summary>
+        [DataMember]
+        public string ToolCommand;
 
         /// <summary>
         /// True if the user has explicitly set the

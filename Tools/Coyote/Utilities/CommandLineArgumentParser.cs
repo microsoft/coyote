@@ -6,10 +6,25 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 
-namespace Microsoft.Coyote.Tooling.Utilities
+namespace Microsoft.Coyote.Utilities
 {
+    /// <summary>
+    /// Specifies a dependency between arguments.
+    /// </summary>
+    public class CommandLineArgumentDependency
+    {
+        /// <summary>
+        /// Name of an argument.
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Value of that argument.
+        /// </summary>
+        public string Value;
+    }
+
     /// <summary>
     /// A single command line argument.
     /// </summary>
@@ -27,7 +42,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
 
         /// <summary>
         /// Optional datatype (default string). Supported datatypes are primitive types
-        /// only (e.g. int, float, string, bool).
+        /// only (e.g. int, uint, float, string, bool).
         /// </summary>
         public Type DataType;
 
@@ -38,9 +53,14 @@ namespace Microsoft.Coyote.Tooling.Utilities
         public string Description;
 
         /// <summary>
-        /// Wether the arugment is required.
+        /// Checks if the arugment is required.
         /// </summary>
         public bool IsRequired;
+
+        /// <summary>
+        /// Checks if the arugment is positional.
+        /// </summary>
+        public bool IsPositional;
 
         /// <summary>
         /// Optional name to a <see cref="CommandLineGroup"/>.
@@ -53,6 +73,11 @@ namespace Microsoft.Coyote.Tooling.Utilities
         public bool IsHidden;
 
         /// <summary>
+        /// Checks if the value of the argument is an array (e.g. "--coverage data activity").
+        /// </summary>
+        public bool IsMultiValue;
+
+        /// <summary>
         /// The parsed command line value matching DataType.
         /// </summary>
         public object Value;
@@ -63,6 +88,11 @@ namespace Microsoft.Coyote.Tooling.Utilities
         public bool PrintHelp;
 
         /// <summary>
+        /// This argument depends on the specific value of another.
+        /// </summary>
+        public CommandLineArgumentDependency DependsOn;
+
+        /// <summary>
         /// Defines a list of possible values.
         /// </summary>
         public List<string> AllowedValues;
@@ -71,10 +101,23 @@ namespace Microsoft.Coyote.Tooling.Utilities
         {
             get
             {
-                string text = "--" + this.LongName;
+                if (this.IsPositional)
+                {
+                    return this.LongName;
+                }
+
+                return "--" + this.LongName;
+            }
+        }
+
+        internal string LongSyntaxAndDataType
+        {
+            get
+            {
+                string text = this.LongSyntax;
                 if (this.DataType != typeof(bool))
                 {
-                    text += ":x";
+                    text += " " + this.DataTypeString;
                 }
 
                 return text;
@@ -85,13 +128,41 @@ namespace Microsoft.Coyote.Tooling.Utilities
         {
             get
             {
-                string text = "-" + this.ShortName;
-                if (this.DataType != typeof(bool))
+                return "-" + this.ShortName;
+            }
+        }
+
+        internal string DataTypeString
+        {
+            get
+            {
+                string type = null;
+                if (this.DataType == typeof(string))
                 {
-                    text += ":x";
+                    type = "string";
+                }
+                else if (this.DataType == typeof(int))
+                {
+                    type = "int";
+                }
+                else if (this.DataType == typeof(uint))
+                {
+                    type = "uint";
+                }
+                else if (this.DataType == typeof(double))
+                {
+                    type = "double";
+                }
+                else if (this.DataType == typeof(string))
+                {
+                    type = "bool";
+                }
+                else if (this.DataType != null)
+                {
+                    throw new Exception(string.Format("Unsupported data type: {0}", this.DataType.Name));
                 }
 
-                return text;
+                return type;
             }
         }
 
@@ -102,13 +173,13 @@ namespace Microsoft.Coyote.Tooling.Utilities
             {
                 if (type == typeof(bool))
                 {
-                    return true;  // default for boolean options.
+                    return true;  // Default for boolean options.
                 }
                 else
                 {
                     if (this.AllowedValues == null || !this.AllowedValues.Contains(string.Empty))
                     {
-                        throw new Exception(string.Format("Argument: '--{0}' missing a value after ':'", this.LongName));
+                        throw new Exception(string.Format("Argument: '{0}' missing a value", this.LongName));
                     }
                 }
             }
@@ -122,7 +193,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
             {
                 if (!bool.TryParse(value, out bool x))
                 {
-                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid bool", this.LongName));
+                    throw new Exception(string.Format("Argument: '{0}' value is not a valid bool", this.LongName));
                 }
 
                 result = x;
@@ -131,7 +202,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
             {
                 if (!int.TryParse(value, out int x))
                 {
-                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid integer", this.LongName));
+                    throw new Exception(string.Format("Argument: '{0}' value is not a valid integer", this.LongName));
                 }
 
                 result = x;
@@ -140,7 +211,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
             {
                 if (!uint.TryParse(value, out uint x))
                 {
-                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid unsigned integer", this.LongName));
+                    throw new Exception(string.Format("Argument: '{0}' value is not a valid unsigned integer", this.LongName));
                 }
 
                 result = x;
@@ -149,14 +220,14 @@ namespace Microsoft.Coyote.Tooling.Utilities
             {
                 if (!double.TryParse(value, out double x))
                 {
-                    throw new Exception(string.Format("Argument: '--{0}' value is not a valid double", this.LongName));
+                    throw new Exception(string.Format("Argument: '{0}' value is not a valid double", this.LongName));
                 }
 
                 result = x;
             }
             else
             {
-                throw new Exception(string.Format("Argument: '--{0}' type '{1}' is not supported, use bool, int, uint, double, string", this.LongName, type.Name));
+                throw new Exception(string.Format("Argument: '{0}' type '{1}' is not supported, use bool, int, uint, double, string", this.LongName, type.Name));
             }
 
             if (this.AllowedValues != null)
@@ -169,7 +240,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
                 string s = result.ToString();
                 if (!this.AllowedValues.Contains(s))
                 {
-                    throw new Exception(string.Format("Argument: '--{0}' value must be one of [{1}]", this.LongName, string.Join(", ", this.AllowedValues.ToArray())));
+                    throw new Exception(string.Format("Argument: '{0}' value '{1}' must be one of [{2}]", this.LongName, s, string.Join(", ", this.AllowedValues.ToArray())));
                 }
             }
 
@@ -187,8 +258,76 @@ namespace Microsoft.Coyote.Tooling.Utilities
                 IsRequired = this.IsRequired,
                 Group = this.Group,
                 IsHidden = this.IsHidden,
-                AllowedValues = this.AllowedValues
+                AllowedValues = this.AllowedValues,
+                IsMultiValue = this.IsMultiValue,
+                IsPositional = this.IsPositional,
+                DependsOn = this.DependsOn
             };
+        }
+
+        internal void AddParsedValue(string arg)
+        {
+            if (!this.IsMultiValue)
+            {
+                if (this.Value != null)
+                {
+                    throw new Exception(string.Format("Argument: '--{0}' has too many values", this.LongName));
+                }
+
+                this.Value = this.ParseValue(arg);
+            }
+            else
+            {
+                var value = this.ParseValue(arg);
+                if (this.DataType == typeof(string))
+                {
+                    this.Value = this.Append<string>(this.Value, value);
+                }
+                else if (this.DataType == typeof(int))
+                {
+                    this.Value = this.Append<int>(this.Value, value);
+                }
+                else if (this.DataType == typeof(uint))
+                {
+                    this.Value = this.Append<uint>(this.Value, value);
+                }
+                else if (this.DataType == typeof(double))
+                {
+                    this.Value = this.Append<double>(this.Value, value);
+                }
+                else if (this.DataType == typeof(string))
+                {
+                    this.Value = this.Append<bool>(this.Value, value);
+                }
+                else if (this.DataType != null)
+                {
+                    throw new Exception(string.Format("Unsupported data type: {0}", this.DataType.Name));
+                }
+                else
+                {
+                    this.Value = value;
+                }
+            }
+        }
+
+        private T[] Append<T>(object value1, object value2)
+        {
+            if (value1 == null)
+            {
+                return new T[1] { (T)value2 };
+            }
+
+            T[] existing = (T[])value1;
+            T[] newList = new T[existing.Length + 1];
+            int i = 0;
+            while (i < existing.Length)
+            {
+                newList[i] = existing[i];
+                i++;
+            }
+
+            newList[i] = (T)value2;
+            return newList;
         }
     }
 
@@ -223,6 +362,30 @@ namespace Microsoft.Coyote.Tooling.Utilities
         public bool IsHidden;
 
         /// <summary>
+        /// Specifies that this group is only required if the given dependency is true.
+        /// </summary>
+        public CommandLineArgumentDependency DependsOn;
+
+        /// <summary>
+        /// Add a positional argument. Positional arguments have no switch (--foo) and must be specified in the
+        /// order that they are defined. Note that positional arguments must appear before any named arguments.
+        /// </summary>
+        /// <param name="name">The logical name of the argument.</param>
+        /// <param name="description">Help text for the command line option. You can use newlines to format the
+        /// help content but each line will be auto-indented by the PrintHelp function.</param>
+        /// <param name="dataType">Optional datatype (default string). Supported datatypes are primitive types
+        /// only (e.g. int, uint, float, string, bool).</param>
+        /// <returns>The new option or throws <see cref="DuplicateNameException"/>.</returns>
+        public CommandLineArgument AddPositionalArgument(string name, string description = null, Type dataType = null)
+        {
+            var argument = this.Parser.AddPositionalArgument(name, description, dataType);
+            argument.IsHidden = this.IsHidden;
+            argument.Group = this.Name;
+            argument.DependsOn = this.DependsOn;
+            return argument;
+        }
+
+        /// <summary>
         /// Add a new command line option to the group. The option names still need to be unique.
         /// </summary>
         /// <param name="longName">The long name referenced using two dashes (e.g. "--max-steps").</param>
@@ -235,6 +398,11 @@ namespace Microsoft.Coyote.Tooling.Utilities
         /// <returns>The new <see cref="CommandLineArgument"/> object.</returns>
         public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false)
         {
+            if (dataType == null)
+            {
+                dataType = typeof(string);
+            }
+
             var argument = this.Parser.AddArgument(longName, shortName, description, dataType, required);
             argument.IsHidden = this.IsHidden;
             argument.Group = this.Name;
@@ -256,7 +424,12 @@ namespace Microsoft.Coyote.Tooling.Utilities
         private readonly List<string> GroupNames = new List<string>();
 
         /// <summary>
-        /// To remember the order in which they were added.
+        /// To remember the order in which positional arguments were added.
+        /// </summary>
+        private readonly List<string> PositionalNames = new List<string>();
+
+        /// <summary>
+        /// To remember the order in which switch arguments were added.
         /// </summary>
         private readonly List<string> LongNames = new List<string>();
 
@@ -302,6 +475,37 @@ namespace Microsoft.Coyote.Tooling.Utilities
         }
 
         /// <summary>
+        /// Add a positional argument. Positional arguments have no switch (--foo) and must be specified in the
+        /// order that they are defined. Note that positional arguments must appear before any named arguments.
+        /// </summary>
+        /// <param name="name">The logical name of the argument.</param>
+        /// <param name="description">Help text for the command line option. You can use newlines to format the
+        /// help content but each line will be auto-indented by the PrintHelp function.</param>
+        /// <param name="dataType">Optional datatype (default string). Supported datatypes are primitive types
+        /// only (e.g. int, float, string, bool).</param>
+        /// <returns>The new option or throws <see cref="DuplicateNameException"/>.</returns>
+        public CommandLineArgument AddPositionalArgument(string name, string description = null, Type dataType = null)
+        {
+            if (this.Arguments.TryGetValue(name, out CommandLineArgument argument))
+            {
+                throw new DuplicateNameException(string.Format("Argument {0} already defined", name));
+            }
+
+            argument = new CommandLineArgument()
+            {
+                LongName = name,
+                DataType = dataType,
+                Description = description,
+                IsRequired = true,
+                IsPositional = true
+            };
+
+            this.Arguments[name] = argument;
+            this.PositionalNames.Add(name);
+            return argument;
+        }
+
+        /// <summary>
         /// Add a new command line option.
         /// </summary>
         /// <param name="longName">The long name referenced using two dashes (e.g. "--max-steps").</param>
@@ -324,7 +528,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
                 var existing = (from a in this.Arguments.Values where a.ShortName == shortName select a).FirstOrDefault();
                 if (existing != null)
                 {
-                    throw new DuplicateNameException(string.Format("Argument short name '-{0}' is already being used by '--{1}'", shortName, existing.LongName));
+                    throw new DuplicateNameException(string.Format("Argument short name '{0}' is already being used by '{1}'", shortName, existing.LongName));
                 }
             }
 
@@ -406,80 +610,138 @@ namespace Microsoft.Coyote.Tooling.Utilities
         public List<CommandLineArgument> ParseArguments(string[] args)
         {
             List<CommandLineArgument> result = new List<CommandLineArgument>();
+            int position = 0; // For positional arguments.
+            CommandLineArgument current = null;
 
             for (int idx = 0; idx < args.Length; idx++)
             {
                 string arg = args[idx];
-                int i = arg.IndexOf(':');
-                string value = null;
-                if (i > 0)
-                {
-                    value = arg.Substring(i + 1).Trim();
-                    arg = arg.Substring(0, i);
-                }
 
-                CommandLineArgument a = null;
-                if (arg.StartsWith("--"))
+                if (arg.StartsWith("-"))
                 {
-                    var name = arg.Substring(2);
-                    this.Arguments.TryGetValue(name, out a);
-                }
-                else if (arg.StartsWith("-"))
-                {
-                    var name = arg.Substring(1);
-                    // Note that "/" is not supported as an argument delimiter because it conflicts with unix file paths.
-                    foreach (var s in this.Arguments.Values)
+                    if (arg.StartsWith("--"))
                     {
-                        if (s.ShortName == name)
-                        {
-                            a = s;
-                            break;
-                        }
+                        var name = arg.Substring(2);
+                        current = null;
+                        this.Arguments.TryGetValue(name, out current);
                     }
-
-                    if (a == null)
+                    else if (arg.StartsWith("-"))
                     {
-                        // see if there's a matching long name with no short name defined.
+                        current = null;
+                        var name = arg.Substring(1);
+                        // Note that "/" is not supported as an argument delimiter because it conflicts with unix file paths.
                         foreach (var s in this.Arguments.Values)
                         {
-                            if (s.LongName == name && string.IsNullOrEmpty(s.ShortName))
+                            if (s.ShortName == name)
                             {
-                                a = s;
+                                current = s;
                                 break;
                             }
                         }
+
+                        if (current == null)
+                        {
+                            // See if there's a matching long name with no short name defined.
+                            foreach (var s in this.Arguments.Values)
+                            {
+                                if (s.LongName == name)
+                                {
+                                    current = s;
+                                    break;
+                                }
+                            }
+                        }
                     }
+
+                    if (current == null)
+                    {
+                        throw new Exception(string.Format("Unexpected argument: '{0}'", arg));
+                    }
+
+                    current = current.Clone();
+                    result.Add(current);
+
+                    if (current.PrintHelp)
+                    {
+                        this.PrintHelp(Console.Out);
+                        Environment.Exit(1);
+                    }
+                }
+                else if (current != null)
+                {
+                    // The value for the current switch argument.
+                    current.AddParsedValue(arg);
                 }
                 else
                 {
-                    // positional arguments, do we want to support those?
-                }
+                    // Positional arguments.
+                    do
+                    {
+                        if (position < this.PositionalNames.Count)
+                        {
+                            var name = this.PositionalNames[position++];
+                            current = this.Arguments[name];
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("Unexpected positional argument: '{0}'", arg));
+                        }
+                    }
+                    while (!IsRequired(current, result));
 
-                if (a == null)
-                {
-                    throw new Exception(string.Format("Unexpected argument: '{0}'", arg));
+                    // Positional arguments have no name so the arg is the value.
+                    var temp = current.Clone();
+                    temp.Value = current.ParseValue(arg);
+                    result.Add(temp);
+                    current = null; // This argument is done, cannot have any more values.
                 }
-
-                if (a.PrintHelp)
-                {
-                    this.PrintHelp(Console.Out);
-                    Environment.Exit(1);
-                }
-
-                var temp = a.Clone();
-                temp.Value = a.ParseValue(value);
-                result.Add(temp);
             }
 
             foreach (var arg in this.Arguments.Values)
             {
-                if (arg.IsRequired && !(from r in result where r.LongName == arg.LongName select r).Any())
+                if (IsRequired(arg, result) && !(from r in result where r.LongName == arg.LongName select r).Any())
                 {
-                    throw new Exception(string.Format("Missing required argument: '--{0}'", arg.LongName));
+                    if (arg.IsPositional)
+                    {
+                        throw new Exception(string.Format("Missing required argument: '{0}'", arg.LongName));
+                    }
+                    else
+                    {
+                        throw new Exception(string.Format("Missing required argument: '--{0}'", arg.LongName));
+                    }
+                }
+            }
+
+            foreach (var arg in result)
+            {
+                if (!arg.IsPositional && arg.Value == null && arg.DataType != typeof(bool) && !arg.AllowedValues.Contains(string.Empty))
+                {
+                    throw new Exception(string.Format("Missing value for argument: '--{0}'", arg.LongName));
                 }
             }
 
             return result;
+        }
+
+        private static bool IsRequired(CommandLineArgument argument, List<CommandLineArgument> result)
+        {
+            if (argument.IsRequired)
+            {
+                if (argument.DependsOn != null)
+                {
+                    var dependent = (from r in result where r.LongName == argument.DependsOn.Name select r).FirstOrDefault();
+                    if (dependent != null && string.Compare(dependent.Value.ToString(), argument.DependsOn.Value, StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -495,6 +757,18 @@ namespace Microsoft.Coyote.Tooling.Utilities
             int indent = prefix.Length;
 
             var wrapper = new WordWrapper(output, indent, ArgHelpLineLength);
+            foreach (var name in this.PositionalNames)
+            {
+                var arg = this.Arguments[name];
+                string text = arg.LongSyntax;
+                if (arg.DependsOn != null)
+                {
+                    text = "[" + text + "]";
+                }
+
+                wrapper.WriteWord(text);
+            }
+
             foreach (var name in this.LongNames)
             {
                 var arg = this.Arguments[name];
@@ -503,7 +777,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
                     continue;
                 }
 
-                string text = arg.LongSyntax;
+                string text = arg.LongSyntaxAndDataType;
 
                 if (!arg.IsRequired)
                 {
@@ -529,10 +803,10 @@ namespace Microsoft.Coyote.Tooling.Utilities
                     continue;
                 }
 
-                output.WriteLine();
                 output.WriteLine(g.Description + ":");
                 output.WriteLine(new string('-', g.Description.Length + 1));
-                foreach (var option in this.LongNames)
+
+                foreach (var option in this.PositionalNames.Concat(this.LongNames))
                 {
                     var arg = this.Arguments[option];
                     if (arg.IsHidden)
@@ -550,7 +824,8 @@ namespace Microsoft.Coyote.Tooling.Utilities
                             syntax += string.Format("{0}, ", arg.ShortSyntax);
                         }
 
-                        syntax += string.Format("{0} ", arg.LongSyntax);
+                        syntax += string.Format("{0} ", arg.LongSyntaxAndDataType);
+
                         output.Write(syntax);
                         if (syntax.Length < ArgHelpIndent)
                         {
@@ -564,7 +839,8 @@ namespace Microsoft.Coyote.Tooling.Utilities
 
                         if (!string.IsNullOrEmpty(arg.Description))
                         {
-                            wrapper = new WordWrapper(output, ArgHelpIndent, ArgHelpLineLength);
+                            output.Write(": ");
+                            wrapper = new WordWrapper(output, ArgHelpIndent + 2, ArgHelpLineLength);
                             wrapper.Write(arg.Description);
                         }
 
@@ -576,7 +852,7 @@ namespace Microsoft.Coyote.Tooling.Utilities
             }
 
             bool optionalHeader = false;
-            foreach (var option in this.LongNames)
+            foreach (var option in this.PositionalNames.Concat(this.LongNames))
             {
                 var arg = this.Arguments[option];
                 if (arg.IsHidden)

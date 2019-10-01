@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Microsoft.Coyote.Utilities;
+using Microsoft.Coyote.Runtime.Exploration;
 using Xunit;
 using Xunit.Abstractions;
 

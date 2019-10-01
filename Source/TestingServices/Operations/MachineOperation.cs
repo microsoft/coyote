@@ -175,7 +175,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.Status = AsyncOperationStatus.Completed;
             this.IsHandlerRunning = false;
             this.SkipNextReceiveSchedulingPoint = true;
-            this.Scheduler.ScheduleNextEnabledOperation();
         }
 
         /// <summary>

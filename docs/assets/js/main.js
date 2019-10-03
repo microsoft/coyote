@@ -26,7 +26,7 @@ jQuery(document).ready(function ($) {
 
     //homepage slider
     $("#carousel_home").carousel({
-        interval: 75000,
+        interval: 15000, // timeout between carousel slides in nmilliseconds
         pause: "hover"
     });
 
@@ -37,13 +37,13 @@ jQuery(document).ready(function ($) {
     });
 
 
-    //trigger waypoint animations 
+    //trigger waypoint animations
 
     $('#home_figure_1').waypoint(function () {
         $('#home_figure_1').addClass('slide-in-left');
     }, {
         offset: '70%'
-    });    
+    });
     $('#home_text_1').waypoint(function () {
         $('#home_text_1').addClass('slide-in-right');
     }, {
@@ -53,21 +53,21 @@ jQuery(document).ready(function ($) {
         $('#home_figure_2a').addClass('slide-in-right');
     }, {
         offset: '70%'
-    });  
+    });
     $('#home_figure_2b').waypoint(function () {
         $('#home_figure_2b').addClass('slide-in-right');
     }, {
         offset: '70%'
-    });     
+    });
     $('#home_text_2').waypoint(function () {
         $('#home_text_2').addClass('slide-in-left');
     }, {
         offset: '70%'
-    });    
+    });
     $('#home_quote').waypoint(function () {
         $('#home_quote').addClass('puff-in-center');
     }, {
         offset: '70%'
-    });      
+    });
 
 });

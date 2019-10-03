@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Utilities
         {
             var group = this.Parser.GetOrCreateGroup("Basic", "Basic options");
             group.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
-            group.AddArgument("outdir", "o", "Dump output to directory x(absolute path or relative to current directory");
+            group.AddArgument("outdir", "o", "Dump output to directory x (absolute path or relative to current directory");
             group.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
             group.AddArgument("debug", "d", "Enable debugging", typeof(bool)).IsHidden = true;
         }

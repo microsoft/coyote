@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     {% include head.html %}
-    {% feed_meta %}
     {% seo %}
 </head>
 <body class="{{ page.title | downcase | slugify }} {% if page.body-class %}{{page.body-class}}{% endif %}">

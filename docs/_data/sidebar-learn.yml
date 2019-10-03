@@ -2,66 +2,71 @@
 learn-toc:
 - title: Overview
   subfolderitems:
-    - name: What Coyote is
+    - name: What is Coyote?
       link: /learn/overview/what-is-coyote
-    - name: Why distributed systems need Coyote
-      link: /learn/overview/why
-    - name: Frequently asked questions
-      link: /learn/overview/faq
-    - name: What’s new
-      link: /learn/overview/whats-new
+    - name: Asynchronous Tasks
+      link: /learn/overview/tasks
+    - name: Asynchronous State-Machines
+      link: /learn/overview/machines
+    # - name: Why distributed systems need Coyote
+    #   link: /learn/overview/why
+    # - name: Frequently asked questions
+    #   link: /learn/overview/faq
+    # - name: What’s new
+    #   link: /learn/overview/whats-new
 - title: Get started with Coyote
   subfolderitems:
-    - name: Install package
-      link: https://www.nuget.org/packages/Microsoft.Coyote/
+    - name: Getting Coyote
+      link: /learn/install
       external: true
-    - name: Build from source
-      link: /learn/get-started/build-from-source
     - name: Using Coyote
       link: /learn/get-started/using-coyote
-- title: Core concepts
+- title: Programming models
+  link: /learn/programming-models
   subfolderitems:
-    - name: What is an actor?
-      link: /learn/core-concepts/what-is-an-actor
-    - name: The actor model
-      link: /learn/core-concepts/the-actor-model
-    - name: Terminating a machine
-      link: /learn/core-concepts/terminating-a-machine
-    - name: Specifying models and safety/liveness properties
-      link: /learn/core-concepts/liveness-properties
-    - name: Using async/await in a machine
-      link: /learn/core-concepts/using-async
-    - name: Sharing objects across machines
-      link: /learn/core-concepts/sharing-objects
-    - name: Synchronous execution of machines
-      link: /learn/core-concepts/synchronous-execution
-    - name: Using timers in Coyote
-      link: /learn/core-concepts/using-timers
-    - name: Logging and tracking operation groups
-      link: /learn/core-concepts/logging-and-tracking
-    - name: Choosing optimal bug coverage
-      link: /learn/core-concepts/choosing-optimal-bug-coverage
-- title: Tutorials
-  subfolderitems:
-    - name: Coyote basics
-      link: /learn/tutorials/coyote-basics
-    - name: Building your first Coyote application
-      link: /learn/tutorials/building-your-first-coyote-application
-    - name: Learning about using actors
-      link: /learn/tutorials/using-actors
-    - name: Choosing parameter to maximize bug coverage
-      link: /learn/tutorials/choosing-parameter
-    - name: Using debugging visualizer
-      link: /learn/tutorials/using-visualizer
-- title: Get involved
-  subfolderitems:
-    - name: Opening a pull request
-      link: /learn/get-involved/contribute
-    - name: Contribute
-      link: /contribute
+    - name: Asynchronous Tasks
+      link: /learn/programming-models/async
       tertiaryitems:
-        - name: ok
-          link: /learn/tutorials/building-your-first-coyote-application
-        - name: ok2
-          link: /learn/tutorials/using-visualizer        
-        
+        - name: Overview
+          link: /learn/overview/tasks
+    - name: Asynchronous State-Machines
+      link: /learn/programming-models/machines
+      tertiaryitems:
+        - name: Overview
+          link: /learn/overview/machines
+        - name: Machine termination
+          link: /learn/programming-models/machines/machine-termination
+        - name: Using timers in machines
+          link: /learn/programming-models/machines/machine-timers
+        - name: Async inside machines
+          link: /learn/programming-models/machines/async-await-machines
+        - name: Synchronous execution of machines
+          link: /learn/programming-models/machines/synchronous-execution
+        - name: Tracking operation groups
+          link: /learn/programming-models/machines/tracking-operation-groups
+        - name: Semantics of unhandled exceptions
+          link: /learn/programming-models/machines/uncaught-exceptions
+        - name: Unit-testing machines in isolation
+          link: /learn/programming-models/machines/unit-testing
+- title: Tools
+  subfolderitems:
+    - name: Testing
+      link: /learn/tools/testing
+    - name: Code and activity coverage
+      link: /learn/tools/coverage
+    - name: Distributed testing
+      link: /learn/tools/distributed-testing
+- title: Specifications
+  subfolderitems:
+    - name: Overview
+      link: /learn/specifications/overview
+    - name: Effective liveness checking
+      link: /learn/specifications/liveness-checking
+- title: Advanced topics
+  subfolderitems:
+    - name: Logging
+      link: /learn/advanced/logging
+    - name: Sharing objects
+      link: /learn/advanced/object-sharing
+    - name: Upgrading from P#
+      link: /learn/advanced/upgrade

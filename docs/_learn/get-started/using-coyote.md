@@ -5,13 +5,83 @@ title: Using Coyote
 permalink: /learn/get-started/using-coyote
 ---
 
-# Using Coyote—the different ways
-Coyote is built on top of the .NET framework and the Roslyn compiler.
+# Using Coyote
 
-Coyote is provided as both a language extension of C#, as well as a set of library and runtime APIs that can be directly used from inside a C# program. This means that there are two main ways someone can use Coyote to build highly reliable systems:
-- The surface syntax of Coyote (i.e., C# language extension) can be used to build an entire system from scratch (see an example here). The surface Coyote syntax directly extends C# with new language constructs, which allows for rapid prototyping. However, to use the surface syntax, a developer has to use the Coyote compiler, which is built on top of Roslyn. The main disadvantage of this approach is that Coyote does not yet fully integrate with the Visual Studio integrated development environment (IDE), although we are actively working on this (see here), and thus does not support high-productivity features such as IntelliSense (e.g., for auto-completion and automated refactoring) 
-- The Coyote library and runtime APIs (available for C#) can be used to build an entire system from scratch (see an example here). This approach is slightly more verbose than the above, but allows full integration with Visual Studio.
+As shown in the [overview](/learn/overview/what-is-coyote) there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/learn/overview/tasks) and the more advanced way is using the [asynchronous state-machines](/learn/overview/machines).
 
-Coyote can be also used for thoroughly testing an existing message-passing system, by modeling its environment (e.g. a client) and/or components of the system. However, this approach has the disadvantage that if nondeterminism in the system is not captured by (or expressed in) Coyote, then the Coyote testing engine might be unable to discover and reproduce bugs. 
+**Note:** If you are upgrading to Coyote from the P# see [upgrading from P#](/learn/advanced/upgrade).
 
-Note that many examples in our documentation will use the Coyote surface syntax, since it is less verbose.
+Assuming you have [installed Coyote](/learn/install) and built the samples, you are ready to use Coyote. In your [CoyoteSamples](http://github.com/Microsoft/CoyoteSamples) local repo you should have the following compiled binaries:
+
+```
+Coyote\bin\net46\Coyote.exe
+CoyoteSamples\AsyncExamples\bin\net46\*.exe
+CoyoteSamples\MachineExamples\bin\net46\*.exe
+```
+
+You can use the `Coyote` tool to automatically test these samples and find bugs. There is a particularly hard bug to find in the `CoyoteSamples\MachineExamples\bin\net46\FailureDetector.exe` sample application. If you run this application from your command prompt it will happily write output forever. It seems perfectly happy right?  But there is a bug that happens rarely, the kind of pesky bug that would keep you up late at night scratching your head.
+
+Ok then, lets see if `Coyote` can find the bug. To make it easier to use the `Coyote` command line go ahead and add it to your `PATH` environment as follows:
+
+```
+set PATH=%PATH%;d:\git\Coyote\bin\net46
+```
+
+Type `Coyote -?` to see the help page to make sure it is working.
+
+```
+cd CoyoteSamples
+Coyote.exe --test MachineExamples\bin\net46\FailureDetector.exe --iterations 1000 --max-steps 200
+```
+
+This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be found using the `PCT` exploration strategy with a given maximum number of priority switch points `--sch-pct` (or with the default `Random` exploration strategy, but with a much larger number of iterations, typically more than 100,000 of them).
+
+```
+Coyote.exe test MachineExamples\bin\net46\FailureDetector.exe --iterations 1000 --max-steps 200 --sch-pct 10
+```
+
+Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger number if necessary. Eventually you will see a bug report:
+
+```
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector_0_0.txt
+..... Writing MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector_0_0.pstrace
+..... Writing MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector_0_0.schedule
+```
+
+The `*.txt` file is the text log of the iteration that found the bug. The `*.pstrace` file is an XML version of the trace and the `*.schedule` contains the information needed to reproduce the bug.
+
+Finding a hard to find bug is one thing, but if you can't reproduce this bug while debugging there is no point. So the `*.schedule` can be used with the `Coyote replay` command as follows:
+
+```
+Coyote.exe replay MachineExamples\bin\net46\FailureDetector.exe MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector_0_0.schedule
+. Reproducing trace in d:\git\foundry99\CoyoteSamples\MachineExamples\bin\net46\FailureDetector.exe
+... Reproduced 1 bug.
+... Elapsed 0.1724228 sec.
+```
+
+You might be wondering what the `FailureDetector` sample app is really doing. `Coyote` can help you with that also. If you run the following command line it will produce a [DGML](https://en.wikipedia.org/wiki/DGML) visualization of the state-machines that are being tested:
+
+```
+Coyote.exe test MachineExamples\bin\net46\FailureDetector.exe --iterations 10 --max-steps 20 --coverage activity
+```
+
+You will see the following output:
+
+```
+... Emitting coverage reports:
+..... Writing MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector.dgml
+..... Writing MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector.coverage.txt
+..... Writing MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector.sci
+```
+
+Open the DGML diagram using Visual Studio 2019 and you will see the following:
+
+![image](/Coyote/assets/images/FailureDetector.png)
+
+Download the [FailureDetector.dgml](/Coyote/assets/images/FailureDetector.dgml) file to view it interactively using Visual Studio. Make sure the downloaded file keeps the file extension `.dgml`.
+
+**Note**: See [get started with Coyote](/learn/install) for information on how to install the DGML editor component of Visual Studio.
+
+You are now ready to dive into the core concepts for using Coyote to test [async tasks](/learn/overview/tasks) and the more advanced [async state-machines](/learn/programming-models/machines).

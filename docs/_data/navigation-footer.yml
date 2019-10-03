@@ -11,11 +11,9 @@ dark:
     - name: Overview
       link: /learn/overview/what-is-coyote
     - name: Install
-      link: /install
-    - name: Core concepts
-      link: /learn/core-concepts/what-is-an-actor
-    - name: Tutorials
-      link: /learn/tutorials/coyote-basics
+      link: /learn/install
+    - name: Getting started
+      link: /learn/get-started/using-coyote
     - name: Get involved
       link: /contribute
 - title: Join community
@@ -23,13 +21,9 @@ dark:
     - name: GitHub
       link: https://github.com/microsoft/Coyote
       external: true
-    - name: Gitter
-      link: https://gitter.im/
-      external: true
 
 footnote:
 - name: Terms
   link: /terms
 - name: Privacy
   link: /privacy
-  

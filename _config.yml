@@ -28,8 +28,8 @@ collections:
     permalink: /:collection/:name
   portfolio:
     output: true
-    permalink: /:collection/:name    
-    
+    permalink: /:collection/:name
+
 plugins:
   - jekyll-feed
   - jekyll-sitemap
@@ -39,7 +39,7 @@ plugins:
 source: docs
 
 relative_links:
-  enabled:     false
+  enabled:     true
   collections: true
 
 # Handling Reading

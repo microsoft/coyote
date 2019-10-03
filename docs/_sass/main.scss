@@ -8,12 +8,7 @@ $light-gray: #f3f3f3;
 $bg-gray: #403d3b;
 $dark-gray: #333;
 $learn-gray: #eaeaea;
-$text-font-stack: 'Helvetica',
-'Helvetica Neue Light',
-'Helvetica Neue',
-'Arial',
-'Open Sans',
-sans-serif;
+$text-font-stack: 'Segoe UI', 'SegoeUI', 'Segoe WP', 'Helvetica Neue', 'Helvetica', 'Tahoma', 'Arial', 'sans-serif';
 $white: #fff;
 $black: #000;
 
@@ -615,14 +610,7 @@ footer {
 
 .container-hero-text {
     margin: 100px auto;
-
-    @include screen(lg) {
-        margin-top: 214px;
-    }
-
-    @include screen(sm) {
-        margin-top: 290px;
-    }
+    clear: both;
 }
 
 .reference.section-main {
@@ -640,7 +628,7 @@ footer {
 }
 
 .display-flex article {
-    margin: 0 auto 40px auto;
+    margin: 0 0 40px auto;
     max-width: 70%;
 
 
@@ -1044,7 +1032,7 @@ pre code::after {
     content: none;
 }
 
-//trigger navbar collapse sooner so topnav doesn't collide with branding 
+//trigger navbar collapse sooner so topnav doesn't collide with branding
 @media (max-width: 1110px) {
 
     .navbar-header,
@@ -1117,7 +1105,7 @@ pre code::after {
 }
 
 /*
- *  End Bootstrap overrides 
+ *  End Bootstrap overrides
  */
 
 /*
@@ -1127,7 +1115,7 @@ pre code::after {
 
 body {
     font-family: $text-font-stack;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 132.5%;
     overflow-x: hidden;
 }

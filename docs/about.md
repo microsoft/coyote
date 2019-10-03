@@ -15,7 +15,7 @@ article:
 
         <p>Our goal is to help developers reimagine the way we design and implement asynchronous or distributed systems.</p>
 
-        <p><a href="/Coyote/contribute/">Your contribution</a> can help propel Coyote as a framework of choice for developing highly reliable reactive systems. Please join us!</p>
+        <p><a href="/Coyote/contribute/">Your contribution</a> can help propel Coyote as a framework of choice for developing highly reliable asynchronous software. Please join us!</p>
   - title: Origin story
     feature-img: /assets/images/vision.jpg
     content: |

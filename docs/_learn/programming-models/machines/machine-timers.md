@@ -1,14 +1,15 @@
 ---
 layout: reference
+title: Using timers in machines
 section: learn
-title: Using timers in Coyote
-permalink: /learn/core-concepts/using-timers
+permalink: /learn/programming-models/machines/machine-timers
 ---
-Using timers in Coyote
-==================
+
+## Using timers in machines
+
 Coyote has built-in support for machine timers, which can send a `TimerElapsedEvent` to the machine that created them upon timeout, and periodic machine timers, which can continually send such events with a user-defined periodicity.
 
-To make use of timers, you must include the `Microsoft.PSharp.Timers` namespace. Timers are exposed via `Machine` APIs. You can start a non-periodic timer using the function `StartTimer`.
+To make use of timers, you must include the `Microsoft.Coyote.Machines.Timers` namespace. Timers are exposed via `Machine` APIs. You can start a non-periodic timer using the function `StartTimer`.
 ```C#
 TimerInfo StartTimer(TimeSpan dueTime, object payload = null)
 ```
@@ -93,7 +94,7 @@ class MultiTimers : Machine {
    [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
    class SomeState : MachineState {}
 
-   void CreateMultipleTimers() 
+   void CreateMultipleTimers()
    {
       this.TimerInfo1 = StartTimer(TimeSpan.FromMilliseconds(100));
       this.TimerInfo2 = StartPeriodicTimer(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(200));
@@ -102,7 +103,7 @@ class MultiTimers : Machine {
    void HandleTimeout()
    {
       var timeout = (this.ReceivedEvent as TimerElapsedEvent);
-      if (timeout.Timer == this.TimerInfo1) 
+      if (timeout.Timer == this.TimerInfo1)
       {
          this.Logger.WriteLine("Timeout from timer 1.");
       }

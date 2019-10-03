@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Coyote.Examples.FailureDetector.Driver" Bounds="155.145,0,246.936666666667,157.88" Group="Expanded" Label="Coyote.Examples.FailureDetector.Driver" />
+    <Node Id="Coyote.Examples.FailureDetector.Driver.Init" Bounds="278.34,40,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.FailureDetector.Driver.InjectFailures" Bounds="259.1,111.92,88.48,25.96" Label="InjectFailures" />
+    <Node Id="Coyote.Examples.FailureDetector.FailureDetector" Bounds="4.76624124497596,189.5675,391.694184176715,229.8" Group="Expanded" Label="Coyote.Examples.FailureDetector.FailureDetector" />
+    <Node Id="Coyote.Examples.FailureDetector.FailureDetector.Init" Bounds="175.272092088357,229.5675,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.FailureDetector.FailureDetector.Reset" Bounds="43.2720920883573,373.4075,50,25.96" Label="Reset" />
+    <Node Id="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="165.277092088357,301.4875,69.99,25.96" Label="SendPing" />
+    <Node Id="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Bounds="230.083758755024,373.4075,146.376666666667,25.96" Label="WaitForCancelResponse" />
+    <Node Id="Coyote.Examples.FailureDetector.Liveness" Bounds="461.977458274148,-1.04721715544763,297.361148569445,157.880205969242" Group="Expanded" Label="Coyote.Examples.FailureDetector.Liveness" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.FailureDetector.Liveness.Done" Bounds="481.977461825284,110.872888813794,50,25.96" Label="Done" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.FailureDetector.Liveness.Init" Bounds="689.338606843593,38.9528830155993,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.FailureDetector.Liveness.Wait" Bounds="530.867476473721,38.9528830155993,50,25.96" Label="Wait" UseManualLocation="True" />
+    <Node Id="Coyote.Examples.FailureDetector.Liveness.Wait[hot]" Bounds="589.865273511482,110.872888813794,68.9466666666667,25.96" Label="Wait[hot]" />
+    <Node Id="Coyote.Examples.FailureDetector.Node" Bounds="275.276666666667,487.015,250.673333333333,157.88" Group="Expanded" Label="Coyote.Examples.FailureDetector.Node" />
+    <Node Id="Coyote.Examples.FailureDetector.Node.Halt" Bounds="358.646666666667,598.935,50,25.96" Label="Halt" />
+    <Node Id="Coyote.Examples.FailureDetector.Node.Init" Bounds="358.646666666667,527.015,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.FailureDetector.Node.WaitPing" Bounds="438.646666666667,527.015,67.3033333333334,25.96" Label="WaitPing" />
+    <Node Id="Coyote.Examples.FailureDetector.Timer" Bounds="0,451.055,245.226666666667,229.8" Group="Expanded" Label="Coyote.Examples.FailureDetector.Timer" />
+    <Node Id="Coyote.Examples.FailureDetector.Timer.Init" Bounds="123.324166666667,491.055,50,25.96" Label="Init" />
+    <Node Id="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Bounds="100.355833333333,634.895,95.9366666666667,25.96" Label="WaitForCancel" />
+    <Node Id="Coyote.Examples.FailureDetector.Timer.WaitForReq" Bounds="107.7975,562.975,81.0533333333334,25.96" Label="WaitForReq" />
+  </Nodes>
+  <Links>
+    <Link Source="Coyote.Examples.FailureDetector.Driver" Target="Coyote.Examples.FailureDetector.Driver.Init" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Driver" Target="Coyote.Examples.FailureDetector.Driver.InjectFailures" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Driver.Init" Target="Coyote.Examples.FailureDetector.Driver.Init" Bounds="234.839996337891,46.4900016784668,43.5,12.9799995422363" EventId="Microsoft.Coyote.Machines.GotoStateEvent" Label="goto" LabelBounds="209.646666666667,45,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Driver.Init" Target="Coyote.Examples.FailureDetector.Driver.InjectFailures" Bounds="303.339996337891,65.9599990844727,0,36.9599990844727" Label="goto" LabelBounds="278.146666666667,80.96,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Driver.Init" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="208.688610738167,65.9599995422363,89.53518905157,227.154438448766" EventId="Coyote.Examples.FailureDetector.Driver+RegisterClient" Label="RegisterClient" />
+    <Link Source="Coyote.Examples.FailureDetector.Driver.Init" Target="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Bounds="303.276564036379,65.9599995422363,0.0607885039021312,298.447497592695" Label="RegisterClient" />
+    <Link Source="Coyote.Examples.FailureDetector.Driver.InjectFailures" Target="Coyote.Examples.FailureDetector.Node.WaitPing" Bounds="308.623329808829,137.880001525879,154.998680297237,380.799109474752" EventId="Microsoft.Coyote.Machines.Halt" Label="Microsoft.Coyote.Machines.Halt" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector" Target="Coyote.Examples.FailureDetector.FailureDetector.Init" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector" Target="Coyote.Examples.FailureDetector.FailureDetector.Reset" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector" Target="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.Init" Target="Coyote.Examples.FailureDetector.FailureDetector.Init" Bounds="131.772094726563,236.057495117188,43.5,12.9800109863281" EventId="Coyote.Examples.FailureDetector.FailureDetector+Unit" Label="Unit" LabelBounds="109.765425421691,234.5675,22.0066666666667,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.Init" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="200.272094726563,255.527496337891,0,36.9599914550781" Label="push" LabelBounds="174.545425421691,270.5275,25.7266666666667,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.Reset" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="50.2952880859375,324.126770019531,106.193130493164,49.2807312011719" Label="goto" LabelBounds="24.766241244976,345.167504778167,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.Reset" Target="Coyote.Examples.FailureDetector.Timer.WaitForReq" Bounds="73.7533908172812,399.367496948242,65.5882654788432,155.316438955801" EventId="Coyote.Examples.FailureDetector.Timer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.Driver.InjectFailures" Bounds="207.329325992693,145.786885058745,84.6544785531264,155.700598461763" EventId="Coyote.Examples.FailureDetector.FailureDetector+NodeFailed" Label="NodeFailed" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.FailureDetector.Reset" Bounds="100.480690002441,327.447509765625,78.1340103149414,42.8535766601563" Label="goto" LabelBounds="115.078758755024,342.4475,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="121.77709197998,307.977508544922,43.5000076293945,12.9546813964844" EventId="Coyote.Examples.FailureDetector.FailureDetector+RoundDone" Label="goto" LabelBounds="96.583758755024,306.4875,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Bounds="231.052062988281,327.447509765625,61.6567687988281,37.9815673828125" Label="push" LabelBounds="285.545425421691,342.4475,25.7266666666667,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.Node.WaitPing" Bounds="215.928278572313,327.447483520508,233.785365029701,193.823352356017" Label="Ping" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Bounds="151.732139007932,327.447483520508,46.5175539151132,298.554841460375" Label="CancelTimerEvent" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Target="Coyote.Examples.FailureDetector.Timer.WaitForReq" Bounds="152.656509510289,327.447483520508,45.0369376116532,226.70001482631" EventId="Coyote.Examples.FailureDetector.Timer+StartTimerEvent" Label="StartTimerEvent" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="200.902297973633,336.425415039063,65.1912689208984,36.9820861816406" Label="pop" LabelBounds="181.415480665311,340.95265421,21.1366666666667,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Target="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Bounds="186.583755493164,380.018493652344,43.5,12.5126953125" Label="RoundDone" LabelBounds="123.570425421691,378.4075,63.0133333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness" Target="Coyote.Examples.FailureDetector.Liveness.Done" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness" Target="Coyote.Examples.FailureDetector.Liveness.Init" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness" Target="Coyote.Examples.FailureDetector.Liveness.Wait" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness" Target="Coyote.Examples.FailureDetector.Liveness.Wait[hot]" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness.Init" Target="Coyote.Examples.FailureDetector.Liveness.Init" Bounds="701.838623046875,8.95288276672363,24.9983520507813,30.0000019073486" EventId="Microsoft.Coyote.Machines.GotoStateEvent" Label="goto" LabelBounds="681.32198839277,-6.48437652501682,25.1933333333334,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness.Init" Target="Coyote.Examples.FailureDetector.Liveness.Wait[hot]" Bounds="647.612520011234,64.9128830155993,50.4830403111719,40.3415616882145" EventId="Coyote.Examples.FailureDetector.Liveness+RegisterNodes" Label="RegisterNodes" LabelBounds="674.102583302371,86.646078669758,77.13,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness.Wait" Target="Coyote.Examples.FailureDetector.Liveness.Done" Bounds="520.860735208952,64.9128830155993,26.183154794026,38.5169171689247" EventId="Coyote.Examples.FailureDetector.FailureDetector+NodeFailed" Label="NodeFailed" LabelBounds="472.234959577239,67.0869667305227,60.0633333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Liveness.Wait" Target="Coyote.Examples.FailureDetector.Liveness.Wait[hot]" Bounds="568.225029318067,64.9128830155993,37.5502742278717,39.4416730898963" EventId="Microsoft.Coyote.Machines.GotoStateEvent" Label="goto" LabelBounds="588.448684811625,67.2946639039848,25.1933333333334,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Node" Target="Coyote.Examples.FailureDetector.Node.Halt" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Node" Target="Coyote.Examples.FailureDetector.Node.Init" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Node" Target="Coyote.Examples.FailureDetector.Node.WaitPing" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Node.Halt" Target="Coyote.Examples.FailureDetector.Node.Halt" Bounds="315.146667480469,605.424987792969,43.5,12.9800415039063" Label="halt" LabelBounds="295.276666666667,603.935,19.87,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Node.Init" Target="Coyote.Examples.FailureDetector.Node.Halt" Bounds="383.646667480469,552.974975585938,0,36.9600219726563" Label="halt" LabelBounds="363.776666666667,567.975,19.87,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Node.WaitPing" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="222.856790968299,333.191673278748,233.785365029701,193.823352356017" Label="Pong" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer" Target="Coyote.Examples.FailureDetector.Timer.Init" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer" Target="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer" Target="Coyote.Examples.FailureDetector.Timer.WaitForReq" Category="Contains" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.Init" Target="Coyote.Examples.FailureDetector.Timer.Init" Bounds="79.8241653442383,497.545013427734,43.5,12.97998046875" EventId="Microsoft.Coyote.Machines.GotoStateEvent" Label="goto" LabelBounds="54.6308333333334,496.055,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.Init" Target="Coyote.Examples.FailureDetector.Timer.WaitForReq" Bounds="148.324172973633,517.015014648438,0,36.9599609375" Label="goto" LabelBounds="123.130833333333,532.015,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Target="Coyote.Examples.FailureDetector.FailureDetector.Reset" Bounds="74.8803794189266,407.973251631255,69.4700821267813,226.921778886323" EventId="Coyote.Examples.FailureDetector.Timer+TimeoutEvent" Label="TimeoutEvent" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Target="Coyote.Examples.FailureDetector.FailureDetector.SendPing" Bounds="150.34657477715,336.340189057203,46.5175539151133,298.554841460375" EventId="Coyote.Examples.FailureDetector.Timer+TimeoutEvent" Label="TimeoutEvent" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Target="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Bounds="156.01564452438,407.110220242501,134.97691740547,227.784810275077" Label="CancelFailure" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Target="Coyote.Examples.FailureDetector.Timer.WaitForReq" Bounds="116.074165344238,594.718688964844,16.728874206543,40.1763305664063" Label="goto" LabelBounds="90.3808333333334,603.935,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForReq" Target="Coyote.Examples.FailureDetector.FailureDetector.WaitForCancelResponse" Bounds="158.933706190836,406.335863754496,128.033064076297,156.63912281777" Label="CancelFailure" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForReq" Target="Coyote.Examples.FailureDetector.Timer.WaitForCancel" Bounds="163.775512695313,588.934997558594,16.6536560058594,40.16064453125" Label="goto" LabelBounds="180.929166666667,603.935,25.1933333333333,15.96" />
+    <Link Source="Coyote.Examples.FailureDetector.Timer.WaitForReq" Target="Coyote.Examples.FailureDetector.Timer.WaitForReq" Bounds="64.2975006103516,569.465026855469,43.5,12.9228515625" Label="goto" LabelBounds="39.1041666666667,567.975,25.1933333333333,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventId" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+  </Properties>
+</DirectedGraph>

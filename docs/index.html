@@ -2,27 +2,28 @@
 title: Home
 section: home
 carousel:
-  - title: Programmatic specifications
+  - title: Auto-discover bugs
     content: |
-        <p>Write safety and liveness specifications easily (similar to TLA+) and programmatically in C#.</p>
-    link: /Coyote/install
-    img: /assets/images/bg-slider-1.png   
+        <p>Use Coyote to automatically find and reproduce deep nondeterministic bugs (e.g. due to concurrency, failures or timeouts) in your asynchronous C# code.</p>
+        <p> After a bug is found, Coyote enables you to deterministically replay bug-traces using Visual Studio’s debugger.</p>
+    link: /Coyote/learn/install
+    img: /assets/images/bg-slider-1-full.png
+  - title: Design with confidence
+    content: |
+        <p>Coyote bridges the design-to-code gap, allowing you to easily specify safety and liveness properties directly in your C# code. Using Coyote ensures that your design and code remain in sync, dramatically simplifying the addition of new features.</p>
+    link: /Coyote/learn/install
+    img: /assets/images/bg-slider-3-full.png
   - title: Lightweight runtime
     content: |
         <p>Experience an efficient lightweight runtime that’s built on top of the Task Parallel Library.</p>
-        <p> The flexible runtime works with any communication and storage layer and can be used to deploy a Coyote program in production.</p>
-    link: /Coyote/install
-    img: /assets/images/bg-slider-2.png   
-  - title: Systematic testing engine
+        <p> The Coyote runtime is flexible enough to work with any communication, storage and deployment mechanism of your choice.</p>
+    link: /Coyote/learn/install
+    img: /assets/images/bg-slider-2-full.png
+  - title: Battle-tested in production
     content: |
-        <p>Discover a testing engine that controls program schedule and all declared sources of nondeterminism such as failures and timeouts.</p>
-        <p>Bugs in executable code are reported via a reproducible deterministic trace that can be replayed in Visual Studio’s debugger.</p>      
-    link: /Coyote/install
-    img: /assets/images/bg-slider-3.png     
-  - title: A growing community
-    content: |
-        <p>Contribute and be a part of Coyote's extraordinary community. Help us equip developers to rapidly build reliable asynchronous software.</p>                
-    link: /Coyote/install
+        <p>Coyote is being used in production by several critical Azure services.</p>
+        <p> The Coyote tester has automatically found hundreds of serious bugs, at a check-in level, allowing our users to deploy with confidence.</p>
+    link: /Coyote/learn/install
     img: /assets/images/bg-slider-4.png
 ---
 <section class="section-main">
@@ -33,10 +34,10 @@ carousel:
         <div class="row display-flex">
             <div class="col-md-8" style="margin: 0 auto">
                 <h2>Fearless coding for cloud services</h2>
-                <p>Coyote guarantees uptime. </p>
+                <p>Coyote helps increase your uptime. </p>
                 <p>In mission-critical cloud applications, minor failures can cost millions in disrupted services. Developers face extreme challenges with program execution in this unpredictable, high-stakes environment.</p>
 
-                <p>Coyote’s novel programming framework of reliable state machines is resilient against machine and network failures.</p>
+                <p>Coyote’s finds the most difficult bugs helping you create ultra reliable software.</p>
             </div>
         </div>
     </section>
@@ -69,7 +70,7 @@ carousel:
                 <article>
                     <h2>Case studies</h2>
                     <h3>Azure Batch Service</h3>
-                    <p> This team wanted to invest in a new architecture of multiple microservices that would reliably scale to meet the demands of their popular cloud-scale job-scheduling service. Each microservice had to: </p> 
+                    <p> This team wanted to invest in a new architecture of multiple microservices that would reliably scale to meet the demands of their popular cloud-scale job-scheduling service. Each microservice had to: </p>
                         <ul>
                             <li>Process requests asynchronously as they arrived. </li>
                             <li>Support cancellation of an in-flight request, enabling quick turnaround for auto-scaling.</li>
@@ -78,15 +79,15 @@ carousel:
 
                         <p>Choosing Coyote, the team experienced a previously unheard-of end-to-end test coverage, discovered hard-to-find bugs in a matter of minutes, and saved months of developer time. </p>
 
-                     <p><a href="/Coyote/case-studies/azure-batch-service">Learn more  &#62;</a></p> 
+                     <p><a href="/Coyote/case-studies/azure-batch-service">Learn more  &#62;</a></p>
                 </article>
-            </div>        
+            </div>
             <div class="col-md-6  mb--20  hidden-xs hidden-sm"  id="home_figure_2b">
                 <figure class="feature-img-bg shadow-drop-2-bottom" style="background-image: url('/Coyote/assets/images/home-case-studies.jpg')"></figure>
             </div>
-        </div>   
+        </div>
     </section>
-    
+
     <section class="container section-quote"   id="home_quote">
         <div class="row">
             <div class="col-sm-12">

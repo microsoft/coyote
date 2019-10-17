@@ -9,9 +9,8 @@ jQuery(document).ready(function ($) {
         };
         if ($(document).scrollTop() > 320) {
             $('.brand-home').addClass('slide-out-top');
-
         } else {
-            $('.brand-home').removeClass('slide-out-top').addClass('slide-in-top');
+            $('.brand-home').removeClass('slide-out-top');
         }
     });
 

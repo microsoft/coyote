@@ -26,12 +26,11 @@ $black: #000;
     height: 110px;
     border: 1px solid transparent;
     transition: all .2s ease-in;
-
 }
 
 .navbar-default .navbar-toggle {
     border-color: transparent;
-
+    margin-top: 15px;
     .icon-bar {
         background-color: $brand-color;
     }
@@ -49,8 +48,7 @@ $black: #000;
 }
 
 .navbar-default .navbar-nav > li {
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding: 15px;
     transition: all .3s ease-in;
 }
 
@@ -133,20 +131,18 @@ $black: #000;
 // homepage brand
 .navbar-brand {
     display: block;
-    background: url("/Coyote/assets/images/logo_color.png") no-repeat 30px center;
+    background: url("/Coyote/assets/images/logo_color.svg") no-repeat 30px center;
     width: 267px;
     height: 40px;
     background-size: contain;
-    margin: 30px 0 0 0;
+    margin: 20px 0 0 0;
     transition: .3s;
+}
 
-    @include screen(md) {
-        margin: 15px 0 0 20px;
-        padding: 0;
-        background-position: 10px center;
-        height: 20px;
-        margin-top: 15px;
-    }
+@media only screen and (max-width: 768px) {
+    .home .navbar-default .navbar-brand {
+           width: 147px;
+       }
 }
 
 .shrink .navbar-brand {
@@ -162,7 +158,7 @@ $black: #000;
     .brand-home {
         position: absolute;
         z-index: 10001;
-        background: url("/Coyote/assets/images/logo_rev.png") no-repeat;
+        background: url("/Coyote/assets/images/logo_rev.svg") no-repeat;
         background-position: center 10px;
         background-size: 80px auto;
         transition: all .2s ease-in;
@@ -226,15 +222,17 @@ $black: #000;
 .panel-heading {
 
     // up/down arrows on click
-    a:after {
+    a::after {
         font-family: 'Glyphicons Halflings';
         content: "\e259";
         transition: all 0.5s;
         font-size: 14px;
         font-weight: 100;
+        display: inline-block;
+        margin: 0 0 0 8px;
     }
 
-    &.active a:after {
+    &.active a::after {
         -webkit-transform: rotate(180deg);
         -moz-transform: rotate(180deg);
         transform: rotate(180deg);
@@ -290,14 +288,33 @@ $black: #000;
     background-color: $brand-color;
 }
 
+.list-unstyled .learn-tertiary {
+    list-style: none;
+    padding: 0 0 0 17px;
+    li {
+        padding: 5px 0;
+    }
+    li a:before {
+        /*Using a Bootstrap glyphicon as the bullet point*/
+        content: "\e080";
+        font-family: 'Glyphicons Halflings';
+        font-size: 9px;
+        float: left;
+        margin-left: -7px;
+        color: #ccc;
+        background: none;
+    }
+    li a.active:before {
+        color: $brand-color;
+    }
+}
+
 #results-container {
     p {
         font-size: 14px;
     }
-
     h3 {
         font-size: 18px;
-
         &:hover {
             color: $brand-color;
         }
@@ -416,20 +433,15 @@ footer {
         padding: inherit;
     }
 }
-
-
 .carousel {
     margin-left: 80px;
-
     @include screen(md) {
         margin-left: 0;
     }
-
     @include screen(lg) {
         margin-left: 50px;
     }
 }
-
 .carousel-inner {
     overflow: visible;
 }
@@ -438,7 +450,6 @@ footer {
     width: auto;
     max-width: 750px;
     min-height: 542px;
-
     @include screen(xl) {
         max-width: 650px;
         min-height: 500px;
@@ -463,16 +474,19 @@ footer {
     margin: 0;
     padding: 0;
     left: -62px;
-    bottom: 183px;
+    top: 215px;
     text-align: left;
     width: auto;
-
     @include screen(lg) {
-        left: -60px;
-        bottom: 0;
+        top: 297px;
     }
-
-
+    @include screen(md) {
+        top: 261px;
+    }
+    @include screen(sm) {
+        left: -60px;
+        top: 157px;
+    }    
     li {
         display: inline-block;
         width: auto;
@@ -487,12 +501,10 @@ footer {
         display: block;
         float: none;
         padding: 2px 0 2px 30px;
-
         @include screen(sm) {
             font-size: 14px;
         }
     }
-
     .active {
         width: auto;
         height: auto;
@@ -503,85 +515,65 @@ footer {
         padding: 2px 0 2px 30px;
     }
 }
-
 .carousel-caption {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 0;
+    position: static;
     color: inherit;
     text-align: left;
     text-shadow: none;
-
+    padding-bottom: 0;
     h1 {
-        position: absolute;
         font-weight: 600;
         text-align: right;
         font-size: 64px;
-        top: 70px;
-        right: 0;
         max-width: auto;
-
+        margin: -539px 0 0 140px;
+        height: 240px;
+        padding: 96px 0 0 20px;
+        
         @include screen(xl) {
             font-size: 54px;
-            top: 70px;
-            right: 0;
-            margin: 0;
             max-width: 80%;
         }
-
         @include screen(lg) {
-            font-size: 44px;
-            top: 255px;
-
-            margin: 0 20px 0 0;
+            margin-top: -359px;
+            height: 350px;
+            padding: 181px 0 0 20px;
         }
-
         @include screen(md) {
-            font-size: 34px;
-            top: 170px;
+            padding: 160px 0 0 20px;
         }
 
         @include screen(sm) {
             font-size: 34px;
-            top: 130px;
-            right: 20px;
+            margin-top: -280px;
+            height: 281px;
+            padding: 120px 0 0 10px;
         }
     }
 
     .carousel-caption-content {
-        position: absolute;
-        left: 770px;
-        top: auto;
-        bottom: 0;
-        right: auto;
         width: 200px;
-
+        margin: 0 0 0 770px;
         @include screen(xl) {
-            left: auto;
-            top: auto;
-            bottom: 0;
-            right: 0;
             width: 200px;
+            margin: 0 0 0 670px;
+            
         }
-
         @include screen(lg) {
-            top: 400px;
             width: auto;
-            left: -30px;
+            margin: 0;
+            
         }
-
         @include screen(md) {
-            top: 366px;
+            width: auto;
+            
         }
-
         @include screen(sm) {
-            top: 258px;
+        }
+        p {
+            font-size: 14px;
         }
     }
-
 }
 
 /*
@@ -593,7 +585,7 @@ footer {
  */
 
 .section-main {
-    margin-top: 120px;
+    margin-top: 130px;
 
     @include screen(lg) {
         margin-top: 110px;
@@ -609,12 +601,31 @@ footer {
 }
 
 .container-hero-text {
-    margin: 100px auto;
+    margin: 40px auto 80px auto;
     clear: both;
+    transition: all .2s;
+        @include screen(xl) {
+
+    }
+
+    @include screen(lg) {
+
+    }
+
+    @include screen(md) {
+
+    }
+
+    @include screen(sm) {
+
+    }
 }
 
 .reference.section-main {
     margin-top: 0;
+}
+.about-us .section-main {
+    margin-top: 120px;
 }
 
 .img-shadow {
@@ -628,7 +639,7 @@ footer {
 }
 
 .display-flex article {
-    margin: 0 0 40px auto;
+    margin: 0 auto 40px auto;
     max-width: 70%;
 
 
@@ -901,25 +912,6 @@ a.btn-primary:focus,
     }
 }
 
-
-
-.list-unstyled .learn-tertiary {
-    list-style: none;
-    padding: 0 0 0 17px;
-    li {
-        padding: 5px 0;
-    }
-    li:before {
-        /*Using a Bootstrap glyphicon as the bullet point*/
-        content: "\e080";
-        font-family: 'Glyphicons Halflings';
-        font-size: 9px;
-        float: left;
-        margin-top: 4px;
-        margin-left: -17px;
-        color: #ccc;
-    }
-}
 
 //buttons
 .btn.active.focus,

@@ -1,6 +1,6 @@
 ---
 title: Get started with Coyote
-permalink: /learn/install
+permalink: /learn/get-started/install
 layout: reference
 section: learn
 template: basic
@@ -8,7 +8,12 @@ template: basic
 
 ## Installing the NuGet package
 
-<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-50 mb-20">Install package </a>
+
+<div>
+<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30">Install package</a> <a href="http://github/com/microsoft/Coyote" class="btn btn-primary mt-20">Build from source</a>
+<br/>
+<br/>
+</div>
 
 The Coyote framework can be easily installed by adding the `Microsoft.Coyote` [NuGet package]("https://www.nuget.org/packages/Microsoft.Coyote/") to your C# project. You can then immediately start programming the Coyote API as shown in the [samples](http://github.com/Microsoft/CoyoteSamples).
 
@@ -72,4 +77,4 @@ powershell -f .\Scripts\create-nuget-packages.ps1
 
 Now you can rebuild the samples and so long as the `Common\version.props` file contains the same version in both `Coyote` and `CoyoteSamples` then it will pick up your newly created NuGet package and use that. Note: this can make debugging into the Coyote runtime possible.
 
-Now you are ready to [start using Coyote](/learn/get-started/using-coyote).
+Now you are ready to [start using Coyote](/Coyote/learn/get-started/using-coyote).

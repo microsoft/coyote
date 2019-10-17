@@ -16,10 +16,11 @@ using System.Threading.Tasks;
 namespace Microsoft.Coyote.SmartSockets
 {
     /// <summary>
-    /// This class wraps the Socket class providing some useful semantics like FindServerAsync which looks
-    /// for the UDP message broadcast by the SmartSocketServer.  It also provides a useful SendReceiveAsync
-    /// message that synchronously waits for a response from the server.  It also supports serializing custom message
-    /// objects via the DataContractSerializer using known types provided in your SmartSocketTypeResolver.
+    /// This class wraps the Socket class providing some useful semantics like FindServerAsync
+    /// which looks for the UDP message broadcast by the SmartSocketServer. It also provides a
+    /// useful SendReceiveAsync message that synchronously waits for a response from the server.
+    /// It also supports serializing custom message objects via the DataContractSerializer using
+    /// known types provided in your SmartSocketTypeResolver.
     /// </summary>
     public class SmartSocketClient : IDisposable
     {
@@ -56,7 +57,7 @@ namespace Microsoft.Coyote.SmartSockets
         public string Name { get; set; }
 
         /// <summary>
-        /// Find a SmartSocketServer on the local network using UDP broadcast.  This will block
+        /// Find a SmartSocketServer on the local network using UDP broadcast. This will block
         /// waiting for a server to respond or until you cancel using the CancellationToken.
         /// </summary>
         /// <returns>The connected client or null if task is cancelled.</returns>
@@ -417,7 +418,7 @@ namespace Microsoft.Coyote.SmartSockets
         }
 
         /// <summary>
-        /// Receive one message from the socket.  This call blocks until a message has arrived.
+        /// Receive one message from the socket. This call blocks until a message has arrived.
         /// </summary>
         public async Task<SocketMessage> ReceiveAsync()
         {

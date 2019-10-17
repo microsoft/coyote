@@ -7,11 +7,11 @@ permalink: /learn/get-started/using-coyote
 
 # Using Coyote
 
-As shown in the [overview](/learn/overview/what-is-coyote) there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/learn/overview/tasks) and the more advanced way is using the [asynchronous state-machines](/learn/overview/machines).
+As shown in the [overview](/Coyote/learn/overview/what-is-coyote) there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/Coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state-machines](/Coyote/learn/programming-models/machines/overview).
 
-**Note:** If you are upgrading to Coyote from the P# see [upgrading from P#](/learn/advanced/upgrade).
+**Note:** If you are upgrading to Coyote from the P# see [upgrading from P#](/Coyote/learn/get-started/upgrade).
 
-Assuming you have [installed Coyote](/learn/install) and built the samples, you are ready to use Coyote. In your [CoyoteSamples](http://github.com/Microsoft/CoyoteSamples) local repo you should have the following compiled binaries:
+Assuming you have [installed Coyote](/Coyote/learn/get-started/install) and built the samples, you are ready to use Coyote. In your [CoyoteSamples](http://github.com/Microsoft/CoyoteSamples) local repo you should have the following compiled binaries:
 
 ```
 Coyote\bin\net46\Coyote.exe
@@ -82,6 +82,6 @@ Open the DGML diagram using Visual Studio 2019 and you will see the following:
 
 Download the [FailureDetector.dgml](/Coyote/assets/images/FailureDetector.dgml) file to view it interactively using Visual Studio. Make sure the downloaded file keeps the file extension `.dgml`.
 
-**Note**: See [get started with Coyote](/learn/install) for information on how to install the DGML editor component of Visual Studio.
+**Note**: See [get started with Coyote](/Coyote/learn/get-started/install) for information on how to install the DGML editor component of Visual Studio.
 
-You are now ready to dive into the core concepts for using Coyote to test [async tasks](/learn/overview/tasks) and the more advanced [async state-machines](/learn/programming-models/machines).
+You are now ready to dive into the core concepts for using Coyote to test [async tasks](/Coyote/learn/programming-models/async/overview) and the more advanced [async state-machines](/Coyote/learn/programming-models/machines/overview).

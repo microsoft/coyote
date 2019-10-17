@@ -46,7 +46,7 @@ By default, at the end of testing the report files are written to a directory na
   * Any directories named `...\CoyoteOutput[n]` (for n = 0 to 8) are renamed to `...\CoyoteOutput[n+1]`.
   * The new directory `...\CoyoteOutput` is created.
 
-TODO: renaming existing output folders is insane, it kills output file path stability.  We need a better system.
+TODO: renaming existing output folders is insane, it kills output file path stability. We need a better system.
 how about just ever increasing indexes instead?
 
 Details of the report files that are created for the separate coverage types are provided in subsequent sections.
@@ -93,7 +93,7 @@ For code coverage, `Coyote` instruments the `path` assembly and the binaries it 
 * Any additional assemblies specified by one of the `/instr` options.
 
 By default the VS 2019 tools are used. These are set in `Coyote.exe.config` and are based on the environment variable $(DevEnvDir) which
-is automatically defined if y ou use a Visual Studio Developer Command Prompt.  The actual paths can be overridden by environment variables
+is automatically defined if y ou use a Visual Studio Developer Command Prompt. The actual paths can be overridden by environment variables
 with the same names as the app settings:
 - `VSInstrToolPath`
 - `VSPerfCmdToolPath`

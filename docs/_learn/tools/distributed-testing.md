@@ -8,18 +8,18 @@ permalink: /learn/tools/distributed-testing
 ## Distributed Test
 
 You can also use the `--parallel` option to run the tests on different machines to get more scale and
-more parallelism.  Add the `--wait-for-testing-processes` option to tell the test coordinator to wait
+more parallelism. Add the `--wait-for-testing-processes` option to tell the test coordinator to wait
 for the test processes to launch rather than launching them locally. You will also want to use
 `--testing-scheduler-ipaddress` to specify a different ip endpoint other than the default `127.0.0.1:0`
-so that the remote machines can find your test coordinator.  You may need to open the port that you
-specify using your firewall settings.  The following is an example which starts the server with the
+so that the remote machines can find your test coordinator. You may need to open the port that you
+specify using your firewall settings. The following is an example which starts the server with the
 expectation that there will be 5 remote parallel tests:
 
 ```
 .\bin\net46\Coyote.exe test D:\git\Coyote\Samples\bin\net46\Raft.exe -i 100 --max-steps 100 --parallel 5 --wait-for-testing-processes --testing-scheduler-ipaddress 10.159.2.43:5050 -v
 ```
 
-This outputs a message containing the command line needed to launch each remote test.  At this point
+This outputs a message containing the command line needed to launch each remote test. At this point
 the server waits for these 5 tests to call back.
 
 Copy the generated command line to one or more remote machines and change the last argument
@@ -35,7 +35,7 @@ You can add the following if you want to see the individual test outputs:
 pause
 exit
 ```
-And remove the `pause` when you want the TestProcesses to clean themselves up automatically.  Then
+And remove the `pause` when you want the TestProcesses to clean themselves up automatically. Then
 create another `run.cmd` containing this:
 ```
 start runtest 0
@@ -45,7 +45,7 @@ start runtest 3
 start runtest 4
 ```
 
-Now type `run.cmd` to launch the 5 test instances.  You will see them connect with the server and
+Now type `run.cmd` to launch the 5 test instances. You will see them connect with the server and
 when a test finds a bug it will send back it's trace files so you should see this output on the
 server:
 

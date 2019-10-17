@@ -2,7 +2,7 @@
 layout: reference
 section: learn
 title: Upgrading from P# to Coyote
-permalink: /learn/advanced/upgrade
+permalink: /learn/get-started/upgrade
 ---
 
 # Upgrading from P# to Coyote

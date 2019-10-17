@@ -7,7 +7,7 @@ template: basic
 
 ## Why a style guide ?
 
-We want to provide high quality documentation and tutorials that create a positive first impression. Our goal is to highlight each new user-facing feature of Coyote with novel, distinctive content.  We need to write in a way that ensures success for all skill levels. We believe documentation is much easier to read when it has a consistent voice and tone, terminology, and format.
+We want to provide high quality documentation and tutorials that create a positive first impression. Our goal is to highlight each new user-facing feature of Coyote with novel, distinctive content. We need to write in a way that ensures success for all skill levels. We believe documentation is much easier to read when it has a consistent voice and tone, terminology, and format.
 
 This style guide offers advice and best practices that will promote the consistency that will help our readers be successful in using Coyote. Try to follow them unless there's a good reason not to.
 
@@ -128,7 +128,7 @@ To install OpenBLAS, type:
 
 Code blocks are part of the markdown spec, but syntax highlighting isn't. However, many renderers (including GitHub) support syntax highlighting.
 
-- Use `back-ticks` around inline `code` and filenames.  But nothing else.  Avoid overuse of back-ticks.
+- Use `back-ticks` around inline `code` and filenames. But nothing else. Avoid overuse of back-ticks.
 - For blocks of code, start and end the code block with three back-ticks. and add the language name so the code is highlighted correctly.
 
 ## Word choice preferences

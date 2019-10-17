@@ -19,7 +19,7 @@
             <a href="javascript:void(0)" class="closebtn"  data-toggle="collapse" data-target="#navbar">&times;</a>
             <ul class="nav navbar-nav navbar-right">
                 {% for item in site.data.navigation %}
-                <li class="pl-20 pr-20  {% if {{page.section}} == {{item.section}} %}active {% endif %} ">
+                <li class="{% if {{page.section}} == {{item.section}} %}active {% endif %} ">
                     <a {% if item.external == true  %}target="_blank" {% endif %} href="{{ item.link  | relative_url }}">{{ item.name }}</a>
                 </li>
                 {% endfor %}

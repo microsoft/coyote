@@ -11,7 +11,7 @@ dark:
     - name: Overview
       link: /learn/overview/what-is-coyote
     - name: Install
-      link: /learn/install
+      link: /learn/get-started/install
     - name: Getting started
       link: /learn/get-started/using-coyote
     - name: Get involved
@@ -19,7 +19,7 @@ dark:
 - title: Join community
   subfolderitems:
     - name: GitHub
-      link: https://github.com/microsoft/Coyote
+      link: https://github.com/microsoft/Coyote/
       external: true
 
 footnote:

@@ -1,5 +1,5 @@
 - name: Install Coyote
-  link:  /learn/install
+  link:  /learn/get-started/install
   section: install
 - name: Learn
   link:  /learn/overview/what-is-coyote
@@ -14,6 +14,6 @@
   link:  /contact-us
   section: contact-us
 - name: GitHub
-  link: https://github.com/microsoft/Coyote
+  link: https://github.com/microsoft/Coyote/
   external: true
   section: github

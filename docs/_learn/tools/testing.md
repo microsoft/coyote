@@ -15,7 +15,7 @@ Coyote test ${YOUR_PROGRAM}
 ```
 Where `${YOUR_PROGRAM}` is the path to you application or library that contains a method annotated with the `[Microsoft.Coyote.Test]` attribute. This method is the entry point to the test.
 
-Type `Coyote -?` to see the full command line options.  If you are using the .NET Core version of `Coyote` then you simply run `dotnet Coyote.dll ...` instead.
+Type `Coyote -?` to see the full command line options. If you are using the .NET Core version of `Coyote` then you simply run `dotnet Coyote.dll ...` instead.
 
 ## Controlled, serialized and reproducible testing
 
@@ -49,7 +49,7 @@ Note that similar to unit-testing, static state should be appropriately reset du
 
 ## Testing options
 
-To see the **list of available command line options** use the flag `-?`.  You can optionally give the **number of testing iterations** to perform using `--iterations N` (where N is an integer > 1). If this option is not provided, the tester will perform 1 iteration by default.
+To see the **list of available command line options** use the flag `-?`. You can optionally give the **number of testing iterations** to perform using `--iterations N` (where N is an integer > 1). If this option is not provided, the tester will perform 1 iteration by default.
 
 You can also provide a **timeout**, by providing the flag `--timeout N` (where N > 0, specifying how many seconds before the timeout). If no iterations are specified (thus the default number of iterations is used), then the tester will perform testing iterations until the timeout is reached.
 

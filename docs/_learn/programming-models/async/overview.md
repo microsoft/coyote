@@ -2,7 +2,7 @@
 layout: reference
 title: Tasks programming model
 section: learn
-permalink: /learn/overview/tasks
+permalink: /learn/programming-models/async/overview
 ---
 
 ## Programming model: asynchronous tasks

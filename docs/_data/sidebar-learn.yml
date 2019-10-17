@@ -4,36 +4,37 @@ learn-toc:
   subfolderitems:
     - name: What is Coyote?
       link: /learn/overview/what-is-coyote
-    - name: Asynchronous Tasks
-      link: /learn/overview/tasks
-    - name: Asynchronous State-Machines
-      link: /learn/overview/machines
-    # - name: Why distributed systems need Coyote
-    #   link: /learn/overview/why
-    # - name: Frequently asked questions
-    #   link: /learn/overview/faq
-    # - name: What’s new
-    #   link: /learn/overview/whats-new
+    - name: Benefits
+      link: /learn/overview/benefits
+    - name: Frequently asked questions
+      link: /learn/overview/faq
+    - name: How does it work
+      link: /learn/overview/how
 - title: Get started with Coyote
   subfolderitems:
-    - name: Getting Coyote
-      link: /learn/install
-      external: true
+    - name: Installing Coyote
+      link: /learn/get-started/install
     - name: Using Coyote
       link: /learn/get-started/using-coyote
-- title: Programming models
+    - name: Upgrading from P#
+      link: /learn/get-started/upgrade
+- title: Core Concepts
+  subfolderitems:
+     - name: Overview
+       link: /learn/core/overview
+- title: Programming
   link: /learn/programming-models
   subfolderitems:
     - name: Asynchronous Tasks
       link: /learn/programming-models/async
       tertiaryitems:
         - name: Overview
-          link: /learn/overview/tasks
+          link: /learn/programming-models/async/overview
     - name: Asynchronous State-Machines
       link: /learn/programming-models/machines
       tertiaryitems:
         - name: Overview
-          link: /learn/overview/machines
+          link: /learn/programming-models/machines/overview
         - name: Machine termination
           link: /learn/programming-models/machines/machine-termination
         - name: Using timers in machines
@@ -48,6 +49,16 @@ learn-toc:
           link: /learn/programming-models/machines/uncaught-exceptions
         - name: Unit-testing machines in isolation
           link: /learn/programming-models/machines/unit-testing
+- title: Specifications
+  subfolderitems:
+    - name: Overview
+      link: /learn/specifications/overview
+    - name: Effective liveness checking
+      link: /learn/specifications/liveness-checking
+- title: Tutorials and Samples
+  subfolderitems:
+    - name: Raft on Kubernetes
+      link: /learn/tutorials/raft
 - title: Tools
   subfolderitems:
     - name: Testing
@@ -56,17 +67,13 @@ learn-toc:
       link: /learn/tools/coverage
     - name: Distributed testing
       link: /learn/tools/distributed-testing
-- title: Specifications
-  subfolderitems:
-    - name: Overview
-      link: /learn/specifications/overview
-    - name: Effective liveness checking
-      link: /learn/specifications/liveness-checking
 - title: Advanced topics
   subfolderitems:
     - name: Logging
       link: /learn/advanced/logging
     - name: Sharing objects
       link: /learn/advanced/object-sharing
-    - name: Upgrading from P#
-      link: /learn/advanced/upgrade
+- title: Resources
+  subfolderitems:
+    - name: Publications
+      link: /learn/resources/publications

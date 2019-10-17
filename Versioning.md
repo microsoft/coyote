@@ -31,25 +31,25 @@ Not all changes to the repository warrant a version change. For example,
 ## Process
 
 Developers maintain `History.md` with each checkin, adding bullet points to the
-top version number listed with an asterix.  For example, it might look like this:
+top version number listed with an asterix. For example, it might look like this:
 
 ```
 ## v2.4.5*
 - Fix some concurrency bugs in the framis checker.
 ```
 
-The asterix means this version has not yet reached the master branch on github.  Each developer
-modifies this the new version number in `History.md` according to the above rules.  For example, one
-developer might fix a bug and bump the **patch**  version number from "v2.4.5*" to "v2.4.6*".  Another
+The asterix means this version has not yet reached the master branch on github. Each developer
+modifies this the new version number in `History.md` according to the above rules. For example, one
+developer might fix a bug and bump the **patch**  version number from "v2.4.5*" to "v2.4.6*". Another
 might then add a big new feature that warrants a major version change, so they will change the
-top record in `History.md` from "v2.4.6*" to "v3.0.0*".  All other changes made from there will leave
+top record in `History.md` from "v2.4.6*" to "v3.0.0*". All other changes made from there will leave
 the number at "v3.0.0" until these bits are pushed to the master branch in github.
 
 When all this is pushed to github in a Pull Request, `Common\version.props` and
 `Scripts\NuGet\Coyote.nuspec` are updated with the new version number listed in `History.md` and the
-asterix is removed, indicating this version number is now locked.  The next person to change the repo will then start a new version number record in `History.md` and add the asterix to indicate to everyone else
+asterix is removed, indicating this version number is now locked. The next person to change the repo will then start a new version number record in `History.md` and add the asterix to indicate to everyone else
 that this new number is not yet locked.
 
 The contents in `History.md` is then copied to the github release page, which makes it easy to do
-a release.  There is no need to go searching through the change log to come up with the right
-release summary.  Code reviews are used to ensure folks remember to update this `History.md` file.
+a release. There is no need to go searching through the change log to come up with the right
+release summary. Code reviews are used to ensure folks remember to update this `History.md` file.

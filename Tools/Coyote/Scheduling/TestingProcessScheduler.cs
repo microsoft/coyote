@@ -296,7 +296,7 @@ namespace Microsoft.Coyote.TestingServices
         {
             if (this.TestingProcesses.Count > 0)
             {
-                Console.WriteLine($"... Waiting for testing processes to start.  Use the following command line to launch each test");
+                Console.WriteLine($"... Waiting for testing processes to start. Use the following command line to launch each test");
                 Console.WriteLine($"... Make sure to change /testing-process-id:x so that x goes from 0 to {this.TestingProcesses.Count}");
                 Process p = this.TestingProcesses[0];
                 Console.WriteLine($"{p.StartInfo.FileName} {p.StartInfo.Arguments}");

@@ -8,9 +8,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Core.Tests
 {
-    public class TaskWhenAnyTest : BaseTest
+    public class TaskWaitAnyTest : BaseTest
     {
-        public TaskWhenAnyTest(ITestOutputHelper output)
+        public TaskWaitAnyTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -33,29 +33,29 @@ namespace Microsoft.Coyote.Core.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoSynchronousTasks()
+        public void TestWhenAnyWithTwoSynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             ControlledTask task1 = WriteAsync(entry, 5);
             ControlledTask task2 = WriteAsync(entry, 3);
-            await ControlledTask.WhenAny(task1, task2);
+            ControlledTask.WaitAny(task1, task2);
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoAsynchronousTasks()
+        public void TestWhenAnyWithTwoAsynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             ControlledTask task1 = WriteWithDelayAsync(entry, 3);
             ControlledTask task2 = WriteWithDelayAsync(entry, 5);
-            await ControlledTask.WhenAny(task1, task2);
+            ControlledTask.WaitAny(task1, task2);
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoParallelTasks()
+        public void TestWhenAnyWithTwoParallelTasks()
         {
             SharedEntry entry = new SharedEntry();
 
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Core.Tests
                 await WriteAsync(entry, 5);
             });
 
-            await ControlledTask.WhenAny(task1, task2);
+            ControlledTask.WaitAny(task1, task2);
 
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
@@ -88,27 +88,29 @@ namespace Microsoft.Coyote.Core.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoSynchronousTaskResults()
+        public void TestWhenAnyWithTwoSynchronousTaskResults()
         {
             ControlledTask<int> task1 = GetWriteResultAsync(5);
             ControlledTask<int> task2 = GetWriteResultAsync(3);
-            Task<int> result = await ControlledTask.WhenAny(task1, task2);
+            int index = ControlledTask.WaitAny(task1, task2);
+            Assert.True(index >= 0, "Index is negative.");
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
-            Assert.True(result.Result == 5 || result.Result == 3, $"Found unexpected value.");
+            Assert.True((index == 0 && task1.Result == 5) || (index == 1 && task2.Result == 3), $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoAsynchronousTaskResults()
+        public void TestWhenAnyWithTwoAsynchronousTaskResults()
         {
             ControlledTask<int> task1 = GetWriteResultWithDelayAsync(5);
             ControlledTask<int> task2 = GetWriteResultWithDelayAsync(3);
-            Task<int> result = await ControlledTask.WhenAny(task1, task2);
+            int index = ControlledTask.WaitAny(task1, task2);
+            Assert.True(index >= 0, "Index is negative.");
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
-            Assert.True(result.Result == 5 || result.Result == 3, $"Found unexpected value.");
+            Assert.True((index == 0 && task1.Result == 5) || (index == 1 && task2.Result == 3), $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoParallelSynchronousTaskResults()
+        public void TestWhenAnyWithTwoParallelSynchronousTaskResults()
         {
             ControlledTask<int> task1 = ControlledTask.Run(async () =>
             {
@@ -120,14 +122,15 @@ namespace Microsoft.Coyote.Core.Tests
                 return await GetWriteResultAsync(3);
             });
 
-            Task<int> result = await ControlledTask.WhenAny(task1, task2);
+            int index = ControlledTask.WaitAny(task1, task2);
 
+            Assert.True(index >= 0, "Index is negative.");
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
-            Assert.True(result.Result == 5 || result.Result == 3, $"Found unexpected value.");
+            Assert.True((index == 0 && task1.Result == 5) || (index == 1 && task2.Result == 3), $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAnyWithTwoParallelAsynchronousTaskResults()
+        public void TestWhenAnyWithTwoParallelAsynchronousTaskResults()
         {
             ControlledTask<int> task1 = ControlledTask.Run(async () =>
             {
@@ -139,10 +142,11 @@ namespace Microsoft.Coyote.Core.Tests
                 return await GetWriteResultWithDelayAsync(3);
             });
 
-            Task<int> result = await ControlledTask.WhenAny(task1, task2);
+            int index = ControlledTask.WaitAny(task1, task2);
 
+            Assert.True(index >= 0, "Index is negative.");
             Assert.True(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
-            Assert.True(result.Result == 5 || result.Result == 3, $"Found unexpected value.");
+            Assert.True((index == 0 && task1.Result == 5) || (index == 1 && task2.Result == 3), $"Found unexpected value.");
         }
     }
 }

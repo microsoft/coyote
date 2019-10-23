@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling
 {
@@ -129,14 +130,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Invoked when the operation is waiting to join the specified tasks.
         /// </summary>
-        internal void OnWaitTasks(IEnumerable<Task> tasks, bool waitAll)
+        internal void OnWaitTasks(IEnumerable<ControlledTask> tasks, bool waitAll)
         {
             foreach (var task in tasks)
             {
                 if (!task.IsCompleted)
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.SourceId, task.Id);
-                    this.JoinDependencies.Add(task);
+                    this.JoinDependencies.Add(task.AwaiterTask);
                 }
             }
 

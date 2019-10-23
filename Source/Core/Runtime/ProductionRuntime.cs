@@ -409,22 +409,6 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks) =>
-            new ControlledTask(Task.WhenAll(tasks.Select(t => t.AwaiterTask)));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask WaitAllTasksAsync(params Task[] tasks) =>
-            new ControlledTask(Task.WhenAll(tasks));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -436,104 +420,65 @@ namespace Microsoft.Coyote.Runtime
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks) =>
-            new ControlledTask(Task.WhenAll(tasks));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
-            new ControlledTask<TResult[]>(Task.WhenAll(tasks.Select(t => t.AwaiterTask)));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks) =>
-            new ControlledTask<TResult[]>(Task.WhenAll(tasks));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
             new ControlledTask<TResult[]>(Task.WhenAll(tasks.Select(t => t.AwaiterTask)));
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            new ControlledTask<TResult[]>(Task.WhenAll(tasks));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks) =>
-            new ControlledTask<Task>(Task.WhenAny(tasks.Select(t => t.AwaiterTask)));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks) =>
-            new ControlledTask<Task>(Task.WhenAny(tasks));
+        internal override async ControlledTask<ControlledTask> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks)
+        {
+            Task result = await Task.WhenAny(tasks.Select(t => t.AwaiterTask));
+            return tasks.First(task => task.Id == result.Id);
+        }
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks) =>
-            new ControlledTask<Task>(Task.WhenAny(tasks.Select(t => t.AwaiterTask)));
+        internal override async ControlledTask<ControlledTask<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
+        {
+            Task<TResult> result = await Task.WhenAny(tasks.Select(t => t.AwaiterTask));
+            return tasks.First(task => task.Id == result.Id);
+        }
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete execution.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks) =>
-            new ControlledTask<Task>(Task.WhenAny(tasks));
+        internal override void WaitAllTasks(params ControlledTask[] tasks) =>
+            Task.WaitAll(tasks.Select(t => t.AwaiterTask).ToArray());
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
-            new ControlledTask<Task<TResult>>(Task.WhenAny(tasks.Select(t => t.AwaiterTask)));
+        internal override bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout) =>
+            Task.WaitAll(tasks.Select(t => t.AwaiterTask).ToArray(), millisecondsTimeout);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks) =>
-            new ControlledTask<Task<TResult>>(Task.WhenAny(tasks));
+        internal override bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            Task.WaitAll(tasks.Select(t => t.AwaiterTask).ToArray(), millisecondsTimeout, cancellationToken);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
-            new ControlledTask<Task<TResult>>(Task.WhenAny(tasks.Select(t => t.AwaiterTask)));
+        internal override void WaitAllTasks(ControlledTask[] tasks, CancellationToken cancellationToken) =>
+            Task.WaitAll(tasks.Select(t => t.AwaiterTask).ToArray(), cancellationToken);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            new ControlledTask<Task<TResult>>(Task.WhenAny(tasks));
+        internal override bool WaitAllTasks(ControlledTask[] tasks, TimeSpan timeout) =>
+            Task.WaitAll(tasks.Select(t => t.AwaiterTask).ToArray(), timeout);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.

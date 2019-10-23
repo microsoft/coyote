@@ -326,18 +326,6 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        internal abstract ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        internal abstract ControlledTask WaitAllTasksAsync(params Task[] tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         internal abstract ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks);
@@ -346,79 +334,49 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
-        internal abstract ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
         internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
-        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        internal abstract ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        internal abstract ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks);
+        internal abstract ControlledTask<ControlledTask> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
-        internal abstract ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks);
+        internal abstract ControlledTask<ControlledTask<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete execution.
         /// </summary>
-        internal abstract ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks);
+        internal abstract void WaitAllTasks(params ControlledTask[] tasks);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
         /// </summary>
-        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks);
+        internal abstract bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
         /// </summary>
-        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks);
+        internal abstract bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
         /// </summary>
-        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
+        internal abstract void WaitAllTasks(ControlledTask[] tasks, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
         /// </summary>
-        internal abstract ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks);
+        internal abstract bool WaitAllTasks(ControlledTask[] tasks, TimeSpan timeout);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.

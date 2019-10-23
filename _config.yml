@@ -7,7 +7,7 @@ baseurl:      "/Coyote"
 
 author:
   name:       Microsoft
-  url:        https://microsoft.github.io/Coyote/
+  url:        https://microsoft.github.io/coyote/
 
 permalink: pretty #removes .html from generated links
 

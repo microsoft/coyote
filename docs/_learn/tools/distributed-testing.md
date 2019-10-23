@@ -16,7 +16,7 @@ specify using your firewall settings. The following is an example which starts t
 expectation that there will be 5 remote parallel tests:
 
 ```
-.\bin\net46\Coyote.exe test D:\git\Coyote\Samples\bin\net46\Raft.exe -i 100 --max-steps 100 --parallel 5 --wait-for-testing-processes --testing-scheduler-ipaddress 10.159.2.43:5050 -v
+.\bin\net46\coyote.exe test D:\git\Coyote\Samples\bin\net46\Raft.exe -i 100 --max-steps 100 --parallel 5 --wait-for-testing-processes --testing-scheduler-ipaddress 10.159.2.43:5050 -v
 ```
 
 This outputs a message containing the command line needed to launch each remote test. At this point

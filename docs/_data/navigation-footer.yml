@@ -19,7 +19,7 @@ dark:
 - title: Join community
   subfolderitems:
     - name: GitHub
-      link: https://github.com/microsoft/Coyote/
+      link: https://github.com/microsoft/coyote/
       external: true
 
 footnote:

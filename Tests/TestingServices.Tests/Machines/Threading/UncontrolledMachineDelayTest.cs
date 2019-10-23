@@ -73,9 +73,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(M2));
             },
-            expectedError: "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
-                "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you " +
-                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
+            expectedErrors: new string[]
+            {
+                "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                    "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you are " +
+                    "using external libraries that are executing concurrently, you will need to mock them during testing.",
+                "Uncontrolled task with id '' invoked a runtime method. Please make sure to avoid using concurrency APIs such " +
+                    "as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers or controlled tasks. If you are " +
+                    "using external libraries that are executing concurrently, you will need to mock them during testing.",
+            },
             replay: true);
         }
 
@@ -112,9 +118,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.CreateMachine(typeof(M3));
             },
-            expectedError: "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
-                "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you " +
-                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
+            expectedErrors: new string[]
+            {
+                "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                    "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you are " +
+                    "using external libraries that are executing concurrently, you will need to mock them during testing.",
+                "Uncontrolled task with id '' invoked a runtime method. Please make sure to avoid using concurrency APIs such " +
+                    "as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers or controlled tasks. If you are " +
+                    "using external libraries that are executing concurrently, you will need to mock them during testing.",
+            },
             replay: true);
         }
     }

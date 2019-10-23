@@ -19,7 +19,7 @@ article:
 
         <p>From the moment various Azure teams began using our framework, we’ve been receiving <a href="/Coyote/case-studies" target="_blank">enthusiastic feedback</a>. What started as one service using Coyote has now expanded to more than ten and growing.</p> 
         
-        <p>We would love to make you a part of our story—<a href="https://github.com/microsoft/Coyote" target="_blank">join our developer community</a> today.</p>
+        <p>We would love to make you a part of our story—<a href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a> today.</p>
   - title: Vision
     feature-img: /assets/images/vision.jpg
     content: |

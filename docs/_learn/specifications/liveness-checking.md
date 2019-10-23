@@ -13,7 +13,7 @@ While the former is a safety property and easily checked, the latter requires ge
 
 The tester accepts a flag `--max-steps N`. Using this flag, you can say that the program is expected to execute around N steps. Executions substantially longer than N are treated as potential infinite executions. But what is a step and how does one estimate N? This happens using a few iterations of the tester. For example, consider the sample program in the `CoyoteSamples` repository under `MachineExamples\Raft`. Let us compile and test it as follows, where we choose to set N as 200:
 ```
-Coyote.exe test Binaries\Debug\Raft.dll -i 10 -parallel 4 -sch-portfolio -max-steps 200
+coyote.exe test Binaries\Debug\Raft.dll -i 10 -parallel 4 -sch-portfolio -max-steps 200
 ```
 
 The tester will produce output, ending with something like the following:

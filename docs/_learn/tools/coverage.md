@@ -92,7 +92,7 @@ For code coverage, `Coyote` instruments the `path` assembly and the binaries it 
 * Each DLL in the dependency graph between the `path` assembly and a `Microsoft.Coyote.dll`.
 * Any additional assemblies specified by one of the `/instr` options.
 
-By default the VS 2019 tools are used. These are set in `Coyote.exe.config` and are based on the environment variable $(DevEnvDir) which
+By default the VS 2019 tools are used. These are set in `coyote.exe.config` and are based on the environment variable $(DevEnvDir) which
 is automatically defined if y ou use a Visual Studio Developer Command Prompt. The actual paths can be overridden by environment variables
 with the same names as the app settings:
 - `VSInstrToolPath`
@@ -113,20 +113,20 @@ Change to the Samples directory.
 
 First build all the samples as described [here](https://github.com/p-org/Coyote/tree/master/Samples), or only the `PingPong.CoyoteLanguage` example: `msbuild PingPong\PingPong.CoyoteLanguage`
 
-Then run `Coyote.exe` with one of the coverage flags, as well as the other options you want. Here are some minimal examples:
+Then run `coyote.exe` with one of the coverage flags, as well as the other options you want. Here are some minimal examples:
 ```
-..\bin\net46\Coyote.exe test.\bin\net46\PingPong.CoyoteLanguage.exe -i 10 --coverage
+..\bin\net46\coyote.exe test.\bin\net46\PingPong.CoyoteLanguage.exe -i 10 --coverage
 ```
 This will create the directory `.\bin\net46\Output\PingPong.CoyoteLanguage.exe\CoyoteOutput`,
 then it generates coverage files for both activity and code coverage.
 
 ```
-..\bin\net46\Coyote.exe test .\bin\net46\PingPong.CoyoteLanguage.exe --i 10 -coverage activity  -o C:\Coyote_Coverage\PingPongAsLanguage
+..\bin\net46\coyote.exe test .\bin\net46\PingPong.CoyoteLanguage.exe --i 10 -coverage activity  -o C:\Coyote_Coverage\PingPongAsLanguage
 ```
 This will create the directory `C:\Coyote_Coverage\PingPongAsLanguage\CoyoteOutput`,
 then it generates only activity coverage.
 
 ```
-..\bin\net46\Coyote.exe test .\bin\net46\PingPong.CoyoteLanguage.exe -i 10 --coverage code activity-debug
+..\bin\net46\coyote.exe test .\bin\net46\PingPong.CoyoteLanguage.exe -i 10 --coverage code activity-debug
 ```
 This generates code and activity coverage, including debug activity output.

@@ -22,7 +22,19 @@ if (Test-Path $PSScriptRoot\..\bin\nuget) {
     Remove-Item $PSScriptRoot\..\bin\nuget\*
 }
 
-$command = "pack $nuget_exe_dir\Coyote.nuspec -OutputDirectory $PSScriptRoot\..\bin\nuget"
+# Extract the package version.
+$version_file = "$PSScriptRoot\..\Common\version.props"
+$version_node = Select-Xml -Path $version_file -XPath "/" | Select-Object -ExpandProperty Node
+$version = $version_node.Project.PropertyGroup.VersionPrefix
+$version_suffix = $version_node.Project.PropertyGroup.VersionSuffix
+
+# Setup the command line options for nuget pack.
+$command_options = "-OutputDirectory $PSScriptRoot\..\bin\nuget -Version $version"
+if ($version_suffix) {
+    $command_options = "$command_options -Suffix $version_suffix"
+}
+
+$command = "pack $nuget_exe_dir\Coyote.nuspec $command_options"
 $error_msg = "Failed to create the Coyote NuGet packages"
 Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
 

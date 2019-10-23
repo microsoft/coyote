@@ -2,15 +2,20 @@
 <package >
   <metadata>
     <id>Microsoft.Coyote</id>
-    <version>1.0.0-internal.5</version>
+    <version>$version$</version>
     <authors>Microsoft</authors>
     <projectUrl>https://github.com/microsoft/coyote</projectUrl>
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Coyote is a framework for rapid development of reliable asynchronous software.</description>
-    <releaseNotes>This release contains the 1.0.0 version of the Coyote framework.</releaseNotes>
+    <description>Coyote is a framework for building reliable asynchronous software.</description>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>asynchrony reliability specifications reactive state-machines testing</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6" />
+      <group targetFramework=".NETFramework4.7" />
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETCoreApp2.2" />
+    </dependencies>
   </metadata>
   <files>
     <!-- .NET Standard 2.0 -->

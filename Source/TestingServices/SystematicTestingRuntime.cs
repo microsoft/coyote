@@ -604,6 +604,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken)
         {
+            // TODO: support cancellations during testing.
             this.Assert(action != null, "The task cannot execute a null action.");
             var machine = new ActionMachine(this, action);
             this.DispatchWork(machine, null);
@@ -616,6 +617,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken)
         {
+            // TODO: support cancellations during testing.
             this.Assert(function != null, "The task cannot execute a null function.");
             var machine = new FuncMachine(this, function);
             this.DispatchWork(machine, null);
@@ -661,6 +663,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
+            // TODO: support cancellations during testing.
             if (delay.TotalMilliseconds == 0)
             {
                 // If the delay is 0, then complete synchronously.
@@ -803,90 +806,60 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask WaitAllTasksAsync(params ControlledTask[] tasks) =>
-            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask WaitAllTasksAsync(params Task[] tasks) =>
-            this.WaitAllTasksAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [DebuggerStepThrough]
-        internal override ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks) =>
-            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask WaitAllTasksAsync(IEnumerable<Task> tasks)
+        internal override ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
-            if (caller is null)
-            {
-                // TODO: throw an error, as a non-controlled task is awaiting?
-                return new ControlledTask(Task.WhenAll(tasks));
-            }
+            this.Assert(caller != null,
+                "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-all operation.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTasks(tasks, waitAll: true);
-            return ControlledTask.CompletedTask;
+
+            List<Exception> exceptions = null;
+            foreach (var task in tasks)
+            {
+                if (task.IsFaulted)
+                {
+                    if (exceptions == null)
+                    {
+                        exceptions = new List<Exception>();
+                    }
+
+                    exceptions.Add(task.Exception);
+                }
+            }
+
+            if (exceptions != null)
+            {
+                return ControlledTask.FromException(new AggregateException(exceptions));
+            }
+            else
+            {
+                return ControlledTask.CompletedTask;
+            }
         }
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
-            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(params Task<TResult>[] tasks) =>
-            this.WaitAllTasksAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         [DebuggerStepThrough]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
-            this.WaitAllTasksAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
-            if (caller is null)
-            {
-                // TODO: throw an error, as a non-controlled task is awaiting?
-                return new ControlledTask<TResult[]>(Task.WhenAll(tasks));
-            }
+            this.Assert(caller != null,
+                "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-all operation.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTasks(tasks, waitAll: true);
@@ -904,49 +877,23 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(params ControlledTask[] tasks) =>
-            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(params Task[] tasks) =>
-            this.WaitAnyTaskAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [DebuggerStepThrough]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks) =>
-            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<Task> WaitAnyTaskAsync(IEnumerable<Task> tasks)
+        internal override ControlledTask<ControlledTask> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
-            if (caller is null)
-            {
-                // TODO: throw an error, as a non-controlled task is awaiting?
-                return new ControlledTask<Task>(Task.WhenAny(tasks));
-            }
+            this.Assert(caller != null,
+                "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-any operation.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
-            Task result = null;
+            ControlledTask result = null;
             foreach (var task in tasks)
             {
                 if (task.IsCompleted)
@@ -961,49 +908,23 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params ControlledTask<TResult>[] tasks) =>
-            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(params Task<TResult>[] tasks) =>
-            this.WaitAnyTaskAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
         [DebuggerStepThrough]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
-            this.WaitAnyTaskAsync(tasks.Select(t => t.AwaiterTask));
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<Task<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        internal override ControlledTask<ControlledTask<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
-            if (caller is null)
-            {
-                // TODO: throw an error, as a non-controlled task is awaiting?
-                return new ControlledTask<Task<TResult>>(Task.WhenAny(tasks));
-            }
+            this.Assert(caller != null,
+                "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-any operation.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
-            Task<TResult> result = null;
+            ControlledTask<TResult> result = null;
             foreach (var task in tasks)
             {
                 if (task.IsCompleted)
@@ -1014,6 +935,64 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             return ControlledTask.FromResult(result);
+        }
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete execution.
+        /// </summary>
+        internal override void WaitAllTasks(params ControlledTask[] tasks) =>
+            this.WaitAllTasks(tasks, Timeout.Infinite, default);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        internal override bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout) =>
+            this.WaitAllTasks(tasks, millisecondsTimeout, default);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        internal override bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            // TODO: support cancellations during testing.
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            this.Assert(caller != null,
+                "Task with id '{0}' that is not controlled by the Coyote runtime invoked a wait-all operation.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+
+            MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
+            callerOp.OnWaitTasks(tasks, waitAll: true);
+
+            // TODO: support timeouts during testing, this would become false if there is a timeout.
+            return true;
+        }
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        internal override void WaitAllTasks(ControlledTask[] tasks, CancellationToken cancellationToken) =>
+            this.WaitAllTasks(tasks, Timeout.Infinite, cancellationToken);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        internal override bool WaitAllTasks(ControlledTask[] tasks, TimeSpan timeout)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return this.WaitAllTasks(tasks, (int)totalMilliseconds, default);
         }
 
         /// <summary>
@@ -1021,7 +1000,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         [DebuggerStepThrough]
         internal override int WaitAnyTask(params ControlledTask[] tasks) =>
-            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+            this.WaitAnyTask(tasks, Timeout.Infinite, default);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
@@ -1029,7 +1008,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         [DebuggerStepThrough]
         internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout) =>
-            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
+            this.WaitAnyTask(tasks, millisecondsTimeout, default);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
@@ -1037,40 +1016,16 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// token is cancelled.
         /// </summary>
         [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
-            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution unless the wait is cancelled.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken) =>
-            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified time interval.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout) =>
-            this.WaitAnyTask(tasks.Select(t => t.AwaiterTask).ToArray());
-
-        /// <summary>
-        /// Waits for any of the specified tasks to complete.
-        /// </summary>
-        [DebuggerStepThrough]
-        private int WaitAnyTask(Task[] tasks)
+        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
         {
+            // TODO: support cancellations during testing.
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
-            if (caller is null)
-            {
-                // TODO: throw an error, as a non-controlled task is awaiting?
-                return Task.WaitAny(tasks.ToArray());
-            }
+            this.Assert(caller != null,
+                "Task with id '{0}' that is not controlled by the Coyote runtime invoked a wait-any operation.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTasks(tasks, waitAll: false);
@@ -1085,7 +1040,32 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
             }
 
+            // TODO: support timeouts during testing, this would become false if there is a timeout.
             return result;
+        }
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal override int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken) =>
+            this.WaitAnyTask(tasks, Timeout.Infinite, cancellationToken);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal override int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return this.WaitAnyTask(tasks, (int)totalMilliseconds, default);
         }
 
         /// <summary>
@@ -1134,7 +1114,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
                 this.Assert(caller != null,
-                    "Task with id '{0}' that is not controlled by the Coyote runtime invoked yield operation.",
+                    "Task with id '{0}' that is not controlled by the Coyote runtime invoked a yield operation.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
                 if (caller is Machine machine)

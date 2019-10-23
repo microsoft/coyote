@@ -279,32 +279,12 @@ namespace Microsoft.Coyote.Threading.Tasks
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask WhenAll(params Task[] tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         /// <param name="tasks">The tasks to wait for completion.</param>
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask WhenAll(IEnumerable<ControlledTask> tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask WhenAll(IEnumerable<Task> tasks) =>
             CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
@@ -320,17 +300,6 @@ namespace Microsoft.Coyote.Threading.Tasks
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified array have completed.
-        /// </summary>
-        /// <typeparam name="TResult">The result type of the task.</typeparam>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         /// <typeparam name="TResult">The result type of the task.</typeparam>
@@ -341,83 +310,96 @@ namespace Microsoft.Coyote.Threading.Tasks
             CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
+        /// Creates a <see cref="ControlledTask"/> that will complete when any task
+        /// in the specified array have completed.
         /// </summary>
-        /// <typeparam name="TResult">The result type of the task.</typeparam>
         /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAllTasksAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task> WhenAny(params ControlledTask[] tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task> WhenAny(params Task[] tasks) =>
+        public static ControlledTask<ControlledTask> WhenAny(params ControlledTask[] tasks) =>
             CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task> WhenAny(IEnumerable<ControlledTask> tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task> WhenAny(IEnumerable<Task> tasks) =>
+        public static ControlledTask<ControlledTask> WhenAny(IEnumerable<ControlledTask> tasks) =>
             CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task<TResult>> WhenAny<TResult>(params ControlledTask<TResult>[] tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified array have completed.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) =>
+        public static ControlledTask<ControlledTask<TResult>> WhenAny<TResult>(params ControlledTask<TResult>[] tasks) =>
             CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
         /// Creates a <see cref="ControlledTask"/> that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task<TResult>> WhenAny<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
+        public static ControlledTask<ControlledTask<TResult>> WhenAny<TResult>(IEnumerable<ControlledTask<TResult>> tasks) =>
             CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
 
         /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete execution.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ControlledTask<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            CoyoteRuntime.Provider.Current.WaitAnyTaskAsync(tasks);
+        public static void WaitAll(params ControlledTask[] tasks) =>
+            CoyoteRuntime.Provider.Current.WaitAllTasks(tasks);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        public static bool WaitAll(ControlledTask[] tasks, int millisecondsTimeout) =>
+            CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, millisecondsTimeout);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        public static bool WaitAll(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, millisecondsTimeout, cancellationToken);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WaitAll(ControlledTask[] tasks, CancellationToken cancellationToken) =>
+            CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, cancellationToken);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="timeout">
+        /// A time span that represents the number of milliseconds to wait, or
+        /// TimeSpan.FromMilliseconds(-1) to wait indefinitely.
+        /// </param>
+        public static bool WaitAll(ControlledTask[] tasks, TimeSpan timeout) =>
+            CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, timeout);
 
         /// <summary>
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <returns>The index of the completed task in the tasks array.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(params ControlledTask[] tasks) =>
             CoyoteRuntime.Provider.Current.WaitAnyTask(tasks);
@@ -426,6 +408,9 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
         /// execution within a specified number of milliseconds.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <returns>The index of the completed task in the tasks array, or -1 if the timeout occurred.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, int millisecondsTimeout) =>
             CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, millisecondsTimeout);
@@ -435,6 +420,10 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// execution within a specified number of milliseconds or until a cancellation
         /// token is cancelled.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        /// <returns>The index of the completed task in the tasks array, or -1 if the timeout occurred.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, millisecondsTimeout, cancellationToken);
@@ -443,6 +432,9 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
         /// execution unless the wait is cancelled.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        /// <returns>The index of the completed task in the tasks array.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, CancellationToken cancellationToken) =>
             CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, cancellationToken);
@@ -451,6 +443,12 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
         /// execution within a specified time interval.
         /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="timeout">
+        /// A time span that represents the number of milliseconds to wait, or
+        /// TimeSpan.FromMilliseconds(-1) to wait indefinitely.
+        /// </param>
+        /// <returns>The index of the completed task in the tasks array, or -1 if the timeout occurred.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, TimeSpan timeout) =>
             CoyoteRuntime.Provider.Current.WaitAnyTask(tasks, timeout);

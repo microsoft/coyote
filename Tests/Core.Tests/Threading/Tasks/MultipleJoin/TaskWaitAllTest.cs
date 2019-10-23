@@ -8,9 +8,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Core.Tests
 {
-    public class TaskWhenAllTest : BaseTest
+    public class TaskWaitAllTest : BaseTest
     {
-        public TaskWhenAllTest(ITestOutputHelper output)
+        public TaskWaitAllTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -33,31 +33,31 @@ namespace Microsoft.Coyote.Core.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoSynchronousTasks()
+        public void TestWhenAllWithTwoSynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             ControlledTask task1 = WriteAsync(entry, 5);
             ControlledTask task2 = WriteAsync(entry, 3);
-            await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoAsynchronousTasks()
+        public void TestWhenAllWithTwoAsynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             ControlledTask task1 = WriteWithDelayAsync(entry, 3);
             ControlledTask task2 = WriteWithDelayAsync(entry, 5);
-            await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoParallelTasks()
+        public void TestWhenAllWithTwoParallelTasks()
         {
             SharedEntry entry = new SharedEntry();
 
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Core.Tests
                 await WriteAsync(entry, 5);
             });
 
-            await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
 
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
@@ -91,33 +91,31 @@ namespace Microsoft.Coyote.Core.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoSynchronousTaskResults()
+        public void TestWhenAllWithTwoSynchronousTaskResults()
         {
             ControlledTask<int> task1 = GetWriteResultAsync(5);
             ControlledTask<int> task2 = GetWriteResultAsync(3);
-            int[] results = await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
-            Assert.Equal(2, results.Length);
-            Assert.Equal(5, results[0]);
-            Assert.Equal(3, results[1]);
+            Assert.Equal(5, task1.Result);
+            Assert.Equal(3, task2.Result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoAsynchronousTaskResults()
+        public void TestWhenAllWithTwoAsynchronousTaskResults()
         {
             ControlledTask<int> task1 = GetWriteResultWithDelayAsync(5);
             ControlledTask<int> task2 = GetWriteResultWithDelayAsync(3);
-            int[] results = await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
-            Assert.Equal(2, results.Length);
-            Assert.Equal(5, results[0]);
-            Assert.Equal(3, results[1]);
+            Assert.Equal(5, task1.Result);
+            Assert.Equal(3, task2.Result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoParallelSynchronousTaskResults()
+        public void TestWhenAllWithTwoParallelSynchronousTaskResults()
         {
             ControlledTask<int> task1 = ControlledTask.Run(async () =>
             {
@@ -129,17 +127,16 @@ namespace Microsoft.Coyote.Core.Tests
                 return await GetWriteResultAsync(3);
             });
 
-            int[] results = await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
 
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
-            Assert.Equal(2, results.Length);
-            Assert.Equal(5, results[0]);
-            Assert.Equal(3, results[1]);
+            Assert.Equal(5, task1.Result);
+            Assert.Equal(3, task2.Result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestWhenAllWithTwoParallelAsynchronousTaskResults()
+        public void TestWhenAllWithTwoParallelAsynchronousTaskResults()
         {
             ControlledTask<int> task1 = ControlledTask.Run(async () =>
             {
@@ -151,13 +148,12 @@ namespace Microsoft.Coyote.Core.Tests
                 return await GetWriteResultWithDelayAsync(3);
             });
 
-            int[] results = await ControlledTask.WhenAll(task1, task2);
+            ControlledTask.WaitAll(task1, task2);
 
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
-            Assert.Equal(2, results.Length);
-            Assert.Equal(5, results[0]);
-            Assert.Equal(3, results[1]);
+            Assert.Equal(5, task1.Result);
+            Assert.Equal(3, task2.Result);
         }
     }
 }

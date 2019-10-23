@@ -271,7 +271,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             string result;
 
             // Match a GUID or other ids (since they can be nondeterministic).
-            result = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'", "''");
+            result = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
             result = Regex.Replace(result, @"\([^)]*\)", "()");
             result = Regex.Replace(result, @"\[[^)]*\]", "[]");
 

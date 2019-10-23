@@ -2,20 +2,20 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
-    <Description>The Coyote systematic tester.</Description>
-    <AssemblyName>Coyote</AssemblyName>
+    <Description>The Coyote framework command line tool.</Description>
+    <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Coyote</RootNamespace>
     <PackageTags>systematic;tester;coyote</PackageTags>
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>net46;netcoreapp2.1;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net46;net47</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.1|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.2|AnyCPU'">
     <DefineConstants></DefineConstants>
   </PropertyGroup>
   <ItemGroup>

@@ -8,10 +8,10 @@
     <OutputPath>..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netcoreapp2.1;net46;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net46;net47</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />

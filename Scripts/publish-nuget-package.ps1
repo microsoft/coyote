@@ -35,5 +35,4 @@ if (-not (Test-Path $nuget_exe)) {
 }
 
 $command = "push $package $api_key"
-# enable this when we are all ready to publish...
-# Invoke-ToolCommand -tool $nuget_exe -command $command -error_msg $error_msg
+Invoke-ToolCommand -tool $nuget_exe -command $command -error_msg $error_msg

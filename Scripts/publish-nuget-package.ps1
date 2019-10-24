@@ -1,5 +1,5 @@
 param(
-    [string]$api_key=""
+    [string]$api_key="",
     [string]$source="https://www.nuget.org/api/v2/"
 )
 

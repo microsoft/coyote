@@ -1,5 +1,6 @@
 param(
     [string]$api_key=""
+    [string]$source="https://www.nuget.org/api/v2/"
 )
 
 if ($api_key -eq ""){
@@ -34,5 +35,5 @@ if (-not (Test-Path $nuget_exe)) {
     exit 1
 }
 
-$command = "push $package $api_key"
-Invoke-ToolCommand -tool $nuget_exe -command $command -error_msg $error_msg
+$command = "push $package $api_key -Source $source"
+Invoke-ToolCommand -tool $nuget_exe -command $command -error_msg $error_msgpackage

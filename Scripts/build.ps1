@@ -1,33 +1,29 @@
 param(
-    [string]$dotnet="dotnet",
     [ValidateSet("Debug","Release")]
     [string]$configuration="Release"
 )
 
 Import-Module $PSScriptRoot\powershell\common.psm1
 
-# check that dotnet sdk is installed...
-Function FindInPath() {
-    param ([string]$name)
-    $ENV:PATH.split(';') | ForEach-Object {
-        If (Test-Path -Path $_\$name) {
-            return $_
-        }
+Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
+
+# Check that the expected .NET SDK is installed.
+$dotnet = "dotnet"
+$dotnet_path = $ENV:PATH.split(';') | ForEach-Object {
+    if (Test-Path -Path "$_\$dotnet.exe") {
+        return $_
     }
-    return $null
 }
 
+if ($dotnet_path -is [array]){
+    $dotnet_path = $dotnet_path[0]
+}
+
+$sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
 $json = Get-Content '$PSScriptRoot\..\global.json' | Out-String | ConvertFrom-Json
 $pattern = $json.sdk.version.Trim("0") + "*"
-
-$dotnet=$dotnet.Replace(".exe","")
 $versions = $null
-$dotnetpath=FindInPath "$dotnet.exe"
-if ($dotnetpath -is [array]){
-    $dotnetpath = $dotnetpath[0]
-}
-$sdkpath = Join-Path -Path $dotnetpath -ChildPath "sdk"
-if (-not ("" -eq $dotnetpath))
+if (-not ("" -eq $dotnet_path))
 {
     $versions = Get-ChildItem "$sdkpath"  -directory | Where-Object {$_ -like $pattern}
 }
@@ -35,7 +31,7 @@ if (-not ("" -eq $dotnetpath))
 if ($null -eq $versions)
 {
     Write-Comment -text "The global.json file is pointing to version: $pattern but no matching version was found in $sdkpath." -color "yellow"
-    Write-Comment -text "Please install dotnet sdk version $pattern from https://dotnet.microsoft.com/download/dotnet-core." -color "yellow"
+    Write-Comment -text "Please install .NET SDK version $pattern from https://dotnet.microsoft.com/download/dotnet-core." -color "yellow"
     exit 1
 }
 else
@@ -43,11 +39,10 @@ else
     if ($versions -is [array]){
         $versions = $versions[0]
     }
-    Write-Comment -text "Using dotnet sdk version $versions at: $sdkpath" -color yellow
+
+    Write-Comment -text "Using .NET SDK version $versions at: $sdkpath" -color yellow
 }
 
-
-Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = $PSScriptRoot + "\..\Coyote.sln"
 $command = "build -c $configuration $solution"

@@ -1,6 +1,6 @@
 param(
-    [string]$api_key=""
-    [string]$source="https://www.nuget.org/api/v2/"
+    [string]$api_key="",
+    [string]$source="https://api.nuget.org/v3/index.json"
 )
 
 if ($api_key -eq ""){

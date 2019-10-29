@@ -7,32 +7,54 @@ permalink: /learn/programming-models/machines/machine-timers
 
 ## Using timers in machines
 
-Coyote has built-in support for machine timers, which can send a `TimerElapsedEvent` to the machine that created them upon timeout, and periodic machine timers, which can continually send such events with a user-defined interval.
+Coyote has built-in support for machine timers, which can send a `TimerElapsedEvent` to the machine
+that created them upon timeout, and periodic machine timers, which can continually send such events
+with a user-defined interval.
 
-To make use of timers, you must include the `Microsoft.Coyote.Machines.Timers` namespace. Timers are exposed via `Machine` APIs. You can start a non-periodic timer using the function `StartTimer`.
+To make use of timers, you must include the `Microsoft.Coyote.Machines.Timers` namespace. Timers are
+exposed via `Machine` APIs. You can start a non-periodic timer using the function `StartTimer`.
+
 ```c#
 TimerInfo StartTimer(TimeSpan dueTime, object payload = null)
 ```
+
 `StartTimer` takes as argument:
 1. `TimeSpan dueTime`, which is the amount of time to wait before sending the timeout event.
 2. `object payload`, which is an optional payload of the timeout event.
 
-`StartTimer` returns `TimerInfo`, which contains information about the created non-periodic timer. The non-periodic timer is automatically disposed after it timeouts. You can also pass the `TimerInfo` to the `StopTimer` machine method to manually stop and dispose the timer. The timer sends events of type `TimerElapsedEvent` back to the inbox of the machine which created it. The `TimerElapsedEvent` contains, as payload, the same `TimerInfo` returned during the timer creation (and the `Payload` is a public field within the `TimerInfo`). If you create multiple timers, then the `TimerInfo` handler can be used to distinguish the sources of the different `TimerElapsedEvent` events.
+`StartTimer` returns `TimerInfo`, which contains information about the created non-periodic timer. The
+non-periodic timer is automatically disposed after it timeouts. You can also pass the `TimerInfo` to
+the `StopTimer` machine method to manually stop and dispose the timer. The timer sends events of type
+`TimerElapsedEvent` back to the inbox of the machine which created it. The `TimerElapsedEvent` contains
+as payload, the same `TimerInfo` returned during the timer creation (and the `Payload` is a public
+field within the `TimerInfo`). If you create multiple timers, then the `TimerInfo` handler can be used
+to distinguish the sources of the different `TimerElapsedEvent` events.
 
 You can start a periodic timer using the function `StartPeriodicTimer`.
+
 ```c#
 TimerInfo StartPeriodicTimer(TimeSpan dueTime, TimeSpan period, object payload = null)
 ```
+
 `StartPeriodicTimer` takes as argument:
 1. `TimeSpan dueTime`, which is the amount of time to wait before sending the timeout event.
 2. `TimeSpan period`, which is the time interval between timeout events.
 3. `object payload`, which is an optional payload of the timeout event.
 
-This API and timer work similarly to `StartTimer`, however you need to manually stop a periodic timer using the `StopTimer` method. Note that when a machine halts, it automatically stops and disposes all its periodic and non-periodic timers.
+This API and timer work similarly to `StartTimer`, however you need to manually stop a periodic timer
+using the `StopTimer` method. Note that when a machine halts, it automatically stops and disposes all
+its periodic and non-periodic timers.
 
-A sample which demonstrates the use of such timers is provided in `Samples\Timers\TimerSample`. In this article, we will walk-through the sample program, highlighting the salient issues related to the usage of Coyote timers.
+A sample which demonstrates the use of such timers is provided in `Samples\Timers\TimerSample`. In this
+article, we will walk-through the sample program, highlighting the salient issues related to the usage
+of Coyote timers.
 
-In the sample, we have a machine with two states: `Ping` and `Pong`. There are two timers: a ping timer (`PingTimerInfo`), which is operational when the machine is in the `Ping` state, and a pong timer (`PongTimerInfo`), which is operational when the machine is in the `Pong` state. The machine starts off in the `Ping` state, handles 10 timeout events, stops the ping timer, and transitions to the `Pong` state, where it performs analogous operations with the pong timer.
+In the sample, we have a machine with two states: `Ping` and `Pong`. There are two timers: a ping timer
+(`PingTimerInfo`), which is operational when the machine is in the `Ping` state, and a pong timer
+(`PongTimerInfo`), which is operational when the machine is in the `Pong` state. The machine starts off
+in the `Ping` state, handles 10 timeout events, stops the ping timer, and transitions to the `Pong`
+state, where it performs analogous operations with the pong timer.
+
 ```c#
 [Start]
 [OnEntry(nameof(DoPing))]
@@ -45,6 +67,7 @@ class Pong : MachineState { }
 ```
 
 We show the event handlers for the `Ping` state (those for the `Pong` state are analogous).
+
 ```c#
 private void DoPing()
 {
@@ -75,15 +98,33 @@ private async Task HandleTimeoutForPing()
 }
 ```
 
-The `DoPing` method starts a timer, and stores the handle to it in `PingTimerInfo`. The timer, being periodic, repeatedly generates `TimerElpsedEvent` events at intervals of 1 second. On receiving a `TimerElapsedEvent` in the `Ping` state, the machine executes `HandleTimeoutForPing`. Here, we first extract the `TimerInfo` from the `TimerElapsedEvent`, and assert that we are processing the timeout events from the correct timer (in this case, the ping timer). The `Payload` can be further extracted from the `TimerInfo`.
+The `DoPing` method starts a timer, and stores the handle to it in `PingTimerInfo`. The timer, being
+periodic, repeatedly generates `TimerElpsedEvent` events at intervals of 1 second. On receiving a
+`TimerElapsedEvent` in the `Ping` state, the machine executes `HandleTimeoutForPing`. Here, we first
+extract the `TimerInfo` from the `TimerElapsedEvent`, and assert that we are processing the timeout
+events from the correct timer (in this case, the ping timer). The `Payload` can be further extracted
+from the `TimerInfo`.
 
-In production, a timer is implemented using a lightweight and efficient `System.Threading.Timer`. However, during testing, timeouts are generated by a mock timer which is implemented as a Coyote machine. You can tune the probability of the mock timeouts generated by changing the configuration `TimeoutDelay` (which has the default value of 1), or by using the tester command line option `-timeout-delay`, which sets this configuration value. The higher the value, the lower is the frequency with which timeouts are fired during testing.
+In production, a timer is implemented using a lightweight and efficient `System.Threading.Timer`.
+However, during testing, timeouts are generated by a mock timer which is implemented as a Coyote
+machine. You can tune the probability of the mock timeouts generated by changing the configuration
+`TimeoutDelay` (which has the default value of 1), or by using the tester command line option
+`-timeout-delay`, which sets this configuration value. The higher the value, the lower is the frequency
+with which timeouts are fired during testing.
 
-When the `Ping` state processes 10 such timeouts, it stops and disposes the ping timer by passing the `PingTimerInfo` to the `StopTimer` method. This will cause the owner machine to ignore any futher timeouts coming from the disposed timer. Only a machine that created a timer can stop that timer (this is asserted during testing), so make sure that you only call `StopTimer` for a `TimerInfo` that is owned by the same machine. In the example, you can only stop the ping timer from the instance of the `Client` machine which created it.
+When the `Ping` state processes 10 such timeouts, it stops and disposes the ping timer by passing the
+`PingTimerInfo` to the `StopTimer` method. This will cause the owner machine to ignore any further
+timeouts coming from the disposed timer. Only a machine that created a timer can stop that timer (this
+is asserted during testing), so make sure that you only call `StopTimer` for a `TimerInfo` that is
+owned by the same machine. In the example, you can only stop the ping timer from the instance of the
+`Client` machine which created it.
 
-After we transition to the `Pong` state, we do an analogous operation with the `PongTimerInfo`, and transition back to the `Ping` state, where the cycle repeats all over again.
+After we transition to the `Pong` state, we do an analogous operation with the `PongTimerInfo`, and
+transition back to the `Ping` state, where the cycle repeats all over again.
 
-You can choose to run as many timers in parallel as you wish. Here's a code snippet which demonstrates such usage:
+You can choose to run as many timers in parallel as you wish. Here's a code snippet which demonstrates
+such usage:
+
 ```c#
 class MultiTimers : Machine {
 
@@ -112,6 +153,7 @@ class MultiTimers : Machine {
          this.Logger.WriteLine("Timeout from timer 2.");
       }
    }
-   // any other code
+
+   // Any other code.
 }
 ```

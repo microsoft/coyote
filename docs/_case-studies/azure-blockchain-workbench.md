@@ -20,7 +20,6 @@ the blockchain and consume events and transactions from the
 blockchain through the event grid as well as through a SQL database
 with no additional development effort on their part.
 
-
 ## Challenge
 
 Ethereum Transaction Submitter is the component within Workbench
@@ -37,8 +36,7 @@ again. Writing a high-throughput service that can reliably submit
 transactions into the blockchain is thus a harder problem than it first
 appears.
 
-
-## Solution and Advantages
+## Solution and Coyote's key advantages
 
 An initial version of the Ethereum Transaction Submitter was facing a 
 number of reliability issues and missed corner cases, so the team decided to write the service using
@@ -68,4 +66,3 @@ Coyote. The use of Coyote helped the team in a number of ways.
    
 - Coyote's deterministic repro of bugs allowed the team to debug and
   understand the bugs much more easily than before. 
-

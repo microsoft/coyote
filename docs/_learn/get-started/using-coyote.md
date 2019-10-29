@@ -5,7 +5,7 @@ title: Using Coyote
 permalink: /learn/get-started/using-coyote
 ---
 
-# Using Coyote
+## Using Coyote
 
 As shown in the [overview](/Coyote/learn/overview/what-is-coyote), there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/Coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state-machines](/Coyote/learn/programming-models/machines/overview).
 
@@ -40,7 +40,7 @@ This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to 
 coyote.exe test MachineExamples\bin\net46\FailureDetector.exe --iterations 1000 --max-steps 200 --sch-pct 10
 ```
 
-Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger number if necessary. You can also let `coyote` decide which exploration strategy to use. Just use `--sch-portfolio` and size `--parallel N` and Coyote will run `N` different exploration strategies for you, in parallel. `coyote` manages the poftfolio to give you the best chance of revealing bugs. These strategies were developed from real-world experience on large products in Microsoft Azure. When you use the right scheduling strategy, you will see a bug report:
+Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger number if necessary. You can also let `coyote` decide which exploration strategy to use. Just use `--sch-portfolio` and size `--parallel N` and Coyote will run `N` different exploration strategies for you, in parallel. `coyote` manages the portfolio to give you the best chance of revealing bugs. These strategies were developed from real-world experience on large products in Microsoft Azure. When you use the right scheduling strategy, you will see a bug report:
 
 ```
 ... Task 0 found a bug.

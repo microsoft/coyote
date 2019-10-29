@@ -5,7 +5,7 @@ title: Upgrading from P# to Coyote
 permalink: /learn/get-started/upgrade
 ---
 
-# Upgrading from P# to Coyote
+## Upgrading from P# to Coyote
 This document contains a list of changes from P# to Coyote. Please follow this guide in order to upgrade your applications and services. Contact us if you have any questions or face any issues.
 
 ## General changes

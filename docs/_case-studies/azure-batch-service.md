@@ -9,23 +9,33 @@ permalink: /case-studies/azure-batch-service
 
 ## Background
 
-[Azure Batch Service](https://azure.microsoft.com/en-us/services/batch/) is a popular cloud-scale job-scheduling service. Users can execute a parallel job consisting of multiple tasks with a given set of dependencies and Azure Batch Service will perform these in dependency order, exploiting as much parallelism as possible between independent tasks. 
+[Azure Batch Service](https://azure.microsoft.com/en-us/services/batch/) is a popular cloud-scale
+job-scheduling service. Users can execute a parallel job consisting of multiple tasks with a given set
+of dependencies and Azure Batch Service will perform these in dependency order, exploiting as much
+parallelism as possible between independent tasks. 
 
-Integrating scheduling with virtual machine (VM) management, Azure Batch Service supports auto-scaling the number of VMs created, spinning up or down according to the needs of the job. This differs from many other schedulers—like Yarn or Mesos, for example—that must be installed on a pre-created set of VMs.
+Integrating scheduling with virtual machine (VM) management, Azure Batch Service supports
+auto-scaling the number of VMs created, spinning up or down according to the needs of the job.
+This differs from many other schedulers—like Yarn or Mesos, for example—that must be installed
+on a pre-created set of VMs.
 
 ## Challenge
 
-The Batch team wanted to invest in a new microservices-based architecture that would reliably scale to meet the demands of the service. The complex responsive design demanded that each microservice be able to:
+The Batch team wanted to invest in a new microservices-based architecture that would reliably
+scale to meet the demands of the service. The complex responsive design demanded that each
+microservice be able to:
 
 - Process requests asynchronously as they arrived. 
 - Support cancellation of an in-flight request, enabling quick turnaround for auto-scaling. 
 - Be resilient to failures of VMs hosting the service. 
 
-
 ## Solution
 
-Coding three of their core microservices in Coyote, the team used Coyote's state machines programming model for fully asynchronous, non-blocking computation. The team also wrote detailed functional specifications—as well as models of external services—to allow for exhaustive testing of concurrent behaviors and failures. More than 100,000 lines of code were written in Coyote.
-
+Coding three of their core microservices in Coyote, the team used Coyote's state machines
+programming model for fully asynchronous, non-blocking computation. The team also wrote
+detailed functional specifications—as well as models of external services—to allow for
+exhaustive testing of concurrent behaviors and failures. More than 100,000 lines of code
+were written in Coyote.
 
 ## Coyote’s key advantages
 
@@ -39,6 +49,4 @@ component. The Batch team reported that Coyote's test coverage for end-to-end sc
 of_ previously.
 - Features were developed in a test environment to first pass the Coyote tester. When dropped in
 production, they simply worked, from the start.
-- Coyote gave developers a significant confidence boost by providing full failover and concurrency testing
-at each check-in, right on their desktops as the code was written.
-
+- Coyote gave developers a significant confidence boost by providing full failover and concurrency testing at each check-in, right on their desktops as the code was written.

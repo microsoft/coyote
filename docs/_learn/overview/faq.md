@@ -9,12 +9,6 @@ permalink: /learn/overview/faq
 
 <br/>
 
-#### Is Coyote related to Bugs Bunny?
-
-Yes. Coyote is very good at chasing down all your bugs.
-
-<br/><br/>
-
 #### Will Coyote slow down my production code?
 
 No, Coyote is very light weight.

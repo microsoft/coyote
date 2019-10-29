@@ -9,10 +9,9 @@ permalink: /case-studies/azure-blockchain-service
 
 ## Background
 
-[Azure's Blockchain Service](https://azure.microsoft.com/en-in/services/blockchain-service/) allows
-customers to provision blockchain nodes-as-a-service. It allows setting up
-consortiums that include blockchain nodes from
-multiple organizations to govern shared resources.
+[Azure's Blockchain Service](https://azure.microsoft.com/en-in/services/blockchain-service/)
+allows customers to provision blockchain nodes-as-a-service. It allows setting up consortiums
+that include blockchain nodes from multiple organizations to govern shared resources.
 
 ## Challenge
 
@@ -24,8 +23,7 @@ blockchain and taking resulting actions within the service.
 This interaction sometimes led to rare, but serious bugs, that had the 
 potential of stalling the entire blockchain network.
 
-
-## Solution and Key Advantages
+## Solution and Coyote's key advantages
 
 The Blockchain Service code heavily utilized .NET tasks and the 
 corresponding async/await style of programming concurrent systems. 
@@ -43,4 +41,3 @@ provides confidence that the system will not regress: once a concurrency issue
 is found and a corresponding Coyote test is put in place, similar issues get
 caught out immediately in future code changes. This allowed the 
 team to make progress at a rapid pace.
-

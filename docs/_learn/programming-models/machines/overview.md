@@ -5,15 +5,15 @@ section: learn
 permalink: /learn/programming-models/machines/overview
 ---
 
-## Programming model: asynchronous state-machines
+# Programming model: asynchronous state-machines
 
 The _asynchronous state-machines_ programming model of Coyote is an actor-based programming model that exposes the `Machine` type. Using this programming model allows you to create new machines and send events from one machine to another.
 
-A program written using this programming model consists of one or more state-machines (which we simply refer to as machines). Each Coyote machine has an input queue, states, state transitions, event handlers, fields and methods. Machines run concurrently with each other, each executing a sequential event handling loop that dequeues an event from the input queue and handles it by executing a sequence of operations. Each operation might update a field, create a new machine, or send an event to another machine. In Coyote, create machine operations and send operations are non-blocking. In the case of a send operation the message is simply enqueued into the input queue of the target machine.
+A program written using this programming model consists of one or more state machines (which we simply refer to as machines). Each Coyote machine has an input queue, states, state transitions, event handlers, fields and methods. Machines run concurrently with each other, each executing a sequential event handling loop that dequeues an event from the input queue and handles it by executing a sequence of operations. Each operation might update a field, create a new machine, or send an event to another machine. In Coyote, create machine operations and send operations are non-blocking. In the case of a send operation the message is simply enqueued into the input queue of the target machine, that is send does not wait for the message to be processed at the target before returning.
 
 ## Writing your first program using machines
 
-A state-machines program in Coyote is a collection of machines (declared by subclassing the `Machine` type) and events (declared by subclassing the `Event` type), as well as other regular C# types (such as classes and structs).
+A state-machine program in Coyote is a collection of machines (declared by subclassing the `Machine` type) and events (declared by subclassing the `Event` type), as well as other regular C# types (such as classes and structs).
 
 Machines types can be declared in the following way:
 ```c#
@@ -123,7 +123,7 @@ class SomeState : MachineState { }
 
 The attribute `DeferEvents` indicates that the `PingEvent` and `PongEvent` events should not be dequeued while the machine is in the state `SomeState`. Instead, the machine should skip over `PingEvent` and `PongEvent` (without dropping these events from the queue) and dequeue the next event that is not being deferred. The attribute `IgnoreEvents` indicates that whenever `UnitEvent` is dequeued while the machine is in `SomeState`, then the machine should drop `UnitEvent` without invoking any action.
 
-Coyote also supports specifying invariants (i.e. assertions) on the local state of a machine. You can do this by using the `Assert` method, which accepts as input a predicate that must always hold in that specific program point, e.g. `this.Assert(k == 0)`, which holds if the integer `k` equals to `0`.
+Coyote also supports specifying invariants through assertions. You can do this by using the `Assert` method, which accepts as input a predicate that must always hold in that specific program point, e.g. `this.Assert(k == 0)`, which holds if the integer `k` equals to `0`. These `Assert` statement are useful for machine-local invariants, i.e., they are about the state of a single machine. For global invariants, often times using [Monitors](/Coyote/learn/specifications/overview) is easier.
 
 ## An example program
 

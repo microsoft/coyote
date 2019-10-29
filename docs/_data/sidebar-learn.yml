@@ -20,8 +20,10 @@ learn-toc:
       link: /learn/get-started/upgrade
 - title: Core Concepts
   subfolderitems:
-     - name: Overview
-       link: /learn/core/overview
+    - name: Non-determinism
+      link: /learn/core/non-determinism
+    - name: Systematic testing
+      link: /learn/core/systematic-testing
 - title: Programming
   link: /learn/programming-models
   subfolderitems:
@@ -39,8 +41,6 @@ learn-toc:
           link: /learn/programming-models/machines/machine-termination
         - name: Using timers in machines
           link: /learn/programming-models/machines/machine-timers
-        - name: Async inside machines
-          link: /learn/programming-models/machines/async-await-machines
         - name: Synchronous execution of machines
           link: /learn/programming-models/machines/synchronous-execution
         - name: Tracking operation groups

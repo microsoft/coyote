@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/tools/distributed-testing
 ---
 
-## Distributed Test
+## Distributed Testing
 
 You can also use the `--parallel` option to run the tests on different machines to get more scale and
 more parallelism. Add the `--wait-for-testing-processes` option to tell the test coordinator to wait

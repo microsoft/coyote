@@ -12,7 +12,7 @@ The Coyote runtime uses the `RuntimeLogWriter` to log all runtime messages. The 
 ## Using and replacing the logger
 
 The `ILogger` interface is responsible for writing log messages using the `Write` and `WriteLine` methods. The `IsVerbose` property is `true` when verbosity is enabled, and `false` when disabled.
-```C#
+```c#
 public interface ILogger : IDisposable
 {
   bool IsVerbose { get; set; }
@@ -32,12 +32,12 @@ public interface ILogger : IDisposable
 ```
 
 The runtime logger can be accessed via the following `IMachineRuntime`, `Machine` or `Monitor` property:
-```C#
+```c#
 ILogger Logger { get; }
 ```
 
 It is possible to replace the default logger with a custom one that implements the `ILogger` and `IDisposable` interfaces. For example someone could write the following `CustomLogger` that uses a `StringBuilder` for writing the log:
-```C#
+```c#
 public class CustomLogger : ILogger
 {
   private StringBuilder StringBuilder;
@@ -101,7 +101,7 @@ public class CustomLogger : ILogger
 ```
 
 To replace the default logger, call the following `IMachineRuntime` method:
-```C#
+```c#
 ILogger SetLogger(ILogger logger);
 ```
 The above method replaces the previously installed logger on the `RuntimeLogWriter`, installs the specified one and returns the previously installed logger.
@@ -113,7 +113,7 @@ Note that `SetLogger` is _not_ calling `Dispose` on the previously installed log
 Although typically you would not want to modify the default implementation of the `RuntimeLogWriter`, you have the flexibility to subclass it and (partially) override the default methods to define a custom implementation that suits your needs.
 
 To do this, first subclass `RuntimeLogWriter` and override the methods that you are interested in:
-```C#
+```c#
 internal class CustomLogWriter : RuntimeLogWriter
 {
   /* Callbacks on runtime events */
@@ -151,7 +151,7 @@ internal class CustomLogWriter : RuntimeLogWriter
 ```
 
 Finally, set the new implementation using the following `IMachineRuntime` method:
-```C#
+```c#
 RuntimeLogWriter SetLogWriter(RuntimeLogWriter logWriter);
 ```
 The above method replaces the previously installed log writer, installs the specified one, and returns the previously installed one. The runtime is going to set the previously installed `ILogger` on the new `RuntimeLogWriter`, so you do not need to reset them.

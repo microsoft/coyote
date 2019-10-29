@@ -7,9 +7,9 @@ permalink: /learn/get-started/using-coyote
 
 # Using Coyote
 
-As shown in the [overview](/Coyote/learn/overview/what-is-coyote) there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/Coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state-machines](/Coyote/learn/programming-models/machines/overview).
+As shown in the [overview](/Coyote/learn/overview/what-is-coyote), there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/Coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state-machines](/Coyote/learn/programming-models/machines/overview).
 
-**Note:** If you are upgrading to Coyote from the P# see [upgrading from P#](/Coyote/learn/get-started/upgrade).
+**Note:** If you are upgrading to Coyote from P#, see [upgrading from P#](/Coyote/learn/get-started/upgrade).
 
 Assuming you have [installed Coyote](/Coyote/learn/get-started/install) and built the samples, you are ready to use the `coyote` command line tool. In your [CoyoteSamples](http://github.com/Microsoft/CoyoteSamples) local repo you should have the following compiled binaries:
 
@@ -19,15 +19,15 @@ CoyoteSamples\AsyncExamples\bin\net46\*.exe
 CoyoteSamples\MachineExamples\bin\net46\*.exe
 ```
 
-You can use the `coyote` command line tool to automatically test these samples and find bugs. There is a particularly hard bug to find in the `CoyoteSamples\MachineExamples\bin\net46\FailureDetector.exe` sample application. If you run this application from your command prompt it will happily write output forever. It seems perfectly happy right?  But there is a bug that happens rarely, the kind of pesky bug that would keep you up late at night scratching your head.
+You can use the `coyote` tool to automatically test these samples and find bugs. There is a particularly hard bug to find in the `CoyoteSamples\MachineExamples\bin\net46\FailureDetector.exe` sample application. If you run this application from your command prompt it will happily write output forever. It seems perfectly happy right?  But there is a bug that happens rarely, the kind of pesky bug that would keep you up late at night scratching your head.
 
-Ok then, lets see if `coyote` can find the bug. To make it easier to use the `coyote` command line go ahead and add it to your `PATH` environment as follows:
+Ok then, lets see if Coyote can find the bug. To make it easier to use the `coyote` command line go ahead and add it to your `PATH` environment as follows:
 
 ```
 set PATH=%PATH%;d:\git\Coyote\bin\net46
 ```
 
-Type `coyote.exe -?` to see the help page to make sure it is working.
+Type `coyote -?` to see the help page to make sure it is working.
 
 ```
 cd CoyoteSamples
@@ -40,7 +40,7 @@ This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to 
 coyote.exe test MachineExamples\bin\net46\FailureDetector.exe --iterations 1000 --max-steps 200 --sch-pct 10
 ```
 
-Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger number if necessary. Eventually you will see a bug report:
+Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger number if necessary. You can also let `coyote` decide which exploration strategy to use. Just use `--sch-portfolio` and size `--parallel N` and Coyote will run `N` different exploration strategies for you, in parallel. `coyote` manages the poftfolio to give you the best chance of revealing bugs. These strategies were developed from real-world experience on large products in Microsoft Azure. When you use the right scheduling strategy, you will see a bug report:
 
 ```
 ... Task 0 found a bug.
@@ -52,7 +52,7 @@ Even then you might need to run it a few times to catch the bug. Set `--iteratio
 
 The `*.txt` file is the text log of the iteration that found the bug. The `*.pstrace` file is an XML version of the trace and the `*.schedule` contains the information needed to reproduce the bug.
 
-Finding a hard to find bug is one thing, but if you can't reproduce this bug while debugging there is no point. So the `*.schedule` can be used with the `replay` command as follows:
+Finding a hard to find bug is one thing, but if you can't reproduce this bug while debugging there is no point. So the `*.schedule` can be used with the `coyote replay` command as follows:
 
 ```
 coyote.exe replay MachineExamples\bin\net46\FailureDetector.exe MachineExamples\bin\net46\Output\FailureDetector.exe\CoyoteOutput\FailureDetector_0_0.schedule
@@ -60,6 +60,7 @@ coyote.exe replay MachineExamples\bin\net46\FailureDetector.exe MachineExamples\
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.
 ```
+Attach a debugger during replay and you can see what exactly is going wrong. 
 
 You might be wondering what the `FailureDetector` sample app is really doing. The `coyote` command line tool can help you with that also. If you run the following command line it will produce a [DGML](https://en.wikipedia.org/wiki/DGML) visualization of the state-machines that are being tested:
 

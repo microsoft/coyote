@@ -5,13 +5,11 @@ section: learn
 permalink: /learn/programming-models/async/overview
 ---
 
-## Programming model: asynchronous tasks
+# Programming model: asynchronous tasks
 
-The _asynchronous tasks_ programming model of Coyote is based on the [task-based asynchronous pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
+The _asynchronous tasks_ programming model of Coyote is based on the [task-based asynchronous pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap). This programming model exposes the `ControlledTask` type, which can be used with the `async` and `await` C# keywords, similar to the `System.Threading.Tasks.Task` type. The `ControlledTask` type can be used as a drop-in replacement for the `System.Threading.Tasks.Task` type. However, `ControlledTask` can also be used alongside `System.Threading.Tasks.Task` to easily invoke external asynchronous APIs from your code. We will discuss this in more detail below.
 
-This programming model exposes the `ControlledTask` type, which can be used with the `async` and `await` C# keywords, similar to the `System.Threading.Tasks.Task` type. The `ControlledTask` type can be used as a drop-in replacement for the `System.Threading.Tasks.Task` type. However, `ControlledTask` can also be used alongside `System.Threading.Tasks.Task` to easily invoke external asynchronous APIs from your code. We will discuss this in more detail below.
-
-The benefit of using `ControlledTask` is that during testing, the Coyote runtime will control the schedule of each `ControlledTask` and thoroughly explore all possible asynchronous interlevings to automatically find and report hard-to-reproduce concurrency bugs. In production, `ControlledTask` executes efficiently, as it is implemented using a `System.Threading.Tasks.Task`.
+The benefit of using `ControlledTask` is that during testing, the Coyote runtime will control the scheduling of each `ControlledTask` to explore various interleavings. In production, `ControlledTask` executes efficiently, as it is implemented using a `System.Threading.Tasks.Task`.
 
 ## Overview
 

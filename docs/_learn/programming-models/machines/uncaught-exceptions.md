@@ -5,15 +5,15 @@ section: learn
 permalink: /learn/programming-models/machines/uncaught-exceptions
 ---
 
-## Semantics of unhandled exceptions
+# Semantics of unhandled exceptions
 
-Coyote `Machines` can execute arbitrary C# code in their actions. This page discusses what happens if such an exception is not handled inside the action itself. As is usual in [asynchronous programming](https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/exception-handling-task-parallel-library), one should be careful with unhandled exceptions.
+Coyote `Machines` can execute arbitrary C# code in their actions. This page discusses what happens if such code throws an exception that is not handled inside the action itself. As is usual in [asynchronous programming](https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/exception-handling-task-parallel-library), one should be careful with unhandled exceptions.
 
 In test mode (i.e., when running a test with `Coyote test ...`), all unhandled exceptions are an error and the test will fail. `Coyote` tester will stop the execution at that point and report an error.
 
 In production mode (i.e., when running a Coyote program in production), the Coyote runtime intercepts any unhandled exception in a machine action. The exception is then delivered to the `OnFailure` delegate of the runtime. At this point, it is your responsibility to take the appropriate action. For instance, you can cause the program to crash and create a dump (for debugging later) as follows:
 
-```C#
+```c#
 runtime.OnFailure += delegate (Exception exception)
 {
    Environment.FailFast(exception.ToString(), exception);

@@ -5,7 +5,7 @@
     <Product>Coyote</Product>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
-    <RepositoryUrl>https://github.com/Microsoft/Coyote</RepositoryUrl>
+    <RepositoryUrl>https://github.com/microsoft/coyote</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>

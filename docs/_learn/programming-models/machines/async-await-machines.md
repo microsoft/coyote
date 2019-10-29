@@ -68,7 +68,7 @@ sends back a response when it's done servicing them. Internally, it may use othe
 delegates work to them asynchronously and waits for their response. Such components are typical in web
 services, where for example, users pump in requests at any time and the service must process them
 asynchronously; it cannot afford to block subsequent requests before it finishes the first. Further,
-the service might use a backing store for persistence and fault tolerance. Lets take an example.
+the service might use a backing store for persistence and fault tolerance. Let's take an example.
 Suppose that our component offers the following methods for processing client requests:
 
 ```C#

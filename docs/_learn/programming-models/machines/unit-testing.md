@@ -75,7 +75,7 @@ when the machine asynchronously waits to receive an event).
 
 The `MachineTestKit<M>` also provides `Assert`, which is a generic assertion that you can use for
 checking correctness, as well as several other specialized assertions, e.g. for asserting state
-transitions, or to check if the inbox is empty. 
+transitions, or to check if the inbox is empty.
 
 The following code snippet shows how to use these APIs to test the machine `M` of the above example:
 
@@ -101,7 +101,7 @@ not waiting any event, by calling `AssertIsWaitingToReceiveEvent(false)`, and th
 by calling `AssertInboxSize(0)`.
 
 Besides providing the capability to drive the execution of a machine via the `StartMachineAsync` and
-`SendEventAsync` APIs, the `MachineTestKit` also allows someone to directly call machine methods. Lets
+`SendEventAsync` APIs, the `MachineTestKit` also allows someone to directly call machine methods. Let's
 see how this can be done in a simple example. Say that you have the following machine `M`, which has a
 method `Add(int m, int k)` that takes two integers, adds them, and returns the result:
 

@@ -5,12 +5,12 @@ section: learn
 permalink: /learn/specifications/overview
 ---
 
-## Program Specifications 
+## Program Specifications
 
 Coyote makes it easy to design and express system-level specifications that can be asserted during
 testing. Specifications come in two forms. _Safety_ specifications assert that the system never enters
 a _bad_ state. _Liveness_ specifications assert that the system eventually does something _good_, that
-is, it asserts that the system is always able to make progress. 
+is, it asserts that the system is always able to make progress.
 
 ## Writing safety properties
 
@@ -47,11 +47,11 @@ runtime.InvokeMonitor<GlobalSpec>(new CustomEvent(...));
 ```
 
 Just like machines, monitors can have any number of fields, methods and states. The following is a
-simply example of a monitor. Lets say that there are two machines `A` and `B` that maintain two
+simply example of a monitor. Let's say that there are two machines `A` and `B` that maintain two
 important variables called `x` and `y`, respectively. We want to assert that these two values are
 always within a difference of `5` between each other. There is no one assert that we can write because
 both `x` and `y` are not in scope at the same time. So we define a monitor that accepts events as soon
-as a variable is updated. Then it keeps asserting their values are within the required bound. 
+as a variable is updated. Then it keeps asserting their values are within the required bound.
 
 ```c#
 class GlobalSpec : Monitor
@@ -111,7 +111,7 @@ establish three replicas for the data. In other words, it is unavoidable (on sto
 there are less-than-required number of replicas, but in that case the protocol must work towards
 creating the desired number of replicas again. A violation of this property is an (infinite) execution
 where a storage node fails but the protocol is not able to create the third replica, even when given an
-infinite amount of time. We keep talking about infinite behaviors here, but lets come back to that
+infinite amount of time. We keep talking about infinite behaviors here, but let's come back to that
 later. First, let us see how we can write this property as a monitor.
 
 A liveness monitor contains two special states: the _hot_ and the _cold_ state. The hot state denotes a
@@ -123,7 +123,7 @@ erroneous if the liveness monitor stays in the hot state for an infinitely long 
 Consider the following example.
 
 ```c#
-class LivenessMonitor : Monitor 
+class LivenessMonitor : Monitor
 {
   // current number of replicas alive.
   int alive = 0;
@@ -144,11 +144,11 @@ class LivenessMonitor : Monitor
   void OnUp()
   {
      alive ++;
-     if (alive >= 3) 
+     if (alive >= 3)
      {
         this.Goto<EnoughReplicas>();
-     } 
-     else 
+     }
+     else
      {
         this.Goto<NotEnoughReplicas>();
      }
@@ -158,11 +158,11 @@ class LivenessMonitor : Monitor
   void OnDown()
   {
      alive --;
-     if (alive >= 3) 
+     if (alive >= 3)
      {
         this.Goto<EnoughReplicas>();
-     } 
-     else 
+     }
+     else
      {
         this.Goto<NotEnoughReplicas>();
      }
@@ -182,4 +182,4 @@ exactly when the progress will happen. In practice, of course, we cannot generat
 we only have a finite amount of time available to us for testing. The tester resorts to heuristics: it
 considers a sufficiently long and hot execution as a proxy for a liveness violation. The user can
 configure a bound beyond which executions are considered infinite.
-[Keep reading](/Coyote/learn/specifications/liveness-checking) to learn more on how this all works. 
+[Keep reading](/Coyote/learn/specifications/liveness-checking) to learn more on how this all works.

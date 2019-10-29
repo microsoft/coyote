@@ -21,7 +21,7 @@ CoyoteSamples\MachineExamples\bin\net46\*.exe
 
 You can use the `coyote` tool to automatically test these samples and find bugs. There is a particularly hard bug to find in the `CoyoteSamples\MachineExamples\bin\net46\FailureDetector.exe` sample application. If you run this application from your command prompt it will happily write output forever. It seems perfectly happy right?  But there is a bug that happens rarely, the kind of pesky bug that would keep you up late at night scratching your head.
 
-Ok then, lets see if Coyote can find the bug. To make it easier to use the `coyote` command line go ahead and add it to your `PATH` environment as follows:
+Ok then, let's see if Coyote can find the bug. To make it easier to use the `coyote` command line go ahead and add it to your `PATH` environment as follows:
 
 ```
 set PATH=%PATH%;d:\git\Coyote\bin\net46
@@ -60,7 +60,7 @@ coyote.exe replay MachineExamples\bin\net46\FailureDetector.exe MachineExamples\
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.
 ```
-Attach a debugger during replay and you can see what exactly is going wrong. 
+Attach a debugger during replay and you can see what exactly is going wrong.
 
 You might be wondering what the `FailureDetector` sample app is really doing. The `coyote` command line tool can help you with that also. If you run the following command line it will produce a [DGML](https://en.wikipedia.org/wiki/DGML) visualization of the state-machines that are being tested:
 

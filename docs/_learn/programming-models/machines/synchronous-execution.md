@@ -29,7 +29,7 @@ idle again. In this case, the method returns `true` indicating that the event ha
 
 You should be careful with the use of `Receive` when using these methods. In the absence of `Receive`,
 the semantics of these methods guarantee that the program cannot deadlock. With a `Receive` the
-following situation can occur. Lets suppose there are two machines `A` and `B` and the latter is idle.
+following situation can occur. Let's suppose there are two machines `A` and `B` and the latter is idle.
 Then machine `A` does `SendEventAndExecuteAsync` to pass an event `e` to `B`. Because `B` was idle, `A`
 will wait until `B` becomes idle again. But if `B` executes a `Receive` while processing the event `e`,
 expecting another event from `A` then the program deadlocks. (Blocking on a `Receive` is not considered
@@ -56,7 +56,7 @@ available.
 
 Another programming pattern is to drive a state machine synchronously. The program can do
 `CreateMachineAndExecuteAsync` to create the state machine, then repeatedly do
-`SendEventAndExecuteAsync` to make the state-machine process events one after another. Lets consider an
+`SendEventAndExecuteAsync` to make the state-machine process events one after another. Let's consider an
 example. Suppose that we need to define a state machine `M` that is easily decomposed into two smaller
 state machines `M1` and `M2`. For each incoming event, `M` decides to run of the two state-machines;
 there is no need to run them in parallel. In this case, you only need to code up the smaller
@@ -72,7 +72,7 @@ When `M` receives an event, it will choose to run the appropriate state-machine 
 
 ```c#
 Event e = this.ReceivedEvent;
-if (SomeCondition(e)) 
+if (SomeCondition(e))
 {
    bool b1 = await this.SendEventAndExecuteAsync(m1, e);
    this.Assert(b1);
@@ -81,7 +81,7 @@ else
 {
    bool b2 = await this.SendEventAndExecuteAsync(m2, e);
    this.Assert(b2);
-}  
+}
 ```
 
 Note that the two assertions above are guaranteed to never fail because the `m1` and `m2`state-machines

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Specifications
 {

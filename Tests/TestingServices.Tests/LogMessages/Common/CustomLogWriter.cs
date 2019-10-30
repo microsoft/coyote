@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Machines;
 
 namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
 {

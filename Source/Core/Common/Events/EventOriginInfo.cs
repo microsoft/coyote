@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Runtime.Serialization;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Runtime
 {

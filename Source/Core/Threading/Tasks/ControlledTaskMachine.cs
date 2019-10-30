@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Threading.Tasks

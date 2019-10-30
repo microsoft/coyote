@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Machines.Timers;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.Timers;
 
 namespace Microsoft.Coyote.TestingServices.Timers
 {

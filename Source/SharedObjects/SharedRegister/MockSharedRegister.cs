@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Runtime;
 
 namespace Microsoft.Coyote.SharedObjects

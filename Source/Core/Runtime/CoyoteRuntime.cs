@@ -9,12 +9,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Machines.Timers;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
-
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.Runtime

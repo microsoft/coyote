@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M4A : Machine
+        private class M4A : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M4B : Machine
+        private class M4B : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M5A : Machine
+        private class M5A : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M5B : Machine
+        private class M5B : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -247,7 +247,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M6A : Machine
+        private class M6A : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M6B : Machine
+        private class M6B : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -298,7 +298,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M7A : Machine
+        private class M7A : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M7B : Machine
+        private class M7B : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -363,7 +363,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M8A : Machine
+        private class M8A : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -388,7 +388,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M8B : Machine
+        private class M8B : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M9A : Machine
+        private class M9A : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -453,7 +453,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M9B : Machine
+        private class M9B : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
             private TaskCompletionSource<bool> TargetTcs;
@@ -480,7 +480,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M9C : Machine
+        private class M9C : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

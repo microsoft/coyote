@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             private class Init : MachineState
@@ -34,13 +34,13 @@ namespace Microsoft.Coyote.Core.Tests
         public void TestInvokeInternalMethod()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M1>(configuration: configuration);
+            var test = new StateMachineTestKit<M1>(configuration: configuration);
 
             int result = test.Machine.Add(3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             private class Init : MachineState
@@ -58,13 +58,13 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestInvokeInternalAsyncMethod()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M2>(configuration: configuration);
+            var test = new StateMachineTestKit<M2>(configuration: configuration);
 
             int result = await test.Machine.AddAsync(3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             private class Init : MachineState
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Core.Tests
         public void TestInvokePrivateMethod()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M3>(configuration: configuration);
+            var test = new StateMachineTestKit<M3>(configuration: configuration);
 
             int result = (int)test.Invoke("Add", 3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Core.Tests
             test.Assert(result == 7, $"Incorrect result '{result}'");
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             private class Init : MachineState
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestInvokePrivateAsyncMethod()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M4>(configuration: configuration);
+            var test = new StateMachineTestKit<M4>(configuration: configuration);
 
             int result = (int)await test.InvokeAsync("AddAsync", 3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");

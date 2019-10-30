@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class ClusterManager : Machine
+        private class ClusterManager : StateMachine
         {
             internal class NotifyLeaderUpdate : Event
             {
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         /// A server in Raft can be one of the following three roles:
         /// follower, candidate or leader.
         /// </summary>
-        private class Server : Machine
+        private class Server : StateMachine
         {
             /// <summary>
             /// Used to configure the server.
@@ -936,7 +936,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             /// <summary>
             /// Used to configure the client.
@@ -1029,7 +1029,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class ElectionTimer : Machine
+        private class ElectionTimer : StateMachine
         {
             internal class ConfigureEvent : Event
             {
@@ -1102,7 +1102,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class PeriodicTimer : Machine
+        private class PeriodicTimer : StateMachine
         {
             internal class ConfigureEvent : Event
             {

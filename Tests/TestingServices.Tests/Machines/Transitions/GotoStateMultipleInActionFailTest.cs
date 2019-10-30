@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M : Machine
+        private class M : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

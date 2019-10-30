@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M1a : Machine
+        private class M1a : StateMachine
         {
             private E e;
 
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M1b : Machine
+        private class M1b : StateMachine
         {
             private E e;
 
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M2a : Machine
+        private class M2a : StateMachine
         {
             private E e;
 
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M2b : Machine
+        private class M2b : StateMachine
         {
             private E e;
 
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             private E e;
 
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             private E e;
 

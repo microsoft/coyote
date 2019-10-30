@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Server : Machine
+        private class Server : StateMachine
         {
             private MachineId Client;
 
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             private MachineId Server;
             private int Counter;

@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
     {
     }
 
-    internal class M : Machine
+    internal class M : StateMachine
     {
         private TaskCompletionSource<bool> Tcs;
 
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         }
     }
 
-    internal class N : Machine
+    internal class N : StateMachine
     {
         [Start]
         [OnEntry(nameof(InitOnEntry))]

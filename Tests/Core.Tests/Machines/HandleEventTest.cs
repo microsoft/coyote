@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             private Result Result;
 
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             private Result Result;
 
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Core.Tests
             var result = new Result();
 
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M1>(configuration: configuration);
+            var test = new StateMachineTestKit<M1>(configuration: configuration);
 
             await test.StartMachineAsync(new SetupEvent(result));
 
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Core.Tests
             var result = new Result();
 
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M2>(configuration: configuration);
+            var test = new StateMachineTestKit<M2>(configuration: configuration);
 
             await test.StartMachineAsync(new SetupEvent(result));
 

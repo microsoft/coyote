@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Threading.Tasks
     /// <summary>
     /// Abstract machine that can execute a <see cref="ControlledTask"/> asynchronously.
     /// </summary>
-    internal abstract class ControlledTaskMachine : AsyncMachine
+    internal abstract class ControlledTaskMachine : Actor
     {
         /// <summary>
         /// The id of the task that provides access to the completed work.

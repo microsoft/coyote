@@ -122,41 +122,41 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public override Guid GetCurrentOperationGroupId(MachineId currentMachine)
         {
-            Machine machine = this.GetMachineFromId<Machine>(currentMachine);
+            StateMachine machine = this.GetMachineFromId<StateMachine>(currentMachine);
             return machine is null ? Guid.Empty : machine.OperationGroupId;
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>.
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal override MachineId CreateMachine(MachineId mid, Type type, string machineName, Event e,
-            Machine creator, Guid opGroupId)
+            StateMachine creator, Guid opGroupId)
         {
-            Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
             this.LogWriter.OnCreateMachine(machine.Id, creator?.Id);
             this.RunMachineEventHandler(machine, e, true);
             return machine.Id;
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>. The
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
         /// method returns only when the created machine reaches quiescence.
         /// </summary>
         internal override async Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, string machineName, Event e,
-            Machine creator, Guid opGroupId)
+            StateMachine creator, Guid opGroupId)
         {
-            Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
             this.LogWriter.OnCreateMachine(machine.Id, creator?.Id);
             await this.RunMachineEventHandlerAsync(machine, e, true);
             return machine.Id;
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>.
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private Machine CreateMachine(MachineId mid, Type type, string machineName, Machine creator, Guid opGroupId)
+        private StateMachine CreateMachine(MachineId mid, Type type, string machineName, StateMachine creator, Guid opGroupId)
         {
-            if (!type.IsSubclassOf(typeof(Machine)))
+            if (!type.IsSubclassOf(typeof(StateMachine)))
             {
                 this.Assert(false, "Type '{0}' is not a machine.", type.FullName);
             }
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.Runtime
                 opGroupId = creator.OperationGroupId;
             }
 
-            Machine machine = MachineFactory.Create(type);
+            StateMachine machine = StateMachineFactory.Create(type);
             IMachineStateManager stateManager = new MachineStateManager(this, machine, opGroupId);
             IEventQueue eventQueue = new EventQueue(stateManager);
 
@@ -209,9 +209,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        internal override void SendEvent(MachineId target, Event e, AsyncMachine sender, Guid opGroupId, SendOptions options)
+        internal override void SendEvent(MachineId target, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, out Machine targetMachine);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, out StateMachine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunMachineEventHandler(targetMachine, null, false);
@@ -222,10 +222,10 @@ namespace Microsoft.Coyote.Runtime
         /// Sends an asynchronous <see cref="Event"/> to a machine. Returns immediately if the target machine was
         /// already running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        internal override async Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, AsyncMachine sender,
+        internal override async Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Actor sender,
             Guid opGroupId, SendOptions options)
         {
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, out Machine targetMachine);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, out StateMachine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 await this.RunMachineEventHandlerAsync(targetMachine, null, false);
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Enqueues an event to the machine with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(MachineId target, Event e, AsyncMachine sender, Guid opGroupId, out Machine targetMachine)
+        private EnqueueStatus EnqueueEvent(MachineId target, Event e, Actor sender, Guid opGroupId, out StateMachine targetMachine)
         {
             if (target is null)
             {
@@ -265,16 +265,16 @@ namespace Microsoft.Coyote.Runtime
                 opGroupId = sender.OperationGroupId;
             }
 
-            targetMachine = this.GetMachineFromId<Machine>(target);
+            targetMachine = this.GetMachineFromId<StateMachine>(target);
             if (targetMachine is null)
             {
-                this.LogWriter.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
+                this.LogWriter.OnSend(target, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                     e.GetType().FullName, opGroupId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, target);
                 return EnqueueStatus.Dropped;
             }
 
-            this.LogWriter.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
+            this.LogWriter.OnSend(target, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                 e.GetType().FullName, opGroupId, isTargetHalted: false);
 
             EnqueueStatus enqueueStatus = targetMachine.Enqueue(e, opGroupId, null);
@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Runtime
         /// Runs a new asynchronous machine event handler.
         /// This is a fire and forget invocation.
         /// </summary>
-        private void RunMachineEventHandler(Machine machine, Event initialEvent, bool isFresh)
+        private void RunMachineEventHandler(StateMachine machine, Event initialEvent, bool isFresh)
         {
             Task.Run(async () =>
             {
@@ -312,7 +312,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     if (machine.IsHalted)
                     {
-                        this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                        this.MachineMap.TryRemove(machine.Id, out Actor _);
                     }
                 }
             });
@@ -321,7 +321,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Runs a new asynchronous machine event handler.
         /// </summary>
-        private async Task RunMachineEventHandlerAsync(Machine machine, Event initialEvent, bool isFresh)
+        private async Task RunMachineEventHandlerAsync(StateMachine machine, Event initialEvent, bool isFresh)
         {
             try
             {
@@ -560,7 +560,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner machine.
         /// </summary>
-        internal override IMachineTimer CreateMachineTimer(TimerInfo info, Machine owner) => new MachineTimer(info, owner);
+        internal override IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner) => new MachineTimer(info, owner);
 
         /// <summary>
         /// Tries to create a new <see cref="Coyote.Specifications.Monitor"/> of the specified <see cref="Type"/>.
@@ -603,7 +603,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Invokes the specified <see cref="Coyote.Specifications.Monitor"/> with the specified <see cref="Event"/>.
         /// </summary>
-        internal override void Monitor(Type type, AsyncMachine sender, Event e)
+        internal override void Monitor(Type type, Actor sender, Event e)
         {
             // Check if monitors are enabled in production.
             if (!this.Configuration.EnableMonitorsInProduction)
@@ -638,7 +638,7 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override bool GetNondeterministicBooleanChoice(AsyncMachine machine, int maxValue)
+        internal override bool GetNondeterministicBooleanChoice(Actor machine, int maxValue)
         {
             bool result = false;
             if (this.ValueGenerator.Next(maxValue) == 0)
@@ -654,14 +654,14 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a fair nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override bool GetFairNondeterministicBooleanChoice(AsyncMachine machine, string uniqueId) =>
+        internal override bool GetFairNondeterministicBooleanChoice(Actor machine, string uniqueId) =>
             this.GetNondeterministicBooleanChoice(machine, 2);
 
         /// <summary>
         /// Returns a nondeterministic integer choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override int GetNondeterministicIntegerChoice(AsyncMachine machine, int maxValue)
+        internal override int GetNondeterministicIntegerChoice(Actor machine, int maxValue)
         {
             var result = this.ValueGenerator.Next(maxValue);
             this.LogWriter.OnRandom(machine?.Id, result);
@@ -671,7 +671,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine entered a state.
         /// </summary>
-        internal override void NotifyEnteredState(Machine machine)
+        internal override void NotifyEnteredState(StateMachine machine)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -694,7 +694,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine exited a state.
         /// </summary>
-        internal override void NotifyExitedState(Machine machine)
+        internal override void NotifyExitedState(StateMachine machine)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -717,7 +717,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -728,7 +728,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -739,7 +739,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -761,7 +761,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyRaisedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -784,7 +784,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine dequeued an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyDequeuedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyDequeuedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -795,7 +795,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine is waiting to receive an event of one of the specified types.
         /// </summary>
-        internal override void NotifyWaitEvent(Machine machine, IEnumerable<Type> eventTypes)
+        internal override void NotifyWaitEvent(StateMachine machine, IEnumerable<Type> eventTypes)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -814,7 +814,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that a machine enqueued an event that it was waiting to receive.
         /// </summary>
-        internal override void NotifyReceivedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyReceivedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
             this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: true);
         }
@@ -823,7 +823,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine received an event without waiting because the event
         /// was already in the inbox when the machine invoked the receive statement.
         /// </summary>
-        internal override void NotifyReceivedEventWithoutWaiting(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyReceivedEventWithoutWaiting(StateMachine machine, Event e, EventInfo eventInfo)
         {
             this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: false);
         }

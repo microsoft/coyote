@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// The machine that owns this queue.
         /// </summary>
-        private readonly Machine Machine;
+        private readonly StateMachine Machine;
 
         /// <summary>
         /// The internal queue that contains events with their metadata.
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializedMachineEventQueue"/> class.
         /// </summary>
-        internal SerializedMachineEventQueue(IMachineStateManager machineStateManager, Machine machine)
+        internal SerializedMachineEventQueue(IMachineStateManager machineStateManager, StateMachine machine)
         {
             this.MachineStateManager = machineStateManager;
             this.Machine = machine;

@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             private class S : MachineState
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             expectedError: "The 'OnEventUnhandled' callback was called.");
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             private int x = 0;
 
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             });
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             private int x = 0;
 
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             expectedError: "Machine 'M3()' received event 'E' that cannot be handled.");
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E), nameof(HandleE))]

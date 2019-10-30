@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Master : Machine
+        private class Master : StateMachine
         {
             private List<MachineId> Workers;
 
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Worker : Machine
+        private class Worker : StateMachine
         {
             private MachineId Master;
 

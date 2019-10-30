@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Runtime
         ThrowException = 0,
 
         /// <summary>
-        /// The exception was handled and Machine should continue execution.
+        /// The exception was handled and StateMachine should continue execution.
         /// </summary>
         HandledException = 1,
 

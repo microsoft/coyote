@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class EventHandler : Machine
+        private class EventHandler : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// The machine being managed.
         /// </summary>
-        private readonly Machine Machine;
+        private readonly StateMachine Machine;
 
         /// <summary>
         /// True if the event handler of the machine is running, else false.
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializedMachineStateManager"/> class.
         /// </summary>
-        internal SerializedMachineStateManager(SystematicTestingRuntime runtime, Machine machine, Guid operationGroupId)
+        internal SerializedMachineStateManager(SystematicTestingRuntime runtime, StateMachine machine, Guid operationGroupId)
         {
             this.Runtime = runtime;
             this.Machine = machine;

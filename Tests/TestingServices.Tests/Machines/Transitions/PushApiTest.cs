@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             private int cnt = 0;
 
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4a : Machine
+        private class M4a : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4b : Machine
+        private class M4b : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// The machine being managed.
         /// </summary>
-        private readonly Machine Machine;
+        private readonly StateMachine Machine;
 
         /// <summary>
         /// True if the event handler of the machine is running, else false.
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineStateManager"/> class.
         /// </summary>
-        internal MachineStateManager(CoyoteRuntime runtime, Machine machine, Guid operationGroupId)
+        internal MachineStateManager(CoyoteRuntime runtime, StateMachine machine, Guid operationGroupId)
         {
             this.Runtime = runtime;
             this.Machine = machine;

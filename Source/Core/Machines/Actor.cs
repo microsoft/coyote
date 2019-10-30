@@ -10,13 +10,14 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Implements a machine that can execute asynchronously.
+    /// Base class for Actor model objects.
     /// This type is intended for runtime use only.
+    /// See <see cref="StateMachine"/>.
     /// </summary>
     [DebuggerStepThrough]
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AsyncMachine
+    public abstract class Actor
     {
         /// <summary>
         /// The runtime that executes this machine.
@@ -57,7 +58,7 @@ namespace Microsoft.Coyote.Machines
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is AsyncMachine m &&
+            if (obj is Actor m &&
                 this.GetType() == m.GetType())
             {
                 return this.Id.Value == m.Id.Value;

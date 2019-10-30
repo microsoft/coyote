@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.SharedObjects
     /// <summary>
     /// A shared counter modeled using a state-machine for testing.
     /// </summary>
-    internal sealed class SharedCounterMachine : Machine
+    internal sealed class SharedCounterMachine : StateMachine
     {
         /// <summary>
         /// The value of the shared counter.

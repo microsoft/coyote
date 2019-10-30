@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -239,7 +239,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             });
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -377,7 +377,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             });
         }
 
-        private class M6 : Machine
+        private class M6 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -419,7 +419,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M7 : Machine
+        private class M7 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -460,7 +460,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M8 : Machine
+        private class M8 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -500,7 +500,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             });
         }
 
-        private class M9 : Machine
+        private class M9 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
@@ -542,7 +542,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M10 : Machine
+        private class M10 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]

@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             private bool Test = false;
 
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             private bool Test = false;
 
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M6 : Machine
+        private class M6 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M7 : Machine
+        private class M7 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M8 : Machine
+        private class M8 : StateMachine
         {
             private bool Test = false;
 
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M9 : Machine
+        private class M9 : StateMachine
         {
             private bool Test = false;
 
@@ -306,7 +306,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M10 : Machine
+        private class M10 : StateMachine
         {
             private bool Test = false;
 
@@ -346,7 +346,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M11 : Machine
+        private class M11 : StateMachine
         {
             private bool Test = false;
 
@@ -392,7 +392,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M12 : Machine
+        private class M12 : StateMachine
         {
             private bool Test = false;
 
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M13 : Machine
+        private class M13 : StateMachine
         {
             private bool Test = false;
 
@@ -485,7 +485,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M14 : Machine
+        private class M14 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -522,7 +522,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M15 : Machine
+        private class M15 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -558,7 +558,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M16 : Machine
+        private class M16 : StateMachine
         {
             private bool Test = false;
 
@@ -597,7 +597,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M17 : Machine
+        private class M17 : StateMachine
         {
             private bool Test = false;
 
@@ -641,7 +641,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M18 : Machine
+        private class M18 : StateMachine
         {
             private readonly bool Test = false;
 
@@ -672,7 +672,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M19 : Machine
+        private class M19 : StateMachine
         {
             private int Value;
 
@@ -724,7 +724,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M20 : Machine
+        private class M20 : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(Default), typeof(Active))]

@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         public override void SendEvent(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null)
         {
-            this.SendEvent(target, e, this.GetExecutingMachine<Machine>(), opGroupId, options);
+            this.SendEvent(target, e, this.GetExecutingMachine<StateMachine>(), opGroupId, options);
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
         public override Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            this.SendEventAndExecuteAsync(target, e, this.GetExecutingMachine<Machine>(), opGroupId, options);
+            this.SendEventAndExecuteAsync(target, e, this.GetExecutingMachine<StateMachine>(), opGroupId, options);
 
         /// <summary>
         /// Returns the operation group id of the specified machine. Returns <see cref="Guid.Empty"/>
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 "Trying to access the operation group id of '{0}', which is not the currently executing machine.",
                 currentMachine);
 
-            Machine machine = this.GetMachineFromId<Machine>(currentMachine);
+            StateMachine machine = this.GetMachineFromId<StateMachine>(currentMachine);
             return machine is null ? Guid.Empty : machine.OperationGroupId;
         }
 
@@ -246,15 +246,15 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal MachineId CreateMachine(MachineId mid, Type type, string machineName, Event e = null, Guid opGroupId = default)
         {
-            Machine creator = this.GetExecutingMachine<Machine>();
+            StateMachine creator = this.GetExecutingMachine<StateMachine>();
             return this.CreateMachine(mid, type, machineName, e, creator, opGroupId);
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>.
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal override MachineId CreateMachine(MachineId mid, Type type, string machineName, Event e,
-            Machine creator, Guid opGroupId)
+            StateMachine creator, Guid opGroupId)
         {
             this.AssertCorrectCallerMachine(creator, "CreateMachine");
             if (creator != null)
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.AssertNoPendingTransitionStatement(creator, "create a machine");
             }
 
-            Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
 
             this.BugTrace.AddCreateMachineStep(creator, machine.Id, e is null ? null : new EventInfo(e));
             this.RunMachineEventHandler(machine, e, true, null);
@@ -279,24 +279,24 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, string machineName, Event e = null,
             Guid opGroupId = default)
         {
-            Machine creator = this.GetExecutingMachine<Machine>();
+            StateMachine creator = this.GetExecutingMachine<StateMachine>();
             return this.CreateMachineAndExecuteAsync(mid, type, machineName, e, creator, opGroupId);
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>. The
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
         /// method returns only when the machine is initialized and the <see cref="Event"/>
         /// (if any) is handled.
         /// </summary>
         internal override async Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, string machineName, Event e,
-            Machine creator, Guid opGroupId)
+            StateMachine creator, Guid opGroupId)
         {
             this.AssertCorrectCallerMachine(creator, "CreateMachineAndExecute");
             this.Assert(creator != null,
                 "Only a machine can call 'CreateMachineAndExecute': avoid calling it directly from the 'Test' method; instead call it through a 'harness' machine.");
             this.AssertNoPendingTransitionStatement(creator, "create a machine");
 
-            Machine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateMachine(mid, type, machineName, creator, opGroupId);
 
             this.BugTrace.AddCreateMachineStep(creator, machine.Id, e is null ? null : new EventInfo(e));
             this.RunMachineEventHandler(machine, e, true, creator);
@@ -308,11 +308,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>.
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private Machine CreateMachine(MachineId mid, Type type, string machineName, Machine creator, Guid opGroupId)
+        private StateMachine CreateMachine(MachineId mid, Type type, string machineName, StateMachine creator, Guid opGroupId)
         {
-            this.Assert(type.IsSubclassOf(typeof(Machine)), "Type '{0}' is not a machine.", type.FullName);
+            this.Assert(type.IsSubclassOf(typeof(StateMachine)), "Type '{0}' is not a machine.", type.FullName);
 
             // Using ulong.MaxValue because a 'Create' operation cannot specify
             // the id of its target, because the id does not exist yet.
@@ -340,7 +340,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 opGroupId = creator.OperationGroupId;
             }
 
-            Machine machine = MachineFactory.Create(type);
+            StateMachine machine = StateMachineFactory.Create(type);
             IMachineStateManager stateManager = new SerializedMachineStateManager(this, machine, opGroupId);
             IEventQueue eventQueue = new SerializedMachineEventQueue(stateManager, machine);
             machine.Initialize(this, mid, stateManager, eventQueue);
@@ -368,7 +368,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        internal override void SendEvent(MachineId target, Event e, AsyncMachine sender, Guid opGroupId, SendOptions options)
+        internal override void SendEvent(MachineId target, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
             if (sender != null)
             {
@@ -381,9 +381,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.Assert(e != null, "Cannot send a null event.");
             }
 
-            this.AssertCorrectCallerMachine(sender as Machine, "SendEvent");
+            this.AssertCorrectCallerMachine(sender as StateMachine, "SendEvent");
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out Machine targetMachine);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out StateMachine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunMachineEventHandler(targetMachine, null, false, null);
@@ -394,22 +394,22 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Sends an asynchronous <see cref="Event"/> to a machine. Returns immediately if the target machine was
         /// already running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        internal override async Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, AsyncMachine sender,
+        internal override async Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Actor sender,
             Guid opGroupId, SendOptions options)
         {
-            this.Assert(sender is Machine,
+            this.Assert(sender is StateMachine,
                 "Only a machine can call 'SendEventAndExecute': avoid calling it directly from the 'Test' method; instead call it through a 'harness' machine.");
             this.Assert(target != null, "Machine '{0}' is sending to a null machine.", sender.Id);
             this.Assert(e != null, "Machine '{0}' is sending a null event.", sender.Id);
-            this.AssertCorrectCallerMachine(sender as Machine, "SendEventAndExecute");
+            this.AssertCorrectCallerMachine(sender as StateMachine, "SendEventAndExecute");
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out Machine targetMachine);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out StateMachine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
-                this.RunMachineEventHandler(targetMachine, null, false, sender as Machine);
+                this.RunMachineEventHandler(targetMachine, null, false, sender as StateMachine);
 
                 // Wait until the machine reaches quiescence.
-                await (sender as Machine).Receive(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).MachineId == target);
+                await (sender as StateMachine).Receive(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).MachineId == target);
                 return true;
             }
 
@@ -422,15 +422,15 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Enqueues an event to the machine with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(MachineId target, Event e, AsyncMachine sender, Guid opGroupId,
-            SendOptions options, out Machine targetMachine)
+        private EnqueueStatus EnqueueEvent(MachineId target, Event e, Actor sender, Guid opGroupId,
+            SendOptions options, out StateMachine targetMachine)
         {
             this.Assert(this.CreatedMachineIds.Contains(target),
                 "Cannot send event '{0}' to machine id '{1}' that was never previously bound to a machine of type '{2}'",
                 e.GetType().FullName, target.Value, target.Type);
 
             this.Scheduler.ScheduleNextEnabledOperation();
-            ResetProgramCounter(sender as Machine);
+            ResetProgramCounter(sender as StateMachine);
 
             // The operation group id of this operation is set using the following precedence:
             // (1) To the specified send operation group id, if it is non-empty.
@@ -441,10 +441,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 opGroupId = sender.OperationGroupId;
             }
 
-            targetMachine = this.GetMachineFromId<Machine>(target);
+            targetMachine = this.GetMachineFromId<StateMachine>(target);
             if (targetMachine is null || targetMachine.IsHalted)
             {
-                this.LogWriter.OnSend(target, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
+                this.LogWriter.OnSend(target, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                     e.GetType().FullName, opGroupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to the halted machine '{1}'.", e.GetType().FullName, target);
@@ -452,9 +452,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return EnqueueStatus.Dropped;
             }
 
-            if (sender is Machine)
+            if (sender is StateMachine)
             {
-                this.AssertNoPendingTransitionStatement(sender as Machine, "send an event");
+                this.AssertNoPendingTransitionStatement(sender as StateMachine, "send an event");
             }
 
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetMachine, e, sender, opGroupId, options);
@@ -469,10 +469,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Enqueues an event to the machine with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(Machine machine, Event e, AsyncMachine sender, Guid opGroupId, SendOptions options)
+        private EnqueueStatus EnqueueEvent(StateMachine machine, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
             EventOriginInfo originInfo;
-            if (sender is Machine senderMachine)
+            if (sender is StateMachine senderMachine)
             {
                 originInfo = new EventOriginInfo(sender.Id, senderMachine.GetType().FullName,
                     NameResolver.GetStateNameForLogging(senderMachine.CurrentState));
@@ -491,12 +491,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 SendStep = this.Scheduler.ScheduledSteps
             };
 
-            this.LogWriter.OnSend(machine.Id, sender?.Id, (sender as Machine)?.CurrentStateName ?? string.Empty,
+            this.LogWriter.OnSend(machine.Id, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                 e.GetType().FullName, opGroupId, isTargetHalted: false);
 
             if (sender != null)
             {
-                var stateName = sender is Machine ? (sender as Machine).CurrentStateName : string.Empty;
+                var stateName = sender is StateMachine ? (sender as StateMachine).CurrentStateName : string.Empty;
                 this.BugTrace.AddSendEventStep(sender.Id, stateName, eventInfo, machine.Id);
             }
 
@@ -511,7 +511,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <param name="initialEvent">Event for initializing the machine.</param>
         /// <param name="isFresh">If true, then this is a new machine.</param>
         /// <param name="syncCaller">Caller machine that is blocked for quiscence.</param>
-        private void RunMachineEventHandler(Machine machine, Event initialEvent, bool isFresh, Machine syncCaller)
+        private void RunMachineEventHandler(StateMachine machine, Event initialEvent, bool isFresh, StateMachine syncCaller)
         {
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
 
@@ -538,7 +538,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
                     if (machine.IsHalted)
                     {
-                        this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                        this.MachineMap.TryRemove(machine.Id, out Actor _);
                     }
                     else
                     {
@@ -553,7 +553,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 catch (Exception ex)
                 {
-                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                    this.MachineMap.TryRemove(machine.Id, out Actor _);
 
                     Exception innerException = ex;
                     while (innerException is TargetInvocationException)
@@ -749,7 +749,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     }
 
                     // TODO: properly cleanup controlled tasks.
-                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                    this.MachineMap.TryRemove(machine.Id, out Actor _);
 
                     IO.Debug.WriteLine($"<ScheduleDebug> Completed '{machine.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
@@ -760,7 +760,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 catch (Exception ex)
                 {
                     // TODO: properly cleanup controlled tasks.
-                    this.MachineMap.TryRemove(machine.Id, out AsyncMachine _);
+                    this.MachineMap.TryRemove(machine.Id, out Actor _);
 
                     Exception innerException = ex;
                     while (innerException is TargetInvocationException)
@@ -814,7 +814,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             this.Assert(caller != null,
                 "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-all operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
@@ -856,7 +856,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             this.Assert(caller != null,
                 "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-all operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
@@ -885,7 +885,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             this.Assert(caller != null,
                 "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-any operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
@@ -916,7 +916,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             this.Assert(caller != null,
                 "Task with id '{0}' that is not controlled by the Coyote runtime invoked a when-any operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
@@ -961,7 +961,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             this.Assert(caller != null,
                 "Task with id '{0}' that is not controlled by the Coyote runtime invoked a wait-all operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
@@ -1022,7 +1022,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             this.Assert(caller != null,
                 "Task with id '{0}' that is not controlled by the Coyote runtime invoked a wait-any operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
@@ -1074,7 +1074,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter()
         {
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnGetControlledAwaiter();
             return new ControlledYieldAwaitable.ControlledYieldAwaiter(this, default);
@@ -1112,12 +1112,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             try
             {
-                AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+                Actor caller = this.GetExecutingMachine<Actor>();
                 this.Assert(caller != null,
                     "Task with id '{0}' that is not controlled by the Coyote runtime invoked a yield operation.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
 
-                if (caller is Machine machine)
+                if (caller is StateMachine machine)
                 {
                     this.Assert((machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler,
                         "Machine '{0}' is executing a yield operation inside a handler that does not return a 'ControlledTask'.", caller.Id);
@@ -1145,7 +1145,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner machine.
         /// </summary>
-        internal override IMachineTimer CreateMachineTimer(TimerInfo info, Machine owner)
+        internal override IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner)
         {
             var mid = this.CreateMachineId(typeof(MockMachineTimer));
             this.CreateMachine(mid, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
@@ -1184,9 +1184,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Invokes the specified monitor with the given event.
         /// </summary>
-        internal override void Monitor(Type type, AsyncMachine sender, Event e)
+        internal override void Monitor(Type type, Actor sender, Event e)
         {
-            this.AssertCorrectCallerMachine(sender as Machine, "Monitor");
+            this.AssertCorrectCallerMachine(sender as StateMachine, "Monitor");
             foreach (var m in this.Monitors)
             {
                 if (m.GetType() == type)
@@ -1268,7 +1268,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// already been called. Records that RGP has been called.
         /// </summary>
         [DebuggerHidden]
-        internal void AssertTransitionStatement(Machine machine)
+        internal void AssertTransitionStatement(StateMachine machine)
         {
             var stateManager = machine.StateManager as SerializedMachineStateManager;
             this.Assert(!stateManager.IsInsideOnExit,
@@ -1284,7 +1284,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Asserts that a transition statement (raise, goto or pop) has not already been called.
         /// </summary>
         [DebuggerHidden]
-        private void AssertNoPendingTransitionStatement(Machine machine, string action)
+        private void AssertNoPendingTransitionStatement(StateMachine machine, string action)
         {
             if (!this.Configuration.EnableNoApiCallAfterTransitionStmtAssertion)
             {
@@ -1303,14 +1303,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// the machine that is currently executing.
         /// </summary>
         [DebuggerHidden]
-        private void AssertCorrectCallerMachine(Machine callerMachine, string calledAPI)
+        private void AssertCorrectCallerMachine(StateMachine callerMachine, string calledAPI)
         {
             if (callerMachine is null)
             {
                 return;
             }
 
-            var executingMachine = this.GetExecutingMachine<Machine>();
+            var executingMachine = this.GetExecutingMachine<StateMachine>();
             if (executingMachine is null)
             {
                 return;
@@ -1341,7 +1341,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerHidden]
         private void AssertAwaitingControlledAwaiter(Type awaiterType)
         {
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.GetAsynchronousOperation(caller.Id.Value);
             this.Assert(callerOp.IsAwaiterControlled, "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency (e.g. ControlledTask instead of Task).", Task.CurrentId);
@@ -1379,20 +1379,20 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Returns a nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override bool GetNondeterministicBooleanChoice(AsyncMachine caller, int maxValue)
+        internal override bool GetNondeterministicBooleanChoice(Actor caller, int maxValue)
         {
-            caller = caller ?? this.GetExecutingMachine<Machine>();
-            this.AssertCorrectCallerMachine(caller as Machine, "Random");
-            if (caller is Machine machine)
+            caller = caller ?? this.GetExecutingMachine<StateMachine>();
+            this.AssertCorrectCallerMachine(caller as StateMachine, "Random");
+            if (caller is StateMachine machine)
             {
-                this.AssertNoPendingTransitionStatement(caller as Machine, "invoke 'Random'");
+                this.AssertNoPendingTransitionStatement(caller as StateMachine, "invoke 'Random'");
                 (machine.StateManager as SerializedMachineStateManager).ProgramCounter++;
             }
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
             this.LogWriter.OnRandom(caller?.Id, choice);
 
-            var stateName = caller is Machine ? (caller as Machine).CurrentStateName : string.Empty;
+            var stateName = caller is StateMachine ? (caller as StateMachine).CurrentStateName : string.Empty;
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
 
             return choice;
@@ -1402,20 +1402,20 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Returns a fair nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override bool GetFairNondeterministicBooleanChoice(AsyncMachine caller, string uniqueId)
+        internal override bool GetFairNondeterministicBooleanChoice(Actor caller, string uniqueId)
         {
-            caller = caller ?? this.GetExecutingMachine<Machine>();
-            this.AssertCorrectCallerMachine(caller as Machine, "FairRandom");
-            if (caller is Machine machine)
+            caller = caller ?? this.GetExecutingMachine<StateMachine>();
+            this.AssertCorrectCallerMachine(caller as StateMachine, "FairRandom");
+            if (caller is StateMachine machine)
             {
-                this.AssertNoPendingTransitionStatement(caller as Machine, "invoke 'FairRandom'");
+                this.AssertNoPendingTransitionStatement(caller as StateMachine, "invoke 'FairRandom'");
                 (machine.StateManager as SerializedMachineStateManager).ProgramCounter++;
             }
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(2, uniqueId);
             this.LogWriter.OnRandom(caller?.Id, choice);
 
-            var stateName = caller is Machine ? (caller as Machine).CurrentStateName : string.Empty;
+            var stateName = caller is StateMachine ? (caller as StateMachine).CurrentStateName : string.Empty;
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
 
             return choice;
@@ -1425,19 +1425,19 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Returns a nondeterministic integer, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal override int GetNondeterministicIntegerChoice(AsyncMachine caller, int maxValue)
+        internal override int GetNondeterministicIntegerChoice(Actor caller, int maxValue)
         {
-            caller = caller ?? this.GetExecutingMachine<Machine>();
-            this.AssertCorrectCallerMachine(caller as Machine, "RandomInteger");
-            if (caller is Machine)
+            caller = caller ?? this.GetExecutingMachine<StateMachine>();
+            this.AssertCorrectCallerMachine(caller as StateMachine, "RandomInteger");
+            if (caller is StateMachine)
             {
-                this.AssertNoPendingTransitionStatement(caller as Machine, "invoke 'RandomInteger'");
+                this.AssertNoPendingTransitionStatement(caller as StateMachine, "invoke 'RandomInteger'");
             }
 
             var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
             this.LogWriter.OnRandom(caller?.Id, choice);
 
-            var stateName = caller is Machine ? (caller as Machine).CurrentStateName : string.Empty;
+            var stateName = caller is StateMachine ? (caller as StateMachine).CurrentStateName : string.Empty;
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
 
             return choice;
@@ -1448,7 +1448,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void ExploreContextSwitch()
         {
-            AsyncMachine caller = this.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.GetExecutingMachine<Actor>();
             if (caller != null)
             {
                 this.Scheduler.ScheduleNextEnabledOperation();
@@ -1458,7 +1458,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine entered a state.
         /// </summary>
-        internal override void NotifyEnteredState(Machine machine)
+        internal override void NotifyEnteredState(StateMachine machine)
         {
             string machineState = machine.CurrentStateName;
             this.BugTrace.AddGotoStateStep(machine.Id, machineState);
@@ -1480,7 +1480,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine exited a state.
         /// </summary>
-        internal override void NotifyExitedState(Machine machine)
+        internal override void NotifyExitedState(StateMachine machine)
         {
             this.LogWriter.OnMachineState(machine.Id, machine.CurrentStateName, isEntry: false);
         }
@@ -1497,7 +1497,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
             if (action.ReturnType == typeof(ControlledTask))
@@ -1513,7 +1513,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine completed an action.
         /// </summary>
-        internal override void NotifyCompletedAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyCompletedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
             (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = false;
@@ -1522,7 +1522,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
             if (action.ReturnType == typeof(ControlledTask))
@@ -1538,7 +1538,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine completed invoking an action.
         /// </summary>
-        internal override void NotifyCompletedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyCompletedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
             (machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler = false;
@@ -1547,7 +1547,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsInsideOnExit = true;
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
@@ -1564,7 +1564,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine completed invoking an action.
         /// </summary>
-        internal override void NotifyCompletedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal override void NotifyCompletedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
             (machine.StateManager as SerializedMachineStateManager).IsInsideOnExit = false;
             (machine.StateManager as SerializedMachineStateManager).IsTransitionStatementCalledInCurrentAction = false;
@@ -1584,7 +1584,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyRaisedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
             this.AssertTransitionStatement(machine);
             string machineState = machine.CurrentStateName;
@@ -1606,7 +1606,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine dequeued an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyDequeuedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyDequeuedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
 
@@ -1635,7 +1635,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine invoked pop.
         /// </summary>
-        internal override void NotifyPop(Machine machine)
+        internal override void NotifyPop(StateMachine machine)
         {
             this.AssertCorrectCallerMachine(machine, "Pop");
             this.AssertTransitionStatement(machine);
@@ -1651,7 +1651,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine called Receive.
         /// </summary>
-        internal override void NotifyReceiveCalled(Machine machine)
+        internal override void NotifyReceiveCalled(StateMachine machine)
         {
             this.AssertCorrectCallerMachine(machine, "Receive");
             this.AssertNoPendingTransitionStatement(machine, "invoke 'Receive'");
@@ -1660,7 +1660,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine is handling a raised event.
         /// </summary>
-        internal override void NotifyHandleRaisedEvent(Machine machine, Event e)
+        internal override void NotifyHandleRaisedEvent(StateMachine machine, Event e)
         {
             if (this.Configuration.ReportActivityCoverage)
             {
@@ -1671,7 +1671,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine is waiting for the specified task to complete.
         /// </summary>
-        internal override void NotifyWaitTask(Machine machine, Task task)
+        internal override void NotifyWaitTask(StateMachine machine, Task task)
         {
             this.Assert(task != null, "Machine '{0}' is waiting for a null task to complete.", machine.Id);
             this.Assert(task.IsCompleted || task.IsCanceled || task.IsFaulted,
@@ -1697,7 +1697,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine is waiting to receive an event of one of the specified types.
         /// </summary>
-        internal override void NotifyWaitEvent(Machine machine, IEnumerable<Type> eventTypes)
+        internal override void NotifyWaitEvent(StateMachine machine, IEnumerable<Type> eventTypes)
         {
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
             op.OnWaitEvent(eventTypes);
@@ -1736,7 +1736,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine enqueued an event that it was waiting to receive.
         /// </summary>
-        internal override void NotifyReceivedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyReceivedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
             this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: true);
             this.BugTrace.AddReceivedEventStep(machine.Id, machine.CurrentStateName, eventInfo);
@@ -1754,7 +1754,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Notifies that a machine received an event without waiting because the event
         /// was already in the inbox when the machine invoked the receive statement.
         /// </summary>
-        internal override void NotifyReceivedEventWithoutWaiting(Machine machine, Event e, EventInfo eventInfo)
+        internal override void NotifyReceivedEventWithoutWaiting(StateMachine machine, Event e, EventInfo eventInfo)
         {
             this.LogWriter.OnReceive(machine.Id, machine.CurrentStateName, e.GetType().FullName, wasBlocked: false);
             this.Scheduler.ScheduleNextEnabledOperation();
@@ -1764,7 +1764,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a machine has halted.
         /// </summary>
-        internal override void NotifyHalted(Machine machine)
+        internal override void NotifyHalted(StateMachine machine)
         {
             this.BugTrace.AddHaltStep(machine.Id, null);
         }
@@ -1773,7 +1773,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Notifies that the inbox of the specified machine is about to be
         /// checked to see if the default event handler should fire.
         /// </summary>
-        internal override void NotifyDefaultEventHandlerCheck(Machine machine)
+        internal override void NotifyDefaultEventHandlerCheck(StateMachine machine)
         {
             this.Scheduler.ScheduleNextEnabledOperation();
         }
@@ -1781,7 +1781,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that the default handler of the specified machine has been fired.
         /// </summary>
-        internal override void NotifyDefaultHandlerFired(Machine machine)
+        internal override void NotifyDefaultHandlerFired(StateMachine machine)
         {
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(machine);
@@ -1790,7 +1790,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Reports coverage for the specified received event.
         /// </summary>
-        private void ReportActivityCoverageOfReceivedEvent(Machine machine, EventInfo eventInfo)
+        private void ReportActivityCoverageOfReceivedEvent(StateMachine machine, EventInfo eventInfo)
         {
             string originMachine = eventInfo.OriginInfo.SenderMachineName;
             string originState = eventInfo.OriginInfo.SenderStateName;
@@ -1804,11 +1804,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Reports coverage for the specified monitor event.
         /// </summary>
-        private void ReportActivityCoverageOfMonitorEvent(AsyncMachine sender, Monitor monitor, Event e)
+        private void ReportActivityCoverageOfMonitorEvent(Actor sender, Monitor monitor, Event e)
         {
             string originMachine = sender is null ? "Env" : sender.GetType().FullName;
             string originState = sender is null ? "Env" :
-                (sender is Machine) ? NameResolver.GetStateNameForLogging((sender as Machine).CurrentState) : "Env";
+                (sender is StateMachine) ? NameResolver.GetStateNameForLogging((sender as StateMachine).CurrentState) : "Env";
 
             string edgeLabel = e.GetType().FullName;
             string destMachine = monitor.GetType().FullName;
@@ -1820,7 +1820,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Reports coverage for the specified machine.
         /// </summary>
-        private void ReportActivityCoverageOfMachine(Machine machine)
+        private void ReportActivityCoverageOfMachine(StateMachine machine)
         {
             var machineName = machine.GetType().FullName;
             if (this.CoverageInfo.IsMachineDeclared(machineName))
@@ -1870,7 +1870,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Reports coverage for the specified state transition.
         /// </summary>
-        private void ReportActivityCoverageOfStateTransition(Machine machine, Event e)
+        private void ReportActivityCoverageOfStateTransition(StateMachine machine, Event e)
         {
             string originMachine = machine.GetType().FullName;
             string originState = NameResolver.GetStateNameForLogging(machine.CurrentState);
@@ -1911,7 +1911,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Reports coverage for a pop transition.
         /// </summary>
-        private void ReportActivityCoverageOfPopTransition(Machine machine, Type fromState, Type toState)
+        private void ReportActivityCoverageOfPopTransition(StateMachine machine, Type fromState, Type toState)
         {
             string originMachine = machine.GetType().FullName;
             string originState = NameResolver.GetStateNameForLogging(fromState);
@@ -1955,7 +1955,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Resets the program counter of the specified machine.
         /// </summary>
-        private static void ResetProgramCounter(Machine machine)
+        private static void ResetProgramCounter(StateMachine machine)
         {
             if (machine != null)
             {
@@ -1969,7 +1969,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         [DebuggerStepThrough]
         internal TMachine GetExecutingMachine<TMachine>()
-            where TMachine : AsyncMachine
+            where TMachine : Actor
         {
             if (Task.CurrentId.HasValue &&
                 this.Scheduler.ControlledTaskMap.TryGetValue(Task.CurrentId.Value, out MachineOperation op) &&
@@ -1984,7 +1984,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Gets the id of the currently executing machine.
         /// </summary>
-        internal MachineId GetCurrentMachineId() => this.GetExecutingMachine<AsyncMachine>()?.Id;
+        internal MachineId GetCurrentMachineId() => this.GetExecutingMachine<Actor>()?.Id;
 
         /// <summary>
         /// Gets the asynchronous operation associated with the specified id.
@@ -2015,7 +2015,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
                 foreach (var machine in this.MachineMap.Values.OrderBy(mi => mi.Id.Value))
                 {
-                    if (machine is Machine m)
+                    if (machine is StateMachine m)
                     {
                         hash = (hash * 31) + m.GetCachedState();
                     }

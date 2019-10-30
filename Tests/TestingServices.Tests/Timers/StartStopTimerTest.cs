@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]

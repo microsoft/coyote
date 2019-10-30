@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1a : Machine
+        private class M1a : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1b : Machine
+        private class M1b : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1c : Machine
+        private class M1c : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1d : Machine
+        private class M1d : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3a : Machine
+        private class M3a : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3b : Machine
+        private class M3b : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -317,7 +317,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M6 : Machine
+        private class M6 : StateMachine
         {
             [Start]
             private class Init : MachineState

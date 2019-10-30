@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         public override ControlledTaskAwaiter GetAwaiter()
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnGetControlledAwaiter();
             return new ControlledTaskAwaiter(this, this.AwaiterTask);
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         internal override void GetResult(TaskAwaiter awaiter)
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTask(this.AwaiterTask);
             awaiter.GetResult();
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         public override ConfiguredControlledTaskAwaitable ConfigureAwait(bool continueOnCapturedContext)
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnGetControlledAwaiter();
             return new ConfiguredControlledTaskAwaitable(this, this.AwaiterTask, continueOnCapturedContext);
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         internal override void GetResult(ConfiguredTaskAwaitable.ConfiguredTaskAwaiter awaiter)
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             IO.Debug.WriteLine("<ControlledTask> Machine '{0}' is waiting task '{1}' to complete from task '{2}'.",
                 caller.Id, this.Id, Task.CurrentId);
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
@@ -130,12 +130,12 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         {
             try
             {
-                AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+                Actor caller = this.Runtime.GetExecutingMachine<Actor>();
                 this.Runtime.Assert(caller != null,
                     "Task with id '{0}' that is not controlled by the Coyote runtime is executing controlled task '{1}'.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", this.Id);
 
-                if (caller is Machine machine)
+                if (caller is StateMachine machine)
                 {
                     this.Runtime.Assert((machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler,
                         "Machine '{0}' is executing controlled task '{1}' inside a handler that does not return a 'ControlledTask'.",
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         public override ControlledTaskAwaiter<TResult> GetAwaiter()
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnGetControlledAwaiter();
             return new ControlledTaskAwaiter<TResult>(this, this.AwaiterTask);
@@ -210,7 +210,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         internal override TResult GetResult(TaskAwaiter<TResult> awaiter)
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnWaitTask(this.AwaiterTask);
             return awaiter.GetResult();
@@ -239,7 +239,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         public override ConfiguredControlledTaskAwaitable<TResult> ConfigureAwait(bool continueOnCapturedContext)
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
             callerOp.OnGetControlledAwaiter();
             return new ConfiguredControlledTaskAwaitable<TResult>(this, this.AwaiterTask, continueOnCapturedContext);
@@ -251,7 +251,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         [DebuggerHidden]
         internal override TResult GetResult(ConfiguredTaskAwaitable<TResult>.ConfiguredTaskAwaiter awaiter)
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             IO.Debug.WriteLine("<ControlledTask> Machine '{0}' is waiting task '{1}' with result type '{2}' to complete from task '{3}'.",
                 caller.Id, this.Id, typeof(TResult), Task.CurrentId);
             MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
@@ -281,12 +281,12 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         {
             try
             {
-                AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+                Actor caller = this.Runtime.GetExecutingMachine<Actor>();
                 this.Runtime.Assert(caller != null,
                     "Task with id '{0}' that is not controlled by the Coyote runtime is executing controlled task '{1}'.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", this.Id);
 
-                if (caller is Machine machine)
+                if (caller is StateMachine machine)
                 {
                     this.Runtime.Assert((machine.StateManager as SerializedMachineStateManager).IsInsideControlledTaskHandler,
                         "Machine '{0}' is executing controlled task '{1}' inside a handler that does not return a 'ControlledTask'.",

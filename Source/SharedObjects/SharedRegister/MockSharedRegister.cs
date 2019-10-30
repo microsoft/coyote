@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public T Update(Func<T, T> func)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.UpdateEvent(func, currentMachine.Id));
             var e = currentMachine.Receive(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
             return e.Value;
@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public T GetValue()
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.GetEvent(currentMachine.Id));
             var e = currentMachine.Receive(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
             return e.Value;

@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class T1 : Machine
+        private class T1 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class T2 : Machine
+        private class T2 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
             private int Counter;

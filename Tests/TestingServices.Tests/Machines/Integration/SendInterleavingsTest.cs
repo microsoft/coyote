@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Receiver : Machine
+        private class Receiver : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Sender1 : Machine
+        private class Sender1 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Run))]
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Sender2 : Machine
+        private class Sender2 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Run))]

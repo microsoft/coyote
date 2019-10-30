@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
 {
     /// <summary>
     /// A task scheduler that intercepts (non-controlled) tasks during testing.
-    /// This is currently used only by <see cref="Machine"/> handlers.
+    /// This is currently used only by <see cref="StateMachine"/> handlers.
     ///
     /// TODO: figure out if this is still needed.
     /// </summary>

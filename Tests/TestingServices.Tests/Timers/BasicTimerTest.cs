@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class T1 : Machine
+        private class T1 : StateMachine
         {
             private int Count;
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
 
-        private class T2 : Machine
+        private class T2 : StateMachine
         {
             private TimerInfo Timer;
             private int Count;
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             configuration: Configuration.Create().WithNumberOfIterations(200));
         }
 
-        private class T3 : Machine
+        private class T3 : StateMachine
         {
             private TimerInfo PingTimer;
             private TimerInfo PongTimer;
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
 
-        private class T4 : Machine
+        private class T4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class T5 : Machine
+        private class T5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class T6 : Machine
+        private class T6 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class T7 : Machine
+        private class T7 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -255,7 +255,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class T8 : Machine
+        private class T8 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

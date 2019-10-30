@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [IgnoreEvents(typeof(MustHandleEvent))]
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [DeferEvents(typeof(MustHandleEvent))]
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [DeferEvents(typeof(MustHandleEvent), typeof(Halt))]

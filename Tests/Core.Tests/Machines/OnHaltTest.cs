@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M2a : Machine
+        private class M2a : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M2b : Machine
+        private class M2b : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M2c : Machine
+        private class M2c : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class Dummy : Machine
+        private class Dummy : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             private TaskCompletionSource<bool> tcs;
 

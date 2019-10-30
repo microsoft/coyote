@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             private bool Test = false;
             private MachineId TargetId;
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             private MachineId TargetId;
             private int Count;
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(E4), typeof(Active))]
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             private MachineId TargetId;
             private int Count;
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M6 : Machine
+        private class M6 : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(E4), typeof(Active))]
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M7 : Machine
+        private class M7 : StateMachine
         {
             private MachineId TargetId;
 
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M8 : Machine
+        private class M8 : StateMachine
         {
             private int Count2 = 0;
 
@@ -360,7 +360,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M9 : Machine
+        private class M9 : StateMachine
         {
             private MachineId TargetId;
 
@@ -394,7 +394,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M10 : Machine
+        private class M10 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]

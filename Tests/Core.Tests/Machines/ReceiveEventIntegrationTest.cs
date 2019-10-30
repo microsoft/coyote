@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

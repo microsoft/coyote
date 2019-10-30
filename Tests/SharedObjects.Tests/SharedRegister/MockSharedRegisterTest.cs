@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class N1 : Machine
+        private class N1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class N2 : Machine
+        private class N2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

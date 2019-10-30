@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class ClusterManager : Machine
+        private class ClusterManager : StateMachine
         {
             internal class CreateNewNode : Event
             {
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class ChordNode : Machine
+        private class ChordNode : StateMachine
         {
             internal class Config : Event
             {
@@ -704,7 +704,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             internal class Config : Event
             {

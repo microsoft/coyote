@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
     /// A mock timer that replaces <see cref="MachineTimer"/> during testing.
     /// It is implemented as a machine.
     /// </summary>
-    internal class MockMachineTimer : Machine, IMachineTimer
+    internal class MockMachineTimer : StateMachine, IMachineTimer
     {
         /// <summary>
         /// Stores information about this timer.
@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
         /// <summary>
         /// The machine that owns this timer.
         /// </summary>
-        private Machine Owner;
+        private StateMachine Owner;
 
         /// <summary>
         /// The timeout event.

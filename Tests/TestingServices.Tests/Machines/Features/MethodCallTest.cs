@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M : Machine
+        private class M : StateMachine
         {
             private int X;
 

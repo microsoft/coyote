@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Environment : Machine
+        private class Environment : StateMachine
         {
             private Dictionary<int, MachineId> LockMachines;
 
@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Lock : Machine
+        private class Lock : StateMachine
         {
             public class TryLock : Event
             {
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Philosopher : Machine
+        private class Philosopher : StateMachine
         {
             public class Config : Event
             {

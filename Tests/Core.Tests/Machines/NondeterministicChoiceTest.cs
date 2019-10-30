@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             private TaskCompletionSource<bool> tcs;
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             private TaskCompletionSource<bool> tcs;
 

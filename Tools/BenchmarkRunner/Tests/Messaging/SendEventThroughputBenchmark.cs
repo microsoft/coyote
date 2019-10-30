@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
         {
         }
 
-        private class Producer : Machine
+        private class Producer : StateMachine
         {
             private TaskCompletionSource<bool> TcsSetup;
             private TaskCompletionSource<bool> TcsExperiment;
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             }
         }
 
-        private class Consumer : Machine
+        private class Consumer : StateMachine
         {
             private MachineId Producer;
             private long NumMessages;

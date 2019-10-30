@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Server : Machine
+        private class Server : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

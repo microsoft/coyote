@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Machines
     /// Implements an asynchronous communicating state machine. Inherit from this class
     /// to declare states, state transitions and event handlers.
     /// </summary>
-    public abstract class Machine : AsyncMachine
+    public abstract class StateMachine : Actor
     {
         /// <summary>
         /// Map from machine types to a set of all possible states types.
@@ -177,9 +177,9 @@ namespace Microsoft.Coyote.Machines
         protected virtual int HashedState => 0;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Machine"/> class.
+        /// Initializes a new instance of the <see cref="StateMachine"/> class.
         /// </summary>
-        protected Machine()
+        protected StateMachine()
         {
             this.StateStack = new Stack<MachineState>();
             this.ActionHandlerStack = new Stack<Dictionary<Type, EventActionHandler>>();
@@ -1290,7 +1290,7 @@ namespace Microsoft.Coyote.Machines
                 if (StateTypeMap.TryAdd(machineType, new HashSet<Type>()))
                 {
                     Type baseType = machineType;
-                    while (baseType != typeof(Machine))
+                    while (baseType != typeof(StateMachine))
                     {
                         foreach (var s in baseType.GetNestedTypes(BindingFlags.Instance |
                             BindingFlags.NonPublic | BindingFlags.Public |
@@ -1512,7 +1512,7 @@ namespace Microsoft.Coyote.Machines
                     Type.DefaultBinder, Array.Empty<Type>(), null);
                 machineType = machineType.BaseType;
             }
-            while (method is null && machineType != typeof(Machine));
+            while (method is null && machineType != typeof(StateMachine));
 
             this.Assert(method != null, "Cannot detect action declaration '{0}' in machine '{1}'.", actionName, this.GetType().Name);
             this.Assert(method.GetParameters().Length is 0, "Action '{0}' in machine '{1}' must have 0 formal parameters.",

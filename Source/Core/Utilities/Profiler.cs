@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Utilities
     /// <summary>
     /// The Coyote profiler.
     /// </summary>
-    public sealed class Profiler
+    internal sealed class Profiler
     {
         private Stopwatch StopWatch = null;
 

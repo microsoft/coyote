@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.Utilities
     /// <summary>
     /// Reports errors and warnings to the user.
     /// </summary>
-    public sealed class ErrorReporter
+    internal sealed class ErrorReporter
     {
         /// <summary>
         /// Configuration.

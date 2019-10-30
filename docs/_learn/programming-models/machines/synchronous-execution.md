@@ -10,8 +10,8 @@ permalink: /learn/programming-models/machines/synchronous-execution
 Coyote offers the following APIs (and overloads) for synchronous execution.
 
 ```c#
-Task<MachineId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
-Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null);
+Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
+Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
 ```
 
 Both of these are `async` methods and must be `awaited` by the caller. The method
@@ -64,8 +64,8 @@ state machines `M1` and `M2`. The state machine `M` can be a simple wrapper. On 
 creates the two sub-state machines as follows.
 
 ```c#
-MachineId m1 = this.CreateMachineAnsExecuteAsync(typeof(M1), ...);
-MachineId m2 = this.CreateMachineAnsExecuteAsync(typeof(M2), ...);
+ActorId m1 = this.CreateMachineAnsExecuteAsync(typeof(M1), ...);
+ActorId m2 = this.CreateMachineAnsExecuteAsync(typeof(M2), ...);
 ```
 
 When `M` receives an event, it will choose to run the appropriate state machine as follows.

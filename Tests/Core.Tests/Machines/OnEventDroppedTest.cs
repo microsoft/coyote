@@ -18,14 +18,14 @@ namespace Microsoft.Coyote.Core.Tests
 
         private class E : Event
         {
-            public MachineId Id;
+            public ActorId Id;
             public TaskCompletionSource<bool> Tcs;
 
             public E()
             {
             }
 
-            public E(MachineId id)
+            public E(ActorId id)
             {
                 this.Id = id;
             }

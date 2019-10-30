@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Core.Tests
 {
-    public class CreateMachineIdFromNameTest : BaseTest
+    public class CreateActorIdFromNameTest : BaseTest
     {
-        public CreateMachineIdFromNameTest(ITestOutputHelper output)
+        public CreateActorIdFromNameTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var m1 = r.CreateMachine(typeof(M));
-                var m2 = r.CreateMachineIdFromName(typeof(M), "M");
+                var m2 = r.CreateActorIdFromName(typeof(M), "M");
                 r.Assert(!m1.Equals(m2));
                 r.CreateMachine(m2, typeof(M), new Conf(tcs));
 
@@ -83,8 +83,8 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(false);
                 };
 
-                var m1 = r.CreateMachineIdFromName(typeof(M), "M1");
-                var m2 = r.CreateMachineIdFromName(typeof(M), "M2");
+                var m1 = r.CreateActorIdFromName(typeof(M), "M1");
+                var m2 = r.CreateActorIdFromName(typeof(M), "M2");
                 r.Assert(!m1.Equals(m2));
                 r.CreateMachine(m1, typeof(M));
                 r.CreateMachine(m2, typeof(M), new Conf(tcs));
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Core.Tests
 
                 try
                 {
-                    var m3 = r.CreateMachineIdFromName(typeof(M3), "M3");
+                    var m3 = r.CreateActorIdFromName(typeof(M3), "M3");
                     r.CreateMachine(m3, typeof(M2));
                 }
                 catch (Exception)
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Core.Tests
 
                 try
                 {
-                    var m1 = r.CreateMachineIdFromName(typeof(M2), "M2");
+                    var m1 = r.CreateActorIdFromName(typeof(M2), "M2");
                     r.CreateMachine(m1, typeof(M2));
                     r.CreateMachine(m1, typeof(M2));
                 }
@@ -171,11 +171,11 @@ namespace Microsoft.Coyote.Core.Tests
 
         private class E2 : Event
         {
-            public MachineId Mid;
+            public ActorId Mid;
 
-            public E2(MachineId mid)
+            public E2(ActorId id)
             {
-                this.Mid = mid;
+                this.Mid = id;
             }
         }
 
@@ -198,8 +198,8 @@ namespace Microsoft.Coyote.Core.Tests
         {
             this.Run(r =>
             {
-                var m1 = r.CreateMachineIdFromName(typeof(M4), "M4");
-                var m2 = r.CreateMachineIdFromName(typeof(M4), "M4");
+                var m1 = r.CreateActorIdFromName(typeof(M4), "M4");
+                var m2 = r.CreateActorIdFromName(typeof(M4), "M4");
                 Assert.True(m1.Equals(m2));
             });
         }
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                var m = this.Runtime.CreateMachineIdFromName(typeof(M4), "M4");
+                var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.CreateMachine(m, typeof(M4), "friendly");
             }
         }
@@ -251,7 +251,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 await this.Runtime.CreateMachineAndExecuteAsync(typeof(M6));
-                var m = this.Runtime.CreateMachineIdFromName(typeof(M4), "M4");
+                var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, this.ReceivedEvent);
             }
         }

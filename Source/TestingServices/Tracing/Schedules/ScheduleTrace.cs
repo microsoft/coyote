@@ -80,9 +80,9 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
         /// <summary>
         /// Adds a scheduling choice.
         /// </summary>
-        internal void AddSchedulingChoice(ulong scheduledMachineId)
+        internal void AddSchedulingChoice(ulong scheduledActorId)
         {
-            var scheduleStep = ScheduleStep.CreateSchedulingChoice(this.Count, scheduledMachineId);
+            var scheduleStep = ScheduleStep.CreateSchedulingChoice(this.Count, scheduledActorId);
             this.Push(scheduleStep);
         }
 

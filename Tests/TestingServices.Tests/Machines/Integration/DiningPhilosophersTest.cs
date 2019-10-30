@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Environment : StateMachine
         {
-            private Dictionary<int, MachineId> LockMachines;
+            private Dictionary<int, ActorId> LockMachines;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.LockMachines = new Dictionary<int, MachineId>();
+                this.LockMachines = new Dictionary<int, ActorId>();
 
                 int n = 3;
                 for (int i = 0; i < n; i++)
@@ -52,9 +52,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class TryLock : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public TryLock(MachineId target)
+                public TryLock(ActorId target)
                 {
                     this.Target = target;
                 }
@@ -118,10 +118,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class Config : Event
             {
-                public MachineId Left;
-                public MachineId Right;
+                public ActorId Left;
+                public ActorId Right;
 
-                public Config(MachineId left, MachineId right)
+                public Config(ActorId left, ActorId right)
                 {
                     this.Left = left;
                     this.Right = right;
@@ -132,8 +132,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId left;
-            private MachineId right;
+            private ActorId left;
+            private ActorId right;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]

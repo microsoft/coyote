@@ -13,10 +13,10 @@ namespace Microsoft.Coyote.Runtime
     internal class EventOriginInfo
     {
         /// <summary>
-        /// The sender machine id.
+        /// The sender actor id.
         /// </summary>
         [DataMember]
-        internal MachineId SenderMachineId { get; private set; }
+        internal ActorId SenderActorId { get; private set; }
 
         /// <summary>
         /// The sender machine name.
@@ -33,9 +33,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="EventOriginInfo"/> class.
         /// </summary>
-        internal EventOriginInfo(MachineId senderMachineId, string senderMachineName, string senderStateName)
+        internal EventOriginInfo(ActorId senderActorId, string senderMachineName, string senderStateName)
         {
-            this.SenderMachineId = senderMachineId;
+            this.SenderActorId = senderActorId;
             this.SenderMachineName = senderMachineName;
             this.SenderStateName = senderStateName;
         }

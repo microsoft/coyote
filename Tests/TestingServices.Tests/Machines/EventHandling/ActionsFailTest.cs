@@ -17,9 +17,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Config : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public Config(MachineId id)
+            public Config(ActorId id)
             {
                 this.Id = id;
             }
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M1A : StateMachine
         {
-            private MachineId GhostMachine;
+            private ActorId GhostMachine;
             private bool Test = false;
 
             [Start]
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M1B : StateMachine
         {
-            private MachineId RealMachine;
+            private ActorId RealMachine;
 
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M2A : StateMachine
         {
-            private MachineId GhostMachine;
+            private ActorId GhostMachine;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M2B : StateMachine
         {
-            private MachineId RealMachine;
+            private ActorId RealMachine;
 
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M3A : StateMachine
         {
-            private MachineId GhostMachine;
+            private ActorId GhostMachine;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M3B : StateMachine
         {
-            private MachineId RealMachine;
+            private ActorId RealMachine;
 
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]

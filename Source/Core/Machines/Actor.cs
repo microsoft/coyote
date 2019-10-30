@@ -25,9 +25,9 @@ namespace Microsoft.Coyote.Machines
         internal CoyoteRuntime Runtime { get; private set; }
 
         /// <summary>
-        /// The unique machine id.
+        /// The unique actor id.
         /// </summary>
-        protected internal MachineId Id { get; private set; }
+        protected internal ActorId Id { get; private set; }
 
         /// <summary>
         /// Id used to identify subsequent operations performed by this machine.
@@ -42,10 +42,10 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes this machine.
         /// </summary>
-        internal void Initialize(CoyoteRuntime runtime, MachineId mid)
+        internal void Initialize(CoyoteRuntime runtime, ActorId id)
         {
             this.Runtime = runtime;
-            this.Id = mid;
+            this.Id = id;
         }
 
         /// <summary>

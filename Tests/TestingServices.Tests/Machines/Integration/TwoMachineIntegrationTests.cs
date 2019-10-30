@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class E4 : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public E4(MachineId id)
+            public E4(ActorId id)
             {
                 this.Id = id;
             }
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M1 : StateMachine
         {
             private bool Test = false;
-            private MachineId TargetId;
+            private ActorId TargetId;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M3 : StateMachine
         {
-            private MachineId TargetId;
+            private ActorId TargetId;
             private int Count;
 
             [Start]
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M5 : StateMachine
         {
-            private MachineId TargetId;
+            private ActorId TargetId;
             private int Count;
 
             [Start]
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M7 : StateMachine
         {
-            private MachineId TargetId;
+            private ActorId TargetId;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -362,7 +362,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M9 : StateMachine
         {
-            private MachineId TargetId;
+            private ActorId TargetId;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]

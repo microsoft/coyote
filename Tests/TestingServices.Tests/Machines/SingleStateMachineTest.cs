@@ -19,15 +19,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class E : Event
         {
             public int Counter;
-            public MachineId Id;
+            public ActorId Id;
 
-            public E(MachineId id)
+            public E(ActorId id)
             {
                 this.Counter = 0;
                 this.Id = id;
             }
 
-            public E(int c, MachineId id)
+            public E(int c, ActorId id)
             {
                 this.Counter = c;
                 this.Id = id;
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M : SingleStateMachine
         {
             private int count;
-            private MachineId sender;
+            private ActorId sender;
 
             protected override Task InitOnEntry(Event e)
             {

@@ -7,9 +7,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
 {
     internal class E : Event
     {
-        public MachineId Id;
+        public ActorId Id;
 
-        public E(MachineId id)
+        public E(ActorId id)
         {
             this.Id = id;
         }
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
 
         private void Act()
         {
-            MachineId m = (this.ReceivedEvent as E).Id;
+            ActorId m = (this.ReceivedEvent as E).Id;
             this.Send(m, new E(this.Id));
         }
     }

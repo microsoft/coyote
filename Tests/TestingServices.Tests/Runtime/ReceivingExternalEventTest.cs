@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Engine
         {
-            public static void Send(IMachineRuntime runtime, MachineId target)
+            public static void Send(IMachineRuntime runtime, ActorId target)
             {
                 runtime.SendEvent(target, new E(2));
             }

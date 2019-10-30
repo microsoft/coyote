@@ -29,9 +29,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class NotifyNode : Event
             {
-                public MachineId Node;
+                public ActorId Node;
 
-                public NotifyNode(MachineId node)
+                public NotifyNode(ActorId node)
                     : base()
                 {
                     this.Node = node;
@@ -50,15 +50,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId NodeManager;
+            private ActorId NodeManager;
             private int NumberOfReplicas;
 
-            private List<MachineId> AliveNodes;
+            private List<ActorId> AliveNodes;
             private int NumberOfFaults;
 
-            private MachineId Client;
+            private ActorId Client;
 
-            private MachineId FailureTimer;
+            private ActorId FailureTimer;
 
             [Start]
             [OnEntry(nameof(EntryOnInit))]
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.NumberOfReplicas = 3;
                 this.NumberOfFaults = 1;
-                this.AliveNodes = new List<MachineId>();
+                this.AliveNodes = new List<ActorId>();
 
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.ConfigureEvent(this.NumberOfReplicas));
 
@@ -141,10 +141,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class ConfigureEvent : Event
             {
-                public MachineId Environment;
+                public ActorId Environment;
                 public int NumberOfReplicas;
 
-                public ConfigureEvent(MachineId env, int numOfReplicas)
+                public ConfigureEvent(ActorId env, int numOfReplicas)
                     : base()
                 {
                     this.Environment = env;
@@ -154,9 +154,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class NotifyFailure : Event
             {
-                public MachineId Node;
+                public ActorId Node;
 
-                public NotifyFailure(MachineId node)
+                public NotifyFailure(ActorId node)
                     : base()
                 {
                     this.Node = node;
@@ -171,13 +171,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Environment;
-            private List<MachineId> StorageNodes;
+            private ActorId Environment;
+            private List<ActorId> StorageNodes;
             private int NumberOfReplicas;
             private Dictionary<int, bool> StorageNodeMap;
             private Dictionary<int, int> DataMap;
-            private MachineId RepairTimer;
-            private MachineId Client;
+            private ActorId RepairTimer;
+            private ActorId Client;
 
             [Start]
             [OnEntry(nameof(EntryOnInit))]
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryOnInit()
             {
-                this.StorageNodes = new List<MachineId>();
+                this.StorageNodes = new List<ActorId>();
                 this.StorageNodeMap = new Dictionary<int, bool>();
                 this.DataMap = new Dictionary<int, int>();
 
@@ -303,11 +303,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class ConfigureEvent : Event
             {
-                public MachineId Environment;
-                public MachineId NodeManager;
+                public ActorId Environment;
+                public ActorId NodeManager;
                 public int Id;
 
-                public ConfigureEvent(MachineId env, MachineId manager, int id)
+                public ConfigureEvent(ActorId env, ActorId manager, int id)
                     : base()
                 {
                     this.Environment = env;
@@ -359,11 +359,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Environment;
-            private MachineId NodeManager;
+            private ActorId Environment;
+            private ActorId NodeManager;
             private int NodeId;
             private int Data;
-            private MachineId SyncTimer;
+            private ActorId SyncTimer;
 
             [Start]
             [OnEntry(nameof(EntryOnInit))]
@@ -432,9 +432,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class ConfigureEvent : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ConfigureEvent(MachineId id)
+                public ConfigureEvent(ActorId id)
                     : base()
                 {
                     this.Target = id;
@@ -457,7 +457,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Target;
+            private ActorId Target;
 
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
@@ -506,9 +506,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class ConfigureEvent : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ConfigureEvent(MachineId id)
+                public ConfigureEvent(ActorId id)
                     : base()
                 {
                     this.Target = id;
@@ -531,7 +531,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Target;
+            private ActorId Target;
 
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
@@ -580,9 +580,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class ConfigureEvent : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ConfigureEvent(MachineId id)
+                public ConfigureEvent(ActorId id)
                     : base()
                 {
                     this.Target = id;
@@ -605,7 +605,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Target;
+            private ActorId Target;
 
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
@@ -654,9 +654,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class ConfigureEvent : Event
             {
-                public MachineId NodeManager;
+                public ActorId NodeManager;
 
-                public ConfigureEvent(MachineId manager)
+                public ConfigureEvent(ActorId manager)
                     : base()
                 {
                     this.NodeManager = manager;
@@ -665,10 +665,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class Request : Event
             {
-                public MachineId Client;
+                public ActorId Client;
                 public int Command;
 
-                public Request(MachineId client, int cmd)
+                public Request(ActorId client, int cmd)
                     : base()
                 {
                     this.Client = client;
@@ -680,7 +680,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId NodeManager;
+            private ActorId NodeManager;
 
             private int Counter;
 

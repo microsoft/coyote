@@ -35,8 +35,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                MachineId m = r.CreateMachine(typeof(M));
-                MachineId n = r.CreateMachine(typeof(N));
+                ActorId m = r.CreateMachine(typeof(M));
+                ActorId n = r.CreateMachine(typeof(N));
                 r.Assert(m != null && m != null, "Machine ids are null.");
             });
         }

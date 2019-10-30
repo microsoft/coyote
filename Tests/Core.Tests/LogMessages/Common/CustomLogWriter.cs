@@ -9,17 +9,17 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 {
     internal class CustomLogWriter : RuntimeLogWriter
     {
-        public override void OnEnqueue(MachineId machineId, string eventName)
+        public override void OnEnqueue(ActorId actorId, string eventName)
         {
         }
 
-        public override void OnSend(MachineId targetMachineId, MachineId senderId, string senderStateName, string eventName,
+        public override void OnSend(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
             Guid opGroupId, bool isTargetHalted)
         {
         }
 
-        protected override string FormatOnCreateMachineLogMessage(MachineId machineId, MachineId creator) => $"<CreateLog>.";
+        protected override string FormatOnCreateMachineLogMessage(ActorId actorId, ActorId creator) => $"<CreateLog>.";
 
-        protected override string FormatOnMachineStateLogMessage(MachineId machineId, string stateName, bool isEntry) => $"<StateLog>.";
+        protected override string FormatOnMachineStateLogMessage(ActorId actorId, string stateName, bool isEntry) => $"<StateLog>.";
     }
 }

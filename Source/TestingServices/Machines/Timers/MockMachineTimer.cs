@@ -107,8 +107,8 @@ namespace Microsoft.Coyote.TestingServices.Timers
         public override string ToString() => this.Id.Name;
 
         /// <summary>
-        /// Indicates whether the specified <see cref="MachineId"/> is equal
-        /// to the current <see cref="MachineId"/>.
+        /// Indicates whether the specified <see cref="ActorId"/> is equal
+        /// to the current <see cref="ActorId"/>.
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>true if the current object is equal to the other parameter; otherwise, false.</returns>

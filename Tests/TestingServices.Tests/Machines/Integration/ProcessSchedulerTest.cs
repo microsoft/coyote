@@ -49,18 +49,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class Configure : Event
             {
-                public MachineId LKMachineId;
-                public MachineId RLockMachineId;
-                public MachineId RWantMachineId;
-                public MachineId NodeMachineId;
+                public ActorId LKActorId;
+                public ActorId RLockActorId;
+                public ActorId RWantActorId;
+                public ActorId NodeActorId;
 
-                public Configure(MachineId lkMachineId, MachineId rLockMachineId,
-                    MachineId rWantMachineId, MachineId nodeMachineId)
+                public Configure(ActorId lkActorId, ActorId rLockActorId,
+                    ActorId rWantActorId, ActorId nodeActorId)
                 {
-                    this.LKMachineId = lkMachineId;
-                    this.RLockMachineId = rLockMachineId;
-                    this.RWantMachineId = rWantMachineId;
-                    this.NodeMachineId = nodeMachineId;
+                    this.LKActorId = lkActorId;
+                    this.RLockActorId = rLockActorId;
+                    this.RWantActorId = rWantActorId;
+                    this.NodeActorId = nodeActorId;
                 }
             }
 
@@ -68,10 +68,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId LKMachineId;
-            private MachineId RLockMachineId;
-            private MachineId RWantMachineId;
-            public MachineId NodeMachineId;
+            private ActorId LKActorId;
+            private ActorId RLockActorId;
+            private ActorId RWantActorId;
+            public ActorId NodeActorId;
 
             [Start]
             [OnEntry(nameof(OnInitialize))]
@@ -83,32 +83,32 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitialize()
             {
                 var e = this.ReceivedEvent as Configure;
-                this.LKMachineId = e.LKMachineId;
-                this.RLockMachineId = e.RLockMachineId;
-                this.RWantMachineId = e.RWantMachineId;
-                this.NodeMachineId = e.NodeMachineId;
+                this.LKActorId = e.LKActorId;
+                this.RLockActorId = e.RLockActorId;
+                this.RWantActorId = e.RWantActorId;
+                this.NodeActorId = e.NodeActorId;
                 this.Raise(new Wakeup());
             }
 
             private async Task OnWakeup()
             {
-                this.Send(this.RLockMachineId, new RLockMachine.SetReq(this.Id, false));
+                this.Send(this.RLockActorId, new RLockMachine.SetReq(this.Id, false));
                 await this.Receive(typeof(RLockMachine.SetResp));
-                this.Send(this.LKMachineId, new LkMachine.Waiting(this.Id, false));
+                this.Send(this.LKActorId, new LkMachine.Waiting(this.Id, false));
                 await this.Receive(typeof(LkMachine.WaitResp));
-                this.Send(this.RWantMachineId, new RWantMachine.ValueReq(this.Id));
+                this.Send(this.RWantActorId, new RWantMachine.ValueReq(this.Id));
                 var receivedEvent = await this.Receive(typeof(RWantMachine.ValueResp));
 
                 if ((receivedEvent as RWantMachine.ValueResp).Value == true)
                 {
-                    this.Send(this.RWantMachineId, new RWantMachine.SetReq(this.Id, false));
+                    this.Send(this.RWantActorId, new RWantMachine.SetReq(this.Id, false));
                     await this.Receive(typeof(RWantMachine.SetResp));
 
-                    this.Send(this.NodeMachineId, new Node.ValueReq(this.Id));
+                    this.Send(this.NodeActorId, new Node.ValueReq(this.Id));
                     var receivedEvent1 = await this.Receive(typeof(Node.ValueResp));
                     if ((receivedEvent1 as Node.ValueResp).Value == MType.WakeUp)
                     {
-                        this.Send(this.NodeMachineId, new Node.SetReq(this.Id, MType.Run));
+                        this.Send(this.NodeActorId, new Node.SetReq(this.Id, MType.Run));
                         await this.Receive(typeof(Node.SetResp));
                     }
                 }
@@ -121,18 +121,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class Configure : Event
             {
-                public MachineId LKMachineId;
-                public MachineId RLockMachineId;
-                public MachineId RWantMachineId;
-                public MachineId NodeMachineId;
+                public ActorId LKActorId;
+                public ActorId RLockActorId;
+                public ActorId RWantActorId;
+                public ActorId NodeActorId;
 
-                public Configure(MachineId lkMachineId, MachineId rLockMachineId,
-                    MachineId rWantMachineId, MachineId nodeMachineId)
+                public Configure(ActorId lkActorId, ActorId rLockActorId,
+                    ActorId rWantActorId, ActorId nodeActorId)
                 {
-                    this.LKMachineId = lkMachineId;
-                    this.RLockMachineId = rLockMachineId;
-                    this.RWantMachineId = rWantMachineId;
-                    this.NodeMachineId = nodeMachineId;
+                    this.LKActorId = lkActorId;
+                    this.RLockActorId = rLockActorId;
+                    this.RWantActorId = rWantActorId;
+                    this.NodeActorId = nodeActorId;
                 }
             }
 
@@ -144,10 +144,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId LKMachineId;
-            private MachineId RLockMachineId;
-            private MachineId RWantMachineId;
-            public MachineId NodeMachineId;
+            private ActorId LKActorId;
+            private ActorId RLockActorId;
+            private ActorId RWantActorId;
+            public ActorId NodeActorId;
 
             [Start]
             [OnEntry(nameof(OnInitialize))]
@@ -160,33 +160,33 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitialize()
             {
                 var e = this.ReceivedEvent as Configure;
-                this.LKMachineId = e.LKMachineId;
-                this.RLockMachineId = e.RLockMachineId;
-                this.RWantMachineId = e.RWantMachineId;
-                this.NodeMachineId = e.NodeMachineId;
+                this.LKActorId = e.LKActorId;
+                this.RLockActorId = e.RLockActorId;
+                this.RWantActorId = e.RWantActorId;
+                this.NodeActorId = e.NodeActorId;
                 this.Raise(new Progress());
             }
 
             private async Task OnSleep()
             {
-                this.Send(this.LKMachineId, new LkMachine.AtomicTestSet(this.Id));
+                this.Send(this.LKActorId, new LkMachine.AtomicTestSet(this.Id));
                 await this.Receive(typeof(LkMachine.AtomicTestSet_Resp));
                 while (true)
                 {
-                    this.Send(this.RLockMachineId, new RLockMachine.ValueReq(this.Id));
+                    this.Send(this.RLockActorId, new RLockMachine.ValueReq(this.Id));
                     var receivedEvent = await this.Receive(typeof(RLockMachine.ValueResp));
                     if ((receivedEvent as RLockMachine.ValueResp).Value == true)
                     {
-                        this.Send(this.RWantMachineId, new RWantMachine.SetReq(this.Id, true));
+                        this.Send(this.RWantActorId, new RWantMachine.SetReq(this.Id, true));
                         await this.Receive(typeof(RWantMachine.SetResp));
-                        this.Send(this.NodeMachineId, new Node.SetReq(this.Id, MType.WakeUp));
+                        this.Send(this.NodeActorId, new Node.SetReq(this.Id, MType.WakeUp));
                         await this.Receive(typeof(Node.SetResp));
-                        this.Send(this.LKMachineId, new LkMachine.SetReq(this.Id, false));
+                        this.Send(this.LKActorId, new LkMachine.SetReq(this.Id, false));
                         await this.Receive(typeof(LkMachine.SetResp));
 
                         this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientSleep());
 
-                        this.Send(this.NodeMachineId, new Node.Waiting(this.Id, MType.Run));
+                        this.Send(this.NodeActorId, new Node.Waiting(this.Id, MType.Run));
                         await this.Receive(typeof(Node.WaitResp));
 
                         this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientProgress());
@@ -202,12 +202,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task OnProgress()
             {
-                this.Send(this.RLockMachineId, new RLockMachine.ValueReq(this.Id));
+                this.Send(this.RLockActorId, new RLockMachine.ValueReq(this.Id));
                 var receivedEvent = await this.Receive(typeof(RLockMachine.ValueResp));
                 this.Assert((receivedEvent as RLockMachine.ValueResp).Value == false);
-                this.Send(this.RLockMachineId, new RLockMachine.SetReq(this.Id, true));
+                this.Send(this.RLockActorId, new RLockMachine.SetReq(this.Id, true));
                 await this.Receive(typeof(RLockMachine.SetResp));
-                this.Send(this.LKMachineId, new LkMachine.SetReq(this.Id, false));
+                this.Send(this.LKActorId, new LkMachine.SetReq(this.Id, false));
                 await this.Receive(typeof(LkMachine.SetResp));
                 this.Send(this.Id, new Sleep());
             }
@@ -217,9 +217,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class ValueReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ValueReq(MachineId target)
+                public ValueReq(ActorId target)
                 {
                     this.Target = target;
                 }
@@ -237,10 +237,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class SetReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
                 public MType Value;
 
-                public SetReq(MachineId target, MType value)
+                public SetReq(ActorId target, MType value)
                 {
                     this.Target = target;
                     this.Value = value;
@@ -253,10 +253,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class Waiting : Event
             {
-                public MachineId Target;
+                public ActorId Target;
                 public MType WaitingOn;
 
-                public Waiting(MachineId target, MType waitingOn)
+                public Waiting(ActorId target, MType waitingOn)
                 {
                     this.Target = target;
                     this.WaitingOn = waitingOn;
@@ -268,7 +268,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             private MType State;
-            private Dictionary<MachineId, MType> blockedMachines;
+            private Dictionary<ActorId, MType> blockedMachines;
 
             [Start]
             [OnEntry(nameof(OnInitialize))]
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitialize()
             {
                 this.State = MType.Run;
-                this.blockedMachines = new Dictionary<MachineId, MType>();
+                this.blockedMachines = new Dictionary<ActorId, MType>();
             }
 
             private void OnSetReq()
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Unblock()
             {
-                List<MachineId> remove = new List<MachineId>();
+                List<ActorId> remove = new List<ActorId>();
                 foreach (var target in this.blockedMachines.Keys)
                 {
                     if (this.blockedMachines[target] == this.State)
@@ -335,9 +335,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class AtomicTestSet : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public AtomicTestSet(MachineId target)
+                public AtomicTestSet(ActorId target)
                 {
                     this.Target = target;
                 }
@@ -349,10 +349,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class SetReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
                 public bool Value;
 
-                public SetReq(MachineId target, bool value)
+                public SetReq(ActorId target, bool value)
                 {
                     this.Target = target;
                     this.Value = value;
@@ -365,10 +365,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class Waiting : Event
             {
-                public MachineId Target;
+                public ActorId Target;
                 public bool WaitingOn;
 
-                public Waiting(MachineId target, bool waitingOn)
+                public Waiting(ActorId target, bool waitingOn)
                 {
                     this.Target = target;
                     this.WaitingOn = waitingOn;
@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             private bool LK;
-            private Dictionary<MachineId, bool> BlockedMachines;
+            private Dictionary<ActorId, bool> BlockedMachines;
 
             [Start]
             [OnEntry(nameof(OnInitialize))]
@@ -394,7 +394,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitialize()
             {
                 this.LK = false;
-                this.BlockedMachines = new Dictionary<MachineId, bool>();
+                this.BlockedMachines = new Dictionary<ActorId, bool>();
             }
 
             private void OnAtomicTestSet()
@@ -432,7 +432,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Unblock()
             {
-                List<MachineId> remove = new List<MachineId>();
+                List<ActorId> remove = new List<ActorId>();
                 foreach (var target in this.BlockedMachines.Keys)
                 {
                     if (this.BlockedMachines[target] == this.LK)
@@ -453,9 +453,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class ValueReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ValueReq(MachineId target)
+                public ValueReq(ActorId target)
                 {
                     this.Target = target;
                 }
@@ -473,10 +473,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class SetReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
                 public bool Value;
 
-                public SetReq(MachineId target, bool value)
+                public SetReq(ActorId target, bool value)
                 {
                     this.Target = target;
                     this.Value = value;
@@ -520,9 +520,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class ValueReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ValueReq(MachineId target)
+                public ValueReq(ActorId target)
                 {
                     this.Target = target;
                 }
@@ -540,10 +540,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             public class SetReq : Event
             {
-                public MachineId Target;
+                public ActorId Target;
                 public bool Value;
 
-                public SetReq(MachineId target, bool value)
+                public SetReq(ActorId target, bool value)
                 {
                     this.Target = target;
                     this.Value = value;

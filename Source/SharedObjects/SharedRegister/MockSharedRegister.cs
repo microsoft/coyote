@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Machine modeling the shared register.
         /// </summary>
-        private readonly MachineId RegisterMachine;
+        private readonly ActorId RegisterMachine;
 
         /// <summary>
         /// The testing runtime hosting this shared register.

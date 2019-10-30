@@ -14,15 +14,15 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// The id of the machine that has reached quiescence.
         /// </summary>
-        public MachineId MachineId;
+        public ActorId ActorId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuiescentEvent"/> class.
         /// </summary>
-        /// <param name="mid">The id of the machine that has reached quiescence.</param>
-        public QuiescentEvent(MachineId mid)
+        /// <param name="id">The id of the machine that has reached quiescence.</param>
+        public QuiescentEvent(ActorId id)
         {
-            this.MachineId = mid;
+            this.ActorId = id;
         }
     }
 }

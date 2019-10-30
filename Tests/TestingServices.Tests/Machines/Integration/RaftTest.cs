@@ -41,10 +41,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class NotifyLeaderUpdate : Event
             {
-                public MachineId Leader;
+                public ActorId Leader;
                 public int Term;
 
-                public NotifyLeaderUpdate(MachineId leader, int term)
+                public NotifyLeaderUpdate(ActorId leader, int term)
                     : base()
                 {
                     this.Leader = leader;
@@ -71,13 +71,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId[] Servers;
+            private ActorId[] Servers;
             private int NumberOfServers;
 
-            private MachineId Leader;
+            private ActorId Leader;
             private int LeaderTerm;
 
-            private MachineId Client;
+            private ActorId Client;
 
             [Start]
             [OnEntry(nameof(EntryOnInit))]
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.NumberOfServers = 5;
                 this.LeaderTerm = 0;
 
-                this.Servers = new MachineId[this.NumberOfServers];
+                this.Servers = new ActorId[this.NumberOfServers];
 
                 for (int idx = 0; idx < this.NumberOfServers; idx++)
                 {
@@ -194,10 +194,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             public class ConfigureEvent : Event
             {
                 public int Id;
-                public MachineId[] Servers;
-                public MachineId ClusterManager;
+                public ActorId[] Servers;
+                public ActorId ClusterManager;
 
-                public ConfigureEvent(int id, MachineId[] servers, MachineId manager)
+                public ConfigureEvent(int id, ActorId[] servers, ActorId manager)
                     : base()
                 {
                     this.Id = id;
@@ -212,11 +212,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
             public class VoteRequest : Event
             {
                 public int Term; // candidate’s term
-                public MachineId CandidateId; // candidate requesting vote
+                public ActorId CandidateId; // candidate requesting vote
                 public int LastLogIndex; // index of candidate’s last log entry
                 public int LastLogTerm; // term of candidate’s last log entry
 
-                public VoteRequest(int term, MachineId candidateId, int lastLogIndex, int lastLogTerm)
+                public VoteRequest(int term, ActorId candidateId, int lastLogIndex, int lastLogTerm)
                     : base()
                 {
                     this.Term = term;
@@ -249,16 +249,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
             public class AppendEntriesRequest : Event
             {
                 public int Term; // leader's term
-                public MachineId LeaderId; // so follower can redirect clients
+                public ActorId LeaderId; // so follower can redirect clients
                 public int PrevLogIndex; // index of log entry immediately preceding new ones
                 public int PrevLogTerm; // term of PrevLogIndex entry
                 public List<Log> Entries; // log entries to store (empty for heartbeat; may send more than one for efficiency)
                 public int LeaderCommit; // leader’s CommitIndex
 
-                public MachineId ReceiverEndpoint; // client
+                public ActorId ReceiverEndpoint; // client
 
-                public AppendEntriesRequest(int term, MachineId leaderId, int prevLogIndex,
-                    int prevLogTerm, List<Log> entries, int leaderCommit, MachineId client)
+                public AppendEntriesRequest(int term, ActorId leaderId, int prevLogIndex,
+                    int prevLogTerm, List<Log> entries, int leaderCommit, ActorId client)
                     : base()
                 {
                     this.Term = term;
@@ -279,10 +279,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 public int Term; // current Term, for leader to update itself
                 public bool Success; // true if follower contained entry matching PrevLogIndex and PrevLogTerm
 
-                public MachineId Server;
-                public MachineId ReceiverEndpoint; // client
+                public ActorId Server;
+                public ActorId ReceiverEndpoint; // client
 
-                public AppendEntriesResponse(int term, bool success, MachineId server, MachineId client)
+                public AppendEntriesResponse(int term, bool success, ActorId server, ActorId client)
                     : base()
                 {
                     this.Term = term;
@@ -317,27 +317,27 @@ namespace Microsoft.Coyote.TestingServices.Tests
             /// <summary>
             /// The cluster manager machine.
             /// </summary>
-            private MachineId ClusterManager;
+            private ActorId ClusterManager;
 
             /// <summary>
             /// The servers.
             /// </summary>
-            private MachineId[] Servers;
+            private ActorId[] Servers;
 
             /// <summary>
             /// Leader id.
             /// </summary>
-            private MachineId LeaderId;
+            private ActorId LeaderId;
 
             /// <summary>
             /// The election timer of this server.
             /// </summary>
-            private MachineId ElectionTimer;
+            private ActorId ElectionTimer;
 
             /// <summary>
             /// The periodic timer of this server.
             /// </summary>
-            private MachineId PeriodicTimer;
+            private ActorId PeriodicTimer;
 
             /// <summary>
             /// Latest term server has seen (initialized to 0 on
@@ -348,7 +348,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             /// <summary>
             /// Candidate id that received vote in current term (or null if none).
             /// </summary>
-            private MachineId VotedFor;
+            private ActorId VotedFor;
 
             /// <summary>
             /// Log entries.
@@ -371,13 +371,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             /// For each server, index of the next log entry to send to that
             /// server (initialized to leader last log index + 1).
             /// </summary>
-            private Dictionary<MachineId, int> NextIndex;
+            private Dictionary<ActorId, int> NextIndex;
 
             /// <summary>
             /// For each server, index of highest log entry known to be replicated
             /// on server (initialized to 0, increases monotonically).
             /// </summary>
-            private Dictionary<MachineId, int> MatchIndex;
+            private Dictionary<ActorId, int> MatchIndex;
 
             /// <summary>
             /// Number of received votes.
@@ -410,8 +410,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.CommitIndex = 0;
                 this.LastApplied = 0;
 
-                this.NextIndex = new Dictionary<MachineId, int>();
-                this.MatchIndex = new Dictionary<MachineId, int>();
+                this.NextIndex = new Dictionary<ActorId, int>();
+                this.MatchIndex = new Dictionary<ActorId, int>();
             }
 
             private void Configure()
@@ -943,9 +943,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
             /// </summary>
             public class ConfigureEvent : Event
             {
-                public MachineId Cluster;
+                public ActorId Cluster;
 
-                public ConfigureEvent(MachineId cluster)
+                public ConfigureEvent(ActorId cluster)
                     : base()
                 {
                     this.Cluster = cluster;
@@ -957,10 +957,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             /// </summary>
             internal class Request : Event
             {
-                public MachineId Client;
+                public ActorId Client;
                 public int Command;
 
-                public Request(MachineId client, int command)
+                public Request(ActorId client, int command)
                     : base()
                 {
                     this.Client = client;
@@ -976,7 +976,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Cluster;
+            private ActorId Cluster;
 
             private int LatestCommand;
             private int Counter;
@@ -1033,9 +1033,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class ConfigureEvent : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ConfigureEvent(MachineId id)
+                public ConfigureEvent(ActorId id)
                     : base()
                 {
                     this.Target = id;
@@ -1058,7 +1058,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Target;
+            private ActorId Target;
 
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
@@ -1106,9 +1106,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class ConfigureEvent : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public ConfigureEvent(MachineId id)
+                public ConfigureEvent(ActorId id)
                     : base()
                 {
                     this.Target = id;
@@ -1131,7 +1131,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Target;
+            private ActorId Target;
 
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]

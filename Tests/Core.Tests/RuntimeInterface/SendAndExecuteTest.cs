@@ -52,9 +52,9 @@ namespace Microsoft.Coyote.Core.Tests
 
         private class E2 : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public E2(MachineId id)
+            public E2(ActorId id)
             {
                 this.Id = id;
             }

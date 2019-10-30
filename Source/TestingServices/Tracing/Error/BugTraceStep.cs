@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         /// The machine initiating the action.
         /// </summary>
         [DataMember]
-        internal MachineId Machine;
+        internal ActorId Machine;
 
         /// <summary>
         /// The machine state.
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         /// The target machine.
         /// </summary>
         [DataMember]
-        internal MachineId TargetMachine;
+        internal ActorId TargetMachine;
 
         /// <summary>
         /// The taken nondeterministic boolean choice.
@@ -88,8 +88,8 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         /// <summary>
         /// Creates a bug trace step.
         /// </summary>
-        internal static BugTraceStep Create(int index, BugTraceStepType type, MachineId machine,
-            string machineState, EventInfo eventInfo, MethodInfo action, MachineId targetMachine,
+        internal static BugTraceStep Create(int index, BugTraceStepType type, ActorId machine,
+            string machineState, EventInfo eventInfo, MethodInfo action, ActorId targetMachine,
             bool? boolChoice, int? intChoice, string extraInfo)
         {
             var traceStep = new BugTraceStep();

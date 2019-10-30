@@ -34,11 +34,11 @@ class Server : StateMachine { ... }
 
 The above code snippet declares a machine named `Server`. Since machines are defined as C# classes,
 they can contain an arbitrary number of fields and methods. For example, the below code snippet
-declares the field `Client` of type `MachineId`, which is a handle to a machine instance.
+declares the field `Client` of type `ActorId`, which is a handle to a machine instance.
 
 ```c#
 class Server : StateMachine {
-  MachineId Client;
+  ActorId Client;
 }
 ```
 
@@ -46,7 +46,7 @@ Machines in Coyote must also declare one or more _states_:
 
 ```c#
 class Server : StateMachine {
-  MachineId Client;
+  ActorId Client;
 
   [Start]
   class Init : MachineState { }
@@ -99,7 +99,7 @@ void InitOnEntry() {
 ```
 
 The above action contains three of the most important machine APIs. The `CreateMachine` method is used
-to create a new instance of the `Client` machine. A handle to this instance (with type `MachineId`) is
+to create a new instance of the `Client` machine. A handle to this instance (with type `ActorId`) is
 stored in the `Client` field. Next, the `Send` method is used to send an event (in this case the events
 `ConfigEvent` and `PingEvent`) to a target machine (in this case the machine whose address is stored in
 the field `Client`).
@@ -118,9 +118,9 @@ class PingEvent : Event { }
 class UnitEvent : Event { }
 class ConfigEvent : Event
 {
-  public readonly MachineId Target;
+  public readonly ActorId Target;
 
-  public ConfigEvent(MachineId target) {
+  public ConfigEvent(ActorId target) {
     this.Target = target;
   }
 }
@@ -130,7 +130,7 @@ An event can contain arbitrary data (scalar values or references) and be send to
 (there is no deep-copying for performance reasons). A machine can also send data to itself (e.g. for
 processing in a later state) using `Raise`.
 
-In the previous example, the `Server` machine sends `this.Id` of type `MachineId` (i.e. a handle to the
+In the previous example, the `Server` machine sends `this.Id` of type `ActorId` (i.e. a handle to the
 current machine instance) to the `Client` machine. The receiver (in our case `Client`) can retrieve the
 sent payload by using the property `ReceivedEvent`, which is a handle to the received event, casting
 `ReceivedEvent` to the expected event type (in this case `ConfigEvent`), and then accessing the payload
@@ -215,14 +215,14 @@ namespace PingPong {
   class PongEvent : Event { }
 
   class ConfigEvent : Event {
-    public MachineId Target;
-    public ConfigEvent(MachineId target) {
+    public ActorId Target;
+    public ConfigEvent(ActorId target) {
       this.Target = target;
     }
   }
 
   class Server : StateMachine {
-    MachineId Client;
+    ActorId Client;
 
     [Start]
     [OnEntry(nameof(InitOnEntry))]
@@ -250,7 +250,7 @@ namespace PingPong {
   }
 
   class Client : StateMachine {
-    MachineId Server;
+    ActorId Server;
 
     [Start]
     [OnEventGotoState(typeof(UnitEvent), typeof(Active))]
@@ -321,13 +321,13 @@ The developer must first import the Coyote runtime library (`Microsoft.Coyote.dl
 `runtime` to instantiate the first Coyote machine (`Server` in the above example).
 
 The `CreateMachine` method accepts as a parameter the type of the machine to be instantiated, and
-returns an object of the `MachineId` type, which contains a handle to the created Coyote machine.
+returns an object of the `ActorId` type, which contains a handle to the created Coyote machine.
 Because `CreateMachine` is an asynchronous method, we call the `Console.ReadLine` method, which pauses
 the main thread until a console input has been given, so that the host C# program does not exit
 prematurely.
 
 The `IMachineRuntime` interface also provides the `SendEvent` method for sending events to a Coyote
-machine from outside a machine. This method accepts as parameters an object of type `MachineId`, an
+machine from outside a machine. This method accepts as parameters an object of type `ActorId`, an
 event and an optional payload. Although you have to use `CreateMachine` and `SendEvent` to interact
 with a machine from outside a machine, the opposite is straightforward, as it only requires reading
 writing/calling an object from a machine.

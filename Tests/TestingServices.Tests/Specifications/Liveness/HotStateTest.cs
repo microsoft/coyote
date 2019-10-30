@@ -19,9 +19,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Config : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public Config(MachineId id)
+            public Config(ActorId id)
             {
                 this.Id = id;
             }
@@ -29,9 +29,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class MConfig : Event
         {
-            public List<MachineId> Ids;
+            public List<ActorId> Ids;
 
-            public MConfig(List<MachineId> ids)
+            public MConfig(List<ActorId> ids)
             {
                 this.Ids = ids;
             }
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Master : StateMachine
         {
-            private List<MachineId> Workers;
+            private List<ActorId> Workers;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Workers = new List<MachineId>();
+                this.Workers = new List<ActorId>();
 
                 for (int idx = 0; idx < 3; idx++)
                 {
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Worker : StateMachine
         {
-            private MachineId Master;
+            private ActorId Master;
 
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M : Monitor
         {
-            private List<MachineId> Workers;
+            private List<ActorId> Workers;
 
             [Start]
             [Hot]

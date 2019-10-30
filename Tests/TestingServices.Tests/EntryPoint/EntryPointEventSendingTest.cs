@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                MachineId m = r.CreateMachine(typeof(M));
+                ActorId m = r.CreateMachine(typeof(M));
                 r.SendEvent(m, new Transfer(0));
             },
             expectedError: "Value is 0.",

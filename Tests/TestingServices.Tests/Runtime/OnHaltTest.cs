@@ -16,13 +16,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class E : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
             public E()
             {
             }
 
-            public E(MachineId id)
+            public E(ActorId id)
             {
                 this.Id = id;
             }
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M3 : StateMachine
         {
-            private MachineId sender;
+            private ActorId sender;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]

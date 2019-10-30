@@ -135,13 +135,13 @@ internal class CustomLogWriter : RuntimeLogWriter
 {
   /* Callbacks on runtime events */
 
-  public override void OnEnqueue(MachineId machineId, string eventName)
+  public override void OnEnqueue(ActorId actorId, string eventName)
   {
     // Override to change the behavior. Base method logs an OnEnqueue runtime event.
     // using the base FormatOnEnqueueLogMessage formatting method.
   }
 
-  public override void OnSend(MachineId targetMachineId, MachineId senderId, string senderStateName, string eventName,
+  public override void OnSend(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
       Guid opGroupId, bool isTargetHalted)
   {
     // Override to change the behavior. Base method logs an OnSend runtime event.
@@ -152,12 +152,12 @@ internal class CustomLogWriter : RuntimeLogWriter
 
   /* Methods for formatting log messages */
 
-  protected override string FormatOnEnqueueLogMessage(MachineId machineId, string eventName)
+  protected override string FormatOnEnqueueLogMessage(ActorId actorId, string eventName)
   {
     // Override to change the text to be logged.
   }
 
-  protected override string FormatOnSendLogMessage(MachineId targetMachineId, MachineId senderId, string senderStateName,
+  protected override string FormatOnSendLogMessage(ActorId targetActorId, ActorId senderId, string senderStateName,
     string eventName, Guid opGroupId, bool isTargetHalted)
   {
     // Override to change the text to be logged.

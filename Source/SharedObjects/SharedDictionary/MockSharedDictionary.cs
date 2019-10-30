@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Machine modeling the shared dictionary.
         /// </summary>
-        private readonly MachineId DictionaryMachine;
+        private readonly ActorId DictionaryMachine;
 
         /// <summary>
         /// The testing runtime hosting this shared dictionary.

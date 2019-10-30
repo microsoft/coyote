@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// The unique monitor id.
         /// </summary>
-        internal MachineId Id { get; private set; }
+        internal ActorId Id { get; private set; }
 
         /// <summary>
         /// Gets the name of this monitor.
@@ -164,10 +164,10 @@ namespace Microsoft.Coyote.Specifications
         /// Initializes this monitor.
         /// </summary>
         /// <param name="runtime">The runtime that executes this monitor.</param>
-        /// <param name="mid">The monitor id.</param>
-        internal void Initialize(CoyoteRuntime runtime, MachineId mid)
+        /// <param name="id">The monitor id.</param>
+        internal void Initialize(CoyoteRuntime runtime, ActorId id)
         {
-            this.Id = mid;
+            this.Id = id;
             this.Runtime = runtime;
         }
 

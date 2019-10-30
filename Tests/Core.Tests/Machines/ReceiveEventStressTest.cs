@@ -30,11 +30,11 @@ namespace Microsoft.Coyote.Core.Tests
 
         internal class SetupIdEvent : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
             public int NumMessages;
 
-            public SetupIdEvent(MachineId id, int numMessages)
+            public SetupIdEvent(ActorId id, int numMessages)
             {
                 this.Id = id;
                 this.NumMessages = numMessages;
@@ -58,13 +58,13 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
 
-                var mid = this.CreateMachine(typeof(M2), new SetupTcsEvent(tcs, numMessages));
+                var id = this.CreateMachine(typeof(M2), new SetupTcsEvent(tcs, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(mid, new Message());
+                    this.Send(id, new Message());
                 }
             }
         }
@@ -124,13 +124,13 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
 
-                var mid = this.CreateMachine(typeof(M4), new SetupTcsEvent(tcs, numMessages));
+                var id = this.CreateMachine(typeof(M4), new SetupTcsEvent(tcs, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(mid, new Message());
+                    this.Send(id, new Message());
                 }
             }
         }
@@ -200,13 +200,13 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
 
-                var mid = this.CreateMachine(typeof(M6), new SetupIdEvent(this.Id, numMessages));
+                var id = this.CreateMachine(typeof(M6), new SetupIdEvent(this.Id, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(mid, new Message());
+                    this.Send(id, new Message());
                     await this.Receive(typeof(Message));
                 }
 
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                var mid = (this.ReceivedEvent as SetupIdEvent).Id;
+                var id = (this.ReceivedEvent as SetupIdEvent).Id;
                 var numMessages = (this.ReceivedEvent as SetupIdEvent).NumMessages;
 
                 var counter = 0;
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.Core.Tests
                 {
                     counter++;
                     await this.Receive(typeof(Message));
-                    this.Send(mid, new Message());
+                    this.Send(id, new Message());
                 }
             }
         }

@@ -30,9 +30,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public int Start;
             public int End;
-            public MachineId Node;
+            public ActorId Node;
 
-            public Finger(int start, int end, MachineId node)
+            public Finger(int start, int end, ActorId node)
             {
                 this.Start = start;
                 this.End = end;
@@ -57,12 +57,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private int NumOfNodes;
             private int NumOfIds;
 
-            private List<MachineId> ChordNodes;
+            private List<ActorId> ChordNodes;
 
             private List<int> Keys;
             private List<int> NodeIds;
 
-            private MachineId Client;
+            private ActorId Client;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.NumOfNodes = 3;
                 this.NumOfIds = (int)Math.Pow(2, this.NumOfNodes);
 
-                this.ChordNodes = new List<MachineId>();
+                this.ChordNodes = new List<ActorId>();
                 this.NodeIds = new List<int> { 0, 1, 3 };
                 this.Keys = new List<int> { 1, 2, 6 };
 
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     var keys = nodeKeys[this.NodeIds[idx]];
                     this.Send(this.ChordNodes[idx], new ChordNode.Config(this.NodeIds[idx], new HashSet<int>(keys),
-                        new List<MachineId>(this.ChordNodes), new List<int>(this.NodeIds), this.Id));
+                        new List<ActorId>(this.ChordNodes), new List<int>(this.NodeIds), this.Id));
                 }
 
                 this.Client = this.CreateMachine(typeof(Client), new Client.Config(this.Id, new List<int>(this.Keys)));
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.NodeIds.Add(newId);
                 this.ChordNodes.Add(newNode);
 
-                this.Send(newNode, new ChordNode.Join(newId, new List<MachineId>(this.ChordNodes),
+                this.Send(newNode, new ChordNode.Join(newId, new List<ActorId>(this.ChordNodes),
                     new List<int>(this.NodeIds), this.NumOfIds, this.Id));
             }
 
@@ -221,12 +221,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 public int Id;
                 public HashSet<int> Keys;
-                public List<MachineId> Nodes;
+                public List<ActorId> Nodes;
                 public List<int> NodeIds;
-                public MachineId Manager;
+                public ActorId Manager;
 
-                public Config(int id, HashSet<int> keys, List<MachineId> nodes,
-                    List<int> nodeIds, MachineId manager)
+                public Config(int id, HashSet<int> keys, List<ActorId> nodes,
+                    List<int> nodeIds, ActorId manager)
                     : base()
                 {
                     this.Id = id;
@@ -240,13 +240,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             internal class Join : Event
             {
                 public int Id;
-                public List<MachineId> Nodes;
+                public List<ActorId> Nodes;
                 public List<int> NodeIds;
                 public int NumOfIds;
-                public MachineId Manager;
+                public ActorId Manager;
 
-                public Join(int id, List<MachineId> nodes, List<int> nodeIds,
-                    int numOfIds, MachineId manager)
+                public Join(int id, List<ActorId> nodes, List<int> nodeIds,
+                    int numOfIds, ActorId manager)
                     : base()
                 {
                     this.Id = id;
@@ -259,10 +259,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class FindSuccessor : Event
             {
-                public MachineId Sender;
+                public ActorId Sender;
                 public int Key;
 
-                public FindSuccessor(MachineId sender, int key)
+                public FindSuccessor(ActorId sender, int key)
                     : base()
                 {
                     this.Sender = sender;
@@ -272,10 +272,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class FindSuccessorResp : Event
             {
-                public MachineId Node;
+                public ActorId Node;
                 public int Key;
 
-                public FindSuccessorResp(MachineId node, int key)
+                public FindSuccessorResp(ActorId node, int key)
                     : base()
                 {
                     this.Node = node;
@@ -285,9 +285,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class FindPredecessor : Event
             {
-                public MachineId Sender;
+                public ActorId Sender;
 
-                public FindPredecessor(MachineId sender)
+                public FindPredecessor(ActorId sender)
                     : base()
                 {
                     this.Sender = sender;
@@ -296,9 +296,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class FindPredecessorResp : Event
             {
-                public MachineId Node;
+                public ActorId Node;
 
-                public FindPredecessorResp(MachineId node)
+                public FindPredecessorResp(ActorId node)
                     : base()
                 {
                     this.Node = node;
@@ -307,9 +307,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class QueryId : Event
             {
-                public MachineId Sender;
+                public ActorId Sender;
 
-                public QueryId(MachineId sender)
+                public QueryId(ActorId sender)
                     : base()
                 {
                     this.Sender = sender;
@@ -329,10 +329,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class AskForKeys : Event
             {
-                public MachineId Node;
+                public ActorId Node;
                 public int Id;
 
-                public AskForKeys(MachineId node, int id)
+                public AskForKeys(ActorId node, int id)
                     : base()
                 {
                     this.Node = node;
@@ -353,9 +353,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private class NotifySuccessor : Event
             {
-                public MachineId Node;
+                public ActorId Node;
 
-                public NotifySuccessor(MachineId node)
+                public NotifySuccessor(ActorId node)
                     : base()
                 {
                     this.Node = node;
@@ -383,9 +383,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private int NumOfIds;
 
             private Dictionary<int, Finger> FingerTable;
-            private MachineId Predecessor;
+            private ActorId Predecessor;
 
-            private MachineId Manager;
+            private ActorId Manager;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -708,10 +708,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class Config : Event
             {
-                public MachineId ClusterManager;
+                public ActorId ClusterManager;
                 public List<int> Keys;
 
-                public Config(MachineId clusterManager, List<int> keys)
+                public Config(ActorId clusterManager, List<int> keys)
                     : base()
                 {
                     this.ClusterManager = clusterManager;
@@ -723,7 +723,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId ClusterManager;
+            private ActorId ClusterManager;
 
             private List<int> Keys;
             private int QueryCounter;

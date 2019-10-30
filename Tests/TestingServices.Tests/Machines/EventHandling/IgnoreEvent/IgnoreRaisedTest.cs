@@ -21,11 +21,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class E2 : Event
         {
-            public MachineId Mid;
+            public ActorId Mid;
 
-            public E2(MachineId mid)
+            public E2(ActorId id)
             {
-                this.Mid = mid;
+                this.Mid = id;
             }
         }
 

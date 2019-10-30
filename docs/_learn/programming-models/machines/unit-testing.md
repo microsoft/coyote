@@ -52,7 +52,7 @@ public void Test()
 When `StateMachineTestKit<M>` is instantiated, it creates an instance of the machine `M`, which executes in
 a special runtime that provides isolation. The internals of the machine (e.g. the queue) are properly
 initialized, as if the machine was executing in production. However, if the machine is trying to create
-other machines, it will get a _dummy_ `MachineId`, and if the machine tries to send an event to a
+other machines, it will get a _dummy_ `ActorId`, and if the machine tries to send an event to a
 machine other than itself, that event will be dropped. Talking to external APIs (e.g. network or
 storage) will require mocking (as is the case in regular unit-testing).
 

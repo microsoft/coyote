@@ -12,8 +12,8 @@ user request. Coyote offers the notion of an _operations group_ that can be trac
 following `IMachineRuntime` APIs take an optional `Guid` parameter.
 
 ```c#
-MachineId CreateMachine(Type type, Event e = null, Guid operationGroupId = default);
-void SendEvent(MachineId target, Event e, Guid operationGroupId = default);
+ActorId CreateMachine(Type type, Event e = null, Guid operationGroupId = default);
+void SendEvent(ActorId target, Event e, Guid operationGroupId = default);
 ```
 
 When you pass a non-default operation group (default is `Guid.Empty`), the runtime takes care of
@@ -28,7 +28,7 @@ However, you must ensure that `currentMachine` is the currently executing machin
 `coyote` tester will report an assertion failure).
 
 ```c#
-Guid GetCurrentOperationGroupId(MachineId currentMachine);
+Guid GetCurrentOperationGroupId(ActorId currentMachine);
 ```
 
 The semantics of group tracking are as follows. The default value of `OperationsGroupId` is

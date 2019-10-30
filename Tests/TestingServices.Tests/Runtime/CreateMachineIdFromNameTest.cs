@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests
 {
-    public class CreateMachineIdFromNameTest : BaseTest
+    public class CreateActorIdFromNameTest : BaseTest
     {
-        public CreateMachineIdFromNameTest(ITestOutputHelper output)
+        public CreateActorIdFromNameTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -56,26 +56,26 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName1()
+        public void TestCreateActorIdFromName1()
         {
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
                 var m1 = r.CreateMachine(typeof(M));
-                var m2 = r.CreateMachineIdFromName(typeof(M), "M");
+                var m2 = r.CreateActorIdFromName(typeof(M), "M");
                 r.Assert(!m1.Equals(m2));
                 r.CreateMachine(m2, typeof(M));
             });
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName2()
+        public void TestCreateActorIdFromName2()
         {
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                var m1 = r.CreateMachineIdFromName(typeof(M), "M1");
-                var m2 = r.CreateMachineIdFromName(typeof(M), "M2");
+                var m1 = r.CreateActorIdFromName(typeof(M), "M1");
+                var m2 = r.CreateActorIdFromName(typeof(M), "M2");
                 r.Assert(!m1.Equals(m2));
                 r.CreateMachine(m1, typeof(M));
                 r.CreateMachine(m2, typeof(M));
@@ -99,48 +99,48 @@ namespace Microsoft.Coyote.TestingServices.Tests
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName4()
+        public void TestCreateActorIdFromName4()
         {
             this.TestWithError(r =>
             {
-                var m3 = r.CreateMachineIdFromName(typeof(M3), "M3");
+                var m3 = r.CreateActorIdFromName(typeof(M3), "M3");
                 r.CreateMachine(m3, typeof(M2));
             },
-            expectedError: "Cannot bind machine id '' of type 'M3' to a machine of type 'M2'.",
+            expectedError: "Cannot bind actor id '' of type 'M3' to a machine of type 'M2'.",
             replay: true);
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName5()
+        public void TestCreateActorIdFromName5()
         {
             this.TestWithError(r =>
             {
-                var m1 = r.CreateMachineIdFromName(typeof(M2), "M2");
+                var m1 = r.CreateActorIdFromName(typeof(M2), "M2");
                 r.CreateMachine(m1, typeof(M2));
                 r.CreateMachine(m1, typeof(M2));
             },
-            expectedError: "Machine id '' is used by an existing machine.",
+            expectedError: "Actor id '' is used by an existing machine.",
             replay: true);
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName6()
+        public void TestCreateActorIdFromName6()
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachineIdFromName(typeof(M2), "M2");
+                var m = r.CreateActorIdFromName(typeof(M2), "M2");
                 r.SendEvent(m, new E());
             },
-            expectedError: "Cannot send event 'E' to machine id '' that was never previously bound to a machine of type 'M2'",
+            expectedError: "Cannot send event 'E' to actor id '' that was never previously bound to a machine of type 'M2'",
             replay: true);
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName7()
+        public void TestCreateActorIdFromName7()
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachineIdFromName(typeof(M2), "M2");
+                var m = r.CreateActorIdFromName(typeof(M2), "M2");
                 r.CreateMachine(m, typeof(M2));
 
                 // Make sure that the machine halts.
@@ -157,18 +157,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 // Note: because RunMachineEventHandler is async, the halted machine
                 // may or may not be removed by the time we call CreateMachine.
-                "Machine id '' is used by an existing machine.",
-                "Machine id '' of a previously halted machine cannot be reused to create a new machine of type 'M2'"
+                "Actor id '' is used by an existing machine.",
+                "Actor id '' of a previously halted machine cannot be reused to create a new machine of type 'M2'"
             });
         }
 
         private class E2 : Event
         {
-            public MachineId Mid;
+            public ActorId Mid;
 
-            public E2(MachineId mid)
+            public E2(ActorId id)
             {
-                this.Mid = mid;
+                this.Mid = id;
             }
         }
 
@@ -196,35 +196,35 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var mid = (this.ReceivedEvent as E2).Mid;
-                this.Send(mid, new E());
+                var id = (this.ReceivedEvent as E2).Mid;
+                this.Send(id, new E());
             }
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName8()
+        public void TestCreateActorIdFromName8()
         {
             var configuration = Configuration.Create();
             configuration.SchedulingIterations = 100;
 
             this.TestWithError(r =>
             {
-                var m = r.CreateMachineIdFromName(typeof(M4), "M4");
+                var m = r.CreateActorIdFromName(typeof(M4), "M4");
                 r.CreateMachine(typeof(M5), new E2(m));
                 r.CreateMachine(m, typeof(M4));
             },
             configuration,
-            "Cannot send event 'E' to machine id '' that was never previously bound to a machine of type 'M4'",
+            "Cannot send event 'E' to actor id '' that was never previously bound to a machine of type 'M4'",
             false);
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName9()
+        public void TestCreateActorIdFromName9()
         {
             this.Test(r =>
             {
-                var m1 = r.CreateMachineIdFromName(typeof(M4), "M4");
-                var m2 = r.CreateMachineIdFromName(typeof(M4), "M4");
+                var m1 = r.CreateActorIdFromName(typeof(M4), "M4");
+                var m2 = r.CreateActorIdFromName(typeof(M4), "M4");
                 r.Assert(m1.Equals(m2));
             });
         }
@@ -239,20 +239,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var m = this.Runtime.CreateMachineIdFromName(typeof(M4), "M4");
+                var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.CreateMachine(m, typeof(M4), "friendly");
             }
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName10()
+        public void TestCreateActorIdFromName10()
         {
             this.TestWithError(r =>
             {
                 r.CreateMachine(typeof(M6));
                 r.CreateMachine(typeof(M6));
             },
-            expectedError: "Machine id '' is used by an existing machine.",
+            expectedError: "Actor id '' is used by an existing machine.",
             replay: true);
         }
 
@@ -286,13 +286,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private async Task InitOnEntry()
             {
                 await this.Runtime.CreateMachineAndExecuteAsync(typeof(M6));
-                var m = this.Runtime.CreateMachineIdFromName(typeof(M4), "M4");
+                var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, new E());
             }
         }
 
         [Fact(Timeout=5000)]
-        public void TestCreateMachineIdFromName11()
+        public void TestCreateActorIdFromName11()
         {
             this.Test(r =>
             {

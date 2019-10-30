@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Machines.Timers
         /// <summary>
         /// The id of the machine that owns the timer.
         /// </summary>
-        public readonly MachineId OwnerId;
+        public readonly ActorId OwnerId;
 
         /// <summary>
         /// The amount of time to wait before sending the first timeout event.
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Machines.Timers
         /// <param name="dueTime">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
         /// <param name="payload">Optional payload of the timeout event.</param>
-        internal TimerInfo(MachineId ownerId, TimeSpan dueTime, TimeSpan period, object payload)
+        internal TimerInfo(ActorId ownerId, TimeSpan dueTime, TimeSpan period, object payload)
         {
             this.Id = Guid.NewGuid();
             this.OwnerId = ownerId;

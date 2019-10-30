@@ -22,9 +22,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class E : Event
         {
-            public MachineId A;
+            public ActorId A;
 
-            public E(MachineId a)
+            public E(ActorId a)
             {
                 this.A = a;
             }
@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class M : StateMachine
         {
-            private MachineId N;
+            private ActorId N;
 
             [Start]
             [OnEntry(nameof(SOnEntry))]

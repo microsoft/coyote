@@ -62,14 +62,14 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
         /// <summary>
         /// Creates a schedule step.
         /// </summary>
-        internal static ScheduleStep CreateSchedulingChoice(int index, ulong scheduledMachineId)
+        internal static ScheduleStep CreateSchedulingChoice(int index, ulong scheduledActorId)
         {
             var scheduleStep = new ScheduleStep();
 
             scheduleStep.Index = index;
             scheduleStep.Type = ScheduleStepType.SchedulingChoice;
 
-            scheduleStep.ScheduledOperationId = scheduledMachineId;
+            scheduleStep.ScheduledOperationId = scheduledActorId;
 
             scheduleStep.BooleanChoice = null;
             scheduleStep.IntegerChoice = null;

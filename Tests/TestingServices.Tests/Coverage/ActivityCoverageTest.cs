@@ -18,9 +18,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Setup : Event
         {
-            public readonly MachineId Id;
+            public readonly ActorId Id;
 
-            public Setup(MachineId id)
+            public Setup(ActorId id)
             {
                 this.Id = id;
             }

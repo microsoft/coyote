@@ -12,11 +12,11 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Unique machine id.
+    /// Unique actor id.
     /// </summary>
     [DataContract]
     [DebuggerStepThrough]
-    public sealed class MachineId : IEquatable<MachineId>, IComparable<MachineId>
+    public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
     {
         /// <summary>
         /// The runtime that executes the machine with this id.
@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Machines
         public readonly string Name;
 
         /// <summary>
-        /// Generation of the runtime that created this machine id.
+        /// Generation of the runtime that created this actor id.
         /// </summary>
         [DataMember]
         public readonly ulong Generation;
@@ -65,9 +65,9 @@ namespace Microsoft.Coyote.Machines
         public bool IsNameUsedForHashing => this.NameValue.Length > 0;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MachineId"/> class.
+        /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal MachineId(Type type, string machineName, CoyoteRuntime runtime, bool useNameForHashing = false)
+        internal ActorId(Type type, string machineName, CoyoteRuntime runtime, bool useNameForHashing = false)
         {
             this.Runtime = runtime;
             this.Endpoint = string.Empty;
@@ -81,11 +81,11 @@ namespace Microsoft.Coyote.Machines
             else
             {
                 // Atomically increments and safely wraps into an unsigned long.
-                this.Value = (ulong)Interlocked.Increment(ref runtime.MachineIdCounter) - 1;
+                this.Value = (ulong)Interlocked.Increment(ref runtime.ActorIdCounter) - 1;
                 this.NameValue = string.Empty;
 
                 // Checks for overflow.
-                this.Runtime.Assert(this.Value != ulong.MaxValue, "Detected machine id overflow.");
+                this.Runtime.Assert(this.Value != ulong.MaxValue, "Detected actor id overflow.");
             }
 
             this.Generation = runtime.Configuration.RuntimeGeneration;
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.Machines
         }
 
         /// <summary>
-        /// Bind the machine id.
+        /// Bind the actor id.
         /// </summary>
         internal void Bind(CoyoteRuntime runtime)
         {
@@ -115,17 +115,17 @@ namespace Microsoft.Coyote.Machines
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is MachineId mid)
+            if (obj is ActorId id)
             {
                 // Use same machanism for hashing.
-                if (this.IsNameUsedForHashing != mid.IsNameUsedForHashing)
+                if (this.IsNameUsedForHashing != id.IsNameUsedForHashing)
                 {
                     return false;
                 }
 
                 return this.IsNameUsedForHashing ?
-                    this.NameValue.Equals(mid.NameValue) && this.Generation == mid.Generation :
-                    this.Value == mid.Value && this.Generation == mid.Generation;
+                    this.NameValue.Equals(id.NameValue) && this.Generation == id.Generation :
+                    this.Value == id.Value && this.Generation == id.Generation;
             }
 
             return false;
@@ -143,24 +143,24 @@ namespace Microsoft.Coyote.Machines
         }
 
         /// <summary>
-        /// Returns a string that represents the current machine id.
+        /// Returns a string that represents the current actor id.
         /// </summary>
         public override string ToString() => this.Name;
 
         /// <summary>
-        /// Indicates whether the specified <see cref="MachineId"/> is equal
-        /// to the current <see cref="MachineId"/>.
+        /// Indicates whether the specified <see cref="ActorId"/> is equal
+        /// to the current <see cref="ActorId"/>.
         /// </summary>
-        public bool Equals(MachineId other) => this.Equals((object)other);
+        public bool Equals(ActorId other) => this.Equals((object)other);
 
         /// <summary>
-        /// Compares the specified <see cref="MachineId"/> with the current
-        /// <see cref="MachineId"/> for ordering or sorting purposes.
+        /// Compares the specified <see cref="ActorId"/> with the current
+        /// <see cref="ActorId"/> for ordering or sorting purposes.
         /// </summary>
-        public int CompareTo(MachineId other) => string.Compare(this.Name, other?.Name);
+        public int CompareTo(ActorId other) => string.Compare(this.Name, other?.Name);
 
-        bool IEquatable<MachineId>.Equals(MachineId other) => this.Equals(other);
+        bool IEquatable<ActorId>.Equals(ActorId other) => this.Equals(other);
 
-        int IComparable<MachineId>.CompareTo(MachineId other) => string.Compare(this.Name, other?.Name);
+        int IComparable<ActorId>.CompareTo(ActorId other) => string.Compare(this.Name, other?.Name);
     }
 }

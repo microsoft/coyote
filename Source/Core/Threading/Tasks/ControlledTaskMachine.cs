@@ -30,8 +30,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         [DebuggerStepThrough]
         internal ControlledTaskMachine(CoyoteRuntime runtime)
         {
-            var mid = new MachineId(this.GetType(), "ControlledTask", runtime);
-            this.Initialize(runtime, mid);
+            var id = new ActorId(this.GetType(), "ControlledTask", runtime);
+            this.Initialize(runtime, id);
         }
 
         /// <summary>

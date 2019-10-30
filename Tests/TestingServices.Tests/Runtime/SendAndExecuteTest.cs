@@ -34,9 +34,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class E2 : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public E2(MachineId id)
+            public E2(ActorId id)
             {
                 this.Id = id;
             }
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private async Task InitOnEntry()
             {
                 var e = this.ReceivedEvent as Configure;
-                MachineId b;
+                ActorId b;
 
                 if (e.ExecuteSynchronously)
                 {

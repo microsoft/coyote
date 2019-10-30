@@ -38,12 +38,12 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// The sender machine stored in this event.
         /// </summary>
-        public MachineId Sender { get; private set; }
+        public ActorId Sender { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SharedRegisterEvent"/> class.
         /// </summary>
-        private SharedRegisterEvent(SharedRegisterOperation op, object value, object func, MachineId sender)
+        private SharedRegisterEvent(SharedRegisterOperation op, object value, object func, ActorId sender)
         {
             this.Operation = op;
             this.Value = value;
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Creates a new event for the 'UPDATE' operation.
         /// </summary>
-        public static SharedRegisterEvent UpdateEvent(object func, MachineId sender)
+        public static SharedRegisterEvent UpdateEvent(object func, ActorId sender)
         {
             return new SharedRegisterEvent(SharedRegisterOperation.UPDATE, null, func, sender);
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Creates a new event for the 'GET' operation.
         /// </summary>
-        public static SharedRegisterEvent GetEvent(MachineId sender)
+        public static SharedRegisterEvent GetEvent(ActorId sender)
         {
             return new SharedRegisterEvent(SharedRegisterOperation.GET, null, null, sender);
         }

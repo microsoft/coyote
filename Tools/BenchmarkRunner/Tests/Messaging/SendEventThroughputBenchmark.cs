@@ -33,10 +33,10 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
         private class SetupConsumerEvent : Event
         {
-            public MachineId Producer;
+            public ActorId Producer;
             public long NumMessages;
 
-            internal SetupConsumerEvent(MachineId producer, long numMessages)
+            internal SetupConsumerEvent(ActorId producer, long numMessages)
             {
                 this.Producer = producer;
                 this.NumMessages = numMessages;
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
         {
             private TaskCompletionSource<bool> TcsSetup;
             private TaskCompletionSource<bool> TcsExperiment;
-            private MachineId[] Consumers;
+            private ActorId[] Consumers;
             private long NumConsumers;
             private long NumMessages;
             private long Counter;
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
                 this.NumConsumers = (this.ReceivedEvent as SetupProducerEvent).NumConsumers;
                 this.NumMessages = (this.ReceivedEvent as SetupProducerEvent).NumMessages;
 
-                this.Consumers = new MachineId[this.NumConsumers];
+                this.Consumers = new ActorId[this.NumConsumers];
                 this.Counter = 0;
 
                 for (int i = 0; i < this.NumConsumers; i++)
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
         private class Consumer : StateMachine
         {
-            private MachineId Producer;
+            private ActorId Producer;
             private long NumMessages;
             private long Counter = 0;
 
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
         private static int NumMessages => 1000000;
 
         private ProductionRuntime Runtime;
-        private MachineId ProducerMachine;
+        private ActorId ProducerMachine;
         private TaskCompletionSource<bool> ExperimentAwaiter;
 
         [IterationSetup]

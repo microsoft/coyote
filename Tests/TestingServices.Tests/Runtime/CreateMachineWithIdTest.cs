@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
                 var m = r.CreateMachine(typeof(M));
-                var mprime = r.CreateMachineId(typeof(M));
+                var mprime = r.CreateActorId(typeof(M));
                 r.Assert(m != mprime);
                 r.CreateMachine(mprime, typeof(M));
             });
@@ -89,9 +89,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class TerminateReq : Event
         {
-            public MachineId Sender;
+            public ActorId Sender;
 
-            public TerminateReq(MachineId sender)
+            public TerminateReq(ActorId sender)
             {
                 this.Sender = sender;
             }
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 var data = new Data();
                 var m1 = this.CreateMachine(typeof(M1), new E1(data));
-                var m2 = this.Id.Runtime.CreateMachineId(typeof(M1));
+                var m2 = this.Id.Runtime.CreateActorId(typeof(M1));
                 this.Send(m1, new TerminateReq(this.Id));
                 this.Receive(typeof(TerminateResp));
                 this.Id.Runtime.CreateMachine(m2, typeof(M1), new E1(data));
@@ -190,10 +190,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                MachineId mid = r.CreateMachineId(typeof(M3));
-                r.CreateMachine(mid, typeof(M2));
+                ActorId id = r.CreateActorId(typeof(M3));
+                r.CreateMachine(id, typeof(M2));
             },
-            expectedError: "Cannot bind machine id '' of type 'M3' to a machine of type 'M2'.",
+            expectedError: "Cannot bind actor id '' of type 'M3' to a machine of type 'M2'.",
             replay: true);
         }
 
@@ -202,10 +202,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                MachineId mid = r.CreateMachine(typeof(M2));
-                r.CreateMachine(mid, typeof(M2));
+                ActorId id = r.CreateMachine(typeof(M2));
+                r.CreateMachine(id, typeof(M2));
             },
-            expectedError: "Machine id '' is used by an existing machine.",
+            expectedError: "Actor id '' is used by an existing machine.",
             replay: true);
         }
 
@@ -214,10 +214,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                MachineId mid = r.CreateMachineId(typeof(M2));
-                r.SendEvent(mid, new E());
+                ActorId id = r.CreateActorId(typeof(M2));
+                r.SendEvent(id, new E());
             },
-            expectedError: "Cannot send event 'E' to machine id '' that was never previously bound to a machine of type 'M2'",
+            expectedError: "Cannot send event 'E' to actor id '' that was never previously bound to a machine of type 'M2'",
             replay: true);
         }
 
@@ -227,38 +227,38 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 bool isEventDropped = false;
-                r.OnEventDropped += (Event e, MachineId target) =>
+                r.OnEventDropped += (Event e, ActorId target) =>
                 {
                     isEventDropped = true;
                 };
 
-                MachineId mid = r.CreateMachine(typeof(M2));
+                ActorId id = r.CreateMachine(typeof(M2));
                 while (!isEventDropped)
                 {
                     // Make sure the machine halts before trying to reuse its id.
-                    r.SendEvent(mid, new Halt());
+                    r.SendEvent(id, new Halt());
                 }
 
                 // Trying to bring up a halted machine.
-                r.CreateMachine(mid, typeof(M2));
+                r.CreateMachine(id, typeof(M2));
             },
             configuration: GetConfiguration(),
             expectedErrors: new string[]
             {
                 // Note: because RunMachineEventHandler is async, the halted machine
                 // may or may not be removed by the time we call CreateMachine.
-                "Machine id '' is used by an existing machine.",
-                "Machine id '' of a previously halted machine cannot be reused to create a new machine of type 'M2'"
+                "Actor id '' is used by an existing machine.",
+                "Actor id '' of a previously halted machine cannot be reused to create a new machine of type 'M2'"
             });
         }
 
         private class E2 : Event
         {
-            public MachineId Mid;
+            public ActorId Mid;
 
-            public E2(MachineId mid)
+            public E2(ActorId id)
             {
-                this.Mid = mid;
+                this.Mid = id;
             }
         }
 
@@ -286,8 +286,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                MachineId mid = (this.ReceivedEvent as E2).Mid;
-                this.Send(mid, new E());
+                ActorId id = (this.ReceivedEvent as E2).Mid;
+                this.Send(id, new E());
             }
         }
 
@@ -296,12 +296,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                MachineId mid = r.CreateMachineId(typeof(M4));
-                r.CreateMachine(typeof(M5), new E2(mid));
-                r.CreateMachine(mid, typeof(M4));
+                ActorId id = r.CreateActorId(typeof(M4));
+                r.CreateMachine(typeof(M5), new E2(id));
+                r.CreateMachine(id, typeof(M4));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100),
-            expectedError: "Cannot send event 'E' to machine id '' that was never previously bound to a machine of type 'M4'",
+            expectedError: "Cannot send event 'E' to actor id '' that was never previously bound to a machine of type 'M4'",
             replay: true);
         }
     }

@@ -27,15 +27,15 @@ namespace Microsoft.Coyote.TestingServices.StateCaching
         /// Ids of the enabled machines. Only relevant
         /// if this is a scheduling trace step.
         /// </summary>
-        internal readonly HashSet<ulong> EnabledMachineIds;
+        internal readonly HashSet<ulong> EnabledActorIds;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="State"/> class.
         /// </summary>
-        internal State(Fingerprint fingerprint, HashSet<ulong> enabledMachineIds, Dictionary<Monitor, MonitorStatus> monitorStatus)
+        internal State(Fingerprint fingerprint, HashSet<ulong> enabledActorIds, Dictionary<Monitor, MonitorStatus> monitorStatus)
         {
             this.Fingerprint = fingerprint;
-            this.EnabledMachineIds = enabledMachineIds;
+            this.EnabledActorIds = enabledActorIds;
             this.MonitorStatus = monitorStatus;
         }
 
@@ -45,9 +45,9 @@ namespace Microsoft.Coyote.TestingServices.StateCaching
         internal void PrettyPrint()
         {
             Debug.WriteLine($"Fingerprint: {this.Fingerprint}");
-            foreach (var id in this.EnabledMachineIds)
+            foreach (var id in this.EnabledActorIds)
             {
-                Debug.WriteLine($"  Enabled machine id: {id}");
+                Debug.WriteLine($"  Enabled actor id: {id}");
             }
 
             foreach (var m in this.MonitorStatus)

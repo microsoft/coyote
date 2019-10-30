@@ -51,15 +51,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             public class SetNeighbour : Event
             {
-                public MachineId Next;
+                public ActorId Next;
 
-                public SetNeighbour(MachineId next)
+                public SetNeighbour(ActorId next)
                 {
                     this.Next = next;
                 }
             }
 
-            private MachineId Next;
+            private ActorId Next;
             private bool ApplyFix;
 
             [Start]

@@ -28,11 +28,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class SentLog
         {
             public int NextSeqId;
-            public MachineId Client;
+            public ActorId Client;
             public int Key;
             public int Value;
 
-            public SentLog(int nextSeqId, MachineId client, int key, int val)
+            public SentLog(int nextSeqId, ActorId client, int key, int val)
             {
                 this.NextSeqId = nextSeqId;
                 this.Client = client;
@@ -43,12 +43,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Environment : StateMachine
         {
-            private List<MachineId> Servers;
-            private List<MachineId> Clients;
+            private List<ActorId> Servers;
+            private List<ActorId> Clients;
 
             private int NumOfServers;
 
-            private MachineId ChainReplicationMaster;
+            private ActorId ChainReplicationMaster;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -58,14 +58,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Servers = new List<MachineId>();
-                this.Clients = new List<MachineId>();
+                this.Servers = new List<ActorId>();
+                this.Clients = new List<ActorId>();
 
                 this.NumOfServers = 3;
 
                 for (int i = 0; i < this.NumOfServers; i++)
                 {
-                    MachineId server = null;
+                    ActorId server = null;
 
                     if (i == 0)
                     {
@@ -96,8 +96,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 for (int i = 0; i < this.NumOfServers; i++)
                 {
-                    MachineId pred = null;
-                    MachineId succ = null;
+                    ActorId pred = null;
+                    ActorId succ = null;
 
                     if (i > 0)
                     {
@@ -140,10 +140,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class Config : Event
             {
-                public MachineId Master;
-                public List<MachineId> Servers;
+                public ActorId Master;
+                public List<ActorId> Servers;
 
-                public Config(MachineId master, List<MachineId> servers)
+                public Config(ActorId master, List<ActorId> servers)
                     : base()
                 {
                     this.Master = master;
@@ -153,9 +153,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class FailureDetected : Event
             {
-                public MachineId Server;
+                public ActorId Server;
 
-                public FailureDetected(MachineId server)
+                public FailureDetected(ActorId server)
                     : base()
                 {
                     this.Server = server;
@@ -164,9 +164,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class FailureCorrected : Event
             {
-                public List<MachineId> Servers;
+                public List<ActorId> Servers;
 
-                public FailureCorrected(List<MachineId> servers)
+                public FailureCorrected(List<ActorId> servers)
                     : base()
                 {
                     this.Servers = servers;
@@ -175,9 +175,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class Ping : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public Ping(MachineId target)
+                public Ping(ActorId target)
                     : base()
                 {
                     this.Target = target;
@@ -196,8 +196,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MachineId Master;
-            private List<MachineId> Servers;
+            private ActorId Master;
+            private List<ActorId> Servers;
 
             private int CheckNodeIdx;
             private int Failures;
@@ -289,10 +289,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class Config : Event
             {
-                public List<MachineId> Servers;
-                public List<MachineId> Clients;
+                public List<ActorId> Servers;
+                public List<ActorId> Clients;
 
-                public Config(List<MachineId> servers, List<MachineId> clients)
+                public Config(List<ActorId> servers, List<ActorId> clients)
                     : base()
                 {
                     this.Servers = servers;
@@ -302,9 +302,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class BecomeHead : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public BecomeHead(MachineId target)
+                public BecomeHead(ActorId target)
                     : base()
                 {
                     this.Target = target;
@@ -313,9 +313,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class BecomeTail : Event
             {
-                public MachineId Target;
+                public ActorId Target;
 
-                public BecomeTail(MachineId target)
+                public BecomeTail(ActorId target)
                     : base()
                 {
                     this.Target = target;
@@ -362,13 +362,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private List<MachineId> Servers;
-            private List<MachineId> Clients;
+            private List<ActorId> Servers;
+            private List<ActorId> Clients;
 
-            private MachineId FailureDetector;
+            private ActorId FailureDetector;
 
-            private MachineId Head;
-            private MachineId Tail;
+            private ActorId Head;
+            private ActorId Tail;
 
             private int FaultyNodeIndex;
             private int LastUpdateReceivedSucc;
@@ -557,10 +557,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class PredSucc : Event
             {
-                public MachineId Predecessor;
-                public MachineId Successor;
+                public ActorId Predecessor;
+                public ActorId Successor;
 
-                public PredSucc(MachineId pred, MachineId succ)
+                public PredSucc(ActorId pred, ActorId succ)
                     : base()
                 {
                     this.Predecessor = pred;
@@ -570,13 +570,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class ForwardUpdate : Event
             {
-                public MachineId Predecessor;
+                public ActorId Predecessor;
                 public int NextSeqId;
-                public MachineId Client;
+                public ActorId Client;
                 public int Key;
                 public int Value;
 
-                public ForwardUpdate(MachineId pred, int nextSeqId, MachineId client, int key, int val)
+                public ForwardUpdate(ActorId pred, int nextSeqId, ActorId client, int key, int val)
                     : base()
                 {
                     this.Predecessor = pred;
@@ -600,10 +600,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class NewPredecessor : Event
             {
-                public MachineId Master;
-                public MachineId Predecessor;
+                public ActorId Master;
+                public ActorId Predecessor;
 
-                public NewPredecessor(MachineId master, MachineId pred)
+                public NewPredecessor(ActorId master, ActorId pred)
                     : base()
                 {
                     this.Master = master;
@@ -613,12 +613,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class NewSuccessor : Event
             {
-                public MachineId Master;
-                public MachineId Successor;
+                public ActorId Master;
+                public ActorId Successor;
                 public int LastUpdateReceivedSucc;
                 public int LastAckSent;
 
-                public NewSuccessor(MachineId master, MachineId succ,
+                public NewSuccessor(ActorId master, ActorId succ,
                     int lastUpdateReceivedSucc, int lastAckSent)
                     : base()
                 {
@@ -665,8 +665,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private bool IsHead;
             private bool IsTail;
 
-            private MachineId Predecessor;
-            private MachineId Successor;
+            private ActorId Predecessor;
+            private ActorId Successor;
 
             private Dictionary<int, int> KeyValueStore;
             private List<int> History;
@@ -972,11 +972,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
             internal class Config : Event
             {
                 public int Id;
-                public MachineId HeadNode;
-                public MachineId TailNode;
+                public ActorId HeadNode;
+                public ActorId TailNode;
                 public int Value;
 
-                public Config(int id, MachineId head, MachineId tail, int val)
+                public Config(int id, ActorId head, ActorId tail, int val)
                     : base()
                 {
                     this.Id = id;
@@ -988,10 +988,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class UpdateHeadTail : Event
             {
-                public MachineId Head;
-                public MachineId Tail;
+                public ActorId Head;
+                public ActorId Tail;
 
-                public UpdateHeadTail(MachineId head, MachineId tail)
+                public UpdateHeadTail(ActorId head, ActorId tail)
                     : base()
                 {
                     this.Head = head;
@@ -1001,11 +1001,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class Update : Event
             {
-                public MachineId Client;
+                public ActorId Client;
                 public int Key;
                 public int Value;
 
-                public Update(MachineId client, int key, int value)
+                public Update(ActorId client, int key, int value)
                     : base()
                 {
                     this.Client = client;
@@ -1016,10 +1016,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class Query : Event
             {
-                public MachineId Client;
+                public ActorId Client;
                 public int Key;
 
-                public Query(MachineId client, int key)
+                public Query(ActorId client, int key)
                     : base()
                 {
                     this.Client = client;
@@ -1037,8 +1037,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private int ClientId;
 
-            private MachineId HeadNode;
-            private MachineId TailNode;
+            private ActorId HeadNode;
+            private ActorId TailNode;
 
             private int StartIn;
             private int Next;
@@ -1130,9 +1130,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class Config : Event
             {
-                public List<MachineId> Servers;
+                public List<ActorId> Servers;
 
-                public Config(List<MachineId> servers)
+                public Config(List<ActorId> servers)
                     : base()
                 {
                     this.Servers = servers;
@@ -1141,9 +1141,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class UpdateServers : Event
             {
-                public List<MachineId> Servers;
+                public List<ActorId> Servers;
 
-                public UpdateServers(List<MachineId> servers)
+                public UpdateServers(List<ActorId> servers)
                     : base()
                 {
                     this.Servers = servers;
@@ -1152,10 +1152,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class HistoryUpdate : Event
             {
-                public MachineId Server;
+                public ActorId Server;
                 public List<int> History;
 
-                public HistoryUpdate(MachineId server, List<int> history)
+                public HistoryUpdate(ActorId server, List<int> history)
                     : base()
                 {
                     this.Server = server;
@@ -1165,10 +1165,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class SentUpdate : Event
             {
-                public MachineId Server;
+                public ActorId Server;
                 public List<SentLog> SentHistory;
 
-                public SentUpdate(MachineId server, List<SentLog> sentHistory)
+                public SentUpdate(ActorId server, List<SentLog> sentHistory)
                     : base()
                 {
                     this.Server = server;
@@ -1180,14 +1180,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private List<MachineId> Servers;
+            private List<ActorId> Servers;
 
-            private Dictionary<MachineId, List<int>> History;
-            private Dictionary<MachineId, List<int>> SentHistory;
+            private Dictionary<ActorId, List<int>> History;
+            private Dictionary<ActorId, List<int>> SentHistory;
             private List<int> TempSeq;
 
-            private MachineId Next;
-            private MachineId Prev;
+            private ActorId Next;
+            private ActorId Prev;
 
             [Start]
             [OnEventGotoState(typeof(Local), typeof(WaitForUpdateMessage))]
@@ -1199,8 +1199,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.Servers = (this.ReceivedEvent as Config).Servers;
-                this.History = new Dictionary<MachineId, List<int>>();
-                this.SentHistory = new Dictionary<MachineId, List<int>>();
+                this.History = new Dictionary<ActorId, List<int>>();
+                this.SentHistory = new Dictionary<ActorId, List<int>>();
                 this.TempSeq = new List<int>();
 
                 this.Raise(new Local());
@@ -1285,7 +1285,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.ClearTempSeq();
             }
 
-            private void GetNext(MachineId curr)
+            private void GetNext(ActorId curr)
             {
                 this.Next = null;
 
@@ -1298,7 +1298,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 }
             }
 
-            private void GetPrev(MachineId curr)
+            private void GetPrev(ActorId curr)
             {
                 this.Prev = null;
 
@@ -1419,9 +1419,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             internal class Config : Event
             {
-                public List<MachineId> Servers;
+                public List<ActorId> Servers;
 
-                public Config(List<MachineId> servers)
+                public Config(List<ActorId> servers)
                     : base()
                 {
                     this.Servers = servers;
@@ -1430,9 +1430,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class UpdateServers : Event
             {
-                public List<MachineId> Servers;
+                public List<ActorId> Servers;
 
-                public UpdateServers(List<MachineId> servers)
+                public UpdateServers(List<ActorId> servers)
                     : base()
                 {
                     this.Servers = servers;
@@ -1441,11 +1441,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class ResponseToUpdate : Event
             {
-                public MachineId Tail;
+                public ActorId Tail;
                 public int Key;
                 public int Value;
 
-                public ResponseToUpdate(MachineId tail, int key, int val)
+                public ResponseToUpdate(ActorId tail, int key, int val)
                     : base()
                 {
                     this.Tail = tail;
@@ -1456,11 +1456,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             internal class ResponseToQuery : Event
             {
-                public MachineId Tail;
+                public ActorId Tail;
                 public int Key;
                 public int Value;
 
-                public ResponseToQuery(MachineId tail, int key, int val)
+                public ResponseToQuery(ActorId tail, int key, int val)
                     : base()
                 {
                     this.Tail = tail;
@@ -1473,7 +1473,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private List<MachineId> Servers;
+            private List<ActorId> Servers;
             private Dictionary<int, int> LastUpdateResponse;
 
             [Start]

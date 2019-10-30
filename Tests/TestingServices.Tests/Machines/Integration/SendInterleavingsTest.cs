@@ -17,9 +17,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Config : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public Config(MachineId id)
+            public Config(ActorId id)
             {
                 this.Id = id;
             }

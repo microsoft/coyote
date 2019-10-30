@@ -193,9 +193,9 @@ namespace Microsoft.Coyote.Machines
         /// <summary>
         /// Initializes this machine.
         /// </summary>
-        internal void Initialize(CoyoteRuntime runtime, MachineId mid, IMachineStateManager stateManager, IEventQueue inbox)
+        internal void Initialize(CoyoteRuntime runtime, ActorId id, IMachineStateManager stateManager, IEventQueue inbox)
         {
-            this.Initialize(runtime, mid);
+            this.Initialize(runtime, id);
             this.StateManager = stateManager;
             this.Inbox = inbox;
         }
@@ -208,8 +208,8 @@ namespace Microsoft.Coyote.Machines
         /// <param name="type">Type of the machine.</param>
         /// <param name="e">Optional initialization event.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        /// <returns>The unique machine id.</returns>
-        protected MachineId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
+        /// <returns>The unique actor id.</returns>
+        protected ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
             this.Runtime.CreateMachine(null, type, null, e, this, opGroupId);
 
         /// <summary>
@@ -221,32 +221,32 @@ namespace Microsoft.Coyote.Machines
         /// <param name="friendlyName">Optional friendly machine name used for logging.</param>
         /// <param name="e">Optional initialization event.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        /// <returns>The unique machine id.</returns>
-        protected MachineId CreateMachine(Type type, string friendlyName, Event e = null, Guid opGroupId = default) =>
+        /// <returns>The unique actor id.</returns>
+        protected ActorId CreateMachine(Type type, string friendlyName, Event e = null, Guid opGroupId = default) =>
             this.Runtime.CreateMachine(null, type, friendlyName, e, this, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This event
+        /// unbound actor id, and passes the specified optional <see cref="Event"/>. This event
         /// can only be used to access its payload, and cannot be handled.
         /// </summary>
-        /// <param name="mid">Unbound machine id.</param>
+        /// <param name="id">Unbound actor id.</param>
         /// <param name="type">Type of the machine.</param>
         /// <param name="friendlyName">Optional friendly machine name used for logging.</param>
         /// <param name="e">Optional initialization event.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        protected void CreateMachine(MachineId mid, Type type, string friendlyName, Event e = null, Guid opGroupId = default) =>
-            this.Runtime.CreateMachine(mid, type, friendlyName, e, this, opGroupId);
+        protected void CreateMachine(ActorId id, Type type, string friendlyName, Event e = null, Guid opGroupId = default) =>
+            this.Runtime.CreateMachine(id, type, friendlyName, e, this, opGroupId);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        /// <param name="mid">The id of the target machine.</param>
+        /// <param name="id">The id of the target machine.</param>
         /// <param name="e">The event to send.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
-        protected void Send(MachineId mid, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            this.Runtime.SendEvent(mid, e, this, opGroupId, options);
+        protected void Send(ActorId id, Event e, Guid opGroupId = default, SendOptions options = null) =>
+            this.Runtime.SendEvent(id, e, this, opGroupId, options);
 
         /// <summary>
         /// Raises an <see cref="Event"/> internally at the end of the current action.

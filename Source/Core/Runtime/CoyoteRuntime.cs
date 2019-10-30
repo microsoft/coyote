@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Map from unique machine ids to machines.
         /// </summary>
-        protected readonly ConcurrentDictionary<MachineId, Actor> MachineMap;
+        protected readonly ConcurrentDictionary<ActorId, Actor> MachineMap;
 
         /// <summary>
         /// Map from task ids to <see cref="ControlledTask"/> objects.
@@ -45,9 +45,9 @@ namespace Microsoft.Coyote.Runtime
         protected readonly ConcurrentDictionary<int, ControlledTask> TaskMap;
 
         /// <summary>
-        /// Monotonically increasing machine id counter.
+        /// Monotonically increasing actor id counter.
         /// </summary>
-        internal long MachineIdCounter;
+        internal long ActorIdCounter;
 
         /// <summary>
         /// Monotonically increasing lock id counter.
@@ -90,9 +90,9 @@ namespace Microsoft.Coyote.Runtime
         protected CoyoteRuntime(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.MachineMap = new ConcurrentDictionary<MachineId, Actor>();
+            this.MachineMap = new ConcurrentDictionary<ActorId, Actor>();
             this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
-            this.MachineIdCounter = 0;
+            this.ActorIdCounter = 0;
             this.LockIdCounter = 0;
             this.LogWriter = new RuntimeLogWriter
             {
@@ -103,38 +103,38 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a fresh machine id that has not yet been bound to any machine.
+        /// Creates a fresh actor id that has not yet been bound to any machine.
         /// </summary>
-        public MachineId CreateMachineId(Type type, string machineName = null) => new MachineId(type, machineName, this);
+        public ActorId CreateActorId(Type type, string machineName = null) => new ActorId(type, machineName, this);
 
         /// <summary>
-        /// Creates a machine id that is uniquely tied to the specified unique name. The
-        /// returned machine id can either be a fresh id (not yet bound to any machine),
+        /// Creates a actor id that is uniquely tied to the specified unique name. The
+        /// returned actor id can either be a fresh id (not yet bound to any machine),
         /// or it can be bound to a previously created machine. In the second case, this
-        /// machine id can be directly used to communicate with the corresponding machine.
+        /// actor id can be directly used to communicate with the corresponding machine.
         /// </summary>
-        public abstract MachineId CreateMachineIdFromName(Type type, string machineName);
+        public abstract ActorId CreateActorIdFromName(Type type, string machineName);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and with
         /// the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract MachineId CreateMachine(Type type, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and
         /// with the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract MachineId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified type, using the specified <see cref="MachineId"/>.
+        /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
         /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract MachineId CreateMachine(MachineId mid, Type type, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and with the
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Runtime
         /// access its payload, and cannot be handled. The method returns only when
         /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public abstract Task<MachineId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and with
@@ -150,27 +150,27 @@ namespace Microsoft.Coyote.Runtime
         /// access its payload, and cannot be handled. The method returns only when the
         /// machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public abstract Task<MachineId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This
+        /// unbound actor id, and passes the specified optional <see cref="Event"/>. This
         /// event can only be used to access its payload, and cannot be handled. The method
         /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public abstract Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        public abstract void SendEvent(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null);
+        public abstract void SendEvent(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
 
         /// <summary>
         /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
         /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        public abstract Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null);
+        public abstract Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
 
         /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Runtime
         /// Returns the operation group id of the specified machine. During testing,
         /// the runtime asserts that the specified machine is currently executing.
         /// </summary>
-        public abstract Guid GetCurrentOperationGroupId(MachineId currentMachine);
+        public abstract Guid GetCurrentOperationGroupId(ActorId currentMachine);
 
         /// <summary>
         /// Terminates the runtime and notifies each active machine to halt execution.
@@ -258,8 +258,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        /// <returns>MachineId</returns>
-        internal abstract MachineId CreateMachine(MachineId mid, Type type, string machineName, Event e,
+        /// <returns>ActorId</returns>
+        internal abstract ActorId CreateMachine(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId);
 
         /// <summary>
@@ -267,19 +267,19 @@ namespace Microsoft.Coyote.Runtime
         /// method returns only when the machine is initialized and the <see cref="Event"/>
         /// (if any) is handled.
         /// </summary>
-        internal abstract Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, string machineName, Event e,
+        internal abstract Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        internal abstract void SendEvent(MachineId target, Event e, Actor sender, Guid opGroupId, SendOptions options);
+        internal abstract void SendEvent(ActorId target, Event e, Actor sender, Guid opGroupId, SendOptions options);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine. Returns immediately if the target machine was
         /// already running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        internal abstract Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Actor sender,
+        internal abstract Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Actor sender,
             Guid opGroupId, SendOptions options);
 
         /// <summary>
@@ -551,7 +551,7 @@ namespace Microsoft.Coyote.Runtime
         /// Gets the machine of type <typeparamref name="TMachine"/> with the specified id,
         /// or null if no such machine exists.
         /// </summary>
-        internal TMachine GetMachineFromId<TMachine>(MachineId id)
+        internal TMachine GetMachineFromId<TMachine>(ActorId id)
             where TMachine : Actor =>
             id != null && this.MachineMap.TryGetValue(id, out Actor value) &&
             value is TMachine machine ? machine : null;
@@ -807,9 +807,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Tries to handle the specified dropped <see cref="Event"/>.
         /// </summary>
-        internal void TryHandleDroppedEvent(Event e, MachineId mid)
+        internal void TryHandleDroppedEvent(Event e, ActorId id)
         {
-            this.OnEventDropped?.Invoke(e, mid);
+            this.OnEventDropped?.Invoke(e, id);
         }
 
         /// <summary>
@@ -830,7 +830,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
-                this.MachineIdCounter = 0;
+                this.ActorIdCounter = 0;
             }
         }
 

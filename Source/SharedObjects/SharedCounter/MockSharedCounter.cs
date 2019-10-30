@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Machine modeling the shared counter.
         /// </summary>
-        private readonly MachineId CounterMachine;
+        private readonly ActorId CounterMachine;
 
         /// <summary>
         /// The testing runtime hosting this shared counter.

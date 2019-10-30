@@ -28,9 +28,9 @@ namespace Microsoft.Coyote.Core.Tests
 
         internal class E : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public E(MachineId id)
+            public E(ActorId id)
                 : base()
             {
                 this.Id = id;

@@ -31,9 +31,9 @@ namespace Microsoft.Coyote.Core.Tests
 
         private class E2 : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public E2(MachineId id)
+            public E2(ActorId id)
             {
                 this.Id = id;
             }
@@ -101,11 +101,11 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                var mid = this.CreateMachine(typeof(M5), new E2(this.Id));
-                this.Send(mid, new E2(this.Id));
+                var id = this.CreateMachine(typeof(M5), new E2(this.Id));
+                this.Send(id, new E2(this.Id));
                 await this.Receive(typeof(E2));
-                this.Send(mid, new E2(this.Id));
-                this.Send(mid, new E2(this.Id));
+                this.Send(id, new E2(this.Id));
+                this.Send(id, new E2(this.Id));
                 await this.Receive(typeof(E2));
                 tcs.SetResult(true);
             }
@@ -122,14 +122,14 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                var mid = (this.ReceivedEvent as E2).Id;
+                var id = (this.ReceivedEvent as E2).Id;
                 var e = (E2)await this.Receive(typeof(E2));
                 this.Send(e.Id, new E2(this.Id));
             }
 
             private async Task Handle()
             {
-                var mid = (this.ReceivedEvent as E2).Id;
+                var id = (this.ReceivedEvent as E2).Id;
                 var e = (E2)await this.Receive(typeof(E2));
                 this.Send(e.Id, new E2(this.Id));
             }

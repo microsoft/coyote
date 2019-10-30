@@ -517,7 +517,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
             foreach (var step in cycle)
             {
-                enabledMachines.UnionWith(step.State.EnabledMachineIds);
+                enabledMachines.UnionWith(step.State.EnabledActorIds);
             }
 
             if (Debug.IsEnabled)

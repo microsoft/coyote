@@ -18,9 +18,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Config : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public Config(MachineId id)
+            public Config(ActorId id)
             {
                 this.Id = id;
             }
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Server : StateMachine
         {
-            private MachineId Client;
+            private ActorId Client;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Client : StateMachine
         {
-            private MachineId Server;
+            private ActorId Server;
             private int Counter;
 
             [Start]

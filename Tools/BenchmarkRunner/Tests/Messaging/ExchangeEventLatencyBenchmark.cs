@@ -28,10 +28,10 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
         private class SetupTargetEvent : Event
         {
-            public MachineId Target;
+            public ActorId Target;
             public long NumMessages;
 
-            internal SetupTargetEvent(MachineId target, long numMessages)
+            internal SetupTargetEvent(ActorId target, long numMessages)
             {
                 this.Target = target;
                 this.NumMessages = numMessages;
@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
         private class M1 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
-            private MachineId Target;
+            private ActorId Target;
             private long NumMessages;
             private long Counter = 0;
 
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
         private class M2 : StateMachine
         {
-            private MachineId Target;
+            private ActorId Target;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]

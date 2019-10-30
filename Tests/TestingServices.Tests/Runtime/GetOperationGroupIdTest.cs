@@ -19,9 +19,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class E : Event
         {
-            public MachineId Id;
+            public ActorId Id;
 
-            public E(MachineId id)
+            public E(ActorId id)
             {
                 this.Id = id;
             }

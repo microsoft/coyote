@@ -58,18 +58,18 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.Assert(false, "Type '{0}' is not a machine.", machineType.FullName);
             }
 
-            var mid = new MachineId(machineType, null, this);
+            var id = new ActorId(machineType, null, this);
 
             this.Machine = StateMachineFactory.Create(machineType);
             IMachineStateManager stateManager = new MachineStateManager(this, this.Machine, Guid.Empty);
             this.MachineInbox = new EventQueue(stateManager);
 
-            this.Machine.Initialize(this, mid, stateManager, this.MachineInbox);
+            this.Machine.Initialize(this, id, stateManager, this.MachineInbox);
             this.Machine.InitializeStateInformation();
 
             this.LogWriter.OnCreateMachine(this.Machine.Id, null);
 
-            this.MachineMap.TryAdd(mid, this.Machine);
+            this.MachineMap.TryAdd(id, this.Machine);
 
             this.IsMachineWaitingToReceiveEvent = false;
         }
@@ -85,19 +85,19 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Creates a machine id that is uniquely tied to the specified unique name. The
-        /// returned machine id can either be a fresh id (not yet bound to any machine),
+        /// Creates a actor id that is uniquely tied to the specified unique name. The
+        /// returned actor id can either be a fresh id (not yet bound to any machine),
         /// or it can be bound to a previously created machine. In the second case, this
-        /// machine id can be directly used to communicate with the corresponding machine.
+        /// actor id can be directly used to communicate with the corresponding machine.
         /// </summary>
-        public override MachineId CreateMachineIdFromName(Type type, string machineName) => new MachineId(type, machineName, this, true);
+        public override ActorId CreateActorIdFromName(Type type, string machineName) => new ActorId(type, machineName, this, true);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and with
         /// the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override MachineId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
+        public override ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -105,15 +105,15 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// with the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override MachineId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+        public override ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
-        /// Creates a new machine of the specified type, using the specified <see cref="MachineId"/>.
+        /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
         /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public override MachineId CreateMachine(MachineId mid, Type type, Event e = null, Guid opGroupId = default) =>
+        public override ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// access its payload, and cannot be handled. The method returns only when
         /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<MachineId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
+        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -131,66 +131,66 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// access its payload, and cannot be handled. The method returns only when the
         /// machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<MachineId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound machine id, and passes the specified optional <see cref="Event"/>. This
+        /// unbound actor id, and passes the specified optional <see cref="Event"/>. This
         /// event can only be used to access its payload, and cannot be handled. The method
         /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public override Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, Event e = null, Guid opGroupId = default) =>
+        public override Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        public override void SendEvent(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
+        public override void SendEvent(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
         /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        public override Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
+        public override Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
         /// Returns the operation group id of the specified machine. Returns <see cref="Guid.Empty"/>
-        /// if the id is not set, or if the <see cref="MachineId"/> is not associated with this runtime.
+        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime.
         /// During testing, the runtime asserts that the specified machine is currently executing.
         /// </summary>
-        public override Guid GetCurrentOperationGroupId(MachineId currentMachine) => Guid.Empty;
+        public override Guid GetCurrentOperationGroupId(ActorId currentMachine) => Guid.Empty;
 
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal override MachineId CreateMachine(MachineId mid, Type type, string machineName, Event e,
+        internal override ActorId CreateMachine(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
-            mid = mid ?? new MachineId(type, null, this);
-            this.LogWriter.OnCreateMachine(mid, creator?.Id);
-            return mid;
+            id = id ?? new ActorId(type, null, this);
+            this.LogWriter.OnCreateMachine(id, creator?.Id);
+            return id;
         }
 
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
         /// method returns only when the created machine reaches quiescence.
         /// </summary>
-        internal override Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, string machineName, Event e,
+        internal override Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
-            mid = mid ?? new MachineId(type, null, this);
-            this.LogWriter.OnCreateMachine(mid, creator?.Id);
-            return Task.FromResult(mid);
+            id = id ?? new ActorId(type, null, this);
+            this.LogWriter.OnCreateMachine(id, creator?.Id);
+            return Task.FromResult(id);
         }
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        internal override void SendEvent(MachineId target, Event e, Actor sender, Guid opGroupId, SendOptions options)
+        internal override void SendEvent(ActorId target, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
             this.Assert(sender is null || this.Machine.Id.Equals(sender.Id),
                 string.Format("Only machine '{0}' can send an event during this test.", this.Machine.Id.ToString()));
@@ -233,7 +233,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Sends an asynchronous <see cref="Event"/> to a machine. Returns immediately if the target machine was
         /// already running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        internal override Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Actor sender,
+        internal override Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Actor sender,
             Guid opGroupId, SendOptions options)
         {
             this.SendEvent(target, e, sender, opGroupId, options);
@@ -451,9 +451,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner)
         {
-            var mid = this.CreateMachineId(typeof(MockMachineTimer));
-            this.CreateMachine(mid, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
-            return this.GetMachineFromId<MockMachineTimer>(mid);
+            var id = this.CreateActorId(typeof(MockMachineTimer));
+            this.CreateMachine(id, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
+            return this.GetMachineFromId<MockMachineTimer>(id);
         }
 
         /// <summary>

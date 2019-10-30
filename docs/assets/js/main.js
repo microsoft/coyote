@@ -69,4 +69,7 @@ jQuery(document).ready(function ($) {
         offset: '70%'
     });
 
+    // make external links that start with http, and don't go to our own site, open in a new tab
+    $('a[href^="http"]').not('a[href*="microsoft.github.io"]').attr('target','_blank');
+
 });

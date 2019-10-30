@@ -4,7 +4,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using Microsoft.Coyote.TestingServices.Coverage;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,13 +17,14 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         {
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCustomLogger()
         {
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             var runtime = MachineRuntimeFactory.Create(config);
+
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -41,14 +42,60 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 <SendLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' sent event 'Microsoft.Coyote.Core.Tests.LogMessages.E' to machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()'.
 <EnqueueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' enqueued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
 <DequeueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Init' dequeued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
-<ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Init' invoked action 'Act'.
-<SendLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Init' sent event 'Microsoft.Coyote.Core.Tests.LogMessages.E' to machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()'.
+<GotoLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' is transitioning from state 'Init' to state 'Microsoft.Coyote.Core.Tests.LogMessages.N.Act'.
+<StateLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' exits state 'Init'.
+<StateLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' enters state 'Act'.
+<ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Act' invoked action 'ActOnEntry'.
+<SendLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Act' sent event 'Microsoft.Coyote.Core.Tests.LogMessages.E' to machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()'.
 <EnqueueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' enqueued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
 <DequeueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' dequeued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
 <ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' invoked action 'Act'.
 ";
             string actual = Regex.Replace(logger.ToString(), "[0-9]", string.Empty);
             Assert.Equal(expected, actual);
+
+            logger.Dispose();
+        }
+
+        [Fact(Timeout=5000)]
+        public async Task TestGraphLogger()
+        {
+            CustomLogger logger = new CustomLogger(true);
+
+            Configuration config = Configuration.Create().WithVerbosityEnabled();
+            var runtime = MachineRuntimeFactory.Create(config);
+
+            var graphWriter = new GraphMachineRuntimeLog();
+            runtime.SetLogWriter(graphWriter);
+            runtime.SetLogger(logger);
+
+            var tcs = new TaskCompletionSource<bool>();
+            runtime.CreateMachine(typeof(M), new Configure(tcs));
+
+            await WaitAsync(tcs.Task);
+            await Task.Delay(200);
+
+            string graph = graphWriter.Graph.ToString().Replace("Microsoft.Coyote.Core.Tests.LogMessages.", string.Empty);
+            string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
+  <Nodes>
+    <Node Id='M(0)' Label='M(0)' Group='Expanded'/>
+    <Node Id='M(0).Init' Label='Init'/>
+    <Node Id='N(1)' Label='N(1)' Group='Expanded'/>
+    <Node Id='N(1).Act' Label='Act'/>
+    <Node Id='N(1).Init' Label='Init'/>
+  </Nodes>
+  <Links>
+    <Link Source='M(0).Init' Target='N(1).Init' Label='E' EventId='E'/>
+    <Link Source='M(0)' Target='M(0).Init' Category='Contains'/>
+    <Link Source='N(1).Act' Target='M(0).Init' Label='E' EventId='E'/>
+    <Link Source='N(1).Init' Target='N(1).Act' Label='E' EventId='E'/>
+    <Link Source='N(1)' Target='N(1).Act' Category='Contains'/>
+    <Link Source='N(1)' Target='N(1).Init' Category='Contains'/>
+  </Links>
+</DirectedGraph>
+";
+
+            Assert.Equal(expected, graph);
 
             logger.Dispose();
         }
@@ -76,8 +123,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         {
             this.Run(r =>
             {
-                InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => r.SetLogger(null));
-                Assert.Equal("Cannot install a null logger.", ex.Message);
+                Assert.Throws<InvalidOperationException>(() => r.SetLogger(null));
             });
         }
     }

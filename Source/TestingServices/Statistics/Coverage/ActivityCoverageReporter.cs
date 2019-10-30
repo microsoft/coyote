@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Xml;
+using System.Linq;
 
 namespace Microsoft.Coyote.TestingServices.Coverage
 {
@@ -33,9 +31,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         public void EmitVisualizationGraph(string graphFile)
         {
-            using (var writer = new XmlTextWriter(graphFile, Encoding.UTF8))
+            if (this.CoverageInfo.CoverageGraph != null)
             {
-                this.WriteVisualizationGraph(writer);
+                this.CoverageInfo.CoverageGraph.SaveDgml(graphFile);
             }
         }
 
@@ -50,102 +48,15 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
         }
 
-        /// <summary>
-        /// Writes the visualization graph.
-        /// </summary>
-        private void WriteVisualizationGraph(XmlTextWriter writer)
+        private static string GetEventId(GraphLink link)
         {
-            // Starts document.
-            writer.WriteStartDocument(true);
-            writer.Formatting = Formatting.Indented;
-            writer.Indentation = 2;
-
-            // Starts DirectedGraph element.
-            writer.WriteStartElement("DirectedGraph", @"http://schemas.microsoft.com/vs/2009/dgml");
-
-            // Starts Nodes element.
-            writer.WriteStartElement("Nodes");
-
-            // Iterates machines.
-            foreach (var machine in this.CoverageInfo.MachinesToStates.Keys)
+            if (link.Attributes != null)
             {
-                writer.WriteStartElement("Node");
-                writer.WriteAttributeString("Id", machine);
-                writer.WriteAttributeString("Group", "Expanded");
-                writer.WriteEndElement();
+                link.Attributes.TryGetValue("EventId", out string id);
+                return id;
             }
 
-            // Iterates states.
-            foreach (var tup in this.CoverageInfo.MachinesToStates)
-            {
-                var machine = tup.Key;
-                foreach (var state in tup.Value)
-                {
-                    writer.WriteStartElement("Node");
-                    writer.WriteAttributeString("Id", GetStateId(machine, state));
-                    writer.WriteAttributeString("Label", state);
-                    writer.WriteEndElement();
-                }
-            }
-
-            // Ends Nodes element.
-            writer.WriteEndElement();
-
-            // Starts Links element.
-            writer.WriteStartElement("Links");
-
-            // Iterates states.
-            foreach (var tup in this.CoverageInfo.MachinesToStates)
-            {
-                var machine = tup.Key;
-                foreach (var state in tup.Value)
-                {
-                    writer.WriteStartElement("Link");
-                    writer.WriteAttributeString("Source", machine);
-                    writer.WriteAttributeString("Target", GetStateId(machine, state));
-                    writer.WriteAttributeString("Category", "Contains");
-                    writer.WriteEndElement();
-                }
-            }
-
-            var parallelEdgeCounter = new Dictionary<Tuple<string, string>, int>();
-
-            // Iterates transitions.
-            foreach (var transition in this.CoverageInfo.Transitions)
-            {
-                var source = GetStateId(transition.MachineOrigin, transition.StateOrigin);
-                var target = GetStateId(transition.MachineTarget, transition.StateTarget);
-                var counter = 0;
-                if (parallelEdgeCounter.ContainsKey(Tuple.Create(source, target)))
-                {
-                    counter = parallelEdgeCounter[Tuple.Create(source, target)];
-                    parallelEdgeCounter[Tuple.Create(source, target)] = counter + 1;
-                }
-                else
-                {
-                    parallelEdgeCounter[Tuple.Create(source, target)] = 1;
-                }
-
-                writer.WriteStartElement("Link");
-                writer.WriteAttributeString("Source", source);
-                writer.WriteAttributeString("Target", target);
-                writer.WriteAttributeString("Label", transition.EdgeLabel);
-                if (counter != 0)
-                {
-                    writer.WriteAttributeString("Index", counter.ToString());
-                }
-
-                writer.WriteEndElement();
-            }
-
-            // Ends Links element.
-            writer.WriteEndElement();
-
-            // Ends DirectedGraph element.
-            writer.WriteEndElement();
-
-            // Ends document.
-            writer.WriteEndDocument();
+            return null;
         }
 
         /// <summary>
@@ -153,231 +64,222 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         internal void WriteCoverageText(TextWriter writer)
         {
-            var machines = new List<string>(this.CoverageInfo.MachinesToStates.Keys);
+            var machines = new List<string>(this.CoverageInfo.Machines);
+            machines.Sort();
 
-            var uncoveredEvents = new HashSet<Tuple<string, string, string>>(this.CoverageInfo.RegisteredEvents);
-            foreach (var transition in this.CoverageInfo.Transitions)
+            bool hasExternalSource = false;
+            string externalSrcId = "Microsoft.Coyote.TestingServices.Coverage.GraphMachineRuntimeLog+ExternalCode";
+
+            // (machines + "." + states => registered events
+            var uncoveredEvents = new Dictionary<string, HashSet<string>>();
+            foreach (var item in this.CoverageInfo.RegisteredEvents)
             {
-                if (transition.MachineOrigin == transition.MachineTarget)
+                uncoveredEvents[item.Key] = new HashSet<string>(item.Value);
+            }
+
+            int totalEvents = (from h in uncoveredEvents select h.Value.Count).Sum();
+
+            // Now use the graph to find incoming links to each state and remove those from the list of uncovered events.
+            foreach (var link in this.CoverageInfo.CoverageGraph.Links)
+            {
+                string srcId = link.Source.Id;
+                if (srcId == externalSrcId && !hasExternalSource)
                 {
-                    uncoveredEvents.Remove(Tuple.Create(transition.MachineOrigin, transition.StateOrigin, transition.EdgeLabel));
+                    machines.Add(srcId);
+                    hasExternalSource = true;
                 }
-                else
+
+                string targetId = link.Target.Id;
+                string eventId = GetEventId(link);
+                if (link.Category != "Contains" && !string.IsNullOrEmpty(eventId))
                 {
-                    uncoveredEvents.Remove(Tuple.Create(transition.MachineTarget, transition.StateTarget, transition.EdgeLabel));
+                    if (uncoveredEvents.TryGetValue(targetId, out var events))
+                    {
+                        events.Remove(eventId);
+                    }
                 }
             }
 
-            string eventCoverage = this.CoverageInfo.RegisteredEvents.Count == 0 ? "100.0" :
-                ((this.CoverageInfo.RegisteredEvents.Count - uncoveredEvents.Count) * 100.0 / this.CoverageInfo.RegisteredEvents.Count).ToString("F1");
-            writer.WriteLine("Total event coverage: {0}%", eventCoverage);
+            int totalUncoveredEvents = (from h in uncoveredEvents select h.Value.Count).Sum();
 
-            // Map from machines to states to registered events.
-            var machineToStatesToEvents = new Dictionary<string, Dictionary<string, HashSet<string>>>();
-            machines.ForEach(m => machineToStatesToEvents.Add(m, new Dictionary<string, HashSet<string>>()));
-            machines.ForEach(m =>
-            {
-                foreach (var state in this.CoverageInfo.MachinesToStates[m])
-                {
-                    machineToStatesToEvents[m].Add(state, new HashSet<string>());
-                }
-            });
+            string eventCoverage = totalEvents == 0 ? "100.0" : ((totalEvents - totalUncoveredEvents) * 100.0 / totalEvents).ToString("F1");
 
-            foreach (var ev in this.CoverageInfo.RegisteredEvents)
-            {
-                machineToStatesToEvents[ev.Item1][ev.Item2].Add(ev.Item3);
-            }
-
-            // Maps from machines to transitions.
-            var machineToOutgoingTransitions = new Dictionary<string, List<Transition>>();
-            var machineToIncomingTransitions = new Dictionary<string, List<Transition>>();
-            var machineToIntraTransitions = new Dictionary<string, List<Transition>>();
-
-            machines.ForEach(m => machineToIncomingTransitions.Add(m, new List<Transition>()));
-            machines.ForEach(m => machineToOutgoingTransitions.Add(m, new List<Transition>()));
-            machines.ForEach(m => machineToIntraTransitions.Add(m, new List<Transition>()));
-
-            foreach (var tr in this.CoverageInfo.Transitions)
-            {
-                if (tr.MachineOrigin == tr.MachineTarget)
-                {
-                    machineToIntraTransitions[tr.MachineOrigin].Add(tr);
-                }
-                else
-                {
-                    machineToIncomingTransitions[tr.MachineTarget].Add(tr);
-                    machineToOutgoingTransitions[tr.MachineOrigin].Add(tr);
-                }
-            }
+            WriteHeader(writer, string.Format("Total event coverage: {0}%", eventCoverage));
 
             // Per-machine data.
             foreach (var machine in machines)
             {
-                writer.WriteLine("Machine: {0}", machine);
-                writer.WriteLine("***************");
+                WriteHeader(writer, string.Format("Machine: {0}", machine));
 
-                var machineUncoveredEvents = new Dictionary<string, HashSet<string>>();
-                foreach (var state in this.CoverageInfo.MachinesToStates[machine])
+                // find all possible events for this machine.
+                var uncoveredMachineEvents = new Dictionary<string, HashSet<string>>();
+                var allMachineEvents = new Dictionary<string, HashSet<string>>();
+
+                foreach (var item in this.CoverageInfo.RegisteredEvents)
                 {
-                    machineUncoveredEvents.Add(state, new HashSet<string>(machineToStatesToEvents[machine][state]));
+                    var id = GetMachineId(item.Key);
+                    if (id == machine)
+                    {
+                        uncoveredMachineEvents[item.Key] = new HashSet<string>(item.Value);
+                        allMachineEvents[item.Key] = new HashSet<string>(item.Value);
+                    }
                 }
 
-                foreach (var tr in machineToIncomingTransitions[machine])
+                // Now use the graph to find incoming links to each state in this machine and remove those from the list of uncovered events.
+                foreach (var link in this.CoverageInfo.CoverageGraph.Links)
                 {
-                    machineUncoveredEvents[tr.StateTarget].Remove(tr.EdgeLabel);
+                    string srcId = link.Source.Id;
+                    string targetId = link.Target.Id;
+                    string eventId = GetEventId(link);
+                    if (link.Category != "Contains" && !string.IsNullOrEmpty(eventId))
+                    {
+                        var id = GetMachineId(targetId);
+                        if (id == machine)
+                        {
+                            if (uncoveredMachineEvents.TryGetValue(targetId, out var events))
+                            {
+                                events.Remove(eventId);
+                            }
+                        }
+                    }
                 }
 
-                foreach (var tr in machineToIntraTransitions[machine])
-                {
-                    machineUncoveredEvents[tr.StateOrigin].Remove(tr.EdgeLabel);
-                }
+                int totalMachineEvents = (from h in allMachineEvents select h.Value.Count).Sum();
+                var totalUncoveredMachineEvents = (from h in uncoveredMachineEvents select h.Value.Count).Sum();
 
-                var numTotalEvents = 0;
-                foreach (var tup in machineToStatesToEvents[machine])
-                {
-                    numTotalEvents += tup.Value.Count;
-                }
-
-                var numUncoveredEvents = 0;
-                foreach (var tup in machineUncoveredEvents)
-                {
-                    numUncoveredEvents += tup.Value.Count;
-                }
-
-                eventCoverage = numTotalEvents == 0 ? "100.0" : ((numTotalEvents - numUncoveredEvents) * 100.0 / numTotalEvents).ToString("F1");
+                eventCoverage = totalMachineEvents == 0 ? "100.0" : ((totalMachineEvents - totalUncoveredMachineEvents) * 100.0 / totalMachineEvents).ToString("F1");
                 writer.WriteLine("Machine event coverage: {0}%", eventCoverage);
 
-                // Find uncovered states.
-                var uncoveredStates = new HashSet<string>(this.CoverageInfo.MachinesToStates[machine]);
-                foreach (var tr in machineToIntraTransitions[machine])
+                if (!this.CoverageInfo.MachinesToStates.ContainsKey(machine))
                 {
-                    uncoveredStates.Remove(tr.StateOrigin);
-                    uncoveredStates.Remove(tr.StateTarget);
-                }
-
-                foreach (var tr in machineToIncomingTransitions[machine])
-                {
-                    uncoveredStates.Remove(tr.StateTarget);
-                }
-
-                foreach (var tr in machineToOutgoingTransitions[machine])
-                {
-                    uncoveredStates.Remove(tr.StateOrigin);
-                }
-
-                // State maps.
-                var stateToIncomingEvents = new Dictionary<string, HashSet<string>>();
-                foreach (var tr in machineToIncomingTransitions[machine])
-                {
-                    if (!stateToIncomingEvents.ContainsKey(tr.StateTarget))
-                    {
-                        stateToIncomingEvents.Add(tr.StateTarget, new HashSet<string>());
-                    }
-
-                    stateToIncomingEvents[tr.StateTarget].Add(tr.EdgeLabel);
-                }
-
-                var stateToOutgoingEvents = new Dictionary<string, HashSet<string>>();
-                foreach (var tr in machineToOutgoingTransitions[machine])
-                {
-                    if (!stateToOutgoingEvents.ContainsKey(tr.StateOrigin))
-                    {
-                        stateToOutgoingEvents.Add(tr.StateOrigin, new HashSet<string>());
-                    }
-
-                    stateToOutgoingEvents[tr.StateOrigin].Add(tr.EdgeLabel);
-                }
-
-                var stateToOutgoingStates = new Dictionary<string, HashSet<string>>();
-                var stateToIncomingStates = new Dictionary<string, HashSet<string>>();
-                foreach (var tr in machineToIntraTransitions[machine])
-                {
-                    if (!stateToOutgoingStates.ContainsKey(tr.StateOrigin))
-                    {
-                        stateToOutgoingStates.Add(tr.StateOrigin, new HashSet<string>());
-                    }
-
-                    stateToOutgoingStates[tr.StateOrigin].Add(tr.StateTarget);
-
-                    if (!stateToIncomingStates.ContainsKey(tr.StateTarget))
-                    {
-                        stateToIncomingStates.Add(tr.StateTarget, new HashSet<string>());
-                    }
-
-                    stateToIncomingStates[tr.StateTarget].Add(tr.StateOrigin);
+                    this.CoverageInfo.MachinesToStates[machine] = new HashSet<string>(new string[] { "ExternalState" });
                 }
 
                 // Per-state data.
                 foreach (var state in this.CoverageInfo.MachinesToStates[machine])
                 {
+                    var key = machine + "." + state;
+                    int totalStateEvents = (from h in allMachineEvents where h.Key == key select h.Value.Count).Sum();
+                    int uncoveredStateEvents = (from h in uncoveredMachineEvents where h.Key == key select h.Value.Count).Sum();
+
                     writer.WriteLine();
-                    writer.WriteLine("\tState: {0}{1}", state, uncoveredStates.Contains(state) ? " is uncovered" : string.Empty);
-                    if (!uncoveredStates.Contains(state))
+                    writer.WriteLine("\tState: {0}{1}", state, totalStateEvents > 0 && totalStateEvents == uncoveredStateEvents ? " is uncovered" : string.Empty);
+                    if (totalStateEvents == 0)
                     {
-                        eventCoverage = machineToStatesToEvents[machine][state].Count == 0 ? "100.0" :
-                            ((machineToStatesToEvents[machine][state].Count - machineUncoveredEvents[state].Count) * 100.0 /
-                              machineToStatesToEvents[machine][state].Count).ToString("F1");
+                        writer.WriteLine("\t\tState has no expected events, so coverage is 100%");
+                    }
+                    else if (totalStateEvents != uncoveredStateEvents)
+                    {
+                        eventCoverage = totalStateEvents == 0 ? "100.0" : ((totalStateEvents - uncoveredStateEvents) * 100.0 / totalStateEvents).ToString("F1");
                         writer.WriteLine("\t\tState event coverage: {0}%", eventCoverage);
                     }
 
-                    if (stateToIncomingEvents.ContainsKey(state) && stateToIncomingEvents[state].Count > 0)
+                    // Now use the graph to find incoming links to each state in this machine
+                    HashSet<string> stateIncomingEvents = new HashSet<string>();
+                    HashSet<string> stateIncomingStates = new HashSet<string>();
+                    HashSet<string> stateOutgoingEvents = new HashSet<string>();
+                    HashSet<string> stateOutgoingStates = new HashSet<string>();
+                    foreach (var link in this.CoverageInfo.CoverageGraph.Links)
                     {
-                        writer.Write("\t\tEvents received: ");
-                        foreach (var e in stateToIncomingEvents[state])
+                        string srcId = link.Source.Id;
+                        string targetId = link.Target.Id;
+                        string label = link.Label; // this is the event name (shortened for display).
+                        if (link.Category != "Contains" && !string.IsNullOrEmpty(label) && srcId != targetId)
                         {
-                            writer.Write("{0} ", e);
-                        }
+                            if (targetId == key)
+                            {
+                                // Hide the special internal only "goto" event which corresponds to user
+                                // explicitly calling Goto() from within some action action.
+                                if (label != "goto")
+                                {
+                                    stateIncomingEvents.Add(label);
+                                }
 
-                        writer.WriteLine();
+                                if (!srcId.StartsWith(externalSrcId))
+                                {
+                                    stateIncomingStates.Add(GetStateName(srcId));
+                                }
+                            }
+
+                            if (srcId == key)
+                            {
+                                if (label != "goto")
+                                {
+                                    stateOutgoingEvents.Add(label);
+                                }
+
+                                if (!srcId.StartsWith(externalSrcId))
+                                {
+                                    stateOutgoingStates.Add(GetStateName(targetId));
+                                }
+                            }
+                        }
                     }
 
-                    if (stateToOutgoingEvents.ContainsKey(state) && stateToOutgoingEvents[state].Count > 0)
+                    if (stateIncomingEvents.Count > 0)
                     {
-                        writer.Write("\t\tEvents sent: ");
-                        foreach (var e in stateToOutgoingEvents[state])
-                        {
-                            writer.Write("{0} ", e);
-                        }
-
-                        writer.WriteLine();
+                        writer.WriteLine("\t\tEvents received: {0}", string.Join(", ", Sort(stateIncomingEvents)));
                     }
 
-                    if (machineUncoveredEvents.ContainsKey(state) && machineUncoveredEvents[state].Count > 0)
+                    if (stateOutgoingEvents.Count > 0)
                     {
-                        writer.Write("\t\tEvents not covered: ");
-                        foreach (var e in machineUncoveredEvents[state])
-                        {
-                            writer.Write("{0} ", e);
-                        }
-
-                        writer.WriteLine();
+                        writer.WriteLine("\t\tEvents sent: {0}", string.Join(", ", Sort(stateOutgoingEvents)));
                     }
 
-                    if (stateToIncomingStates.ContainsKey(state) && stateToIncomingStates[state].Count > 0)
+                    var stateUncoveredEvents = (from h in uncoveredMachineEvents where h.Key == key select h.Value).FirstOrDefault();
+                    if (stateUncoveredEvents != null && stateUncoveredEvents.Count > 0)
                     {
-                        writer.Write("\t\tPrevious states: ");
-                        foreach (var s in stateToIncomingStates[state])
-                        {
-                            writer.Write("{0} ", s);
-                        }
-
-                        writer.WriteLine();
+                        writer.WriteLine("\t\tEvents not covered: {0}", string.Join(", ", Sort(stateUncoveredEvents)));
                     }
 
-                    if (stateToOutgoingStates.ContainsKey(state) && stateToOutgoingStates[state].Count > 0)
+                    if (stateIncomingStates.Count > 0)
                     {
-                        writer.Write("\t\tNext states: ");
-                        foreach (var s in stateToOutgoingStates[state])
-                        {
-                            writer.Write("{0} ", s);
-                        }
+                        writer.WriteLine("\t\tPrevious states: {0}", string.Join(", ", Sort(stateIncomingStates)));
+                    }
 
-                        writer.WriteLine();
+                    if (stateOutgoingStates.Count > 0)
+                    {
+                        writer.WriteLine("\t\tNext states: {0}", string.Join(", ", Sort(stateOutgoingStates)));
                     }
                 }
 
                 writer.WriteLine();
             }
+        }
+
+        private static List<string> Sort(HashSet<string> items)
+        {
+            List<string> sorted = new List<string>(items);
+            sorted.Sort();
+            return sorted;
+        }
+
+        private static string GetStateName(string nodeId)
+        {
+            int i = nodeId.LastIndexOf(".");
+            if (i > 0)
+            {
+                return nodeId.Substring(i + 1);
+            }
+
+            return nodeId;
+        }
+
+        private static void WriteHeader(TextWriter writer, string header)
+        {
+            writer.WriteLine(header);
+            writer.WriteLine(new string('=', header.Length));
+        }
+
+        private static string GetMachineId(string nodeId)
+        {
+            int i = nodeId.LastIndexOf(".");
+            if (i > 0)
+            {
+                return nodeId.Substring(0, i);
+            }
+
+            return nodeId;
         }
 
         private static string GetStateId(string machineName, string stateName) =>

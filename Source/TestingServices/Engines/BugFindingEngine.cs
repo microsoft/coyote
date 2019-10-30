@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Tracing.Error;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
@@ -41,6 +42,11 @@ namespace Microsoft.Coyote.TestingServices
         /// The reproducable trace, if any.
         /// </summary>
         internal string ReproducableTrace { get; private set; }
+
+        /// <summary>
+        /// A graph of the machines, states and events.
+        /// </summary>
+        internal Graph Graph { get; private set; }
 
         /// <summary>
         /// Creates a new bug-finding engine.
@@ -235,8 +241,8 @@ namespace Microsoft.Coyote.TestingServices
                     runtime = new SystematicTestingRuntime(this.Configuration, this.Strategy);
                 }
 
-                // If verbosity is turned off, then intercept the program log, and also dispose
-                // the standard output and error streams.
+                // If verbosity is turned off, then intercept the program log, and also redirect
+                // the standard output and error streams to a nul logger.
                 if (!this.Configuration.IsVerbose)
                 {
                     runtimeLogger = new InMemoryLogger();
@@ -246,6 +252,8 @@ namespace Microsoft.Coyote.TestingServices
                     Console.SetOut(writer);
                     Console.SetError(writer);
                 }
+
+                this.InitializeCustomLogging(runtime);
 
                 // Runs the test and waits for it to terminate.
                 runtime.RunTest(this.TestMethod, this.TestName);
@@ -325,23 +333,48 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         public override IEnumerable<string> TryEmitTraces(string directory, string file)
         {
+            int index = 0;
+            // Find the next available file index.
+            Regex match = new Regex("^(.*)_([0-9]+)_([0-9]+)");
+            foreach (var path in Directory.GetFiles(directory))
+            {
+                string name = Path.GetFileName(path);
+                if (name.StartsWith(file))
+                {
+                    var result = match.Match(name);
+                    if (result.Success)
+                    {
+                        string value = result.Groups[3].Value;
+                        if (int.TryParse(value, out int i))
+                        {
+                            index = Math.Max(index, i + 1);
+                        }
+                    }
+                }
+            }
+
             // Emits the human readable trace, if it exists.
             if (!string.IsNullOrEmpty(this.ReadableTrace))
             {
-                string[] readableTraces = Directory.GetFiles(directory, file + "_*.txt").
-                    Where(path => new Regex(@"^.*_[0-9]+.txt$").IsMatch(path)).ToArray();
-                string readableTracePath = directory + file + "_" + readableTraces.Length + ".txt";
+                string readableTracePath = directory + file + "_" + index + ".txt";
 
                 this.Logger.WriteLine($"..... Writing {readableTracePath}");
                 File.WriteAllText(readableTracePath, this.ReadableTrace);
                 yield return readableTracePath;
             }
 
+            if (this.Graph != null)
+            {
+                string graphPath = directory + file + "_" + index + ".dgml";
+                this.Graph.SaveDgml(graphPath);
+                this.Logger.WriteLine($"..... Writing {graphPath}");
+                yield return graphPath;
+            }
+
             // Emits the bug trace, if it exists.
             if (this.BugTrace != null)
             {
-                string[] bugTraces = Directory.GetFiles(directory, file + "_*.pstrace");
-                string bugTracePath = directory + file + "_" + bugTraces.Length + ".pstrace";
+                string bugTracePath = directory + file + "_" + index + ".pstrace";
 
                 using (FileStream stream = File.Open(bugTracePath, FileMode.Create))
                 {
@@ -356,8 +389,7 @@ namespace Microsoft.Coyote.TestingServices
             // Emits the reproducable trace, if it exists.
             if (!string.IsNullOrEmpty(this.ReproducableTrace))
             {
-                string[] reproTraces = Directory.GetFiles(directory, file + "_*.schedule");
-                string reproTracePath = directory + file + "_" + reproTraces.Length + ".schedule";
+                string reproTracePath = directory + file + "_" + index + ".schedule";
 
                 this.Logger.WriteLine($"..... Writing {reproTracePath}");
                 File.WriteAllText(reproTracePath, this.ReproducableTrace);
@@ -375,6 +407,37 @@ namespace Microsoft.Coyote.TestingServices
             TestReport report = runtime.Scheduler.GetReport();
             report.CoverageInfo.Merge(runtime.CoverageInfo);
             this.TestReport.Merge(report);
+
+            // Save the graph snapshot if there is one.
+            var graphLog = FindGraphLog(runtime);
+            if (graphLog != null)
+            {
+                this.Graph = graphLog.SnapshotGraph();
+                // Store it here so it is sent back to server in the distributed test scenario.
+                this.TestReport.CoverageInfo.CoverageGraph = this.Graph;
+            }
+        }
+
+        /// <summary>
+        /// Look for a GraphStateMachineLog in the chain of log writers.
+        /// </summary>
+        /// <param name="runtime">The runtime to search.</param>
+        /// <returns>A GraphStateMachineLog if found, or null.</returns>
+        private static GraphMachineRuntimeLog FindGraphLog(SystematicTestingRuntime runtime)
+        {
+            IMachineRuntimeLog start = runtime.LogWriter;
+            while (start != null)
+            {
+                GraphMachineRuntimeLog graphLogger = runtime.LogWriter as GraphMachineRuntimeLog;
+                if (graphLogger != null)
+                {
+                    return graphLogger;
+                }
+
+                start = start.Next;
+            }
+
+            return null;
         }
 
         /// <summary>

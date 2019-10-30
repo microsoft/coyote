@@ -629,7 +629,7 @@ namespace Microsoft.Coyote.Runtime
             {
                 lock (monitor)
                 {
-                    monitor.MonitorEvent(e);
+                    monitor.MonitorEvent(sender, e);
                 }
             }
         }
@@ -776,7 +776,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.OnMonitorEvent(monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
+                this.LogWriter.OnMonitorEvent(monitor.Id, monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
                     e.GetType().FullName, isProcessing: false);
             }
         }

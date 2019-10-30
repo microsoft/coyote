@@ -70,15 +70,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             var expected = @"Total event coverage: 100.0%
+============================
 Machine: M1
-***************
+=======================================================================
 Machine event coverage: 100.0%
-        State: Init
-                State event coverage: 100.0%
-                Next states: Done
-        State: Done
-                State event coverage: 100.0%
-                Previous states: Init
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Next states: Done
+
+	State: Done
+		State has no expected events, so coverage is 100%
+		Previous states: Init
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);
@@ -126,15 +129,18 @@ Machine event coverage: 100.0%
             }
 
             var expected = @"Total event coverage: 100.0%
+============================
 Machine: M2
-***************
+=======================================================================
 Machine event coverage: 100.0%
-        State: Init
-                State event coverage: 100.0%
-                Next states: Done
-        State: Done
-                State event coverage: 100.0%
-                Previous states: Init
+
+	State: Init
+		State event coverage: 100.0%
+		Next states: Done
+
+	State: Done
+		State has no expected events, so coverage is 100%
+		Previous states: Init
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);
@@ -197,23 +203,32 @@ Machine event coverage: 100.0%
             }
 
             var expected = @"Total event coverage: 100.0%
+============================
 Machine: M3A
-***************
+========================================================================
 Machine event coverage: 100.0%
-        State: Init
-                State event coverage: 100.0%
-                Events received: E
-                Next states: Done
-        State: Done
-                State event coverage: 100.0%
-                Previous states: Init
+
+	State: Init
+		State event coverage: 100.0%
+		Events received: E
+		Events sent: E
+		Previous states: Init
+		Next states: Done
+
+	State: Done
+		State has no expected events, so coverage is 100%
+		Events received: E
+		Previous states: Init
 
 Machine: M3B
-***************
+========================================================================
 Machine event coverage: 100.0%
-        State: Init
-                State event coverage: 100.0%
-                Events sent: E
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Events sent: E
+		Next states: Init
+
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);
@@ -251,7 +266,7 @@ Machine event coverage: 100.0%
             Assert.Contains(typeof(M4).FullName, coverage1.MachinesToStates.Keys);
             Assert.Contains(typeof(M4.Init).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
             Assert.Contains(typeof(M4.Done).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(coverage1.RegisteredEvents, tup => tup.Item3 == typeof(E).FullName);
+            Assert.Contains(coverage1.RegisteredEvents, tup => tup.Value.Contains(typeof(E).FullName));
 
             ITestingEngine testingEngine2 = this.Test(r =>
             {
@@ -265,7 +280,7 @@ Machine event coverage: 100.0%
             Assert.Contains(typeof(M4).FullName, coverage2.MachinesToStates.Keys);
             Assert.Contains(typeof(M4.Init).Name, coverage2.MachinesToStates[typeof(M4).FullName]);
             Assert.Contains(typeof(M4.Done).Name, coverage2.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(coverage2.RegisteredEvents, tup => tup.Item3 == typeof(E).FullName);
+            Assert.Contains(coverage2.RegisteredEvents, tup => tup.Value.Contains(typeof(E).FullName));
 
             string coverageReport1, coverageReport2;
 
@@ -331,27 +346,30 @@ Machine event coverage: 100.0%
             }
 
             var expected = @"Total event coverage: 50.0%
+===========================
 Machine: M5
-***************
+=======================================================================
 Machine event coverage: 50.0%
 
 	State: Init
 		State event coverage: 50.0%
-		Events received: E1 
-		Events not covered: E2 
-		Next states: Done 
+		Events received: E1
+		Events sent: E1
+		Events not covered: E2
+		Next states: Done
 
 	State: Done
-		State event coverage: 100.0%
-		Previous states: Init 
+		State has no expected events, so coverage is 100%
+		Events received: E1
+		Previous states: Init
 
-Machine: Env
-***************
+Machine: ExternalCode
+======================================================================================
 Machine event coverage: 100.0%
 
-	State: Env
-		State event coverage: 100.0%
-		Events sent: E1 
+	State: ExternalState
+		State has no expected events, so coverage is 100%
+		Events sent: E1
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);

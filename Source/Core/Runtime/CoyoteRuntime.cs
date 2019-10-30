@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The log writer.
         /// </summary>
-        protected internal RuntimeLogWriter LogWriter { get; private set; }
+        protected internal IMachineRuntimeLog LogWriter { get; private set; }
 
         /// <summary>
         /// The installed logger.
@@ -761,7 +761,7 @@ namespace Microsoft.Coyote.Runtime
         /// Use this method to abstract the default <see cref="RuntimeLogWriter"/>
         /// for logging runtime messages.
         /// </summary>
-        public RuntimeLogWriter SetLogWriter(RuntimeLogWriter logWriter)
+        public IMachineRuntimeLog SetLogWriter(IMachineRuntimeLog logWriter)
         {
             var logger = this.LogWriter.Logger;
             var prevLogWriter = this.LogWriter;
@@ -775,14 +775,20 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         public ILogger SetLogger(ILogger logger)
         {
-            var prevLogger = this.LogWriter.Logger;
-            if (this.LogWriter != null)
+            if (logger == null)
             {
-                this.LogWriter.Logger = logger ?? throw new InvalidOperationException("Cannot install a null logger.");
+                throw new InvalidOperationException("Cannot install a null logger, please use 'NulLogger' instead.");
             }
-            else
+            else if (this.LogWriter == null)
             {
-                throw new InvalidOperationException("Cannot install a logger on a null log writer.");
+                throw new InvalidOperationException("Please call SetLogWriter before calling SetLogger.");
+            }
+
+            ILogger prevLogger = null;
+            for (var writer = this.LogWriter; writer != null; writer = writer.Next)
+            {
+                prevLogger = writer.Logger;
+                writer.Logger = logger;
             }
 
             return prevLogger;

@@ -114,6 +114,16 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append("--coverage activity ");
             }
 
+            if (configuration.IsDgmlGraphEnabled)
+            {
+                arguments.Append("--graph ");
+            }
+
+            if (!string.IsNullOrEmpty(configuration.CustomRuntimeLoggerType))
+            {
+                arguments.Append($"--machine-runtime-log {configuration.CustomRuntimeLoggerType} ");
+            }
+
             if (configuration.EnableCycleDetection)
             {
                 arguments.Append("--cycle-detection ");

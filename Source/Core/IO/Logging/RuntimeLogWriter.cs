@@ -12,13 +12,13 @@ namespace Microsoft.Coyote.IO
     /// Default implementation of a log writer that logs runtime
     /// messages using the installed <see cref="ILogger"/>.
     /// </summary>
-    public class RuntimeLogWriter : IDisposable
+    public class RuntimeLogWriter : IMachineRuntimeLog, IDisposable
     {
         /// <summary>
         /// Used to log messages. To set a custom logger, use the runtime
         /// method <see cref="IMachineRuntime.SetLogger(ILogger)"/>.
         /// </summary>
-        protected internal ILogger Logger { get; internal set; }
+        public ILogger Logger { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RuntimeLogWriter"/> class
@@ -30,12 +30,18 @@ namespace Microsoft.Coyote.IO
         }
 
         /// <summary>
+        /// Allows you to chain log writers.
+        /// </summary>
+        public IMachineRuntimeLog Next { get; set; }
+
+        /// <summary>
         /// Called when an event is about to be enqueued to a machine.
         /// </summary>
         /// <param name="actorId">Id of the machine that the event is being enqueued to.</param>
         /// <param name="eventName">Name of the event.</param>
         public virtual void OnEnqueue(ActorId actorId, string eventName)
         {
+            this.Next?.OnEnqueue(actorId, eventName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnEnqueueLogMessage(actorId, eventName));
@@ -50,6 +56,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="eventName">Name of the event.</param>
         public virtual void OnDequeue(ActorId actorId, string currStateName, string eventName)
         {
+            this.Next?.OnDequeue(actorId, currStateName, eventName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnDequeueLogMessage(actorId, currStateName, eventName));
@@ -63,6 +70,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="currStateName">Name of the current state of the machine.</param>
         public virtual void OnDefault(ActorId actorId, string currStateName)
         {
+            this.Next?.OnDefault(actorId, currStateName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnDefaultLogMessage(actorId, currStateName));
@@ -77,6 +85,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="newStateName">The target state of goto.</param>
         public virtual void OnGoto(ActorId actorId, string currStateName, string newStateName)
         {
+            this.Next?.OnGoto(actorId, currStateName, newStateName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnGotoLogMessage(actorId, currStateName, newStateName));
@@ -91,6 +100,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="newStateName">The state the machine is pushed to.</param>
         public virtual void OnPush(ActorId actorId, string currStateName, string newStateName)
         {
+            this.Next?.OnPush(actorId, currStateName, newStateName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnPushLogMessage(actorId, currStateName, newStateName));
@@ -105,6 +115,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="restoredStateName">The name of the state being re-entered, if any</param>
         public virtual void OnPop(ActorId actorId, string currStateName, string restoredStateName)
         {
+            this.Next?.OnPop(actorId, currStateName, restoredStateName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnPopLogMessage(actorId, currStateName, restoredStateName));
@@ -120,6 +131,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="eventName">The name of the event that cannot be handled.</param>
         public virtual void OnPopUnhandledEvent(ActorId actorId, string currStateName, string eventName)
         {
+            this.Next?.OnPopUnhandledEvent(actorId, currStateName, eventName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnPopUnhandledEventLogMessage(actorId, currStateName, eventName));
@@ -136,6 +148,7 @@ namespace Microsoft.Coyote.IO
         ///     and <paramref name="eventName"/> was one of them</param>
         public virtual void OnReceive(ActorId actorId, string currStateName, string eventName, bool wasBlocked)
         {
+            this.Next?.OnReceive(actorId, currStateName, eventName, wasBlocked);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnReceiveLogMessage(actorId, currStateName, eventName, wasBlocked));
@@ -150,6 +163,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="eventType">The type of the event being waited for.</param>
         public virtual void OnWait(ActorId actorId, string currStateName, Type eventType)
         {
+            this.Next?.OnWait(actorId, currStateName, eventType);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnWaitLogMessage(actorId, currStateName, eventType));
@@ -164,6 +178,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="eventTypes">The types of the events being waited for, if any.</param>
         public virtual void OnWait(ActorId actorId, string currStateName, params Type[] eventTypes)
         {
+            this.Next?.OnWait(actorId, currStateName, eventTypes);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnWaitLogMessage(actorId, currStateName, eventTypes));
@@ -182,6 +197,8 @@ namespace Microsoft.Coyote.IO
         public virtual void OnSend(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
             Guid opGroupId, bool isTargetHalted)
         {
+            this.Next?.OnSend(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted);
+
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnSendLogMessage(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted));
@@ -195,6 +212,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="creator">Id of the creator machine, null otherwise.</param>
         public virtual void OnCreateMachine(ActorId actorId, ActorId creator)
         {
+            this.Next?.OnCreateMachine(actorId, creator);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnCreateMachineLogMessage(actorId, creator));
@@ -208,6 +226,8 @@ namespace Microsoft.Coyote.IO
         /// <param name="monitorId">The id of the monitor that has been created.</param>
         public virtual void OnCreateMonitor(string monitorTypeName, ActorId monitorId)
         {
+            this.Next?.OnCreateMonitor(monitorTypeName, monitorId);
+
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnCreateMonitorLogMessage(monitorTypeName, monitorId));
@@ -220,6 +240,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="info">Handle that contains information about the timer.</param>
         public virtual void OnCreateTimer(TimerInfo info)
         {
+            this.Next?.OnCreateTimer(info);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnCreateTimerLogMessage(info));
@@ -232,6 +253,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="info">Handle that contains information about the timer.</param>
         public virtual void OnStopTimer(TimerInfo info)
         {
+            this.Next?.OnStopTimer(info);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnStopTimerLogMessage(info));
@@ -245,6 +267,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="inboxSize">Approximate size of the machine inbox.</param>
         public virtual void OnHalt(ActorId actorId, int inboxSize)
         {
+            this.Next?.OnHalt(actorId, inboxSize);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnHaltLogMessage(actorId, inboxSize));
@@ -258,6 +281,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="result">The random result (may be bool or int).</param>
         public virtual void OnRandom(ActorId actorId, object result)
         {
+            this.Next?.OnRandom(actorId, result);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnRandomLogMessage(actorId, result));
@@ -272,6 +296,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
         public virtual void OnMachineState(ActorId actorId, string stateName, bool isEntry)
         {
+            this.Next?.OnMachineState(actorId, stateName, isEntry);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMachineStateLogMessage(actorId, stateName, isEntry));
@@ -286,10 +311,22 @@ namespace Microsoft.Coyote.IO
         /// <param name="eventName">The name of the event being raised.</param>
         public virtual void OnMachineEvent(ActorId actorId, string currStateName, string eventName)
         {
+            this.Next?.OnMachineEvent(actorId, currStateName, eventName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMachineEventLogMessage(actorId, currStateName, eventName));
             }
+        }
+
+        /// <summary>
+        /// Called when a machine handled a raised event.
+        /// </summary>
+        /// <param name="actorId">The id of the machine handling the event.</param>
+        /// <param name="currStateName">The name of the state in which the event is being handled.</param>
+        /// <param name="eventName">The name of the event being handled.</param>
+        public void OnHandleRaisedEvent(ActorId actorId, string currStateName, string eventName)
+        {
+            this.Next?.OnHandleRaisedEvent(actorId, currStateName, eventName);
         }
 
         /// <summary>
@@ -300,6 +337,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="actionName">The name of the action being executed.</param>
         public virtual void OnMachineAction(ActorId actorId, string currStateName, string actionName)
         {
+            this.Next?.OnMachineAction(actorId, currStateName, actionName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMachineActionLogMessage(actorId, currStateName, actionName));
@@ -315,6 +353,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="ex">The exception.</param>
         public virtual void OnMachineExceptionThrown(ActorId actorId, string currStateName, string actionName, Exception ex)
         {
+            this.Next?.OnMachineExceptionThrown(actorId, currStateName, actionName, ex);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMachineExceptionThrownLogMessage(actorId, currStateName, actionName, ex));
@@ -330,6 +369,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="ex">The exception.</param>
         public virtual void OnMachineExceptionHandled(ActorId actorId, string currStateName, string actionName, Exception ex)
         {
+            this.Next?.OnMachineExceptionHandled(actorId, currStateName, actionName, ex);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMachineExceptionHandledLogMessage(actorId, currStateName, actionName, ex));
@@ -349,6 +389,8 @@ namespace Microsoft.Coyote.IO
         public virtual void OnMonitorState(string monitorTypeName, ActorId monitorId, string stateName,
             bool isEntry, bool? isInHotState)
         {
+            this.Next?.OnMonitorState(monitorTypeName, monitorId, stateName, isEntry, isInHotState);
+
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMonitorStateLogMessage(monitorTypeName, monitorId, stateName, isEntry, isInHotState));
@@ -358,17 +400,20 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Called when a monitor is about to process or has raised an event.
         /// </summary>
+        /// <param name="senderId">The sender of the event.</param>
         /// <param name="monitorTypeName">Name of type of the monitor that will process or has raised the event.</param>
-        /// <param name="monitorId">ID of the monitor that will process or has raised the event</param>
+        /// <param name="actorId">ID of the monitor that will process or has raised the event</param>
         /// <param name="currStateName">The name of the state in which the event is being raised.</param>
         /// <param name="eventName">The name of the event.</param>
         /// <param name="isProcessing">If true, the monitor is processing the event; otherwise it has raised it.</param>
-        public virtual void OnMonitorEvent(string monitorTypeName, ActorId monitorId, string currStateName,
+        public virtual void OnMonitorEvent(ActorId senderId, string monitorTypeName, ActorId actorId, string currStateName,
             string eventName, bool isProcessing)
         {
+            this.Next?.OnMonitorEvent(senderId, monitorTypeName, actorId, currStateName, eventName, isProcessing);
+
             if (this.Logger.IsVerbose)
             {
-                this.Logger.WriteLine(this.FormatOnMonitorEventLogMessage(monitorTypeName, monitorId, currStateName, eventName, isProcessing));
+                this.Logger.WriteLine(this.FormatOnMonitorEventLogMessage(monitorTypeName, actorId, currStateName, eventName, isProcessing));
             }
         }
 
@@ -381,6 +426,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="actionName">The name of the action being executed.</param>
         public virtual void OnMonitorAction(string monitorTypeName, ActorId monitorId, string currStateName, string actionName)
         {
+            this.Next?.OnMonitorAction(monitorTypeName, monitorId, currStateName, actionName);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnMonitorActionLogMessage(monitorTypeName, monitorId, currStateName, actionName));
@@ -393,6 +439,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="text">The text of the error report.</param>
         public virtual void OnError(string text)
         {
+            this.Next?.OnError(text);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnErrorLogMessage(text));
@@ -406,6 +453,7 @@ namespace Microsoft.Coyote.IO
         /// <param name="strategyDescription">More information about the scheduling strategy.</param>
         public virtual void OnStrategyError(SchedulingStrategy strategy, string strategyDescription)
         {
+            this.Next?.OnStrategyError(strategy, strategyDescription);
             if (this.Logger.IsVerbose)
             {
                 this.Logger.WriteLine(this.FormatOnStrategyErrorLogMessage(strategy, strategyDescription));

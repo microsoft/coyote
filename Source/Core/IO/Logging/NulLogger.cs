@@ -6,7 +6,7 @@ namespace Microsoft.Coyote.IO
     /// <summary>
     /// Logger that disposes all written text.
     /// </summary>
-    internal sealed class NulLogger : ILogger
+    public sealed class NulLogger : ILogger
     {
         /// <summary>
         /// If true, then messages are logged. This logger ignores

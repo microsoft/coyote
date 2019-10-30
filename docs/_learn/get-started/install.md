@@ -54,7 +54,7 @@ powershell -f .\Scripts\run-tests.ps1 -test core
 
 ### Building the samples
 
-Clone the [CoyoteSamples repo](http://github.com/Microsoft/CoyoteSamples), then open the solution under `AsyncExamples` or `MachineExamples` and build.
+Clone the [CoyoteSamples repo](http://github.com/microsoft/coyotesamples), then open the solution under `AsyncExamples` or `MachineExamples` and build.
 
 You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
 

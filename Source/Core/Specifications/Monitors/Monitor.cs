@@ -231,10 +231,11 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Notifies the monitor to handle the received event.
         /// </summary>
+        /// <param name="sender">The sender of this event</param>
         /// <param name="e">The event to monitor.</param>
-        internal void MonitorEvent(Event e)
+        internal void MonitorEvent(Actor sender, Event e)
         {
-            this.Runtime.LogWriter.OnMonitorEvent(this.GetType().Name, this.Id, this.CurrentStateName,
+            this.Runtime.LogWriter.OnMonitorEvent(sender?.Id, this.GetType().Name, this.Id, this.CurrentStateName,
                 e.GetType().FullName, isProcessing: true);
             this.HandleEvent(e);
         }

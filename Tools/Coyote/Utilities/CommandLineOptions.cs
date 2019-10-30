@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.TestingServices.Coverage;
 
 namespace Microsoft.Coyote.Utilities
 {
@@ -58,6 +59,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
             advancedGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
             advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
+            advancedGroup.AddArgument("graph", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
+            advancedGroup.AddArgument("machine-runtime-log", null, "Custom IMachineRuntimeLog to use instead of the default", typeof(string));
 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
@@ -195,6 +198,12 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "testing-process-id":
                     this.Configuration.TestingProcessId = (uint)option.Value;
+                    break;
+                case "graph":
+                    this.Configuration.IsDgmlGraphEnabled = true;
+                    break;
+                case "logger":
+                    this.Configuration.CustomRuntimeLoggerType = (string)option.Value;
                     break;
                 case "explore":
                     this.Configuration.PerformFullExploration = true;

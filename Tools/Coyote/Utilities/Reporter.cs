@@ -95,11 +95,7 @@ namespace Microsoft.Coyote.TestingServices
 
             string serFilePath = $"{filePath}.sci";
             Console.WriteLine($"..... Writing {serFilePath}");
-            using (var fs = new FileStream(serFilePath, FileMode.Create))
-            {
-                var serializer = new DataContractSerializer(typeof(CoverageInfo));
-                serializer.WriteObject(fs, report.CoverageInfo);
-            }
+            report.CoverageInfo.Save(serFilePath);
         }
     }
 }

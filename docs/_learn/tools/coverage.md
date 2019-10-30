@@ -38,7 +38,7 @@ The following options from the "basic" section are also relevant:
   -o, --outdir string         : Dump output to directory x (absolute path or relative to current directory
 ```
 
-Detailed descriptions are provided in subsequent sections. The following provides a quick overview. 
+Detailed descriptions are provided in subsequent sections. The following provides a quick overview.
 
 * Note that `--coverage` is the equivalent of specifying `--coverage code activity`.
 * If `--coverage` or `--coverage code` is specified, all DLLs in the dependency chain between the `path` option and any `Microsoft.Coyote.*.dll` are instrumented to collect code coverage data.
@@ -147,25 +147,25 @@ time.
 First build all the samples as described [here](https://github.com/p-org/Coyote/tree/master/Samples),
 or only the `PingPong` example: `msbuild PingPong\PingPong`
 
-Then run `coyote.exe` with one of the coverage flags, as well as the other options you want. Here are
+Then run `coyote` with one of the coverage flags, as well as the other options you want. Here are
 some minimal examples:
 
 ```
-..\bin\net46\coyote.exe test.\bin\net46\PingPong.exe -i 10 --coverage
+coyote test.\bin\net46\PingPong.exe -i 10 --coverage
 ```
 
 This will create the directory `.\bin\net46\Output\PingPong.exe\CoyoteOutput`,
 then it generates coverage files for both activity and code coverage.
 
 ```
-..\bin\net46\coyote.exe test .\bin\net46\PingPong.exe --i 10 -coverage activity  -o C:\Coyote_Coverage\PingPongAsLanguage
+coyote test .\bin\net46\PingPong.exe --i 10 -coverage activity  -o C:\Coyote_Coverage\PingPongAsLanguage
 ```
 
 This will create the directory `C:\Coyote_Coverage\PingPongAsLanguage\CoyoteOutput`,
 then it generates only activity coverage.
 
 ```
-..\bin\net46\coyote.exe test .\bin\net46\PingPong.exe -i 10 --coverage code activity-debug
+coyote test .\bin\net46\PingPong.exe -i 10 --coverage code activity-debug
 ```
 
 This generates code and activity coverage, including debug activity output.

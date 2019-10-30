@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Xml;
 
 namespace Microsoft.Coyote.TestingServices.Coverage
 {
@@ -15,49 +17,44 @@ namespace Microsoft.Coyote.TestingServices.Coverage
     public class CoverageInfo
     {
         /// <summary>
-        /// Map from machines to states.
+        /// Set of known machines.
+        /// </summary>
+        [DataMember]
+        public HashSet<string> Machines { get; private set; }
+
+        /// <summary>
+        /// Map from machines to set of all states states defined in that machine.
         /// </summary>
         [DataMember]
         public Dictionary<string, HashSet<string>> MachinesToStates { get; private set; }
 
         /// <summary>
-        /// Set of (machines, states, registered events).
+        /// Set of (machine + "." + state => registered events).  So all events that can
+        /// get us into each state.
         /// </summary>
         [DataMember]
-        public HashSet<Tuple<string, string, string>> RegisteredEvents { get; private set; }
+        public Dictionary<string, HashSet<string>> RegisteredEvents { get; private set; }
 
         /// <summary>
-        /// Set of machine transitions.
+        /// The coverage graph.
         /// </summary>
         [DataMember]
-        public HashSet<Transition> Transitions { get; private set; }
+        public Graph CoverageGraph { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
         /// </summary>
         public CoverageInfo()
         {
+            this.Machines = new HashSet<string>();
             this.MachinesToStates = new Dictionary<string, HashSet<string>>();
-            this.RegisteredEvents = new HashSet<Tuple<string, string, string>>();
-            this.Transitions = new HashSet<Transition>();
+            this.RegisteredEvents = new Dictionary<string, HashSet<string>>();
         }
 
         /// <summary>
         /// Checks if the machine type has already been registered for coverage.
         /// </summary>
         public bool IsMachineDeclared(string machineName) => this.MachinesToStates.ContainsKey(machineName);
-
-        /// <summary>
-        /// Adds a new transition.
-        /// </summary>
-        public void AddTransition(string machineOrigin, string stateOrigin, string edgeLabel,
-            string machineTarget, string stateTarget)
-        {
-            this.AddState(machineOrigin, stateOrigin);
-            this.AddState(machineTarget, stateTarget);
-            this.Transitions.Add(new Transition(machineOrigin, stateOrigin,
-                edgeLabel, machineTarget, stateTarget));
-        }
 
         /// <summary>
         /// Declares a state.
@@ -70,15 +67,31 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public void DeclareStateEvent(string machine, string state, string eventName)
         {
             this.AddState(machine, state);
-            this.RegisteredEvents.Add(Tuple.Create(machine, state, eventName));
+
+            string key = machine + "." + state;
+            this.InternalAddEvent(key, eventName);
+        }
+
+        private void InternalAddEvent(string key, string eventName)
+        {
+            if (!this.RegisteredEvents.ContainsKey(key))
+            {
+                this.RegisteredEvents.Add(key, new HashSet<string>());
+            }
+
+            this.RegisteredEvents[key].Add(eventName);
         }
 
         /// <summary>
-        /// Merges the information from the specified
-        /// coverage info. This is not thread-safe.
+        /// Merges the information from the specified coverage info.  This is not thread-safe.
         /// </summary>
         public void Merge(CoverageInfo coverageInfo)
         {
+            foreach (var machine in coverageInfo.Machines)
+            {
+                this.Machines.Add(machine);
+            }
+
             foreach (var machine in coverageInfo.MachinesToStates)
             {
                 foreach (var state in machine.Value)
@@ -89,13 +102,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
             foreach (var tup in coverageInfo.RegisteredEvents)
             {
-                this.DeclareStateEvent(tup.Item1, tup.Item2, tup.Item3);
+                foreach (var e in tup.Value)
+                {
+                    this.InternalAddEvent(tup.Key, e);
+                }
             }
 
-            foreach (var transition in coverageInfo.Transitions)
+            if (this.CoverageGraph == null)
             {
-                this.AddTransition(transition.MachineOrigin, transition.StateOrigin,
-                    transition.EdgeLabel, transition.MachineTarget, transition.StateTarget);
+                this.CoverageGraph = coverageInfo.CoverageGraph;
+            }
+            else if (coverageInfo.CoverageGraph != null)
+            {
+                this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
             }
         }
 
@@ -104,12 +123,48 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         private void AddState(string machineName, string stateName)
         {
+            this.Machines.Add(machineName);
+
             if (!this.MachinesToStates.ContainsKey(machineName))
             {
                 this.MachinesToStates.Add(machineName, new HashSet<string>());
             }
 
             this.MachinesToStates[machineName].Add(stateName);
+        }
+
+        /// <summary>
+        /// Load the given Coverage info file.
+        /// </summary>
+        /// <param name="filename">Path to the file to load.</param>
+        /// <returns>The deserialized coverage info.</returns>
+        public static CoverageInfo Load(string filename)
+        {
+            using (var fs = new FileStream(filename, FileMode.Open))
+            {
+                using (var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas()))
+                {
+                    DataContractSerializerSettings settings = new DataContractSerializerSettings();
+                    settings.PreserveObjectReferences = true;
+                    var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
+                    return (CoverageInfo)ser.ReadObject(reader, true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save the coverage info to the given XML file.
+        /// </summary>
+        /// <param name="serFilePath">The path to the file to create.</param>
+        public void Save(string serFilePath)
+        {
+            using (var fs = new FileStream(serFilePath, FileMode.Create))
+            {
+                DataContractSerializerSettings settings = new DataContractSerializerSettings();
+                settings.PreserveObjectReferences = true;
+                var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
+                ser.WriteObject(fs, this);
+            }
         }
     }
 }

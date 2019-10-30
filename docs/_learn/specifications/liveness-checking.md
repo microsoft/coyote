@@ -19,7 +19,7 @@ a _temperature_ for each monitor. The temperature goes up by a unit if the monit
 state, it goes to zero on a transition to a cold state and stays the same on transition to a warm
 state. The Coyote tester looks for executions where the temperature of a monitor exceeds a particular
 large threshold because it indicates a long suffix stuck in hot/warm states without transitioning to a
-cold state. The definition of what is _large_ is where the programmer can help the tester. 
+cold state. The definition of what is _large_ is where the programmer can help the tester.
 
 The tester accepts a flag `--max-steps N`. Using this flag, you can say that the program is expected to
 execute around N steps. Executions substantially longer than N are treated as potential infinite
@@ -28,7 +28,7 @@ the tester. For example, consider the sample program in the `CoyoteSamples` repo
 `MachineExamples\Raft`. Let's compile and test it as follows, setting N as 200:
 
 ```
-coyote.exe test Binaries\Debug\Raft.dll -i 10 -parallel 4 -sch-portfolio -max-steps 200
+coyote test Binaries\Debug\Raft.dll -i 10 -parallel 4 -sch-portfolio -max-steps 200
 ```
 
 The tester will produce output, ending with something like the following:

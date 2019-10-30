@@ -137,6 +137,8 @@ namespace Microsoft.Coyote.TestingServices
                         Console.SetError(writer);
                     }
 
+                    this.InitializeCustomLogging(runtime);
+
                     if (this.Configuration.AttachDebugger)
                     {
                         Debugger.Launch();
@@ -175,7 +177,7 @@ namespace Microsoft.Coyote.TestingServices
                     }
 
                     TestReport report = runtime.Scheduler.GetReport();
-                    report.CoverageInfo.Merge(runtime.CoverageInfo);
+                    report.CoverageInfo.Merge(runtime.GetCoverageInfo());
                     this.TestReport.Merge(report);
                 }
                 catch (Exception ex)

@@ -54,10 +54,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal BugTrace BugTrace;
 
         /// <summary>
-        /// Data structure containing information
-        /// regarding testing coverage.
+        /// Data structure containing information regarding testing coverage.
         /// </summary>
         internal CoverageInfo CoverageInfo;
+
+        /// <summary>
+        /// Graph logger builds the coverage graph.
+        /// </summary>
+        internal GraphMachineRuntimeLog CoverageGraph;
 
         /// <summary>
         /// The program state cache.
@@ -1173,8 +1177,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             this.LogWriter.OnCreateMonitor(type.FullName, monitor.Id);
 
-            this.ReportActivityCoverageOfMonitor(monitor);
             this.BugTrace.AddCreateMonitorStep(id);
+
+            if (this.Configuration.ReportActivityCoverage)
+            {
+                this.ReportActivityCoverageOfMonitor(monitor);
+            }
 
             this.Monitors.Add(monitor);
 
@@ -1191,13 +1199,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 if (m.GetType() == type)
                 {
-                    if (this.Configuration.ReportActivityCoverage)
-                    {
-                        this.ReportActivityCoverageOfMonitorEvent(sender, m, e);
-                        this.ReportActivityCoverageOfMonitorTransition(m, e);
-                    }
-
-                    m.MonitorEvent(e);
+                    m.MonitorEvent(sender, e);
                     break;
                 }
             }
@@ -1578,7 +1580,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(monitor.Id, monitorState, action);
-            this.LogWriter.OnMonitorAction(monitor.GetType().FullName, monitor.Id, action.Name, monitorState);
+            this.LogWriter.OnMonitorAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
         }
 
         /// <summary>
@@ -1599,7 +1601,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateName;
             this.BugTrace.AddRaiseEventStep(monitor.Id, monitorState, eventInfo);
-            this.LogWriter.OnMonitorEvent(monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
+            this.LogWriter.OnMonitorEvent(monitor.Id, monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
                 eventInfo.EventName, isProcessing: false);
         }
 
@@ -1624,12 +1626,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             this.LogWriter.OnDequeue(machine.Id, machine.CurrentStateName, eventInfo.EventName);
             this.BugTrace.AddDequeueEventStep(machine.Id, machine.CurrentStateName, eventInfo);
-
-            if (this.Configuration.ReportActivityCoverage)
-            {
-                this.ReportActivityCoverageOfReceivedEvent(machine, eventInfo);
-                this.ReportActivityCoverageOfStateTransition(machine, e);
-            }
         }
 
         /// <summary>
@@ -1641,11 +1637,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.AssertTransitionStatement(machine);
 
             this.LogWriter.OnPop(machine.Id, string.Empty, machine.CurrentStateName);
-
-            if (this.Configuration.ReportActivityCoverage)
-            {
-                this.ReportActivityCoverageOfPopTransition(machine, machine.CurrentState, machine.GetStateTypeAtStackIndex(1));
-            }
         }
 
         /// <summary>
@@ -1662,10 +1653,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyHandleRaisedEvent(StateMachine machine, Event e)
         {
-            if (this.Configuration.ReportActivityCoverage)
-            {
-                this.ReportActivityCoverageOfStateTransition(machine, e);
-            }
+            this.LogWriter.OnHandleRaisedEvent(machine.Id, machine.CurrentStateName, e.GetType().FullName);
         }
 
         /// <summary>
@@ -1743,11 +1731,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
             op.OnReceivedEvent();
-
-            if (this.Configuration.ReportActivityCoverage)
-            {
-                this.ReportActivityCoverageOfReceivedEvent(machine, eventInfo);
-            }
         }
 
         /// <summary>
@@ -1788,37 +1771,30 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Reports coverage for the specified received event.
+        /// Get the coverage graph information (if any).  This information is only available
+        /// when Configuration.ReportActivityCoverage is true.
         /// </summary>
-        private void ReportActivityCoverageOfReceivedEvent(StateMachine machine, EventInfo eventInfo)
+        /// <returns>A new CoverageInfo object.</returns>
+        public CoverageInfo GetCoverageInfo()
         {
-            string originMachine = eventInfo.OriginInfo.SenderMachineName;
-            string originState = eventInfo.OriginInfo.SenderStateName;
-            string edgeLabel = eventInfo.EventName;
-            string destMachine = machine.GetType().FullName;
-            string destState = NameResolver.GetStateNameForLogging(machine.CurrentState);
+            var result = this.CoverageInfo;
+            if (result != null)
+            {
+                for (var item = this.LogWriter; item != null; item = item.Next)
+                {
+                    GraphMachineRuntimeLog graphLogger = item as GraphMachineRuntimeLog;
+                    if (graphLogger != null)
+                    {
+                        result.CoverageGraph = graphLogger.Graph;
+                    }
+                }
+            }
 
-            this.CoverageInfo.AddTransition(originMachine, originState, edgeLabel, destMachine, destState);
+            return result;
         }
 
         /// <summary>
-        /// Reports coverage for the specified monitor event.
-        /// </summary>
-        private void ReportActivityCoverageOfMonitorEvent(Actor sender, Monitor monitor, Event e)
-        {
-            string originMachine = sender is null ? "Env" : sender.GetType().FullName;
-            string originState = sender is null ? "Env" :
-                (sender is StateMachine) ? NameResolver.GetStateNameForLogging((sender as StateMachine).CurrentState) : "Env";
-
-            string edgeLabel = e.GetType().FullName;
-            string destMachine = monitor.GetType().FullName;
-            string destState = NameResolver.GetStateNameForLogging(monitor.CurrentState);
-
-            this.CoverageInfo.AddTransition(originMachine, originState, edgeLabel, destMachine, destState);
-        }
-
-        /// <summary>
-        /// Reports coverage for the specified machine.
+        /// Reports machines that are to be covered in coverage report.
         /// </summary>
         private void ReportActivityCoverageOfMachine(StateMachine machine)
         {
@@ -1849,6 +1825,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         private void ReportActivityCoverageOfMonitor(Monitor monitor)
         {
             var monitorName = monitor.GetType().FullName;
+            if (this.CoverageInfo.IsMachineDeclared(monitorName))
+            {
+                return;
+            }
 
             // Fetch states.
             var states = monitor.GetAllStates();
@@ -1865,91 +1845,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 this.CoverageInfo.DeclareStateEvent(monitorName, tup.Item1, tup.Item2);
             }
-        }
-
-        /// <summary>
-        /// Reports coverage for the specified state transition.
-        /// </summary>
-        private void ReportActivityCoverageOfStateTransition(StateMachine machine, Event e)
-        {
-            string originMachine = machine.GetType().FullName;
-            string originState = NameResolver.GetStateNameForLogging(machine.CurrentState);
-            string destMachine = machine.GetType().FullName;
-
-            string edgeLabel;
-            string destState;
-            if (e is GotoStateEvent gotoStateEvent)
-            {
-                edgeLabel = "goto";
-                destState = NameResolver.GetStateNameForLogging(gotoStateEvent.State);
-            }
-            else if (e is PushStateEvent pushStateEvent)
-            {
-                edgeLabel = "push";
-                destState = NameResolver.GetStateNameForLogging(pushStateEvent.State);
-            }
-            else if (machine.GotoTransitions.ContainsKey(e.GetType()))
-            {
-                edgeLabel = e.GetType().FullName;
-                destState = NameResolver.GetStateNameForLogging(
-                    machine.GotoTransitions[e.GetType()].TargetState);
-            }
-            else if (machine.PushTransitions.ContainsKey(e.GetType()))
-            {
-                edgeLabel = e.GetType().FullName;
-                destState = NameResolver.GetStateNameForLogging(
-                    machine.PushTransitions[e.GetType()].TargetState);
-            }
-            else
-            {
-                return;
-            }
-
-            this.CoverageInfo.AddTransition(originMachine, originState, edgeLabel, destMachine, destState);
-        }
-
-        /// <summary>
-        /// Reports coverage for a pop transition.
-        /// </summary>
-        private void ReportActivityCoverageOfPopTransition(StateMachine machine, Type fromState, Type toState)
-        {
-            string originMachine = machine.GetType().FullName;
-            string originState = NameResolver.GetStateNameForLogging(fromState);
-            string destMachine = machine.GetType().FullName;
-            string edgeLabel = "pop";
-            string destState = NameResolver.GetStateNameForLogging(toState);
-
-            this.CoverageInfo.AddTransition(originMachine, originState, edgeLabel, destMachine, destState);
-        }
-
-        /// <summary>
-        /// Reports coverage for the specified state transition.
-        /// </summary>
-        private void ReportActivityCoverageOfMonitorTransition(Monitor monitor, Event e)
-        {
-            string originMachine = monitor.GetType().FullName;
-            string originState = NameResolver.GetStateNameForLogging(monitor.CurrentState);
-            string destMachine = originMachine;
-
-            string edgeLabel;
-            string destState;
-            if (e is GotoStateEvent)
-            {
-                edgeLabel = "goto";
-                destState = NameResolver.GetStateNameForLogging((e as GotoStateEvent).State);
-            }
-            else if (monitor.GotoTransitions.ContainsKey(e.GetType()))
-            {
-                edgeLabel = e.GetType().FullName;
-                destState = NameResolver.GetStateNameForLogging(
-                    monitor.GotoTransitions[e.GetType()].TargetState);
-            }
-            else
-            {
-                return;
-            }
-
-            this.CoverageInfo.AddTransition(originMachine, originState, edgeLabel, destMachine, destState);
         }
 
         /// <summary>

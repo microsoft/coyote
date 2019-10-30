@@ -300,6 +300,20 @@ namespace Microsoft.Coyote
         public bool IsVerbose;
 
         /// <summary>
+        /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
+        /// This is different from a coverage activity graph, as it will also show machine instances.
+        /// </summary>
+        [DataMember]
+        public bool IsDgmlGraphEnabled;
+
+        /// <summary>
+        /// If specified, requests a custom IMachineRuntimeLog to be used instead of the default.
+        /// This is the AssemblyQualifiedName of the type to load.
+        /// </summary>
+        [DataMember]
+        public string CustomRuntimeLoggerType;
+
+        /// <summary>
         /// Enables debugging.
         /// </summary>
         [DataMember]

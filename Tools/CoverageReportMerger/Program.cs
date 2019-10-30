@@ -107,15 +107,7 @@ namespace Microsoft.Coyote
 
                     try
                     {
-                        using (var fs = new FileStream(arg, FileMode.Open))
-                        {
-                            using (var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas()))
-                            {
-                                var ser = new DataContractSerializer(typeof(CoverageInfo));
-                                var cinfo = (CoverageInfo)ser.ReadObject(reader, true);
-                                InputFiles.Add(cinfo);
-                            }
-                        }
+                        CoverageInfo info = CoverageInfo.Load(arg);
                     }
                     catch (Exception e)
                     {

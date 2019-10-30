@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
     {
         [Start]
         [OnEntry(nameof(InitOnEntry))]
-        [OnEventDoAction(typeof(E), nameof(Act))]
+        [OnEventGotoState(typeof(E), typeof(Act))]
         private class Init : MachineState
         {
         }
@@ -71,7 +71,12 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             tcs.SetResult(true);
         }
 
-        private void Act()
+        [OnEntry(nameof(ActOnEntry))]
+        private class Act : MachineState
+        {
+        }
+
+        private void ActOnEntry()
         {
             ActorId m = (this.ReceivedEvent as E).Id;
             this.Send(m, new E(this.Id));

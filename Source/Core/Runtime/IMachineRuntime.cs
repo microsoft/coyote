@@ -259,7 +259,7 @@ namespace Microsoft.Coyote
         /// </summary>
         /// <param name="logWriter">The runtime log writer to install.</param>
         /// <returns>The previously installed runtime log writer.</returns>
-        RuntimeLogWriter SetLogWriter(RuntimeLogWriter logWriter);
+        IMachineRuntimeLog SetLogWriter(IMachineRuntimeLog logWriter);
 
         /// <summary>
         /// Use this method to override the default <see cref="ILogger"/> for logging messages.

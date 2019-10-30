@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
@@ -294,6 +295,68 @@ namespace Microsoft.Coyote.TestingServices
                 ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
                 this.Strategy = new ReplayStrategy(this.Configuration, schedule, isFair, this.Strategy);
             }
+        }
+
+        /// <summary>
+        /// Take care of handling the Configuration settings for CustomRuntimeLoggerType, IsDgmlGraphEnabled,
+        /// and ReportActivityCoverage by setting up the LogWriters on the given <see cref="SystematicTestingRuntime"/> object.
+        /// </summary>
+        protected void InitializeCustomLogging(SystematicTestingRuntime runtime)
+        {
+            if (!string.IsNullOrEmpty(this.Configuration.CustomRuntimeLoggerType))
+            {
+                var logger = this.Activate<IO.IMachineRuntimeLog>(this.Configuration.CustomRuntimeLoggerType);
+                if (logger != null)
+                {
+                    runtime.SetLogWriter(logger);
+                }
+            }
+
+            if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.ReportActivityCoverage)
+            {
+                // chain the logger with a graph generating logger.
+                var graphLogger = new GraphMachineRuntimeLog();
+                graphLogger.CollapseMachineInstances = this.Configuration.ReportActivityCoverage;
+                var defaultLogger = runtime.SetLogWriter(graphLogger);
+                graphLogger.Next = defaultLogger;
+            }
+        }
+
+        private T Activate<T>(string assemblyQualifiedName)
+            where T : class
+        {
+            // parses the result of Type.AssemblyQualifiedName
+            // e.g.: ConsoleApp1.Program, ConsoleApp1, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+            try
+            {
+                string[] parts = assemblyQualifiedName.Split(',');
+                if (parts.Length > 1)
+                {
+                    string typeName = parts[0];
+                    string assemblyName = parts[1];
+                    Assembly a = null;
+                    if (System.IO.File.Exists(assemblyName))
+                    {
+                        a = Assembly.LoadFrom(assemblyName);
+                    }
+                    else
+                    {
+                        a = Assembly.Load(assemblyName);
+                    }
+
+                    if (a != null)
+                    {
+                        object o = a.CreateInstance(typeName);
+                        return o as T;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Logger.WriteLine(ex.Message);
+            }
+
+            return null;
         }
 
         /// <summary>

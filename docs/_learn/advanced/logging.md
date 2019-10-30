@@ -38,7 +38,7 @@ public interface ILogger : IDisposable
 }
 ```
 
-The runtime logger can be accessed via the following `IMachineRuntime`, `Machine` or `Monitor` property:
+The runtime logger can be accessed via the following `IMachineRuntime`, `StateMachine` or `Monitor` property:
 
 ```c#
 ILogger Logger { get; }

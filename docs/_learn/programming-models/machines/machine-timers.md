@@ -12,7 +12,7 @@ that created them upon timeout, and periodic machine timers, which can continual
 with a user-defined interval.
 
 To make use of timers, you must include the `Microsoft.Coyote.Machines.Timers` namespace. Timers are
-exposed via `Machine` APIs. You can start a non-periodic timer using the function `StartTimer`.
+exposed via `StateMachine` APIs. You can start a non-periodic timer using the function `StartTimer`.
 
 ```c#
 TimerInfo StartTimer(TimeSpan dueTime, object payload = null)
@@ -126,7 +126,7 @@ You can choose to run as many timers in parallel as you wish. Here's a code snip
 such usage:
 
 ```c#
-class MultiTimers : Machine {
+class MultiTimers : StateMachine {
 
    TimerInfo TimerInfo1;
    TimerInfo TimerInfo2;

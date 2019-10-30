@@ -56,19 +56,19 @@ available.
 
 Another programming pattern is to drive a state machine synchronously. The program can do
 `CreateMachineAndExecuteAsync` to create the state machine, then repeatedly do
-`SendEventAndExecuteAsync` to make the state-machine process events one after another. Let's consider an
+`SendEventAndExecuteAsync` to make the state machine process events one after another. Let's consider an
 example. Suppose that we need to define a state machine `M` that is easily decomposed into two smaller
-state machines `M1` and `M2`. For each incoming event, `M` decides to run of the two state-machines;
+state machines `M1` and `M2`. For each incoming event, `M` decides to run of the two state machines;
 there is no need to run them in parallel. In this case, you only need to code up the smaller
-state-machines `M1` and `M2`. The state-machine `M` can be a simple wrapper. On instantiation, `M`
-creates the two sub-state-machines as follows.
+state machines `M1` and `M2`. The state machine `M` can be a simple wrapper. On instantiation, `M`
+creates the two sub-state machines as follows.
 
 ```c#
 MachineId m1 = this.CreateMachineAnsExecuteAsync(typeof(M1), ...);
 MachineId m2 = this.CreateMachineAnsExecuteAsync(typeof(M2), ...);
 ```
 
-When `M` receives an event, it will choose to run the appropriate state-machine as follows.
+When `M` receives an event, it will choose to run the appropriate state machine as follows.
 
 ```c#
 Event e = this.ReceivedEvent;
@@ -84,6 +84,6 @@ else
 }
 ```
 
-Note that the two assertions above are guaranteed to never fail because the `m1` and `m2`state-machines
+Note that the two assertions above are guaranteed to never fail because the `m1` and `m2`state machines
 are always left in an idle state by `M`, provided that`M` never sends out the handles `m1` and `m2` to
-other state-machines.
+other state machines.

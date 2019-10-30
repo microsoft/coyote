@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Machines
     /// <summary>
     /// Abstract class representing a single-state machine.
     /// </summary>
-    public abstract class SingleStateMachine : Machine
+    public abstract class SingleStateMachine : StateMachine
     {
         [Start]
         [OnEntry(nameof(HandleInitOnEntry))]

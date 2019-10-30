@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryAdd(TKey key, TValue value)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryAddEvent(key, value, currentMachine.Id));
             var e = currentMachine.Receive(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
             return e.Value;
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryUpdateEvent(key, newValue, comparisonValue, currentMachine.Id));
             var e = currentMachine.Receive(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
             return e.Value;
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryGetValue(TKey key, out TValue value)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryGetEvent(key, currentMachine.Id));
             var e = currentMachine.Receive(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
                 as SharedDictionaryResponseEvent<Tuple<bool, TValue>>;
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             get
             {
-                var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+                var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
                 this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.GetEvent(key, currentMachine.Id));
                 var e = currentMachine.Receive(typeof(SharedDictionaryResponseEvent<TValue>)).Result as SharedDictionaryResponseEvent<TValue>;
                 return e.Value;
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryRemove(TKey key, out TValue value)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryRemoveEvent(key, currentMachine.Id));
             var e = currentMachine.Receive(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
                 as SharedDictionaryResponseEvent<Tuple<bool, TValue>>;
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             get
             {
-                var currentMachine = this.Runtime.GetExecutingMachine<Machine>();
+                var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
                 this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.CountEvent(currentMachine.Id));
                 var e = currentMachine.Receive(typeof(SharedDictionaryResponseEvent<int>)).Result as SharedDictionaryResponseEvent<int>;
                 return e.Value;

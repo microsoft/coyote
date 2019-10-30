@@ -54,7 +54,7 @@ thoroughly explore asynchronous interleavings to find concurrency bugs.
 
 ## What happens under the covers
 
-The C# compiler transforms an `async` method into a state-machine (literally called IAsyncStateMachine)
+The C# compiler transforms an `async` method into a state machine (literally called IAsyncStateMachine)
 which keeps track of things like yielding execution when an `await` is reached and resuming execution
 when a background job has finished.
 
@@ -62,8 +62,8 @@ The `ControlledTask` type uses a C# 7 feature known as `async task types`
 (see [here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types.md)) that allows
 framework developers to create custom task types that can be used with `async` and `await`. This is
 where the magic happens. In production, `ControlledTask` enables C# to build a custom asynchronous
-state-machine that uses regular `Task` objects. However, during testing, Coyote uses dependency
-injection to supply a custom asynchronous state-machine that allows controlling the scheduling of
+state machine that uses regular `Task` objects. However, during testing, Coyote uses dependency
+injection to supply a custom asynchronous state machine that allows controlling the scheduling of
 `ControlledTask` objects, and thus systematically exploring their interleavings.
 
 ## How to use asynchronous tasks

@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             private class Init : MachineState
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3a : Machine
+        private class M3a : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3b : Machine
+        private class M3b : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3c : Machine
+        private class M3c : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E), nameof(Processed))]

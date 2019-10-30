@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Environment : Machine
+        private class Environment : StateMachine
         {
             [Start]
             [OnEntry(nameof(OnInitEntry))]
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Node : Machine
+        private class Node : StateMachine
         {
             public class SetNeighbour : Event
             {

@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         /// <summary>
         /// Adds a bug trace step.
         /// </summary>
-        internal void AddCreateMachineStep(Machine machine, MachineId targetMachine, EventInfo eventInfo)
+        internal void AddCreateMachineStep(StateMachine machine, MachineId targetMachine, EventInfo eventInfo)
         {
             MachineId mid = null;
             string machineState = null;

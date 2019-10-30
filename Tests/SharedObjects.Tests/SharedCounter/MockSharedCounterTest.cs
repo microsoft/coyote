@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class N1 : Machine
+        private class N1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, "Detected an assertion failure.");
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class N2 : Machine
+        private class N2 : StateMachine
         {
             private ISharedCounter Counter;
 
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private class N3 : Machine
+        private class N3 : StateMachine
         {
             private ISharedCounter Counter;
 

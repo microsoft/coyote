@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Environment : Machine
+        private class Environment : StateMachine
         {
             private List<MachineId> Servers;
             private List<MachineId> Clients;
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class FailureDetector : Machine
+        private class FailureDetector : StateMachine
         {
             internal class Config : Event
             {
@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class ChainReplicationMaster : Machine
+        private class ChainReplicationMaster : StateMachine
         {
             internal class Config : Event
             {
@@ -538,7 +538,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class ChainReplicationServer : Machine
+        private class ChainReplicationServer : StateMachine
         {
             internal class Config : Event
             {
@@ -967,7 +967,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             internal class Config : Event
             {

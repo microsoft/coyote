@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class BubbleSortMachine : Machine
+        private class BubbleSortMachine : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

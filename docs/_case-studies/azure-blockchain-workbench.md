@@ -56,7 +56,7 @@ Coyote. The use of Coyote helped the team in a number of ways.
   implemented, after which Coyote tests passed. As a result, the team
   had a much higher confidence in deploying their fix.
 
-- Developing the system using Coyote's state-machine programming model
+- Developing the system using Coyote's state machine programming model
   led to a highly concurrent and performant implementation.
 
 - Coyote allowed the team to concisely state the various success and failure

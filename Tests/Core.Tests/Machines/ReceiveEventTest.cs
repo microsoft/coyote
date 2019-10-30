@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestReceiveEventStatement()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M1>(configuration: configuration);
+            var test = new StateMachineTestKit<M1>(configuration: configuration);
 
             await test.StartMachineAsync();
             test.AssertIsWaitingToReceiveEvent(true);
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestMultipleReceiveEventStatements()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M2>(configuration: configuration);
+            var test = new StateMachineTestKit<M2>(configuration: configuration);
 
             await test.StartMachineAsync();
             test.AssertIsWaitingToReceiveEvent(true);
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestMultipleReceiveEventStatementsUnordered()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M2>(configuration: configuration);
+            var test = new StateMachineTestKit<M2>(configuration: configuration);
 
             await test.StartMachineAsync();
             test.AssertIsWaitingToReceiveEvent(true);
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestReceiveEventStatementWithMultipleTypes()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M3>(configuration: configuration);
+            var test = new StateMachineTestKit<M3>(configuration: configuration);
 
             await test.StartMachineAsync();
             test.AssertIsWaitingToReceiveEvent(true);
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestMultipleReceiveEventStatementsWithMultipleTypes()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M4>(configuration: configuration);
+            var test = new StateMachineTestKit<M4>(configuration: configuration);
 
             await test.StartMachineAsync();
             test.AssertIsWaitingToReceiveEvent(true);

@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.SharedObjects
     /// <summary>
     /// A shared register modeled using a state-machine for testing.
     /// </summary>
-    internal sealed class SharedRegisterMachine<T> : Machine
+    internal sealed class SharedRegisterMachine<T> : StateMachine
         where T : struct
     {
         /// <summary>

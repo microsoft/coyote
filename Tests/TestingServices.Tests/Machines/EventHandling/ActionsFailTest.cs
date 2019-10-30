@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1A : Machine
+        private class M1A : StateMachine
         {
             private MachineId GhostMachine;
             private bool Test = false;
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1B : Machine
+        private class M1B : StateMachine
         {
             private MachineId RealMachine;
 
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M2A : Machine
+        private class M2A : StateMachine
         {
             private MachineId GhostMachine;
 
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2B : Machine
+        private class M2B : StateMachine
         {
             private MachineId RealMachine;
 
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             replay: true);
         }
 
-        private class M3A : Machine
+        private class M3A : StateMachine
         {
             private MachineId GhostMachine;
 
@@ -311,7 +311,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3B : Machine
+        private class M3B : StateMachine
         {
             private MachineId RealMachine;
 

@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class EventHandler : Machine
+        private class EventHandler : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Loop : Machine
+        private class Loop : StateMachine
         {
             [Start]
             [OnEntry(nameof(LoopingOnEntry))]

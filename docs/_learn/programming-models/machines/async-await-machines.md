@@ -19,10 +19,10 @@ of existing code. Can Coyote help there? We think so, especially for code that i
 
 ## Coyote Tester Requirements
 
-In Coyote, a `Machine` is the unit the concurrency. It represents a _state machine_, but for the
-purpose of this article, we can ignore this aspect of a `Machine` and simply treat it as a building
-block for concurrency, similar to a `Task` or a `Thread`. A `Machine` is internally sequential but
-different `Machines` all execute concurrently. A `Machine` is always in an event-driven loop until it
+In Coyote, a `StateMachine` is the unit the concurrency. It represents a _state machine_, but for the
+purpose of this article, we can ignore this aspect of a `StateMachine` and simply treat it as a building
+block for concurrency, similar to a `Task` or a `Thread`. A `StateMachine` is internally sequential but
+different `Machines` all execute concurrently. A `StateMachine` is always in an event-driven loop until it
 halts; it waits for an event to arrive in its `Inbox` and fires an `action` in response. The `action`,
 in addition to calling Coyote APIs for sending and receiving events, can execute _arbitrary_ `C#` code
 to mutate the state of the program. It is this usage of _arbitrary_ that we must now understand for
@@ -37,10 +37,10 @@ the recommendation that different `Machines` must not share object references
 
 The reason for all these restrictions is that `coyote` tester needs to be aware of all
 concurrency in the program in order to control it. The `coyote` tester keeps track of all
-live `Machines` in the program and takes over the scheduling. At any point during the execution
-of the program, it will determine the next `Machine` to schedule and give it a chance to execute.
+live state machines in the program and takes over the scheduling. At any point during the execution
+of the program, it will determine the next `StateMachine` to schedule and give it a chance to execute.
 The machine will execute its action without interference from other machines until it finishes its current action or it enters the Coyote runtime again via a `Send` or `Receive` (the only
-available synchronization primitives). At this point, the `coyote` tester scheduler takes control, suspends the currently-scheduled machine and then decides on the next one to schedule. The `coyote` tester essentially serializes the entire execution to a single thread. By controlling the scheduling decisions during an execution, `coyote` can explore different interleavings for a program. The exact choice of which `Machine` to schedule is determined by a `SchedulingStrategy`.
+available synchronization primitives). At this point, the `coyote` tester scheduler takes control, suspends the currently-scheduled machine and then decides on the next one to schedule. The `coyote` tester essentially serializes the entire execution to a single thread. By controlling the scheduling decisions during an execution, `coyote` can explore different interleavings for a program. The exact choice of which `StateMachine` to schedule is determined by a `SchedulingStrategy`.
 The `coyote` tester has several strategies and we recommend using a
 [portfolio](../Features/TestingMethodology.md#parallel-and-portfolio-testing) of them. The strategies
 have been crafted from over a decade of research on finding concurrency bugs efficiently in practice.
@@ -113,7 +113,7 @@ Use [P](https://github.com/p-org/P) if you operate in that world.
 To use the `coyote` tester we must tame the `C#` code and work towards exposing the concurrency
 to Coyote. First and foremost, _the code must not spawn `Tasks` (same applies to `Threads`)_.
 This is the most important rule to follow. Creation of `Tasks` will surely make `coyote` unusable.
-To eliminate `Task` creation, try replacing them with `Machine` creation instead, which should
+To eliminate `Task` creation, try replacing them with `StateMachine` creation instead, which should
 work for the most part. For our running example, we modify our `Test` method to instead
 create machines:
 
@@ -129,11 +129,11 @@ void Test(IMachineRuntime runtime)
 Here, `RunTask` is a special machine that simply invokes the payload method given to it. Look at the
 sample [here](https://github.com/p-org/CoyoteLab/tree/master/Samples/Experimental/SingleTaskMachine) to
 get a hang of it. Or one may create their own special machine for invoking `HandleRequest1` or
-`HandleRequest2`. Any way of replacing `Task` creation with `Machine` creation is fine.
+`HandleRequest2`. Any way of replacing `Task` creation with `StateMachine` creation is fine.
 
 Another example: your code may be using a `Timer` to register a periodic callback. Instead, create a
 `TimerMachine` that either invokes the callback periodically (or non-deterministically using Coyote's
-`Random`) or sends an event to the `Task` (now a `Machine`) that created the `Timer`. Sample code is
+`Random`) or sends an event to the `Task` (now a `StateMachine`) that created the `Timer`. Sample code is
 [here](https://github.com/p-org/Coyote/tree/master/Samples/Raft/Raft.CoyoteLibrary/Timers).
 
 Once the `Task` creation is eliminated, the next item of focus is the use of synchronization. When
@@ -144,7 +144,7 @@ scheduling to work without causing deadlocks, one must be careful with such sync
 rule of thumb is that a Coyote API should not be invoked while holding a lock_. Short synchronization
 blocks that guard access to a flag or a simple container should be likely be fine, except that `coyote`
 loses completeness (practically, there is a loss in coverage). To regain more coverage,
-_consider lifting the synchronization blocks to be hosted in their own `Machine`_. For our running
+_consider lifting the synchronization blocks to be hosted in their own `StateMachine`_. For our running
 example, we can write a machine `StorageMachine` to mock calls to `Read` and `Write` and do something
 like the following instead of locking:
 

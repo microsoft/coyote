@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M1<T> : Machine
+        private class M1<T> : StateMachine
         {
             private readonly bool Test = false;
 
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             private readonly bool Test = false;
 

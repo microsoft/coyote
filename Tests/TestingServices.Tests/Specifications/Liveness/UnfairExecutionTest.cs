@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M : Machine
+        private class M : StateMachine
         {
             private MachineId N;
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class N : Machine
+        private class N : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E), nameof(Foo))]

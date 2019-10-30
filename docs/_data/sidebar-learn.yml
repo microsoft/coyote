@@ -32,22 +32,22 @@ learn-toc:
       tertiaryitems:
         - name: Overview
           link: /learn/programming-models/async/overview
-    - name: Asynchronous State-Machines
+    - name: Asynchronous State Machines
       link: /learn/programming-models/machines
       tertiaryitems:
         - name: Overview
           link: /learn/programming-models/machines/overview
-        - name: Machine termination
+        - name: State Machine termination
           link: /learn/programming-models/machines/machine-termination
-        - name: Using timers in machines
+        - name: Using timers in state machines
           link: /learn/programming-models/machines/machine-timers
-        - name: Synchronous execution of machines
+        - name: Synchronous execution
           link: /learn/programming-models/machines/synchronous-execution
         - name: Tracking operation groups
           link: /learn/programming-models/machines/tracking-operation-groups
         - name: Semantics of unhandled exceptions
           link: /learn/programming-models/machines/uncaught-exceptions
-        - name: Unit-testing machines in isolation
+        - name: Unit-testing in isolation
           link: /learn/programming-models/machines/unit-testing
 - title: Specifications
   subfolderitems:

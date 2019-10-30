@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M : Machine
+        private class M : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class N : Machine
+        private class N : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E), nameof(Act))]

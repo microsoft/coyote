@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Map from unique machine ids to machines.
         /// </summary>
-        protected readonly ConcurrentDictionary<MachineId, AsyncMachine> MachineMap;
+        protected readonly ConcurrentDictionary<MachineId, Actor> MachineMap;
 
         /// <summary>
         /// Map from task ids to <see cref="ControlledTask"/> objects.
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Runtime
         protected CoyoteRuntime(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.MachineMap = new ConcurrentDictionary<MachineId, AsyncMachine>();
+            this.MachineMap = new ConcurrentDictionary<MachineId, Actor>();
             this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
             this.MachineIdCounter = 0;
             this.LockIdCounter = 0;
@@ -256,30 +256,30 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>.
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
         /// <returns>MachineId</returns>
         internal abstract MachineId CreateMachine(MachineId mid, Type type, string machineName, Event e,
-            Machine creator, Guid opGroupId);
+            StateMachine creator, Guid opGroupId);
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified <see cref="Type"/>. The
+        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
         /// method returns only when the machine is initialized and the <see cref="Event"/>
         /// (if any) is handled.
         /// </summary>
         internal abstract Task<MachineId> CreateMachineAndExecuteAsync(MachineId mid, Type type, string machineName, Event e,
-            Machine creator, Guid opGroupId);
+            StateMachine creator, Guid opGroupId);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
         /// </summary>
-        internal abstract void SendEvent(MachineId target, Event e, AsyncMachine sender, Guid opGroupId, SendOptions options);
+        internal abstract void SendEvent(MachineId target, Event e, Actor sender, Guid opGroupId, SendOptions options);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine. Returns immediately if the target machine was
         /// already running. Otherwise blocks until the machine handles the event and reaches quiescense.
         /// </summary>
-        internal abstract Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, AsyncMachine sender,
+        internal abstract Task<bool> SendEventAndExecuteAsync(MachineId target, Event e, Actor sender,
             Guid opGroupId, SendOptions options);
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner machine.
         /// </summary>
-        internal abstract IMachineTimer CreateMachineTimer(TimerInfo info, Machine owner);
+        internal abstract IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner);
 
         /// <summary>
         /// Tries to create a new specification monitor of the specified <see cref="Type"/>.
@@ -446,7 +446,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Invokes the specification monitor with the specified <see cref="Event"/>.
         /// </summary>
-        internal abstract void Monitor(Type type, AsyncMachine sender, Event e);
+        internal abstract void Monitor(Type type, Actor sender, Event e);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
@@ -525,19 +525,19 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal abstract bool GetNondeterministicBooleanChoice(AsyncMachine machine, int maxValue);
+        internal abstract bool GetNondeterministicBooleanChoice(Actor machine, int maxValue);
 
         /// <summary>
         /// Returns a fair nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal abstract bool GetFairNondeterministicBooleanChoice(AsyncMachine machine, string uniqueId);
+        internal abstract bool GetFairNondeterministicBooleanChoice(Actor machine, string uniqueId);
 
         /// <summary>
         /// Returns a nondeterministic integer choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal abstract int GetNondeterministicIntegerChoice(AsyncMachine machine, int maxValue);
+        internal abstract int GetNondeterministicIntegerChoice(Actor machine, int maxValue);
 
         /// <summary>
         /// Injects a context switch point that can be systematically explored during testing.
@@ -552,15 +552,15 @@ namespace Microsoft.Coyote.Runtime
         /// or null if no such machine exists.
         /// </summary>
         internal TMachine GetMachineFromId<TMachine>(MachineId id)
-            where TMachine : AsyncMachine =>
-            id != null && this.MachineMap.TryGetValue(id, out AsyncMachine value) &&
+            where TMachine : Actor =>
+            id != null && this.MachineMap.TryGetValue(id, out Actor value) &&
             value is TMachine machine ? machine : null;
 
         /// <summary>
         /// Notifies that a machine entered a state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyEnteredState(Machine machine)
+        internal virtual void NotifyEnteredState(StateMachine machine)
         {
         }
 
@@ -576,7 +576,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine exited a state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyExitedState(Machine machine)
+        internal virtual void NotifyExitedState(StateMachine machine)
         {
         }
 
@@ -592,7 +592,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -600,7 +600,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine completed invoking an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyCompletedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -608,7 +608,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -616,7 +616,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine completed invoking an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedOnEntryAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyCompletedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -624,7 +624,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -632,7 +632,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine completed invoking an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedOnExitAction(Machine machine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyCompletedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -648,7 +648,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine raised an <see cref="Event"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyRaisedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal virtual void NotifyRaisedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
         }
 
@@ -664,7 +664,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine dequeued an <see cref="Event"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyDequeuedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal virtual void NotifyDequeuedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
         }
 
@@ -672,7 +672,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine invoked pop.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyPop(Machine machine)
+        internal virtual void NotifyPop(StateMachine machine)
         {
         }
 
@@ -680,7 +680,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine called Receive.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyReceiveCalled(Machine machine)
+        internal virtual void NotifyReceiveCalled(StateMachine machine)
         {
         }
 
@@ -688,7 +688,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine is handling a raised <see cref="Event"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyHandleRaisedEvent(Machine machine, Event e)
+        internal virtual void NotifyHandleRaisedEvent(StateMachine machine, Event e)
         {
         }
 
@@ -696,7 +696,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine is waiting for the specified task to complete.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyWaitTask(Machine machine, Task task)
+        internal virtual void NotifyWaitTask(StateMachine machine, Task task)
         {
         }
 
@@ -712,7 +712,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine is waiting to receive an event of one of the specified types.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyWaitEvent(Machine machine, IEnumerable<Type> eventTypes)
+        internal virtual void NotifyWaitEvent(StateMachine machine, IEnumerable<Type> eventTypes)
         {
         }
 
@@ -720,7 +720,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine enqueued an event that it was waiting to receive.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyReceivedEvent(Machine machine, Event e, EventInfo eventInfo)
+        internal virtual void NotifyReceivedEvent(StateMachine machine, Event e, EventInfo eventInfo)
         {
         }
 
@@ -729,7 +729,7 @@ namespace Microsoft.Coyote.Runtime
         /// was already in the inbox when the machine invoked the receive statement.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyReceivedEventWithoutWaiting(Machine machine, Event e, EventInfo eventInfo)
+        internal virtual void NotifyReceivedEventWithoutWaiting(StateMachine machine, Event e, EventInfo eventInfo)
         {
         }
 
@@ -737,7 +737,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a machine has halted.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyHalted(Machine machine)
+        internal virtual void NotifyHalted(StateMachine machine)
         {
         }
 
@@ -746,7 +746,7 @@ namespace Microsoft.Coyote.Runtime
         /// checked to see if the default event handler should fire.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyDefaultEventHandlerCheck(Machine machine)
+        internal virtual void NotifyDefaultEventHandlerCheck(StateMachine machine)
         {
         }
 
@@ -754,7 +754,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that the default handler of the specified machine has been fired.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyDefaultHandlerFired(Machine machine)
+        internal virtual void NotifyDefaultHandlerFired(StateMachine machine)
         {
         }
 

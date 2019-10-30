@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             Run
         }
 
-        private class Environment : Machine
+        private class Environment : StateMachine
         {
             [Start]
             [OnEntry(nameof(OnInitEntry))]
@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Server : Machine
+        private class Server : StateMachine
         {
             public class Configure : Event
             {
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             public class Configure : Event
             {
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Node : Machine
+        private class Node : StateMachine
         {
             public class ValueReq : Event
             {
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class LkMachine : Machine
+        private class LkMachine : StateMachine
         {
             public class AtomicTestSet : Event
             {
@@ -449,7 +449,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class RLockMachine : Machine
+        private class RLockMachine : StateMachine
         {
             public class ValueReq : Event
             {
@@ -516,7 +516,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class RWantMachine : Machine
+        private class RWantMachine : StateMachine
         {
             public class ValueReq : Event
             {

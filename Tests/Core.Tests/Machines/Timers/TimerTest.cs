@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class T1 : Machine
+        private class T1 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class T2 : Machine
+        private class T2 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class T3 : Machine
+        private class T3 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
 
@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class T4 : Machine
+        private class T4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class T5 : Machine
+        private class T5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]

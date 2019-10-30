@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             MultiPayloadMultiLevelGenericTester.Test();
         }
 
-        private class A : Machine
+        private class A : StateMachine
         {
             internal class Configure : Event
             {

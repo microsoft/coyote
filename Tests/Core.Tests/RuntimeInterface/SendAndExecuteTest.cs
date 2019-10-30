@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class N1 : Machine
+        private class N1 : StateMachine
         {
             private bool LEHandled = false;
 
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class N2 : Machine
+        private class N2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class N3 : Machine
+        private class N3 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E3), nameof(HandleE))]
@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Core.Tests
             }, config);
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class N4 : Machine
+        private class N4 : StateMachine
         {
             private bool HandleException = false;
 
@@ -388,7 +388,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -406,7 +406,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class N5 : Machine
+        private class N5 : StateMachine
         {
             [Start]
             private class Init : MachineState

@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Environment : Machine
+        private class Environment : StateMachine
         {
             public class NotifyNode : Event
             {
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class NodeManager : Machine
+        private class NodeManager : StateMachine
         {
             public class ConfigureEvent : Event
             {
@@ -299,7 +299,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class StorageNode : Machine
+        private class StorageNode : StateMachine
         {
             public class ConfigureEvent : Event
             {
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class FailureTimer : Machine
+        private class FailureTimer : StateMachine
         {
             internal class ConfigureEvent : Event
             {
@@ -502,7 +502,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class RepairTimer : Machine
+        private class RepairTimer : StateMachine
         {
             internal class ConfigureEvent : Event
             {
@@ -576,7 +576,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class SyncTimer : Machine
+        private class SyncTimer : StateMachine
         {
             internal class ConfigureEvent : Event
             {
@@ -650,7 +650,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Client : Machine
+        private class Client : StateMachine
         {
             public class ConfigureEvent : Event
             {

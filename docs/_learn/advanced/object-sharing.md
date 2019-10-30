@@ -7,7 +7,7 @@ permalink: /learn/advanced/object-sharing
 
 ## Sharing objects
 
-This feature is currently only available in the [state-machines programming model](/Coyote/learn/programming-models/machines/overview).
+This feature is currently only available in the [state machines programming model](/Coyote/learn/programming-models/machines/overview).
 
 A Coyote program is expected to be free of low-level data races. This means that two different machines
 should not race on access to the same object, unless both accesses are reads. Typically, the programmer

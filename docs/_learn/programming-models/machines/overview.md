@@ -5,10 +5,10 @@ section: learn
 permalink: /learn/programming-models/machines/overview
 ---
 
-## Programming model: asynchronous state-machines
+## Programming model: asynchronous state machines
 
-The _asynchronous state-machines_ programming model of Coyote is an actor-based programming model that
-exposes the `Machine` type. Using this programming model allows you to create new machines and send
+The _asynchronous state machines_ programming model of Coyote is an actor-based programming model that
+exposes the `StateMachine` type. Using this programming model allows you to create new machines and send
 events from one machine to another.
 
 A program written using this programming model consists of one or more state machines (which we simply
@@ -20,16 +20,16 @@ machine. In Coyote, create machine operations and send operations are non-blocki
 send operation the message is simply enqueued into the input queue of the target machine, that is send
 does not wait for the message to be processed at the target before returning.
 
-## Writing your first program using machines
+## Writing your first program using state machines
 
-A state-machine program in Coyote is a collection of machines (declared by subclassing the `Machine`
+A state machine program in Coyote is a collection of machines (declared by subclassing the `StateMachine`
 type) and events (declared by subclassing the `Event` type), as well as other regular C# types (such as
 classes and structs).
 
 Machines types can be declared in the following way:
 
 ```c#
-class Server : Machine { ... }
+class Server : StateMachine { ... }
 ```
 
 The above code snippet declares a machine named `Server`. Since machines are defined as C# classes,
@@ -37,7 +37,7 @@ they can contain an arbitrary number of fields and methods. For example, the bel
 declares the field `Client` of type `MachineId`, which is a handle to a machine instance.
 
 ```c#
-class Server : Machine {
+class Server : StateMachine {
   MachineId Client;
 }
 ```
@@ -45,7 +45,7 @@ class Server : Machine {
 Machines in Coyote must also declare one or more _states_:
 
 ```c#
-class Server : Machine {
+class Server : StateMachine {
   MachineId Client;
 
   [Start]
@@ -169,7 +169,7 @@ The attribute `OnEventGotoState` indicates that when the machine receives the `U
 `SomeState`, it must handle `UnitEvent` by exiting the state and transitioning to `AnotherState`. The
 first `OnEventDoAction` attribute indicates that the `PingEvent` event must be handled by invoking the
 action `SomeAction`, and that the machine will remain in `SomeState`. The second `OnEventDoAction`
-attribute shows how state-machine event-handling methods can be declared using `async Task` so that
+attribute shows how state machine event-handling methods can be declared using `async Task` so that
 they can `await` awaitable C# methods.
 
 You can associate each event with at most one handler in a particular state of a machine. If a Coyote
@@ -221,7 +221,7 @@ namespace PingPong {
     }
   }
 
-  class Server : Machine {
+  class Server : StateMachine {
     MachineId Client;
 
     [Start]
@@ -249,7 +249,7 @@ namespace PingPong {
     }
   }
 
-  class Client : Machine {
+  class Client : StateMachine {
     MachineId Server;
 
     [Start]
@@ -301,7 +301,7 @@ indefinitely.
 
 ## Entry point to a Coyote program
 
-To create and start executing Coyote machines, you need to initialize the Coyote state-machine runtime
+To create and start executing Coyote machines, you need to initialize the Coyote state machine runtime
 inside your C# process (typically in the `Main` method). An example of this is the following:
 
 ```c#
@@ -309,7 +309,7 @@ using Microsoft.Coyote;
 using Microsoft.Coyote.Machines;
 public class HostProgram {
   static void Main(string[] args) {
-    IMachineRuntime runtime = CoyoteRuntime.Create();
+    IMachineRuntime runtime = MachineRuntimeFactory.Create();
     runtime.CreateMachine(typeof(Server));
     Console.ReadLine();
   }

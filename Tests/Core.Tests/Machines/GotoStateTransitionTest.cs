@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(Message), typeof(Final))]
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestGotoStateTransition()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M1>(configuration: configuration);
+            var test = new StateMachineTestKit<M1>(configuration: configuration);
             await test.StartMachineAsync();
             test.AssertStateTransition("Final");
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestGotoStateTransitionAfterSend()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M2>(configuration: configuration);
+            var test = new StateMachineTestKit<M2>(configuration: configuration);
             await test.StartMachineAsync();
             test.AssertStateTransition("Init");
 
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Core.Tests
         public async Task TestGotoStateTransitionAfterRaise()
         {
             var configuration = GetConfiguration();
-            var test = new MachineTestKit<M3>(configuration: configuration);
+            var test = new StateMachineTestKit<M3>(configuration: configuration);
             await test.StartMachineAsync();
             test.AssertStateTransition("Final");
         }

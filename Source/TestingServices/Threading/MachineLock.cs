@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
         /// </summary>
         public override ControlledTask<Releaser> AcquireAsync()
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
 
             if (this.IsAcquired)
             {
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
         /// </summary>
         protected override void Release()
         {
-            AsyncMachine caller = this.Runtime.GetExecutingMachine<AsyncMachine>();
+            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             this.IsAcquired = false;
             if (this.Awaiters.Count > 0)
             {

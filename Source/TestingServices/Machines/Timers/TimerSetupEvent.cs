@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
         /// <summary>
         /// The machine that owns the timer.
         /// </summary>
-        internal readonly Machine Owner;
+        internal readonly StateMachine Owner;
 
         /// <summary>
         /// Adjusts the probability of firing a timeout event.
@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
         /// <param name="info">Stores information about the timer.</param>
         /// <param name="owner">The machine that owns the timer.</param>
         /// <param name="delay">Adjusts the probability of firing a timeout event.</param>
-        internal TimerSetupEvent(TimerInfo info, Machine owner, uint delay)
+        internal TimerSetupEvent(TimerInfo info, StateMachine owner, uint delay)
         {
             this.Info = info;
             this.Owner = owner;

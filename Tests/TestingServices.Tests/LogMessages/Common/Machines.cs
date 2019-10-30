@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
     {
     }
 
-    internal class M : Machine
+    internal class M : StateMachine
     {
         [Start]
         [OnEntry(nameof(InitOnEntry))]
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
         }
     }
 
-    internal class N : Machine
+    internal class N : StateMachine
     {
         [Start]
         [OnEventDoAction(typeof(E), nameof(Act))]

@@ -14,8 +14,8 @@ namespace Microsoft.Coyote.TestingServices
     /// Provides methods for testing a machine of type <typeparamref name="T"/> in isolation.
     /// </summary>
     /// <typeparam name="T">The machine type to test.</typeparam>
-    public sealed class MachineTestKit<T>
-        where T : Machine
+    public sealed class StateMachineTestKit<T>
+        where T : StateMachine
     {
         /// <summary>
         /// The machine testing runtime.
@@ -33,10 +33,10 @@ namespace Microsoft.Coyote.TestingServices
         private bool IsRunning;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MachineTestKit{T}"/> class.
+        /// Initializes a new instance of the <see cref="StateMachineTestKit{T}"/> class.
         /// </summary>
         /// <param name="configuration">The runtime configuration to use.</param>
-        public MachineTestKit(Configuration configuration)
+        public StateMachineTestKit(Configuration configuration)
         {
             configuration = configuration ?? Configuration.Create();
             this.Runtime = new MachineTestingRuntime(typeof(T), configuration);

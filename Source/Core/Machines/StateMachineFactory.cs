@@ -8,30 +8,30 @@ using System.Linq.Expressions;
 namespace Microsoft.Coyote.Machines
 {
     /// <summary>
-    /// Factory for creating machines.
+    /// Factory for creating state machines.
     /// </summary>
-    internal static class MachineFactory
+    internal static class StateMachineFactory
     {
         /// <summary>
         /// Cache storing machine constructors.
         /// </summary>
-        private static readonly Dictionary<Type, Func<Machine>> MachineConstructorCache =
-            new Dictionary<Type, Func<Machine>>();
+        private static readonly Dictionary<Type, Func<StateMachine>> StateMachineConstructorCache =
+            new Dictionary<Type, Func<StateMachine>>();
 
         /// <summary>
-        /// Creates a new <see cref="Machine"/> of the specified type.
+        /// Creates a new <see cref="StateMachine"/> of the specified type.
         /// </summary>
         /// <param name="type">Type of the machine.</param>
         /// <returns>The created machine.</returns>
-        public static Machine Create(Type type)
+        public static StateMachine Create(Type type)
         {
-            lock (MachineConstructorCache)
+            lock (StateMachineConstructorCache)
             {
-                if (!MachineConstructorCache.TryGetValue(type, out Func<Machine> constructor))
+                if (!StateMachineConstructorCache.TryGetValue(type, out Func<StateMachine> constructor))
                 {
-                    constructor = Expression.Lambda<Func<Machine>>(
+                    constructor = Expression.Lambda<Func<StateMachine>>(
                         Expression.New(type.GetConstructor(Type.EmptyTypes))).Compile();
-                    MachineConstructorCache.Add(type, constructor);
+                    StateMachineConstructorCache.Add(type, constructor);
                 }
 
                 return constructor();

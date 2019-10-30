@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Machines.Timers
         /// <summary>
         /// The machine that owns this timer.
         /// </summary>
-        private readonly Machine Owner;
+        private readonly StateMachine Owner;
 
         /// <summary>
         /// The internal timer.
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Machines.Timers
         /// </summary>
         /// <param name="info">Stores information about this timer.</param>
         /// <param name="owner">The machine that owns this timer.</param>
-        public MachineTimer(TimerInfo info, Machine owner)
+        public MachineTimer(TimerInfo info, StateMachine owner)
         {
             this.Info = info;
             this.Owner = owner;

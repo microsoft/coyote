@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -85,7 +85,7 @@ Machine event coverage: 100.0%
             Assert.Equal(expected, result);
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -141,7 +141,7 @@ Machine event coverage: 100.0%
             Assert.Equal(expected, result);
         }
 
-        private class M3A : Machine
+        private class M3A : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -160,7 +160,7 @@ Machine event coverage: 100.0%
             }
         }
 
-        private class M3B : Machine
+        private class M3B : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -220,7 +220,7 @@ Machine event coverage: 100.0%
             Assert.Equal(expected, result);
         }
 
-        internal class M4 : Machine
+        internal class M4 : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(E), typeof(Done))]
@@ -294,7 +294,7 @@ Machine event coverage: 100.0%
         {
         }
 
-        internal class M5 : Machine
+        internal class M5 : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(E1), typeof(Done))]

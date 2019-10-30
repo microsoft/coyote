@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// The machine that owns this operation.
         /// </summary>
-        internal readonly AsyncMachine Machine;
+        internal readonly Actor Machine;
 
         /// <summary>
         /// Unique id of the source of the operation.
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineOperation"/> class.
         /// </summary>
-        internal MachineOperation(AsyncMachine machine, OperationScheduler scheduler)
+        internal MachineOperation(Actor machine, OperationScheduler scheduler)
         {
             this.Scheduler = scheduler;
             this.Machine = machine;

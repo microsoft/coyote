@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class A : Machine
+        private class A : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Foo))]
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Harness : Machine
+        private class Harness : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M : Machine
+        private class M : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(HandleEvent1))]

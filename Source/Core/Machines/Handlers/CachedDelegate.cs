@@ -15,12 +15,12 @@ namespace Microsoft.Coyote.Machines
         internal readonly MethodInfo MethodInfo;
         internal readonly Delegate Handler;
 
-        internal CachedDelegate(MethodInfo methodInfo, Machine machine)
+        internal CachedDelegate(MethodInfo methodInfo, StateMachine machine)
         {
             this.MethodInfo = methodInfo;
 
             // MethodInfo.Invoke catches the exception to wrap it in a TargetInvocationException.
-            // This unwinds the stack before Machine.ExecuteAction's exception filter is invoked,
+            // This unwinds the stack before StateMachine.ExecuteAction's exception filter is invoked,
             // so call through the delegate instead (which is also much faster than Invoke).
             if (methodInfo.ReturnType == typeof(void))
             {

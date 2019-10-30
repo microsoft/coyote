@@ -1,6 +1,6 @@
 ---
 layout: reference
-title: Machine termination
+title: State Machine termination
 section: learn
 permalink: /learn/programming-models/machines/machine-termination
 ---
@@ -9,7 +9,7 @@ permalink: /learn/programming-models/machines/machine-termination
 
 Coyote machines continue running unless they are explicitly terminated. The runtime will mark a machine
 as idle if it has no work to do, but it will not reclaim any resources held by the machine unless it is
-terminated. A machine is terminated when it dequeues a special built-in event called `Halt`. 
+terminated. A machine is terminated when it dequeues a special built-in event called `Halt`.
 
 A `Halt` event can be raised (for terminating self) and/or sent to another machine to terminate that
 machine. Termination of a machine due to an unhandled `Halt` event is valid behavior (the Coyote

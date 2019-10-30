@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M : Machine
+        private class M : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class M1 : Machine
+        private class M1 : StateMachine
         {
             private Data data;
 
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class Harness : Machine
+        private class Harness : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             });
         }
 
-        private class M2 : Machine
+        private class M2 : StateMachine
         {
             [Start]
             private class S : MachineState
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M3 : Machine
+        private class M3 : StateMachine
         {
             [Start]
             private class S : MachineState
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M4 : Machine
+        private class M4 : StateMachine
         {
             [Start]
             [IgnoreEvents(typeof(E))]
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class M5 : Machine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]

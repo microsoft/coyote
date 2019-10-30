@@ -12,8 +12,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Machines.Timers;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Scheduling;

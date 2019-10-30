@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Xunit;
 using Xunit.Abstractions;

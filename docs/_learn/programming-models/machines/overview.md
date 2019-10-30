@@ -207,7 +207,7 @@ asynchronously by exchanging `PingEvent` and `PongEvent` events:
 ```c#
 using System;
 using Microsoft.Coyote;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 
 namespace PingPong {
   class UnitEvent : Event { }
@@ -306,7 +306,7 @@ inside your C# process (typically in the `Main` method). An example of this is t
 
 ```c#
 using Microsoft.Coyote;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 public class HostProgram {
   static void Main(string[] args) {
     IMachineRuntime runtime = MachineRuntimeFactory.Create();

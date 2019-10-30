@@ -11,7 +11,7 @@ Coyote has built-in support for machine timers, which can send a `TimerElapsedEv
 that created them upon timeout, and periodic machine timers, which can continually send such events
 with a user-defined interval.
 
-To make use of timers, you must include the `Microsoft.Coyote.Machines.Timers` namespace. Timers are
+To make use of timers, you must include the `Microsoft.Coyote.Actors.Timers` namespace. Timers are
 exposed via `StateMachine` APIs. You can start a non-periodic timer using the function `StartTimer`.
 
 ```c#

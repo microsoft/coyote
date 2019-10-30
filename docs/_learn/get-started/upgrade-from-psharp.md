@@ -11,7 +11,7 @@ This document contains a list of changes from P# to Coyote. Please follow this g
 ## General changes
 - Consume the `Microsoft.Coyote` NuGet package, instead of the `Microsoft.PSharp` NuGet package.
 - Rename each `using Microsoft.PSharp.*` to `Microsoft.Coyote.*`.
-- State machines are now under a dedicated namespace `Microsoft.Coyote.Machines`, since we have added support for a new asynchronous tasks programming model (which is available under the `Microsoft.Coyote.Threading.Tasks` namespace, mirroring `System.Threading.Tasks`).
+- State machines are now under a dedicated namespace `Microsoft.Coyote.Actors`, since we have added support for a new asynchronous tasks programming model (which is available under the `Microsoft.Coyote.Threading.Tasks` namespace, mirroring `System.Threading.Tasks`).
 - Monitors are now under a dedicated namespace `Microsoft.Coyote.Specifications`.
 - The `SchedulingStrategy` enum moved from `Microsoft.Coyote.Utilities` to `Microsoft.Coyote.Runtime.Exploration`.
 

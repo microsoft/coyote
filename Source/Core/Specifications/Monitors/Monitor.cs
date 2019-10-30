@@ -8,11 +8,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Machines;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
-
 using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 
 namespace Microsoft.Coyote.Specifications

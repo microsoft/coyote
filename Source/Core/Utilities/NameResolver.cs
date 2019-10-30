@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Utilities
 {

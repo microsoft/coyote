@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Machines.Timers;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.Timers;
 using Xunit;
 using Xunit.Abstractions;
 

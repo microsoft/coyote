@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Microsoft.Coyote.Machines;
+using Microsoft.Coyote.Actors;
 
 using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 

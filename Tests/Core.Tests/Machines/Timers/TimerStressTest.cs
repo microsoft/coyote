@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Machines;
-using Microsoft.Coyote.Machines.Timers;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.Timers;
 using Xunit;
 using Xunit.Abstractions;
 

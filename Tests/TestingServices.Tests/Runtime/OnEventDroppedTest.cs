@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             protected override void OnHalt()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     r.Assert(false);
                 };
 
-                var m = r.CreateMachine(typeof(M1));
+                var m = r.CreateStateMachine(typeof(M1));
                 r.SendEvent(m, new Halt());
             },
             expectedError: "Detected an assertion failure.",
@@ -69,8 +69,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new Halt());
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new Halt());
+                this.SendEvent(this.Id, new E());
             }
         }
 
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     r.Assert(false);
                 };
 
-                var m = r.CreateMachine(typeof(M2));
+                var m = r.CreateStateMachine(typeof(M2));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M1));
+                var m = r.CreateStateMachine(typeof(M1));
 
                 r.OnEventDropped += (e, target) =>
                 {
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send((this.ReceivedEvent as E).Id, new Halt());
+                this.SendEvent((this.ReceivedEvent as E).Id, new Halt());
             }
         }
 
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((this.ReceivedEvent as E).Id, new E());
             }
         }
 
@@ -184,9 +184,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     r.InvokeMonitor(typeof(Monitor3), new EventDropped());
                 };
 
-                var m = r.CreateMachine(typeof(M3c));
-                r.CreateMachine(typeof(M3a), new E(m));
-                r.CreateMachine(typeof(M3b), new E(m));
+                var m = r.CreateStateMachine(typeof(M3c));
+                r.CreateStateMachine(typeof(M3a), new E(m));
+                r.CreateStateMachine(typeof(M3b), new E(m));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200));
         }

@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             {
                 for (int i = 0; i < this.NumMessages; i++)
                 {
-                    this.Send(this.Consumer, new Message());
+                    this.SendEvent(this.Consumer, new Message());
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             this.Runtime = new ProductionRuntime(configuration);
             this.ExperimentAwaiter = new TaskCompletionSource<bool>();
 
-            var consumer = this.Runtime.CreateMachine(typeof(Consumer), null,
+            var consumer = this.Runtime.CreateStateMachine(typeof(Consumer), null,
                 new SetupConsumerEvent(this.ExperimentAwaiter, NumMessages));
 
             var tasks = new Task[this.NumProducers];
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             for (int i = 0; i < this.NumProducers; i++)
             {
                 var tcs = new TaskCompletionSource<bool>();
-                this.ProducerMachines[i] = this.Runtime.CreateMachine(typeof(Producer), null,
+                this.ProducerMachines[i] = this.Runtime.CreateStateMachine(typeof(Producer), null,
                     new SetupProducerEvent(tcs, consumer, NumMessages / this.NumProducers));
                 tasks[i] = tcs.Task;
             }

@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Message());
+                this.RaiseEvent(new Message());
             }
 
             private class Final : State

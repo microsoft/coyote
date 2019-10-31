@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M1));
+                var m = r.CreateStateMachine(typeof(M1));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, new Halt());
             },
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachine(typeof(M2));
+                var m = r.CreateStateMachine(typeof(M2));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, new Halt());
             },
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachine(typeof(M3));
+                var m = r.CreateStateMachine(typeof(M3));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
             },
             configuration: Configuration.Create().WithNumberOfIterations(500),
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new Halt());
+                this.SendEvent(this.Id, new Halt());
             }
         }
 
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachine(typeof(M4));
+                var m = r.CreateStateMachine(typeof(M4));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
             },
             configuration: Configuration.Create().WithNumberOfIterations(500),
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachine(typeof(M5));
+                var m = r.CreateStateMachine(typeof(M5));
                 r.SendEvent(m, new Halt());
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, new MoveEvent());

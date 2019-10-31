@@ -28,7 +28,7 @@ different machine `m` by stashing it as part of the payload of an event.
 ```c#
 ISharedRegister<int> register = SharedRegister.Create<int>(this.Runtime);
 register.SetValue(100);
-this.Send(m, new MyEvent(register, ...));
+this.SendEvent(m, new MyEvent(register, ...));
 var v = register.GetValue();
 this.Assert(v == 100 || v == 200);
 ```

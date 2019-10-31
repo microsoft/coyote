@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.RegisterMonitor(typeof(M));
                 r.RegisterMonitor(typeof(M));
-                ActorId n = r.CreateMachine(typeof(N));
+                ActorId n = r.CreateStateMachine(typeof(N));
             });
         }
     }

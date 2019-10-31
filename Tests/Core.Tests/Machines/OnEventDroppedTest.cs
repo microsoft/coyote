@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             protected override void OnHalt()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
         }
 
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                var m = r.CreateMachine(typeof(M1));
+                var m = r.CreateStateMachine(typeof(M1));
                 r.SendEvent(m, new Halt());
 
                 await WaitAsync(tcs.Task);
@@ -81,8 +81,8 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new Halt());
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new Halt());
+                this.SendEvent(this.Id, new E());
             }
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                var m = r.CreateMachine(typeof(M2));
+                var m = r.CreateStateMachine(typeof(M2));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(called);
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Core.Tests
                 var called = false;
                 var tcs = new TaskCompletionSource<bool>();
 
-                var m = r.CreateMachine(typeof(M1));
+                var m = r.CreateStateMachine(typeof(M1));
 
                 r.OnEventDropped += (e, target) =>
                 {
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Send((this.ReceivedEvent as E).Id, new Halt());
+                this.SendEvent((this.ReceivedEvent as E).Id, new Halt());
             }
         }
 
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Send((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((this.ReceivedEvent as E).Id, new E());
             }
         }
 
@@ -238,9 +238,9 @@ namespace Microsoft.Coyote.Core.Tests
                     r.InvokeMonitor(typeof(Monitor3), new EventDropped());
                 };
 
-                var m = r.CreateMachine(typeof(M3c));
-                r.CreateMachine(typeof(M3a), new E(m));
-                r.CreateMachine(typeof(M3b), new E(m));
+                var m = r.CreateStateMachine(typeof(M3c));
+                r.CreateStateMachine(typeof(M3a), new E(m));
+                r.CreateStateMachine(typeof(M3b), new E(m));
 
                 await WaitAsync(tcs.Task);
             }, config);

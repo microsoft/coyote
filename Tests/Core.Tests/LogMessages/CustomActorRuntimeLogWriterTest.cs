@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             runtime.SetLogWriter(new CustomActorRuntimeLogWriter());
 
             var tcs = new TaskCompletionSource<bool>();
-            runtime.CreateMachine(typeof(M), new Configure(tcs));
+            runtime.CreateStateMachine(typeof(M), new Configure(tcs));
 
             await WaitAsync(tcs.Task);
             await Task.Delay(200);

@@ -45,9 +45,9 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         {
             this.Tcs = (this.ReceivedEvent as Configure).Tcs;
             var nTcs = new TaskCompletionSource<bool>();
-            var n = this.CreateMachine(typeof(N), new Configure(nTcs));
+            var n = this.CreateStateMachine(typeof(N), new Configure(nTcs));
             await nTcs.Task;
-            this.Send(n, new E(this.Id));
+            this.SendEvent(n, new E(this.Id));
         }
 
         private void Act()
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         private void ActOnEntry()
         {
             ActorId m = (this.ReceivedEvent as E).Id;
-            this.Send(m, new E(this.Id));
+            this.SendEvent(m, new E(this.Id));
         }
     }
 }

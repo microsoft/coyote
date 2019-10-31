@@ -30,8 +30,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
 
         private void InitOnEntry()
         {
-            var n = this.CreateMachine(typeof(N));
-            this.Send(n, new E(this.Id));
+            var n = this.CreateStateMachine(typeof(N));
+            this.SendEvent(n, new E(this.Id));
         }
 
         private void Act()
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
         private void Act()
         {
             ActorId m = (this.ReceivedEvent as E).Id;
-            this.Send(m, new E(this.Id));
+            this.SendEvent(m, new E(this.Id));
         }
     }
 }

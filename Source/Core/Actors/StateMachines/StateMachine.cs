@@ -206,8 +206,8 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">Optional initialization event.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>The unique actor id.</returns>
-        protected ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
-            this.Runtime.CreateMachine(null, type, null, e, this, opGroupId);
+        protected ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default) =>
+            this.Runtime.CreateStateMachine(null, type, null, e, this, opGroupId);
 
         /// <summary>
         /// Creates a new state machine of the specified type and name, and with the
@@ -219,8 +219,8 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">Optional initialization event.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>The unique actor id.</returns>
-        protected ActorId CreateMachine(Type type, string name, Event e = null, Guid opGroupId = default) =>
-            this.Runtime.CreateMachine(null, type, name, e, this, opGroupId);
+        protected ActorId CreateStateMachine(Type type, string name, Event e = null, Guid opGroupId = default) =>
+            this.Runtime.CreateStateMachine(null, type, name, e, this, opGroupId);
 
         /// <summary>
         /// Creates a new state machine of the specified <see cref="Type"/> and name, using the specified
@@ -232,8 +232,8 @@ namespace Microsoft.Coyote.Actors
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="e">Optional initialization event.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        protected void CreateMachine(ActorId id, Type type, string name, Event e = null, Guid opGroupId = default) =>
-            this.Runtime.CreateMachine(id, type, name, e, this, opGroupId);
+        protected void CreateStateMachine(ActorId id, Type type, string name, Event e = null, Guid opGroupId = default) =>
+            this.Runtime.CreateStateMachine(id, type, name, e, this, opGroupId);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a target.
@@ -242,7 +242,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">The event to send.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
-        protected void Send(ActorId id, Event e, Guid opGroupId = default, SendOptions options = null) =>
+        protected void SendEvent(ActorId id, Event e, Guid opGroupId = default, SendOptions options = null) =>
             this.Runtime.SendEvent(id, e, this, opGroupId, options);
 
         /// <summary>
@@ -250,15 +250,15 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="e">The event to raise.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        protected void Raise(Event e, Guid opGroupId = default)
+        protected void RaiseEvent(Event e, Guid opGroupId = default)
         {
-            this.Assert(!this.IsHalted, "Machine '{0}' invoked Raise while halted.", this.Id);
+            this.Assert(!this.IsHalted, "Machine '{0}' invoked RaiseEvent while halted.", this.Id);
             this.Assert(e != null, "Machine '{0}' is raising a null event.", this.Id);
 
             // The operation group id of this operation is set using the following precedence:
             // (1) To the specified raise operation group id, if it is non-empty.
             // (2) To the operation group id of this state machine.
-            this.Inbox.Raise(e, opGroupId != Guid.Empty ? opGroupId : this.OperationGroupId);
+            this.Inbox.RaiseEvent(e, opGroupId != Guid.Empty ? opGroupId : this.OperationGroupId);
         }
 
         /// <summary>
@@ -268,11 +268,11 @@ namespace Microsoft.Coyote.Actors
         /// <param name="eventType">The event type.</param>
         /// <param name="predicate">The optional predicate.</param>
         /// <returns>The received event.</returns>
-        protected internal Task<Event> Receive(Type eventType, Func<Event, bool> predicate = null)
+        protected internal Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
-            this.Assert(!this.IsHalted, "Machine '{0}' invoked Receive while halted.", this.Id);
+            this.Assert(!this.IsHalted, "Machine '{0}' invoked ReceiveEventAsync while halted.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
-            return this.Inbox.ReceiveAsync(eventType, predicate);
+            return this.Inbox.ReceiveEventAsync(eventType, predicate);
         }
 
         /// <summary>
@@ -280,11 +280,11 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="eventTypes">The event types to wait for.</param>
         /// <returns>The received event.</returns>
-        protected internal Task<Event> Receive(params Type[] eventTypes)
+        protected internal Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
-            this.Assert(!this.IsHalted, "Machine '{0}' invoked Receive while halted.", this.Id);
+            this.Assert(!this.IsHalted, "Machine '{0}' invoked ReceiveEventAsync while halted.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
-            return this.Inbox.ReceiveAsync(eventTypes);
+            return this.Inbox.ReceiveEventAsync(eventTypes);
         }
 
         /// <summary>
@@ -293,11 +293,11 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="events">Event types and predicates.</param>
         /// <returns>The received event.</returns>
-        protected internal Task<Event> Receive(params Tuple<Type, Func<Event, bool>>[] events)
+        protected internal Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
-            this.Assert(!this.IsHalted, "Machine '{0}' invoked Receive while halted.", this.Id);
+            this.Assert(!this.IsHalted, "Machine '{0}' invoked ReceiveEventAsync while halted.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
-            return this.Inbox.ReceiveAsync(events);
+            return this.Inbox.ReceiveEventAsync(events);
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace Microsoft.Coyote.Actors
             this.Assert(!this.IsHalted, "Machine '{0}' invoked Goto while halted.", this.Id);
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(s.DeclaringType) && val.Name.Equals(s.Name)),
                 "Machine '{0}' is trying to transition to non-existing state '{1}'.", this.Id, s.Name);
-            this.Raise(new GotoStateEvent(s));
+            this.RaiseEvent(new GotoStateEvent(s));
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Microsoft.Coyote.Actors
             this.Assert(!this.IsHalted, "Machine '{0}' invoked Push while halted.", this.Id);
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(s.DeclaringType) && val.Name.Equals(s.Name)),
                 "Machine '{0}' is trying to transition to non-existing state '{1}'.", this.Id, s.Name);
-            this.Raise(new PushStateEvent(s));
+            this.RaiseEvent(new PushStateEvent(s));
         }
 
         /// <summary>

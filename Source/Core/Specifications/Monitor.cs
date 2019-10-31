@@ -191,14 +191,14 @@ namespace Microsoft.Coyote.Specifications
             // If the state is not a state of the monitor, then report an error and exit.
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(s.DeclaringType) && val.Name.Equals(s.Name)),
                 "Monitor '{0}' is trying to transition to non-existing state '{1}'.", this.GetType().Name, s.Name);
-            this.Raise(new GotoStateEvent(s));
+            this.RaiseEvent(new GotoStateEvent(s));
         }
 
         /// <summary>
         /// Raises an <see cref="Event"/> internally and returns from the execution context.
         /// </summary>
         /// <param name="e">The event to raise.</param>
-        protected void Raise(Event e)
+        protected void RaiseEvent(Event e)
         {
             // If the event is null, then report an error and exit.
             this.Assert(e != null, "Monitor '{0}' is raising a null event.", this.GetType().Name);

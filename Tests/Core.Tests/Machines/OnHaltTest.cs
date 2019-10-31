@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -84,12 +84,12 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
             {
-                this.Receive(typeof(Event)).Wait();
+                this.ReceiveEventAsync(typeof(Event)).Wait();
             }
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                r.CreateMachine(typeof(M2a));
+                r.CreateStateMachine(typeof(M2a));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -123,12 +123,12 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                r.CreateMachine(typeof(M2b));
+                r.CreateStateMachine(typeof(M2b));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                r.CreateMachine(typeof(M2c));
+                r.CreateStateMachine(typeof(M2c));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -218,16 +218,16 @@ namespace Microsoft.Coyote.Core.Tests
             private void InitOnEntry()
             {
                 this.tcs = (this.ReceivedEvent as E).Tcs;
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
             {
                 // No-ops, but no failure.
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
                 this.Random();
                 this.Assert(true);
-                this.CreateMachine(typeof(Dummy));
+                this.CreateStateMachine(typeof(Dummy));
                 this.tcs.TrySetResult(true);
             }
         }
@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.TrySetResult(true);
                 };
 
-                r.CreateMachine(typeof(M3), new E(tcs));
+                r.CreateStateMachine(typeof(M3), new E(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);

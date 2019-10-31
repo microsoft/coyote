@@ -59,10 +59,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.Push<Done>();
                         break;
                     case ErrorType.CallRaise:
-                        this.Raise(new E());
+                        this.RaiseEvent(new E());
                         break;
                     case ErrorType.CallSend:
-                        this.Send(this.Id, new E());
+                        this.SendEvent(this.Id, new E());
                         break;
                     case ErrorType.OnExit:
                         break;
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             var expectedError = "Machine 'M()' has called multiple raise, goto, push or pop in the same action.";
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M), new Configure(ErrorType.CallGoto));
+                r.CreateStateMachine(typeof(M), new Configure(ErrorType.CallGoto));
             },
             expectedError: expectedError,
             replay: true);
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             var expectedError = "Machine 'M()' has called multiple raise, goto, push or pop in the same action.";
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M), new Configure(ErrorType.CallRaise));
+                r.CreateStateMachine(typeof(M), new Configure(ErrorType.CallRaise));
             },
             expectedError: expectedError,
             replay: true);
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             var expectedError = "Machine 'M()' cannot send an event after calling raise, goto, push or pop in the same action.";
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M), new Configure(ErrorType.CallSend));
+                r.CreateStateMachine(typeof(M), new Configure(ErrorType.CallSend));
             },
             expectedError: expectedError,
             replay: true);
@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             var expectedError = "Machine 'M()' has called raise, goto, push or pop inside an OnExit method.";
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M), new Configure(ErrorType.OnExit));
+                r.CreateStateMachine(typeof(M), new Configure(ErrorType.OnExit));
             },
             expectedError: expectedError,
             replay: true);
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             var expectedError = "Machine 'M()' has called multiple raise, goto, push or pop in the same action.";
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M), new Configure(ErrorType.CallPush));
+                r.CreateStateMachine(typeof(M), new Configure(ErrorType.CallPush));
             },
             expectedError: expectedError,
             replay: true);

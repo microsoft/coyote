@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedError: "Machine 'M1()' declared multiple handlers for event 'E' in state 'M1+Init'.");
         }
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             expectedError: "Machine 'M2()' declared multiple handlers for event 'E' in state 'M2+Init'.");
         }
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             },
             expectedError: "Machine 'M3()' declared multiple handlers for event 'E' in state 'M3+Init'.");
         }
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M4));
+                r.CreateStateMachine(typeof(M4));
             },
             expectedError: "Machine 'M4()' inherited multiple handlers for event 'E' from state 'M4+BaseState' in state 'M4+Init'.");
         }
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M5));
+                r.CreateStateMachine(typeof(M5));
             },
             expectedError: "Machine 'M5()' inherited multiple handlers for event 'E' from state 'M5+BaseState' in state 'M5+Init'.");
         }
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
             },
             expectedError: "Machine 'M6()' inherited multiple handlers for event 'E' from state 'M6+BaseState' in state 'M6+Init'.");
         }
@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M7));
+                r.CreateStateMachine(typeof(M7));
             },
             expectedError: "Machine 'M7()' declared multiple handlers for event 'E' in state 'M7+Init'.");
         }

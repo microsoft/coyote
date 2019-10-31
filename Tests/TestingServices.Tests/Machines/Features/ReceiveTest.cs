@@ -29,8 +29,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                this.Send(this.Id, new E());
-                await this.Receive(typeof(E));
+                this.SendEvent(this.Id, new E());
+                await this.ReceiveEventAsync(typeof(E));
                 this.Assert(false);
             }
         }
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);

@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
                 var e = new E1();
-                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N1));
+                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(N1));
                 await this.Runtime.SendEventAndExecuteAsync(m, e);
                 this.Assert(e.Value == 1);
                 tcs.SetResult(true);
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E3());
+                this.SendEvent(this.Id, new E3());
             }
 
             private void HandleEventLE()
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(true);
                 };
 
-                r.CreateMachine(typeof(M1), new Config1(tcs));
+                r.CreateStateMachine(typeof(M1), new Config1(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N2), new E2(this.Id));
+                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(N2), new E2(this.Id));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.SetResult(true);
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(false);
                 };
 
-                r.CreateMachine(typeof(M2), new Config1(tcs));
+                r.CreateStateMachine(typeof(M2), new Config1(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N3));
+                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(N3));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Monitor<SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void HandleE()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
@@ -283,7 +283,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 r.RegisterMonitor(typeof(SafetyMonitor));
-                r.CreateMachine(typeof(M3), new Config1(tcs));
+                r.CreateStateMachine(typeof(M3), new Config1(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);
@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config2).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N4), this.ReceivedEvent);
+                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(N4), this.ReceivedEvent);
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
@@ -354,7 +354,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(false);
                 };
 
-                r.CreateMachine(typeof(M4), new Config2(true, tcs));
+                r.CreateStateMachine(typeof(M4), new Config2(true, tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);
@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 };
 
-                r.CreateMachine(typeof(M4), new Config2(false, tcs));
+                r.CreateStateMachine(typeof(M4), new Config2(false, tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -399,7 +399,7 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var m = await this.Runtime.CreateMachineAndExecuteAsync(typeof(N5));
+                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(N5));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
@@ -433,7 +433,7 @@ namespace Microsoft.Coyote.Core.Tests
                     }
                 };
 
-                r.CreateMachine(typeof(M5), new Config1(tcs));
+                r.CreateStateMachine(typeof(M5), new Config1(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);

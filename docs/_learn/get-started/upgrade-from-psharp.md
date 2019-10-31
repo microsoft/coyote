@@ -17,7 +17,7 @@ This document contains a list of changes from P# to Coyote. Please follow this g
 
 ## Runtime interface changes
 - The static runtime factory is renamed from `PSharpRuntime` to `MachineRuntime`, so you can now do `MachineRuntime.Create()` to get a machine runtime instance.
-- The previously deprecated method `IActorRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateMachineAndExecuteAsync` instead (same semantics, just different method name).
+- The previously deprecated method `IActorRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateStateMachineAndExecuteAsync` instead (same semantics, just different method name).
 - The previously deprecated method `IActorRuntime.SendEventAndExecute` has been removed, please use `IActorRuntime.SendEventAndExecuteAsync` instead (same semantics, just different method name).
 
 ## Command line tool changes

@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
             if ((this.RandomInteger(delay) == 0) && this.FairRandom())
             {
                 // The probability of sending a timeout event is atmost 1/N.
-                this.Send(this.Owner.Id, this.TimeoutEvent);
+                this.SendEvent(this.Owner.Id, this.TimeoutEvent);
                 isTimeoutSent = true;
             }
 

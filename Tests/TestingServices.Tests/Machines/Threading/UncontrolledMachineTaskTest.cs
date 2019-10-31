@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 await Task.Run(() =>
                 {
-                    this.Send(this.Id, new E());
+                    this.SendEvent(this.Id, new E());
                 });
             }
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedErrors: new string[]
             {
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             expectedErrors: new string[]
             {

@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(Client));
+                r.CreateStateMachine(typeof(Client));
             },
             configuration: configuration);
         }

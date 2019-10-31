@@ -42,12 +42,12 @@ namespace Microsoft.Coyote.SharedObjects
             switch (e.Operation)
             {
                 case SharedCounterEvent.SharedCounterOperation.SET:
-                    this.Send(e.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
                     this.Counter = e.Value;
                     break;
 
                 case SharedCounterEvent.SharedCounterOperation.GET:
-                    this.Send(e.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
                     break;
 
                 case SharedCounterEvent.SharedCounterOperation.INC:
@@ -60,11 +60,11 @@ namespace Microsoft.Coyote.SharedObjects
 
                 case SharedCounterEvent.SharedCounterOperation.ADD:
                     this.Counter += e.Value;
-                    this.Send(e.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
                     break;
 
                 case SharedCounterEvent.SharedCounterOperation.CAS:
-                    this.Send(e.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
                     if (this.Counter == e.Comparand)
                     {
                         this.Counter = e.Value;

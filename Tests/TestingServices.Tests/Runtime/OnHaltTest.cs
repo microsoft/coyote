@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
@@ -57,12 +57,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
             {
-                this.Receive(typeof(Event)).Wait();
+                this.ReceiveEventAsync(typeof(Event)).Wait();
             }
         }
 
@@ -76,12 +76,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
         }
 
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -131,16 +131,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 this.sender = (this.ReceivedEvent as E).Id;
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override void OnHalt()
             {
                 // no-ops but no failure
-                this.Send(this.sender, new E());
+                this.SendEvent(this.sender, new E());
                 this.Random();
                 this.Assert(true);
-                this.CreateMachine(typeof(Dummy));
+                this.CreateStateMachine(typeof(Dummy));
             }
         }
 
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -169,9 +169,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2a));
+                r.CreateStateMachine(typeof(M2a));
             },
-            expectedError: "Machine 'M2a()' invoked Receive while halted.",
+            expectedError: "Machine 'M2a()' invoked ReceiveEventAsync while halted.",
             replay: true);
         }
 
@@ -180,9 +180,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2b));
+                r.CreateStateMachine(typeof(M2b));
             },
-            expectedError: "Machine 'M2b()' invoked Raise while halted.",
+            expectedError: "Machine 'M2b()' invoked RaiseEvent while halted.",
             replay: true);
         }
 
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2c));
+                r.CreateStateMachine(typeof(M2c));
             },
             expectedError: "Machine 'M2c()' invoked Goto while halted.",
             replay: true);
@@ -202,8 +202,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M4));
-                r.CreateMachine(typeof(M3), new E(m));
+                var m = r.CreateStateMachine(typeof(M4));
+                r.CreateStateMachine(typeof(M3), new E(m));
             });
         }
     }

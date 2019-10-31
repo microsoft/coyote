@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachine(typeof(M1));
+                var m = r.CreateStateMachine(typeof(M1));
                 r.SendEvent(m, new E());
             },
             expectedError: "The 'OnEventUnhandled' callback was called.");
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M2));
+                var m = r.CreateStateMachine(typeof(M2));
                 r.SendEvent(m, new E());
             });
         }
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                var m = r.CreateMachine(typeof(M3));
+                var m = r.CreateStateMachine(typeof(M3));
                 r.SendEvent(m, new E());
             },
             expectedError: "Machine 'M3()' received event 'E' that cannot be handled.");
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M4));
+                var m = r.CreateStateMachine(typeof(M4));
                 r.SendEvent(m, new E());
             });
         }

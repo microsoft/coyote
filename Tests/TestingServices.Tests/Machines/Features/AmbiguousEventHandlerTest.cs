@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void HandleE()
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void HandleE()
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             });
         }
 

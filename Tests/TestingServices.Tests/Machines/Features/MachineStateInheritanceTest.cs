@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void Check()
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void Check()
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void Check()
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void Check()
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void BaseCheck()
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -321,7 +321,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -365,7 +365,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -399,7 +399,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -434,7 +434,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -479,7 +479,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -523,7 +523,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void DoneOnEntry()
@@ -542,7 +542,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedError: "Error reached.");
         }
@@ -552,7 +552,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             expectedError: "Machine 'M2()' can not declare more than one start states.");
         }
@@ -562,7 +562,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             },
             expectedError: "Error reached.");
         }
@@ -572,7 +572,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M4));
+                r.CreateStateMachine(typeof(M4));
             });
         }
 
@@ -581,7 +581,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M5));
+                r.CreateStateMachine(typeof(M5));
             },
             expectedError: "Error reached.");
         }
@@ -591,7 +591,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
             });
         }
 
@@ -600,7 +600,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M7));
+                r.CreateStateMachine(typeof(M7));
             });
         }
 
@@ -609,7 +609,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M8));
+                r.CreateStateMachine(typeof(M8));
             });
         }
 
@@ -618,7 +618,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M9));
+                r.CreateStateMachine(typeof(M9));
             },
             expectedError: "Done reached.");
         }
@@ -628,7 +628,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M10));
+                r.CreateStateMachine(typeof(M10));
             },
             expectedError: "Done reached.");
         }
@@ -638,7 +638,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M11));
+                r.CreateStateMachine(typeof(M11));
             },
             expectedError: "Done reached.");
         }
@@ -648,7 +648,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M12));
+                r.CreateStateMachine(typeof(M12));
             },
             expectedError: "Done reached.");
         }
@@ -658,7 +658,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M13));
+                r.CreateStateMachine(typeof(M13));
             },
             expectedError: "Done reached.");
         }
@@ -668,7 +668,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M14));
+                r.CreateStateMachine(typeof(M14));
             },
             expectedError: "Done reached.");
         }
@@ -678,7 +678,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M15));
+                r.CreateStateMachine(typeof(M15));
             },
             expectedError: "Done reached.");
         }
@@ -688,7 +688,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M16));
+                r.CreateStateMachine(typeof(M16));
             },
             expectedError: "Done reached.");
         }

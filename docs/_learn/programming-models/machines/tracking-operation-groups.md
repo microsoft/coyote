@@ -12,7 +12,7 @@ user request. Coyote offers the notion of an _operations group_ that can be trac
 following `IActorRuntime` APIs take an optional `Guid` parameter.
 
 ```c#
-ActorId CreateMachine(Type type, Event e = null, Guid operationGroupId = default);
+ActorId CreateStateMachine(Type type, Event e = null, Guid operationGroupId = default);
 void SendEvent(ActorId target, Event e, Guid operationGroupId = default);
 ```
 

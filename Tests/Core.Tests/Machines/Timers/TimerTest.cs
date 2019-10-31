@@ -68,12 +68,12 @@ namespace Microsoft.Coyote.Core.Tests
                 if (this.Count == 1)
                 {
                     this.Tcs.SetResult(true);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                     return;
                 }
 
                 this.Tcs.SetResult(false);
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Core.Tests
                 {
                     this.StopTimer(this.Timer);
                     this.Tcs.SetResult(true);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
             }
         }
@@ -162,12 +162,12 @@ namespace Microsoft.Coyote.Core.Tests
                 if (timeout.Info == this.PongTimer)
                 {
                     this.Tcs.SetResult(true);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
                 else
                 {
                     this.Tcs.SetResult(false);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
             }
         }
@@ -192,12 +192,12 @@ namespace Microsoft.Coyote.Core.Tests
                 {
                     this.Logger.WriteLine(ex.Message);
                     tcs.SetResult(true);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                     return;
                 }
 
                 tcs.SetResult(false);
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -221,12 +221,12 @@ namespace Microsoft.Coyote.Core.Tests
                 {
                     this.Logger.WriteLine(ex.Message);
                     tcs.SetResult(true);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                     return;
                 }
 
                 tcs.SetResult(false);
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(T1), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(T1), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(T2), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(T2), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(T3), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(T3), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(T4), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(T4), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(T5), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(T5), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);

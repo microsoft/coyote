@@ -145,26 +145,26 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachine(null, type, null, e, opGroupId);
+        public override ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachine(null, type, null, e, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and
         /// with the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachine(null, type, machineName, e, opGroupId);
+        public override ActorId CreateStateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachine(null, type, machineName, e, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
         /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default)
+        public override ActorId CreateStateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default)
         {
             this.Assert(id != null, "Cannot create a machine using a null actor id.");
-            return this.CreateMachine(id, type, null, e, opGroupId);
+            return this.CreateStateMachine(id, type, null, e, opGroupId);
         }
 
         /// <summary>
@@ -173,8 +173,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// access its payload, and cannot be handled. The method returns only when
         /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, null, e, opGroupId);
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachineAndExecuteAsync(null, type, null, e, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and with
@@ -182,8 +182,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// access its payload, and cannot be handled. The method returns only when the
         /// machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, machineName, e, opGroupId);
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachineAndExecuteAsync(null, type, machineName, e, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/>, using the specified
@@ -192,10 +192,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default)
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default)
         {
             this.Assert(id != null, "Cannot create a machine using a null actor id.");
-            return this.CreateMachineAndExecuteAsync(id, type, null, e, opGroupId);
+            return this.CreateStateMachineAndExecuteAsync(id, type, null, e, opGroupId);
         }
 
         /// <summary>
@@ -248,25 +248,25 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// unbound actor id, and passes the specified optional <see cref="Event"/>. This event
         /// can only be used to access its payload, and cannot be handled.
         /// </summary>
-        internal ActorId CreateMachine(ActorId id, Type type, string machineName, Event e = null, Guid opGroupId = default)
+        internal ActorId CreateStateMachine(ActorId id, Type type, string machineName, Event e = null, Guid opGroupId = default)
         {
             StateMachine creator = this.GetExecutingMachine<StateMachine>();
-            return this.CreateMachine(id, type, machineName, e, creator, opGroupId);
+            return this.CreateStateMachine(id, type, machineName, e, creator, opGroupId);
         }
 
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal override ActorId CreateMachine(ActorId id, Type type, string machineName, Event e,
+        internal override ActorId CreateStateMachine(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
-            this.AssertCorrectCallerMachine(creator, "CreateMachine");
+            this.AssertCorrectCallerMachine(creator, "CreateStateMachine");
             if (creator != null)
             {
                 this.AssertNoPendingTransitionStatement(creator, "create a machine");
             }
 
-            StateMachine machine = this.CreateMachine(id, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateStateMachine(id, type, machineName, creator, opGroupId);
 
             this.BugTrace.AddCreateMachineStep(creator, machine.Id, e is null ? null : new EventInfo(e));
             this.RunMachineEventHandler(machine, e, true, null);
@@ -280,11 +280,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// can only be used to access its payload, and cannot be handled. The method returns only
         /// when the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        internal Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e = null,
+        internal Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e = null,
             Guid opGroupId = default)
         {
             StateMachine creator = this.GetExecutingMachine<StateMachine>();
-            return this.CreateMachineAndExecuteAsync(id, type, machineName, e, creator, opGroupId);
+            return this.CreateStateMachineAndExecuteAsync(id, type, machineName, e, creator, opGroupId);
         }
 
         /// <summary>
@@ -292,21 +292,21 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// method returns only when the machine is initialized and the <see cref="Event"/>
         /// (if any) is handled.
         /// </summary>
-        internal override async Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
+        internal override async Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
-            this.AssertCorrectCallerMachine(creator, "CreateMachineAndExecute");
+            this.AssertCorrectCallerMachine(creator, "CreateMachineAndExecuteAsync");
             this.Assert(creator != null,
-                "Only a machine can call 'CreateMachineAndExecute': avoid calling it directly from the 'Test' method; instead call it through a 'harness' machine.");
+                "Only a machine can call 'CreateMachineAndExecuteAsync': avoid calling it directly from the 'Test' method; instead call it through a 'harness' machine.");
             this.AssertNoPendingTransitionStatement(creator, "create a machine");
 
-            StateMachine machine = this.CreateMachine(id, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateStateMachine(id, type, machineName, creator, opGroupId);
 
             this.BugTrace.AddCreateMachineStep(creator, machine.Id, e is null ? null : new EventInfo(e));
             this.RunMachineEventHandler(machine, e, true, creator);
 
             // Wait until the machine reaches quiescence.
-            await creator.Receive(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == machine.Id);
+            await creator.ReceiveEventAsync(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == machine.Id);
 
             return await Task.FromResult(machine.Id);
         }
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private StateMachine CreateMachine(ActorId id, Type type, string machineName, StateMachine creator, Guid opGroupId)
+        private StateMachine CreateStateMachine(ActorId id, Type type, string machineName, StateMachine creator, Guid opGroupId)
         {
             this.Assert(type.IsSubclassOf(typeof(StateMachine)), "Type '{0}' is not a machine.", type.FullName);
 
@@ -402,10 +402,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Guid opGroupId, SendOptions options)
         {
             this.Assert(sender is StateMachine,
-                "Only a machine can call 'SendEventAndExecute': avoid calling it directly from the 'Test' method; instead call it through a 'harness' machine.");
+                "Only a machine can call 'SendEventAndExecuteAsync': avoid calling it directly from the 'Test' method; instead call it through a 'harness' machine.");
             this.Assert(target != null, "Machine '{0}' is sending to a null machine.", sender.Id);
             this.Assert(e != null, "Machine '{0}' is sending a null event.", sender.Id);
-            this.AssertCorrectCallerMachine(sender as StateMachine, "SendEventAndExecute");
+            this.AssertCorrectCallerMachine(sender as StateMachine, "SendEventAndExecuteAsync");
 
             EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options, out StateMachine targetMachine);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
@@ -413,7 +413,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.RunMachineEventHandler(targetMachine, null, false, sender as StateMachine);
 
                 // Wait until the machine reaches quiescence.
-                await (sender as StateMachine).Receive(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == target);
+                await (sender as StateMachine).ReceiveEventAsync(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == target);
                 return true;
             }
 
@@ -1152,7 +1152,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner)
         {
             var id = this.CreateActorId(typeof(MockMachineTimer));
-            this.CreateMachine(id, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
+            this.CreateStateMachine(id, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
             return this.GetMachineFromId<MockMachineTimer>(id);
         }
 
@@ -1612,8 +1612,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             MachineOperation op = this.GetAsynchronousOperation(machine.Id.Value);
 
-            // Skip `Receive` if the last operation exited the previous event handler,
-            // to avoid scheduling duplicate `Receive` operations.
+            // Skip `ReceiveEventAsync` if the last operation exited the previous event handler,
+            // to avoid scheduling duplicate `ReceiveEventAsync` operations.
             if (op.SkipNextReceiveSchedulingPoint)
             {
                 op.SkipNextReceiveSchedulingPoint = false;
@@ -1640,12 +1640,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Notifies that a machine called Receive.
+        /// Notifies that a machine called ReceiveEventAsync.
         /// </summary>
         internal override void NotifyReceiveCalled(StateMachine machine)
         {
-            this.AssertCorrectCallerMachine(machine, "Receive");
-            this.AssertNoPendingTransitionStatement(machine, "invoke 'Receive'");
+            this.AssertCorrectCallerMachine(machine, "ReceiveEventAsync");
+            this.AssertNoPendingTransitionStatement(machine, "invoke 'ReceiveEventAsync'");
         }
 
         /// <summary>

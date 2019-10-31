@@ -69,19 +69,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                     if (i == 0)
                     {
-                        server = this.CreateMachine(
+                        server = this.CreateStateMachine(
                             typeof(ChainReplicationServer),
                             new ChainReplicationServer.Config(i, true, false));
                     }
                     else if (i == this.NumOfServers - 1)
                     {
-                        server = this.CreateMachine(
+                        server = this.CreateStateMachine(
                             typeof(ChainReplicationServer),
                             new ChainReplicationServer.Config(i, false, true));
                     }
                     else
                     {
-                        server = this.CreateMachine(
+                        server = this.CreateStateMachine(
                             typeof(ChainReplicationServer),
                             new ChainReplicationServer.Config(i, false, false));
                     }
@@ -117,22 +117,22 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         succ = this.Servers[this.NumOfServers - 1];
                     }
 
-                    this.Send(this.Servers[i], new ChainReplicationServer.PredSucc(pred, succ));
+                    this.SendEvent(this.Servers[i], new ChainReplicationServer.PredSucc(pred, succ));
                 }
 
-                this.Clients.Add(this.CreateMachine(
+                this.Clients.Add(this.CreateStateMachine(
                     typeof(Client),
                     new Client.Config(0, this.Servers[0], this.Servers[this.NumOfServers - 1], 1)));
 
-                this.Clients.Add(this.CreateMachine(
+                this.Clients.Add(this.CreateStateMachine(
                     typeof(Client),
                     new Client.Config(1, this.Servers[0], this.Servers[this.NumOfServers - 1], 100)));
 
-                this.ChainReplicationMaster = this.CreateMachine(
+                this.ChainReplicationMaster = this.CreateStateMachine(
                     typeof(ChainReplicationMaster),
                     new ChainReplicationMaster.Config(this.Servers, this.Clients));
 
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.CheckNodeIdx = 0;
                 this.Failures = 100;
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(StartMonitoringOnEntry))]
@@ -231,26 +231,26 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (this.Failures < 1)
                 {
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
                 else
                 {
-                    this.Send(this.Servers[this.CheckNodeIdx], new Ping(this.Id));
+                    this.SendEvent(this.Servers[this.CheckNodeIdx], new Ping(this.Id));
 
                     if (this.Servers.Count > 1)
                     {
                         if (this.Random())
                         {
-                            this.Send(this.Id, new InjectFailure());
+                            this.SendEvent(this.Id, new InjectFailure());
                         }
                         else
                         {
-                            this.Send(this.Id, new Pong());
+                            this.SendEvent(this.Id, new Pong());
                         }
                     }
                     else
                     {
-                        this.Send(this.Id, new Pong());
+                        this.SendEvent(this.Id, new Pong());
                     }
 
                     this.Failures--;
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void HandleFailureOnEntry()
             {
-                this.Send(this.Master, new FailureDetected(this.Servers[this.CheckNodeIdx]));
+                this.SendEvent(this.Master, new FailureDetected(this.Servers[this.CheckNodeIdx]));
             }
 
             private void ProcessFailureCorrected()
@@ -386,14 +386,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Servers = (this.ReceivedEvent as Config).Servers;
                 this.Clients = (this.ReceivedEvent as Config).Clients;
 
-                this.FailureDetector = this.CreateMachine(
+                this.FailureDetector = this.CreateStateMachine(
                     typeof(FailureDetector),
                     new FailureDetector.Config(this.Id, this.Servers));
 
                 this.Head = this.Servers[0];
                 this.Tail = this.Servers[this.Servers.Count - 1];
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventGotoState(typeof(HeadFailed), typeof(CorrectHeadFailure))]
@@ -412,11 +412,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 if (this.Head.Equals(failedServer))
                 {
-                    this.Raise(new HeadFailed());
+                    this.RaiseEvent(new HeadFailed());
                 }
                 else if (this.Tail.Equals(failedServer))
                 {
-                    this.Raise(new TailFailed());
+                    this.RaiseEvent(new TailFailed());
                 }
                 else
                 {
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         }
                     }
 
-                    this.Raise(new ServerFailed());
+                    this.RaiseEvent(new ServerFailed());
                 }
             }
 
@@ -450,22 +450,22 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 this.Head = this.Servers[0];
 
-                this.Send(this.Head, new BecomeHead(this.Id));
+                this.SendEvent(this.Head, new BecomeHead(this.Id));
             }
 
             private void UpdateClients()
             {
                 for (int i = 0; i < this.Clients.Count; i++)
                 {
-                    this.Send(this.Clients[i], new Client.UpdateHeadTail(this.Head, this.Tail));
+                    this.SendEvent(this.Clients[i], new Client.UpdateHeadTail(this.Head, this.Tail));
                 }
 
-                this.Raise(new Done());
+                this.RaiseEvent(new Done());
             }
 
             private void UpdateFailureDetector()
             {
-                this.Send(this.FailureDetector, new FailureDetector.FailureCorrected(this.Servers));
+                this.SendEvent(this.FailureDetector, new FailureDetector.FailureCorrected(this.Servers));
             }
 
             [OnEntry(nameof(CorrectTailFailureOnEntry))]
@@ -486,7 +486,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 this.Tail = this.Servers[this.Servers.Count - 1];
 
-                this.Send(this.Tail, new BecomeTail(this.Id));
+                this.SendEvent(this.Tail, new BecomeTail(this.Id));
             }
 
             [OnEntry(nameof(CorrectServerFailureOnEntry))]
@@ -508,18 +508,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Monitor<ServerResponseSeqMonitor>(
                     new ServerResponseSeqMonitor.UpdateServers(this.Servers));
 
-                this.Raise(new FixSuccessor());
+                this.RaiseEvent(new FixSuccessor());
             }
 
             private void ProcessFixSuccessor()
             {
-                this.Send(this.Servers[this.FaultyNodeIndex], new ChainReplicationServer.NewPredecessor(
+                this.SendEvent(this.Servers[this.FaultyNodeIndex], new ChainReplicationServer.NewPredecessor(
                     this.Id, this.Servers[this.FaultyNodeIndex - 1]));
             }
 
             private void ProcessFixPredecessor()
             {
-                this.Send(this.Servers[this.FaultyNodeIndex - 1], new ChainReplicationServer.NewSuccessor(
+                this.SendEvent(this.Servers[this.FaultyNodeIndex - 1], new ChainReplicationServer.NewSuccessor(
                     this.Id, this.Servers[this.FaultyNodeIndex], this.LastAckSent, this.LastUpdateReceivedSucc));
             }
 
@@ -529,12 +529,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     ChainReplicationServer.NewSuccInfo).LastUpdateReceivedSucc;
                 this.LastAckSent = (this.ReceivedEvent as
                     ChainReplicationServer.NewSuccInfo).LastAckSent;
-                this.Raise(new FixPredecessor());
+                this.RaiseEvent(new FixPredecessor());
             }
 
             private void ProcessSuccess()
             {
-                this.Raise(new Done());
+                this.RaiseEvent(new Done());
             }
         }
 
@@ -701,7 +701,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.Predecessor = (this.ReceivedEvent as PredSucc).Predecessor;
                 this.Successor = (this.ReceivedEvent as PredSucc).Successor;
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventGotoState(typeof(Client.Update), typeof(ProcessUpdate), nameof(ProcessUpdateAction))]
@@ -735,11 +735,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.Monitor<ServerResponseSeqMonitor>(new ServerResponseSeqMonitor.ResponseToQuery(
                         this.Id, key, this.KeyValueStore[key]));
 
-                    this.Send(client, new ResponseToQuery(this.KeyValueStore[key]));
+                    this.SendEvent(client, new ResponseToQuery(this.KeyValueStore[key]));
                 }
                 else
                 {
-                    this.Send(client, new ResponseToQuery(-1));
+                    this.SendEvent(client, new ResponseToQuery(-1));
                 }
             }
 
@@ -749,7 +749,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Predecessor = this.Id;
 
                 var target = (this.ReceivedEvent as ChainReplicationMaster.BecomeHead).Target;
-                this.Send(target, new ChainReplicationMaster.HeadChanged());
+                this.SendEvent(target, new ChainReplicationMaster.HeadChanged());
             }
 
             private void ProcessBecomeTail()
@@ -762,18 +762,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.Monitor<ServerResponseSeqMonitor>(new ServerResponseSeqMonitor.ResponseToUpdate(
                         this.Id, this.SentHistory[i].Key, this.SentHistory[i].Value));
 
-                    this.Send(this.SentHistory[i].Client, new ResponseToUpdate());
-                    this.Send(this.Predecessor, new BackwardAck(this.SentHistory[i].NextSeqId));
+                    this.SendEvent(this.SentHistory[i].Client, new ResponseToUpdate());
+                    this.SendEvent(this.Predecessor, new BackwardAck(this.SentHistory[i].NextSeqId));
                 }
 
                 var target = (this.ReceivedEvent as ChainReplicationMaster.BecomeTail).Target;
-                this.Send(target, new ChainReplicationMaster.TailChanged());
+                this.SendEvent(target, new ChainReplicationMaster.TailChanged());
             }
 
             private void SendPong()
             {
                 var target = (this.ReceivedEvent as FailureDetector.Ping).Target;
-                this.Send(target, new FailureDetector.Pong());
+                this.SendEvent(target, new FailureDetector.Pong());
             }
 
             private void UpdatePredecessor()
@@ -785,13 +785,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     if (this.SentHistory.Count > 0)
                     {
-                        this.Send(master, new NewSuccInfo(
+                        this.SendEvent(master, new NewSuccInfo(
                             this.History[this.History.Count - 1],
                             this.SentHistory[0].NextSeqId));
                     }
                     else
                     {
-                        this.Send(master, new NewSuccInfo(
+                        this.SendEvent(master, new NewSuccInfo(
                             this.History[this.History.Count - 1],
                             this.History[this.History.Count - 1]));
                     }
@@ -811,7 +811,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     {
                         if (this.SentHistory[i].NextSeqId > lastUpdateReceivedSucc)
                         {
-                            this.Send(this.Successor, new ForwardUpdate(this.Id, this.SentHistory[i].NextSeqId,
+                            this.SendEvent(this.Successor, new ForwardUpdate(this.Id, this.SentHistory[i].NextSeqId,
                                 this.SentHistory[i].Client, this.SentHistory[i].Key, this.SentHistory[i].Value));
                         }
                     }
@@ -827,12 +827,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                     for (int i = 0; i < tempIndex; i++)
                     {
-                        this.Send(this.Predecessor, new BackwardAck(this.SentHistory[0].NextSeqId));
+                        this.SendEvent(this.Predecessor, new BackwardAck(this.SentHistory[0].NextSeqId));
                         this.SentHistory.RemoveAt(0);
                     }
                 }
 
-                this.Send(master, new ChainReplicationMaster.Success());
+                this.SendEvent(master, new ChainReplicationMaster.Success());
             }
 
             [OnEntry(nameof(ProcessUpdateOnEntry))]
@@ -865,9 +865,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Monitor<InvariantMonitor>(
                     new InvariantMonitor.SentUpdate(this.Id, new List<SentLog>(this.SentHistory)));
 
-                this.Send(this.Successor, new ForwardUpdate(this.Id, this.NextSeqId, client, key, value));
+                this.SendEvent(this.Successor, new ForwardUpdate(this.Id, this.NextSeqId, client, key, value));
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(ProcessFwdUpdateOnEntry))]
@@ -908,7 +908,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.Monitor<InvariantMonitor>(
                             new InvariantMonitor.SentUpdate(this.Id, new List<SentLog>(this.SentHistory)));
 
-                        this.Send(this.Successor, new ForwardUpdate(this.Id, this.NextSeqId, client, key, value));
+                        this.SendEvent(this.Successor, new ForwardUpdate(this.Id, this.NextSeqId, client, key, value));
                     }
                     else
                     {
@@ -920,12 +920,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.Monitor<ServerResponseSeqMonitor>(new ServerResponseSeqMonitor.ResponseToUpdate(
                             this.Id, key, value));
 
-                        this.Send(client, new ResponseToUpdate());
-                        this.Send(this.Predecessor, new BackwardAck(nextSeqId));
+                        this.SendEvent(client, new ResponseToUpdate());
+                        this.SendEvent(this.Predecessor, new BackwardAck(nextSeqId));
                     }
                 }
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(ProcessBckAckOnEntry))]
@@ -942,10 +942,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 if (!this.IsHead)
                 {
-                    this.Send(this.Predecessor, new BackwardAck(nextSeqId));
+                    this.SendEvent(this.Predecessor, new BackwardAck(nextSeqId));
                 }
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             private void RemoveItemFromSent(int seqId)
@@ -1068,7 +1068,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.KeyValueStore.Add(3 * this.StartIn, 300);
                 this.KeyValueStore.Add(4 * this.StartIn, 400);
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(PumpUpdateRequestsOnEntry))]
@@ -1081,16 +1081,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void PumpUpdateRequestsOnEntry()
             {
-                this.Send(this.HeadNode, new Update(this.Id, this.Next * this.StartIn,
+                this.SendEvent(this.HeadNode, new Update(this.Id, this.Next * this.StartIn,
                     this.KeyValueStore[this.Next * this.StartIn]));
 
                 if (this.Next >= 3)
                 {
-                    this.Raise(new Done());
+                    this.RaiseEvent(new Done());
                 }
                 else
                 {
-                    this.Raise(new Local());
+                    this.RaiseEvent(new Local());
                 }
             }
 
@@ -1103,15 +1103,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void PumpQueryRequestsOnEntry()
             {
-                this.Send(this.TailNode, new Query(this.Id, this.Next * this.StartIn));
+                this.SendEvent(this.TailNode, new Query(this.Id, this.Next * this.StartIn));
 
                 if (this.Next >= 3)
                 {
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
                 else
                 {
-                    this.Raise(new Local());
+                    this.RaiseEvent(new Local());
                 }
             }
 
@@ -1203,7 +1203,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.SentHistory = new Dictionary<ActorId, List<int>>();
                 this.TempSeq = new List<int>();
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventDoAction(typeof(HistoryUpdate), nameof(CheckUpdatePropagationInvariant))]
@@ -1487,7 +1487,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.Servers = (this.ReceivedEvent as Config).Servers;
                 this.LastUpdateResponse = new Dictionary<int, int>();
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventDoAction(typeof(ResponseToUpdate), nameof(ResponseToUpdateAction))]
@@ -1550,7 +1550,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.RegisterMonitor(typeof(InvariantMonitor));
                 r.RegisterMonitor(typeof(ServerResponseSeqMonitor));
-                r.CreateMachine(typeof(Environment));
+                r.CreateStateMachine(typeof(Environment));
             },
             configuration: configuration,
             expectedError: "Sequence is not sorted.",

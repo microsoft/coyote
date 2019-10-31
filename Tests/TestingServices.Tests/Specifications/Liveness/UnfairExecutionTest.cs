@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void SOnEntry()
             {
-                this.N = this.CreateMachine(typeof(N));
-                this.Send(this.N, new E(this.Id));
-                this.Raise(new Unit());
+                this.N = this.CreateStateMachine(typeof(N));
+                this.SendEvent(this.N, new E(this.Id));
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(S2OnEntry))]
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void S2OnEntry()
             {
-                this.Send(this.Id, new Unit());
+                this.SendEvent(this.Id, new Unit());
             }
 
             [OnEntry(nameof(S3OnEntry))]
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void S3OnEntry()
             {
                 this.Monitor<LivenessMonitor>(new E(this.Id));
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Foo()
             {
-                this.Send((this.ReceivedEvent as E).A, new E(this.Id));
+                this.SendEvent((this.ReceivedEvent as E).A, new E(this.Id));
             }
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             },
             configuration: configuration);
         }

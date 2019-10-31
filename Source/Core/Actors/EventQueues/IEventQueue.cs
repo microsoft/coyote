@@ -35,22 +35,22 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues the specified raised event.
         /// </summary>
-        void Raise(Event e, Guid opGroupId);
+        void RaiseEvent(Event e, Guid opGroupId);
 
         /// <summary>
         /// Waits to receive an event of the specified type that satisfies an optional predicate.
         /// </summary>
-        Task<Event> ReceiveAsync(Type eventType, Func<Event, bool> predicate = null);
+        Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null);
 
         /// <summary>
         /// Waits to receive an event of the specified types.
         /// </summary>
-        Task<Event> ReceiveAsync(params Type[] eventTypes);
+        Task<Event> ReceiveEventAsync(params Type[] eventTypes);
 
         /// <summary>
         /// Waits to receive an event of the specified types that satisfy the specified predicates.
         /// </summary>
-        Task<Event> ReceiveAsync(params Tuple<Type, Func<Event, bool>>[] events);
+        Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events);
 
         /// <summary>
         /// Returns the cached state of the queue.

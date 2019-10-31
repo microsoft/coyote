@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             protected void Coyote_Init_on_entry_action()
             {
                 WithNameofValue += 1;
-                this.Raise(new E1());
+                this.RaiseEvent(new E1());
             }
 
             protected void Coyote_Init_on_exit_action()
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             protected void Coyote_Next_on_entry_action()
             {
                 WithNameofValue += 1000;
-                this.Raise(new E2());
+                this.RaiseEvent(new E2());
             }
 
             protected void Coyote_Init_E1_action()
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             protected void Coyote_Init_on_entry_action()
             {
                 WithoutNameofValue += 1;
-                this.Raise(new E1());
+                this.RaiseEvent(new E1());
             }
 
             protected void Coyote_Init_on_exit_action()
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             protected void Coyote_Next_on_entry_action()
             {
                 WithoutNameofValue += 1000;
-                this.Raise(new E2());
+                this.RaiseEvent(new E2());
             }
 
             protected void Coyote_Init_E1_action()
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M_With_nameof));
+                r.CreateStateMachine(typeof(M_With_nameof));
             });
 
             Assert.Equal(11111, WithNameofValue);
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M_Without_nameof));
+                r.CreateStateMachine(typeof(M_Without_nameof));
             });
 
             Assert.Equal(11111, WithoutNameofValue);

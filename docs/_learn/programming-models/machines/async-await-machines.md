@@ -29,18 +29,22 @@ to mutate the state of the program. It is this usage of _arbitrary_ that we must
 using `coyote` on existing code.
 
 In the simplest form, the `C#` code should be sequential so that all concurrency is delegated to the
-Coyote runtime (at least while testing). In other words, the code executed by a machine action must not
-spawn `Tasks` or `Threads` neither must it do any synchronization operation other than the Coyote
-`Send` or `Receive` (i.e., no use of `locks`, `mutexes` or similar constructs). This goes along with
-the recommendation that different `Machines` must not share object references
+Coyote runtime (at least while testing). In other words, the code executed by a machine action must
+not spawn `Tasks` or `Threads` neither must it do any synchronization operation other than the Coyote
+`SendEvent` or `ReceiveEventAsync` (i.e., no use of `locks`, `mutexes` or similar constructs).
+This goes along with the recommendation that different `Machines` must not share object references
 (use [Shared Objects](..Features/ObjectSharing.md) if you must).
 
 The reason for all these restrictions is that `coyote` tester needs to be aware of all
 concurrency in the program in order to control it. The `coyote` tester keeps track of all
 live state machines in the program and takes over the scheduling. At any point during the execution
 of the program, it will determine the next `StateMachine` to schedule and give it a chance to execute.
-The machine will execute its action without interference from other machines until it finishes its current action or it enters the Coyote runtime again via a `Send` or `Receive` (the only
-available synchronization primitives). At this point, the `coyote` tester scheduler takes control, suspends the currently-scheduled machine and then decides on the next one to schedule. The `coyote` tester essentially serializes the entire execution to a single thread. By controlling the scheduling decisions during an execution, `coyote` can explore different interleavings for a program. The exact choice of which `StateMachine` to schedule is determined by a `SchedulingStrategy`.
+The machine will execute its action without interference from other machines until it finishes its current action or it enters the Coyote runtime again via a `SendEvent` or `ReceiveEventAsync`
+(the only available synchronization primitives). At this point, the `coyote` tester scheduler
+takes control, suspends the currently-scheduled machine and then decides on the next one to schedule.
+The `coyote` tester essentially serializes the entire execution to a single thread. By controlling the
+scheduling decisions during an execution, `coyote` can explore different interleavings for a program.
+The exact choice of which `StateMachine` to schedule is determined by a `SchedulingStrategy`.
 The `coyote` tester has several strategies and we recommend using a
 [portfolio](../Features/TestingMethodology.md#parallel-and-portfolio-testing) of them. The strategies
 have been crafted from over a decade of research on finding concurrency bugs efficiently in practice.
@@ -121,8 +125,8 @@ create machines:
 [Microsoft.Coyote.Test]
 void Test(IActorRuntime runtime)
 {
-   runtime.CreateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));
-   runtime.CreateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest2(...)));
+   runtime.CreateStateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));
+   runtime.CreateStateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest2(...)));
 }
 ```
 
@@ -151,8 +155,8 @@ like the following instead of locking:
 ```C#
 async Task<Data> Read(int index)
 {
-   Send(typeof(StorageMachine), new ReadEvent(index));
-   var r = await Receive(typeof(ReadResponse));
+   SendEvent(typeof(StorageMachine), new ReadEvent(index));
+   var r = await ReceiveEventAsync(typeof(ReadResponse));
    return r.Data;
 }
 ```

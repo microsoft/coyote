@@ -66,9 +66,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.N = this.CreateMachine(typeof(N));
-                this.Send(this.N, new Config(this.Id));
-                this.Raise(new Unit());
+                this.N = this.CreateStateMachine(typeof(N));
+                this.SendEvent(this.N, new Config(this.Id));
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -78,8 +78,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.N, new E1(), options: new SendOptions(assert: 1));
-                this.Send(this.N, new E1(), options: new SendOptions(assert: 1)); // Error.
+                this.SendEvent(this.N, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.N, new E1(), options: new SendOptions(assert: 1)); // Error.
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS2()
             {
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEventGotoState(typeof(E4), typeof(S3))]
@@ -101,8 +101,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Action1()
             {
                 this.Assert((this.ReceivedEvent as E2).Value == 100);
-                this.Send(this.N, new E3());
-                this.Send(this.N, new E3());
+                this.SendEvent(this.N, new E3());
+                this.SendEvent(this.N, new E3());
             }
         }
 
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.M = (this.ReceivedEvent as Config).Id;
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEventGotoState(typeof(E1), typeof(S1))]
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.M, new E2(100), options: new SendOptions(assert: 1));
+                this.SendEvent(this.M, new E2(100), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -148,9 +148,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS2()
             {
-                this.Send(this.M, new E4());
-                this.Send(this.M, new E4());
-                this.Send(this.M, new E4());
+                this.SendEvent(this.M, new E4());
+                this.SendEvent(this.M, new E4());
+                this.SendEvent(this.M, new E4());
             }
         }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             },
             configuration: configuration,
             expectedError: "There are more than 1 instances of 'E1' in the input queue of machine 'N()'.",

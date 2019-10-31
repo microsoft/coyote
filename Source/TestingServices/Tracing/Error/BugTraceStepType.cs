@@ -11,8 +11,8 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
     [DataContract]
     internal enum BugTraceStepType
     {
-        [EnumMember(Value = "CreateMachine")]
-        CreateMachine = 0,
+        [EnumMember(Value = "CreateStateMachine")]
+        CreateStateMachine = 0,
         [EnumMember(Value = "CreateMonitor")]
         CreateMonitor,
         [EnumMember(Value = "SendEvent")]

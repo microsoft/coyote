@@ -15,7 +15,7 @@ most value out of the Coyote framework if you use both machine-unit-tests and Co
 Let's discuss how to use `StateMachineTestKit` by going through some simple examples.
 
 Say that you have the following machine `M`, which waits to receive an event of type `E` (via the
-`Receive` statement) in the `InitOnEntry` handler of the `Start` state `Init`:
+`ReceiveEventAsync` statement) in the `InitOnEntry` handler of the `Start` state `Init`:
 
 ```c#
 private class E : Event {}
@@ -28,7 +28,7 @@ private class M : StateMachine
 
    private async Task InitOnEntry()
    {
-         await this.Receive(typeof(E));
+         await this.ReceiveEventAsync(typeof(E));
    }
 }
 ```

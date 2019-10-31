@@ -41,8 +41,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                ActorId m = r.CreateMachine(typeof(M));
-                ActorId n = r.CreateMachine(typeof(N));
+                ActorId m = r.CreateStateMachine(typeof(M));
+                ActorId n = r.CreateStateMachine(typeof(N));
             },
             expectedError: "Reached test assertion.",
             replay: true);

@@ -91,25 +91,26 @@ An example of an `OnEntry` action is the following:
 
 ```c#
 void InitOnEntry() {
-  this.Client = this.CreateMachine(typeof(Client));
-  this.Send(this.Client, new ConfigEvent(this.Id));
-  this.Send(this.Client, new PingEvent());
-  this.Raise(new UnitEvent());
+  this.Client = this.CreateStateMachine(typeof(Client));
+  this.SendEvent(this.Client, new ConfigEvent(this.Id));
+  this.SendEvent(this.Client, new PingEvent());
+  this.RaiseEvent(new UnitEvent());
 }
 ```
 
-The above action contains three of the most important machine APIs. The `CreateMachine` method is used
+The above action contains three of the most important machine APIs. The `CreateStateMachine` method is used
 to create a new instance of the `Client` machine. A handle to this instance (with type `ActorId`) is
-stored in the `Client` field. Next, the `Send` method is used to send an event (in this case the events
-`ConfigEvent` and `PingEvent`) to a target machine (in this case the machine whose address is stored in
-the field `Client`).
+stored in the `Client` field. Next, the `SendEvent` method is used to send an event (in this case
+the events `ConfigEvent` and `PingEvent`) to a target machine (in this case the machine whose
+address is stored in the field `Client`).
 
 When an event is being sent, it is enqueued in the event queue of the target machine, which can then
-dequeue the received event, and handle it asynchronously from the sender machine. Finally, the `Raise`
-method is used to send an event to the caller machine (i.e. to itself). Similar to invoking `Send`,
-when a machine raises an event, it still continues execution of the method that raised. However, when
-the current machine action finishes, instead of dequeuing from the inbox, the machine immediately
-handles the raised event (i.e. has higher priority than the queue).
+dequeue the received event, and handle it asynchronously from the sender machine.
+Finally, the `RaiseEvent` method is used to send an event to the caller machine (i.e. to itself).
+Similar to invoking `SendEvent`, when a machine raises an event, it still continues execution
+of the method that raised. However, when the current machine action finishes, instead of
+dequeuing from the inbox, the machine immediately handles the raised event (i.e. has higher
+priority than the queue).
 
 In Coyote, events (e.g. `PingEvent`, `UnitEvent` and `ConfigEvent` in the above example) can be declared as follows:
 
@@ -128,7 +129,7 @@ class ConfigEvent : Event
 
 An event can contain arbitrary data (scalar values or references) and be send to a target machine
 (there is no deep-copying for performance reasons). A machine can also send data to itself (e.g. for
-processing in a later state) using `Raise`.
+processing in a later state) using `RaiseEvent`.
 
 In the previous example, the `Server` machine sends `this.Id` of type `ActorId` (i.e. a handle to the
 current machine instance) to the `Client` machine. The receiver (in our case `Client`) can retrieve the
@@ -136,10 +137,11 @@ sent payload by using the property `ReceivedEvent`, which is a handle to the rec
 `ReceivedEvent` to the expected event type (in this case `ConfigEvent`), and then accessing the payload
 as a field of the received event.
 
-As discussed earlier, the `CreateMachine` and `Send` methods are non-blocking. The Coyote runtime will
-take care of all the underlying concurrency using the Task Parallel Library, which means that you do
-not need to explicitly create and manage tasks. However, you must be careful in not sharing data
-between machines and then accessing them after from both machines, as this can lead to race conditions.
+As discussed earlier, the `CreateStateMachine` and `SendEvent` methods are non-blocking. The
+Coyote runtime will take care of all the underlying concurrency using the Task Parallel Library,
+which means that you do not need to explicitly create and manage tasks. However, you must be
+careful in not sharing data between machines and then accessing them after from both machines,
+as this can lead to race conditions.
 
 Besides the `OnEntry` and `OnExit` machine state attributes, all other declarations inside a machine
 state are related to _event-handling_, which is a key feature of a Coyote machine. An event-handler
@@ -230,9 +232,9 @@ namespace PingPong {
     class Init : State { }
 
     void InitOnEntry() {
-      this.Client = this.CreateMachine(typeof(Client));
-      this.Send(this.Client, new ConfigEvent(this.Id));
-      this.Raise(new UnitEvent());
+      this.Client = this.CreateStateMachine(typeof(Client));
+      this.SendEvent(this.Client, new ConfigEvent(this.Id));
+      this.RaiseEvent(new UnitEvent());
     }
 
     [OnEntry(nameof(ServerActiveEntry))]
@@ -245,7 +247,7 @@ namespace PingPong {
     }
 
     void SendPing() {
-      this.Send(this.Client, new PingEvent());
+      this.SendEvent(this.Client, new PingEvent());
     }
   }
 
@@ -259,21 +261,21 @@ namespace PingPong {
 
     void Configure() {
       this.Server = (this.ReceivedEvent as ConfigEvent).Target;
-      this.Raise(new UnitEvent());
+      this.RaiseEvent(new UnitEvent());
     }
 
     [OnEventDoAction(typeof(PingEvent), nameof(SendPong))]
     class Active : State { }
 
     void SendPong() {
-      this.Send(this.Server, new PongEvent());
+      this.SendEvent(this.Server, new PongEvent());
     }
   }
 
   public class HostProgram {
     static void Main(string[] args) {
       IActorRuntime runtime = MachineRuntime.Create();
-      runtime.CreateMachine(typeof(Server));
+      runtime.CreateStateMachine(typeof(Server));
       Console.ReadLine();
     }
   }
@@ -287,9 +289,9 @@ available states, and a map from events to event-handlers per state.
 After the `Server` machine has initialized, the Coyote runtime executes the `OnEntry` action of the
 initial (`Init`) state of `Server`, which first creates an instance of the `Client` machine, then sends
 the event `ConfigEvent` to the `Client` machine, with the `this.Id` machine handle as a payload, and
-then raises the event `UnitEvent`. As mentioned earlier, when a machine calls `Raise`, it bypasses the
-queue and first handles the raised event. In this case, the `Server` machine handles `UnitEvent` by
-transitioning to the `Active` state.
+then raises the event `UnitEvent`. As mentioned earlier, when a machine calls `RaiseEvent`,
+it bypasses the queue and first handles the raised event. In this case, the `Server` machine
+handles `UnitEvent` by transitioning to the `Active` state.
 
 `Client` starts executing (asynchronously) when it is created by `Server`. The `Client` machine stores
 the received payload (which is a handle to the `Server` machine) in the `Server` field, and then raises
@@ -310,24 +312,24 @@ using Microsoft.Coyote.Actors;
 public class HostProgram {
   static void Main(string[] args) {
     IActorRuntime runtime = ActorRuntimeFactory.Create();
-    runtime.CreateMachine(typeof(Server));
+    runtime.CreateStateMachine(typeof(Server));
     Console.ReadLine();
   }
 }
 ```
 
 The developer must first import the Coyote runtime library (`Microsoft.Coyote.dll`), then create a
-`runtime` instance (of type `IActorRuntime`), and finally invoke the `CreateMachine` method of
+`runtime` instance (of type `IActorRuntime`), and finally invoke the `CreateStateMachine` method of
 `runtime` to instantiate the first Coyote machine (`Server` in the above example).
 
-The `CreateMachine` method accepts as a parameter the type of the machine to be instantiated, and
+The `CreateStateMachine` method accepts as a parameter the type of the machine to be instantiated, and
 returns an object of the `ActorId` type, which contains a handle to the created Coyote machine.
-Because `CreateMachine` is an asynchronous method, we call the `Console.ReadLine` method, which pauses
+Because `CreateStateMachine` is an asynchronous method, we call the `Console.ReadLine` method, which pauses
 the main thread until a console input has been given, so that the host C# program does not exit
 prematurely.
 
 The `IActorRuntime` interface also provides the `SendEvent` method for sending events to a Coyote
 machine from outside a machine. This method accepts as parameters an object of type `ActorId`, an
-event and an optional payload. Although you have to use `CreateMachine` and `SendEvent` to interact
+event and an optional payload. Although you have to use `CreateStateMachine` and `SendEvent` to interact
 with a machine from outside a machine, the opposite is straightforward, as it only requires reading
 writing/calling an object from a machine.

@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Enqueues the specified raised event.
         /// </summary>
-        public void Raise(Event e, Guid opGroupId)
+        public void RaiseEvent(Event e, Guid opGroupId)
         {
             var eventOrigin = new EventOriginInfo(this.Machine.Id, this.Machine.GetType().FullName,
                 NameResolver.GetStateNameForLogging(this.Machine.CurrentState));
@@ -242,20 +242,20 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Waits to receive an event of the specified type that satisfies an optional predicate.
         /// </summary>
-        public Task<Event> ReceiveAsync(Type eventType, Func<Event, bool> predicate = null)
+        public Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>
             {
                 { eventType, predicate }
             };
 
-            return this.ReceiveAsync(eventWaitTypes);
+            return this.ReceiveEventAsync(eventWaitTypes);
         }
 
         /// <summary>
         /// Waits to receive an event of the specified types.
         /// </summary>
-        public Task<Event> ReceiveAsync(params Type[] eventTypes)
+        public Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             foreach (var type in eventTypes)
@@ -263,13 +263,13 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 eventWaitTypes.Add(type, null);
             }
 
-            return this.ReceiveAsync(eventWaitTypes);
+            return this.ReceiveEventAsync(eventWaitTypes);
         }
 
         /// <summary>
         /// Waits to receive an event of the specified types that satisfy the specified predicates.
         /// </summary>
-        public Task<Event> ReceiveAsync(params Tuple<Type, Func<Event, bool>>[] events)
+        public Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             foreach (var e in events)
@@ -277,13 +277,13 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 eventWaitTypes.Add(e.Item1, e.Item2);
             }
 
-            return this.ReceiveAsync(eventWaitTypes);
+            return this.ReceiveEventAsync(eventWaitTypes);
         }
 
         /// <summary>
         /// Waits for an event to be enqueued.
         /// </summary>
-        private Task<Event> ReceiveAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
+        private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
             this.Machine.Runtime.NotifyReceiveCalled(this.Machine);
 

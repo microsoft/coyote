@@ -50,7 +50,7 @@ A Coyote test method can be declared as follows: (**todo**: what about tasks?)
 public static void Execute(IActorRuntime runtime)
 {
   runtime.RegisterMonitor(typeof(SomeMonitor));
-  runtime.CreateMachine(typeof(SomeMachine));
+  runtime.CreateStateMachine(typeof(SomeMachine));
 }
 ```
 

@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M<int>));
-                r.CreateMachine(typeof(Program<int>));
+                r.CreateStateMachine(typeof(Program<int>));
             });
         }
     }

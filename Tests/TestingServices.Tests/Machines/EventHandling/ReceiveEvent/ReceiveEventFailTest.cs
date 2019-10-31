@@ -51,9 +51,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Client = this.CreateMachine(typeof(Client));
-                this.Send(this.Client, new Config(this.Id));
-                this.Raise(new Unit());
+                this.Client = this.CreateStateMachine(typeof(Client));
+                this.SendEvent(this.Client, new Config(this.Id));
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Send(this.Client, new Ping());
+                this.SendEvent(this.Client, new Ping());
             }
         }
 
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.Server = (this.ReceivedEvent as Config).Id;
                 this.Counter = 0;
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -96,17 +96,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 while (this.Counter < 5)
                 {
-                    await this.Receive(typeof(Ping));
+                    await this.ReceiveEventAsync(typeof(Ping));
                     this.SendPong();
                 }
 
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             private void SendPong()
             {
                 this.Counter++;
-                this.Send(this.Server, new Pong());
+                this.SendEvent(this.Server, new Pong());
             }
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Deadlock detected. 'Client()' is waiting to receive an event, but no other controlled tasks are enabled.",
@@ -127,8 +127,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(Server));
-                r.CreateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Deadlock detected. 'Client()' and 'Client()' are waiting to " +
@@ -141,9 +141,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(Server));
-                r.CreateMachine(typeof(Server));
-                r.CreateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Deadlock detected. 'Client()', 'Client()' and 'Client()' are " +

@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.Core.Tests
             private void HandleTimeout()
             {
                 this.Tcs.SetResult(true);
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Core.Tests
                 for (int i = 0; i < numTimers; i++)
                 {
                     var tcs = new TaskCompletionSource<bool>();
-                    r.CreateMachine(typeof(T1), new SetupEvent(tcs));
+                    r.CreateStateMachine(typeof(T1), new SetupEvent(tcs));
                     awaiters[i] = tcs.Task;
                 }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Core.Tests
                 if (this.Counter == 10)
                 {
                     this.Tcs.SetResult(true);
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.Core.Tests
                 for (int i = 0; i < numTimers; i++)
                 {
                     var tcs = new TaskCompletionSource<bool>();
-                    r.CreateMachine(typeof(T2), new SetupEvent(tcs));
+                    r.CreateStateMachine(typeof(T2), new SetupEvent(tcs));
                     awaiters[i] = tcs.Task;
                 }
 

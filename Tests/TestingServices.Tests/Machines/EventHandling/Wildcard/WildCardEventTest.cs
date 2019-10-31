@@ -60,10 +60,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Conf()
             {
-                var a = this.CreateMachine(typeof(A));
-                this.Send(a, new E3());
-                this.Send(a, new E1());
-                this.Send(a, new E2());
+                var a = this.CreateStateMachine(typeof(A));
+                this.SendEvent(a, new E3());
+                this.SendEvent(a, new E1());
+                this.SendEvent(a, new E2());
             }
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(B));
+                r.CreateStateMachine(typeof(B));
             });
         }
     }

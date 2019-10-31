@@ -58,13 +58,13 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
 
-                var id = this.CreateMachine(typeof(M2), new SetupTcsEvent(tcs, numMessages));
+                var id = this.CreateStateMachine(typeof(M2), new SetupTcsEvent(tcs, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(id, new Message());
+                    this.SendEvent(id, new Message());
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Core.Tests
                 while (counter < numMessages)
                 {
                     counter++;
-                    await this.Receive(typeof(Message));
+                    await this.ReceiveEventAsync(typeof(Message));
                 }
 
                 tcs.SetResult(true);
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.Core.Tests
                     r.Logger.WriteLine($"Iteration #{i}");
 
                     var tcs = new TaskCompletionSource<bool>();
-                    r.CreateMachine(typeof(M1), new SetupTcsEvent(tcs, 18000));
+                    r.CreateStateMachine(typeof(M1), new SetupTcsEvent(tcs, 18000));
 
                     var result = await GetResultAsync(tcs.Task);
                     Assert.True(result);
@@ -124,13 +124,13 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
 
-                var id = this.CreateMachine(typeof(M4), new SetupTcsEvent(tcs, numMessages));
+                var id = this.CreateStateMachine(typeof(M4), new SetupTcsEvent(tcs, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(id, new Message());
+                    this.SendEvent(id, new Message());
                 }
             }
         }
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task HandleMessage()
             {
-                await this.Receive(typeof(Message));
+                await this.ReceiveEventAsync(typeof(Message));
                 this.Counter += 2;
 
                 if (this.Counter == this.NumMessages)
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.Core.Tests
                     r.Logger.WriteLine($"Iteration #{i}");
 
                     var tcs = new TaskCompletionSource<bool>();
-                    r.CreateMachine(typeof(M3), new SetupTcsEvent(tcs, 18000));
+                    r.CreateStateMachine(typeof(M3), new SetupTcsEvent(tcs, 18000));
 
                     var result = await GetResultAsync(tcs.Task);
                     Assert.True(result);
@@ -200,14 +200,14 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
 
-                var id = this.CreateMachine(typeof(M6), new SetupIdEvent(this.Id, numMessages));
+                var id = this.CreateStateMachine(typeof(M6), new SetupIdEvent(this.Id, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(id, new Message());
-                    await this.Receive(typeof(Message));
+                    this.SendEvent(id, new Message());
+                    await this.ReceiveEventAsync(typeof(Message));
                 }
 
                 tcs.SetResult(true);
@@ -231,8 +231,8 @@ namespace Microsoft.Coyote.Core.Tests
                 while (counter < numMessages)
                 {
                     counter++;
-                    await this.Receive(typeof(Message));
-                    this.Send(id, new Message());
+                    await this.ReceiveEventAsync(typeof(Message));
+                    this.SendEvent(id, new Message());
                 }
             }
         }
@@ -247,7 +247,7 @@ namespace Microsoft.Coyote.Core.Tests
                     r.Logger.WriteLine($"Iteration #{i}");
 
                     var tcs = new TaskCompletionSource<bool>();
-                    r.CreateMachine(typeof(M5), new SetupTcsEvent(tcs, 18000));
+                    r.CreateStateMachine(typeof(M5), new SetupTcsEvent(tcs, 18000));
 
                     var result = await GetResultAsync(tcs.Task);
                     Assert.True(result);

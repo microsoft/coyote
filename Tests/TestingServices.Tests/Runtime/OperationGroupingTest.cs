@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             });
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void CheckEvent()
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             });
         }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             });
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.CreateMachine(typeof(M4B));
+                this.CreateStateMachine(typeof(M4B));
             }
         }
 
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M4A));
+                r.CreateStateMachine(typeof(M4A));
             });
         }
 
@@ -165,8 +165,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateMachine(typeof(M5B));
-                this.Send(target, new E());
+                var target = this.CreateStateMachine(typeof(M5B));
+                this.SendEvent(target, new E());
             }
         }
 
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M5A));
+                r.CreateStateMachine(typeof(M5A));
             });
         }
 
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateMachine(typeof(M6B));
+                var target = this.CreateStateMachine(typeof(M6B));
                 this.Runtime.SendEvent(target, new E(), OperationGroup1);
             }
         }
@@ -229,7 +229,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M6A));
+                r.CreateStateMachine(typeof(M6A));
             });
         }
 
@@ -244,7 +244,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateMachine(typeof(M7B));
+                var target = this.CreateStateMachine(typeof(M7B));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 var id = this.OperationGroupId;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
-                this.Send((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((this.ReceivedEvent as E).Id, new E());
             }
         }
 
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M7A));
+                r.CreateStateMachine(typeof(M7A));
             });
         }
 
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateMachine(typeof(M8B));
+                var target = this.CreateStateMachine(typeof(M8B));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M8A));
+                r.CreateStateMachine(typeof(M8A));
             });
         }
 
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateMachine(typeof(M9B));
+                var target = this.CreateStateMachine(typeof(M9B));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -359,7 +359,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void CheckEvent()
             {
-                this.CreateMachine(typeof(M9C));
+                this.CreateStateMachine(typeof(M9C));
                 var id = this.OperationGroupId;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
                 this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
@@ -386,7 +386,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M9A));
+                r.CreateStateMachine(typeof(M9A));
             });
         }
 
@@ -408,7 +408,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 var e = new E(this.Id);
-                this.Send(this.Id, e, OperationGroup1);
+                this.SendEvent(this.Id, e, OperationGroup1);
                 this.Runtime.SendEvent(this.Id, e, OperationGroup2);
             }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M10));
+                r.CreateStateMachine(typeof(M10));
             });
         }
 
@@ -452,7 +452,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 var e = new E(this.Id);
-                this.Send(this.Id, e, OperationGroup1);
+                this.SendEvent(this.Id, e, OperationGroup1);
                 this.OperationGroupId = OperationGroup2;
                 this.Runtime.SendEvent(this.Id, e);
             }
@@ -475,7 +475,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M11));
+                r.CreateStateMachine(typeof(M11));
             });
         }
 
@@ -504,14 +504,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 this.Event = new E(this.Id);
-                this.Raise(this.Event, OperationGroup1);
+                this.RaiseEvent(this.Event, OperationGroup1);
             }
 
             private void IntermediateOnEntry()
             {
                 this.Assert(this.OperationGroupId == OperationGroup1,
                     $"[1] Operation group id is not '{OperationGroup1}', but {this.OperationGroupId}.");
-                this.Raise(this.Event, OperationGroup2);
+                this.RaiseEvent(this.Event, OperationGroup2);
             }
 
             private void FinalOnEntry()
@@ -526,7 +526,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M12));
+                r.CreateStateMachine(typeof(M12));
             });
         }
 
@@ -555,7 +555,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 this.Event = new E(this.Id);
-                this.Raise(this.Event, OperationGroup1);
+                this.RaiseEvent(this.Event, OperationGroup1);
             }
 
             private void IntermediateOnEntry()
@@ -565,7 +565,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.OperationGroupId = OperationGroup2;
                 this.Assert(this.OperationGroupId == OperationGroup2,
                     $"[2] Operation group id is not '{OperationGroup2}', but {this.OperationGroupId}.");
-                this.Raise(this.Event);
+                this.RaiseEvent(this.Event);
             }
 
             private void FinalOnEntry()
@@ -580,7 +580,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M13));
+                r.CreateStateMachine(typeof(M13));
             });
         }
 
@@ -594,10 +594,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                this.Send(this.Id, new E(this.Id), OperationGroup1);
+                this.SendEvent(this.Id, new E(this.Id), OperationGroup1);
                 this.Assert(this.OperationGroupId == Guid.Empty,
                     $"[1] Operation group id is not '{Guid.Empty}', but {this.OperationGroupId}.");
-                await this.Receive(typeof(E));
+                await this.ReceiveEventAsync(typeof(E));
                 this.Assert(this.OperationGroupId == OperationGroup1,
                     $"[2] Operation group id is not '{OperationGroup1}', but {this.OperationGroupId}.");
             }
@@ -608,7 +608,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M14));
+                r.CreateStateMachine(typeof(M14));
             });
         }
     }

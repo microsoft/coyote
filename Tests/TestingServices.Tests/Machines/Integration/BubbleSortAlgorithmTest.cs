@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(BubbleSortMachine));
+                r.CreateStateMachine(typeof(BubbleSortMachine));
             });
         }
     }

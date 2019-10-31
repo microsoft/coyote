@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
                 machineState = machine.CurrentStateName;
             }
 
-            var scheduleStep = BugTraceStep.Create(this.Count, BugTraceStepType.CreateMachine,
+            var scheduleStep = BugTraceStep.Create(this.Count, BugTraceStepType.CreateStateMachine,
                 id, machineState, eventInfo, null, targetMachine, null, null, null);
             this.Push(scheduleStep);
         }

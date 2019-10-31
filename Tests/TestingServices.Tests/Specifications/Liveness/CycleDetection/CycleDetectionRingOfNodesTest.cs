@@ -40,10 +40,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitEntry()
             {
                 var applyFix = (this.ReceivedEvent as Configure).ApplyFix;
-                var machine1 = this.CreateMachine(typeof(Node), new Configure(applyFix));
-                var machine2 = this.CreateMachine(typeof(Node), new Configure(applyFix));
-                this.Send(machine1, new Node.SetNeighbour(machine2));
-                this.Send(machine2, new Node.SetNeighbour(machine1));
+                var machine1 = this.CreateStateMachine(typeof(Node), new Configure(applyFix));
+                var machine2 = this.CreateStateMachine(typeof(Node), new Configure(applyFix));
+                this.SendEvent(machine1, new Node.SetNeighbour(machine2));
+                this.SendEvent(machine2, new Node.SetNeighbour(machine1));
             }
         }
 
@@ -79,14 +79,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 var e = this.ReceivedEvent as SetNeighbour;
                 this.Next = e.Next;
-                this.Send(this.Id, new Message());
+                this.SendEvent(this.Id, new Message());
             }
 
             private void OnMessage()
             {
                 if (this.Next != null)
                 {
-                    this.Send(this.Next, new Message());
+                    this.SendEvent(this.Next, new Message());
                     if (this.ApplyFix)
                     {
                         this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(Environment), new Configure(true));
+                r.CreateStateMachine(typeof(Environment), new Configure(true));
             },
             configuration: configuration);
         }
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(Environment), new Configure(false));
+                r.CreateStateMachine(typeof(Environment), new Configure(false));
             },
             configuration: configuration,
             expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",

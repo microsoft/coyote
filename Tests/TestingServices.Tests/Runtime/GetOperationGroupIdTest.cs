@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateMachine(typeof(M4));
+                var target = this.CreateStateMachine(typeof(M4));
                 this.Runtime.GetCurrentOperationGroupId(target);
             }
         }
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             });
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             });
         }
 
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             },
             expectedError: "Trying to access the operation group id of 'M4()', which is not the currently executing machine.",
             replay: true);

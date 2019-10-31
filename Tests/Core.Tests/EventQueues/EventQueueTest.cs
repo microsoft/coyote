@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             using (var queue = new EventQueue(machineStateManager))
             {
-                queue.Raise(new E1(), Guid.Empty);
+                queue.RaiseEvent(new E1(), Guid.Empty);
                 Assert.True(queue.IsEventRaised);
                 Assert.Equal(0, queue.Size);
 
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEventTask = queue.ReceiveAsync(typeof(E1));
+                var receivedEventTask = queue.ReceiveEventAsync(typeof(E1));
 
                 var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.Received, enqueueStatus);
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEventTask = queue.ReceiveAsync(typeof(E4), evt => (evt as E4).Value);
+                var receivedEventTask = queue.ReceiveEventAsync(typeof(E4), evt => (evt as E4).Value);
 
                 var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.Core.Tests
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(2, queue.Size);
 
-                var receivedEvent = await queue.ReceiveAsync(typeof(E4), evt => (evt as E4).Value);
+                var receivedEvent = await queue.ReceiveEventAsync(typeof(E4), evt => (evt as E4).Value);
                 Assert.IsType<E4>(receivedEvent);
                 Assert.True((receivedEvent as E4).Value);
                 Assert.Equal(1, queue.Size);
@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.Core.Tests
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
-                var receivedEvent = await queue.ReceiveAsync(typeof(E1));
+                var receivedEvent = await queue.ReceiveEventAsync(typeof(E1));
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(0, queue.Size);
 
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEventTask = queue.ReceiveAsync(typeof(E1), typeof(E2));
+                var receivedEventTask = queue.ReceiveEventAsync(typeof(E1), typeof(E2));
 
                 var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.Received, enqueueStatus);
@@ -375,7 +375,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             using (var queue = new EventQueue(machineStateManager))
             {
-                var receivedEventTask = queue.ReceiveAsync(typeof(E1));
+                var receivedEventTask = queue.ReceiveEventAsync(typeof(E1));
 
                 var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.Core.Tests
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(3, queue.Size);
 
-                var receivedEvent = await queue.ReceiveAsync(typeof(E1));
+                var receivedEvent = await queue.ReceiveEventAsync(typeof(E1));
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(2, queue.Size);
 

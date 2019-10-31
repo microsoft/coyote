@@ -95,12 +95,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 for (int idx = 0; idx < this.NumberOfServers; idx++)
                 {
-                    this.Servers[idx] = this.CreateMachine(typeof(Server));
+                    this.Servers[idx] = this.CreateStateMachine(typeof(Server));
                 }
 
-                this.Client = this.CreateMachine(typeof(Client));
+                this.Client = this.CreateStateMachine(typeof(Client));
 
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(ConfiguringOnInit))]
@@ -113,12 +113,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 for (int idx = 0; idx < this.NumberOfServers; idx++)
                 {
-                    this.Send(this.Servers[idx], new Server.ConfigureEvent(idx, this.Servers, this.Id));
+                    this.SendEvent(this.Servers[idx], new Server.ConfigureEvent(idx, this.Servers, this.Id));
                 }
 
-                this.Send(this.Client, new Client.ConfigureEvent(this.Id));
+                this.SendEvent(this.Client, new Client.ConfigureEvent(this.Id));
 
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private class Availability : StateGroup
@@ -144,17 +144,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void BecomeAvailable()
             {
                 this.UpdateLeader(this.ReceivedEvent as NotifyLeaderUpdate);
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private void SendClientRequestToLeader()
             {
-                this.Send(this.Leader, this.ReceivedEvent);
+                this.SendEvent(this.Leader, this.ReceivedEvent);
             }
 
             private void RedirectClientRequest()
             {
-                this.Send(this.Id, (this.ReceivedEvent as RedirectRequest).Request);
+                this.SendEvent(this.Id, (this.ReceivedEvent as RedirectRequest).Request);
             }
 
             private void RefreshLeader()
@@ -166,10 +166,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 for (int idx = 0; idx < this.NumberOfServers; idx++)
                 {
-                    this.Send(this.Servers[idx], new Server.ShutDown());
+                    this.SendEvent(this.Servers[idx], new Server.ShutDown());
                 }
 
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             private void UpdateLeader(NotifyLeaderUpdate request)
@@ -420,13 +420,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Servers = (this.ReceivedEvent as ConfigureEvent).Servers;
                 this.ClusterManager = (this.ReceivedEvent as ConfigureEvent).ClusterManager;
 
-                this.ElectionTimer = this.CreateMachine(typeof(ElectionTimer));
-                this.Send(this.ElectionTimer, new ElectionTimer.ConfigureEvent(this.Id));
+                this.ElectionTimer = this.CreateStateMachine(typeof(ElectionTimer));
+                this.SendEvent(this.ElectionTimer, new ElectionTimer.ConfigureEvent(this.Id));
 
-                this.PeriodicTimer = this.CreateMachine(typeof(PeriodicTimer));
-                this.Send(this.PeriodicTimer, new PeriodicTimer.ConfigureEvent(this.Id));
+                this.PeriodicTimer = this.CreateStateMachine(typeof(PeriodicTimer));
+                this.SendEvent(this.PeriodicTimer, new PeriodicTimer.ConfigureEvent(this.Id));
 
-                this.Raise(new BecomeFollower());
+                this.RaiseEvent(new BecomeFollower());
             }
 
             [OnEntry(nameof(FollowerOnInit))]
@@ -449,24 +449,24 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.LeaderId = null;
                 this.VotesReceived = 0;
 
-                this.Send(this.ElectionTimer, new ElectionTimer.StartTimerEvent());
+                this.SendEvent(this.ElectionTimer, new ElectionTimer.StartTimerEvent());
             }
 
             private void RedirectClientRequest()
             {
                 if (this.LeaderId != null)
                 {
-                    this.Send(this.LeaderId, this.ReceivedEvent);
+                    this.SendEvent(this.LeaderId, this.ReceivedEvent);
                 }
                 else
                 {
-                    this.Send(this.ClusterManager, new ClusterManager.RedirectRequest(this.ReceivedEvent));
+                    this.SendEvent(this.ClusterManager, new ClusterManager.RedirectRequest(this.ReceivedEvent));
                 }
             }
 
             private void StartLeaderElection()
             {
-                this.Raise(new BecomeCandidate());
+                this.RaiseEvent(new BecomeCandidate());
             }
 
             private void VoteAsFollower()
@@ -535,7 +535,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.VotedFor = this.Id;
                 this.VotesReceived = 1;
 
-                this.Send(this.ElectionTimer, new ElectionTimer.StartTimerEvent());
+                this.SendEvent(this.ElectionTimer, new ElectionTimer.StartTimerEvent());
 
                 this.BroadcastVoteRequests();
             }
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void BroadcastVoteRequests()
             {
                 // BUG: duplicate votes from same follower
-                this.Send(this.PeriodicTimer, new PeriodicTimer.StartTimerEvent());
+                this.SendEvent(this.PeriodicTimer, new PeriodicTimer.StartTimerEvent());
 
                 for (int idx = 0; idx < this.Servers.Length; idx++)
                 {
@@ -555,7 +555,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     var lastLogIndex = this.Logs.Count;
                     var lastLogTerm = this.GetLogTermForIndex(lastLogIndex);
 
-                    this.Send(this.Servers[idx], new VoteRequest(this.CurrentTerm, this.Id,
+                    this.SendEvent(this.Servers[idx], new VoteRequest(this.CurrentTerm, this.Id,
                         lastLogIndex, lastLogTerm));
                 }
             }
@@ -568,7 +568,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
                     this.Vote(this.ReceivedEvent as VoteRequest);
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
@@ -583,7 +583,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                     return;
                 }
                 else if (request.Term != this.CurrentTerm)
@@ -597,7 +597,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     if (this.VotesReceived >= (this.Servers.Length / 2) + 1)
                     {
                         this.VotesReceived = 0;
-                        this.Raise(new BecomeLeader());
+                        this.RaiseEvent(new BecomeLeader());
                     }
                 }
             }
@@ -610,7 +610,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
                     this.AppendEntries(this.ReceivedEvent as AppendEntriesRequest);
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
@@ -625,7 +625,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
             }
 
@@ -645,7 +645,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void LeaderOnInit()
             {
                 this.Monitor<SafetyMonitor>(new SafetyMonitor.NotifyLeaderElected(this.CurrentTerm));
-                this.Send(this.ClusterManager, new ClusterManager.NotifyLeaderUpdate(this.Id, this.CurrentTerm));
+                this.SendEvent(this.ClusterManager, new ClusterManager.NotifyLeaderUpdate(this.Id, this.CurrentTerm));
 
                 var logIndex = this.Logs.Count;
                 var logTerm = this.GetLogTermForIndex(logIndex);
@@ -670,7 +670,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         continue;
                     }
 
-                    this.Send(this.Servers[idx], new AppendEntriesRequest(this.CurrentTerm, this.Id,
+                    this.SendEvent(this.Servers[idx], new AppendEntriesRequest(this.CurrentTerm, this.Id,
                         logIndex, logTerm, new List<Log>(), this.CommitIndex, null));
                 }
             }
@@ -708,7 +708,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     var prevLogIndex = this.NextIndex[server] - 1;
                     var prevLogTerm = this.GetLogTermForIndex(prevLogIndex);
 
-                    this.Send(server, new AppendEntriesRequest(this.CurrentTerm, this.Id, prevLogIndex,
+                    this.SendEvent(server, new AppendEntriesRequest(this.CurrentTerm, this.Id, prevLogIndex,
                         prevLogTerm, logs, this.CommitIndex, this.LastClientRequest.Client));
                 }
             }
@@ -725,7 +725,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.RedirectLastClientRequestToClusterManager();
                     this.Vote(this.ReceivedEvent as VoteRequest);
 
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
@@ -742,7 +742,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.VotedFor = null;
 
                     this.RedirectLastClientRequestToClusterManager();
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
             }
 
@@ -757,7 +757,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.RedirectLastClientRequestToClusterManager();
                     this.AppendEntries(this.ReceivedEvent as AppendEntriesRequest);
 
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
             }
 
@@ -770,7 +770,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.VotedFor = null;
 
                     this.RedirectLastClientRequestToClusterManager();
-                    this.Raise(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                     return;
                 }
                 else if (request.Term != this.CurrentTerm)
@@ -797,7 +797,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.VotesReceived = 0;
                         this.LastClientRequest = null;
 
-                        this.Send(request.ReceiverEndpoint, new Client.Response());
+                        this.SendEvent(request.ReceiverEndpoint, new Client.Response());
                     }
                 }
                 else
@@ -812,7 +812,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     var prevLogIndex = this.NextIndex[request.Server] - 1;
                     var prevLogTerm = this.GetLogTermForIndex(prevLogIndex);
 
-                    this.Send(request.Server, new AppendEntriesRequest(this.CurrentTerm, this.Id, prevLogIndex,
+                    this.SendEvent(request.Server, new AppendEntriesRequest(this.CurrentTerm, this.Id, prevLogIndex,
                         prevLogTerm, logs, this.CommitIndex, request.ReceiverEndpoint));
                 }
             }
@@ -831,14 +831,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     lastLogIndex > request.LastLogIndex ||
                     lastLogTerm > request.LastLogTerm)
                 {
-                    this.Send(request.CandidateId, new VoteResponse(this.CurrentTerm, false));
+                    this.SendEvent(request.CandidateId, new VoteResponse(this.CurrentTerm, false));
                 }
                 else
                 {
                     this.VotedFor = request.CandidateId;
                     this.LeaderId = null;
 
-                    this.Send(request.CandidateId, new VoteResponse(this.CurrentTerm, true));
+                    this.SendEvent(request.CandidateId, new VoteResponse(this.CurrentTerm, true));
                 }
             }
 
@@ -850,7 +850,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (request.Term < this.CurrentTerm)
                 {
-                    this.Send(request.LeaderId, new AppendEntriesResponse(this.CurrentTerm, false,
+                    this.SendEvent(request.LeaderId, new AppendEntriesResponse(this.CurrentTerm, false,
                         this.Id, request.ReceiverEndpoint));
                 }
                 else
@@ -859,7 +859,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         (this.Logs.Count < request.PrevLogIndex ||
                         this.Logs[request.PrevLogIndex - 1].Term != request.PrevLogTerm))
                     {
-                        this.Send(request.LeaderId, new AppendEntriesResponse(this.CurrentTerm, false, this.Id, request.ReceiverEndpoint));
+                        this.SendEvent(request.LeaderId, new AppendEntriesResponse(this.CurrentTerm, false, this.Id, request.ReceiverEndpoint));
                     }
                     else
                     {
@@ -898,7 +898,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         }
 
                         this.LeaderId = request.LeaderId;
-                        this.Send(request.LeaderId, new AppendEntriesResponse(this.CurrentTerm, true, this.Id, request.ReceiverEndpoint));
+                        this.SendEvent(request.LeaderId, new AppendEntriesResponse(this.CurrentTerm, true, this.Id, request.ReceiverEndpoint));
                     }
                 }
             }
@@ -907,7 +907,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (this.LastClientRequest != null)
                 {
-                    this.Send(this.ClusterManager, this.LastClientRequest);
+                    this.SendEvent(this.ClusterManager, this.LastClientRequest);
                 }
             }
 
@@ -929,10 +929,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ShuttingDown()
             {
-                this.Send(this.ElectionTimer, new Halt());
-                this.Send(this.PeriodicTimer, new Halt());
+                this.SendEvent(this.ElectionTimer, new Halt());
+                this.SendEvent(this.PeriodicTimer, new Halt());
 
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -998,7 +998,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.Cluster = (this.ReceivedEvent as ConfigureEvent).Cluster;
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(PumpRequestOnEntry))]
@@ -1012,19 +1012,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.LatestCommand = this.RandomInteger(100);
                 this.Counter++;
-                this.Send(this.Cluster, new Request(this.Id, this.LatestCommand));
+                this.SendEvent(this.Cluster, new Request(this.Id, this.LatestCommand));
             }
 
             private void ProcessResponse()
             {
                 if (this.Counter == 3)
                 {
-                    this.Send(this.Cluster, new ClusterManager.ShutDown());
-                    this.Raise(new Halt());
+                    this.SendEvent(this.Cluster, new ClusterManager.ShutDown());
+                    this.RaiseEvent(new Halt());
                 }
                 else
                 {
-                    this.Raise(new LocalEvent());
+                    this.RaiseEvent(new LocalEvent());
                 }
             }
         }
@@ -1082,17 +1082,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             private void Tick()
             {
                 if (this.Random())
                 {
-                    this.Send(this.Target, new Timeout());
+                    this.SendEvent(this.Target, new Timeout());
                 }
 
-                this.Raise(new CancelTimer());
+                this.RaiseEvent(new CancelTimer());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -1155,17 +1155,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             private void Tick()
             {
                 if (this.Random())
                 {
-                    this.Send(this.Target, new Timeout());
+                    this.SendEvent(this.Target, new Timeout());
                 }
 
-                this.Raise(new CancelTimer());
+                this.RaiseEvent(new CancelTimer());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -1204,7 +1204,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 this.TermsWithLeader = new HashSet<int>();
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEventDoAction(typeof(NotifyLeaderElected), nameof(ProcessLeaderElected))]
@@ -1235,7 +1235,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(SafetyMonitor));
-                r.CreateMachine(typeof(ClusterManager));
+                r.CreateStateMachine(typeof(ClusterManager));
             },
             configuration: configuration,
             expectedError: "Detected more than one leader.",

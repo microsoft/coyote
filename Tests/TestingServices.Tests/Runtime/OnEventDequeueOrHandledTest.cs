@@ -68,12 +68,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Hot]
             [OnEventDoAction(typeof(Begin), nameof(Process))]
             [OnEventDoAction(typeof(End), nameof(Process))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
             [Cold]
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(E1), nameof(Process))]
             [OnEventDoAction(typeof(E2), nameof(Process))]
             [OnEventDoAction(typeof(E3), nameof(ProcessE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -160,12 +160,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventDoAction(typeof(Begin), nameof(Process))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
             [Cold]
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
 
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -229,12 +229,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventGotoState(typeof(Done), typeof(S2))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
             [Cold]
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
         }
@@ -243,16 +243,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 
             [OnEntry(nameof(Finish))]
-            private class S3 : MachineState
+            private class S3 : State
             {
             }
 
@@ -291,12 +291,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventGotoState(typeof(Done), typeof(S2))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
             [Cold]
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
         }
@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -341,7 +341,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -423,7 +423,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -464,7 +464,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -504,7 +504,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -546,7 +546,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Process))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 

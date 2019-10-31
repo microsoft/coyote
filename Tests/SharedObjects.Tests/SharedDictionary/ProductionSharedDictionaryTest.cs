@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
                 var counter = (this.ReceivedEvent as E).Counter;
                 var tcs = (this.ReceivedEvent as E).Tcs;
-                var n = this.CreateMachine(typeof(N1), this.ReceivedEvent);
+                this.CreateMachine(typeof(N1), this.ReceivedEvent);
 
                 string v;
                 while (counter.TryRemove(1, out v) == false)
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 counter.TryAdd(1, "N");
 
                 // Key doesn't exist.
-                var v = counter[2];
+                _ = counter[2];
                 tcs.SetResult(true);
             }
         }
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -157,7 +157,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -182,10 +182,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 counter.TryAdd(1, "N");
 
-                var b = counter.TryGetValue(2, out string v);
+                var b = counter.TryGetValue(2, out string _);
                 this.Assert(!b);
 
-                b = counter.TryGetValue(1, out v);
+                b = counter.TryGetValue(1, out string v);
 
                 this.Assert(b);
                 this.Assert(v == "N");
@@ -198,14 +198,14 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             private void InitOnEntry()
             {
                 var counter = (this.ReceivedEvent as E).Counter;
-                var n = this.CreateMachine(typeof(N5), this.ReceivedEvent);
+                this.CreateMachine(typeof(N5), this.ReceivedEvent);
 
                 for (int i = 0; i <= 100000; i++)
                 {
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -226,15 +226,14 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
                 var counter = (this.ReceivedEvent as E).Counter;
                 var tcs = (this.ReceivedEvent as E).Tcs;
-                string v;
 
-                while (!counter.TryGetValue(100000, out v))
+                while (!counter.TryGetValue(100000, out _))
                 {
                 }
 
                 for (int i = 100000; i >= 0; i--)
                 {
-                    var b = counter.TryGetValue(i, out v);
+                    var b = counter.TryGetValue(i, out string v);
                     this.Assert(b && v == i.ToString());
                 }
 

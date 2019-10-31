@@ -19,12 +19,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Foo))]
             [OnEventPushState(typeof(E2), typeof(S1))]
-            private class S0 : MachineState
+            private class S0 : State
             {
             }
 
             [OnEventDoAction(typeof(E3), nameof(Bar))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Conf))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventPushState(typeof(Unit), typeof(S1))]
             [OnEventGotoState(typeof(E4), typeof(S2))]
             [OnEventDoAction(typeof(E2), nameof(Action1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS1))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(EntryS2))]
             [OnEventGotoState(typeof(Unit), typeof(S3))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E4), typeof(S3))]
-            private class S3 : MachineState
+            private class S3 : State
             {
             }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventGotoState(typeof(Unit), typeof(GhostInit))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -124,14 +124,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E1), typeof(S1))]
-            private class GhostInit : MachineState
+            private class GhostInit : State
             {
             }
 
             [OnEntry(nameof(EntryS1))]
             [OnEventGotoState(typeof(E3), typeof(S2))]
             [IgnoreEvents(typeof(E1))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(EntryS2))]
             [OnEventGotoState(typeof(E3), typeof(GhostInit))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 

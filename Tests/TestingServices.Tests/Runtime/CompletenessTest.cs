@@ -29,13 +29,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Fail))]
             [OnEventGotoState(typeof(E2), typeof(S2))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
             [Cold]
             [IgnoreEvents(typeof(E1), typeof(E2))]
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
 
@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class S : MachineState
+            private class S : State
             {
             }
 
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class S : MachineState
+            private class S : State
             {
             }
 

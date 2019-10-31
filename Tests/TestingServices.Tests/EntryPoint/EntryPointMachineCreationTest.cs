@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
         }
@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class N : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
         }

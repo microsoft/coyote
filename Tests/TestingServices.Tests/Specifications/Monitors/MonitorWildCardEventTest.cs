@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [IgnoreEvents(typeof(WildCardEvent))]
-            private class S0 : MonitorState
+            private class S0 : State
             {
             }
         }
@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(WildCardEvent), nameof(Check))]
-            private class S0 : MonitorState
+            private class S0 : State
             {
             }
 
@@ -42,12 +42,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventGotoState(typeof(WildCardEvent), typeof(S1))]
-            private class S0 : MonitorState
+            private class S0 : State
             {
             }
 
             [OnEntry(nameof(Check))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 

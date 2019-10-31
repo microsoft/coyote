@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Goto<Done>();
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -39,12 +39,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Init))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
             [OnEntry(nameof(IncrementValue))]
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
 

@@ -37,12 +37,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventGotoState(typeof(E2), typeof(End))]
-            private class Waiting : MonitorState
+            private class Waiting : State
             {
             }
 
             [Cold]
-            private class End : MonitorState
+            private class End : State
             {
             }
         }
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(E1), nameof(HandleEvent1))]
             [OnEventDoAction(typeof(E2), nameof(HandleEvent2))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

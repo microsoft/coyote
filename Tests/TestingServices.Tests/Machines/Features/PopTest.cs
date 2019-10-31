@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Init))]
-            public class S1 : MachineState
+            public class S1 : State
             {
             }
 
@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(Init))]
             [OnExit(nameof(Exit))]
-            public class S1 : MachineState
+            public class S1 : State
             {
             }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Pop();
             }
 
-            public class S2 : MachineState
+            public class S2 : State
             {
             }
         }

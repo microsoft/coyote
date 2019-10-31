@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [IgnoreEvents(typeof(E))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
         }

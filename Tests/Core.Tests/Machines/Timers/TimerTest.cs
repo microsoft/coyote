@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.Core.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Core.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Core.Tests
             [Start]
             [OnEntry(nameof(DoPing))]
             [IgnoreEvents(typeof(TimerElapsedEvent))]
-            private class Ping : MachineState
+            private class Ping : State
             {
             }
 
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Core.Tests
             /// </summary>
             [OnEntry(nameof(DoPong))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Pong : MachineState
+            private class Pong : State
             {
             }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
             [Start]
             [OnEntry(nameof(Initialize))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
             [Start]
             [OnEntry(nameof(Initialize))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

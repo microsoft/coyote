@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(DoPing))]
             [IgnoreEvents(typeof(TimerElapsedEvent))]
-            private class Ping : MachineState
+            private class Ping : State
             {
             }
 
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             /// </summary>
             [OnEntry(nameof(DoPong))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Pong : MachineState
+            private class Pong : State
             {
             }
 
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Initialize))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Initialize))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(Initialize))]
             [IgnoreEvents(typeof(TimerElapsedEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Initialize))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -260,7 +260,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [IgnoreEvents(typeof(TimerElapsedEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(FinalOnEntry))]
             [IgnoreEvents(typeof(TimerElapsedEvent))]
-            private class Final : MachineState
+            private class Final : State
             {
             }
 

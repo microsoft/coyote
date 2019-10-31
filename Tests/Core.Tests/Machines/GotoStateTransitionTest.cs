@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Core.Tests
                 this.Goto<Final>();
             }
 
-            private class Final : MachineState
+            private class Final : State
             {
             }
         }
@@ -42,11 +42,11 @@ namespace Microsoft.Coyote.Core.Tests
         {
             [Start]
             [OnEventGotoState(typeof(Message), typeof(Final))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
-            private class Final : MachineState
+            private class Final : State
             {
             }
         }
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Core.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Message), typeof(Final))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Core.Tests
                 this.Raise(new Message());
             }
 
-            private class Final : MachineState
+            private class Final : State
             {
             }
         }

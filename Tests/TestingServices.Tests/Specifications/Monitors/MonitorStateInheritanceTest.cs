@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(Check))]
-            private abstract class BaseState : MonitorState
+            private abstract class BaseState : State
             {
             }
 
@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [Start]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(BaseOnEntry))]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
 
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(BaseOnEntry))]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(Check))]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
 
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(BaseCheck))]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
 
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(BaseBaseCheck))]
-            private class BaseBaseState : MonitorState
+            private class BaseBaseState : State
             {
             }
 
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(BaseBaseCheck))]
-            private class BaseBaseState : MonitorState
+            private class BaseBaseState : State
             {
             }
 
@@ -199,12 +199,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Done))]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MonitorState
+            private class Done : State
             {
             }
 
@@ -223,17 +223,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Error))]
-            private class BaseState : MonitorState
+            private class BaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MonitorState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MonitorState
+            private class Error : State
             {
             }
 
@@ -262,17 +262,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Error))]
-            private class BaseBaseState : MonitorState
+            private class BaseBaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MonitorState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MonitorState
+            private class Error : State
             {
             }
 
@@ -300,17 +300,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Error))]
-            private class BaseBaseState : MonitorState
+            private class BaseBaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MonitorState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MonitorState
+            private class Error : State
             {
             }
 

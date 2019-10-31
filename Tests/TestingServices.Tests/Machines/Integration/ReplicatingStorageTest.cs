@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(EntryOnInit))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Configuring))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(ConfiguringOnInit))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Active))]
             [DeferEvents(typeof(FailureTimer.Timeout))]
-            private class Configuring : MachineState
+            private class Configuring : State
             {
             }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEventDoAction(typeof(NotifyNode), nameof(UpdateAliveNodes))]
             [OnEventDoAction(typeof(FailureTimer.Timeout), nameof(InjectFault))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Active))]
             [DeferEvents(typeof(Client.Request), typeof(RepairTimer.Timeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(RepairTimer.Timeout), nameof(RepairNodes))]
             [OnEventDoAction(typeof(StorageNode.SyncReport), nameof(ProcessSyncReport))]
             [OnEventDoAction(typeof(NotifyFailure), nameof(ProcessFailure))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -370,7 +370,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Active))]
             [DeferEvents(typeof(SyncTimer.Timeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(SyncRequest), nameof(Sync))]
             [OnEventDoAction(typeof(SyncTimer.Timeout), nameof(GenerateSyncReport))]
             [OnEventDoAction(typeof(Environment.FaultInject), nameof(Terminate))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -462,7 +462,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(TickEvent), nameof(Tick))]
             [OnEventGotoState(typeof(CancelTimer), typeof(Inactive))]
             [IgnoreEvents(typeof(StartTimerEvent))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -497,7 +497,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
             [IgnoreEvents(typeof(CancelTimer), typeof(TickEvent))]
-            private class Inactive : MachineState
+            private class Inactive : State
             {
             }
         }
@@ -536,7 +536,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -550,7 +550,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(TickEvent), nameof(Tick))]
             [OnEventGotoState(typeof(CancelTimer), typeof(Inactive))]
             [IgnoreEvents(typeof(StartTimerEvent))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -571,7 +571,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
             [IgnoreEvents(typeof(CancelTimer), typeof(TickEvent))]
-            private class Inactive : MachineState
+            private class Inactive : State
             {
             }
         }
@@ -610,7 +610,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -624,7 +624,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(TickEvent), nameof(Tick))]
             [OnEventGotoState(typeof(CancelTimer), typeof(Inactive))]
             [IgnoreEvents(typeof(StartTimerEvent))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -645,7 +645,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
             [IgnoreEvents(typeof(CancelTimer), typeof(TickEvent))]
-            private class Inactive : MachineState
+            private class Inactive : State
             {
             }
         }
@@ -688,7 +688,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(LocalEvent), typeof(PumpRequest))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -705,7 +705,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(PumpRequestOnEntry))]
             [OnEventGotoState(typeof(LocalEvent), typeof(PumpRequest))]
-            private class PumpRequest : MachineState
+            private class PumpRequest : State
             {
             }
 
@@ -786,7 +786,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Repaired))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
@@ -806,7 +806,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(NotifyNodeFail), nameof(FailAndCheckRepair))]
             [OnEventDoAction(typeof(NotifyNodeUpdate), nameof(ProcessNodeUpdate))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Repairing))]
-            private class Repaired : MonitorState
+            private class Repaired : State
             {
             }
 
@@ -834,7 +834,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(NotifyNodeFail), nameof(ProcessNodeFail))]
             [OnEventDoAction(typeof(NotifyNodeUpdate), nameof(CheckIfRepaired))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Repaired))]
-            private class Repairing : MonitorState
+            private class Repairing : State
             {
             }
 

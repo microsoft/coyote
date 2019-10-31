@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(Initialize))]
             [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -46,12 +46,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventGotoState(typeof(TimeoutReceivedEvent), typeof(TimeoutReceived))]
-            private class NoTimeoutReceived : MonitorState
+            private class NoTimeoutReceived : State
             {
             }
 
             [Cold]
-            private class TimeoutReceived : MonitorState
+            private class TimeoutReceived : State
             {
             }
         }

@@ -31,13 +31,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(Coyote_Init_on_entry_action))]
             [OnExit(nameof(Coyote_Init_on_exit_action))]
             [OnEventGotoState(typeof(E1), typeof(Next), nameof(Coyote_Init_E1_action))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             [OnEntry(nameof(Coyote_Next_on_entry_action))]
             [OnEventDoAction(typeof(E2), nameof(Coyote_Next_E2_action))]
-            private class Next : MachineState
+            private class Next : State
             {
             }
 
@@ -75,13 +75,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry("Coyote_Init_on_entry_action")]
             [OnExit("Coyote_Init_on_exit_action")]
             [OnEventGotoState(typeof(E1), typeof(Next), "Coyote_Init_E1_action")]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             [OnEntry("Coyote_Next_on_entry_action")]
             [OnEventDoAction(typeof(E2), "Coyote_Next_E2_action")]
-            private class Next : MachineState
+            private class Next : State
             {
             }
 

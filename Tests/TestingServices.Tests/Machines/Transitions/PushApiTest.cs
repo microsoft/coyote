@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryDone))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [IgnoreEvents(typeof(E))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryDone))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(ExitInit))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Assert(false, "Bug found.");
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Push<M4b.Done>();
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            internal class Done : MachineState
+            internal class Done : State
             {
             }
         }

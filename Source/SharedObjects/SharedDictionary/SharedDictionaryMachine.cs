@@ -8,7 +8,7 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// A shared dictionary modeled using a state-machine for testing.
+    /// A shared dictionary modeled using a state machine for testing.
     /// </summary>
     internal sealed class SharedDictionaryMachine<TKey, TValue> : StateMachine
     {
@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.SharedObjects
         [Start]
         [OnEntry(nameof(Initialize))]
         [OnEventDoAction(typeof(SharedDictionaryEvent), nameof(ProcessEvent))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 

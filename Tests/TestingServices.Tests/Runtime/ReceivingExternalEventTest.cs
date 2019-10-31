@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E), nameof(HandleEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

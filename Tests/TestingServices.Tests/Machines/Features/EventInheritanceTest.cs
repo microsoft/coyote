@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(E1), nameof(E1_handler))]
             [OnEventDoAction(typeof(E2), nameof(E2_handler))]
             [OnEventDoAction(typeof(E3), nameof(E3_handler))]
-            private class S0 : MachineState
+            private class S0 : State
             {
             }
 

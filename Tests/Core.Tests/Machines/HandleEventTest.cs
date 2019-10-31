@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Core.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Core.Tests
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
             [OnEventDoAction(typeof(E2), nameof(HandleE2))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

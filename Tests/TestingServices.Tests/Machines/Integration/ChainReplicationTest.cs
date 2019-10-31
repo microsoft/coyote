@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(StartMonitoring))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -223,7 +223,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(StartMonitoringOnEntry))]
             [OnEventGotoState(typeof(Pong), typeof(StartMonitoring), nameof(HandlePong))]
             [OnEventGotoState(typeof(InjectFailure), typeof(HandleFailure))]
-            private class StartMonitoring : MachineState
+            private class StartMonitoring : State
             {
             }
 
@@ -269,7 +269,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(HandleFailureOnEntry))]
             [OnEventGotoState(typeof(FailureCorrected), typeof(StartMonitoring), nameof(ProcessFailureCorrected))]
             [IgnoreEvents(typeof(Pong), typeof(InjectFailure))]
-            private class HandleFailure : MachineState
+            private class HandleFailure : State
             {
             }
 
@@ -377,7 +377,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(WaitForFailure))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -400,7 +400,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(TailFailed), typeof(CorrectTailFailure))]
             [OnEventGotoState(typeof(ServerFailed), typeof(CorrectServerFailure))]
             [OnEventDoAction(typeof(FailureDetector.FailureDetected), nameof(CheckWhichNodeFailed))]
-            private class WaitForFailure : MachineState
+            private class WaitForFailure : State
             {
             }
 
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(CorrectHeadFailureOnEntry))]
             [OnEventGotoState(typeof(Done), typeof(WaitForFailure), nameof(UpdateFailureDetector))]
             [OnEventDoAction(typeof(HeadChanged), nameof(UpdateClients))]
-            private class CorrectHeadFailure : MachineState
+            private class CorrectHeadFailure : State
             {
             }
 
@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(CorrectTailFailureOnEntry))]
             [OnEventGotoState(typeof(Done), typeof(WaitForFailure), nameof(UpdateFailureDetector))]
             [OnEventDoAction(typeof(TailChanged), nameof(UpdateClients))]
-            private class CorrectTailFailure : MachineState
+            private class CorrectTailFailure : State
             {
             }
 
@@ -495,7 +495,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(FixPredecessor), nameof(ProcessFixPredecessor))]
             [OnEventDoAction(typeof(ChainReplicationServer.NewSuccInfo), nameof(SetLastUpdate))]
             [OnEventDoAction(typeof(Success), nameof(ProcessSuccess))]
-            private class CorrectServerFailure : MachineState
+            private class CorrectServerFailure : State
             {
             }
 
@@ -680,7 +680,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(PredSucc), nameof(SetupPredSucc))]
             [DeferEvents(typeof(Client.Update), typeof(Client.Query),
                 typeof(BackwardAck), typeof(ForwardUpdate))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -713,7 +713,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(ChainReplicationMaster.BecomeHead), nameof(ProcessBecomeHead))]
             [OnEventDoAction(typeof(ChainReplicationMaster.BecomeTail), nameof(ProcessBecomeTail))]
             [OnEventDoAction(typeof(FailureDetector.Ping), nameof(SendPong))]
-            private class WaitForRequest : MachineState
+            private class WaitForRequest : State
             {
             }
 
@@ -837,7 +837,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ProcessUpdateOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(WaitForRequest))]
-            private class ProcessUpdate : MachineState
+            private class ProcessUpdate : State
             {
             }
 
@@ -872,7 +872,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ProcessFwdUpdateOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(WaitForRequest))]
-            private class ProcessFwdUpdate : MachineState
+            private class ProcessFwdUpdate : State
             {
             }
 
@@ -930,7 +930,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ProcessBckAckOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(WaitForRequest))]
-            private class ProcessBckAck : MachineState
+            private class ProcessBckAck : State
             {
             }
 
@@ -1048,7 +1048,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(PumpUpdateRequests))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -1075,7 +1075,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(Local), typeof(PumpUpdateRequests), nameof(PumpRequestsLocalAction))]
             [OnEventGotoState(typeof(Done), typeof(PumpQueryRequests), nameof(PumpRequestsDoneAction))]
             [IgnoreEvents(typeof(ChainReplicationServer.ResponseToUpdate), typeof(ChainReplicationServer.ResponseToQuery))]
-            private class PumpUpdateRequests : MachineState
+            private class PumpUpdateRequests : State
             {
             }
 
@@ -1097,7 +1097,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(PumpQueryRequestsOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(PumpQueryRequests), nameof(PumpRequestsLocalAction))]
             [IgnoreEvents(typeof(ChainReplicationServer.ResponseToUpdate), typeof(ChainReplicationServer.ResponseToQuery))]
-            private class PumpQueryRequests : MachineState
+            private class PumpQueryRequests : State
             {
             }
 
@@ -1192,7 +1192,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventGotoState(typeof(Local), typeof(WaitForUpdateMessage))]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
@@ -1209,7 +1209,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(HistoryUpdate), nameof(CheckUpdatePropagationInvariant))]
             [OnEventDoAction(typeof(SentUpdate), nameof(CheckInprocessRequestsInvariant))]
             [OnEventDoAction(typeof(UpdateServers), nameof(ProcessUpdateServers))]
-            private class WaitForUpdateMessage : MonitorState
+            private class WaitForUpdateMessage : State
             {
             }
 
@@ -1479,7 +1479,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventGotoState(typeof(Local), typeof(Wait))]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
@@ -1493,7 +1493,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(ResponseToUpdate), nameof(ResponseToUpdateAction))]
             [OnEventDoAction(typeof(ResponseToQuery), nameof(ResponseToQueryAction))]
             [OnEventDoAction(typeof(UpdateServers), nameof(ProcessUpdateServers))]
-            private class Wait : MonitorState
+            private class Wait : State
             {
             }
 

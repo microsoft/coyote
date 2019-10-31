@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(Check))]
-            private abstract class BaseState : MachineState
+            private abstract class BaseState : State
             {
             }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [Start]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
         }
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(BaseOnEntry))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(BaseOnEntry))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(Check))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(BaseCheck))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(BaseBaseCheck))]
-            private class BaseBaseState : MachineState
+            private class BaseBaseState : State
             {
             }
 
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(E), nameof(BaseBaseCheck))]
-            private class BaseBaseState : MachineState
+            private class BaseBaseState : State
             {
             }
 
@@ -230,12 +230,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Done))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
@@ -260,17 +260,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Error))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MachineState
+            private class Error : State
             {
             }
 
@@ -305,17 +305,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Error))]
-            private class BaseBaseState : MachineState
+            private class BaseBaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MachineState
+            private class Error : State
             {
             }
 
@@ -349,17 +349,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(E), typeof(Error))]
-            private class BaseBaseState : MachineState
+            private class BaseBaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MachineState
+            private class Error : State
             {
             }
 
@@ -388,12 +388,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventPushState(typeof(E), typeof(Done))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
@@ -418,17 +418,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventPushState(typeof(E), typeof(Error))]
-            private class BaseState : MachineState
+            private class BaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MachineState
+            private class Error : State
             {
             }
 
@@ -463,17 +463,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventPushState(typeof(E), typeof(Error))]
-            private class BaseBaseState : MachineState
+            private class BaseBaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MachineState
+            private class Error : State
             {
             }
 
@@ -507,17 +507,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventPushState(typeof(E), typeof(Error))]
-            private class BaseBaseState : MachineState
+            private class BaseBaseState : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
             [OnEntry(nameof(ErrorOnEntry))]
-            private class Error : MachineState
+            private class Error : State
             {
             }
 

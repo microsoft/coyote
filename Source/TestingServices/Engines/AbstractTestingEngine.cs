@@ -303,9 +303,9 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         protected void InitializeCustomLogging(SystematicTestingRuntime runtime)
         {
-            if (!string.IsNullOrEmpty(this.Configuration.CustomRuntimeLoggerType))
+            if (!string.IsNullOrEmpty(this.Configuration.CustomActorRuntimeLogType))
             {
-                var logger = this.Activate<IO.IActorRuntimeLog>(this.Configuration.CustomRuntimeLoggerType);
+                var logger = this.Activate<IO.IActorRuntimeLog>(this.Configuration.CustomActorRuntimeLogType);
                 if (logger != null)
                 {
                     runtime.SetLogWriter(logger);

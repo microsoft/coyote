@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M1 : StateMachine
         {
             [Start]
-            private class S : MachineState
+            private class S : State
             {
             }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private int x = 0;
 
             [Start]
-            private class S : MachineState
+            private class S : State
             {
             }
 
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private int x = 0;
 
             [Start]
-            private class S : MachineState
+            private class S : State
             {
             }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(E), nameof(HandleE))]
-            private class S : MachineState
+            private class S : State
             {
             }
 

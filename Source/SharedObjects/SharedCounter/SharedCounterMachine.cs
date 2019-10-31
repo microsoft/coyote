@@ -6,7 +6,7 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// A shared counter modeled using a state-machine for testing.
+    /// A shared counter modeled using a state machine for testing.
     /// </summary>
     internal sealed class SharedCounterMachine : StateMachine
     {
@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.SharedObjects
         [Start]
         [OnEntry(nameof(Initialize))]
         [OnEventDoAction(typeof(SharedCounterEvent), nameof(ProcessEvent))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 

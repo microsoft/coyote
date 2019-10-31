@@ -26,13 +26,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 [Start]
                 [OnEntry(nameof(States1S1OnEntry))]
                 [OnEventGotoState(typeof(E), typeof(S2))]
-                public class S1 : MachineState
+                public class S1 : State
                 {
                 }
 
                 [OnEntry(nameof(States1S2OnEntry))]
                 [OnEventGotoState(typeof(E), typeof(States2.S1))]
-                public class S2 : MachineState
+                public class S2 : State
                 {
                 }
             }
@@ -41,12 +41,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 [OnEntry(nameof(States2S1OnEntry))]
                 [OnEventGotoState(typeof(E), typeof(S2))]
-                public class S1 : MachineState
+                public class S1 : State
                 {
                 }
 
                 [OnEntry(nameof(States2S2OnEntry))]
-                public class S2 : MachineState
+                public class S2 : State
                 {
                 }
             }
@@ -78,13 +78,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 [Start]
                 [OnEventGotoState(typeof(E), typeof(S2))]
-                public class S1 : MonitorState
+                public class S1 : State
                 {
                 }
 
                 [OnEntry(nameof(States1S2OnEntry))]
                 [OnEventGotoState(typeof(E), typeof(States2.S1))]
-                public class S2 : MonitorState
+                public class S2 : State
                 {
                 }
             }
@@ -93,12 +93,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 [OnEntry(nameof(States2S1OnEntry))]
                 [OnEventGotoState(typeof(E), typeof(S2))]
-                public class S1 : MonitorState
+                public class S1 : State
                 {
                 }
 
                 [OnEntry(nameof(States2S2OnEntry))]
-                public class S2 : MonitorState
+                public class S2 : State
                 {
                 }
             }

@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(EntryOnInit))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Configuring))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ConfiguringOnInit))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Availability.Unavailable))]
-            private class Configuring : MachineState
+            private class Configuring : State
             {
             }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 [OnEventDoAction(typeof(ShutDown), nameof(ShuttingDown))]
                 [OnEventGotoState(typeof(LocalEvent), typeof(Available))]
                 [DeferEvents(typeof(Client.Request))]
-                public class Unavailable : MachineState
+                public class Unavailable : State
                 {
                 }
 
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 [OnEventDoAction(typeof(NotifyLeaderUpdate), nameof(RefreshLeader))]
                 [OnEventDoAction(typeof(ShutDown), nameof(ShuttingDown))]
                 [OnEventGotoState(typeof(LocalEvent), typeof(Unavailable))]
-                public class Available : MachineState
+                public class Available : State
                 {
                 }
             }
@@ -394,7 +394,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(BecomeFollower), typeof(Follower))]
             [DeferEvents(typeof(VoteRequest), typeof(AppendEntriesRequest))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -440,7 +440,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(BecomeFollower), typeof(Follower))]
             [OnEventGotoState(typeof(BecomeCandidate), typeof(Candidate))]
             [IgnoreEvents(typeof(PeriodicTimer.Timeout))]
-            private class Follower : MachineState
+            private class Follower : State
             {
             }
 
@@ -525,7 +525,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(BecomeLeader), typeof(Leader))]
             [OnEventGotoState(typeof(BecomeFollower), typeof(Follower))]
             [OnEventGotoState(typeof(BecomeCandidate), typeof(Candidate))]
-            private class Candidate : MachineState
+            private class Candidate : State
             {
             }
 
@@ -638,7 +638,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(ShutDown), nameof(ShuttingDown))]
             [OnEventGotoState(typeof(BecomeFollower), typeof(Follower))]
             [IgnoreEvents(typeof(ElectionTimer.Timeout), typeof(PeriodicTimer.Timeout))]
-            private class Leader : MachineState
+            private class Leader : State
             {
             }
 
@@ -985,7 +985,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(LocalEvent), typeof(PumpRequest))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -1004,7 +1004,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(PumpRequestOnEntry))]
             [OnEventDoAction(typeof(Response), nameof(ProcessResponse))]
             [OnEventGotoState(typeof(LocalEvent), typeof(PumpRequest))]
-            private class PumpRequest : MachineState
+            private class PumpRequest : State
             {
             }
 
@@ -1063,7 +1063,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -1076,7 +1076,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(TickEvent), nameof(Tick))]
             [OnEventGotoState(typeof(CancelTimer), typeof(Inactive))]
             [IgnoreEvents(typeof(StartTimerEvent))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -1097,7 +1097,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
             [IgnoreEvents(typeof(CancelTimer), typeof(TickEvent))]
-            private class Inactive : MachineState
+            private class Inactive : State
             {
             }
         }
@@ -1136,7 +1136,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(ConfigureEvent), nameof(Configure))]
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -1149,7 +1149,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(TickEvent), nameof(Tick))]
             [OnEventGotoState(typeof(CancelTimer), typeof(Inactive))]
             [IgnoreEvents(typeof(StartTimerEvent))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -1170,7 +1170,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
             [IgnoreEvents(typeof(CancelTimer), typeof(TickEvent))]
-            private class Inactive : MachineState
+            private class Inactive : State
             {
             }
         }
@@ -1197,7 +1197,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(LocalEvent), typeof(Monitoring))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
@@ -1208,7 +1208,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventDoAction(typeof(NotifyLeaderElected), nameof(ProcessLeaderElected))]
-            private class Monitoring : MonitorState
+            private class Monitoring : State
             {
             }
 

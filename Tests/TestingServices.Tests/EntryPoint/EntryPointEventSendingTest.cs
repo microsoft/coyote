@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(Transfer), nameof(HandleTransfer))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

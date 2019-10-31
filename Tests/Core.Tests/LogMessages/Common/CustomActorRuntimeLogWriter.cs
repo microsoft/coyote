@@ -5,9 +5,9 @@ using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 
-namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
+namespace Microsoft.Coyote.Core.Tests.LogMessages
 {
-    internal class CustomLogWriter : RuntimeLogWriter
+    internal class CustomActorRuntimeLogWriter : ActorRuntimeLogWriter
     {
         public override void OnEnqueue(ActorId actorId, string eventName)
         {

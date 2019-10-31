@@ -3,28 +3,28 @@
 
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Core.Tests.LogMessages
 {
-    public class CustomLogWriterTest : BaseTest
+    public class CustomActorRuntimeLogWriterTest : BaseTest
     {
-        public CustomLogWriterTest(ITestOutputHelper output)
+        public CustomActorRuntimeLogWriterTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout=5000)]
-        public async Task TestCustomLogWriter()
+        public async Task TestCustomActorRuntimeLogWriter()
         {
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            var runtime = MachineRuntimeFactory.Create(config);
+            var runtime = ActorRuntimeFactory.Create(config);
             runtime.SetLogger(logger);
-            runtime.SetLogWriter(new CustomLogWriter());
+            runtime.SetLogWriter(new CustomActorRuntimeLogWriter());
 
             var tcs = new TaskCompletionSource<bool>();
             runtime.CreateMachine(typeof(M), new Configure(tcs));

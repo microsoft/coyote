@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +27,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Engine
         {
-            public static void Send(IMachineRuntime runtime, ActorId target)
+            public static void Send(IActorRuntime runtime, ActorId target)
             {
                 runtime.SendEvent(target, new E(2));
             }

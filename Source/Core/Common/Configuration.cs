@@ -307,7 +307,7 @@ namespace Microsoft.Coyote
         public bool IsDgmlGraphEnabled;
 
         /// <summary>
-        /// If specified, requests a custom IMachineRuntimeLog to be used instead of the default.
+        /// If specified, requests a custom runtime log to be used instead of the default.
         /// This is the AssemblyQualifiedName of the type to load.
         /// </summary>
         [DataMember]

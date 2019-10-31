@@ -16,10 +16,10 @@ using Microsoft.Coyote.Runtime.Exploration;
 namespace Microsoft.Coyote.TestingServices.Coverage
 {
     /// <summary>
-    /// Implements the IMachineRuntimeLog and builds a directed graph from the recorded
+    /// Implements the IActorRuntimeLog and builds a directed graph from the recorded
     /// events and state transitions.
     /// </summary>
-    public class GraphMachineRuntimeLog : IMachineRuntimeLog
+    public class GraphMachineRuntimeLog : IActorRuntimeLog
     {
         private Graph CurrentGraph;
         private EventInfo dequeued; // current dequeued event.
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <summary>
         /// Allows you to chain log writers.
         /// </summary>
-        public IMachineRuntimeLog Next { get; set; }
+        public IActorRuntimeLog Next { get; set; }
 
         /// <summary>
         /// Get the Graph object built by this logger.
@@ -343,9 +343,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         /// <param name="actorId">The id of the machine that has been created.</param>
         /// <param name="creator">Id of the creator machine, or null.</param>
-        public void OnCreateMachine(ActorId actorId, ActorId creator)
+        public void OnCreateStateMachine(ActorId actorId, ActorId creator)
         {
-            this.Next?.OnCreateMachine(actorId, creator);
+            this.Next?.OnCreateStateMachine(actorId, creator);
 
             string id = this.GetActorId(actorId);
             this.Graph.GetOrCreateNode(id, id);
@@ -638,7 +638,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <summary>
         /// Return a special ActorId representing external code (e.g. code that calls SendEvent).
         /// </summary>
-        internal ActorId GetExternalActorId(IMachineRuntime runtime)
+        internal ActorId GetExternalActorId(IActorRuntime runtime)
         {
             if (this.ExternalActorId == null)
             {

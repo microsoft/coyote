@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -60,7 +61,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout=5000)]
         public void TestProductionSharedRegister()
         {
-            var runtime = MachineRuntimeFactory.Create();
+            var runtime = ActorRuntimeFactory.Create();
             var counter = SharedRegister.Create<int>(runtime, 0);
             counter.SetValue(5);
 

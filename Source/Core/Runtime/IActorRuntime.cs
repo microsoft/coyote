@@ -6,15 +6,13 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Interface that exposes runtime methods for creating and executing
-    /// asynchronous communicating state-machines.
+    /// Interface that exposes runtime methods for creating and executing actors.
     /// </summary>
-    public interface IMachineRuntime : IDisposable
+    public interface IActorRuntime : IDisposable
     {
         /// <summary>
         /// The installed logger.
@@ -254,12 +252,12 @@ namespace Microsoft.Coyote
         Guid GetCurrentOperationGroupId(ActorId currentActorId);
 
         /// <summary>
-        /// Use this method to override the default <see cref="RuntimeLogWriter"/>
+        /// Use this method to override the default <see cref="ActorRuntimeLogWriter"/>
         /// for logging runtime messages.
         /// </summary>
         /// <param name="logWriter">The runtime log writer to install.</param>
         /// <returns>The previously installed runtime log writer.</returns>
-        IMachineRuntimeLog SetLogWriter(IMachineRuntimeLog logWriter);
+        IActorRuntimeLog SetLogWriter(IActorRuntimeLog logWriter);
 
         /// <summary>
         /// Use this method to override the default <see cref="ILogger"/> for logging messages.

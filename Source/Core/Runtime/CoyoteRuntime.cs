@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Runtime for executing explicit and implicit asynchronous machines.
     /// </summary>
-    internal abstract class CoyoteRuntime : IMachineRuntime
+    internal abstract class CoyoteRuntime : IActorRuntime
     {
         /// <summary>
         /// Provides access to the runtime associated with the current execution context.
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The log writer.
         /// </summary>
-        protected internal IMachineRuntimeLog LogWriter { get; private set; }
+        protected internal IActorRuntimeLog LogWriter { get; private set; }
 
         /// <summary>
         /// The installed logger.
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Runtime
             this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
             this.ActorIdCounter = 0;
             this.LockIdCounter = 0;
-            this.LogWriter = new RuntimeLogWriter
+            this.LogWriter = new ActorRuntimeLogWriter
             {
                 Logger = configuration.IsVerbose ? (ILogger)new ConsoleLogger() : new NulLogger()
             };
@@ -758,10 +758,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Use this method to abstract the default <see cref="RuntimeLogWriter"/>
+        /// Use this method to abstract the default <see cref="ActorRuntimeLogWriter"/>
         /// for logging runtime messages.
         /// </summary>
-        public IMachineRuntimeLog SetLogWriter(IMachineRuntimeLog logWriter)
+        public IActorRuntimeLog SetLogWriter(IActorRuntimeLog logWriter)
         {
             var logger = this.LogWriter.Logger;
             var prevLogWriter = this.LogWriter;

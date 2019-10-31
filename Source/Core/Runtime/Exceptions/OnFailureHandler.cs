@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Handles the <see cref="IMachineRuntime.OnFailure"/> event.
+    /// Handles the <see cref="IActorRuntime.OnFailure"/> event.
     /// </summary>
     public delegate void OnFailureHandler(Exception ex);
 }

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -163,7 +164,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedRegister1()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M1), new Setup(true));
             });
@@ -175,7 +176,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedRegister2()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M1), new Setup(false));
             });
@@ -187,7 +188,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedRegister3()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M2), new Setup(true));
             });
@@ -199,7 +200,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedRegister4()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M2), new Setup(false));
             });

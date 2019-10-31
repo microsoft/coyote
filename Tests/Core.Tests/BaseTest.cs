@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,7 +20,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
         }
 
-        protected void Run(Action<IMachineRuntime> test, Configuration configuration = null)
+        protected void Run(Action<IActorRuntime> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -35,7 +36,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             try
             {
-                var runtime = MachineRuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 test(runtime);
             }
@@ -49,7 +50,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        protected async Task RunAsync(Func<IMachineRuntime, Task> test, Configuration configuration = null)
+        protected async Task RunAsync(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -65,7 +66,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             try
             {
-                var runtime = MachineRuntimeFactory.Create(configuration);
+                var runtime = ActorRuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 await test(runtime);
             }

@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The runtime that executes the machine with this id.
         /// </summary>
-        public IMachineRuntime Runtime { get; private set; }
+        public IActorRuntime Runtime { get; private set; }
 
         /// <summary>
         /// Unique id, when <see cref="NameValue"/> is empty.

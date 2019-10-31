@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Machine.Initialize(this, id, stateManager, this.MachineInbox);
             this.Machine.InitializeStateInformation();
 
-            this.LogWriter.OnCreateMachine(this.Machine.Id, null);
+            this.LogWriter.OnCreateStateMachine(this.Machine.Id, null);
 
             this.MachineMap.TryAdd(id, this.Machine);
 
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             StateMachine creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.OnCreateMachine(id, creator?.Id);
+            this.LogWriter.OnCreateStateMachine(id, creator?.Id);
             return id;
         }
 
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             StateMachine creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.OnCreateMachine(id, creator?.Id);
+            this.LogWriter.OnCreateStateMachine(id, creator?.Id);
             return Task.FromResult(id);
         }
 

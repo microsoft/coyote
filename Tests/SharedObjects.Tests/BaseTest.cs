@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices;
-
 using Xunit;
 using Xunit.Abstractions;
-
 using Common = Microsoft.Coyote.Tests.Common;
 
 namespace Microsoft.Coyote.SharedObjects.Tests
@@ -22,13 +20,13 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
         }
 
-        protected void AssertSucceeded(Action<IMachineRuntime> test)
+        protected void AssertSucceeded(Action<IActorRuntime> test)
         {
             var configuration = GetConfiguration();
             this.AssertSucceeded(configuration, test);
         }
 
-        protected void AssertSucceeded(Configuration configuration, Action<IMachineRuntime> test)
+        protected void AssertSucceeded(Configuration configuration, Action<IActorRuntime> test)
         {
             var logger = new Common.TestOutputLogger(this.TestOutput);
 
@@ -51,35 +49,35 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        protected void AssertFailed(Action<IMachineRuntime> test, int numExpectedErrors)
+        protected void AssertFailed(Action<IActorRuntime> test, int numExpectedErrors)
         {
             var configuration = GetConfiguration();
             this.AssertFailed(configuration, test, numExpectedErrors);
         }
 
-        protected void AssertFailed(Action<IMachineRuntime> test, string expectedOutput)
+        protected void AssertFailed(Action<IActorRuntime> test, string expectedOutput)
         {
             var configuration = GetConfiguration();
             this.AssertFailed(configuration, test, 1, new HashSet<string> { expectedOutput });
         }
 
-        protected void AssertFailed(Action<IMachineRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
+        protected void AssertFailed(Action<IActorRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
         {
             var configuration = GetConfiguration();
             this.AssertFailed(configuration, test, numExpectedErrors, expectedOutputs);
         }
 
-        protected void AssertFailed(Configuration configuration, Action<IMachineRuntime> test, int numExpectedErrors)
+        protected void AssertFailed(Configuration configuration, Action<IActorRuntime> test, int numExpectedErrors)
         {
             this.AssertFailed(configuration, test, numExpectedErrors, new HashSet<string>());
         }
 
-        protected void AssertFailed(Configuration configuration, Action<IMachineRuntime> test, string expectedOutput)
+        protected void AssertFailed(Configuration configuration, Action<IActorRuntime> test, string expectedOutput)
         {
             this.AssertFailed(configuration, test, 1, new HashSet<string> { expectedOutput });
         }
 
-        protected void AssertFailed(Configuration configuration, Action<IMachineRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
+        protected void AssertFailed(Configuration configuration, Action<IActorRuntime> test, int numExpectedErrors, ISet<string> expectedOutputs)
         {
             var logger = new Common.TestOutputLogger(this.TestOutput);
 
@@ -132,13 +130,13 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        protected void AssertFailedWithException(Action<IMachineRuntime> test, Type exceptionType)
+        protected void AssertFailedWithException(Action<IActorRuntime> test, Type exceptionType)
         {
             var configuration = GetConfiguration();
             this.AssertFailedWithException(configuration, test, exceptionType);
         }
 
-        protected void AssertFailedWithException(Configuration configuration, Action<IMachineRuntime> test, Type exceptionType)
+        protected void AssertFailedWithException(Configuration configuration, Action<IActorRuntime> test, Type exceptionType)
         {
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");

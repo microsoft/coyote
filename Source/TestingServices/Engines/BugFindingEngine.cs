@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <returns>A GraphStateMachineLog if found, or null.</returns>
         private static GraphMachineRuntimeLog FindGraphLog(SystematicTestingRuntime runtime)
         {
-            IMachineRuntimeLog start = runtime.LogWriter;
+            IActorRuntimeLog start = runtime.LogWriter;
             while (start != null)
             {
                 GraphMachineRuntimeLog graphLogger = runtime.LogWriter as GraphMachineRuntimeLog;

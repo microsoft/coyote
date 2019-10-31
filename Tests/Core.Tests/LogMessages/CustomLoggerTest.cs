@@ -4,6 +4,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +24,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            var runtime = MachineRuntimeFactory.Create(config);
+            var runtime = ActorRuntimeFactory.Create(config);
 
             runtime.SetLogger(logger);
 
@@ -63,7 +64,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            var runtime = MachineRuntimeFactory.Create(config);
+            var runtime = ActorRuntimeFactory.Create(config);
 
             var graphWriter = new GraphMachineRuntimeLog();
             runtime.SetLogWriter(graphWriter);
@@ -105,7 +106,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         {
             CustomLogger logger = new CustomLogger(false);
 
-            var runtime = MachineRuntimeFactory.Create();
+            var runtime = ActorRuntimeFactory.Create();
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();

@@ -24,7 +24,7 @@ private class M : StateMachine
 {
    [Start]
    [OnEntry(nameof(InitOnEntry))]
-   private class Init : MachineState {}
+   private class Init : State { }
 
    private async Task InitOnEntry()
    {
@@ -109,7 +109,7 @@ method `Add(int m, int k)` that takes two integers, adds them, and returns the r
 private class M : StateMachine
 {
    [Start]
-   private class Init : MachineState {}
+   private class Init : State { }
 
    internal int Add(int m, int k)
    {
@@ -143,7 +143,7 @@ following example shows how to use these APIs to invoke private machine methods:
 private class M : StateMachine
 {
    [Start]
-   private class Init : MachineState {}
+   private class Init : State { }
 
    private int Add(int m, int k)
    {

@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E), nameof(CheckEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M4 : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
         }

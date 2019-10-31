@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
             [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(InitOnExit))]
             [OnEventGotoState(typeof(E1), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
-            private class Active : MachineState
+            private class Active : State
             {
             }
         }
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(InitOnExit))]
             [OnEventGotoState(typeof(E1), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ActiveOnEntry))]
             [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventGotoState(typeof(E1), typeof(Init))]
             [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventGotoState(typeof(E1), typeof(Init))]
             [OnEventPushState(typeof(E2), typeof(Init))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventGotoState(typeof(E1), typeof(Init))]
             [OnEventPushState(typeof(E2), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -234,7 +234,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(E1), typeof(Init))]
             [OnEventPushState(typeof(E2), typeof(Active))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventPushState(typeof(E1), typeof(Active))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -315,7 +315,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventPushState(typeof(E1), typeof(Active))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -330,7 +330,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -354,7 +354,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(E1), typeof(Active))]
             [OnEventGotoState(typeof(E3), typeof(Checking))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -366,7 +366,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(ActiveOnEntry))]
             [OnExit(nameof(ActiveOnExit))]
             [OnEventGotoState(typeof(E3), typeof(Init))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(CheckingOnEntry))]
-            private class Checking : MachineState
+            private class Checking : State
             {
             }
 
@@ -402,7 +402,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(E1), typeof(Init))]
             [OnEventPushState(typeof(E2), typeof(Active))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -419,7 +419,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(ActiveOnEntry))]
             [OnExit(nameof(ActiveOnExit))]
             [OnEventGotoState(typeof(E3), typeof(Init))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -448,7 +448,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventPushState(typeof(E1), typeof(Active))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -464,7 +464,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ActiveOnEntry))]
             [OnExit(nameof(ActiveOnExit))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -493,7 +493,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(E1), typeof(Init))]
             [OnEventPushState(typeof(E2), typeof(Active))]
             [OnEventDoAction(typeof(E3), nameof(HandleE3))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -508,7 +508,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -528,7 +528,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(InitOnExit))]
             [OnEventPushState(typeof(E), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ActiveOnEntry))]
             [OnExit(nameof(ActiveOnExit))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -567,7 +567,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventPushState(typeof(Halt), typeof(Active))]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -582,7 +582,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -607,7 +607,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(Default), typeof(Active))]
             [OnEventDoAction(typeof(E1), nameof(HandleE1))]
             [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -631,7 +631,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -649,7 +649,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(InitOnExit))]
             [OnEventGotoState(typeof(Default), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -662,7 +662,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -681,7 +681,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(InitOnExit))]
             [OnEventPushState(typeof(E), typeof(Active))]
             [OnEventDoAction(typeof(Default), nameof(DefaultAction))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -703,7 +703,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(ActiveOnEntry))]
             [OnExit(nameof(ActiveOnExit))]
             [IgnoreEvents(typeof(E))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -728,12 +728,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventGotoState(typeof(Default), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 

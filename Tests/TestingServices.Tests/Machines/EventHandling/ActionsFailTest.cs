@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnExit(nameof(ExitInit))]
             [OnEventGotoState(typeof(E2), typeof(S1))] // exit actions are performed before transition to S1
             [OnEventDoAction(typeof(E4), nameof(Action1))] // E4, E3 have no effect on reachability of assert(false)
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(EntryS1))]
             [OnEventGotoState(typeof(Unit), typeof(S2))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS2))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventGotoState(typeof(E1), typeof(S1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(EntryS1))]
             [OnEventGotoState(typeof(E3), typeof(S2))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Send(this.RealMachine, new E2(), options: new SendOptions(assert: 1));
             }
 
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
         }
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(E4), typeof(S2))]
             [OnEventPushState(typeof(Unit), typeof(S1))]
             [OnEventDoAction(typeof(E2), nameof(Action1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS1))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS2))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventGotoState(typeof(E1), typeof(S1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(EntryS1))]
             [OnEventGotoState(typeof(E3), typeof(S2))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -242,7 +242,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS2))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 
@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(E4), typeof(S2))]
             [OnEventPushState(typeof(Unit), typeof(S1))]
             [OnEventDoAction(typeof(E5), nameof(Action1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS1))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -295,7 +295,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS2))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 
@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventGotoState(typeof(E1), typeof(S1))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -329,7 +329,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(EntryS1))]
             [OnEventGotoState(typeof(E3), typeof(S2))]
-            private class S1 : MachineState
+            private class S1 : State
             {
             }
 
@@ -339,7 +339,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(EntryS2))]
-            private class S2 : MachineState
+            private class S2 : State
             {
             }
 

@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(Ack), nameof(HandleCreationAck))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
             [OnEventDoAction(typeof(StartExperiment), nameof(Run))]
             [OnEventDoAction(typeof(Ack), nameof(HandleMessageAck))]
-            private class Experiment : MachineState
+            private class Experiment : State
             {
             }
 
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(Message), nameof(HandleMessage))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

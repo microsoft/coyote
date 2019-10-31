@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(ExitMethod))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Goto<Done>();
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }

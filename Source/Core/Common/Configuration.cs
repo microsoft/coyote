@@ -311,7 +311,7 @@ namespace Microsoft.Coyote
         /// This is the AssemblyQualifiedName of the type to load.
         /// </summary>
         [DataMember]
-        public string CustomRuntimeLoggerType;
+        public string CustomActorRuntimeLogType;
 
         /// <summary>
         /// Enables debugging.

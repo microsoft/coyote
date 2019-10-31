@@ -7,7 +7,7 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// A shared register modeled using a state-machine for testing.
+    /// A shared register modeled using a state machine for testing.
     /// </summary>
     internal sealed class SharedRegisterMachine<T> : StateMachine
         where T : struct
@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.SharedObjects
         [Start]
         [OnEntry(nameof(Initialize))]
         [OnEventDoAction(typeof(SharedRegisterEvent), nameof(ProcessEvent))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 

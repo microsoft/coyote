@@ -7,7 +7,7 @@ using Microsoft.Coyote.TestingServices.Runtime;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// A wrapper for a shared counter modeled using a state-machine for testing.
+    /// A wrapper for a shared counter modeled using a state machine for testing.
     /// </summary>
     internal sealed class MockSharedCounter : ISharedCounter
     {

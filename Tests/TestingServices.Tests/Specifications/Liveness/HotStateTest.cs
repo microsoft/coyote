@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Unit), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ActiveOnEntry))]
             [OnEventDoAction(typeof(FinishedProcessing), nameof(ProcessWorkerIsDone))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventGotoState(typeof(Unit), typeof(Processing))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -118,12 +118,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEventGotoState(typeof(DoProcessing), typeof(Done))]
-            private class Processing : MachineState
+            private class Processing : State
             {
             }
 
             [OnEntry(nameof(DoneOnEntry))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(MConfig), nameof(Configure))]
             [OnEventGotoState(typeof(Unit), typeof(Done))]
             [OnEventDoAction(typeof(NotifyWorkerIsDone), nameof(ProcessNotification))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 }
             }
 
-            private class Done : MonitorState
+            private class Done : State
             {
             }
         }

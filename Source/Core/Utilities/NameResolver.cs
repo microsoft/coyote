@@ -20,8 +20,8 @@ namespace Microsoft.Coyote.Utilities
             new ConcurrentDictionary<Type, string>();
 
         /// <summary>
-        /// Returns the qualified (i.e. <see cref="StateGroup"/>) name of the specified
-        /// machine or monitor state, or the empty string if there is no such name.
+        /// Returns the qualified (i.e. <see cref="StateMachine.StateGroup"/>) name of the specified
+        /// state machine or monitor state, or the empty string if there is no such name.
         /// </summary>
         internal static string GetQualifiedStateName(Type state)
         {
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Utilities
                 var nextState = state;
                 while (nextState.DeclaringType != null)
                 {
-                    if (!nextState.DeclaringType.IsSubclassOf(typeof(StateGroup)))
+                    if (!nextState.DeclaringType.IsSubclassOf(typeof(StateMachine.StateGroup)))
                     {
                         break;
                     }

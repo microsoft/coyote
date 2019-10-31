@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [IgnoreEvents(typeof(MustHandleEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
         }
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [DeferEvents(typeof(MustHandleEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
         }
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [DeferEvents(typeof(MustHandleEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [DeferEvents(typeof(MustHandleEvent))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -135,11 +135,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [DeferEvents(typeof(MustHandleEvent), typeof(Halt))]
             [OnEventGotoState(typeof(MoveEvent), typeof(Next))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
-            private class Next : MachineState
+            private class Next : State
             {
             }
         }

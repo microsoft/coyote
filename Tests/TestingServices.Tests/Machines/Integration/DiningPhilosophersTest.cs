@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -78,13 +78,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             [OnEventDoAction(typeof(TryLock), nameof(OnTryLock))]
             [OnEventDoAction(typeof(Release), nameof(OnRelease))]
-            private class Waiting : MachineState
+            private class Waiting : State
             {
             }
 
@@ -137,18 +137,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             [OnEntry(nameof(TryAccess))]
             [OnEventDoAction(typeof(TryAgain), nameof(TryAccess))]
-            private class Trying : MachineState
+            private class Trying : State
             {
             }
 
             [OnEntry(nameof(OnDone))]
-            private class Done : MachineState
+            private class Done : State
             {
             }
 
@@ -200,13 +200,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventGotoState(typeof(NotifyDone), typeof(Done))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
             [Cold]
             [OnEventGotoState(typeof(NotifyDone), typeof(Done))]
-            private class Done : MonitorState
+            private class Done : State
             {
             }
         }

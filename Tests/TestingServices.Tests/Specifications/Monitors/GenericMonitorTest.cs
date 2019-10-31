@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveInit))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -50,11 +50,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(Init))]
-            private class S1 : MonitorState
+            private class S1 : State
             {
             }
 
-            private class S2 : MonitorState
+            private class S2 : State
             {
             }
 

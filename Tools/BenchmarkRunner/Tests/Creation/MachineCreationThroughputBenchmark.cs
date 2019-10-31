@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Benchmarking.Creation
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

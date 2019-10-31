@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
         [Start]
         [OnEntry(nameof(InitOnEntry))]
         [OnEventDoAction(typeof(E), nameof(Act))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
     {
         [Start]
         [OnEventDoAction(typeof(E), nameof(Act))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 

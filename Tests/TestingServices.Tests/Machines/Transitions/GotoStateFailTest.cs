@@ -18,21 +18,21 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             private void InitOnEntry()
             {
                 // This line no longer builds after converting from Goto(typeof(T)) to Goto<T>()
-                // due to the "where T: MachineState" constraint on Goto<T>().
+                // due to the "where T: State" constraint on Goto<T>().
                 // this.Goto<object>();
 
                 // Added a different failure mode here; try to Goto a state from another machine.
                 this.Goto<N.Done>();
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            internal class Done : MachineState
+            internal class Done : State
             {
             }
         }

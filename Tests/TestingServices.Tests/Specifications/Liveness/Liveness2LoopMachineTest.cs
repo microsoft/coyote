@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Unit), typeof(WaitForUser))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(WaitForUserOnEntry))]
             [OnEventGotoState(typeof(UserEvent), typeof(HandleEvent))]
-            private class WaitForUser : MachineState
+            private class WaitForUser : State
             {
             }
 
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
-            private class HandleEvent : MachineState
+            private class HandleEvent : State
             {
             }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(LoopingOnEntry))]
             [OnEventGotoState(typeof(Done), typeof(Looping))]
-            private class Looping : MachineState
+            private class Looping : State
             {
             }
 
@@ -94,14 +94,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Cold]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
-            private class CanGetUserInput : MonitorState
+            private class CanGetUserInput : State
             {
             }
 
             [Hot]
             [OnEventGotoState(typeof(Waiting), typeof(CanGetUserInput))]
             [OnEventGotoState(typeof(Computing), typeof(CannotGetUserInput))]
-            private class CannotGetUserInput : MonitorState
+            private class CannotGetUserInput : State
             {
             }
         }

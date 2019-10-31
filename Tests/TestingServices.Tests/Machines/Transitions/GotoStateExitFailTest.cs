@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnExit(nameof(ExitInit))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Assert(false, "Bug found.");
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }

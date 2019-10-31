@@ -49,9 +49,9 @@ class Server : StateMachine {
   ActorId Client;
 
   [Start]
-  class Init : MachineState { }
+  class Init : State { }
 
-  class Active : MachineState { }
+  class Active : State { }
 }
 ```
 
@@ -65,7 +65,7 @@ seen in the following code snippet:
 ```c#
 [OnEntry(nameof(InitOnEntry))]
 [OnExit(nameof(InitOnExit))]
-class SomeState : MachineState { }
+class SomeState : State { }
 
 void InitOnEntry() {
   // Code executing when entering the state.
@@ -151,7 +151,7 @@ library. Two of the most important event-handling declarations in Coyote machine
 [OnEventGotoState(typeof(UnitEvent), typeof(AnotherState))]
 [OnEventDoAction(typeof(PingEvent), nameof(SomeAction))]
 [OnEventDoAction(typeof(PongEvent), nameof(SomeActionAsync))]
-class SomeState : MachineState { }
+class SomeState : State { }
 
 void SomeAction() {
   // Code executing when exiting the state.
@@ -162,7 +162,7 @@ async Task SomeActionAsync() {
   await // You can use await inside an async handler
 }
 
-class AnotherState : MachineState { }
+class AnotherState : State { }
 ```
 
 The attribute `OnEventGotoState` indicates that when the machine receives the `UnitEvent` event in
@@ -183,7 +183,7 @@ _ignore_ events in a particular state:
 ```c#
 [DeferEvents(typeof(PingEvent), typeof(PongEvent))]
 [IgnoreEvents(typeof(UnitEvent))]
-class SomeState : MachineState { }
+class SomeState : State { }
 ```
 
 The attribute `DeferEvents` indicates that the `PingEvent` and `PongEvent` events should not be
@@ -227,7 +227,7 @@ namespace PingPong {
     [Start]
     [OnEntry(nameof(InitOnEntry))]
     [OnEventGotoState(typeof(UnitEvent), typeof(Active))]
-    class Init : MachineState { }
+    class Init : State { }
 
     void InitOnEntry() {
       this.Client = this.CreateMachine(typeof(Client));
@@ -237,7 +237,7 @@ namespace PingPong {
 
     [OnEntry(nameof(ServerActiveEntry))]
     [OnEventDoAction(typeof(PongEvent), nameof(SendPing))]
-    class Active : MachineState { }
+    class Active : State { }
 
     void ServerActiveEntry()
     {
@@ -255,7 +255,7 @@ namespace PingPong {
     [Start]
     [OnEventGotoState(typeof(UnitEvent), typeof(Active))]
     [OnEventDoAction(typeof(ConfigEvent), nameof(Configure))]
-    class Init : MachineState { }
+    class Init : State { }
 
     void Configure() {
       this.Server = (this.ReceivedEvent as ConfigEvent).Target;
@@ -263,7 +263,7 @@ namespace PingPong {
     }
 
     [OnEventDoAction(typeof(PingEvent), nameof(SendPong))]
-    class Active : MachineState { }
+    class Active : State { }
 
     void SendPong() {
       this.Send(this.Server, new PongEvent());

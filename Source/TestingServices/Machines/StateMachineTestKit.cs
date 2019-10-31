@@ -11,24 +11,24 @@ using Microsoft.Coyote.TestingServices.Runtime;
 namespace Microsoft.Coyote.TestingServices
 {
     /// <summary>
-    /// Provides methods for testing a machine of type <typeparamref name="T"/> in isolation.
+    /// Provides methods for testing a state machine of type <typeparamref name="T"/> in isolation.
     /// </summary>
-    /// <typeparam name="T">The machine type to test.</typeparam>
+    /// <typeparam name="T">The state machine type to test.</typeparam>
     public sealed class StateMachineTestKit<T>
         where T : StateMachine
     {
         /// <summary>
-        /// The machine testing runtime.
+        /// The state machine testing runtime.
         /// </summary>
         private readonly MachineTestingRuntime Runtime;
 
         /// <summary>
-        /// The instance of the machine being tested.
+        /// The instance of the state machine being tested.
         /// </summary>
         public readonly T Machine;
 
         /// <summary>
-        /// True if the machine has started its execution, else false.
+        /// True if the state machine has started its execution, else false.
         /// </summary>
         private bool IsRunning;
 
@@ -49,11 +49,11 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Transitions the machine to its start state, passes the optional specified event
-        /// and invokes its on-entry handler, if there is one available. This method returns
-        /// a task that completes when the machine reaches quiescence (typically when the
-        /// event handler finishes executing because there are not more events to dequeue,
-        /// or when the machine asynchronously waits to receive an event).
+        /// Transitions the state machine to its start state, passes the optional specified event and
+        /// invokes its on-entry handler, if there is one available. This method returns a task that
+        /// completes when the state machine reaches quiescence (typically when the event handler
+        /// finishes executing because there are not more events to dequeue, or when the state
+        /// machine asynchronously waits to receive an event).
         /// </summary>
         /// <param name="initialEvent">Optional event used during initialization.</param>
         /// <returns>Task that represents the asynchronous operation.</returns>
@@ -66,10 +66,10 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Sends an event to the machine and starts its event handler. This method returns
-        /// a task that completes when the machine reaches quiescence (typically when the
-        /// event handler finishes executing because there are not more events to dequeue,
-        /// or when the machine asynchronously waits to receive an event).
+        /// Sends an event to the state machine and starts its event handler. This method returns
+        /// a task that completes when the state machine reaches quiescence (typically when the
+        /// event handler finishes executing because there are not more events to dequeue, or
+        /// when the state machine asynchronously waits to receive an event).
         /// </summary>
         /// <returns>Task that represents the asynchronous operation.</returns>
         public Task SendEventAsync(Event e)
@@ -80,10 +80,10 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Invokes the machine method with the specified name, and passing the specified
-        /// optional parameters. Use this method to invoke private methods of the machine.
+        /// Invokes the state machine method with the specified name, and passing the specified
+        /// optional parameters. Use this method to invoke private methods of the state machine.
         /// </summary>
-        /// <param name="methodName">The name of the machine method.</param>
+        /// <param name="methodName">The name of the state machine method.</param>
         /// <param name="parameters">The parameters to the method.</param>
         public object Invoke(string methodName, params object[] parameters)
         {
@@ -92,10 +92,10 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Invokes the machine method with the specified name and parameter types, and passing the
-        /// specified optional parameters. Use this method to invoke private methods of the machine.
+        /// Invokes the state machine method with the specified name and parameter types, and passing the
+        /// specified optional parameters. Use this method to invoke private methods of the state machine.
         /// </summary>
-        /// <param name="methodName">The name of the machine method.</param>
+        /// <param name="methodName">The name of the state machine method.</param>
         /// <param name="parameterTypes">The parameter types of the method.</param>
         /// <param name="parameters">The parameters to the method.</param>
         public object Invoke(string methodName, Type[] parameterTypes, params object[] parameters)
@@ -105,10 +105,10 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Invokes the asynchronous machine method with the specified name, and passing the specified
-        /// optional parameters. Use this method to invoke private methods of the machine.
+        /// Invokes the asynchronous state machine method with the specified name, and passing the specified
+        /// optional parameters. Use this method to invoke private methods of the state machine.
         /// </summary>
-        /// <param name="methodName">The name of the machine method.</param>
+        /// <param name="methodName">The name of the state machine method.</param>
         /// <param name="parameters">The parameters to the method.</param>
         public async Task<object> InvokeAsync(string methodName, params object[] parameters)
         {
@@ -120,10 +120,10 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Invokes the asynchronous machine method with the specified name and parameter types, and passing
-        /// the specified optional parameters. Use this method to invoke private methods of the machine.
+        /// Invokes the asynchronous state machine method with the specified name and parameter types, and passing
+        /// the specified optional parameters. Use this method to invoke private methods of the state machine.
         /// </summary>
-        /// <param name="methodName">The name of the machine method.</param>
+        /// <param name="methodName">The name of the state machine method.</param>
         /// <param name="parameterTypes">The parameter types of the method.</param>
         /// <param name="parameters">The parameters to the method.</param>
         public async Task<object> InvokeAsync(string methodName, Type[] parameterTypes, params object[] parameters)
@@ -136,9 +136,9 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Uses reflection to get the machine method with the specified name and parameter types.
+        /// Uses reflection to get the state machine method with the specified name and parameter types.
         /// </summary>
-        /// <param name="methodName">The name of the machine method.</param>
+        /// <param name="methodName">The name of the state machine method.</param>
         /// <param name="isAsync">True if the method is async, else false.</param>
         /// <param name="parameterTypes">The parameter types of the method.</param>
         private MethodInfo GetMethod(string methodName, bool isAsync, Type[] parameterTypes)
@@ -206,31 +206,31 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Asserts that the machine has transitioned to the state with the specified type <typeparamref name="T"/>.
+        /// Asserts that the state machine has transitioned to the state with the specified type <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="S">The type of the machine state.</typeparam>
+        /// <typeparam name="S">The type of the state.</typeparam>
         public void AssertStateTransition<S>()
-            where S : MachineState
+            where S : StateMachine.State
         {
             this.AssertStateTransition(typeof(S).FullName);
         }
 
         /// <summary>
-        /// Asserts that the machine has transitioned to the state with the specified name
+        /// Asserts that the state machine has transitioned to the state with the specified name
         /// (either <see cref="Type.FullName"/> or <see cref="MemberInfo.Name"/>).
         /// </summary>
-        /// <param name="machineStateName">The name of the machine state.</param>
-        public void AssertStateTransition(string machineStateName)
+        /// <param name="stateName">The name of the state.</param>
+        public void AssertStateTransition(string stateName)
         {
-            bool predicate = this.Machine.CurrentState.FullName.Equals(machineStateName) ||
+            bool predicate = this.Machine.CurrentState.FullName.Equals(stateName) ||
                 this.Machine.CurrentState.FullName.Equals(
-                    this.Machine.CurrentState.DeclaringType.FullName + "+" + machineStateName);
+                    this.Machine.CurrentState.DeclaringType.FullName + "+" + stateName);
             this.Runtime.Assert(predicate, string.Format("Machine '{0}' is in state '{1}', not in '{2}'.",
-                this.Machine.Id, this.Machine.CurrentState.FullName, machineStateName));
+                this.Machine.Id, this.Machine.CurrentState.FullName, stateName));
         }
 
         /// <summary>
-        /// Asserts that the machine is waiting (or not) to receive an event.
+        /// Asserts that the state machine is waiting (or not) to receive an event.
         /// </summary>
         public void AssertIsWaitingToReceiveEvent(bool isWaiting)
         {
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Asserts that the machine inbox contains the specified number of events.
+        /// Asserts that the state machine inbox contains the specified number of events.
         /// </summary>
         /// <param name="numEvents">The number of events in the inbox.</param>
         public void AssertInboxSize(int numEvents)

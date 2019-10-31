@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         [Start]
         [OnEntry(nameof(InitOnEntry))]
         [OnEventDoAction(typeof(E), nameof(Act))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         [Start]
         [OnEntry(nameof(InitOnEntry))]
         [OnEventGotoState(typeof(E), typeof(Act))]
-        private class Init : MachineState
+        private class Init : State
         {
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         }
 
         [OnEntry(nameof(ActOnEntry))]
-        private class Act : MachineState
+        private class Act : State
         {
         }
 

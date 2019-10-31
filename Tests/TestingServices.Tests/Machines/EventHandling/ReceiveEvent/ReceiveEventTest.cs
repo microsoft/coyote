@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Unit), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(ActiveOnEntry))]
             [OnEventDoAction(typeof(Pong), nameof(SendPing))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventGotoState(typeof(Unit), typeof(Active))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
-            private class Active : MachineState
+            private class Active : State
             {
             }
 

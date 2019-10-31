@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(OnInitEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(OnInitialize))]
             [OnEventDoAction(typeof(Wakeup), nameof(OnWakeup))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(OnInitialize))]
             [OnEventDoAction(typeof(Sleep), nameof(OnSleep))]
             [OnEventDoAction(typeof(Progress), nameof(OnProgress))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            private MType State;
+            private MType StateType;
             private Dictionary<ActorId, MType> blockedMachines;
 
             [Start]
@@ -275,20 +275,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(SetReq), nameof(OnSetReq))]
             [OnEventDoAction(typeof(ValueReq), nameof(OnValueReq))]
             [OnEventDoAction(typeof(Waiting), nameof(OnWaiting))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
             private void OnInitialize()
             {
-                this.State = MType.Run;
+                this.StateType = MType.Run;
                 this.blockedMachines = new Dictionary<ActorId, MType>();
             }
 
             private void OnSetReq()
             {
                 var e = this.ReceivedEvent as SetReq;
-                this.State = e.Value;
+                this.StateType = e.Value;
                 this.Unblock();
                 this.Send(e.Target, new SetResp());
             }
@@ -296,13 +296,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnValueReq()
             {
                 var e = this.ReceivedEvent as ValueReq;
-                this.Send(e.Target, new ValueResp(this.State));
+                this.Send(e.Target, new ValueResp(this.StateType));
             }
 
             private void OnWaiting()
             {
                 var e = this.ReceivedEvent as Waiting;
-                if (this.State == e.WaitingOn)
+                if (this.StateType == e.WaitingOn)
                 {
                     this.Send(e.Target, new WaitResp());
                 }
@@ -317,7 +317,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 List<ActorId> remove = new List<ActorId>();
                 foreach (var target in this.blockedMachines.Keys)
                 {
-                    if (this.blockedMachines[target] == this.State)
+                    if (this.blockedMachines[target] == this.StateType)
                     {
                         this.Send(target, new WaitResp());
                         remove.Add(target);
@@ -387,7 +387,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(AtomicTestSet), nameof(OnAtomicTestSet))]
             [OnEventDoAction(typeof(SetReq), nameof(OnSetReq))]
             [OnEventDoAction(typeof(Waiting), nameof(OnWaiting))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -493,7 +493,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(OnInitialize))]
             [OnEventDoAction(typeof(SetReq), nameof(OnSetReq))]
             [OnEventDoAction(typeof(ValueReq), nameof(OnValueReq))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -560,7 +560,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEntry(nameof(OnInitialize))]
             [OnEventDoAction(typeof(SetReq), nameof(OnSetReq))]
             [OnEventDoAction(typeof(ValueReq), nameof(OnValueReq))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -596,19 +596,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
 
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
             [Hot]
             [OnEventGotoState(typeof(NotifyClientProgress), typeof(Progressing))]
-            private class Suspended : MonitorState
+            private class Suspended : State
             {
             }
 
             [Cold]
             [OnEventGotoState(typeof(NotifyClientSleep), typeof(Suspended))]
-            private class Progressing : MonitorState
+            private class Progressing : State
             {
             }
 

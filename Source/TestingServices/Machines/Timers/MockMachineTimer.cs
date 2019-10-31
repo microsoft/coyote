@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
         [Start]
         [OnEntry(nameof(Setup))]
         [OnEventDoAction(typeof(Default), nameof(HandleTimeout))]
-        private class Active : MachineState
+        private class Active : State
         {
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
             }
         }
 
-        private class Inactive : MachineState
+        private class Inactive : State
         {
         }
 

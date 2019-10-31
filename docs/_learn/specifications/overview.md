@@ -65,7 +65,7 @@ class GlobalSpec : Monitor
    [OnEntry(nameof(InitOnEntry))]
    [OnEventDoAction(typeof(UpdatedXEvent), nameof(UpdatedXAction))]
    [OnEventDoAction(typeof(UpdatedYEvent), nameof(UpdatedYAction))]
-   class Init : MonitorState {}
+   class Init : State { }
 
    // Initialization.
    void InitOnEntry()
@@ -132,13 +132,13 @@ class LivenessMonitor : Monitor
   [Hot]
   [OnEventDoAction(typeof(UpEvent),nameof(OnUp))]
   [OnEventDoAction(typeof(DownEvent),nameof(OnDown))]
-  class NotEnoughReplicas : MonitorState { }
+  class NotEnoughReplicas : State { }
 
 
   [Cold]
   [OnEventDoAction(typeof(UpEvent),nameof(OnUp))]
   [OnEventDoAction(typeof(DownEvent),nameof(OnDown))]
-  class EnoughReplicas : MonitorState { }
+  class EnoughReplicas : State { }
 
   // Notification that a new replica is up.
   void OnUp()

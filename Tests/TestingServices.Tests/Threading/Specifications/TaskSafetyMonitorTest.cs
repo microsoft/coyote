@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEventDoAction(typeof(Notify), nameof(HandleNotify))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 

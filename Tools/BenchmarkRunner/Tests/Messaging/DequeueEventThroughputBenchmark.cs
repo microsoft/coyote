@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             }
 
             [OnEventDoAction(typeof(StartExperiment), nameof(Run))]
-            private class Experiment : MachineState
+            private class Experiment : State
             {
             }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(Message), nameof(HandleMessage))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Goto<Done>();
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -93,7 +93,7 @@ Machine event coverage: 100.0%
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(E), typeof(Done))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -102,7 +102,7 @@ Machine event coverage: 100.0%
                 this.Raise(new E());
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -152,7 +152,7 @@ Machine event coverage: 100.0%
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(E), typeof(Done))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -161,7 +161,7 @@ Machine event coverage: 100.0%
                 this.CreateMachine(typeof(M3B), new Setup(this.Id));
             }
 
-            private class Done : MachineState
+            private class Done : State
             {
             }
         }
@@ -170,7 +170,7 @@ Machine event coverage: 100.0%
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -239,11 +239,11 @@ Machine event coverage: 100.0%
         {
             [Start]
             [OnEventGotoState(typeof(E), typeof(Done))]
-            internal class Init : MachineState
+            internal class Init : State
             {
             }
 
-            internal class Done : MachineState
+            internal class Done : State
             {
             }
         }
@@ -314,11 +314,11 @@ Machine event coverage: 100.0%
             [Start]
             [OnEventGotoState(typeof(E1), typeof(Done))]
             [OnEventGotoState(typeof(E2), typeof(Done))]
-            internal class Init : MachineState
+            internal class Init : State
             {
             }
 
-            internal class Done : MachineState
+            internal class Done : State
             {
             }
         }

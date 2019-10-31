@@ -24,12 +24,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [Hot]
             [OnEventGotoState(typeof(Notify), typeof(Done))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
             [Cold]
-            private class Done : MonitorState
+            private class Done : State
             {
             }
         }

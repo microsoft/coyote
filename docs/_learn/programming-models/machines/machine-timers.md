@@ -59,11 +59,11 @@ state, where it performs analogous operations with the pong timer.
 [Start]
 [OnEntry(nameof(DoPing))]
 [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeoutForPing))]
-class Ping : MachineState { }
+class Ping : State { }
 
 [OnEntry(nameof(DoPong))]
 [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeoutForPong))]
-class Pong : MachineState { }
+class Pong : State { }
 ```
 
 We show the event handlers for the `Ping` state (those for the `Pong` state are analogous).
@@ -133,7 +133,7 @@ class MultiTimers : StateMachine {
 
    [OnEntry(nameof(CreateMultipleTimers))]
    [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
-   class SomeState : MachineState {}
+   class SomeState : State { }
 
    void CreateMultipleTimers()
    {

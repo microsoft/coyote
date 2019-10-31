@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.Core.Tests
         private class M1 : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Core.Tests
         private class M2 : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Core.Tests
         private class M3 : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Core.Tests
         private class M4 : StateMachine
         {
             [Start]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 

@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(Waiting))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(CreateNewNode), nameof(ProcessCreateNewNode))]
             [OnEventDoAction(typeof(TerminateNode), nameof(ProcessTerminateNode))]
             [OnEventDoAction(typeof(ChordNode.JoinAck), nameof(QueryStabilize))]
-            private class Waiting : MachineState
+            private class Waiting : State
             {
             }
 
@@ -393,7 +393,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(Config), nameof(Configure))]
             [OnEventDoAction(typeof(Join), nameof(JoinCluster))]
             [DeferEvents(typeof(AskForKeys), typeof(NotifySuccessor), typeof(Stabilize))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -468,7 +468,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventDoAction(typeof(NotifySuccessor), nameof(UpdatePredecessor))]
             [OnEventDoAction(typeof(Stabilize), nameof(ProcessStabilize))]
             [OnEventDoAction(typeof(Terminate), nameof(ProcessTerminate))]
-            private class Waiting : MachineState
+            private class Waiting : State
             {
             }
 
@@ -731,7 +731,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(Querying))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -751,7 +751,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [OnEntry(nameof(QueryingOnEntry))]
             [OnEventGotoState(typeof(Local), typeof(Waiting))]
-            private class Querying : MachineState
+            private class Querying : State
             {
             }
 
@@ -802,7 +802,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [OnEventGotoState(typeof(Local), typeof(Querying))]
             [OnEventDoAction(typeof(ChordNode.FindSuccessorResp), nameof(ProcessFindSuccessorResp))]
             [OnEventDoAction(typeof(ChordNode.QueryIdResp), nameof(ProcessQueryIdResp))]
-            private class Waiting : MachineState
+            private class Waiting : State
             {
             }
 
@@ -846,7 +846,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            private class Init : MonitorState
+            private class Init : State
             {
             }
 
@@ -857,13 +857,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Cold]
             [OnEventGotoState(typeof(NotifyClientRequest), typeof(Requested))]
-            private class Responded : MonitorState
+            private class Responded : State
             {
             }
 
             [Hot]
             [OnEventGotoState(typeof(NotifyClientResponse), typeof(Responded))]
-            private class Requested : MonitorState
+            private class Requested : State
             {
             }
         }

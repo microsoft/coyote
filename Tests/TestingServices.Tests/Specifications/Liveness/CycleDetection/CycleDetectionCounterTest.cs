@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             [Start]
             [OnEntry(nameof(OnInitEntry))]
             [OnEventDoAction(typeof(Message), nameof(OnMessage))]
-            private class Init : MachineState
+            private class Init : State
             {
             }
 
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [Hot]
-            private class HotState : MonitorState
+            private class HotState : State
             {
             }
         }

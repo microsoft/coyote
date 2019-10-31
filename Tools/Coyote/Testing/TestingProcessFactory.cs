@@ -119,9 +119,9 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append("--graph ");
             }
 
-            if (!string.IsNullOrEmpty(configuration.CustomRuntimeLoggerType))
+            if (!string.IsNullOrEmpty(configuration.CustomActorRuntimeLogType))
             {
-                arguments.Append($"--machine-runtime-log {configuration.CustomRuntimeLoggerType} ");
+                arguments.Append($"--actor-runtime-log {configuration.CustomActorRuntimeLogType} ");
             }
 
             if (configuration.EnableCycleDetection)

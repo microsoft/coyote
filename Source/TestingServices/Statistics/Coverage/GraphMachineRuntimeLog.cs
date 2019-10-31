@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
         private static string GetEventLabel(string fullyQualifiedName)
         {
-            if (fullyQualifiedName == "Microsoft.Coyote.Machines.GotoStateEvent")
+            if (fullyQualifiedName == typeof(GotoStateEvent).FullName)
             {
                 return "goto";
             }

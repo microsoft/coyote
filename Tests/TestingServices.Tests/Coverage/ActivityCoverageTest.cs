@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             configuration);
 
@@ -99,7 +99,7 @@ Machine event coverage: 100.0%
 
             private void InitOnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private class Done : State
@@ -115,7 +115,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             configuration);
 
@@ -158,7 +158,7 @@ Machine event coverage: 100.0%
 
             private void InitOnEntry()
             {
-                this.CreateMachine(typeof(M3B), new Setup(this.Id));
+                this.CreateStateMachine(typeof(M3B), new Setup(this.Id));
             }
 
             private class Done : State
@@ -177,7 +177,7 @@ Machine event coverage: 100.0%
             private void InitOnEntry()
             {
                 var id = (this.ReceivedEvent as Setup).Id;
-                this.Send(id, new E());
+                this.SendEvent(id, new E());
             }
         }
 
@@ -189,7 +189,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                r.CreateMachine(typeof(M3A));
+                r.CreateStateMachine(typeof(M3A));
             },
             configuration);
 
@@ -256,7 +256,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine1 = this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M4));
+                var m = r.CreateStateMachine(typeof(M4));
                 r.SendEvent(m, new E());
             },
             configuration);
@@ -270,7 +270,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine2 = this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M4));
+                var m = r.CreateStateMachine(typeof(M4));
                 r.SendEvent(m, new E());
             },
             configuration);
@@ -331,7 +331,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M5));
+                var m = r.CreateStateMachine(typeof(M5));
                 r.SendEvent(m, new E1());
             },
             configuration);

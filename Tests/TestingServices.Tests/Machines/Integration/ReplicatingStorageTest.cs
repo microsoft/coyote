@@ -75,10 +75,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.ConfigureEvent(this.NumberOfReplicas));
 
-                this.NodeManager = this.CreateMachine(typeof(NodeManager));
-                this.Client = this.CreateMachine(typeof(Client));
+                this.NodeManager = this.CreateStateMachine(typeof(NodeManager));
+                this.Client = this.CreateStateMachine(typeof(Client));
 
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(ConfiguringOnInit))]
@@ -90,9 +90,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ConfiguringOnInit()
             {
-                this.Send(this.NodeManager, new NodeManager.ConfigureEvent(this.Id, this.NumberOfReplicas));
-                this.Send(this.Client, new Client.ConfigureEvent(this.NodeManager));
-                this.Raise(new LocalEvent());
+                this.SendEvent(this.NodeManager, new NodeManager.ConfigureEvent(this.Id, this.NumberOfReplicas));
+                this.SendEvent(this.Client, new Client.ConfigureEvent(this.NodeManager));
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEventDoAction(typeof(NotifyNode), nameof(UpdateAliveNodes))]
@@ -109,8 +109,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 if (this.AliveNodes.Count == this.NumberOfReplicas &&
                     this.FailureTimer is null)
                 {
-                    this.FailureTimer = this.CreateMachine(typeof(FailureTimer));
-                    this.Send(this.FailureTimer, new FailureTimer.ConfigureEvent(this.Id));
+                    this.FailureTimer = this.CreateStateMachine(typeof(FailureTimer));
+                    this.SendEvent(this.FailureTimer, new FailureTimer.ConfigureEvent(this.Id));
                 }
             }
 
@@ -125,14 +125,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 int nodeId = this.RandomInteger(this.AliveNodes.Count);
                 var node = this.AliveNodes[nodeId];
 
-                this.Send(node, new FaultInject());
-                this.Send(this.NodeManager, new NodeManager.NotifyFailure(node));
+                this.SendEvent(node, new FaultInject());
+                this.SendEvent(this.NodeManager, new NodeManager.NotifyFailure(node));
                 this.AliveNodes.Remove(node);
 
                 this.NumberOfFaults--;
                 if (this.NumberOfFaults == 0)
                 {
-                    this.Send(this.FailureTimer, new Halt());
+                    this.SendEvent(this.FailureTimer, new Halt());
                 }
             }
         }
@@ -194,8 +194,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.StorageNodeMap = new Dictionary<int, bool>();
                 this.DataMap = new Dictionary<int, int>();
 
-                this.RepairTimer = this.CreateMachine(typeof(RepairTimer));
-                this.Send(this.RepairTimer, new RepairTimer.ConfigureEvent(this.Id));
+                this.RepairTimer = this.CreateStateMachine(typeof(RepairTimer));
+                this.SendEvent(this.RepairTimer, new RepairTimer.ConfigureEvent(this.Id));
             }
 
             private void Configure()
@@ -208,16 +208,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.CreateNewNode();
                 }
 
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private void CreateNewNode()
             {
                 var idx = this.StorageNodes.Count;
-                var node = this.CreateMachine(typeof(StorageNode));
+                var node = this.CreateStateMachine(typeof(StorageNode));
                 this.StorageNodes.Add(node);
                 this.StorageNodeMap.Add(idx, true);
-                this.Send(node, new StorageNode.ConfigureEvent(this.Environment, this.Id, idx));
+                this.SendEvent(node, new StorageNode.ConfigureEvent(this.Environment, this.Id, idx));
             }
 
             [OnEventDoAction(typeof(Client.Request), nameof(ProcessClientRequest))]
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var aliveNodeIds = this.StorageNodeMap.Where(n => n.Value).Select(n => n.Key);
                 foreach (var nodeId in aliveNodeIds)
                 {
-                    this.Send(this.StorageNodes[nodeId], new StorageNode.StoreRequest(command));
+                    this.SendEvent(this.StorageNodes[nodeId], new StorageNode.StoreRequest(command));
                 }
             }
 
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     if (node.Value != latestData)
                     {
-                        this.Send(this.StorageNodes[node.Key], new StorageNode.SyncRequest(latestData));
+                        this.SendEvent(this.StorageNodes[node.Key], new StorageNode.SyncRequest(latestData));
                         numOfReplicas++;
                     }
 
@@ -377,8 +377,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void EntryOnInit()
             {
                 this.Data = 0;
-                this.SyncTimer = this.CreateMachine(typeof(SyncTimer));
-                this.Send(this.SyncTimer, new SyncTimer.ConfigureEvent(this.Id));
+                this.SyncTimer = this.CreateStateMachine(typeof(SyncTimer));
+                this.SendEvent(this.SyncTimer, new SyncTimer.ConfigureEvent(this.Id));
             }
 
             private void Configure()
@@ -388,9 +388,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.NodeId = (this.ReceivedEvent as ConfigureEvent).Id;
 
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeCreated(this.NodeId));
-                this.Send(this.Environment, new Environment.NotifyNode(this.Id));
+                this.SendEvent(this.Environment, new Environment.NotifyNode(this.Id));
 
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEventDoAction(typeof(StoreRequest), nameof(Store))]
@@ -417,14 +417,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void GenerateSyncReport()
             {
-                this.Send(this.NodeManager, new SyncReport(this.NodeId, this.Data));
+                this.SendEvent(this.NodeManager, new SyncReport(this.NodeId, this.Data));
             }
 
             private void Terminate()
             {
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeFail(this.NodeId));
-                this.Send(this.SyncTimer, new Halt());
-                this.Raise(new Halt());
+                this.SendEvent(this.SyncTimer, new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -469,7 +469,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
-                this.Raise(new StartTimerEvent());
+                this.RaiseEvent(new StartTimerEvent());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -482,17 +482,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             private void Tick()
             {
                 if (this.Random())
                 {
-                    this.Send(this.Target, new Timeout());
+                    this.SendEvent(this.Target, new Timeout());
                 }
 
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
-                this.Raise(new StartTimerEvent());
+                this.RaiseEvent(new StartTimerEvent());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -556,17 +556,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             private void Tick()
             {
                 if (this.Random())
                 {
-                    this.Send(this.Target, new Timeout());
+                    this.SendEvent(this.Target, new Timeout());
                 }
 
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -617,7 +617,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
-                this.Raise(new StartTimerEvent());
+                this.RaiseEvent(new StartTimerEvent());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -630,17 +630,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             private void Tick()
             {
                 if (this.Random())
                 {
-                    this.Send(this.Target, new Timeout());
+                    this.SendEvent(this.Target, new Timeout());
                 }
 
-                this.Send(this.Id, new TickEvent());
+                this.SendEvent(this.Id, new TickEvent());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -700,7 +700,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.NodeManager = (this.ReceivedEvent as ConfigureEvent).NodeManager;
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(PumpRequestOnEntry))]
@@ -714,15 +714,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 int command = this.RandomInteger(100) + 1;
                 this.Counter++;
 
-                this.Send(this.NodeManager, new Request(this.Id, command));
+                this.SendEvent(this.NodeManager, new Request(this.Id, command));
 
                 if (this.Counter == 1)
                 {
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
                 else
                 {
-                    this.Raise(new LocalEvent());
+                    this.RaiseEvent(new LocalEvent());
                 }
             }
         }
@@ -798,7 +798,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.NumberOfReplicas = (this.ReceivedEvent as ConfigureEvent).NumberOfReplicas;
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [Cold]
@@ -819,7 +819,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void FailAndCheckRepair()
             {
                 this.ProcessNodeFail();
-                this.Raise(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private void ProcessNodeUpdate()
@@ -853,7 +853,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var numOfReplicas = consensus.Count();
                 if (numOfReplicas >= this.NumberOfReplicas)
                 {
-                    this.Raise(new LocalEvent());
+                    this.RaiseEvent(new LocalEvent());
                 }
             }
         }
@@ -871,7 +871,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(Environment));
+                r.CreateStateMachine(typeof(Environment));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected potential liveness bug in hot state 'Repairing'.",
@@ -893,7 +893,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(Environment));
+                r.CreateStateMachine(typeof(Environment));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected infinite execution that violates a liveness property.",

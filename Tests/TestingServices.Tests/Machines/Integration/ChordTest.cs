@@ -82,20 +82,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 for (int idx = 0; idx < this.NodeIds.Count; idx++)
                 {
-                    this.ChordNodes.Add(this.CreateMachine(typeof(ChordNode)));
+                    this.ChordNodes.Add(this.CreateStateMachine(typeof(ChordNode)));
                 }
 
                 var nodeKeys = this.AssignKeysToNodes();
                 for (int idx = 0; idx < this.ChordNodes.Count; idx++)
                 {
                     var keys = nodeKeys[this.NodeIds[idx]];
-                    this.Send(this.ChordNodes[idx], new ChordNode.Config(this.NodeIds[idx], new HashSet<int>(keys),
+                    this.SendEvent(this.ChordNodes[idx], new ChordNode.Config(this.NodeIds[idx], new HashSet<int>(keys),
                         new List<ActorId>(this.ChordNodes), new List<int>(this.NodeIds), this.Id));
                 }
 
-                this.Client = this.CreateMachine(typeof(Client), new Client.Config(this.Id, new List<int>(this.Keys)));
+                this.Client = this.CreateStateMachine(typeof(Client), new Client.Config(this.Id, new List<int>(this.Keys)));
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventDoAction(typeof(ChordNode.FindSuccessor), nameof(ForwardFindSuccessor))]
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ForwardFindSuccessor()
             {
-                this.Send(this.ChordNodes[0], this.ReceivedEvent);
+                this.SendEvent(this.ChordNodes[0], this.ReceivedEvent);
             }
 
             private void ProcessCreateNewNode()
@@ -128,13 +128,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 this.Assert(newId >= 0, "Cannot create a new node, no ids available.");
 
-                var newNode = this.CreateMachine(typeof(ChordNode));
+                var newNode = this.CreateStateMachine(typeof(ChordNode));
 
                 this.NumOfNodes++;
                 this.NodeIds.Add(newId);
                 this.ChordNodes.Add(newNode);
 
-                this.Send(newNode, new ChordNode.Join(newId, new List<ActorId>(this.ChordNodes),
+                this.SendEvent(newNode, new ChordNode.Join(newId, new List<ActorId>(this.ChordNodes),
                     new List<int>(this.NodeIds), this.NumOfIds, this.Id));
             }
 
@@ -161,14 +161,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.NodeIds.Remove(endId);
                 this.ChordNodes.Remove(endNode);
 
-                this.Send(endNode, new ChordNode.Terminate());
+                this.SendEvent(endNode, new ChordNode.Terminate());
             }
 
             private void QueryStabilize()
             {
                 foreach (var node in this.ChordNodes)
                 {
-                    this.Send(node, new ChordNode.Stabilize());
+                    this.SendEvent(node, new ChordNode.Stabilize());
                 }
             }
 
@@ -431,7 +431,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     }
                 }
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             private void JoinCluster()
@@ -454,8 +454,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 var successor = this.FingerTable[(this.NodeId + 1) % this.NumOfIds].Node;
 
-                this.Send(this.Manager, new JoinAck());
-                this.Send(successor, new NotifySuccessor(this.Id));
+                this.SendEvent(this.Manager, new JoinAck());
+                this.SendEvent(successor, new NotifySuccessor(this.Id));
             }
 
             [OnEventDoAction(typeof(FindSuccessor), nameof(ProcessFindSuccessor))]
@@ -479,15 +479,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 if (this.Keys.Contains(key))
                 {
-                    this.Send(sender, new FindSuccessorResp(this.Id, key));
+                    this.SendEvent(sender, new FindSuccessorResp(this.Id, key));
                 }
                 else if (this.FingerTable.ContainsKey(key))
                 {
-                    this.Send(sender, new FindSuccessorResp(this.FingerTable[key].Node, key));
+                    this.SendEvent(sender, new FindSuccessorResp(this.FingerTable[key].Node, key));
                 }
                 else if (this.NodeId.Equals(key))
                 {
-                    this.Send(sender, new FindSuccessorResp(
+                    this.SendEvent(sender, new FindSuccessorResp(
                         this.FingerTable[(this.NodeId + 1) % this.NumOfIds].Node, key));
                 }
                 else
@@ -524,7 +524,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.Assert(!this.FingerTable[idToAsk].Node.Equals(this.Id), "Cannot locate successor of {0}.", key);
                     }
 
-                    this.Send(this.FingerTable[idToAsk].Node, new FindSuccessor(sender, key));
+                    this.SendEvent(this.FingerTable[idToAsk].Node, new FindSuccessor(sender, key));
                 }
             }
 
@@ -533,14 +533,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var sender = (this.ReceivedEvent as FindPredecessor).Sender;
                 if (this.Predecessor != null)
                 {
-                    this.Send(sender, new FindPredecessorResp(this.Predecessor));
+                    this.SendEvent(sender, new FindPredecessorResp(this.Predecessor));
                 }
             }
 
             private void ProcessQueryId()
             {
                 var sender = (this.ReceivedEvent as QueryId).Sender;
-                this.Send(sender, new QueryIdResp(this.NodeId));
+                this.SendEvent(sender, new QueryIdResp(this.NodeId));
             }
 
             private void SendKeys()
@@ -566,20 +566,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.Keys.Remove(key);
                     }
 
-                    this.Send(sender, new AskForKeysResp(keysToSend));
+                    this.SendEvent(sender, new AskForKeysResp(keysToSend));
                 }
             }
 
             private void ProcessStabilize()
             {
                 var successor = this.FingerTable[(this.NodeId + 1) % this.NumOfIds].Node;
-                this.Send(successor, new FindPredecessor(this.Id));
+                this.SendEvent(successor, new FindPredecessor(this.Id));
 
                 foreach (var finger in this.FingerTable)
                 {
                     if (!finger.Value.Node.Equals(successor))
                     {
-                        this.Send(successor, new FindSuccessor(this.Id, finger.Key));
+                        this.SendEvent(successor, new FindSuccessor(this.Id, finger.Key));
                     }
                 }
             }
@@ -603,8 +603,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
                         this.FingerTable[(this.NodeId + 1) % this.NumOfIds].End,
                         successor);
 
-                    this.Send(successor, new NotifySuccessor(this.Id));
-                    this.Send(successor, new AskForKeys(this.Id, this.NodeId));
+                    this.SendEvent(successor, new NotifySuccessor(this.Id));
+                    this.SendEvent(successor, new AskForKeys(this.Id, this.NodeId));
                 }
             }
 
@@ -628,7 +628,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ProcessTerminate()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             private static int GetSuccessorNodeId(int start, List<int> nodeIds)
@@ -746,7 +746,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 this.QueryCounter = 0;
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(QueryingOnEntry))]
@@ -763,22 +763,22 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     {
                         var key = this.GetNextQueryKey();
                         this.Logger.WriteLine($"<ChordLog> Client is searching for successor of key '{key}'.");
-                        this.Send(this.ClusterManager, new ChordNode.FindSuccessor(this.Id, key));
+                        this.SendEvent(this.ClusterManager, new ChordNode.FindSuccessor(this.Id, key));
                         this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientRequest(key));
                     }
                     else if (this.Random())
                     {
-                        this.Send(this.ClusterManager, new ClusterManager.CreateNewNode());
+                        this.SendEvent(this.ClusterManager, new ClusterManager.CreateNewNode());
                     }
                     else
                     {
-                        this.Send(this.ClusterManager, new ClusterManager.TerminateNode());
+                        this.SendEvent(this.ClusterManager, new ClusterManager.TerminateNode());
                     }
 
                     this.QueryCounter++;
                 }
 
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
 
             private int GetNextQueryKey()
@@ -811,12 +811,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var successor = (this.ReceivedEvent as ChordNode.FindSuccessorResp).Node;
                 var key = (this.ReceivedEvent as ChordNode.FindSuccessorResp).Key;
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientResponse(key));
-                this.Send(successor, new ChordNode.QueryId(this.Id));
+                this.SendEvent(successor, new ChordNode.QueryId(this.Id));
             }
 
             private void ProcessQueryIdResp()
             {
-                this.Raise(new Local());
+                this.RaiseEvent(new Local());
             }
         }
 
@@ -882,7 +882,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(ClusterManager));
+                r.CreateStateMachine(typeof(ClusterManager));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected potential liveness bug in hot state 'Requested'.",
@@ -902,7 +902,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(ClusterManager));
+                r.CreateStateMachine(typeof(ClusterManager));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected infinite execution that violates a liveness property.",

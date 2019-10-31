@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(WaitForUserOnEntry))]
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void WaitForUserOnEntry()
             {
                 this.Monitor<WatchDog>(new Waiting());
-                this.Send(this.Id, new UserEvent());
+                this.SendEvent(this.Id, new UserEvent());
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
@@ -78,11 +78,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.Monitor<WatchDog>(new Computing());
                 if (this.FairRandom())
                 {
-                    this.Send(this.Id, new Done());
+                    this.SendEvent(this.Id, new Done());
                 }
                 else
                 {
-                    this.Send(this.Id, new Loop());
+                    this.SendEvent(this.Id, new Loop());
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler));
+                r.CreateStateMachine(typeof(EventHandler));
             },
             configuration: configuration);
         }

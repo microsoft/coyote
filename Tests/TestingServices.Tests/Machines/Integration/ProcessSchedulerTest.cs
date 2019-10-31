@@ -36,12 +36,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void OnInitEntry()
             {
-                var lkMachine = this.CreateMachine(typeof(LkMachine));
-                var rLockMachine = this.CreateMachine(typeof(RLockMachine));
-                var rWantMachine = this.CreateMachine(typeof(RWantMachine));
-                var nodeMachine = this.CreateMachine(typeof(Node));
-                this.CreateMachine(typeof(Client), new Client.Configure(lkMachine, rLockMachine, rWantMachine, nodeMachine));
-                this.CreateMachine(typeof(Server), new Server.Configure(lkMachine, rLockMachine, rWantMachine, nodeMachine));
+                var lkMachine = this.CreateStateMachine(typeof(LkMachine));
+                var rLockMachine = this.CreateStateMachine(typeof(RLockMachine));
+                var rWantMachine = this.CreateStateMachine(typeof(RWantMachine));
+                var nodeMachine = this.CreateStateMachine(typeof(Node));
+                this.CreateStateMachine(typeof(Client), new Client.Configure(lkMachine, rLockMachine, rWantMachine, nodeMachine));
+                this.CreateStateMachine(typeof(Server), new Server.Configure(lkMachine, rLockMachine, rWantMachine, nodeMachine));
             }
         }
 
@@ -87,33 +87,33 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.RLockActorId = e.RLockActorId;
                 this.RWantActorId = e.RWantActorId;
                 this.NodeActorId = e.NodeActorId;
-                this.Raise(new Wakeup());
+                this.RaiseEvent(new Wakeup());
             }
 
             private async Task OnWakeup()
             {
-                this.Send(this.RLockActorId, new RLockMachine.SetReq(this.Id, false));
-                await this.Receive(typeof(RLockMachine.SetResp));
-                this.Send(this.LKActorId, new LkMachine.Waiting(this.Id, false));
-                await this.Receive(typeof(LkMachine.WaitResp));
-                this.Send(this.RWantActorId, new RWantMachine.ValueReq(this.Id));
-                var receivedEvent = await this.Receive(typeof(RWantMachine.ValueResp));
+                this.SendEvent(this.RLockActorId, new RLockMachine.SetReq(this.Id, false));
+                await this.ReceiveEventAsync(typeof(RLockMachine.SetResp));
+                this.SendEvent(this.LKActorId, new LkMachine.Waiting(this.Id, false));
+                await this.ReceiveEventAsync(typeof(LkMachine.WaitResp));
+                this.SendEvent(this.RWantActorId, new RWantMachine.ValueReq(this.Id));
+                var receivedEvent = await this.ReceiveEventAsync(typeof(RWantMachine.ValueResp));
 
                 if ((receivedEvent as RWantMachine.ValueResp).Value == true)
                 {
-                    this.Send(this.RWantActorId, new RWantMachine.SetReq(this.Id, false));
-                    await this.Receive(typeof(RWantMachine.SetResp));
+                    this.SendEvent(this.RWantActorId, new RWantMachine.SetReq(this.Id, false));
+                    await this.ReceiveEventAsync(typeof(RWantMachine.SetResp));
 
-                    this.Send(this.NodeActorId, new Node.ValueReq(this.Id));
-                    var receivedEvent1 = await this.Receive(typeof(Node.ValueResp));
+                    this.SendEvent(this.NodeActorId, new Node.ValueReq(this.Id));
+                    var receivedEvent1 = await this.ReceiveEventAsync(typeof(Node.ValueResp));
                     if ((receivedEvent1 as Node.ValueResp).Value == MType.WakeUp)
                     {
-                        this.Send(this.NodeActorId, new Node.SetReq(this.Id, MType.Run));
-                        await this.Receive(typeof(Node.SetResp));
+                        this.SendEvent(this.NodeActorId, new Node.SetReq(this.Id, MType.Run));
+                        await this.ReceiveEventAsync(typeof(Node.SetResp));
                     }
                 }
 
-                this.Send(this.Id, new Wakeup());
+                this.SendEvent(this.Id, new Wakeup());
             }
         }
 
@@ -164,30 +164,30 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 this.RLockActorId = e.RLockActorId;
                 this.RWantActorId = e.RWantActorId;
                 this.NodeActorId = e.NodeActorId;
-                this.Raise(new Progress());
+                this.RaiseEvent(new Progress());
             }
 
             private async Task OnSleep()
             {
-                this.Send(this.LKActorId, new LkMachine.AtomicTestSet(this.Id));
-                await this.Receive(typeof(LkMachine.AtomicTestSet_Resp));
+                this.SendEvent(this.LKActorId, new LkMachine.AtomicTestSet(this.Id));
+                await this.ReceiveEventAsync(typeof(LkMachine.AtomicTestSet_Resp));
                 while (true)
                 {
-                    this.Send(this.RLockActorId, new RLockMachine.ValueReq(this.Id));
-                    var receivedEvent = await this.Receive(typeof(RLockMachine.ValueResp));
+                    this.SendEvent(this.RLockActorId, new RLockMachine.ValueReq(this.Id));
+                    var receivedEvent = await this.ReceiveEventAsync(typeof(RLockMachine.ValueResp));
                     if ((receivedEvent as RLockMachine.ValueResp).Value == true)
                     {
-                        this.Send(this.RWantActorId, new RWantMachine.SetReq(this.Id, true));
-                        await this.Receive(typeof(RWantMachine.SetResp));
-                        this.Send(this.NodeActorId, new Node.SetReq(this.Id, MType.WakeUp));
-                        await this.Receive(typeof(Node.SetResp));
-                        this.Send(this.LKActorId, new LkMachine.SetReq(this.Id, false));
-                        await this.Receive(typeof(LkMachine.SetResp));
+                        this.SendEvent(this.RWantActorId, new RWantMachine.SetReq(this.Id, true));
+                        await this.ReceiveEventAsync(typeof(RWantMachine.SetResp));
+                        this.SendEvent(this.NodeActorId, new Node.SetReq(this.Id, MType.WakeUp));
+                        await this.ReceiveEventAsync(typeof(Node.SetResp));
+                        this.SendEvent(this.LKActorId, new LkMachine.SetReq(this.Id, false));
+                        await this.ReceiveEventAsync(typeof(LkMachine.SetResp));
 
                         this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientSleep());
 
-                        this.Send(this.NodeActorId, new Node.Waiting(this.Id, MType.Run));
-                        await this.Receive(typeof(Node.WaitResp));
+                        this.SendEvent(this.NodeActorId, new Node.Waiting(this.Id, MType.Run));
+                        await this.ReceiveEventAsync(typeof(Node.WaitResp));
 
                         this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientProgress());
                     }
@@ -197,19 +197,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     }
                 }
 
-                this.Send(this.Id, new Progress());
+                this.SendEvent(this.Id, new Progress());
             }
 
             private async Task OnProgress()
             {
-                this.Send(this.RLockActorId, new RLockMachine.ValueReq(this.Id));
-                var receivedEvent = await this.Receive(typeof(RLockMachine.ValueResp));
+                this.SendEvent(this.RLockActorId, new RLockMachine.ValueReq(this.Id));
+                var receivedEvent = await this.ReceiveEventAsync(typeof(RLockMachine.ValueResp));
                 this.Assert((receivedEvent as RLockMachine.ValueResp).Value == false);
-                this.Send(this.RLockActorId, new RLockMachine.SetReq(this.Id, true));
-                await this.Receive(typeof(RLockMachine.SetResp));
-                this.Send(this.LKActorId, new LkMachine.SetReq(this.Id, false));
-                await this.Receive(typeof(LkMachine.SetResp));
-                this.Send(this.Id, new Sleep());
+                this.SendEvent(this.RLockActorId, new RLockMachine.SetReq(this.Id, true));
+                await this.ReceiveEventAsync(typeof(RLockMachine.SetResp));
+                this.SendEvent(this.LKActorId, new LkMachine.SetReq(this.Id, false));
+                await this.ReceiveEventAsync(typeof(LkMachine.SetResp));
+                this.SendEvent(this.Id, new Sleep());
             }
         }
 
@@ -290,13 +290,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var e = this.ReceivedEvent as SetReq;
                 this.StateType = e.Value;
                 this.Unblock();
-                this.Send(e.Target, new SetResp());
+                this.SendEvent(e.Target, new SetResp());
             }
 
             private void OnValueReq()
             {
                 var e = this.ReceivedEvent as ValueReq;
-                this.Send(e.Target, new ValueResp(this.StateType));
+                this.SendEvent(e.Target, new ValueResp(this.StateType));
             }
 
             private void OnWaiting()
@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var e = this.ReceivedEvent as Waiting;
                 if (this.StateType == e.WaitingOn)
                 {
-                    this.Send(e.Target, new WaitResp());
+                    this.SendEvent(e.Target, new WaitResp());
                 }
                 else
                 {
@@ -319,7 +319,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     if (this.blockedMachines[target] == this.StateType)
                     {
-                        this.Send(target, new WaitResp());
+                        this.SendEvent(target, new WaitResp());
                         remove.Add(target);
                     }
                 }
@@ -406,7 +406,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     this.Unblock();
                 }
 
-                this.Send(e.Target, new AtomicTestSet_Resp());
+                this.SendEvent(e.Target, new AtomicTestSet_Resp());
             }
 
             private void OnSetReq()
@@ -414,7 +414,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var e = this.ReceivedEvent as SetReq;
                 this.LK = e.Value;
                 this.Unblock();
-                this.Send(e.Target, new SetResp());
+                this.SendEvent(e.Target, new SetResp());
             }
 
             private void OnWaiting()
@@ -422,7 +422,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var e = this.ReceivedEvent as Waiting;
                 if (this.LK == e.WaitingOn)
                 {
-                    this.Send(e.Target, new WaitResp());
+                    this.SendEvent(e.Target, new WaitResp());
                 }
                 else
                 {
@@ -437,7 +437,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 {
                     if (this.BlockedMachines[target] == this.LK)
                     {
-                        this.Send(target, new WaitResp());
+                        this.SendEvent(target, new WaitResp());
                         remove.Add(target);
                     }
                 }
@@ -506,13 +506,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 var e = this.ReceivedEvent as SetReq;
                 this.RLock = e.Value;
-                this.Send(e.Target, new SetResp());
+                this.SendEvent(e.Target, new SetResp());
             }
 
             private void OnValueReq()
             {
                 var e = this.ReceivedEvent as ValueReq;
-                this.Send(e.Target, new ValueResp(this.RLock));
+                this.SendEvent(e.Target, new ValueResp(this.RLock));
             }
         }
 
@@ -573,13 +573,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 var e = this.ReceivedEvent as SetReq;
                 this.RWant = e.Value;
-                this.Send(e.Target, new SetResp());
+                this.SendEvent(e.Target, new SetResp());
             }
 
             private void OnValueReq()
             {
                 var e = this.ReceivedEvent as ValueReq;
-                this.Send(e.Target, new ValueResp(this.RWant));
+                this.SendEvent(e.Target, new ValueResp(this.RWant));
             }
         }
 
@@ -634,7 +634,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(Environment));
+                r.CreateStateMachine(typeof(Environment));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected infinite execution that violates a liveness property.",

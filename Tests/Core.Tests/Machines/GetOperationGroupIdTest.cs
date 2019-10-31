@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M1), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M1), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M2), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M2), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);

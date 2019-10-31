@@ -43,17 +43,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void OnInitEntry()
             {
                 this.ApplyFix = (this.ReceivedEvent as Configure).ApplyFix;
-                this.Send(this.Id, new Message());
+                this.SendEvent(this.Id, new Message());
             }
 
             private void OnMessage()
             {
-                this.Send(this.Id, new Message());
+                this.SendEvent(this.Id, new Message());
                 this.Monitor<WatchDog>(new WatchDog.NotifyMessage());
                 if (this.Choose())
                 {
                     this.Monitor<WatchDog>(new WatchDog.NotifyDone());
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
             }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(true));
+                r.CreateStateMachine(typeof(EventHandler), new Configure(true));
             },
             configuration: configuration);
         }
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler), new Configure(false));
+                r.CreateStateMachine(typeof(EventHandler), new Configure(false));
             },
             configuration: configuration,
             expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",

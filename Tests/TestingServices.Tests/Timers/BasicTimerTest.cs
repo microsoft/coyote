@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(T1));
+                r.CreateStateMachine(typeof(T1));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(T2));
+                r.CreateStateMachine(typeof(T2));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200));
         }
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(T3));
+                r.CreateStateMachine(typeof(T3));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(T4));
+                r.CreateStateMachine(typeof(T4));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
             expectedError: "Machine 'T4()' registered a timer with a negative due time.",
@@ -195,7 +195,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(T5));
+                r.CreateStateMachine(typeof(T5));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
             expectedError: "Machine 'T5()' registered a periodic timer with a negative period.",
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Initialize()
             {
                 var timer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10));
-                this.CreateMachine(typeof(T7), new TransferTimerEvent(timer));
+                this.CreateStateMachine(typeof(T7), new TransferTimerEvent(timer));
             }
         }
 
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(T6));
+                r.CreateStateMachine(typeof(T6));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
             expectedError: "Machine 'T7()' is not allowed to dispose timer '', which is owned by machine 'T6()'.",
@@ -279,7 +279,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void FinalOnEntry()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(T8));
+                r.CreateStateMachine(typeof(T8));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }

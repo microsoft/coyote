@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
             Action<IActorRuntime> test = r =>
             {
                 r.SetLogWriter(new CustomActorRuntimeLogWriter());
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             };
 
             BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);

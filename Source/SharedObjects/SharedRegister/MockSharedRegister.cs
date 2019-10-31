@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.SharedObjects
         public MockSharedRegister(T value, SystematicTestingRuntime runtime)
         {
             this.Runtime = runtime;
-            this.RegisterMachine = this.Runtime.CreateMachine(typeof(SharedRegisterMachine<T>));
+            this.RegisterMachine = this.Runtime.CreateStateMachine(typeof(SharedRegisterMachine<T>));
             this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.SetEvent(value));
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.UpdateEvent(func, currentMachine.Id));
-            var e = currentMachine.Receive(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
+            var e = currentMachine.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
             return e.Value;
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.GetEvent(currentMachine.Id));
-            var e = currentMachine.Receive(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
+            var e = currentMachine.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
             return e.Value;
         }
 

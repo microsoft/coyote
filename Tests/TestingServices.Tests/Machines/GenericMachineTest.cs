@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M<int>));
+                r.CreateStateMachine(typeof(M<int>));
             });
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(N));
+                r.CreateStateMachine(typeof(N));
             });
         }
     }

@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.TrySetException(ex);
                 };
 
-                r.CreateMachine(typeof(M1), new ConfigEvent(tcs));
+                r.CreateStateMachine(typeof(M1), new ConfigEvent(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.Null(tcs.Task.Exception);
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.TrySetException(ex);
                 };
 
-                r.CreateMachine(typeof(M2), new ConfigEvent(tcs));
+                r.CreateStateMachine(typeof(M2), new ConfigEvent(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.Null(tcs.Task.Exception);

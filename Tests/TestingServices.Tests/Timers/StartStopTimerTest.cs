@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(Client));
+                r.CreateStateMachine(typeof(Client));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state " +

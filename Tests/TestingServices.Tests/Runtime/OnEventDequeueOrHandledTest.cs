@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Process()
             {
-                this.Raise(new E3());
+                this.RaiseEvent(new E3());
             }
 
             private void ProcessE3()
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec1));
-                var m = r.CreateMachine(typeof(M1), new E());
+                var m = r.CreateStateMachine(typeof(M1), new E());
                 r.SendEvent(m, new E1());
                 r.SendEvent(m, new E2());
             });
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Process()
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
 
             protected override Task OnEventDequeueAsync(Event ev)
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec2));
-                var m = r.CreateMachine(typeof(M2));
+                var m = r.CreateStateMachine(typeof(M2));
                 r.SendEvent(m, new E1());
             });
         }
@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec3));
-                var m = r.CreateMachine(typeof(M3));
+                var m = r.CreateStateMachine(typeof(M3));
                 r.SendEvent(m, new E1());
             });
         }
@@ -315,7 +315,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             protected override Task OnEventHandledAsync(Event ev)
             {
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
                 return Task.CompletedTask;
             }
 
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M4));
+                var m = r.CreateStateMachine(typeof(M4));
                 r.SendEvent(m, new E1());
                 r.SendEvent(m, new E2()); // Dropped silently.
             });
@@ -371,7 +371,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M5));
+                var m = r.CreateStateMachine(typeof(M5));
                 r.SendEvent(m, new E1());
                 r.SendEvent(m, new E2()); // Dropped silently.
             });
@@ -411,7 +411,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M6));
+                var m = r.CreateStateMachine(typeof(M6));
                 r.SendEvent(m, new E1());
             },
             configuration: GetConfiguration().WithNumberOfIterations(100),
@@ -453,7 +453,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithException<InvalidOperationException>(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M7));
+                var m = r.CreateStateMachine(typeof(M7));
                 r.SendEvent(m, new E1());
             },
             configuration: GetConfiguration().WithNumberOfIterations(100),
@@ -494,7 +494,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M8));
+                var m = r.CreateStateMachine(typeof(M8));
                 r.SendEvent(m, new E1());
                 r.SendEvent(m, new E2()); // Dropped silently.
             });
@@ -534,7 +534,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M9));
+                var m = r.CreateStateMachine(typeof(M9));
                 r.SendEvent(m, new E1());
             },
             configuration: GetConfiguration().WithNumberOfIterations(100),
@@ -576,7 +576,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithException<InvalidOperationException>(r =>
             {
                 r.RegisterMonitor(typeof(Spec4));
-                var m = r.CreateMachine(typeof(M10));
+                var m = r.CreateStateMachine(typeof(M10));
                 r.SendEvent(m, new E1());
             },
             configuration: GetConfiguration().WithNumberOfIterations(100),

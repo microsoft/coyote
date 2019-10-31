@@ -50,8 +50,8 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                this.Send(this.Id, new E1());
-                await this.Receive(typeof(E1));
+                this.SendEvent(this.Id, new E1());
+                await this.ReceiveEventAsync(typeof(E1));
                 tcs.SetResult(true);
             }
         }
@@ -67,8 +67,8 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                this.Send(this.Id, new E1());
-                await this.Receive(typeof(E1), e => e is E1);
+                this.SendEvent(this.Id, new E1());
+                await this.ReceiveEventAsync(typeof(E1), e => e is E1);
                 tcs.SetResult(true);
             }
         }
@@ -84,8 +84,8 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                this.Send(this.Id, new E1());
-                await this.Receive(typeof(E1), typeof(E2));
+                this.SendEvent(this.Id, new E1());
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2));
                 tcs.SetResult(true);
             }
         }
@@ -101,12 +101,12 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                var id = this.CreateMachine(typeof(M5), new E2(this.Id));
-                this.Send(id, new E2(this.Id));
-                await this.Receive(typeof(E2));
-                this.Send(id, new E2(this.Id));
-                this.Send(id, new E2(this.Id));
-                await this.Receive(typeof(E2));
+                var id = this.CreateStateMachine(typeof(M5), new E2(this.Id));
+                this.SendEvent(id, new E2(this.Id));
+                await this.ReceiveEventAsync(typeof(E2));
+                this.SendEvent(id, new E2(this.Id));
+                this.SendEvent(id, new E2(this.Id));
+                await this.ReceiveEventAsync(typeof(E2));
                 tcs.SetResult(true);
             }
         }
@@ -123,15 +123,15 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 var id = (this.ReceivedEvent as E2).Id;
-                var e = (E2)await this.Receive(typeof(E2));
-                this.Send(e.Id, new E2(this.Id));
+                var e = (E2)await this.ReceiveEventAsync(typeof(E2));
+                this.SendEvent(e.Id, new E2(this.Id));
             }
 
             private async Task Handle()
             {
                 var id = (this.ReceivedEvent as E2).Id;
-                var e = (E2)await this.Receive(typeof(E2));
-                this.Send(e.Id, new E2(this.Id));
+                var e = (E2)await this.ReceiveEventAsync(typeof(E2));
+                this.SendEvent(e.Id, new E2(this.Id));
             }
         }
 
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M1), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M1), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M2), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M2), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M3), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M3), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M4), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M4), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);

@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
+        public override ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// with the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+        public override ActorId CreateStateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
+        public override ActorId CreateStateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// access its payload, and cannot be handled. The method returns only when
         /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// access its payload, and cannot be handled. The method returns only when the
         /// machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
             throw new NotSupportedException("Invoking this method is not supported in machine unit testing mode.");
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal override ActorId CreateMachine(ActorId id, Type type, string machineName, Event e,
+        internal override ActorId CreateStateMachine(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
         /// method returns only when the created machine reaches quiescence.
         /// </summary>
-        internal override Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
+        internal override Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
@@ -452,7 +452,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner)
         {
             var id = this.CreateActorId(typeof(MockMachineTimer));
-            this.CreateMachine(id, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
+            this.CreateStateMachine(id, typeof(MockMachineTimer), new TimerSetupEvent(info, owner, this.Configuration.TimeoutDelay));
             return this.GetMachineFromId<MockMachineTimer>(id);
         }
 

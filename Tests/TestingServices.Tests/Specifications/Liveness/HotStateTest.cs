@@ -70,14 +70,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 for (int idx = 0; idx < 3; idx++)
                 {
-                    var worker = this.CreateMachine(typeof(Worker));
-                    this.Send(worker, new Config(this.Id));
+                    var worker = this.CreateStateMachine(typeof(Worker));
+                    this.SendEvent(worker, new Config(this.Id));
                     this.Workers.Add(worker);
                 }
 
                 this.Monitor<M>(new MConfig(this.Workers));
 
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 foreach (var worker in this.Workers)
                 {
-                    this.Send(worker, new DoProcessing());
+                    this.SendEvent(worker, new DoProcessing());
                 }
             }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void Configure()
             {
                 this.Master = (this.ReceivedEvent as Config).Id;
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEventGotoState(typeof(DoProcessing), typeof(Done))]
@@ -131,10 +131,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (this.Random())
                 {
-                    this.Send(this.Master, new FinishedProcessing());
+                    this.SendEvent(this.Master, new FinishedProcessing());
                 }
 
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 if (this.Workers.Count == 0)
                 {
-                    this.Raise(new Unit());
+                    this.RaiseEvent(new Unit());
                 }
             }
 
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M));
-                r.CreateMachine(typeof(Master));
+                r.CreateStateMachine(typeof(Master));
             },
             configuration: configuration,
             expectedError: "Monitor 'M' detected liveness bug in hot state 'Init' at the end of program execution.",

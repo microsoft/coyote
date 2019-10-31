@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Benchmarking.Creation
 
                 if (doHalt)
                 {
-                    this.Raise(new Halt());
+                    this.RaiseEvent(new Halt());
                 }
             }
         }
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Benchmarking.Creation
 
             for (int idx = 0; idx < this.NumMachines; idx++)
             {
-                runtime.CreateMachine(typeof(M), null, e);
+                runtime.CreateStateMachine(typeof(M), null, e);
             }
 
             tcs.Task.Wait();

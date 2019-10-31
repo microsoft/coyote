@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new E(this.Id));
+                this.RaiseEvent(new E(this.Id));
             }
 
             private void Act()
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new E(this.Id));
+                this.RaiseEvent(new E(this.Id));
             }
 
             private async Task Act()
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new E(this.Id));
+                this.RaiseEvent(new E(this.Id));
             }
 
             private void InitOnExit()
@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (ex is Ex1)
                 {
-                    this.Raise(new E(this.Id));
+                    this.RaiseEvent(new E(this.Id));
                     return OnExceptionOutcome.HandledException;
                 }
 
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (ex is Ex1)
                 {
-                    this.Send(this.Id, new E(this.Id));
+                    this.SendEvent(this.Id, new E(this.Id));
                     return OnExceptionOutcome.HandledException;
                 }
 
@@ -329,8 +329,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 try
                 {
                     this.Assert(ex is UnhandledEventException);
-                    this.Send(this.Id, new E(this.Id));
-                    this.Raise(new E());
+                    this.SendEvent(this.Id, new E(this.Id));
+                    this.RaiseEvent(new E());
                 }
                 catch (Exception)
                 {
@@ -346,7 +346,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M1a));
+                r.CreateStateMachine(typeof(M1a));
             });
         }
 
@@ -355,7 +355,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M1b));
+                r.CreateStateMachine(typeof(M1b));
             });
         }
 
@@ -364,7 +364,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M1c));
+                r.CreateStateMachine(typeof(M1c));
             });
         }
 
@@ -373,7 +373,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M1d));
+                r.CreateStateMachine(typeof(M1d));
             });
         }
 
@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithException<Ex2>(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             replay: true);
         }
@@ -392,7 +392,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3a));
+                r.CreateStateMachine(typeof(M3a));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -403,7 +403,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3b));
+                r.CreateStateMachine(typeof(M3b));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -415,7 +415,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(GetsDone));
-                r.CreateMachine(typeof(M4));
+                r.CreateStateMachine(typeof(M4));
             });
         }
 
@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(GetsDone));
-                var m = r.CreateMachine(typeof(M5));
+                var m = r.CreateStateMachine(typeof(M5));
                 r.SendEvent(m, new E());
             });
         }
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M6));
+                var m = r.CreateStateMachine(typeof(M6));
                 r.SendEvent(m, new E());
             });
         }

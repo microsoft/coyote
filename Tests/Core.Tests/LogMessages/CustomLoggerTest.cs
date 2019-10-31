@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
-            runtime.CreateMachine(typeof(M), new Configure(tcs));
+            runtime.CreateStateMachine(typeof(M), new Configure(tcs));
 
             await WaitAsync(tcs.Task);
             await Task.Delay(200);
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
-            runtime.CreateMachine(typeof(M), new Configure(tcs));
+            runtime.CreateStateMachine(typeof(M), new Configure(tcs));
 
             await WaitAsync(tcs.Task);
             await Task.Delay(200);
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
-            runtime.CreateMachine(typeof(M), new Configure(tcs));
+            runtime.CreateStateMachine(typeof(M), new Configure(tcs));
 
             await WaitAsync(tcs.Task);
 

@@ -58,9 +58,9 @@ namespace Microsoft.Coyote.Core.Tests
                     int counter = 0;
                     while (counter < 100)
                     {
-                        var n = this.CreateMachine(typeof(N));
-                        this.Send(n, new E(this.Id));
-                        await this.Receive(typeof(E));
+                        var n = this.CreateStateMachine(typeof(N));
+                        this.SendEvent(n, new E(this.Id));
+                        await this.ReceiveEventAsync(typeof(E));
                         counter++;
                     }
                 }
@@ -93,8 +93,8 @@ namespace Microsoft.Coyote.Core.Tests
             private void Act()
             {
                 var sender = (this.ReceivedEvent as E).Id;
-                this.Send(sender, new E(this.Id));
-                this.Raise(new Halt());
+                this.SendEvent(sender, new E(this.Id));
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M), new Configure(tcs));
+                r.CreateStateMachine(typeof(M), new Configure(tcs));
 
                 await WaitAsync(tcs.Task, 15000);
 

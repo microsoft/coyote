@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             },
             expectedError: "Machine 'M()' is trying to transition to non-existing state 'Done'.",
             replay: true);

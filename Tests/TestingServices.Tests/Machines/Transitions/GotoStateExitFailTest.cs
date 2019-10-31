@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             },
             expectedError: "Bug found.",
             replay: true);

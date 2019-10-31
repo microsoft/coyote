@@ -61,10 +61,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                var m1 = r.CreateMachine(typeof(M));
+                var m1 = r.CreateStateMachine(typeof(M));
                 var m2 = r.CreateActorIdFromName(typeof(M), "M");
                 r.Assert(!m1.Equals(m2));
-                r.CreateMachine(m2, typeof(M));
+                r.CreateStateMachine(m2, typeof(M));
             });
         }
 
@@ -77,8 +77,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var m1 = r.CreateActorIdFromName(typeof(M), "M1");
                 var m2 = r.CreateActorIdFromName(typeof(M), "M2");
                 r.Assert(!m1.Equals(m2));
-                r.CreateMachine(m1, typeof(M));
-                r.CreateMachine(m2, typeof(M));
+                r.CreateStateMachine(m1, typeof(M));
+                r.CreateStateMachine(m2, typeof(M));
             });
         }
 
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 var m3 = r.CreateActorIdFromName(typeof(M3), "M3");
-                r.CreateMachine(m3, typeof(M2));
+                r.CreateStateMachine(m3, typeof(M2));
             },
             expectedError: "Cannot bind actor id '' of type 'M3' to a machine of type 'M2'.",
             replay: true);
@@ -116,8 +116,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 var m1 = r.CreateActorIdFromName(typeof(M2), "M2");
-                r.CreateMachine(m1, typeof(M2));
-                r.CreateMachine(m1, typeof(M2));
+                r.CreateStateMachine(m1, typeof(M2));
+                r.CreateStateMachine(m1, typeof(M2));
             },
             expectedError: "Actor id '' is used by an existing machine.",
             replay: true);
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 var m = r.CreateActorIdFromName(typeof(M2), "M2");
-                r.CreateMachine(m, typeof(M2));
+                r.CreateStateMachine(m, typeof(M2));
 
                 // Make sure that the machine halts.
                 for (int i = 0; i < 100; i++)
@@ -150,13 +150,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 }
 
                 // Trying to bring up a halted machine.
-                r.CreateMachine(m, typeof(M2));
+                r.CreateStateMachine(m, typeof(M2));
             },
             configuration: GetConfiguration(),
             expectedErrors: new string[]
             {
                 // Note: because RunMachineEventHandler is async, the halted machine
-                // may or may not be removed by the time we call CreateMachine.
+                // may or may not be removed by the time we call CreateStateMachine.
                 "Actor id '' is used by an existing machine.",
                 "Actor id '' of a previously halted machine cannot be reused to create a new machine of type 'M2'"
             });
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 var id = (this.ReceivedEvent as E2).Mid;
-                this.Send(id, new E());
+                this.SendEvent(id, new E());
             }
         }
 
@@ -210,8 +210,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 var m = r.CreateActorIdFromName(typeof(M4), "M4");
-                r.CreateMachine(typeof(M5), new E2(m));
-                r.CreateMachine(m, typeof(M4));
+                r.CreateStateMachine(typeof(M5), new E2(m));
+                r.CreateStateMachine(m, typeof(M4));
             },
             configuration,
             "Cannot send event 'E' to actor id '' that was never previously bound to a machine of type 'M4'",
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
-                this.CreateMachine(m, typeof(M4), "friendly");
+                this.CreateStateMachine(m, typeof(M4), "friendly");
             }
         }
 
@@ -249,8 +249,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M6));
-                r.CreateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
             },
             expectedError: "Actor id '' is used by an existing machine.",
             replay: true);
@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Runtime.CreateMachineAndExecuteAsync(typeof(M6));
+                await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M6));
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, new E());
             }
@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WaitUntilDone));
-                r.CreateMachine(typeof(M7));
+                r.CreateStateMachine(typeof(M7));
             });
         }
     }

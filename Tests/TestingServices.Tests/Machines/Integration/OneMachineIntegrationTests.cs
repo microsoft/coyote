@@ -44,8 +44,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
-                this.Raise(new E1());
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.RaiseEvent(new E1());
             }
 
             private void HandleE1()
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             private void HandleE2()
@@ -91,12 +91,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             private class Active : State
@@ -118,12 +118,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -156,12 +156,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             private void HandleE2()
@@ -183,12 +183,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
         }
 
@@ -205,12 +205,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -240,12 +240,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -256,7 +256,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void ActiveOnEntry()
             {
                 this.Test = true;
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
             }
 
             private void HandleE3()
@@ -280,12 +280,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -296,7 +296,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void ActiveOnEntry()
             {
                 this.Test = true;
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
                 this.Pop();
             }
 
@@ -321,12 +321,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void ActiveOnEntry()
             {
                 this.Test = true;
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
             }
 
             private void HandleE3()
@@ -360,7 +360,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -373,12 +373,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void ActiveOnEntry()
             {
                 this.Test = true;
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
             }
 
             private void ActiveOnExit()
             {
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(CheckingOnEntry))]
@@ -408,12 +408,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -426,7 +426,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void ActiveOnEntry()
             {
                 this.Test = true;
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
             }
 
             private void ActiveOnExit()
@@ -454,12 +454,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnExit()
             {
-                this.Send(this.Id, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E3(), options: new SendOptions(assert: 1));
             }
 
             private void HandleE3()
@@ -499,12 +499,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void InitOnExit()
             {
-                this.Send(this.Id, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -514,7 +514,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void ActiveOnEntry()
             {
-                this.Raise(new E1());
+                this.RaiseEvent(new E1());
             }
 
             private void HandleE3()
@@ -534,7 +534,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void InitOnExit()
@@ -573,8 +573,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
-                this.Raise(new Halt());
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.RaiseEvent(new Halt());
             }
 
             private void InitOnExit()
@@ -613,7 +613,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new E2());
+                this.RaiseEvent(new E2());
             }
 
             private void InitOnExit()
@@ -627,7 +627,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void HandleE2()
             {
-                this.Send(this.Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -688,7 +688,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 this.Value = 0;
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void InitOnExit()
@@ -711,7 +711,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (this.Value == 0)
                 {
-                    this.Raise(new E());
+                    this.RaiseEvent(new E());
                 }
                 else
                 {
@@ -748,7 +748,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -759,7 +759,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -770,7 +770,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             },
             expectedError: "Machine 'M3()' received event 'E2' that cannot be handled.",
             replay: true);
@@ -781,7 +781,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M4));
+                r.CreateStateMachine(typeof(M4));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -792,7 +792,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M5));
+                r.CreateStateMachine(typeof(M5));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -803,7 +803,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
             },
             expectedError: "There are more than 1 instances of 'E1' in the input queue of machine 'M6()'.",
             replay: true);
@@ -814,7 +814,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M7));
+                r.CreateStateMachine(typeof(M7));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -825,7 +825,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M8));
+                r.CreateStateMachine(typeof(M8));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -836,7 +836,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M9));
+                r.CreateStateMachine(typeof(M9));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -847,7 +847,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M10));
+                r.CreateStateMachine(typeof(M10));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -858,7 +858,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M11));
+                r.CreateStateMachine(typeof(M11));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -869,7 +869,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M12));
+                r.CreateStateMachine(typeof(M12));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -880,7 +880,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M13));
+                r.CreateStateMachine(typeof(M13));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -891,7 +891,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M14));
+                r.CreateStateMachine(typeof(M14));
             },
             expectedError: "There are more than 1 instances of 'E1' in the input queue of machine 'M14()'.",
             replay: true);
@@ -902,7 +902,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M15));
+                r.CreateStateMachine(typeof(M15));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -913,7 +913,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M16));
+                r.CreateStateMachine(typeof(M16));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -924,7 +924,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M17));
+                r.CreateStateMachine(typeof(M17));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -935,7 +935,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M18));
+                r.CreateStateMachine(typeof(M18));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -946,7 +946,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M19));
+                r.CreateStateMachine(typeof(M19));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);
@@ -957,7 +957,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M20));
+                r.CreateStateMachine(typeof(M20));
             });
         }
     }

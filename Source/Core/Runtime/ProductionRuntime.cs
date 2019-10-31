@@ -55,24 +55,24 @@ namespace Microsoft.Coyote.Runtime
         /// the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachine(null, type, null, e, null, opGroupId);
+        public override ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachine(null, type, null, e, null, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and
         /// with the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachine(null, type, machineName, e, null, opGroupId);
+        public override ActorId CreateStateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachine(null, type, machineName, e, null, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
         /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachine(id, type, null, e, null, opGroupId);
+        public override ActorId CreateStateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachine(id, type, null, e, null, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and with the
@@ -80,8 +80,8 @@ namespace Microsoft.Coyote.Runtime
         /// access its payload, and cannot be handled. The method returns only when
         /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, null, e, null, opGroupId);
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachineAndExecuteAsync(null, type, null, e, null, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and with
@@ -89,8 +89,8 @@ namespace Microsoft.Coyote.Runtime
         /// access its payload, and cannot be handled. The method returns only when the
         /// machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(null, type, machineName, e, null, opGroupId);
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachineAndExecuteAsync(null, type, machineName, e, null, opGroupId);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/>, using the specified
@@ -99,8 +99,8 @@ namespace Microsoft.Coyote.Runtime
         /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public override Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
-            this.CreateMachineAndExecuteAsync(id, type, null, e, null, opGroupId);
+        public override Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
+            this.CreateStateMachineAndExecuteAsync(id, type, null, e, null, opGroupId);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
@@ -129,10 +129,10 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal override ActorId CreateMachine(ActorId id, Type type, string machineName, Event e,
+        internal override ActorId CreateStateMachine(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
-            StateMachine machine = this.CreateMachine(id, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateStateMachine(id, type, machineName, creator, opGroupId);
             this.LogWriter.OnCreateStateMachine(machine.Id, creator?.Id);
             this.RunMachineEventHandler(machine, e, true);
             return machine.Id;
@@ -142,10 +142,10 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
         /// method returns only when the created machine reaches quiescence.
         /// </summary>
-        internal override async Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
+        internal override async Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId)
         {
-            StateMachine machine = this.CreateMachine(id, type, machineName, creator, opGroupId);
+            StateMachine machine = this.CreateStateMachine(id, type, machineName, creator, opGroupId);
             this.LogWriter.OnCreateStateMachine(machine.Id, creator?.Id);
             await this.RunMachineEventHandlerAsync(machine, e, true);
             return machine.Id;
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private StateMachine CreateMachine(ActorId id, Type type, string machineName, StateMachine creator, Guid opGroupId)
+        private StateMachine CreateStateMachine(ActorId id, Type type, string machineName, StateMachine creator, Guid opGroupId)
         {
             if (!type.IsSubclassOf(typeof(StateMachine)))
             {

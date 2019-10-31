@@ -37,13 +37,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 int n = 3;
                 for (int i = 0; i < n; i++)
                 {
-                    var lck = this.CreateMachine(typeof(Lock));
+                    var lck = this.CreateStateMachine(typeof(Lock));
                     this.LockMachines.Add(i, lck);
                 }
 
                 for (int i = 0; i < n; i++)
                 {
-                    this.CreateMachine(typeof(Philosopher), new Philosopher.Config(this.LockMachines[i], this.LockMachines[(i + 1) % n]));
+                    this.CreateStateMachine(typeof(Philosopher), new Philosopher.Config(this.LockMachines[i], this.LockMachines[(i + 1) % n]));
                 }
             }
         }
@@ -99,12 +99,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 var target = (this.ReceivedEvent as TryLock).Target;
                 if (this.LockVar)
                 {
-                    this.Send(target, new LockResp(false));
+                    this.SendEvent(target, new LockResp(false));
                 }
                 else
                 {
                     this.LockVar = true;
-                    this.Send(target, new LockResp(true));
+                    this.SendEvent(target, new LockResp(true));
                 }
             }
 
@@ -162,12 +162,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task TryAccess()
             {
-                this.Send(this.left, new Lock.TryLock(this.Id));
-                var ev = await this.Receive(typeof(Lock.LockResp));
+                this.SendEvent(this.left, new Lock.TryLock(this.Id));
+                var ev = await this.ReceiveEventAsync(typeof(Lock.LockResp));
                 if ((ev as Lock.LockResp).LockResult)
                 {
-                    this.Send(this.right, new Lock.TryLock(this.Id));
-                    var evr = await this.Receive(typeof(Lock.LockResp));
+                    this.SendEvent(this.right, new Lock.TryLock(this.Id));
+                    var evr = await this.ReceiveEventAsync(typeof(Lock.LockResp));
                     if ((evr as Lock.LockResp).LockResult)
                     {
                         this.Goto<Done>();
@@ -175,19 +175,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
                     }
                     else
                     {
-                        this.Send(this.left, new Lock.Release());
+                        this.SendEvent(this.left, new Lock.Release());
                     }
                 }
 
-                this.Send(this.Id, new TryAgain());
+                this.SendEvent(this.Id, new TryAgain());
             }
 
             private void OnDone()
             {
-                this.Send(this.left, new Lock.Release());
-                this.Send(this.right, new Lock.Release());
+                this.SendEvent(this.left, new Lock.Release());
+                this.SendEvent(this.right, new Lock.Release());
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyDone());
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateMachine(typeof(Environment));
+                r.CreateStateMachine(typeof(Environment));
             },
             configuration: configuration,
             expectedError: "Monitor 'LivenessMonitor' detected infinite execution that violates a liveness property.",

@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Receive(typeof(E1));
+                await this.ReceiveEventAsync(typeof(E1));
             }
         }
 
@@ -52,9 +52,9 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Receive(typeof(E1));
-                await this.Receive(typeof(E2));
-                await this.Receive(typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1));
+                await this.ReceiveEventAsync(typeof(E2));
+                await this.ReceiveEventAsync(typeof(E3));
             }
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Receive(typeof(E1), typeof(E2), typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
             }
         }
 
@@ -82,9 +82,9 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Receive(typeof(E1), typeof(E2), typeof(E3));
-                await this.Receive(typeof(E1), typeof(E2), typeof(E3));
-                await this.Receive(typeof(E1), typeof(E2), typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
+                await this.ReceiveEventAsync(typeof(E1), typeof(E2), typeof(E3));
             }
         }
 

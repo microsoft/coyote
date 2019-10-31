@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var e = new E(tcs);
-                var m = r.CreateMachine(typeof(M1a), e);
+                var m = r.CreateStateMachine(typeof(M1a), e);
                 r.SendEvent(m, new F());
 
                 await WaitAsync(tcs.Task);
@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var e = new E(tcs);
-                r.CreateMachine(typeof(M1b), e);
+                r.CreateStateMachine(typeof(M1b), e);
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var e = new E(tcs);
-                var m = r.CreateMachine(typeof(M2a), e);
+                var m = r.CreateStateMachine(typeof(M2a), e);
                 r.SendEvent(m, new F());
 
                 await WaitAsync(tcs.Task);
@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var e = new E(tcs);
-                r.CreateMachine(typeof(M2b), e);
+                r.CreateStateMachine(typeof(M2b), e);
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -303,7 +303,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var e = new E(tcs);
-                r.CreateMachine(typeof(M3), e);
+                r.CreateStateMachine(typeof(M3), e);
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -325,7 +325,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var e = new E(tcs);
-                var m = r.CreateMachine(typeof(M4), e);
+                var m = r.CreateStateMachine(typeof(M4), e);
                 r.SendEvent(m, new F());
 
                 var result = await GetResultAsync(tcs.Task);

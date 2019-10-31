@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="e">Optional event used during initialization.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>The result is the actor id.</returns>
-        ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default);
+        ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="e">Optional event used during initialization.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>The result is the actor id.</returns>
-        ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        ActorId CreateStateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="e">Optional event used during initialization.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>The result is the actor id.</returns>
-        ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default);
+        ActorId CreateStateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and with the
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="e">Optional event used during initialization.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
-        Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
+        Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and with
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="e">Optional event used during initialization.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
-        Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/>, using the specified
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="e">Optional event used during initialization.</param>
         /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
-        Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default);
+        Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.

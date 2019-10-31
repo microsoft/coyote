@@ -60,10 +60,10 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(false);
                 };
 
-                var m1 = r.CreateMachine(typeof(M));
+                var m1 = r.CreateStateMachine(typeof(M));
                 var m2 = r.CreateActorIdFromName(typeof(M), "M");
                 r.Assert(!m1.Equals(m2));
-                r.CreateMachine(m2, typeof(M), new Conf(tcs));
+                r.CreateStateMachine(m2, typeof(M), new Conf(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);
@@ -86,8 +86,8 @@ namespace Microsoft.Coyote.Core.Tests
                 var m1 = r.CreateActorIdFromName(typeof(M), "M1");
                 var m2 = r.CreateActorIdFromName(typeof(M), "M2");
                 r.Assert(!m1.Equals(m2));
-                r.CreateMachine(m1, typeof(M));
-                r.CreateMachine(m2, typeof(M), new Conf(tcs));
+                r.CreateStateMachine(m1, typeof(M));
+                r.CreateStateMachine(m2, typeof(M), new Conf(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Core.Tests
                 try
                 {
                     var m3 = r.CreateActorIdFromName(typeof(M3), "M3");
-                    r.CreateMachine(m3, typeof(M2));
+                    r.CreateStateMachine(m3, typeof(M2));
                 }
                 catch (Exception)
                 {
@@ -155,8 +155,8 @@ namespace Microsoft.Coyote.Core.Tests
                 try
                 {
                     var m1 = r.CreateActorIdFromName(typeof(M2), "M2");
-                    r.CreateMachine(m1, typeof(M2));
-                    r.CreateMachine(m1, typeof(M2));
+                    r.CreateStateMachine(m1, typeof(M2));
+                    r.CreateStateMachine(m1, typeof(M2));
                 }
                 catch (Exception)
                 {
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Core.Tests
             private void InitOnEntry()
             {
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
-                this.CreateMachine(m, typeof(M4), "friendly");
+                this.CreateStateMachine(m, typeof(M4), "friendly");
             }
         }
 
@@ -232,8 +232,8 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(false);
                 };
 
-                r.CreateMachine(typeof(M6));
-                r.CreateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
+                r.CreateStateMachine(typeof(M6));
 
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
@@ -250,7 +250,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private async Task InitOnEntry()
             {
-                await this.Runtime.CreateMachineAndExecuteAsync(typeof(M6));
+                await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M6));
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, this.ReceivedEvent);
             }
@@ -269,7 +269,7 @@ namespace Microsoft.Coyote.Core.Tests
                     tcs.SetResult(false);
                 };
 
-                r.CreateMachine(typeof(M7), new Conf(tcs));
+                r.CreateStateMachine(typeof(M7), new Conf(tcs));
 
                 await WaitAsync(tcs.Task);
                 Assert.False(failed);

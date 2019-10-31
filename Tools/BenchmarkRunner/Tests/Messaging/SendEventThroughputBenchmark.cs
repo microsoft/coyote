@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
                 for (int i = 0; i < this.NumConsumers; i++)
                 {
-                    this.Consumers[i] = this.CreateMachine(
+                    this.Consumers[i] = this.CreateStateMachine(
                         typeof(Consumer),
                         new SetupConsumerEvent(this.Id, this.NumMessages / this.NumConsumers));
                 }
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
                 this.Counter = 0;
                 for (int i = 0; i < this.NumMessages; i++)
                 {
-                    this.Send(this.Consumers[i % this.NumConsumers], new Message());
+                    this.SendEvent(this.Consumers[i % this.NumConsumers], new Message());
                 }
             }
 
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             {
                 this.Producer = (this.ReceivedEvent as SetupConsumerEvent).Producer;
                 this.NumMessages = (this.ReceivedEvent as SetupConsumerEvent).NumMessages;
-                this.Send(this.Producer, new Ack());
+                this.SendEvent(this.Producer, new Ack());
             }
 
             private void HandleMessage()
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
                 this.Counter++;
                 if (this.Counter == this.NumMessages)
                 {
-                    this.Send(this.Producer, new Ack());
+                    this.SendEvent(this.Producer, new Ack());
                 }
             }
         }
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             this.ExperimentAwaiter = new TaskCompletionSource<bool>();
 
             var tcs = new TaskCompletionSource<bool>();
-            this.ProducerMachine = this.Runtime.CreateMachine(typeof(Producer), null,
+            this.ProducerMachine = this.Runtime.CreateStateMachine(typeof(Producer), null,
                 new SetupProducerEvent(tcs, this.ExperimentAwaiter, this.NumConsumers, NumMessages));
 
             tcs.Task.Wait();

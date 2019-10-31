@@ -64,10 +64,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Conf()
             {
-                var a = this.CreateMachine(typeof(A));
-                this.Send(a, new E2()); // push(S1)
-                this.Send(a, new E1()); // execute foo without popping
-                this.Send(a, new E3()); // can handle it because A is still in S1
+                var a = this.CreateStateMachine(typeof(A));
+                this.SendEvent(a, new E2()); // push(S1)
+                this.SendEvent(a, new E1()); // execute foo without popping
+                this.SendEvent(a, new E3()); // can handle it because A is still in S1
             }
         }
 
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(B));
+                r.CreateStateMachine(typeof(B));
             });
         }
     }

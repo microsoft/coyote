@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.Core.Tests
         {
             var runtime = ActorRuntimeFactory.Create();
             var tcs = new TaskCompletionSource<bool>();
-            runtime.CreateMachine(typeof(M), new Configure(tcs));
+            runtime.CreateStateMachine(typeof(M), new Configure(tcs));
             await tcs.Task;
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M), new Configure(tcs));
+                r.CreateStateMachine(typeof(M), new Configure(tcs));
 
                 await WaitAsync(tcs.Task);
 
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Core.Tests
                 };
 
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(N), new Configure(tcs));
+                r.CreateStateMachine(typeof(N), new Configure(tcs));
 
                 await WaitAsync(tcs.Task);
 

@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             {
                 this.Tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 this.NumMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
-                this.Target = this.CreateMachine(typeof(M2), new SetupTargetEvent(this.Id, this.NumMessages));
+                this.Target = this.CreateStateMachine(typeof(M2), new SetupTargetEvent(this.Id, this.NumMessages));
                 this.SendMessage();
             }
 
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
                 else
                 {
                     this.Counter++;
-                    this.Send(this.Target, new Message());
+                    this.SendEvent(this.Target, new Message());
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
             private void SendMessage()
             {
-                this.Send(this.Target, new Message());
+                this.SendEvent(this.Target, new Message());
             }
         }
 
@@ -112,14 +112,14 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
             {
                 var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
                 var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
-                var target = this.CreateMachine(typeof(M4), new SetupTargetEvent(this.Id, numMessages));
+                var target = this.CreateStateMachine(typeof(M4), new SetupTargetEvent(this.Id, numMessages));
 
                 var counter = 0;
                 while (counter < numMessages)
                 {
                     counter++;
-                    this.Send(target, new Message());
-                    await this.Receive(typeof(Message));
+                    this.SendEvent(target, new Message());
+                    await this.ReceiveEventAsync(typeof(Message));
                 }
 
                 tcs.SetResult(true);
@@ -143,8 +143,8 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
                 while (counter < numMessages)
                 {
                     counter++;
-                    await this.Receive(typeof(Message));
-                    this.Send(target, new Message());
+                    await this.ReceiveEventAsync(typeof(Message));
+                    this.SendEvent(target, new Message());
                 }
             }
         }
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
             var configuration = Configuration.Create();
             var runtime = new ProductionRuntime(configuration);
-            runtime.CreateMachine(typeof(M1), null,
+            runtime.CreateStateMachine(typeof(M1), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
 
             tcs.Task.Wait();
@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.Benchmarking.Messaging
 
             var configuration = Configuration.Create();
             var runtime = new ProductionRuntime(configuration);
-            runtime.CreateMachine(typeof(M3), null,
+            runtime.CreateStateMachine(typeof(M3), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
 
             tcs.Task.Wait();

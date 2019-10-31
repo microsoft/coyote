@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(WaitForUserOnEntry))]
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void WaitForUserOnEntry()
             {
                 this.Monitor<WatchDog>(new Waiting());
-                this.Send(this.Id, new UserEvent());
+                this.SendEvent(this.Id, new UserEvent());
             }
 
             [OnEntry(nameof(HandleEventOnEntry))]
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(WatchDog));
-                r.CreateMachine(typeof(EventHandler));
+                r.CreateStateMachine(typeof(EventHandler));
             },
             configuration: Configuration.Create().WithStrategy(SchedulingStrategy.DFS));
         }

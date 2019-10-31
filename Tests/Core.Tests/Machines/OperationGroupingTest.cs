@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M1), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M1), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Core.Tests
             private void InitOnEntry()
             {
                 this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
 
             private void CheckEvent()
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M2), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M2), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -146,7 +146,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M3), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M3), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Core.Tests
             private void InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                this.CreateMachine(typeof(M4B), new SetupEvent(tcs));
+                this.CreateStateMachine(typeof(M4B), new SetupEvent(tcs));
             }
         }
 
@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M4A), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M4A), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -207,8 +207,8 @@ namespace Microsoft.Coyote.Core.Tests
             private void InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                var target = this.CreateMachine(typeof(M5B), new SetupEvent(tcs));
-                this.Send(target, new E());
+                var target = this.CreateStateMachine(typeof(M5B), new SetupEvent(tcs));
+                this.SendEvent(target, new E());
             }
         }
 
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M5A), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M5A), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Core.Tests
             private void InitOnEntry()
             {
                 var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                var target = this.CreateMachine(typeof(M6B), new SetupEvent(tcs));
+                var target = this.CreateStateMachine(typeof(M6B), new SetupEvent(tcs));
                 this.Runtime.SendEvent(target, new E(), OperationGroup1);
             }
         }
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.Core.Tests
             await this.RunAsync(async r =>
             {
                 var tcs = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M6A), new SetupEvent(tcs));
+                r.CreateStateMachine(typeof(M6A), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
                 Assert.True(result);
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
-                var target = this.CreateMachine(typeof(M7B), new SetupEvent(tcss[1]));
+                var target = this.CreateStateMachine(typeof(M7B), new SetupEvent(tcss[1]));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.Core.Tests
             private void CheckEvent()
             {
                 this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
-                this.Send((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((this.ReceivedEvent as E).Id, new E());
             }
         }
 
@@ -353,7 +353,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcs1 = new TaskCompletionSource<bool>();
                 var tcs2 = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M7A), new SetupMultipleEvent(tcs1, tcs2));
+                r.CreateStateMachine(typeof(M7A), new SetupMultipleEvent(tcs1, tcs2));
 
                 var result = await GetResultAsync(tcs1.Task);
                 Assert.True(result);
@@ -378,7 +378,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
-                var target = this.CreateMachine(typeof(M8B), new SetupEvent(tcss[1]));
+                var target = this.CreateStateMachine(typeof(M8B), new SetupEvent(tcss[1]));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -418,7 +418,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcs1 = new TaskCompletionSource<bool>();
                 var tcs2 = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M8A), new SetupMultipleEvent(tcs1, tcs2));
+                r.CreateStateMachine(typeof(M8A), new SetupMultipleEvent(tcs1, tcs2));
 
                 var result = await GetResultAsync(tcs1.Task);
                 Assert.True(result);
@@ -443,7 +443,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
-                var target = this.CreateMachine(typeof(M9B), new SetupMultipleEvent(tcss[1], tcss[2]));
+                var target = this.CreateStateMachine(typeof(M9B), new SetupMultipleEvent(tcss[1], tcss[2]));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -474,7 +474,7 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void CheckEvent()
             {
-                this.CreateMachine(typeof(M9C), new SetupEvent(this.TargetTcs));
+                this.CreateStateMachine(typeof(M9C), new SetupEvent(this.TargetTcs));
                 this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
                 this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
             }
@@ -503,7 +503,7 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs1 = new TaskCompletionSource<bool>();
                 var tcs2 = new TaskCompletionSource<bool>();
                 var tcs3 = new TaskCompletionSource<bool>();
-                r.CreateMachine(typeof(M9A), new SetupMultipleEvent(tcs1, tcs2, tcs3));
+                r.CreateStateMachine(typeof(M9A), new SetupMultipleEvent(tcs1, tcs2, tcs3));
 
                 var result = await GetResultAsync(tcs1.Task);
                 Assert.True(result);

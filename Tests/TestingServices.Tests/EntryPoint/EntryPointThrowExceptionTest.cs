@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                ActorId m = r.CreateMachine(typeof(M));
+                ActorId m = r.CreateStateMachine(typeof(M));
                 throw new InvalidOperationException();
             },
             replay: true);

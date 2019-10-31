@@ -60,18 +60,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (Engine.FairRandom(this.Id.Runtime))
                 {
-                    this.Send(this.Id, new E2());
+                    this.SendEvent(this.Id, new E2());
                 }
                 else
                 {
-                    this.Send(this.Id, new E1());
+                    this.SendEvent(this.Id, new E1());
                 }
             }
 
             private void HandleEvent2()
             {
                 this.Monitor<UntilDone>(new E2());
-                this.Raise(new Halt());
+                this.RaiseEvent(new Halt());
             }
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(UntilDone));
-                var m = r.CreateMachine(typeof(M));
+                var m = r.CreateStateMachine(typeof(M));
                 r.SendEvent(m, new E1());
             });
         }

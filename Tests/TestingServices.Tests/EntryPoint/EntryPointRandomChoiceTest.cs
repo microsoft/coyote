@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 if (r.Random())
                 {
-                    r.CreateMachine(typeof(M));
+                    r.CreateStateMachine(typeof(M));
                 }
             });
         }

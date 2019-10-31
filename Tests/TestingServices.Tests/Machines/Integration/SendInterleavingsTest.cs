@@ -47,10 +47,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Initialize()
             {
-                var s1 = this.CreateMachine(typeof(Sender1));
-                this.Send(s1, new Config(this.Id));
-                var s2 = this.CreateMachine(typeof(Sender2));
-                this.Send(s2, new Config(this.Id));
+                var s1 = this.CreateStateMachine(typeof(Sender1));
+                this.SendEvent(s1, new Config(this.Id));
+                var s2 = this.CreateStateMachine(typeof(Sender2));
+                this.SendEvent(s2, new Config(this.Id));
             }
 
             private void OnEvent1()
@@ -74,8 +74,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Run()
             {
-                this.Send((this.ReceivedEvent as Config).Id, new Event1());
-                this.Send((this.ReceivedEvent as Config).Id, new Event1());
+                this.SendEvent((this.ReceivedEvent as Config).Id, new Event1());
+                this.SendEvent((this.ReceivedEvent as Config).Id, new Event1());
             }
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Run()
             {
-                this.Send((this.ReceivedEvent as Config).Id, new Event2());
+                this.SendEvent((this.ReceivedEvent as Config).Id, new Event2());
             }
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(Receiver));
+                r.CreateStateMachine(typeof(Receiver));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS).WithNumberOfIterations(600),
             expectedError: "Detected an assertion failure.",

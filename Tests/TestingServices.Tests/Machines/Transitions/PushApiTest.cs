@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedError: "Bug found.",
             replay: true);
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                var m = r.CreateMachine(typeof(M2));
+                var m = r.CreateStateMachine(typeof(M2));
                 r.SendEvent(m, new E());
             });
         }
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             });
         }
 
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M4a));
+                r.CreateStateMachine(typeof(M4a));
             },
             expectedError: "Machine 'M4a()' is trying to transition to non-existing state 'Done'.",
             replay: true);

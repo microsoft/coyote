@@ -45,13 +45,13 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Foo()
             {
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             private void Bar()
             {
                 var e = this.ReceivedEvent as E2;
-                this.Send(e.Mid, new E2(this.Id));
+                this.SendEvent(e.Mid, new E2(this.Id));
             }
         }
 
@@ -65,10 +65,10 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = this.CreateMachine(typeof(A));
-                this.Send(m, new E1());
-                this.Send(m, new E2(this.Id));
-                var e = await this.Receive(typeof(E2)) as E2;
+                var m = this.CreateStateMachine(typeof(A));
+                this.SendEvent(m, new E1());
+                this.SendEvent(m, new E2(this.Id));
+                var e = await this.ReceiveEventAsync(typeof(E2)) as E2;
             }
         }
 
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(Harness));
+                r.CreateStateMachine(typeof(Harness));
             },
             configuration: GetConfiguration().WithNumberOfIterations(5));
         }

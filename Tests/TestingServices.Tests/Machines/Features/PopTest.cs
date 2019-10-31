@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M), "M");
+                r.CreateStateMachine(typeof(M), "M");
             },
             expectedError: "Machine 'M()' popped with no matching push.",
             replay: true);
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(N), "N");
+                r.CreateStateMachine(typeof(N), "N");
             },
             expectedError: "Machine 'N()' has called raise, goto, push or pop inside an OnExit method.",
             replay: true);

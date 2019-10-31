@@ -79,8 +79,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(P));
-                r.CreateMachine(typeof(M2));
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M1));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100),
             expectedError: "Detected an assertion failure.",
@@ -93,8 +93,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(P));
-                r.CreateMachine(typeof(M1));
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M2));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100),
             expectedError: "Detected an assertion failure.",

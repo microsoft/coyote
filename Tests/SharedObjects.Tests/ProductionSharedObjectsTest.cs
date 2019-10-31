@@ -112,8 +112,8 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs2.TrySetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M), new E(dictionary, counter, tcs1));
-            var m2 = runtime.CreateMachine(typeof(N), new E(dictionary, counter, tcs2));
+            var m1 = runtime.CreateStateMachine(typeof(M), new E(dictionary, counter, tcs1));
+            var m2 = runtime.CreateStateMachine(typeof(N), new E(dictionary, counter, tcs2));
 
             Task.WaitAll(tcs1.Task, tcs2.Task);
             Assert.False(failed);

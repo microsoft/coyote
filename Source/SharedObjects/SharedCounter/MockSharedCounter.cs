@@ -27,10 +27,10 @@ namespace Microsoft.Coyote.SharedObjects
         public MockSharedCounter(int value, SystematicTestingRuntime runtime)
         {
             this.Runtime = runtime;
-            this.CounterMachine = this.Runtime.CreateMachine(typeof(SharedCounterMachine));
+            this.CounterMachine = this.Runtime.CreateStateMachine(typeof(SharedCounterMachine));
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.CounterMachine, SharedCounterEvent.SetEvent(currentMachine.Id, value));
-            currentMachine.Receive(typeof(SharedCounterResponseEvent)).Wait();
+            currentMachine.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Wait();
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.CounterMachine, SharedCounterEvent.GetEvent(currentMachine.Id));
-            var response = currentMachine.Receive(typeof(SharedCounterResponseEvent)).Result;
+            var response = currentMachine.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
             return (response as SharedCounterResponseEvent).Value;
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.CounterMachine, SharedCounterEvent.AddEvent(currentMachine.Id, value));
-            var response = currentMachine.Receive(typeof(SharedCounterResponseEvent)).Result;
+            var response = currentMachine.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
             return (response as SharedCounterResponseEvent).Value;
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.CounterMachine, SharedCounterEvent.SetEvent(currentMachine.Id, value));
-            var response = currentMachine.Receive(typeof(SharedCounterResponseEvent)).Result;
+            var response = currentMachine.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
             return (response as SharedCounterResponseEvent).Value;
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.SharedObjects
         {
             var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
             this.Runtime.SendEvent(this.CounterMachine, SharedCounterEvent.CasEvent(currentMachine.Id, value, comparand));
-            var response = currentMachine.Receive(typeof(SharedCounterResponseEvent)).Result;
+            var response = currentMachine.ReceiveEventAsync(typeof(SharedCounterResponseEvent)).Result;
             return (response as SharedCounterResponseEvent).Value;
         }
     }

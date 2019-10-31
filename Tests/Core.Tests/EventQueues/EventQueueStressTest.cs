@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Core.Tests
             {
                 for (int i = 0; i < numMessages; i++)
                 {
-                    await queue.ReceiveAsync(typeof(E1));
+                    await queue.ReceiveEventAsync(typeof(E1));
                 }
             });
 
@@ -122,12 +122,12 @@ namespace Microsoft.Coyote.Core.Tests
                 {
                     if (i % 2 == 0)
                     {
-                        var e = await queue.ReceiveAsync(typeof(E1));
+                        var e = await queue.ReceiveEventAsync(typeof(E1));
                         Assert.IsType<E1>(e);
                     }
                     else
                     {
-                        var e = await queue.ReceiveAsync(typeof(E2));
+                        var e = await queue.ReceiveEventAsync(typeof(E2));
                         Assert.IsType<E2>(e);
                     }
                 }

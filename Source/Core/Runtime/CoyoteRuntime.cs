@@ -119,21 +119,21 @@ namespace Microsoft.Coyote.Runtime
         /// the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract ActorId CreateMachine(Type type, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and
         /// with the specified optional <see cref="Event"/>. This event can only be
         /// used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract ActorId CreateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateStateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
         /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract ActorId CreateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateStateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and with the
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Runtime
         /// access its payload, and cannot be handled. The method returns only when
         /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public abstract Task<ActorId> CreateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/> and name, and with
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Runtime
         /// access its payload, and cannot be handled. The method returns only when the
         /// machine is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public abstract Task<ActorId> CreateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Creates a new machine of the specified <see cref="Type"/>, using the specified
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Runtime
         /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public abstract Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a machine.
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Runtime
         /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
         /// </summary>
         /// <returns>ActorId</returns>
-        internal abstract ActorId CreateMachine(ActorId id, Type type, string machineName, Event e,
+        internal abstract ActorId CreateStateMachine(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId);
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.Runtime
         /// method returns only when the machine is initialized and the <see cref="Event"/>
         /// (if any) is handled.
         /// </summary>
-        internal abstract Task<ActorId> CreateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
+        internal abstract Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
             StateMachine creator, Guid opGroupId);
 
         /// <summary>
@@ -676,7 +676,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notifies that a machine called Receive.
+        /// Notifies that a machine called ReceiveEventAsync.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyReceiveCalled(StateMachine machine)

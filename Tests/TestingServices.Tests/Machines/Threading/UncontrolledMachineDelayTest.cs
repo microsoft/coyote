@@ -30,9 +30,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
                 await Task.Delay(10);
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1));
+                r.CreateStateMachine(typeof(M1));
             },
             expectedError: "Machine '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
                 "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside machine handlers. If you " +
@@ -60,9 +60,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
                 await Task.Delay(10).ConfigureAwait(false);
-                this.Send(this.Id, new E());
+                this.SendEvent(this.Id, new E());
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2));
+                r.CreateStateMachine(typeof(M2));
             },
             expectedErrors: new string[]
             {
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3));
+                r.CreateStateMachine(typeof(M3));
             },
             expectedErrors: new string[]
             {

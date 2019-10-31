@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void InitOnEntry()
             {
                 this.Assert(this.CurrentState == typeof(Init));
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateMachine(typeof(Server));
+                r.CreateStateMachine(typeof(Server));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS));
         }

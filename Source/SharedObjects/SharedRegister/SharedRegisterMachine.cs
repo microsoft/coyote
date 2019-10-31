@@ -48,13 +48,13 @@ namespace Microsoft.Coyote.SharedObjects
                     break;
 
                 case SharedRegisterEvent.SharedRegisterOperation.GET:
-                    this.Send(e.Sender, new SharedRegisterResponseEvent<T>(this.Value));
+                    this.SendEvent(e.Sender, new SharedRegisterResponseEvent<T>(this.Value));
                     break;
 
                 case SharedRegisterEvent.SharedRegisterOperation.UPDATE:
                     var func = (Func<T, T>)e.Func;
                     this.Value = func(this.Value);
-                    this.Send(e.Sender, new SharedRegisterResponseEvent<T>(this.Value));
+                    this.SendEvent(e.Sender, new SharedRegisterResponseEvent<T>(this.Value));
                     break;
             }
         }

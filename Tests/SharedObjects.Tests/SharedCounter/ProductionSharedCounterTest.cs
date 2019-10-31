@@ -115,8 +115,8 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs2.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M1), new E(counter, tcs1));
-            var m2 = runtime.CreateMachine(typeof(M1), new E(counter, tcs2));
+            var m1 = runtime.CreateStateMachine(typeof(M1), new E(counter, tcs1));
+            var m2 = runtime.CreateStateMachine(typeof(M1), new E(counter, tcs2));
 
             Task.WaitAll(tcs1.Task, tcs2.Task);
             Assert.False(failed);
@@ -138,8 +138,8 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs2.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M2), new E(counter, tcs1));
-            var m2 = runtime.CreateMachine(typeof(M2), new E(counter, tcs2));
+            var m1 = runtime.CreateStateMachine(typeof(M2), new E(counter, tcs1));
+            var m2 = runtime.CreateStateMachine(typeof(M2), new E(counter, tcs2));
 
             Task.WaitAll(tcs1.Task, tcs2.Task);
             Assert.False(failed);

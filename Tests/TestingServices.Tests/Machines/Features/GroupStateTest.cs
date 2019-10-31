@@ -53,17 +53,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void States1S1OnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void States1S2OnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void States2S1OnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void States2S2OnEntry()
@@ -105,12 +105,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void States1S2OnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void States2S1OnEntry()
             {
-                this.Raise(new E());
+                this.RaiseEvent(new E());
             }
 
             private void States2S2OnEntry()
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(Safety));
-                r.CreateMachine(typeof(M));
+                r.CreateStateMachine(typeof(M));
             },
             expectedError: "Detected an assertion failure.",
             replay: true);

@@ -71,9 +71,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.GhostMachine = this.CreateMachine(typeof(M1B));
-                this.Send(this.GhostMachine, new Config(this.Id));
-                this.Send(this.GhostMachine, new E1(), options: new SendOptions(assert: 1));
+                this.GhostMachine = this.CreateStateMachine(typeof(M1B));
+                this.SendEvent(this.GhostMachine, new Config(this.Id));
+                this.SendEvent(this.GhostMachine, new E1(), options: new SendOptions(assert: 1));
             }
 
             private void ExitInit()
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private void EntryS1()
             {
                 this.Assert(this.Test == true); // holds
-                this.Raise(new Unit());
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Action1()
             {
-                this.Send(this.GhostMachine, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.GhostMachine, new E3(), options: new SendOptions(assert: 1));
             }
         }
 
@@ -135,8 +135,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.RealMachine, new E4(), options: new SendOptions(assert: 1));
-                this.Send(this.RealMachine, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.RealMachine, new E4(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.RealMachine, new E2(), options: new SendOptions(assert: 1));
             }
 
             private class S2 : State
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M1A));
+                r.CreateStateMachine(typeof(M1A));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Detected an assertion failure.",
@@ -174,9 +174,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.GhostMachine = this.CreateMachine(typeof(M2B));
-                this.Send(this.GhostMachine, new Config(this.Id));
-                this.Raise(new Unit());
+                this.GhostMachine = this.CreateStateMachine(typeof(M2B));
+                this.SendEvent(this.GhostMachine, new Config(this.Id));
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.GhostMachine, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.GhostMachine, new E1(), options: new SendOptions(assert: 1));
 
                 // We wait in this state until E2 comes from M2B,
                 // then handle E2 using the inherited handler Action1
@@ -210,7 +210,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Action1()
             {
-                this.Send(this.GhostMachine, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.GhostMachine, new E3(), options: new SendOptions(assert: 1));
             }
         }
 
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.RealMachine, new E2(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.RealMachine, new E2(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS2()
             {
-                this.Send(this.RealMachine, new E4(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.RealMachine, new E4(), options: new SendOptions(assert: 1));
             }
         }
 
@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M2A));
+                r.CreateStateMachine(typeof(M2A));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Detected an assertion failure.",
@@ -279,9 +279,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.GhostMachine = this.CreateMachine(typeof(M3B));
-                this.Send(this.GhostMachine, new Config(this.Id));
-                this.Raise(new Unit());
+                this.GhostMachine = this.CreateStateMachine(typeof(M3B));
+                this.SendEvent(this.GhostMachine, new Config(this.Id));
+                this.RaiseEvent(new Unit());
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.GhostMachine, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.GhostMachine, new E1(), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void Action1()
             {
-                this.Send(this.GhostMachine, new E3(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.GhostMachine, new E3(), options: new SendOptions(assert: 1));
             }
         }
 
@@ -335,7 +335,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS1()
             {
-                this.Send(this.RealMachine, new E5(100), options: new SendOptions(assert: 1));
+                this.SendEvent(this.RealMachine, new E5(100), options: new SendOptions(assert: 1));
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -345,7 +345,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void EntryS2()
             {
-                this.Send(this.RealMachine, new E4(), options: new SendOptions(assert: 1));
+                this.SendEvent(this.RealMachine, new E4(), options: new SendOptions(assert: 1));
             }
         }
 
@@ -354,7 +354,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateMachine(typeof(M3A));
+                r.CreateStateMachine(typeof(M3A));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Detected an assertion failure.",

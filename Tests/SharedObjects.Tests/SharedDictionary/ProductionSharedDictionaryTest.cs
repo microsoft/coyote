@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
                 var counter = (this.ReceivedEvent as E).Counter;
                 var tcs = (this.ReceivedEvent as E).Tcs;
-                this.CreateMachine(typeof(N1), this.ReceivedEvent);
+                this.CreateStateMachine(typeof(N1), this.ReceivedEvent);
 
                 string v;
                 while (counter.TryRemove(1, out v) == false)
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             private void InitOnEntry()
             {
-                this.CreateMachine(typeof(N2), this.ReceivedEvent);
+                this.CreateStateMachine(typeof(N2), this.ReceivedEvent);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             private void InitOnEntry()
             {
-                this.CreateMachine(typeof(N4), this.ReceivedEvent);
+                this.CreateStateMachine(typeof(N4), this.ReceivedEvent);
             }
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             private void InitOnEntry()
             {
                 var counter = (this.ReceivedEvent as E).Counter;
-                this.CreateMachine(typeof(N5), this.ReceivedEvent);
+                this.CreateStateMachine(typeof(N5), this.ReceivedEvent);
 
                 for (int i = 0; i <= 100000; i++)
                 {
@@ -255,7 +255,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs1.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M1), new E(counter, tcs1));
+            var m1 = runtime.CreateStateMachine(typeof(M1), new E(counter, tcs1));
 
             Task.WaitAll(tcs1.Task);
             Assert.False(failed);
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs1.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M2), new E(counter, tcs1));
+            var m1 = runtime.CreateStateMachine(typeof(M2), new E(counter, tcs1));
 
             Task.WaitAll(tcs1.Task);
             Assert.True(failed);
@@ -297,8 +297,8 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs2.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M3), new E(counter, tcs1));
-            var m2 = runtime.CreateMachine(typeof(N3), new E(counter, tcs2));
+            var m1 = runtime.CreateStateMachine(typeof(M3), new E(counter, tcs1));
+            var m2 = runtime.CreateStateMachine(typeof(N3), new E(counter, tcs2));
 
             Task.WaitAll(tcs1.Task, tcs2.Task);
             Assert.False(failed);
@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs1.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M4), new E(counter, tcs1));
+            var m1 = runtime.CreateStateMachine(typeof(M4), new E(counter, tcs1));
 
             Task.WaitAll(tcs1.Task);
             Assert.False(failed);
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 tcs1.SetResult(true);
             };
 
-            var m1 = runtime.CreateMachine(typeof(M5), new E(counter, tcs1));
+            var m1 = runtime.CreateStateMachine(typeof(M5), new E(counter, tcs1));
 
             Task.WaitAll(tcs1.Task);
             Assert.False(failed);

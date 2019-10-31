@@ -60,12 +60,12 @@ namespace Microsoft.Coyote.SharedObjects
                 case SharedDictionaryEvent.SharedDictionaryOperation.TRYADD:
                     if (this.Dictionary.ContainsKey((TKey)e.Key))
                     {
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
                     }
                     else
                     {
                         this.Dictionary[(TKey)e.Key] = (TValue)e.Value;
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<bool>(true));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(true));
                     }
 
                     break;
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.SharedObjects
                 case SharedDictionaryEvent.SharedDictionaryOperation.TRYUPDATE:
                     if (!this.Dictionary.ContainsKey((TKey)e.Key))
                     {
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
                     }
                     else
                     {
@@ -81,11 +81,11 @@ namespace Microsoft.Coyote.SharedObjects
                         if (currentValue.Equals((TValue)e.ComparisonValue))
                         {
                             this.Dictionary[(TKey)e.Key] = (TValue)e.Value;
-                            this.Send(e.Sender, new SharedDictionaryResponseEvent<bool>(true));
+                            this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(true));
                         }
                         else
                         {
-                            this.Send(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
+                            this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
                         }
                     }
 
@@ -94,17 +94,17 @@ namespace Microsoft.Coyote.SharedObjects
                 case SharedDictionaryEvent.SharedDictionaryOperation.TRYGET:
                     if (!this.Dictionary.ContainsKey((TKey)e.Key))
                     {
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
                     }
                     else
                     {
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, this.Dictionary[(TKey)e.Key])));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, this.Dictionary[(TKey)e.Key])));
                     }
 
                     break;
 
                 case SharedDictionaryEvent.SharedDictionaryOperation.GET:
-                    this.Send(e.Sender, new SharedDictionaryResponseEvent<TValue>(this.Dictionary[(TKey)e.Key]));
+                    this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<TValue>(this.Dictionary[(TKey)e.Key]));
                     break;
 
                 case SharedDictionaryEvent.SharedDictionaryOperation.SET:
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.SharedObjects
                     break;
 
                 case SharedDictionaryEvent.SharedDictionaryOperation.COUNT:
-                    this.Send(e.Sender, new SharedDictionaryResponseEvent<int>(this.Dictionary.Count));
+                    this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<int>(this.Dictionary.Count));
                     break;
 
                 case SharedDictionaryEvent.SharedDictionaryOperation.TRYREMOVE:
@@ -120,11 +120,11 @@ namespace Microsoft.Coyote.SharedObjects
                     {
                         var value = this.Dictionary[(TKey)e.Key];
                         this.Dictionary.Remove((TKey)e.Key);
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, value)));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, value)));
                     }
                     else
                     {
-                        this.Send(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
+                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
                     }
 
                     break;

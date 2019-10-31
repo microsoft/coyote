@@ -272,7 +272,7 @@ namespace PingPong {
 
   public class HostProgram {
     static void Main(string[] args) {
-      IMachineRuntime runtime = MachineRuntime.Create();
+      IActorRuntime runtime = MachineRuntime.Create();
       runtime.CreateMachine(typeof(Server));
       Console.ReadLine();
     }
@@ -309,7 +309,7 @@ using Microsoft.Coyote;
 using Microsoft.Coyote.Actors;
 public class HostProgram {
   static void Main(string[] args) {
-    IMachineRuntime runtime = MachineRuntimeFactory.Create();
+    IActorRuntime runtime = ActorRuntimeFactory.Create();
     runtime.CreateMachine(typeof(Server));
     Console.ReadLine();
   }
@@ -317,7 +317,7 @@ public class HostProgram {
 ```
 
 The developer must first import the Coyote runtime library (`Microsoft.Coyote.dll`), then create a
-`runtime` instance (of type `IMachineRuntime`), and finally invoke the `CreateMachine` method of
+`runtime` instance (of type `IActorRuntime`), and finally invoke the `CreateMachine` method of
 `runtime` to instantiate the first Coyote machine (`Server` in the above example).
 
 The `CreateMachine` method accepts as a parameter the type of the machine to be instantiated, and
@@ -326,7 +326,7 @@ Because `CreateMachine` is an asynchronous method, we call the `Console.ReadLine
 the main thread until a console input has been given, so that the host C# program does not exit
 prematurely.
 
-The `IMachineRuntime` interface also provides the `SendEvent` method for sending events to a Coyote
+The `IActorRuntime` interface also provides the `SendEvent` method for sending events to a Coyote
 machine from outside a machine. This method accepts as parameters an object of type `ActorId`, an
 event and an optional payload. Although you have to use `CreateMachine` and `SendEvent` to interact
 with a machine from outside a machine, the opposite is straightforward, as it only requires reading

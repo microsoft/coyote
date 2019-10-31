@@ -8,18 +8,18 @@ permalink: /learn/advanced/logging
 ## Logging
 
 The Coyote runtime provides two levels of logging:
-- `IMachineRuntimeLog` interface logs high level state machine activity.
+- `IActorRuntimeLog` interface logs high level state machine activity.
 - `ILogger` is a low level logging interface responsible for formatting text output.
 
-The default implementation of `IMachineRuntimeLog` is `RuntimeLogWriter`
+The default implementation of `IActorRuntimeLog` is `ActorRuntimeLogWriter`
 which formats all events as text writing them out using the lower level `ILogger`
 interface.  The default `ILogger` is the`ConsoleLogger` which is used to write
 output to the `System.Console`.
 
-You can provide your own implementation of `IMachineRuntimeLog` and/or
+You can provide your own implementation of `IActorRuntimeLog` and/or
 `ILogger` in order to gain full control over what is logged and how.
 For an interesting example of this see the `GraphMachineRuntimeLog` class
-which implements `IMachineRuntimeLog` and generates a directed graph representing
+which implements `IActorRuntimeLog` and generates a directed graph representing
 all state transitions that happened during the execution of your state machines.
 See [activity coverage](/Coyote/learn/tools/coverage) for example graph output.
 The `coyote` tester uses this when you specify `--graph` or `--coverage activity`
@@ -33,14 +33,14 @@ test run and this is done by the testing runtime automatically when `--versbose`
 In the latter case, all logging is redirected into an `InMemoryLogger` and only when a bug
 is found is that in-memory log written to a log file on disk.
 
-## Customizing the IMachineRuntimeLog
+## Customizing the IActorRuntimeLog
 
-You can implement your own `IMachineRuntimeLog` (as is done by `GraphMachineRuntimeLog`)
-or you can subclass `RuntimeLogWriter`.  The following is an example subclass that overrides
+You can implement your own `IActorRuntimeLog` (as is done by `GraphMachineRuntimeLog`)
+or you can subclass `ActorRuntimeLogWriter`.  The following is an example subclass that overrides
 two of the public methods, and two of the protected methods:
 
 ```c#
-internal class CustomLogWriter : RuntimeLogWriter
+internal class CustomLogWriter : ActorRuntimeLogWriter
 {
   /* Callbacks on runtime events */
 
@@ -76,20 +76,20 @@ internal class CustomLogWriter : RuntimeLogWriter
 }
 ```
 
-You can then provide your new implementation using the following `IMachineRuntime` method:
+You can then provide your new implementation using the following `IActorRuntime` method:
 ```c#
-using (RuntimeLogWriter old = runtime.SetLogWriter(new CustomLogWriter()))
+using (ActorRuntimeLogWriter old = runtime.SetLogWriter(new CustomLogWriter()))
 {
 }
 ```
-The above method replaces the previously installed log writer, installs the specified one, and returns the previously installed one. The runtime will set the previously installed `ILogger` on your new `IMachineRuntimeLog`, so you do not need to do that.
+The above method replaces the previously installed log writer, installs the specified one, and returns the previously installed one. The runtime will set the previously installed `ILogger` on your new `IActorRuntimeLog`, so you do not need to do that.
 
-You can also chain `IMachineRuntimeLog` objects in case you have loggers that are doing very
-different things.  This can be done by using the `Next` method on `IMachineRuntimeLog`.  This
-creates a linked list of `IMachineRuntimeLog` objects where each `IMachineRuntimeLog` object
+You can also chain `IActorRuntimeLog` objects in case you have loggers that are doing very
+different things.  This can be done by using the `Next` method on `IActorRuntimeLog`.  This
+creates a linked list of `IActorRuntimeLog` objects where each `IActorRuntimeLog` object
 in the list will delegate to the next.
 
-Note that `RuntimeLogWriter` is disposable, so be sure to dispose it if you call SetLogWriter
+Note that `ActorRuntimeLogWriter` is disposable, so be sure to dispose it if you call SetLogWriter
 and you do not link the old object into the linked list using `Next` (as shown in the example above).
 
 ## Using and replacing the logger
@@ -114,7 +114,7 @@ public interface ILogger : IDisposable
 }
 ```
 
-The current ILogger can be accessed via the following property which you can find on  `IMachineRuntime`, `StateMachine`, `Monitor` and `IMachineRuntimeLog`:
+The current ILogger can be accessed via the following property which you can find on  `IActorRuntime`, `StateMachine`, `Monitor` and `IActorRuntimeLog`:
 ```c#
 ILogger Logger { get; }
 ```
@@ -187,7 +187,7 @@ public class CustomLogger : ILogger
 You could use this log level interface to intercept all logging messages and
 send them to an Azure Log table, or over a TCP socket.
 
-To replace the default logger, call the following `IMachineRuntime` method:
+To replace the default logger, call the following `IActorRuntime` method:
 ```c#
 using (ILogger old = runtime.SetLogger(new CustomLogger()))
 {

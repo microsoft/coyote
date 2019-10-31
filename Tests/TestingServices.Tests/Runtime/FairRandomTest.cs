@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,7 +26,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         private class Engine
         {
-            public static bool FairRandom(IMachineRuntime runtime)
+            public static bool FairRandom(IActorRuntime runtime)
             {
                 return runtime.FairRandom();
             }

@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         /// <param name="runtime">The machine runtime.</param>
         /// <param name="value">The initial value.</param>
-        public static ISharedCounter Create(IMachineRuntime runtime, int value = 0)
+        public static ISharedCounter Create(IActorRuntime runtime, int value = 0)
         {
             if (runtime is ProductionRuntime)
             {

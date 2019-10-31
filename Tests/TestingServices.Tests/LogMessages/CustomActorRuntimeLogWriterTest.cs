@@ -4,25 +4,26 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests.LogMessages
 {
-    public class CustomLogWriterTest : BaseTest
+    public class CustomActorRuntimeLogWriterTest : BaseTest
     {
-        public CustomLogWriterTest(ITestOutputHelper output)
+        public CustomActorRuntimeLogWriterTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout=5000)]
-        public void TestCustomLogWriter()
+        public void TestCustomActorRuntimeLogWriter()
         {
-            Action<IMachineRuntime> test = r =>
+            Action<IActorRuntime> test = r =>
             {
-                r.SetLogWriter(new CustomLogWriter());
+                r.SetLogWriter(new CustomActorRuntimeLogWriter());
                 r.CreateMachine(typeof(M));
             };
 

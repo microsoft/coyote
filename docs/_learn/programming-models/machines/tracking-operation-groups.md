@@ -9,7 +9,7 @@ permalink: /learn/programming-models/machines/tracking-operation-groups
 
 For some applications, it is useful to know which machine is processing an event derived from some
 user request. Coyote offers the notion of an _operations group_ that can be tracked automatically. The
-following `IMachineRuntime` APIs take an optional `Guid` parameter.
+following `IActorRuntime` APIs take an optional `Guid` parameter.
 
 ```c#
 ActorId CreateMachine(Type type, Event e = null, Guid operationGroupId = default);
@@ -23,7 +23,7 @@ propagating it. Each machine has a field that tracks its current operations-grou
 Guid OperationGroupId;
 ```
 
-Additionally you may use the following `IMachineRuntime` API to get the operations group of a machine.
+Additionally you may use the following `IActorRuntime` API to get the operations group of a machine.
 However, you must ensure that `currentMachine` is the currently executing machine (otherwise the
 `coyote` tester will report an assertion failure).
 

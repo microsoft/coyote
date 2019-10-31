@@ -17,8 +17,8 @@ This document contains a list of changes from P# to Coyote. Please follow this g
 
 ## Runtime interface changes
 - The static runtime factory is renamed from `PSharpRuntime` to `MachineRuntime`, so you can now do `MachineRuntime.Create()` to get a machine runtime instance.
-- The previously deprecated method `IMachineRuntime.CreateMachineAndExecute` has been removed, please use `IMachineRuntime.CreateMachineAndExecuteAsync` instead (same semantics, just different method name).
-- The previously deprecated method `IMachineRuntime.SendEventAndExecute` has been removed, please use `IMachineRuntime.SendEventAndExecuteAsync` instead (same semantics, just different method name).
+- The previously deprecated method `IActorRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateMachineAndExecuteAsync` instead (same semantics, just different method name).
+- The previously deprecated method `IActorRuntime.SendEventAndExecute` has been removed, please use `IActorRuntime.SendEventAndExecuteAsync` instead (same semantics, just different method name).
 
 ## Command line tool changes
 - The `PSharpTester` and `PSharpReplayer` executables have now been merged into the `coyote` command line tool. To invoke the tester, you do `coyote test ...`. To invoke the replayer you do `coyote replay ...`. The command line options remain pretty much the same, but the way they are declared has changed from (for example) `-max-steps:100` to `--max-steps 100` (single character arguments are used with a single `-`, e.g. `-i 100`). Read more details in the documentation on using the `coyote` command line tool [here](using-coyote.md).

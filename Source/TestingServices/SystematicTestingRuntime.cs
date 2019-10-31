@@ -364,7 +364,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.CreatedActorIds.Add(id);
             this.MachineOperations.GetOrAdd(id.Value, new MachineOperation(machine, this.Scheduler));
 
-            this.LogWriter.OnCreateMachine(id, creator?.Id);
+            this.LogWriter.OnCreateStateMachine(id, creator?.Id);
 
             return machine;
         }

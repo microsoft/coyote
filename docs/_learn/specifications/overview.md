@@ -18,7 +18,7 @@ Safety property specifications generalize the notion of source code assertions. 
 violation is a finite execution that leads a system to an erroneous state. Coyote supports the usual
 assertions for specifying safety properties that are local to a Coyote machine or task. In the Tasks
 programming model, you should use `Specification.Assert` and in the machines programming model the
-corresponding API is `IMachineRuntime.Assert`. In addition, Coyote also provides a way to specify
+corresponding API is `IActorRuntime.Assert`. In addition, Coyote also provides a way to specify
 _global_ assertions that can describe the relationship across tasks or machines.
 
 Coyote provides the notion of a _monitor_. It is a special kind of machine that can receive events but
@@ -34,7 +34,7 @@ The above code snippet declares a monitor named `GlobalSpec`. Unlike machines, m
 explicitly instantiated. Instead, they need to be registered with the Coyote runtime:
 
 ```c#
-IMachineRuntime runtime;
+IActorRuntime runtime;
 runtime.RegisterMonitor<GlobalSpec>();
 ```
 
@@ -42,7 +42,7 @@ There can only be one instance of a given monitor type. Communication with this 
 events:
 
 ```c#
-IMachineRuntime runtime;
+IActorRuntime runtime;
 runtime.InvokeMonitor<GlobalSpec>(new CustomEvent(...));
 ```
 
@@ -97,7 +97,7 @@ specification (inside the monitor) from the program state (outside the monitor).
 
 You can use monitors with the tasks programming model as well. Simply use
 `Specification.RegisterMonitor` and `Specification.InvokeMonitor` instead of the
-corresponding APIs in `IMachineRuntime`.
+corresponding APIs in `IActorRuntime`.
 
 ## Writing liveness properties
 

@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Runtime
             StateMachine creator, Guid opGroupId)
         {
             StateMachine machine = this.CreateMachine(id, type, machineName, creator, opGroupId);
-            this.LogWriter.OnCreateMachine(machine.Id, creator?.Id);
+            this.LogWriter.OnCreateStateMachine(machine.Id, creator?.Id);
             this.RunMachineEventHandler(machine, e, true);
             return machine.Id;
         }
@@ -146,7 +146,7 @@ namespace Microsoft.Coyote.Runtime
             StateMachine creator, Guid opGroupId)
         {
             StateMachine machine = this.CreateMachine(id, type, machineName, creator, opGroupId);
-            this.LogWriter.OnCreateMachine(machine.Id, creator?.Id);
+            this.LogWriter.OnCreateStateMachine(machine.Id, creator?.Id);
             await this.RunMachineEventHandlerAsync(machine, e, true);
             return machine.Id;
         }

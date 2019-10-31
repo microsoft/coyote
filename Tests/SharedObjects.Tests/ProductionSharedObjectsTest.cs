@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -97,7 +98,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout=5000)]
         public void TestProductionSharedObjects()
         {
-            var runtime = MachineRuntimeFactory.Create();
+            var runtime = ActorRuntimeFactory.Create();
             var dictionary = SharedDictionary.Create<int, string>(runtime);
             var counter = SharedCounter.Create(runtime);
             var tcs1 = new TaskCompletionSource<bool>();

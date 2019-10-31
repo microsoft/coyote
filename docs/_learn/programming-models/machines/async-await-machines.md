@@ -119,7 +119,7 @@ create machines:
 
 ```C#
 [Microsoft.Coyote.Test]
-void Test(IMachineRuntime runtime)
+void Test(IActorRuntime runtime)
 {
    runtime.CreateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));
    runtime.CreateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest2(...)));

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -77,7 +78,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedCounter1()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M1));
             });
@@ -205,7 +206,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedCounter2()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M2), new Config(0));
             });
@@ -217,7 +218,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedCounter3()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M2), new Config(1));
             });
@@ -229,7 +230,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedCounter4()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M2), new Config(2));
             });
@@ -241,7 +242,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedCounter5()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M2), new Config(3));
             });
@@ -253,7 +254,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         public void TestMockSharedCounter6()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
-            var test = new Action<IMachineRuntime>((r) =>
+            var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateMachine(typeof(M3));
             });

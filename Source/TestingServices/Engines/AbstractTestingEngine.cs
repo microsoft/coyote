@@ -13,8 +13,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.TestingServices
         {
             if (!string.IsNullOrEmpty(this.Configuration.CustomRuntimeLoggerType))
             {
-                var logger = this.Activate<IO.IMachineRuntimeLog>(this.Configuration.CustomRuntimeLoggerType);
+                var logger = this.Activate<IO.IActorRuntimeLog>(this.Configuration.CustomRuntimeLoggerType);
                 if (logger != null)
                 {
                     runtime.SetLogWriter(logger);
@@ -335,7 +335,7 @@ namespace Microsoft.Coyote.TestingServices
                     string typeName = parts[0];
                     string assemblyName = parts[1];
                     Assembly a = null;
-                    if (System.IO.File.Exists(assemblyName))
+                    if (File.Exists(assemblyName))
                     {
                         a = Assembly.LoadFrom(assemblyName);
                     }
@@ -547,7 +547,7 @@ namespace Microsoft.Coyote.TestingServices
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
             bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
                 (testParams.Length is 0 ||
-                (testParams.Length is 1 && testParams[0].ParameterType == typeof(IMachineRuntime)));
+                (testParams.Length is 1 && testParams[0].ParameterType == typeof(IActorRuntime)));
 
             if (testMethod.IsAbstract || testMethod.IsVirtual || testMethod.IsConstructor ||
                 !testMethod.IsPublic || !testMethod.IsStatic ||
@@ -558,16 +558,16 @@ namespace Microsoft.Coyote.TestingServices
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static void {testMethod.Name}() {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}(IMachineRuntime runtime) {{ ... await ... }}\n\n" +
+                    $"  public static void {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static async ControlledTask {testMethod.Name}() {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async ControlledTask {testMethod.Name}(IMachineRuntime runtime) {{ ... await ... }}");
+                    $"  public static async ControlledTask {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}");
             }
 
             if (testMethod.ReturnType == typeof(void) && testParams.Length == 1)
             {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Action<IMachineRuntime>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Action<IActorRuntime>), testMethod);
             }
             else if (testMethod.ReturnType == typeof(void))
             {
@@ -575,7 +575,7 @@ namespace Microsoft.Coyote.TestingServices
             }
             else if (testParams.Length == 1)
             {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Func<IMachineRuntime, ControlledTask>), testMethod);
+                this.TestMethod = Delegate.CreateDelegate(typeof(Func<IActorRuntime, ControlledTask>), testMethod);
             }
             else
             {

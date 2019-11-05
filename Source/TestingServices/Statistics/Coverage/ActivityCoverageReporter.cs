@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             machines.Sort();
 
             bool hasExternalSource = false;
-            string externalSrcId = "Microsoft.Coyote.TestingServices.Coverage.GraphMachineRuntimeLog+ExternalCode";
+            string externalSrcId = "ExternalCode";
 
             // (machines + "." + states => registered events
             var uncoveredEvents = new Dictionary<string, HashSet<string>>();

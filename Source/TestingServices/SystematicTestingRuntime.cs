@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Graph logger builds the coverage graph.
         /// </summary>
-        internal GraphMachineRuntimeLog CoverageGraph;
+        internal ActorRuntimeLogGraph CoverageGraph;
 
         /// <summary>
         /// The program state cache.
@@ -1782,7 +1782,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 for (var item = this.LogWriter; item != null; item = item.Next)
                 {
-                    GraphMachineRuntimeLog graphLogger = item as GraphMachineRuntimeLog;
+                    ActorRuntimeLogGraph graphLogger = item as ActorRuntimeLogGraph;
                     if (graphLogger != null)
                     {
                         result.CoverageGraph = graphLogger.Graph;

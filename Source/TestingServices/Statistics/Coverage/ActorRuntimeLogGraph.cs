@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
     /// Implements the IActorRuntimeLog and builds a directed graph from the recorded
     /// events and state transitions.
     /// </summary>
-    public class GraphMachineRuntimeLog : IActorRuntimeLog
+    public class ActorRuntimeLogGraph : IActorRuntimeLog
     {
         private Graph CurrentGraph;
         private EventInfo dequeued; // current dequeued event.
@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         private readonly Dictionary<string, string> CurrentStates = new Dictionary<string, string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GraphMachineRuntimeLog"/> class.
+        /// Initializes a new instance of the <see cref="ActorRuntimeLogGraph"/> class.
         /// </summary>
-        public GraphMachineRuntimeLog()
+        public ActorRuntimeLogGraph()
         {
             this.CurrentGraph = new Graph();
         }
@@ -123,6 +123,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
         private string GetActorId(ActorId id)
         {
+            if (id == null)
+            {
+                // senderId can be null if an event is fired from code.
+                return "ExternalCode";
+            }
+
             if (this.CollapseMachineInstances)
             {
                 return id.Type;
@@ -330,8 +336,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
             if (senderId == null)
             {
-                // senderId can be null if an event is fired from code.
-                senderId = this.GetExternalActorId(targetActorId.Runtime);
                 senderStateName = "ExternalState";
             }
 
@@ -556,11 +560,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             this.Next?.OnMonitorEvent(senderId, monitorTypeName, monitorId, currStateName, eventName, isProcessing);
 
             // if sender is null then it means we are dealing with a Monitor call from external code.
-            if (senderId == null)
-            {
-                senderId = this.GetExternalActorId(monitorId.Runtime);
-            }
-
+            string sender = this.GetActorId(senderId);
             string id = this.GetActorId(monitorId);
             if (!this.InBox.TryGetValue(id, out List<EventInfo> inbox))
             {
@@ -568,7 +568,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 this.InBox[id] = inbox;
             }
 
-            inbox.Add(new EventInfo() { ActorId = senderId.ToString(), State = currStateName, Event = eventName });
+            inbox.Add(new EventInfo() { ActorId = sender, State = currStateName, Event = eventName });
         }
 
         /// <summary>
@@ -634,25 +634,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             this.Graph.GetOrCreateLink(parent, child, null, "Contains");
             return child;
         }
-
-        /// <summary>
-        /// Return a special ActorId representing external code (e.g. code that calls SendEvent).
-        /// </summary>
-        internal ActorId GetExternalActorId(IActorRuntime runtime)
-        {
-            if (this.ExternalActorId == null)
-            {
-                this.ExternalActorId = new ActorId(typeof(ExternalCode), "External", (CoyoteRuntime)runtime, true);
-            }
-
-            return this.ExternalActorId;
-        }
-
-        private class ExternalCode
-        {
-        }
-
-        private ActorId ExternalActorId;
     }
 
     /// <summary>

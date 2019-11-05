@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             var runtime = ActorRuntimeFactory.Create(config);
 
-            var graphWriter = new GraphMachineRuntimeLog();
+            var graphWriter = new ActorRuntimeLogGraph();
             runtime.SetLogWriter(graphWriter);
             runtime.SetLogger(logger);
 

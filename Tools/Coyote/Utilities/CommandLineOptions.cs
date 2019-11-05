@@ -202,7 +202,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "graph":
                     this.Configuration.IsDgmlGraphEnabled = true;
                     break;
-                case "logger":
+                case "actor-runtime-log":
                     this.Configuration.CustomActorRuntimeLogType = (string)option.Value;
                     break;
                 case "explore":

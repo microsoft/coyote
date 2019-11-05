@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Coyote
+namespace Microsoft.Coyote.TestingServices
 {
     /// <summary>
     /// Attribute for declaring the entry point to

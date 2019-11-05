@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.TestingServices;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
@@ -315,7 +316,7 @@ namespace Microsoft.Coyote.TestingServices
             if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.ReportActivityCoverage)
             {
                 // chain the logger with a graph generating logger.
-                var graphLogger = new GraphMachineRuntimeLog();
+                var graphLogger = new ActorRuntimeLogGraph();
                 graphLogger.CollapseMachineInstances = this.Configuration.ReportActivityCoverage;
                 var defaultLogger = runtime.SetLogWriter(graphLogger);
                 graphLogger.Next = defaultLogger;

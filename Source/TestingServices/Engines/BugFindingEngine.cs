@@ -423,12 +423,12 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         /// <param name="runtime">The runtime to search.</param>
         /// <returns>A GraphStateMachineLog if found, or null.</returns>
-        private static GraphMachineRuntimeLog FindGraphLog(SystematicTestingRuntime runtime)
+        private static ActorRuntimeLogGraph FindGraphLog(SystematicTestingRuntime runtime)
         {
             IActorRuntimeLog start = runtime.LogWriter;
             while (start != null)
             {
-                GraphMachineRuntimeLog graphLogger = runtime.LogWriter as GraphMachineRuntimeLog;
+                ActorRuntimeLogGraph graphLogger = runtime.LogWriter as ActorRuntimeLogGraph;
                 if (graphLogger != null)
                 {
                     return graphLogger;

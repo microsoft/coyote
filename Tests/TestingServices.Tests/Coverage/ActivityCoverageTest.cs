@@ -364,7 +364,7 @@ Machine event coverage: 50.0%
 		Previous states: Init
 
 Machine: ExternalCode
-======================================================================================
+=====================
 Machine event coverage: 100.0%
 
 	State: ExternalState

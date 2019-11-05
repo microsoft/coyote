@@ -122,7 +122,7 @@ work for the most part. For our running example, we modify our `Test` method to 
 create machines:
 
 ```C#
-[Microsoft.Coyote.Test]
+[Microsoft.Coyote.TestingServices.Test]
 void Test(IActorRuntime runtime)
 {
    runtime.CreateStateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));

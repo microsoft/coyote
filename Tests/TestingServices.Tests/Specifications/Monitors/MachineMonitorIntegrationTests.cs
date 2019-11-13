@@ -7,7 +7,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 {
     public class MachineMonitorIntegrationTests : BaseTest
     {
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(Spec1));
-                r.CreateStateMachine(typeof(M1<Spec1>));
+                r.CreateActor(typeof(M1<Spec1>));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
             expectedError: "Detected an assertion failure.",
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec2));
-                r.CreateStateMachine(typeof(M2));
+                r.CreateActor(typeof(M2));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS));
         }
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Spec3));
-                r.CreateStateMachine(typeof(M1<Spec3>));
+                r.CreateActor(typeof(M1<Spec3>));
             },
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS));
         }

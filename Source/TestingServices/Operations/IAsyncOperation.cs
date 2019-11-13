@@ -9,19 +9,19 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     public interface IAsyncOperation
     {
         /// <summary>
-        /// Unique id of the source of the operation.
+        /// The unique id of the operation.
         /// </summary>
-        ulong SourceId { get; }
+        ulong Id { get; }
 
         /// <summary>
-        /// Unique name of the source of the operation.
+        /// The unique name of the operation.
         /// </summary>
-        string SourceName { get; }
+        string Name { get; }
 
         /// <summary>
         /// The status of the operation. An operation can be scheduled only
         /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
         /// </summary>
-        AsyncOperationStatus Status { get; set; }
+        AsyncOperationStatus Status { get; }
     }
 }

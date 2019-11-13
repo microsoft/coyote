@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 scs = new List<SChoice>();
                 foreach (var task in enabledOperations)
                 {
-                    scs.Add(new SChoice(task.SourceId));
+                    scs.Add(new SChoice(task.Id));
                 }
 
                 this.ScheduleStack.Add(scs);
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 previousChoice.IsDone = false;
             }
 
-            next = enabledOperations.Find(task => task.SourceId == nextChoice.Id);
+            next = enabledOperations.Find(task => task.Id == nextChoice.Id);
             nextChoice.IsDone = true;
             this.SchIndex++;
 

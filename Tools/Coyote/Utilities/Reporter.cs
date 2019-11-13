@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
 using Microsoft.Coyote.TestingServices.Coverage;
 
 namespace Microsoft.Coyote.TestingServices

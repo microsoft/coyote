@@ -27,13 +27,13 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         internal BugTraceStepType Type { get; private set; }
 
         /// <summary>
-        /// The machine initiating the action.
+        /// The state machine initiating the action.
         /// </summary>
         [DataMember]
-        internal ActorId Machine;
+        internal ActorId SourceId;
 
         /// <summary>
-        /// The machine state.
+        /// The state of the state machine.
         /// </summary>
         [DataMember]
         internal string MachineState;
@@ -51,10 +51,10 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         internal string InvokedAction;
 
         /// <summary>
-        /// The target machine.
+        /// The target actor.
         /// </summary>
         [DataMember]
-        internal ActorId TargetMachine;
+        internal ActorId TargetId;
 
         /// <summary>
         /// The taken nondeterministic boolean choice.
@@ -88,8 +88,8 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
         /// <summary>
         /// Creates a bug trace step.
         /// </summary>
-        internal static BugTraceStep Create(int index, BugTraceStepType type, ActorId machine,
-            string machineState, EventInfo eventInfo, MethodInfo action, ActorId targetMachine,
+        internal static BugTraceStep Create(int index, BugTraceStepType type, ActorId sourceId,
+            string machineState, EventInfo eventInfo, MethodInfo action, ActorId targetId,
             bool? boolChoice, int? intChoice, string extraInfo)
         {
             var traceStep = new BugTraceStep();
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
             traceStep.Index = index;
             traceStep.Type = type;
 
-            traceStep.Machine = machine;
+            traceStep.SourceId = sourceId;
             traceStep.MachineState = machineState;
 
             traceStep.EventInfo = eventInfo;
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Error
                 traceStep.InvokedAction = action.Name;
             }
 
-            traceStep.TargetMachine = targetMachine;
+            traceStep.TargetId = targetId;
             traceStep.RandomBooleanChoice = boolChoice;
             traceStep.RandomIntegerChoice = intChoice;
             traceStep.ExtraInfo = extraInfo;

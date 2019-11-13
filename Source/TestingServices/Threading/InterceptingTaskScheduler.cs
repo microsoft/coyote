@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Scheduling;
 
@@ -23,12 +22,12 @@ namespace Microsoft.Coyote.TestingServices.Threading
         /// <summary>
         /// Map from ids of tasks that are controlled by the runtime to operations.
         /// </summary>
-        private readonly ConcurrentDictionary<int, MachineOperation> ControlledTaskMap;
+        private readonly ConcurrentDictionary<int, AsyncOperation> ControlledTaskMap;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterceptingTaskScheduler"/> class.
         /// </summary>
-        internal InterceptingTaskScheduler(ConcurrentDictionary<int, MachineOperation> controlledTaskMap)
+        internal InterceptingTaskScheduler(ConcurrentDictionary<int, AsyncOperation> controlledTaskMap)
         {
             this.ControlledTaskMap = controlledTaskMap;
         }
@@ -39,13 +38,13 @@ namespace Microsoft.Coyote.TestingServices.Threading
         protected override void QueueTask(Task task)
         {
             if (Task.CurrentId.HasValue &&
-                this.ControlledTaskMap.TryGetValue(Task.CurrentId.Value, out MachineOperation op) &&
+                this.ControlledTaskMap.TryGetValue(Task.CurrentId.Value, out AsyncOperation op) &&
                 !this.ControlledTaskMap.ContainsKey(task.Id))
             {
-                // If the task does not correspond to a machine operation, then associate
-                // it with the currently executing machine operation and schedule it.
+                // If the task does not correspond to an actor operation, then associate
+                // it with the currently executing actor operation and schedule it.
                 this.ControlledTaskMap.TryAdd(task.Id, op);
-                IO.Debug.WriteLine($"<ScheduleDebug> Operation '{op.SourceId}' is associated with task '{task.Id}'.");
+                IO.Debug.WriteLine($"<ScheduleDebug> Operation '{op.Id}' is associated with task '{task.Id}'.");
             }
 
             this.Execute(task);
@@ -60,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
         }
 
         /// <summary>
-        /// Returns the wrapped in a machine scheduled tasks.
+        /// Returns the wrapped in an actor scheduled tasks.
         /// </summary>
         protected override IEnumerable<Task> GetScheduledTasks()
         {

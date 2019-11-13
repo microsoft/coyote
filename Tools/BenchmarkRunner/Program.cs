@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using BenchmarkDotNet.Running;
-using Microsoft.Coyote.Benchmarking.Creation;
-using Microsoft.Coyote.Benchmarking.Messaging;
 
 namespace Microsoft.Coyote.Benchmarking
 {
@@ -16,10 +14,10 @@ namespace Microsoft.Coyote.Benchmarking
         private static void Main(string[] args)
         {
             // BenchmarkSwitcher.FromAssembly(typeof(Program).GetTypeInfo().Assembly).Run(args);
-            BenchmarkRunner.Run<MachineCreationThroughputBenchmark>();
-            BenchmarkRunner.Run<ExchangeEventLatencyBenchmark>();
-            BenchmarkRunner.Run<SendEventThroughputBenchmark>();
-            BenchmarkRunner.Run<DequeueEventThroughputBenchmark>();
+            BenchmarkRunner.Run<Actors.StateMachines.CreationThroughputBenchmark>();
+            BenchmarkRunner.Run<Actors.StateMachines.ExchangeEventLatencyBenchmark>();
+            BenchmarkRunner.Run<Actors.StateMachines.SendEventThroughputBenchmark>();
+            BenchmarkRunner.Run<Actors.StateMachines.DequeueEventThroughputBenchmark>();
         }
 #pragma warning restore CA1801 // Parameter not used
     }

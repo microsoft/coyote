@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             // Per-machine data.
             foreach (var machine in machines)
             {
-                WriteHeader(writer, string.Format("Machine: {0}", machine));
+                WriteHeader(writer, string.Format("StateMachine: {0}", machine));
 
                 // find all possible events for this machine.
                 var uncoveredMachineEvents = new Dictionary<string, HashSet<string>>();
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 var totalUncoveredMachineEvents = (from h in uncoveredMachineEvents select h.Value.Count).Sum();
 
                 eventCoverage = totalMachineEvents == 0 ? "100.0" : ((totalMachineEvents - totalUncoveredMachineEvents) * 100.0 / totalMachineEvents).ToString("F1");
-                writer.WriteLine("Machine event coverage: {0}%", eventCoverage);
+                writer.WriteLine("Event coverage: {0}%", eventCoverage);
 
                 if (!this.CoverageInfo.MachinesToStates.ContainsKey(machine))
                 {

@@ -6,24 +6,24 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// Event used to communicate with a shared register machine.
+    /// Event used to communicate with a shared register actor.
     /// </summary>
     internal class SharedRegisterEvent : Event
     {
         /// <summary>
         /// Supported shared register operations.
         /// </summary>
-        internal enum SharedRegisterOperation
+        internal enum OperationType
         {
-            GET,
-            SET,
-            UPDATE
+            Get,
+            Set,
+            Update
         }
 
         /// <summary>
         /// The operation stored in this event.
         /// </summary>
-        public SharedRegisterOperation Operation { get; private set; }
+        public OperationType Operation { get; private set; }
 
         /// <summary>
         /// The shared register value stored in this event.
@@ -36,14 +36,14 @@ namespace Microsoft.Coyote.SharedObjects
         public object Func { get; private set; }
 
         /// <summary>
-        /// The sender machine stored in this event.
+        /// The sender actor stored in this event.
         /// </summary>
         public ActorId Sender { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SharedRegisterEvent"/> class.
         /// </summary>
-        private SharedRegisterEvent(SharedRegisterOperation op, object value, object func, ActorId sender)
+        private SharedRegisterEvent(OperationType op, object value, object func, ActorId sender)
         {
             this.Operation = op;
             this.Value = value;
@@ -52,27 +52,27 @@ namespace Microsoft.Coyote.SharedObjects
         }
 
         /// <summary>
-        /// Creates a new event for the 'UPDATE' operation.
+        /// Creates a new event for the <see cref="OperationType.Update"/> operation.
         /// </summary>
         public static SharedRegisterEvent UpdateEvent(object func, ActorId sender)
         {
-            return new SharedRegisterEvent(SharedRegisterOperation.UPDATE, null, func, sender);
+            return new SharedRegisterEvent(OperationType.Update, null, func, sender);
         }
 
         /// <summary>
-        /// Creates a new event for the 'SET' operation.
+        /// Creates a new event for the <see cref="OperationType.Set"/> operation.
         /// </summary>
         public static SharedRegisterEvent SetEvent(object value)
         {
-            return new SharedRegisterEvent(SharedRegisterOperation.SET, value, null, null);
+            return new SharedRegisterEvent(OperationType.Set, value, null, null);
         }
 
         /// <summary>
-        /// Creates a new event for the 'GET' operation.
+        /// Creates a new event for the <see cref="OperationType.Get"/> operation.
         /// </summary>
         public static SharedRegisterEvent GetEvent(ActorId sender)
         {
-            return new SharedRegisterEvent(SharedRegisterOperation.GET, null, null, sender);
+            return new SharedRegisterEvent(OperationType.Get, null, null, sender);
         }
     }
 }

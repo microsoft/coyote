@@ -6,8 +6,7 @@ using System.Diagnostics;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// The exception that is thrown in a Coyote machine upon cancellation
-    /// of execution by the Coyote runtime.
+    /// Exception that is thrown upon cancellation of testing execution by the runtime.
     /// </summary>
     [DebuggerStepThrough]
     public sealed class ExecutionCanceledException : RuntimeException

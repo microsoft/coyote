@@ -142,7 +142,7 @@ namespace Microsoft.Coyote
                 if (ex is ExecutionCanceledException)
                 {
                     Error.Report("[CoyoteTester] unhandled exception: {0}: {1}", ex.GetType().ToString(),
-                        "This can mean you have a code path that is not controlled by the Coyote runtime that threw an unhandled exception. " +
+                        "This can mean you have a code path that is not controlled by the runtime that threw an unhandled exception. " +
                         "This typically happens when you create an explicit 'Task' instead of 'ControlledTask' or create a 'Task' inside a 'StateMachine' handler. " +
                         "One known issue that causes this is using 'async void' methods, which is not supported.");
                     StdOut.WriteLine(ex.StackTrace);

@@ -301,7 +301,7 @@ namespace Microsoft.Coyote
 
         /// <summary>
         /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
-        /// This is different from a coverage activity graph, as it will also show machine instances.
+        /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
         public bool IsDgmlGraphEnabled;

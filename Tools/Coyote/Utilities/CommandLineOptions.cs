@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.TestingServices.Coverage;
 
 namespace Microsoft.Coyote.Utilities
 {
@@ -46,7 +45,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
  code: Generate code coverage statistics (via VS instrumentation)
- activity: Generate activity (machine, event, etc.) coverage statistics
+ activity: Generate activity (state machine, event, etc.) coverage statistics
  activity-debug: Print activity coverage statistics with debug info", typeof(string));
             coverageArg.AllowedValues = new List<string>(new string[] { string.Empty, "code", "activity", "activity-debug" });
             coverageArg.IsMultiValue = true;

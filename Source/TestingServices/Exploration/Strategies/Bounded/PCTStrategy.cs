@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             {
                 var mIndex = this.RandomNumberGenerator.Next(this.PrioritizedOperations.Count) + 1;
                 this.PrioritizedOperations.Insert(mIndex, op);
-                Debug.WriteLine($"<PCTLog> Detected new operation from '{op.SourceName}' at index '{mIndex}'.");
+                Debug.WriteLine($"<PCTLog> Detected new operation from '{op.Name}' at index '{mIndex}'.");
             }
 
             if (this.PriorityChangePoints.Contains(this.ScheduledSteps))

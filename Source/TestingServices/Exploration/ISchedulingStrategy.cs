@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 {
     /// <summary>
-    /// Interface of a machine scheduling strategy.
+    /// Interface of an exploration strategy used during controlled testing.
     /// </summary>
     public interface ISchedulingStrategy
     {

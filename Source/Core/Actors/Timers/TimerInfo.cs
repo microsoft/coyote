@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.Coyote.Actors.Timers
 {
     /// <summary>
-    /// Stores information about a timer that can send timeout events to its owner machine.
+    /// Stores information about a timer that can send timeout events to its owner actor.
     /// </summary>
     public class TimerInfo : IEquatable<TimerInfo>
     {
@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Actors.Timers
         private readonly Guid Id;
 
         /// <summary>
-        /// The id of the machine that owns the timer.
+        /// The id of the actor that owns the timer.
         /// </summary>
         public readonly ActorId OwnerId;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Actors.Timers
         /// <summary>
         /// Initializes a new instance of the <see cref="TimerInfo"/> class.
         /// </summary>
-        /// <param name="ownerId">The id of the machine that owns this timer.</param>
+        /// <param name="ownerId">The id of the actor that owns this timer.</param>
         /// <param name="dueTime">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
         /// <param name="payload">Optional payload of the timeout event.</param>

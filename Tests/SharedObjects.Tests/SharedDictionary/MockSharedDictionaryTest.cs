@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             private void InitOnEntry()
             {
                 var counter = SharedDictionary.Create<int, string>(this.Id.Runtime);
-                this.CreateStateMachine(typeof(N1), new E1(counter));
+                this.CreateActor(typeof(N1), new E1(counter));
 
                 counter.TryAdd(1, "M");
 
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             private void InitOnEntry()
             {
                 var counter = SharedDictionary.Create<int, string>(this.Id.Runtime);
-                this.CreateStateMachine(typeof(N3), new E1(counter));
+                this.CreateActor(typeof(N3), new E1(counter));
 
                 counter.TryAdd(1, "M");
 
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             private void InitOnEntry()
             {
                 var counter = SharedDictionary.Create<int, string>(this.Id.Runtime);
-                this.CreateStateMachine(typeof(N4), new E1(counter));
+                this.CreateActor(typeof(N4), new E1(counter));
 
                 counter.TryAdd(1, "M");
 
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 if (flag)
                 {
-                    this.CreateStateMachine(typeof(N5), new E2(counter, false));
+                    this.CreateActor(typeof(N5), new E2(counter, false));
                 }
 
                 var b = counter.TryGetValue(2, out string v);
@@ -234,7 +234,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
                 var counter = (this.ReceivedEvent as E1).Counter;
 
-                this.CreateStateMachine(typeof(N6), new E1(counter));
+                this.CreateActor(typeof(N6), new E1(counter));
                 counter.TryAdd(1, "M");
 
                 var b = counter.TryGetValue(2, out string v);
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M1));
+                r.CreateActor(typeof(M1));
             });
 
             this.AssertFailed(config, test, "Detected an assertion failure.");
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M2));
+                r.CreateActor(typeof(M2));
             });
 
             this.AssertFailed(config, test, 1);
@@ -287,7 +287,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M3));
+                r.CreateActor(typeof(M3));
             });
 
             this.AssertSucceeded(config, test);
@@ -299,7 +299,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M4));
+                r.CreateActor(typeof(M4));
             });
 
             this.AssertSucceeded(config, test);
@@ -312,7 +312,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var test = new Action<IActorRuntime>((r) =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);
-                r.CreateStateMachine(typeof(M5), new E2(counter, true));
+                r.CreateActor(typeof(M5), new E2(counter, true));
             });
 
             this.AssertSucceeded(config, test);
@@ -325,7 +325,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var test = new Action<IActorRuntime>((r) =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);
-                r.CreateStateMachine(typeof(M5), new E2(counter, false));
+                r.CreateActor(typeof(M5), new E2(counter, false));
             });
 
             this.AssertSucceeded(config, test);
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var test = new Action<IActorRuntime>((r) =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);
-                r.CreateStateMachine(typeof(M6), new E1(counter));
+                r.CreateActor(typeof(M6), new E1(counter));
             });
 
             this.AssertFailed(config, test, "Detected an assertion failure.");

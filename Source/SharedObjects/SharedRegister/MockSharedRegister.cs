@@ -4,19 +4,20 @@
 using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Runtime;
+using Microsoft.Coyote.TestingServices.Scheduling;
 
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// A wrapper for a shared register modeled using a state machine for testing.
+    /// A wrapper for a shared register modeled using an actor for testing.
     /// </summary>
     internal sealed class MockSharedRegister<T> : ISharedRegister<T>
         where T : struct
     {
         /// <summary>
-        /// Machine modeling the shared register.
+        /// Actor modeling the shared register.
         /// </summary>
-        private readonly ActorId RegisterMachine;
+        private readonly ActorId RegisterActor;
 
         /// <summary>
         /// The testing runtime hosting this shared register.
@@ -29,8 +30,8 @@ namespace Microsoft.Coyote.SharedObjects
         public MockSharedRegister(T value, SystematicTestingRuntime runtime)
         {
             this.Runtime = runtime;
-            this.RegisterMachine = this.Runtime.CreateStateMachine(typeof(SharedRegisterMachine<T>));
-            this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.SetEvent(value));
+            this.RegisterActor = this.Runtime.CreateActor(typeof(SharedRegisterActor<T>));
+            this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.SetEvent(value));
         }
 
         /// <summary>
@@ -38,9 +39,9 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public T Update(Func<T, T> func)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-            this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.UpdateEvent(func, currentMachine.Id));
-            var e = currentMachine.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
+            var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.UpdateEvent(func, op.Actor.Id));
+            var e = op.Actor.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
             return e.Value;
         }
 
@@ -49,9 +50,9 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public T GetValue()
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-            this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.GetEvent(currentMachine.Id));
-            var e = currentMachine.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
+            var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.GetEvent(op.Actor.Id));
+            var e = op.Actor.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
             return e.Value;
         }
 
@@ -60,7 +61,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public void SetValue(T value)
         {
-            this.Runtime.SendEvent(this.RegisterMachine, SharedRegisterEvent.SetEvent(value));
+            this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.SetEvent(value));
         }
     }
 }

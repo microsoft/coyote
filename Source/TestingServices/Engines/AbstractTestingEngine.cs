@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.TestingServices;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
@@ -44,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices
         internal Assembly Assembly;
 
         /// <summary>
-        /// The assembly that provides the Coyote runtime to use during testing.
+        /// The assembly that provides the runtime to use during testing.
         /// If its null, the engine uses the default Coyote testing runtime.
         /// </summary>
         internal Assembly RuntimeAssembly;
@@ -402,9 +401,8 @@ namespace Microsoft.Coyote.TestingServices
                     Error.ReportAndExit($"{aex.InnerException.Message}");
                 }
 
-                Error.ReportAndExit("Exception thrown during testing outside the context of a " +
-                    "machine, possibly in a test method. Please use " +
-                    "/debug /v:2 to print more information.");
+                Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
+                    "possibly in a test method. Please use /debug /v:2 to print more information.");
             }
             catch (Exception ex)
             {

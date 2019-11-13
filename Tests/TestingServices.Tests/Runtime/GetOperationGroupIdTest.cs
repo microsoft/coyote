@@ -6,7 +6,7 @@ using Microsoft.Coyote.Actors;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Runtime
 {
     public class GetOperationGroupIdTest : BaseTest
     {
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateStateMachine(typeof(M4));
+                var target = this.CreateActor(typeof(M4));
                 this.Runtime.GetCurrentOperationGroupId(target);
             }
         }
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M1));
+                r.CreateActor(typeof(M1));
             });
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M2));
+                r.CreateActor(typeof(M2));
             });
         }
 
@@ -109,9 +109,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateStateMachine(typeof(M3));
+                r.CreateActor(typeof(M3));
             },
-            expectedError: "Trying to access the operation group id of 'M4()', which is not the currently executing machine.",
+            expectedError: "Trying to access the operation group id of 'M4()', which is not the currently executing actor.",
             replay: true);
         }
     }

@@ -6,7 +6,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 {
     public class GenericMonitorTest : BaseTest
     {
@@ -42,10 +42,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private class E : Event
-        {
-        }
-
         private class M<T> : Monitor
         {
             [Start]
@@ -70,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M<int>));
-                r.CreateStateMachine(typeof(Program<int>));
+                r.CreateActor(typeof(Program<int>));
             });
         }
     }

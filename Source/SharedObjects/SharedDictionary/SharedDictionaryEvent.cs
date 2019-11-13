@@ -6,29 +6,29 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// Event used to communicate with a shared counter machine.
+    /// Event used to communicate with a shared counter actor.
     /// </summary>
     internal class SharedDictionaryEvent : Event
     {
         /// <summary>
         /// Supported shared dictionary operations.
         /// </summary>
-        internal enum SharedDictionaryOperation
+        internal enum OperationType
         {
-            INIT,
-            GET,
-            SET,
-            TRYADD,
-            TRYGET,
-            TRYUPDATE,
-            TRYREMOVE,
-            COUNT
+            Initialize,
+            Get,
+            Set,
+            TryAdd,
+            TryGet,
+            TryUpdate,
+            TryRemove,
+            Count
         }
 
         /// <summary>
         /// The operation stored in this event.
         /// </summary>
-        internal SharedDictionaryOperation Operation { get; private set; }
+        internal OperationType Operation { get; private set; }
 
         /// <summary>
         /// The shared dictionary key stored in this event.
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.SharedObjects
         internal object ComparisonValue { get; private set; }
 
         /// <summary>
-        /// The sender machine stored in this event.
+        /// The sender actor stored in this event.
         /// </summary>
         internal ActorId Sender { get; private set; }
 
@@ -58,7 +58,8 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="SharedDictionaryEvent"/> class.
         /// </summary>
-        private SharedDictionaryEvent(SharedDictionaryOperation op, object key, object value, object comparisonValue, ActorId sender, object comparer)
+        private SharedDictionaryEvent(OperationType op, object key, object value,
+            object comparisonValue, ActorId sender, object comparer)
         {
             this.Operation = op;
             this.Key = key;
@@ -69,51 +70,51 @@ namespace Microsoft.Coyote.SharedObjects
         }
 
         /// <summary>
-        /// Creates a new event for the 'INIT' operation.
+        /// Creates a new event for the <see cref="OperationType.Initialize"/> operation.
         /// </summary>
-        internal static SharedDictionaryEvent InitEvent(object comparer) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.INIT, null, null, null, null, comparer);
+        internal static SharedDictionaryEvent InitializeEvent(object comparer) =>
+            new SharedDictionaryEvent(OperationType.Initialize, null, null, null, null, comparer);
 
         /// <summary>
-        /// Creates a new event for the 'TRYADD' operation.
+        /// Creates a new event for the <see cref="OperationType.TryAdd"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent TryAddEvent(object key, object value, ActorId sender) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.TRYADD, key, value, null, sender, null);
+            new SharedDictionaryEvent(OperationType.TryAdd, key, value, null, sender, null);
 
         /// <summary>
-        /// Creates a new event for the 'TRYUPDATE' operation.
+        /// Creates a new event for the <see cref="OperationType.TryUpdate"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent TryUpdateEvent(object key, object value, object comparisonValue, ActorId sender) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.TRYUPDATE, key, value, comparisonValue, sender, null);
+            new SharedDictionaryEvent(OperationType.TryUpdate, key, value, comparisonValue, sender, null);
 
         /// <summary>
-        /// Creates a new event for the 'GET' operation.
+        /// Creates a new event for the <see cref="OperationType.Get"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent GetEvent(object key, ActorId sender) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.GET, key, null, null, sender, null);
+            new SharedDictionaryEvent(OperationType.Get, key, null, null, sender, null);
 
         /// <summary>
-        /// Creates a new event for the 'TRYGET' operation.
+        /// Creates a new event for the <see cref="OperationType.TryGet"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent TryGetEvent(object key, ActorId sender) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.TRYGET, key, null, null, sender, null);
+            new SharedDictionaryEvent(OperationType.TryGet, key, null, null, sender, null);
 
         /// <summary>
-        /// Creates a new event for the 'SET' operation.
+        /// Creates a new event for the <see cref="OperationType.Set"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent SetEvent(object key, object value) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.SET, key, value, null, null, null);
+            new SharedDictionaryEvent(OperationType.Set, key, value, null, null, null);
 
         /// <summary>
-        /// Creates a new event for the 'COUNT' operation.
+        /// Creates a new event for the <see cref="OperationType.Count"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent CountEvent(ActorId sender) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.COUNT, null, null, null, sender, null);
+            new SharedDictionaryEvent(OperationType.Count, null, null, null, sender, null);
 
         /// <summary>
-        /// Creates a new event for the 'TRYREMOVE' operation.
+        /// Creates a new event for the <see cref="OperationType.TryRemove"/> operation.
         /// </summary>
         internal static SharedDictionaryEvent TryRemoveEvent(object key, ActorId sender) =>
-            new SharedDictionaryEvent(SharedDictionaryOperation.TRYREMOVE, key, null, null, sender, null);
+            new SharedDictionaryEvent(OperationType.TryRemove, key, null, null, sender, null);
     }
 }

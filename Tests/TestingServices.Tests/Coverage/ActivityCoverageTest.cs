@@ -4,10 +4,11 @@
 using System.IO;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Coverage;
+using Microsoft.Coyote.Tests.Common.Actors;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Coverage
 {
     public class ActivityCoverageTest : BaseTest
     {
@@ -24,10 +25,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 this.Id = id;
             }
-        }
-
-        private class E : Event
-        {
         }
 
         private class M1 : StateMachine
@@ -56,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M1));
+                r.CreateActor(typeof(M1));
             },
             configuration);
 
@@ -71,9 +68,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             var expected = @"Total event coverage: 100.0%
 ============================
-Machine: M1
-=======================================================================
-Machine event coverage: 100.0%
+StateMachine: M1
+=====================================================================================
+Event coverage: 100.0%
 
 	State: Init
 		State has no expected events, so coverage is 100%
@@ -92,14 +89,14 @@ Machine event coverage: 100.0%
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class Init : State
             {
             }
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new E());
+                this.RaiseEvent(new UnitEvent());
             }
 
             private class Done : State
@@ -115,7 +112,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M2));
+                r.CreateActor(typeof(M2));
             },
             configuration);
 
@@ -130,9 +127,9 @@ Machine event coverage: 100.0%
 
             var expected = @"Total event coverage: 100.0%
 ============================
-Machine: M2
-=======================================================================
-Machine event coverage: 100.0%
+StateMachine: M2
+=====================================================================================
+Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
@@ -151,14 +148,14 @@ Machine event coverage: 100.0%
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class Init : State
             {
             }
 
             private void InitOnEntry()
             {
-                this.CreateStateMachine(typeof(M3B), new Setup(this.Id));
+                this.CreateActor(typeof(M3B), new Setup(this.Id));
             }
 
             private class Done : State
@@ -177,7 +174,7 @@ Machine event coverage: 100.0%
             private void InitOnEntry()
             {
                 var id = (this.ReceivedEvent as Setup).Id;
-                this.SendEvent(id, new E());
+                this.SendEvent(id, new UnitEvent());
             }
         }
 
@@ -189,7 +186,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M3A));
+                r.CreateActor(typeof(M3A));
             },
             configuration);
 
@@ -204,29 +201,29 @@ Machine event coverage: 100.0%
 
             var expected = @"Total event coverage: 100.0%
 ============================
-Machine: M3A
-========================================================================
-Machine event coverage: 100.0%
+StateMachine: M3A
+======================================================================================
+Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
-		Events received: E
-		Events sent: E
+		Events received: Actors.UnitEvent
+		Events sent: Actors.UnitEvent
 		Previous states: Init
 		Next states: Done
 
 	State: Done
 		State has no expected events, so coverage is 100%
-		Events received: E
+		Events received: Actors.UnitEvent
 		Previous states: Init
 
-Machine: M3B
-========================================================================
-Machine event coverage: 100.0%
+StateMachine: M3B
+======================================================================================
+Event coverage: 100.0%
 
 	State: Init
 		State has no expected events, so coverage is 100%
-		Events sent: E
+		Events sent: Actors.UnitEvent
 		Next states: Init
 
 ";
@@ -238,7 +235,7 @@ Machine event coverage: 100.0%
         internal class M4 : StateMachine
         {
             [Start]
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             internal class Init : State
             {
             }
@@ -256,8 +253,8 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine1 = this.Test(r =>
             {
-                var m = r.CreateStateMachine(typeof(M4));
-                r.SendEvent(m, new E());
+                var m = r.CreateActor(typeof(M4));
+                r.SendEvent(m, new UnitEvent());
             },
             configuration);
 
@@ -266,12 +263,12 @@ Machine event coverage: 100.0%
             Assert.Contains(typeof(M4).FullName, coverage1.MachinesToStates.Keys);
             Assert.Contains(typeof(M4.Init).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
             Assert.Contains(typeof(M4.Done).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(coverage1.RegisteredEvents, tup => tup.Value.Contains(typeof(E).FullName));
+            Assert.Contains(coverage1.RegisteredEvents, tup => tup.Value.Contains(typeof(UnitEvent).FullName));
 
             ITestingEngine testingEngine2 = this.Test(r =>
             {
-                var m = r.CreateStateMachine(typeof(M4));
-                r.SendEvent(m, new E());
+                var m = r.CreateActor(typeof(M4));
+                r.SendEvent(m, new UnitEvent());
             },
             configuration);
 
@@ -280,7 +277,7 @@ Machine event coverage: 100.0%
             Assert.Contains(typeof(M4).FullName, coverage2.MachinesToStates.Keys);
             Assert.Contains(typeof(M4.Init).Name, coverage2.MachinesToStates[typeof(M4).FullName]);
             Assert.Contains(typeof(M4.Done).Name, coverage2.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(coverage2.RegisteredEvents, tup => tup.Value.Contains(typeof(E).FullName));
+            Assert.Contains(coverage2.RegisteredEvents, tup => tup.Value.Contains(typeof(UnitEvent).FullName));
 
             string coverageReport1, coverageReport2;
 
@@ -331,7 +328,7 @@ Machine event coverage: 100.0%
 
             ITestingEngine testingEngine = this.Test(r =>
             {
-                var m = r.CreateStateMachine(typeof(M5));
+                var m = r.CreateActor(typeof(M5));
                 r.SendEvent(m, new E1());
             },
             configuration);
@@ -347,9 +344,9 @@ Machine event coverage: 100.0%
 
             var expected = @"Total event coverage: 50.0%
 ===========================
-Machine: M5
-=======================================================================
-Machine event coverage: 50.0%
+StateMachine: M5
+=====================================================================================
+Event coverage: 50.0%
 
 	State: Init
 		State event coverage: 50.0%
@@ -363,9 +360,9 @@ Machine event coverage: 50.0%
 		Events received: E1
 		Previous states: Init
 
-Machine: ExternalCode
-=====================
-Machine event coverage: 100.0%
+StateMachine: ExternalCode
+==========================
+Event coverage: 100.0%
 
 	State: ExternalState
 		State has no expected events, so coverage is 100%

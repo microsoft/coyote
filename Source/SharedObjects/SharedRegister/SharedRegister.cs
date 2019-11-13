@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Creates a new shared register.
         /// </summary>
-        /// <param name="runtime">The machine runtime.</param>
+        /// <param name="runtime">The actor runtime.</param>
         /// <param name="value">The initial value.</param>
         public static ISharedRegister<T> Create<T>(IActorRuntime runtime, T value = default)
             where T : struct

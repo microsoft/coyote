@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
@@ -29,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public Dictionary<string, HashSet<string>> MachinesToStates { get; private set; }
 
         /// <summary>
-        /// Set of (machine + "." + state => registered events).  So all events that can
+        /// Set of (machine + "." + state => registered events). So all events that can
         /// get us into each state.
         /// </summary>
         [DataMember]
@@ -83,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <summary>
-        /// Merges the information from the specified coverage info.  This is not thread-safe.
+        /// Merges the information from the specified coverage info. This is not thread-safe.
         /// </summary>
         public void Merge(CoverageInfo coverageInfo)
         {

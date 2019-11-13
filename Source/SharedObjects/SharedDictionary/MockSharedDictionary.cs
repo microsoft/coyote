@@ -5,18 +5,19 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Runtime;
+using Microsoft.Coyote.TestingServices.Scheduling;
 
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// A wrapper for a shared dictionary modeled using a state machine for testing.
+    /// A wrapper for a shared dictionary modeled using an actor for testing.
     /// </summary>
     internal sealed class MockSharedDictionary<TKey, TValue> : ISharedDictionary<TKey, TValue>
     {
         /// <summary>
-        /// Machine modeling the shared dictionary.
+        /// Actor modeling the shared dictionary.
         /// </summary>
-        private readonly ActorId DictionaryMachine;
+        private readonly ActorId DictionaryActor;
 
         /// <summary>
         /// The testing runtime hosting this shared dictionary.
@@ -31,13 +32,13 @@ namespace Microsoft.Coyote.SharedObjects
             this.Runtime = runtime;
             if (comparer != null)
             {
-                this.DictionaryMachine = this.Runtime.CreateStateMachine(
-                    typeof(SharedDictionaryMachine<TKey, TValue>),
-                    SharedDictionaryEvent.InitEvent(comparer));
+                this.DictionaryActor = this.Runtime.CreateActor(
+                    typeof(SharedDictionaryActor<TKey, TValue>),
+                    SharedDictionaryEvent.InitializeEvent(comparer));
             }
             else
             {
-                this.DictionaryMachine = this.Runtime.CreateStateMachine(typeof(SharedDictionaryMachine<TKey, TValue>));
+                this.DictionaryActor = this.Runtime.CreateActor(typeof(SharedDictionaryActor<TKey, TValue>));
             }
         }
 
@@ -46,9 +47,9 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryAdd(TKey key, TValue value)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-            this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryAddEvent(key, value, currentMachine.Id));
-            var e = currentMachine.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
+            var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryAddEvent(key, value, op.Actor.Id));
+            var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
             return e.Value;
         }
 
@@ -57,9 +58,9 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-            this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryUpdateEvent(key, newValue, comparisonValue, currentMachine.Id));
-            var e = currentMachine.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
+            var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryUpdateEvent(key, newValue, comparisonValue, op.Actor.Id));
+            var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
             return e.Value;
         }
 
@@ -68,9 +69,9 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryGetValue(TKey key, out TValue value)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-            this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryGetEvent(key, currentMachine.Id));
-            var e = currentMachine.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
+            var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryGetEvent(key, op.Actor.Id));
+            var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
                 as SharedDictionaryResponseEvent<Tuple<bool, TValue>>;
             value = e.Value.Item2;
             return e.Value.Item1;
@@ -83,15 +84,15 @@ namespace Microsoft.Coyote.SharedObjects
         {
             get
             {
-                var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-                this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.GetEvent(key, currentMachine.Id));
-                var e = currentMachine.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<TValue>)).Result as SharedDictionaryResponseEvent<TValue>;
+                var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.GetEvent(key, op.Actor.Id));
+                var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<TValue>)).Result as SharedDictionaryResponseEvent<TValue>;
                 return e.Value;
             }
 
             set
             {
-                this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.SetEvent(key, value));
+                this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.SetEvent(key, value));
             }
         }
 
@@ -100,9 +101,9 @@ namespace Microsoft.Coyote.SharedObjects
         /// </summary>
         public bool TryRemove(TKey key, out TValue value)
         {
-            var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-            this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.TryRemoveEvent(key, currentMachine.Id));
-            var e = currentMachine.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
+            var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryRemoveEvent(key, op.Actor.Id));
+            var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
                 as SharedDictionaryResponseEvent<Tuple<bool, TValue>>;
             value = e.Value.Item2;
             return e.Value.Item1;
@@ -115,9 +116,9 @@ namespace Microsoft.Coyote.SharedObjects
         {
             get
             {
-                var currentMachine = this.Runtime.GetExecutingMachine<StateMachine>();
-                this.Runtime.SendEvent(this.DictionaryMachine, SharedDictionaryEvent.CountEvent(currentMachine.Id));
-                var e = currentMachine.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<int>)).Result as SharedDictionaryResponseEvent<int>;
+                var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Runtime.SendEvent(this.DictionaryActor, SharedDictionaryEvent.CountEvent(op.Actor.Id));
+                var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<int>)).Result as SharedDictionaryResponseEvent<int>;
                 return e.Value;
             }
         }

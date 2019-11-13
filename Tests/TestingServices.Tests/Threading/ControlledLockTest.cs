@@ -7,7 +7,7 @@ using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Threading
 {
     public class ControlledLockTest : BaseTest
     {

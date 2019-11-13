@@ -34,11 +34,6 @@ namespace Microsoft.Coyote.Runtime
         internal readonly Configuration Configuration;
 
         /// <summary>
-        /// Map from unique machine ids to machines.
-        /// </summary>
-        protected readonly ConcurrentDictionary<ActorId, Actor> MachineMap;
-
-        /// <summary>
         /// Map from task ids to <see cref="ControlledTask"/> objects.
         /// </summary>
         protected readonly ConcurrentDictionary<int, ControlledTask> TaskMap;
@@ -89,7 +84,6 @@ namespace Microsoft.Coyote.Runtime
         protected CoyoteRuntime(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.MachineMap = new ConcurrentDictionary<ActorId, Actor>();
             this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
             this.ActorIdCounter = 0;
             this.LockIdCounter = 0;
@@ -102,74 +96,78 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a fresh actor id that has not yet been bound to any machine.
+        /// Creates a fresh actor id that has not yet been bound to any actor.
         /// </summary>
-        public ActorId CreateActorId(Type type, string machineName = null) => new ActorId(type, machineName, this);
+        public ActorId CreateActorId(Type type, string name = null) => new ActorId(type, name, this);
 
         /// <summary>
         /// Creates a actor id that is uniquely tied to the specified unique name. The
-        /// returned actor id can either be a fresh id (not yet bound to any machine),
-        /// or it can be bound to a previously created machine. In the second case, this
-        /// actor id can be directly used to communicate with the corresponding machine.
+        /// returned actor id can either be a fresh id (not yet bound to any actor), or
+        /// it can be bound to a previously created actor. In the second case, this actor
+        /// id can be directly used to communicate with the corresponding actor.
         /// </summary>
-        public abstract ActorId CreateActorIdFromName(Type type, string machineName);
+        public abstract ActorId CreateActorIdFromName(Type type, string name);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and with
-        /// the specified optional <see cref="Event"/>. This event can only be
-        /// used to access its payload, and cannot be handled.
+        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
+        /// optional <see cref="Event"/>. This event can only be used to access its payload,
+        /// and cannot be handled.
         /// </summary>
-        public abstract ActorId CreateStateMachine(Type type, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and name, and
-        /// with the specified optional <see cref="Event"/>. This event can only be
-        /// used to access its payload, and cannot be handled.
+        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
+        /// specified optional <see cref="Event"/>. This event can only be used to access
+        /// its payload, and cannot be handled.
         /// </summary>
-        public abstract ActorId CreateStateMachine(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified type, using the specified <see cref="ActorId"/>.
-        /// This method optionally passes an <see cref="Event"/> to the new machine, which can only
+        /// Creates a new actor of the specified type, using the specified <see cref="ActorId"/>.
+        /// This method optionally passes an <see cref="Event"/> to the new actor, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public abstract ActorId CreateStateMachine(ActorId id, Type type, Event e = null, Guid opGroupId = default);
+        public abstract ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when
-        /// the machine is initialized and the <see cref="Event"/> (if any) is handled.
+        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
+        /// optional <see cref="Event"/>. This event can only be used to access its payload,
+        /// and cannot be handled. The method returns only when the actor is initialized and
+        /// the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public abstract Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null,
+            Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/> and name, and with
-        /// the specified optional <see cref="Event"/>. This event can only be used to
-        /// access its payload, and cannot be handled. The method returns only when the
-        /// machine is initialized and the <see cref="Event"/> (if any) is handled.
+        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
+        /// specified optional <see cref="Event"/>. This event can only be used to access
+        /// its payload, and cannot be handled. The method returns only when the actor is
+        /// initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public abstract Task<ActorId> CreateStateMachineAndExecuteAsync(Type type, string machineName, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
+            Guid opGroupId = default);
 
         /// <summary>
-        /// Creates a new machine of the specified <see cref="Type"/>, using the specified
-        /// unbound actor id, and passes the specified optional <see cref="Event"/>. This
-        /// event can only be used to access its payload, and cannot be handled. The method
-        /// returns only when the machine is initialized and the <see cref="Event"/> (if any)
+        /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
+        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
+        /// be used to access its payload, and cannot be handled. The method returns only when
+        /// the actor is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public abstract Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default);
+        public abstract Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
+            Guid opGroupId = default);
 
         /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to a machine.
+        /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        public abstract void SendEvent(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
+        public abstract void SendEvent(ActorId targetId, Event e, Guid opGroupId = default, SendOptions options = null);
 
         /// <summary>
-        /// Sends an <see cref="Event"/> to a machine. Returns immediately if the target machine was already
-        /// running. Otherwise blocks until the machine handles the event and reaches quiescense.
+        /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
+        /// running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
-        public abstract Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = default, SendOptions options = null);
+        public abstract Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Guid opGroupId = default,
+            SendOptions options = null);
 
         /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
@@ -241,13 +239,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Returns the operation group id of the specified machine. During testing,
-        /// the runtime asserts that the specified machine is currently executing.
+        /// Returns the operation group id of the actor with the specified id. Returns <see cref="Guid.Empty"/>
+        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
+        /// testing, the runtime asserts that the specified actor is currently executing.
         /// </summary>
-        public abstract Guid GetCurrentOperationGroupId(ActorId currentMachine);
+        public abstract Guid GetCurrentOperationGroupId(ActorId currentActorId);
 
         /// <summary>
-        /// Terminates the runtime and notifies each active machine to halt execution.
+        /// Terminates the runtime and notifies each active actor to halt execution.
         /// </summary>
         public void Stop()
         {
@@ -255,30 +254,29 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>.
+        /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        /// <returns>ActorId</returns>
-        internal abstract ActorId CreateStateMachine(ActorId id, Type type, string machineName, Event e,
-            StateMachine creator, Guid opGroupId);
+        internal abstract ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
+            Actor creator, Guid opGroupId);
 
         /// <summary>
-        /// Creates a new <see cref="StateMachine"/> of the specified <see cref="Type"/>. The
-        /// method returns only when the machine is initialized and the <see cref="Event"/>
-        /// (if any) is handled.
+        /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>. The method
+        /// returns only when the actor is initialized and the <see cref="Event"/> (if any)
+        /// is handled.
         /// </summary>
-        internal abstract Task<ActorId> CreateStateMachineAndExecuteAsync(ActorId id, Type type, string machineName, Event e,
-            StateMachine creator, Guid opGroupId);
+        internal abstract Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
+            Event initialEvent, Actor creator, Guid opGroupId);
 
         /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to a machine.
+        /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        internal abstract void SendEvent(ActorId target, Event e, Actor sender, Guid opGroupId, SendOptions options);
+        internal abstract void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options);
 
         /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to a machine. Returns immediately if the target machine was
-        /// already running. Otherwise blocks until the machine handles the event and reaches quiescense.
+        /// Sends an asynchronous <see cref="Event"/> to an actor. Returns immediately if the target was
+        /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
-        internal abstract Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Actor sender,
+        internal abstract Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
             Guid opGroupId, SendOptions options);
 
         /// <summary>
@@ -433,9 +431,9 @@ namespace Microsoft.Coyote.Runtime
         internal abstract ControlledLock CreateControlledLock();
 
         /// <summary>
-        /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner machine.
+        /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner actor.
         /// </summary>
-        internal abstract IMachineTimer CreateMachineTimer(TimerInfo info, StateMachine owner);
+        internal abstract IActorTimer CreateActorTimer(TimerInfo info, Actor owner);
 
         /// <summary>
         /// Tries to create a new specification monitor of the specified <see cref="Type"/>.
@@ -524,19 +522,19 @@ namespace Microsoft.Coyote.Runtime
         /// Returns a nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal abstract bool GetNondeterministicBooleanChoice(Actor machine, int maxValue);
+        internal abstract bool GetNondeterministicBooleanChoice(Actor caller, int maxValue);
 
         /// <summary>
         /// Returns a fair nondeterministic boolean choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal abstract bool GetFairNondeterministicBooleanChoice(Actor machine, string uniqueId);
+        internal abstract bool GetFairNondeterministicBooleanChoice(Actor caller, string uniqueId);
 
         /// <summary>
         /// Returns a nondeterministic integer choice, that can be
         /// controlled during analysis or testing.
         /// </summary>
-        internal abstract int GetNondeterministicIntegerChoice(Actor machine, int maxValue);
+        internal abstract int GetNondeterministicIntegerChoice(Actor caller, int maxValue);
 
         /// <summary>
         /// Injects a context switch point that can be systematically explored during testing.
@@ -547,19 +545,165 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Gets the machine of type <typeparamref name="TMachine"/> with the specified id,
-        /// or null if no such machine exists.
-        /// </summary>
-        internal TMachine GetMachineFromId<TMachine>(ActorId id)
-            where TMachine : Actor =>
-            id != null && this.MachineMap.TryGetValue(id, out Actor value) &&
-            value is TMachine machine ? machine : null;
-
-        /// <summary>
-        /// Notifies that a machine entered a state.
+        /// Notifies that an actor invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyEnteredState(StateMachine machine)
+        internal virtual void NotifyInvokedAction(Actor actor, MethodInfo action, Event receivedEvent)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor completed invoking an action.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyCompletedAction(Actor actor, MethodInfo action, Event receivedEvent)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor dequeued an <see cref="Event"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyDequeuedEvent(Actor actor, Event e, EventInfo eventInfo)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor dequeued the default <see cref="Event"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyDefaultEventDequeued(Actor actor)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that the inbox of the specified actor is about to be
+        /// checked to see if the default event handler should fire.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyDefaultEventHandlerCheck(Actor actor)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor raised an <see cref="Event"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor is handling a raised <see cref="Event"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyHandleRaisedEvent(Actor actor, Event e)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor called <see cref="Actor.ReceiveEventAsync(Type[])"/>
+        /// or one of its overloaded methods.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyReceiveCalled(Actor actor)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor enqueued an event that it was waiting to receive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor received an event without waiting because the event
+        /// was already in the inbox when the actor invoked the receive statement.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor is waiting for the specified task to complete.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyWaitTask(Actor actor, Task task)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor is waiting to receive an event of one of the specified types.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor has halted.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyHalted(Actor actor)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine entered a state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyEnteredState(StateMachine stateMachine)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine exited a state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyExitedState(StateMachine stateMachine)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine invoked pop.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyPop(StateMachine stateMachine)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine invoked an action.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine invoked an action.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine completed invoking an action.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyCompletedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that a state machine completed invoking an action.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyCompletedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -572,66 +716,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notifies that a machine exited a state.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyExitedState(StateMachine machine)
-        {
-        }
-
-        /// <summary>
         /// Notifies that a monitor exited a state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyExitedState(Monitor monitor)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine invoked an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine completed invoking an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedAction(StateMachine machine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine invoked an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine completed invoking an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedOnEntryAction(StateMachine machine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine invoked an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine completed invoking an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedOnExitAction(StateMachine machine, MethodInfo action, Event receivedEvent)
         {
         }
 
@@ -644,116 +732,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notifies that a machine raised an <see cref="Event"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyRaisedEvent(StateMachine machine, Event e, EventInfo eventInfo)
-        {
-        }
-
-        /// <summary>
         /// Notifies that a monitor raised an <see cref="Event"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine dequeued an <see cref="Event"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyDequeuedEvent(StateMachine machine, Event e, EventInfo eventInfo)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine invoked pop.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyPop(StateMachine machine)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine called ReceiveEventAsync.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyReceiveCalled(StateMachine machine)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine is handling a raised <see cref="Event"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyHandleRaisedEvent(StateMachine machine, Event e)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine is waiting for the specified task to complete.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyWaitTask(StateMachine machine, Task task)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a <see cref="ControlledTaskMachine"/> is waiting for the specified task to complete.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyWaitTask(ControlledTaskMachine machine, Task task)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine is waiting to receive an event of one of the specified types.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyWaitEvent(StateMachine machine, IEnumerable<Type> eventTypes)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine enqueued an event that it was waiting to receive.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyReceivedEvent(StateMachine machine, Event e, EventInfo eventInfo)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine received an event without waiting because the event
-        /// was already in the inbox when the machine invoked the receive statement.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyReceivedEventWithoutWaiting(StateMachine machine, Event e, EventInfo eventInfo)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a machine has halted.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyHalted(StateMachine machine)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that the inbox of the specified machine is about to be
-        /// checked to see if the default event handler should fire.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyDefaultEventHandlerCheck(StateMachine machine)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that the default handler of the specified machine has been fired.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyDefaultHandlerFired(StateMachine machine)
         {
         }
 

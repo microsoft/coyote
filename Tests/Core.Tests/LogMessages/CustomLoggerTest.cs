@@ -24,7 +24,9 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
             CustomLogger logger = new CustomLogger(true);
 
             Configuration config = Configuration.Create().WithVerbosityEnabled();
+            config.EnableMonitorsInProduction = true;
             var runtime = ActorRuntimeFactory.Create(config);
+            runtime.RegisterMonitor(typeof(S));
 
             runtime.SetLogger(logger);
 
@@ -47,6 +49,11 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 <StateLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' exits state 'Init'.
 <StateLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' enters state 'Act'.
 <ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Act' invoked action 'ActOnEntry'.
+<MonitorLog> Monitor 'S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'Init' is processing event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
+<MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'OnE' executed action 'Init'.
+<MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'Init' raised event 'Microsoft.Coyote.Actors.GotoStateEvent'.
+<MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' exits 'hot' state 'Init[hot]'.
+<MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' enters 'cold' state 'Done[cold]'.
 <SendLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Act' sent event 'Microsoft.Coyote.Core.Tests.LogMessages.E' to machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()'.
 <EnqueueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' enqueued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
 <DequeueLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()' in state 'Init' dequeued event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.

@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.Core.Tests.LogMessages
 {
@@ -56,6 +57,26 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
         }
     }
 
+    internal class S : Monitor
+    {
+        [Start]
+        [Hot]
+        [OnEventDoAction(typeof(E), nameof(OnE))]
+        private class Init : State
+        {
+        }
+
+        [Cold]
+        private class Done : State
+        {
+        }
+
+        private void OnE()
+        {
+            this.Goto<Done>();
+        }
+    }
+
     internal class N : StateMachine
     {
         [Start]
@@ -78,7 +99,9 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 
         private void ActOnEntry()
         {
-            ActorId m = (this.ReceivedEvent as E).Id;
+            var e = this.ReceivedEvent as E;
+            this.Monitor<S>(e);
+            ActorId m = e.Id;
             this.SendEvent(m, new E(this.Id));
         }
     }

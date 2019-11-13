@@ -269,20 +269,18 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
         protected static string RemoveNonDeterministicValuesFromReport(string report)
         {
-            string result;
-
             // Match a GUID or other ids (since they can be nondeterministic).
-            result = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
-            result = Regex.Replace(result, @"\([^)]*\)", "()");
-            result = Regex.Replace(result, @"\[[^)]*\]", "[]");
+            report = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
+            report = Regex.Replace(report, @"\([^)]*\)", "()");
+            report = Regex.Replace(report, @"\[[^)]*\]", "[]");
 
             // Match a namespace.
-            result = RemoveNamespaceReferencesFromReport(result);
-            return result;
+            return RemoveNamespaceReferencesFromReport(report);
         }
 
         protected static string RemoveNamespaceReferencesFromReport(string report)
         {
+            report = Regex.Replace(report, @"Microsoft.Coyote.Tests.Common\.", string.Empty);
             return Regex.Replace(report, @"Microsoft\.[^+]*\+", string.Empty);
         }
 

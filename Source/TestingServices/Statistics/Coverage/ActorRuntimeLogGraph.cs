@@ -10,7 +10,6 @@ using System.Xml.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Timers;
 
@@ -33,14 +32,14 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             public string Event;
         }
 
-        private readonly Dictionary<string, List<EventInfo>> InBox = new Dictionary<string, List<EventInfo>>();
+        private readonly Dictionary<string, List<EventInfo>> Inbox = new Dictionary<string, List<EventInfo>>();
         private static readonly Dictionary<string, string> EventAliases = new Dictionary<string, string>();
 
         static ActorRuntimeLogGraph()
         {
             EventAliases[typeof(GotoStateEvent).FullName] = "goto";
-            EventAliases[typeof(Halt).FullName] = "halt";
-            EventAliases[typeof(Default).FullName] = "default";
+            EventAliases[typeof(HaltEvent).FullName] = "halt";
+            EventAliases[typeof(DefaultEvent).FullName] = "default";
             EventAliases[typeof(PushStateEvent).FullName] = "push";
             EventAliases[typeof(QuiescentEvent).FullName] = "quiescent";
             EventAliases[typeof(WildCardEvent).FullName] = "*";
@@ -89,36 +88,91 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <summary>
-        /// Called when an event is about to be enqueued to a machine.
+        /// Called when an actor has been created.
         /// </summary>
-        /// <param name="actorId">Id of the machine that the event is being enqueued to.</param>
-        /// <param name="eventName">Name of the event.</param>
-        public void OnEnqueue(ActorId actorId, string eventName)
+        /// <param name="id">The id of the actor that has been created.</param>
+        /// <param name="creator">The id of the creator, or null.</param>
+        public void OnCreateActor(ActorId id, ActorId creator)
         {
-            this.Next?.OnEnqueue(actorId, eventName);
+            this.Next?.OnCreateActor(id, creator);
+
+            string resolvedId = this.ResolveActorId(id);
+            this.Graph.GetOrCreateNode(resolvedId, resolvedId);
         }
 
         /// <summary>
-        /// Called when an event is dequeued by a machine.
+        /// Called when an actor executes an action.
         /// </summary>
-        /// <param name="actorId">Id of the machine that the event is being dequeued by.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="eventName">Name of the event.</param>
-        public void OnDequeue(ActorId actorId, string currStateName, string eventName)
+        /// <param name="id">The id of the actor executing the action.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="actionName">The name of the action being executed.</param>
+        public void OnExecuteAction(ActorId id, string stateName, string actionName)
         {
-            this.Next?.OnDequeue(actorId, currStateName, eventName);
+            this.Next?.OnExecuteAction(id, stateName, actionName);
+        }
 
-            string id = this.GetActorId(actorId);
-            if (this.InBox.TryGetValue(id, out List<EventInfo> inbox))
+        /// <summary>
+        /// Called when an event is sent to a target actor.
+        /// </summary>
+        /// <param name="targetActorId">The id of the target actor.</param>
+        /// <param name="senderId">The id of the actor that sent the event, if any.</param>
+        /// <param name="senderStateName">The state name, if the sender actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventName">The event being sent.</param>
+        /// <param name="opGroupId">The id used to identify the send operation.</param>
+        /// <param name="isTargetHalted">Is the target actor halted.</param>
+        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
+            Guid opGroupId, bool isTargetHalted)
+        {
+            this.Next?.OnSendEvent(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted);
+
+            this.AddEvent(targetActorId, senderId, senderStateName, eventName);
+        }
+
+        /// <summary>
+        /// Called when an actor raises an event.
+        /// </summary>
+        /// <param name="id">The id of the actor raising the event.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventName">The name of the event being raised.</param>
+        public void OnRaiseEvent(ActorId id, string stateName, string eventName)
+        {
+            this.Next?.OnRaiseEvent(id, stateName, eventName);
+
+            // Raising event to self.
+            this.AddEvent(id, id, stateName, eventName);
+        }
+
+        /// <summary>
+        /// Called when an event is about to be enqueued to an actor.
+        /// </summary>
+        /// <param name="id">The id of the actor that the event is being enqueued to.</param>
+        /// <param name="eventName">Name of the event.</param>
+        public void OnEnqueueEvent(ActorId id, string eventName)
+        {
+            this.Next?.OnEnqueueEvent(id, eventName);
+        }
+
+        /// <summary>
+        /// Called when an event is dequeued by an actor.
+        /// </summary>
+        /// <param name="id">The id of the actor that the event is being dequeued by.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventName">Name of the event.</param>
+        public void OnDequeueEvent(ActorId id, string stateName, string eventName)
+        {
+            this.Next?.OnDequeueEvent(id, stateName, eventName);
+
+            string resolvedId = this.ResolveActorId(id);
+            if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
                 for (int i = inbox.Count - 1; i >= 0; i--)
                 {
                     EventInfo e = inbox[i];
                     if (e.Event == eventName)
                     {
-                        // yay, found it so we can draw the complete link connecting the Sender state to this state!
+                        // Yay, found it so we can draw the complete link connecting the Sender state to this state!
                         var source = this.GetOrCreateChild(e.ActorId, e.State);
-                        var target = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
+                        var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
                         this.GetOrCreateEventLink(source, target, e);
                         inbox.RemoveAt(i);
                         this.Dequeued = e;
@@ -128,18 +182,387 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
         }
 
-        private void GetOrCreateEventLink(GraphNode source, GraphNode target, EventInfo e)
+        /// <summary>
+        /// Called when an event is received by an actor.
+        /// </summary>
+        /// <param name="id">The id of the actor that received the event.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventName">The name of the event.</param>
+        /// <param name="wasBlocked">The actor was waiting for one or more specific events,
+        /// and <paramref name="eventName"/> was one of them</param>
+        public void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
         {
-            string label = GetEventLabel(e.Event);
-            GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
-            link.AddAttribute("EventId", e.Event);
+            this.Next?.OnReceiveEvent(id, stateName, eventName, wasBlocked);
+
+            string resolvedId = this.ResolveActorId(id);
+            if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
+            {
+                for (int i = inbox.Count - 1; i >= 0; i--)
+                {
+                    EventInfo e = inbox[i];
+                    if (e.Event == eventName)
+                    {
+                        // Yay, found it so we can draw the complete link connecting the Sender state to this state!
+                        var source = this.GetOrCreateChild(e.ActorId, e.State);
+                        var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                        this.GetOrCreateEventLink(source, target, e);
+                        inbox.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
         }
 
-        private string GetActorId(ActorId id)
+        /// <summary>
+        /// Called when an actor waits to receive an event of a specified type.
+        /// </summary>
+        /// <param name="id">The id of the actor that is entering the wait state.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventType">The type of the event being waited for.</param>
+        public void OnWaitEvent(ActorId id, string stateName, Type eventType)
+        {
+            this.Next?.OnWaitEvent(id, stateName, eventType);
+        }
+
+        /// <summary>
+        /// Called when an actor waits to receive an event of one of the specified types.
+        /// </summary>
+        /// <param name="id">The id of the actor that is entering the wait state.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventTypes">The types of the events being waited for, if any.</param>
+        public void OnWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
+        {
+            this.Next?.OnWaitEvent(id, stateName, eventTypes);
+        }
+
+        /// <summary>
+        /// Called when a random result has been obtained.
+        /// </summary>
+        /// <param name="id">The id of the source actor, if any; otherwise, the runtime itself was the source.</param>
+        /// <param name="result">The random result (may be bool or int).</param>
+        public void OnRandom(ActorId id, object result)
+        {
+            this.Next?.OnRandom(id, result);
+        }
+
+        /// <summary>
+        /// Called when a state machine enters or exits a state.
+        /// </summary>
+        /// <param name="id">The id of the actor entering or exiting the state.</param>
+        /// <param name="stateName">The name of the state being entered or exited.</param>
+        /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
+        public void OnStateTransition(ActorId id, string stateName, bool isEntry)
+        {
+            this.Next?.OnStateTransition(id, stateName, isEntry);
+        }
+
+        /// <summary>
+        /// Called when a state machine transitions states via a 'goto'.
+        /// </summary>
+        /// <param name="id">The id of the actor.</param>
+        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="newStateName">The target state of the transition.</param>
+        public void OnGotoState(ActorId id, string currStateName, string newStateName)
+        {
+            this.Next?.OnGotoState(id, currStateName, newStateName);
+            this.LinkTransition("goto", id, currStateName, newStateName, false);
+        }
+
+        /// <summary>
+        /// Called when a state machine is being pushed to a state.
+        /// </summary>
+        /// <param name="id">The id of the actor being pushed to the state.</param>
+        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="newStateName">The target state of the transition.</param>
+        public void OnPushState(ActorId id, string currStateName, string newStateName)
+        {
+            this.Next?.OnPushState(id, currStateName, newStateName);
+
+            this.LinkTransition("push", id, currStateName, newStateName, true);
+        }
+
+        /// <summary>
+        /// Called when a state machine has been popped from a state.
+        /// </summary>
+        /// <param name="id">The id of the actor that the pop executed in.</param>
+        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="restoredStateName">The name of the state being re-entered, if any.</param>
+        public void OnPopState(ActorId id, string currStateName, string restoredStateName)
+        {
+            this.Next?.OnPopState(id, currStateName, restoredStateName);
+
+            if (!string.IsNullOrEmpty(currStateName))
+            {
+                this.LinkTransition("pop", id, currStateName, restoredStateName, true);
+            }
+        }
+
+        /// <summary>
+        /// Called when an actor has been halted.
+        /// </summary>
+        /// <param name="id">The id of the actor that has been halted.</param>
+        /// <param name="inboxSize">Approximate size of the inbox.</param>
+        public void OnHalt(ActorId id, int inboxSize)
+        {
+            this.Next?.OnHalt(id, inboxSize);
+
+            string resolvedId = this.ResolveActorId(id);
+            string stateName = this.HaltedState;
+            if (string.IsNullOrEmpty(stateName))
+            {
+                stateName = "null";
+            }
+
+            // Transition to the Halt state.
+            var source = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+            var target = this.GetOrCreateChild(resolvedId, "Halt");
+            this.Graph.GetOrCreateLink(source, target, "halt");
+        }
+
+        /// <summary>
+        /// Called when an actor is idle (there is nothing to dequeue) and the default
+        /// event handler is about to be executed.
+        /// </summary>
+        /// <param name="id">The id of the actor that the state will execute in.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        public void OnDefaultEventHandler(ActorId id, string stateName)
+        {
+            this.Next?.OnDefaultEventHandler(id, stateName);
+        }
+
+        /// <summary>
+        /// Called when an actor handled a raised event.
+        /// </summary>
+        /// <param name="id">The id of the actor handling the event.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="eventName">The name of the event being handled.</param>
+        public void OnHandleRaisedEvent(ActorId id, string stateName, string eventName)
+        {
+            this.Next?.OnHandleRaisedEvent(id, stateName, eventName);
+
+            // We used the inbox to store raised event, but it should be the first one handled since
+            // raised events are highest priority.
+            string resolvedId = this.ResolveActorId(id);
+            if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
+            {
+                for (int i = inbox.Count - 1; i >= 0; i--)
+                {
+                    EventInfo e = inbox[i];
+                    if (e.Event == eventName)
+                    {
+                        // Yay, found it so we can draw the complete link connecting the Sender state to this state!
+                        var source = this.GetOrCreateChild(e.ActorId, e.State);
+                        var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                        this.GetOrCreateEventLink(source, target, e);
+                        inbox.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// When an event cannot be handled in the current state, its exit handler is executed and then the state is
+        /// popped and any previous "current state" is reentered. This handler is called when that pop has been done.
+        /// </summary>
+        /// <param name="actorId">Id of the machine that the pop executed in.</param>
+        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
+        /// <param name="eventName">The name of the event that cannot be handled.</param>
+        public void OnPopUnhandledEvent(ActorId actorId, string currStateName, string eventName)
+        {
+            this.Next?.OnPopUnhandledEvent(actorId, currStateName, eventName);
+            if (eventName == typeof(HaltEvent).FullName)
+            {
+                this.HaltedState = currStateName;
+            }
+        }
+
+        /// <summary>
+        /// Called when an actor throws an exception.
+        /// </summary>
+        /// <param name="id">The id of the actor that threw the exception.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="actionName">The name of the action being executed.</param>
+        /// <param name="ex">The exception.</param>
+        public void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
+        {
+            this.Next?.OnExceptionThrown(id, stateName, actionName, ex);
+        }
+
+        /// <summary>
+        /// Called when an OnException method is used to handle a thrown exception.
+        /// </summary>
+        /// <param name="id">The id of the actor that threw the exception.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="actionName">The name of the action being executed.</param>
+        /// <param name="ex">The exception.</param>
+        public void OnExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
+        {
+            this.Next?.OnExceptionHandled(id, stateName, actionName, ex);
+        }
+
+        /// <summary>
+        /// Called when an actor timer has been created.
+        /// </summary>
+        /// <param name="info">Handle that contains information about the timer.</param>
+        public void OnCreateTimer(TimerInfo info)
+        {
+            this.Next?.OnCreateTimer(info);
+
+            // TODO: figure out how to graph timers when we have no "timer id" at this point...
+        }
+
+        /// <summary>
+        /// Called when an actor timer has been stopped.
+        /// </summary>
+        /// <param name="info">Handle that contains information about the timer.</param>
+        public void OnStopTimer(TimerInfo info)
+        {
+            this.Next?.OnStopTimer(info);
+        }
+
+        /// <summary>
+        /// Called when a monitor has been created.
+        /// </summary>
+        /// <param name="monitorTypeName">The name of the type of the monitor that has been created.</param>
+        /// <param name="id">The id of the monitor that has been created.</param>
+        public void OnCreateMonitor(string monitorTypeName, ActorId id)
+        {
+            this.Next?.OnCreateMonitor(monitorTypeName, id);
+
+            string resolvedId = this.ResolveActorId(id);
+            this.Graph.GetOrCreateNode(resolvedId, monitorTypeName);
+        }
+
+        /// <summary>
+        /// Called when a monitor executes an action.
+        /// </summary>
+        /// <param name="monitorTypeName">Name of type of the monitor that is executing the action.</param>
+        /// <param name="id">The id of the monitor that is executing the action</param>
+        /// <param name="stateName">The name of the state in which the action is being executed.</param>
+        /// <param name="actionName">The name of the action being executed.</param>
+        public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
+        {
+            this.Next?.OnMonitorExecuteAction(monitorTypeName, id, stateName, actionName);
+
+            string resolvedId = this.ResolveActorId(id);
+            // Monitors process actions immediately, so this state transition is a result of the only event in the inbox.
+            if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
+            {
+                var e = inbox[inbox.Count - 1];
+                inbox.RemoveAt(inbox.Count - 1);
+                // draw the link connecting the Sender state to this state!
+                var source = this.GetOrCreateChild(e.ActorId, e.State);
+                var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                this.GetOrCreateEventLink(source, target, e);
+            }
+        }
+
+        /// <summary>
+        /// Called when a monitor is about to process an event.
+        /// </summary>
+        /// <param name="senderId">The sender of the event.</param>
+        /// <param name="senderStateName">The name of the state the sender is in.</param>
+        /// <param name="monitorTypeName">Name of type of the monitor that will process the event.</param>
+        /// <param name="id">The id of the monitor that will process the event.</param>
+        /// <param name="stateName">The name of the state in which the event is being raised.</param>
+        /// <param name="eventName">The name of the event.</param>
+        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName,
+            ActorId id, string stateName, string eventName)
+        {
+            this.Next?.OnMonitorProcessEvent(senderId, senderStateName, monitorTypeName, id, stateName, eventName);
+
+            // If sender is null then it means we are dealing with a Monitor call from external code.
+            this.AddEvent(id, senderId, senderStateName, eventName);
+        }
+
+        /// <summary>
+        /// Called when a monitor raised an event.
+        /// </summary>
+        /// <param name="monitorTypeName">Name of type of the monitor raising the event.</param>
+        /// <param name="id">The id of the monitor raising the event.</param>
+        /// <param name="stateName">The name of the state in which the event is being raised.</param>
+        /// <param name="eventName">The name of the event.</param>
+        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
+        {
+            this.Next?.OnMonitorRaiseEvent(monitorTypeName, id, stateName, eventName);
+
+            // Raising event to self.
+            this.AddEvent(id, id, stateName, eventName);
+        }
+
+        /// <summary>
+        /// Called when a monitor enters or exits a state.
+        /// </summary>
+        /// <param name="monitorTypeName">The name of the type of the monitor entering or exiting the state</param>
+        /// <param name="id">The id of the monitor entering or exiting the state</param>
+        /// <param name="stateName">The name of the state being entered or exited; if <paramref name="isInHotState"/>
+        /// is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]".</param>
+        /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
+        /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
+        /// else no liveness state is available.</param>
+        public void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName,
+            bool isEntry, bool? isInHotState)
+        {
+            this.Next?.OnMonitorStateTransition(monitorTypeName, id, stateName, isEntry, isInHotState);
+
+            if (isEntry)
+            {
+                string resolvedId = this.ResolveActorId(id);
+                // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of the only event in the inbox.
+                if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
+                {
+                    var e = inbox[inbox.Count - 1];
+                    inbox.RemoveAt(inbox.Count - 1);
+                    // draw the link connecting the Sender state to this state!
+                    var source = this.GetOrCreateChild(e.ActorId, e.State);
+                    var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                    this.GetOrCreateEventLink(source, target, e);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called for general error reporting via pre-constructed text.
+        /// </summary>
+        /// <param name="text">The text of the error report.</param>
+        public void OnError(string text)
+        {
+            this.Next?.OnError(text);
+        }
+
+        /// <summary>
+        /// Called for errors detected by a specific scheduling strategy.
+        /// </summary>
+        /// <param name="strategy">The scheduling strategy that was used.</param>
+        /// <param name="strategyDescription">More information about the scheduling strategy.</param>
+        public void OnStrategyError(SchedulingStrategy strategy, string strategyDescription)
+        {
+            this.Next?.OnStrategyError(strategy, strategyDescription);
+        }
+
+        /// <summary>
+        /// Return current graph and reset for next iteration.
+        /// </summary>
+        /// <param name="reset">Set to true will reset the graph for the next iteration.</param>
+        /// <returns>The graph.</returns>
+        public Graph SnapshotGraph(bool reset)
+        {
+            Graph result = this.CurrentGraph;
+            if (reset)
+            {
+                // start fresh.
+                this.CurrentGraph = null;
+            }
+
+            return result;
+        }
+
+        private string ResolveActorId(ActorId id)
         {
             if (id == null)
             {
-                // senderId can be null if an event is fired from code.
+                // The sender id can be null if an event is fired from non-actor code.
                 return "ExternalCode";
             }
 
@@ -151,57 +574,27 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             return id.Name;
         }
 
-        /// <summary>
-        /// Called when the default event handler for a state is about to be executed.
-        /// </summary>
-        /// <param name="actorId">Id of the machine that the state will execute in.</param>
-        /// <param name="currStateName">Name of the current state of the machine.</param>
-        public void OnDefault(ActorId actorId, string currStateName)
+        private void AddEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName)
         {
-            this.Next?.OnDefault(actorId, currStateName);
-        }
-
-        private static string GetLabel(ActorId actorId, string fullyQualifiedName)
-        {
-            if (fullyQualifiedName.StartsWith(actorId.Type))
+            string targetId = this.ResolveActorId(targetActorId);
+            if (!this.Inbox.TryGetValue(targetId, out List<EventInfo> inbox))
             {
-                fullyQualifiedName = fullyQualifiedName.Substring(actorId.Type.Length + 1).Trim('+');
+                inbox = new List<EventInfo>();
+                this.Inbox[targetId] = inbox;
             }
 
-            return fullyQualifiedName;
-        }
-
-        private static string GetEventLabel(string fullyQualifiedName)
-        {
-            if (EventAliases.TryGetValue(fullyQualifiedName, out string label))
+            if (senderId == null)
             {
-                return label;
+                senderStateName = "ExternalState";
             }
 
-            int i = fullyQualifiedName.IndexOf('+');
-            if (i > 0)
-            {
-                return fullyQualifiedName.Substring(i + 1);
-            }
-
-            return fullyQualifiedName;
-        }
-
-        /// <summary>
-        /// Called when a machine transitions states via a 'goto'.
-        /// </summary>
-        /// <param name="actorId">Id of the machine.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="newStateName">The target state of goto.</param>
-        public void OnGoto(ActorId actorId, string currStateName, string newStateName)
-        {
-            this.Next?.OnGoto(actorId, currStateName, newStateName);
-            this.LinkTransition("goto", actorId, currStateName, newStateName, false);
+            string sender = this.ResolveActorId(senderId);
+            inbox.Add(new EventInfo() { ActorId = sender, State = senderStateName, Event = eventName });
         }
 
         private void LinkTransition(string type, ActorId actorId, string currStateName, string newStateName, bool suffixLabel)
         {
-            string id = this.GetActorId(actorId);
+            string id = this.ResolveActorId(actorId);
             var source = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
             var target = this.GetOrCreateChild(id, GetLabel(actorId, newStateName));
 
@@ -228,420 +621,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             this.Dequeued = null;
         }
 
-        /// <summary>
-        /// Called when a machine is being pushed to a state.
-        /// </summary>
-        /// <param name="actorId">Id of the machine being pushed to the state.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="newStateName">The state the machine is pushed to.</param>
-        public void OnPush(ActorId actorId, string currStateName, string newStateName)
-        {
-            this.Next?.OnPush(actorId, currStateName, newStateName);
-
-            this.LinkTransition("push", actorId, currStateName, newStateName, true);
-        }
-
-        /// <summary>
-        /// Called when a machine has been popped from a state.
-        /// </summary>
-        /// <param name="actorId">Id of the machine that the pop executed in.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="restoredStateName">The name of the state being re-entered, if any</param>
-        public void OnPop(ActorId actorId, string currStateName, string restoredStateName)
-        {
-            this.Next?.OnPop(actorId, currStateName, restoredStateName);
-
-            if (!string.IsNullOrEmpty(currStateName))
-            {
-                this.LinkTransition("pop", actorId, currStateName, restoredStateName, true);
-            }
-            else
-            {
-                string id = this.GetActorId(actorId);
-            }
-        }
-
-        /// <summary>
-        /// When an event cannot be handled in the current state, its exit handler is executed and then the state is
-        /// popped and any previous "current state" is reentered. This handler is called when that pop has been done.
-        /// </summary>
-        /// <param name="actorId">Id of the machine that the pop executed in.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="eventName">The name of the event that cannot be handled.</param>
-        public void OnPopUnhandledEvent(ActorId actorId, string currStateName, string eventName)
-        {
-            this.Next?.OnPopUnhandledEvent(actorId, currStateName, eventName);
-            if (eventName == typeof(Halt).FullName)
-            {
-                this.HaltedState = currStateName;
-            }
-        }
-
-        /// <summary>
-        /// Called when an event is received by a machine.
-        /// </summary>
-        /// <param name="actorId">Id of the machine that received the event.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="eventName">The name of the event.</param>
-        /// <param name="wasBlocked">The machine was waiting for one or more specific events,
-        ///     and <paramref name="eventName"/> was one of them</param>
-        public void OnReceive(ActorId actorId, string currStateName, string eventName, bool wasBlocked)
-        {
-            this.Next?.OnReceive(actorId, currStateName, eventName, wasBlocked);
-
-            string id = this.GetActorId(actorId);
-            if (this.InBox.TryGetValue(id, out List<EventInfo> inbox))
-            {
-                for (int i = inbox.Count - 1; i >= 0; i--)
-                {
-                    EventInfo e = inbox[i];
-                    if (e.Event == eventName)
-                    {
-                        // yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(e.ActorId, e.State);
-                        var target = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
-                        this.GetOrCreateEventLink(source, target, e);
-                        inbox.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Called when a machine waits to receive an event of a specified type.
-        /// </summary>
-        /// <param name="actorId">Id of the machine that is entering the wait state.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="eventType">The type of the event being waited for.</param>
-        public void OnWait(ActorId actorId, string currStateName, Type eventType)
-        {
-            this.Next?.OnWait(actorId, currStateName, eventType);
-        }
-
-        /// <summary>
-        /// Called when a machine waits to receive an event of one of the specified types.
-        /// </summary>
-        /// <param name="actorId">Id of the machine that is entering the wait state.</param>
-        /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="eventTypes">The types of the events being waited for, if any.</param>
-        public void OnWait(ActorId actorId, string currStateName, params Type[] eventTypes)
-        {
-            this.Next?.OnWait(actorId, currStateName, eventTypes);
-        }
-
-        /// <summary>
-        /// Called when an event is sent to a target machine.
-        /// </summary>
-        /// <param name="targetActorId">Id of the target machine.</param>
-        /// <param name="senderId">The id of the machine that sent the event, if any.</param>
-        /// <param name="senderStateName">The name of the current state of the sender machine, if any.</param>
-        /// <param name="eventName">The event being sent.</param>
-        /// <param name="opGroupId">Id used to identify the send operation.</param>
-        /// <param name="isTargetHalted">Is the target machine halted.</param>
-        public void OnSend(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName, Guid opGroupId, bool isTargetHalted)
-        {
-            this.Next?.OnSend(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted);
-
-            this.AddEvent(targetActorId, senderId, senderStateName, eventName);
-        }
-
-        private void AddEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName)
-        {
-            string targetId = this.GetActorId(targetActorId);
-            if (!this.InBox.TryGetValue(targetId, out List<EventInfo> inbox))
-            {
-                inbox = new List<EventInfo>();
-                this.InBox[targetId] = inbox;
-            }
-
-            if (senderId == null)
-            {
-                senderStateName = "ExternalState";
-            }
-
-            string sender = this.GetActorId(senderId);
-            inbox.Add(new EventInfo() { ActorId = sender, State = senderStateName, Event = eventName });
-        }
-
-        /// <summary>
-        /// Called when a machine has been created.
-        /// </summary>
-        /// <param name="actorId">The id of the machine that has been created.</param>
-        /// <param name="creator">Id of the creator machine, or null.</param>
-        public void OnCreateStateMachine(ActorId actorId, ActorId creator)
-        {
-            this.Next?.OnCreateStateMachine(actorId, creator);
-
-            string id = this.GetActorId(actorId);
-            this.Graph.GetOrCreateNode(id, id);
-        }
-
-        /// <summary>
-        /// Called when a monitor has been created.
-        /// </summary>
-        /// <param name="monitorTypeName">The name of the type of the monitor that has been created.</param>
-        /// <param name="monitorId">The id of the monitor that has been created.</param>
-        public void OnCreateMonitor(string monitorTypeName, ActorId monitorId)
-        {
-            this.Next?.OnCreateMonitor(monitorTypeName, monitorId);
-
-            string id = this.GetActorId(monitorId);
-            this.Graph.GetOrCreateNode(id, monitorTypeName);
-        }
-
-        /// <summary>
-        /// Called when a machine timer has been created.
-        /// </summary>
-        /// <param name="info">Handle that contains information about the timer.</param>
-        public void OnCreateTimer(TimerInfo info)
-        {
-            this.Next?.OnCreateTimer(info);
-
-            // todo: figure out how to graph timers when we have no "timer id" at this point...
-        }
-
-        /// <summary>
-        /// Called when a machine timer has been stopped.
-        /// </summary>
-        /// <param name="info">Handle that contains information about the timer.</param>
-        public void OnStopTimer(TimerInfo info)
-        {
-            this.Next?.OnStopTimer(info);
-        }
-
-        /// <summary>
-        /// Called when a state machine has been halted.
-        /// </summary>
-        /// <param name="actorId">The id of the state machine that has been halted.</param>
-        /// <param name="inboxSize">Approximate size of the state machine inbox.</param>
-        public void OnHalt(ActorId actorId, int inboxSize)
-        {
-            this.Next?.OnHalt(actorId, inboxSize);
-
-            string id = this.GetActorId(actorId);
-            string stateName = this.HaltedState;
-            if (string.IsNullOrEmpty(stateName))
-            {
-                stateName = "null";
-            }
-
-            // transition to the Halt state
-            var source = this.GetOrCreateChild(id, GetLabel(actorId, stateName));
-            var target = this.GetOrCreateChild(id, "Halt");
-            this.Graph.GetOrCreateLink(source, target, "halt");
-        }
-
-        /// <summary>
-        /// Called when a random result has been obtained.
-        /// </summary>
-        /// <param name="actorId">The id of the source machine, if any; otherwise, the runtime itself was the source.</param>
-        /// <param name="result">The random result (may be bool or int).</param>
-        public void OnRandom(ActorId actorId, object result)
-        {
-            this.Next?.OnRandom(actorId, result);
-        }
-
-        /// <summary>
-        /// Called when a machine enters or exits a state.
-        /// </summary>
-        /// <param name="actorId">The id of the machine entering or exiting the state.</param>
-        /// <param name="stateName">The name of the state being entered or exited.</param>
-        /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
-        public void OnMachineState(ActorId actorId, string stateName, bool isEntry)
-        {
-            this.Next?.OnMachineState(actorId, stateName, isEntry);
-        }
-
-        /// <summary>
-        /// Called when a machine raises an event.
-        /// </summary>
-        /// <param name="actorId">The id of the machine raising the event.</param>
-        /// <param name="currStateName">The name of the state in which the action is being executed.</param>
-        /// <param name="eventName">The name of the event being raised.</param>
-        public void OnMachineEvent(ActorId actorId, string currStateName, string eventName)
-        {
-            this.Next?.OnMachineEvent(actorId, currStateName, eventName);
-
-            // raising event to self.
-            this.AddEvent(actorId, actorId, currStateName, eventName);
-        }
-
-        /// <summary>
-        /// Called when a machine handled a raised event.
-        /// </summary>
-        /// <param name="actorId">The id of the machine handling the event.</param>
-        /// <param name="currStateName">The name of the state in which the event is being handled.</param>
-        /// <param name="eventName">The name of the event being handled.</param>
-        public void OnHandleRaisedEvent(ActorId actorId, string currStateName, string eventName)
-        {
-            this.Next?.OnHandleRaisedEvent(actorId, currStateName, eventName);
-
-            // we used the inbox to store raised event, but it should be the first one handled since
-            // raised events are highest priority.
-            string id = this.GetActorId(actorId);
-            if (this.InBox.TryGetValue(id, out List<EventInfo> inbox))
-            {
-                for (int i = inbox.Count - 1; i >= 0; i--)
-                {
-                    EventInfo e = inbox[i];
-                    if (e.Event == eventName)
-                    {
-                        // yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(e.ActorId, e.State);
-                        var target = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
-                        this.GetOrCreateEventLink(source, target, e);
-                        inbox.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Called when a machine executes an action.
-        /// </summary>
-        /// <param name="actorId">The id of the machine executing the action.</param>
-        /// <param name="currStateName">The name of the state in which the action is being executed.</param>
-        /// <param name="actionName">The name of the action being executed.</param>
-        public void OnMachineAction(ActorId actorId, string currStateName, string actionName)
-        {
-            this.Next?.OnMachineAction(actorId, currStateName, actionName);
-        }
-
-        /// <summary>
-        /// Called when a machine throws an exception
-        /// </summary>
-        /// <param name="actorId">The id of the machine that threw the exception.</param>
-        /// <param name="currStateName">The name of the current machine state.</param>
-        /// <param name="actionName">The name of the action being executed.</param>
-        /// <param name="ex">The exception.</param>
-        public void OnMachineExceptionThrown(ActorId actorId, string currStateName, string actionName, Exception ex)
-        {
-            this.Next?.OnMachineExceptionThrown(actorId, currStateName, actionName, ex);
-        }
-
-        /// <summary>
-        /// Called when a machine's OnException method is used to handle a thrown exception
-        /// </summary>
-        /// <param name="actorId">The id of the machine that threw the exception.</param>
-        /// <param name="currStateName">The name of the current machine state.</param>
-        /// <param name="actionName">The name of the action being executed.</param>
-        /// <param name="ex">The exception.</param>
-        public void OnMachineExceptionHandled(ActorId actorId, string currStateName, string actionName, Exception ex)
-        {
-            this.Next?.OnMachineExceptionHandled(actorId, currStateName, actionName, ex);
-        }
-
-        /// <summary>
-        /// Called when a monitor enters or exits a state.
-        /// </summary>
-        /// <param name="monitorTypeName">The name of the type of the monitor entering or exiting the state</param>
-        /// <param name="monitorId">The ID of the monitor entering or exiting the state</param>
-        /// <param name="stateName">The name of the state being entered or exited; if <paramref name="isInHotState"/>
-        ///     is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]".</param>
-        /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
-        /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
-        ///     else no liveness state is available.</param>
-        public void OnMonitorState(string monitorTypeName, ActorId monitorId, string stateName, bool isEntry, bool? isInHotState)
-        {
-            this.Next?.OnMonitorState(monitorTypeName, monitorId, stateName, isEntry, isInHotState);
-
-            if (isEntry)
-            {
-                string id = this.GetActorId(monitorId);
-                // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of the only event in the inbox.
-                if (this.InBox.TryGetValue(id, out List<EventInfo> inbox) && inbox.Count > 0)
-                {
-                    var e = inbox[inbox.Count - 1];
-                    inbox.RemoveAt(inbox.Count - 1);
-                    // draw the link connecting the Sender state to this state!
-                    var source = this.GetOrCreateChild(e.ActorId, e.State);
-                    var target = this.GetOrCreateChild(id, GetLabel(monitorId, stateName));
-                    this.GetOrCreateEventLink(source, target, e);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Called when a monitor is about to process or has raised an event.
-        /// </summary>
-        /// <param name="senderId">The sender of the event.</param>
-        /// <param name="senderStateName">The name of the state the sender is in.</param>
-        /// <param name="monitorTypeName">Name of type of the monitor that will process or has raised the event.</param>
-        /// <param name="monitorId">The id of the monitor that will process or has raised the event</param>
-        /// <param name="currStateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
-        /// <param name="isProcessing">If true, the monitor is processing the event; otherwise it has raised it.</param>
-        public void OnMonitorEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId monitorId, string currStateName,
-            string eventName, bool isProcessing)
-        {
-            this.Next?.OnMonitorEvent(senderId, senderStateName, monitorTypeName, monitorId, currStateName, eventName, isProcessing);
-
-            // if sender is null then it means we are dealing with a Monitor call from external code.
-            this.AddEvent(monitorId, senderId, senderStateName, eventName);
-        }
-
-        /// <summary>
-        /// Called when a monitor executes an action.
-        /// </summary>
-        /// <param name="monitorTypeName">Name of type of the monitor that is executing the action.</param>
-        /// <param name="monitorId">ID of the monitor that is executing the action</param>
-        /// <param name="currStateName">The name of the state in which the action is being executed.</param>
-        /// <param name="actionName">The name of the action being executed.</param>
-        public void OnMonitorAction(string monitorTypeName, ActorId monitorId, string currStateName, string actionName)
-        {
-            this.Next?.OnMonitorAction(monitorTypeName, monitorId, currStateName, actionName);
-
-            string id = this.GetActorId(monitorId);
-            // Monitors process actions immediately, so this state transition is a result of the only event in the inbox.
-            if (this.InBox.TryGetValue(id, out List<EventInfo> inbox) && inbox.Count > 0)
-            {
-                var e = inbox[inbox.Count - 1];
-                inbox.RemoveAt(inbox.Count - 1);
-                // draw the link connecting the Sender state to this state!
-                var source = this.GetOrCreateChild(e.ActorId, e.State);
-                var target = this.GetOrCreateChild(id, GetLabel(monitorId, currStateName));
-                this.GetOrCreateEventLink(source, target, e);
-            }
-        }
-
-        /// <summary>
-        /// Called for general error reporting via pre-constructed text.
-        /// </summary>
-        /// <param name="text">The text of the error report.</param>
-        public void OnError(string text)
-        {
-            this.Next?.OnError(text);
-        }
-
-        /// <summary>
-        /// Return current graph and reset for next iteration.
-        /// </summary>
-        /// <param name="reset">Set to true will reset the graph for the next iteration.</param>
-        /// <returns>The graph.</returns>
-        public Graph SnapshotGraph(bool reset)
-        {
-            Graph result = this.CurrentGraph;
-            if (reset)
-            {
-                // start fresh.
-                this.CurrentGraph = null;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Called for errors detected by a specific scheduling strategy.
-        /// </summary>
-        /// <param name="strategy">The scheduling strategy that was used.</param>
-        /// <param name="strategyDescription">More information about the scheduling strategy.</param>
-        public void OnStrategyError(SchedulingStrategy strategy, string strategyDescription)
-        {
-            this.Next?.OnStrategyError(strategy, strategyDescription);
-        }
-
         private GraphNode GetOrCreateChild(string actorId, string stateName)
         {
             GraphNode parent = this.Graph.GetOrCreateNode(actorId);
@@ -649,6 +628,39 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             GraphNode child = this.Graph.GetOrCreateNode(actorId + "." + stateName, stateName);
             this.Graph.GetOrCreateLink(parent, child, null, "Contains");
             return child;
+        }
+
+        private void GetOrCreateEventLink(GraphNode source, GraphNode target, EventInfo e)
+        {
+            string label = GetEventLabel(e.Event);
+            GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
+            link.AddAttribute("EventId", e.Event);
+        }
+
+        private static string GetLabel(ActorId actorId, string fullyQualifiedName)
+        {
+            if (fullyQualifiedName.StartsWith(actorId.Type))
+            {
+                fullyQualifiedName = fullyQualifiedName.Substring(actorId.Type.Length + 1).Trim('+');
+            }
+
+            return fullyQualifiedName;
+        }
+
+        private static string GetEventLabel(string fullyQualifiedName)
+        {
+            if (EventAliases.TryGetValue(fullyQualifiedName, out string label))
+            {
+                return label;
+            }
+
+            int i = fullyQualifiedName.IndexOf('+');
+            if (i > 0)
+            {
+                return fullyQualifiedName.Substring(i + 1);
+            }
+
+            return fullyQualifiedName;
         }
     }
 
@@ -703,10 +715,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <returns>Returns the new node or the existing node if it was already defined.</returns>
         private GraphNode GetOrCreateNode(GraphNode newNode)
         {
-            if (!this.InternalNodes.TryGetValue(newNode.Id, out GraphNode node))
+            if (!this.InternalNodes.ContainsKey(newNode.Id))
             {
-                node = newNode;
-                this.InternalNodes.Add(newNode.Id, node);
+                this.InternalNodes.Add(newNode.Id, newNode);
             }
 
             return newNode;
@@ -733,9 +744,11 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         public override string ToString()
         {
-            StringWriter writer = new StringWriter();
-            this.WriteDgml(writer);
-            return writer.ToString();
+            using (var writer = new StringWriter())
+            {
+                this.WriteDgml(writer);
+                return writer.ToString();
+            }
         }
 
         internal void SaveDgml(string graphFilePath)

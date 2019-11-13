@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Dictionary containing all the current action bindings.
         /// </summary>
-        internal Dictionary<Type, ActionBinding> ActionBindings;
+        internal Dictionary<Type, ActionEventHandlerDeclaration> ActionBindings;
 
         /// <summary>
         /// Map from action names to actions.
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Specifications
         protected internal string Name => this.Id.Name;
 
         /// <summary>
-        /// The logger installed to the Coyote runtime.
+        /// The logger installed to the runtime.
         /// </summary>
         protected ILogger Logger => this.Runtime.Logger;
 
@@ -238,8 +238,8 @@ namespace Microsoft.Coyote.Specifications
                 senderState = machine.CurrentStateName;
             }
 
-            this.Runtime.LogWriter.OnMonitorEvent(sender?.Id, senderState, this.GetType().Name, this.Id, this.CurrentStateName,
-                e.GetType().FullName, isProcessing: true);
+            this.Runtime.LogWriter.OnMonitorProcessEvent(sender?.Id, senderState, this.GetType().Name,
+                this.Id, this.CurrentStateName, e.GetType().FullName);
             this.HandleEvent(e);
         }
 
@@ -836,16 +836,6 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Resets the static caches.
-        /// </summary>
-        internal static void ResetCaches()
-        {
-            StateTypeMap.Clear();
-            StateMap.Clear();
-            MonitorActionMap.Clear();
-        }
-
-        /// <summary>
         /// Abstract class representing a state.
         /// </summary>
         public abstract class State
@@ -868,7 +858,7 @@ namespace Microsoft.Coyote.Specifications
             /// <summary>
             /// Dictionary containing all the action bindings.
             /// </summary>
-            internal Dictionary<Type, ActionBinding> ActionBindings;
+            internal Dictionary<Type, ActionEventHandlerDeclaration> ActionBindings;
 
             /// <summary>
             /// Set of ignored event types.
@@ -907,7 +897,7 @@ namespace Microsoft.Coyote.Specifications
                 this.IsCold = false;
 
                 this.GotoTransitions = new Dictionary<Type, GotoStateTransition>();
-                this.ActionBindings = new Dictionary<Type, ActionBinding>();
+                this.ActionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
 
                 this.IgnoredEvents = new HashSet<Type>();
 
@@ -1027,7 +1017,7 @@ namespace Microsoft.Coyote.Specifications
                 {
                     CheckEventHandlerAlreadyDeclared(attr.Event, handledEvents);
 
-                    this.ActionBindings.Add(attr.Event, new ActionBinding(attr.Action));
+                    this.ActionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                     handledEvents.Add(attr.Event);
                 }
 
@@ -1047,7 +1037,7 @@ namespace Microsoft.Coyote.Specifications
                 var doAttributesInherited = baseState.GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
                     as OnEventDoActionAttribute[];
 
-                var actionBindingsInherited = new Dictionary<Type, ActionBinding>();
+                var actionBindingsInherited = new Dictionary<Type, ActionEventHandlerDeclaration>();
                 foreach (var attr in doAttributesInherited)
                 {
                     if (this.ActionBindings.ContainsKey(attr.Event))
@@ -1057,7 +1047,7 @@ namespace Microsoft.Coyote.Specifications
 
                     CheckEventHandlerAlreadyInherited(attr.Event, baseState, handledEvents);
 
-                    actionBindingsInherited.Add(attr.Event, new ActionBinding(attr.Action));
+                    actionBindingsInherited.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                     handledEvents.Add(attr.Event);
                 }
 

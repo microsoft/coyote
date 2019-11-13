@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Threading;
-
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
@@ -19,7 +18,7 @@ namespace Microsoft.Coyote.Actors
     public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
     {
         /// <summary>
-        /// The runtime that executes the machine with this id.
+        /// The runtime that executes the actor with this id.
         /// </summary>
         public IActorRuntime Runtime { get; private set; }
 
@@ -36,13 +35,13 @@ namespace Microsoft.Coyote.Actors
         public readonly string NameValue;
 
         /// <summary>
-        /// Type of the machine with this id.
+        /// The type of the actor associated with this id.
         /// </summary>
         [DataMember]
         public readonly string Type;
 
         /// <summary>
-        /// Name of the machine used for logging.
+        /// Name used for logging.
         /// </summary>
         [DataMember]
         public readonly string Name;
@@ -67,7 +66,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, string machineName, CoyoteRuntime runtime, bool useNameForHashing = false)
+        internal ActorId(Type type, string name, CoyoteRuntime runtime, bool useNameForHashing = false)
         {
             this.Runtime = runtime;
             this.Endpoint = string.Empty;
@@ -75,8 +74,8 @@ namespace Microsoft.Coyote.Actors
             if (useNameForHashing)
             {
                 this.Value = 0;
-                this.NameValue = machineName;
-                this.Runtime.Assert(!string.IsNullOrEmpty(this.NameValue), "Input machine name cannot be null when used as id.");
+                this.NameValue = name;
+                this.Runtime.Assert(!string.IsNullOrEmpty(this.NameValue), "The actor name cannot be null when used as id.");
             }
             else
             {
@@ -98,7 +97,7 @@ namespace Microsoft.Coyote.Actors
             else
             {
                 this.Name = string.Format(CultureInfo.InvariantCulture, "{0}({1})",
-                    string.IsNullOrEmpty(machineName) ? this.Type : machineName, this.Value.ToString());
+                    string.IsNullOrEmpty(name) ? this.Type : name, this.Value.ToString());
             }
         }
 

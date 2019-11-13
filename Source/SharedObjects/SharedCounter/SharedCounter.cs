@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Creates a new shared counter.
         /// </summary>
-        /// <param name="runtime">The machine runtime.</param>
+        /// <param name="runtime">The actor runtime.</param>
         /// <param name="value">The initial value.</param>
         public static ISharedCounter Create(IActorRuntime runtime, int value = 0)
         {

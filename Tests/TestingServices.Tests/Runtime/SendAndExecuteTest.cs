@@ -9,7 +9,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Runtime
 {
     public class SendAndExecuteTest : BaseTest
     {
@@ -18,11 +18,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        private class Configure : Event
+        private class ExecuteSynchronouslySetupEvent : Event
         {
             public bool ExecuteSynchronously;
 
-            public Configure(bool executeSynchronously)
+            public ExecuteSynchronouslySetupEvent(bool executeSynchronously)
             {
                 this.ExecuteSynchronously = executeSynchronously;
             }
@@ -56,16 +56,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var e = this.ReceivedEvent as Configure;
+                var e = this.ReceivedEvent as ExecuteSynchronouslySetupEvent;
                 ActorId b;
 
                 if (e.ExecuteSynchronously)
                 {
-                     b = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M1B));
+                     b = await this.Runtime.CreateActorAndExecuteAsync(typeof(M1B));
                 }
                 else
                 {
-                    b = this.Runtime.CreateStateMachine(typeof(M1B));
+                    b = this.Runtime.CreateActor(typeof(M1B));
                 }
 
                 this.SendEvent(b, new E1());
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M1A), new Configure(false));
+                r.CreateActor(typeof(M1A), new ExecuteSynchronouslySetupEvent(false));
             });
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateStateMachine(typeof(M1A), new Configure(true));
+                r.CreateActor(typeof(M1A), new ExecuteSynchronouslySetupEvent(true));
             },
             configuration: Configuration.Create().WithNumberOfIterations(10),
             expectedError: "Deadlock detected. 'M1A()' and 'M1B()' are waiting to receive " +
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var b = this.CreateStateMachine(typeof(M2B));
+                var b = this.CreateActor(typeof(M2B));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(b, new E1());
                 this.Assert(!handled);
             }
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var d = this.CreateStateMachine(typeof(M2D));
+                var d = this.CreateActor(typeof(M2D));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(d, new E1());
                 this.Assert(handled);
             }
@@ -178,7 +178,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M2A));
+                r.CreateActor(typeof(M2A));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200));
         }
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateStateMachine(typeof(M2C));
+                r.CreateActor(typeof(M2C));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200),
             expectedError: "Detected an assertion failure.",
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             private async Task InitOnEntry()
             {
                 var e = new E4();
-                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M3B));
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M3B));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, e);
                 this.Assert(handled);
                 this.Assert(e.X == 1);
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M3A));
+                r.CreateActor(typeof(M3A));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M4B), new E2(this.Id));
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M4B), new E2(this.Id));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
@@ -302,7 +302,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M4A));
+                r.CreateActor(typeof(M4A));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
@@ -317,9 +317,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M5B));
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M5B));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
-                this.Monitor<M5SafetyMonitor>(new SE_Returns());
+                this.Monitor<M5SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
         }
@@ -334,20 +334,21 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void HandleE()
             {
-                this.RaiseEvent(new Halt());
+                this.RaiseEvent(new HaltEvent());
             }
 
-            protected override void OnHalt()
+            protected override Task OnHaltAsync()
             {
-                this.Monitor<M5SafetyMonitor>(new M_Halts());
+                this.Monitor<M5SafetyMonitor>(new MHalts());
+                return Task.CompletedTask;
             }
         }
 
-        private class M_Halts : Event
+        private class MHalts : Event
         {
         }
 
-        private class SE_Returns : Event
+        private class SEReturns : Event
         {
         }
 
@@ -358,8 +359,8 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             [Start]
             [Hot]
-            [OnEventDoAction(typeof(M_Halts), nameof(OnMHalts))]
-            [OnEventDoAction(typeof(SE_Returns), nameof(OnSEReturns))]
+            [OnEventDoAction(typeof(MHalts), nameof(OnMHalts))]
+            [OnEventDoAction(typeof(SEReturns), nameof(OnSEReturns))]
             private class Init : State
             {
             }
@@ -389,16 +390,16 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M5SafetyMonitor));
-                r.CreateStateMachine(typeof(M5A));
+                r.CreateActor(typeof(M5A));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
 
-        private class Config : Event
+        private class HandleExceptionSetupEvent : Event
         {
             public bool HandleException;
 
-            public Config(bool handleEx)
+            public HandleExceptionSetupEvent(bool handleEx)
             {
                 this.HandleException = handleEx;
             }
@@ -414,9 +415,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M6B), this.ReceivedEvent);
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M6B), this.ReceivedEvent);
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
-                this.Monitor<M6SafetyMonitor>(new SE_Returns());
+                this.Monitor<M6SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
 
@@ -440,7 +441,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.HandleException = (this.ReceivedEvent as Config).HandleException;
+                this.HandleException = (this.ReceivedEvent as HandleExceptionSetupEvent).HandleException;
             }
 
             private void HandleE()
@@ -458,7 +459,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             [Start]
             [Hot]
-            [OnEventGotoState(typeof(SE_Returns), typeof(Done))]
+            [OnEventGotoState(typeof(SEReturns), typeof(Done))]
             private class Init : State
             {
             }
@@ -475,7 +476,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M6SafetyMonitor));
-                r.CreateStateMachine(typeof(M6A), new Config(true));
+                r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(true));
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
@@ -486,7 +487,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithException<InvalidOperationException>(r =>
             {
                 r.RegisterMonitor(typeof(M6SafetyMonitor));
-                r.CreateStateMachine(typeof(M6A), new Config(false));
+                r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(false));
             },
             replay: true);
         }
@@ -501,7 +502,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M7B));
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M7B));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
@@ -520,9 +521,9 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.TestWithError(r =>
             {
-                r.CreateStateMachine(typeof(M7A));
+                r.CreateActor(typeof(M7A));
             },
-            expectedError: "Machine 'M7B()' received event 'E1' that cannot be handled.",
+            expectedError: "'M7B()' received event 'E1' that cannot be handled.",
             replay: true);
         }
 
@@ -536,7 +537,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateStateMachineAndExecuteAsync(typeof(M8B));
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M8B));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
@@ -562,7 +563,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M8A));
+                r.CreateActor(typeof(M8A));
             });
         }
     }

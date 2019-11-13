@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.Threading;
@@ -23,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
         /// <summary>
         /// Queue of operations awaiting to acquire the lock.
         /// </summary>
-        private readonly Queue<MachineOperation> Awaiters;
+        private readonly Queue<TaskOperation> Awaiters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineLock"/> class.
@@ -32,7 +31,7 @@ namespace Microsoft.Coyote.TestingServices.Threading
             : base(id)
         {
             this.Runtime = runtime;
-            this.Awaiters = new Queue<MachineOperation>();
+            this.Awaiters = new Queue<TaskOperation>();
         }
 
         /// <summary>
@@ -42,20 +41,18 @@ namespace Microsoft.Coyote.TestingServices.Threading
         /// </summary>
         public override ControlledTask<Releaser> AcquireAsync()
         {
-            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
-
+            var callerOp = this.Runtime.Scheduler.GetExecutingOperation<TaskOperation>();
             if (this.IsAcquired)
             {
-                this.Runtime.Logger.WriteLine("<SyncLog> Machine '{0}' is waiting to acquire lock '{1}'.",
-                    caller.Id, this.Id);
-                MachineOperation callerOp = this.Runtime.GetAsynchronousOperation(caller.Id.Value);
+                this.Runtime.Logger.WriteLine("<SyncLog> '{0}' is waiting to acquire lock '{1}'.",
+                    callerOp.Name, this.Id);
                 this.Awaiters.Enqueue(callerOp);
                 callerOp.Status = AsyncOperationStatus.BlockedOnResource;
             }
 
             this.IsAcquired = true;
             this.Runtime.Scheduler.ScheduleNextEnabledOperation();
-            this.Runtime.Logger.WriteLine("<SyncLog> Machine '{0}' is acquiring lock '{1}'.", caller.Id, this.Id);
+            this.Runtime.Logger.WriteLine("<SyncLog> '{0}' is acquiring lock '{1}'.", callerOp.Name, this.Id);
 
             return ControlledTask.FromResult(new Releaser(this));
         }
@@ -65,15 +62,15 @@ namespace Microsoft.Coyote.TestingServices.Threading
         /// </summary>
         protected override void Release()
         {
-            Actor caller = this.Runtime.GetExecutingMachine<Actor>();
             this.IsAcquired = false;
             if (this.Awaiters.Count > 0)
             {
-                MachineOperation awaiterOp = this.Awaiters.Dequeue();
+                TaskOperation awaiterOp = this.Awaiters.Dequeue();
                 awaiterOp.Status = AsyncOperationStatus.Enabled;
             }
 
-            this.Runtime.Logger.WriteLine("<SyncLog> Machine '{0}' is releasing lock '{1}'.", caller.Id, this.Id);
+            var callerOp = this.Runtime.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.Runtime.Logger.WriteLine("<SyncLog> '{0}' is releasing lock '{1}'.", callerOp.Name, this.Id);
             this.Runtime.Scheduler.ScheduleNextEnabledOperation();
         }
     }

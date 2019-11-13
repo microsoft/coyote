@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// The exception that is thrown by the Coyote runtime upon a machine action failure.
+    /// Exception that is thrown by the runtime upon an action failure.
     /// </summary>
     internal sealed class MachineActionExceptionFilterException : RuntimeException
     {

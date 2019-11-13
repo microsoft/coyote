@@ -2,19 +2,16 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common.Actors;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 {
     public class MonitorStateInheritanceTest : BaseTest
     {
         public MonitorStateInheritanceTest(ITestOutputHelper output)
             : base(output)
-        {
-        }
-
-        private class E : Event
         {
         }
 
@@ -25,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(Check))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
             private abstract class BaseState : State
             {
             }
@@ -97,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(Check))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
             private class BaseState : State
             {
             }
@@ -111,12 +108,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M6 : Monitor
         {
             [Start]
-            [OnEventDoAction(typeof(E), nameof(Check))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
             private class Init : BaseState
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
             private class BaseState : State
             {
             }
@@ -134,17 +131,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M7 : Monitor
         {
             [Start]
-            [OnEventDoAction(typeof(E), nameof(Check))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(Check))]
             private class Init : BaseState
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(BaseBaseCheck))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(BaseBaseCheck))]
             private class BaseBaseState : State
             {
             }
@@ -171,12 +168,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(BaseCheck))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(BaseCheck))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventDoAction(typeof(E), nameof(BaseBaseCheck))]
+            [OnEventDoAction(typeof(UnitEvent), nameof(BaseBaseCheck))]
             private class BaseBaseState : State
             {
             }
@@ -198,7 +195,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class BaseState : State
             {
             }
@@ -217,12 +214,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M10 : Monitor
         {
             [Start]
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class Init : BaseState
             {
             }
 
-            [OnEventGotoState(typeof(E), typeof(Error))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
             private class BaseState : State
             {
             }
@@ -251,17 +248,17 @@ namespace Microsoft.Coyote.TestingServices.Tests
         private class M11 : Monitor
         {
             [Start]
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class Init : BaseState
             {
             }
 
-            [OnEventGotoState(typeof(E), typeof(Error))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventGotoState(typeof(E), typeof(Error))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
             private class BaseBaseState : State
             {
             }
@@ -294,12 +291,12 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
             }
 
-            [OnEventGotoState(typeof(E), typeof(Done))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class BaseState : BaseBaseState
             {
             }
 
-            [OnEventGotoState(typeof(E), typeof(Error))]
+            [OnEventGotoState(typeof(UnitEvent), typeof(Error))]
             private class BaseBaseState : State
             {
             }
@@ -331,7 +328,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M1));
-                r.InvokeMonitor<M1>(new E());
+                r.InvokeMonitor<M1>(new UnitEvent());
             },
             expectedError: "Error reached.");
         }
@@ -371,7 +368,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M5));
-                r.InvokeMonitor<M5>(new E());
+                r.InvokeMonitor<M5>(new UnitEvent());
             },
             expectedError: "Error reached.");
         }
@@ -382,7 +379,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M6));
-                r.InvokeMonitor<M6>(new E());
+                r.InvokeMonitor<M6>(new UnitEvent());
             });
         }
 
@@ -392,7 +389,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M7));
-                r.InvokeMonitor<M7>(new E());
+                r.InvokeMonitor<M7>(new UnitEvent());
             });
         }
 
@@ -402,7 +399,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.Test(r =>
             {
                 r.RegisterMonitor(typeof(M8));
-                r.InvokeMonitor<M8>(new E());
+                r.InvokeMonitor<M8>(new UnitEvent());
             });
         }
 
@@ -412,7 +409,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M9));
-                r.InvokeMonitor<M9>(new E());
+                r.InvokeMonitor<M9>(new UnitEvent());
             },
             expectedError: "Done reached.");
         }
@@ -423,7 +420,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M10));
-                r.InvokeMonitor<M10>(new E());
+                r.InvokeMonitor<M10>(new UnitEvent());
             },
             expectedError: "Done reached.");
         }
@@ -434,7 +431,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M11));
-                r.InvokeMonitor<M11>(new E());
+                r.InvokeMonitor<M11>(new UnitEvent());
             },
             expectedError: "Done reached.");
         }
@@ -445,7 +442,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             this.TestWithError(r =>
             {
                 r.RegisterMonitor(typeof(M12));
-                r.InvokeMonitor<M12>(new E());
+                r.InvokeMonitor<M12>(new UnitEvent());
             },
             expectedError: "Done reached.");
         }

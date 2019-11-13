@@ -20,13 +20,13 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Specifies that there must not be more than N instances of the
-        /// event in the inbox queue of the receiver machine.
+        /// event in the inbox queue of the receiver.
         /// </summary>
         public int Assert { get; private set; }
 
         /// <summary>
-        /// Speciﬁes that during testing, an execution that increases the cardinality of the
-        /// event beyond N in the receiver machine inbox queue must not be generated.
+        /// Specifies that during testing, an execution that increases the cardinality of the
+        /// event beyond N in the receiver inbox queue must not be generated.
         /// </summary>
         public int Assume { get; private set; }
 

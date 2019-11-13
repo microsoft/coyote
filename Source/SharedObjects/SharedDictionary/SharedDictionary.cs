@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Creates a new shared dictionary.
         /// </summary>
-        /// <param name="runtime">The machine runtime.</param>
+        /// <param name="runtime">The actor runtime.</param>
         public static ISharedDictionary<TKey, TValue> Create<TKey, TValue>(IActorRuntime runtime)
         {
             if (runtime is ProductionRuntime)
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// Creates a new shared dictionary.
         /// </summary>
         /// <param name="comparer">The key comparer.</param>
-        /// <param name="runtime">The machine runtime.</param>
+        /// <param name="runtime">The actor runtime.</param>
         public static ISharedDictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey> comparer, IActorRuntime runtime)
         {
             if (runtime is ProductionRuntime)

@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
-                    next = enabledOperations.FirstOrDefault(op => op.SourceId == nextStep.ScheduledOperationId);
+                    next = enabledOperations.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
                     if (next is null)
                     {
                         this.ErrorText = $"Trace is not reproducible: cannot detect id '{nextStep.ScheduledOperationId}'.";

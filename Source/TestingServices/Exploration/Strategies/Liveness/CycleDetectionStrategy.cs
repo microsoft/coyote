@@ -136,10 +136,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
                 Debug.WriteLine("<LivenessDebug> Replaying '{0}' '{1}'.", nextStep.Index, nextStep.ScheduledOperationId);
 
-                next = enabledOperations.FirstOrDefault(choice => choice.SourceId == nextStep.ScheduledOperationId);
+                next = enabledOperations.FirstOrDefault(choice => choice.Id == nextStep.ScheduledOperationId);
                 if (next is null)
                 {
-                    Debug.WriteLine("<LivenessDebug> Trace is not reproducible: cannot detect machine with id '{0}'.", nextStep.ScheduledOperationId);
+                    Debug.WriteLine("<LivenessDebug> Trace is not reproducible: cannot detect actor with id '{0}'.", nextStep.ScheduledOperationId);
                     this.EscapeUnfairCycle();
                     return this.SchedulingStrategy.GetNext(out next, ops, current);
                 }
@@ -524,12 +524,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             {
                 foreach (var m in enabledMachines)
                 {
-                    Debug.WriteLine("<LivenessDebug> Enabled machine {0}.", m);
+                    Debug.WriteLine("<LivenessDebug> Enabled actor {0}.", m);
                 }
 
                 foreach (var m in scheduledMachines)
                 {
-                    Debug.WriteLine("<LivenessDebug> Scheduled machine {0}.", m);
+                    Debug.WriteLine("<LivenessDebug> Scheduled actor {0}.", m);
                 }
             }
 

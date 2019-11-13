@@ -6,7 +6,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 {
     public class IdempotentRegisterMonitorTest : BaseTest
     {
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             {
                 r.RegisterMonitor(typeof(M));
                 r.RegisterMonitor(typeof(M));
-                ActorId n = r.CreateStateMachine(typeof(N));
+                ActorId n = r.CreateActor(typeof(N));
             });
         }
     }

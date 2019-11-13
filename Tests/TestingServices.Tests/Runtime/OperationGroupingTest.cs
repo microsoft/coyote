@@ -7,7 +7,7 @@ using Microsoft.Coyote.Actors;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.TestingServices.Tests
+namespace Microsoft.Coyote.TestingServices.Tests.Runtime
 {
     public class OperationGroupingTest : BaseTest
     {
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M1));
+                r.CreateActor(typeof(M1));
             });
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M2));
+                r.CreateActor(typeof(M2));
             });
         }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M3));
+                r.CreateActor(typeof(M3));
             });
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                this.CreateStateMachine(typeof(M4B));
+                this.CreateActor(typeof(M4B));
             }
         }
 
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M4A));
+                r.CreateActor(typeof(M4A));
             });
         }
 
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateStateMachine(typeof(M5B));
+                var target = this.CreateActor(typeof(M5B));
                 this.SendEvent(target, new E());
             }
         }
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M5A));
+                r.CreateActor(typeof(M5A));
             });
         }
 
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateStateMachine(typeof(M6B));
+                var target = this.CreateActor(typeof(M6B));
                 this.Runtime.SendEvent(target, new E(), OperationGroup1);
             }
         }
@@ -229,7 +229,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M6A));
+                r.CreateActor(typeof(M6A));
             });
         }
 
@@ -244,7 +244,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateStateMachine(typeof(M7B));
+                var target = this.CreateActor(typeof(M7B));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M7A));
+                r.CreateActor(typeof(M7A));
             });
         }
 
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateStateMachine(typeof(M8B));
+                var target = this.CreateActor(typeof(M8B));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M8A));
+                r.CreateActor(typeof(M8A));
             });
         }
 
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void InitOnEntry()
             {
-                var target = this.CreateStateMachine(typeof(M9B));
+                var target = this.CreateActor(typeof(M9B));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
             }
 
@@ -359,7 +359,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             private void CheckEvent()
             {
-                this.CreateStateMachine(typeof(M9C));
+                this.CreateActor(typeof(M9C));
                 var id = this.OperationGroupId;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
                 this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
@@ -386,7 +386,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M9A));
+                r.CreateActor(typeof(M9A));
             });
         }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M10));
+                r.CreateActor(typeof(M10));
             });
         }
 
@@ -475,7 +475,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M11));
+                r.CreateActor(typeof(M11));
             });
         }
 
@@ -526,7 +526,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M12));
+                r.CreateActor(typeof(M12));
             });
         }
 
@@ -580,7 +580,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M13));
+                r.CreateActor(typeof(M13));
             });
         }
 
@@ -608,7 +608,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             this.Test(r =>
             {
-                r.CreateStateMachine(typeof(M14));
+                r.CreateActor(typeof(M14));
             });
         }
     }

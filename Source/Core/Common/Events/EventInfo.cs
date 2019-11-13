@@ -30,13 +30,13 @@ namespace Microsoft.Coyote.Runtime
 
         /// <summary>
         /// Specifies that there must not be more than N instances of the
-        /// event in the inbox queue of the receiver machine.
+        /// event in the inbox queue of the receiver.
         /// </summary>
         internal int Assert { get; set; }
 
         /// <summary>
         /// Speciﬁes that during testing, an execution that increases the cardinality of the
-        /// event beyond N in the receiver machine inbox queue must not be generated.
+        /// event beyond N in the receiver inbox queue must not be generated.
         /// </summary>
         internal int Assume { get; set; }
 

@@ -87,10 +87,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 for (int idx = 0; idx < enabledOperations.Count; idx++)
                 {
                     var op = enabledOperations[idx];
-                    this.Logger.WriteLine($">> [{idx}] '{op.SourceName}'");
+                    this.Logger.WriteLine($">> [{idx}] '{op.Name}'");
                 }
 
-                this.Logger.WriteLine($">> Choose machine to schedule [step '{this.ExploredSteps}']");
+                this.Logger.WriteLine($">> Choose actor to schedule [step '{this.ExploredSteps}']");
 
                 var input = Console.ReadLine();
                 if (input.Equals("replay"))

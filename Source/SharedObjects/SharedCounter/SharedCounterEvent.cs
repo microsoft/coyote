@@ -6,27 +6,27 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.SharedObjects
 {
     /// <summary>
-    /// Event used to communicate with a shared counter machine.
+    /// Event used to communicate with a shared counter actor.
     /// </summary>
     internal class SharedCounterEvent : Event
     {
         /// <summary>
         /// Supported shared counter operations.
         /// </summary>
-        internal enum SharedCounterOperation
+        internal enum OperationType
         {
-            GET,
-            SET,
-            INC,
-            DEC,
-            ADD,
-            CAS
+            Get,
+            Set,
+            Increment,
+            Decrement,
+            Add,
+            CompareExchange
         }
 
         /// <summary>
         /// The operation stored in this event.
         /// </summary>
-        public SharedCounterOperation Operation { get; private set; }
+        public OperationType Operation { get; private set; }
 
         /// <summary>
         /// The shared counter value stored in this event.
@@ -39,14 +39,14 @@ namespace Microsoft.Coyote.SharedObjects
         public int Comparand { get; private set; }
 
         /// <summary>
-        /// The sender machine stored in this event.
+        /// The sender actor stored in this event.
         /// </summary>
         public ActorId Sender { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SharedCounterEvent"/> class.
         /// </summary>
-        private SharedCounterEvent(SharedCounterOperation op, int value, int comparand, ActorId sender)
+        private SharedCounterEvent(OperationType op, int value, int comparand, ActorId sender)
         {
             this.Operation = op;
             this.Value = value;
@@ -55,51 +55,51 @@ namespace Microsoft.Coyote.SharedObjects
         }
 
         /// <summary>
-        /// Creates a new event for the 'INC' operation.
+        /// Creates a new event for the <see cref="OperationType.Increment"/> operation.
         /// </summary>
         public static SharedCounterEvent IncrementEvent()
         {
-            return new SharedCounterEvent(SharedCounterOperation.INC, 0, 0, null);
+            return new SharedCounterEvent(OperationType.Increment, 0, 0, null);
         }
 
         /// <summary>
-        /// Creates a new event for the 'DEC' operation.
+        /// Creates a new event for the <see cref="OperationType.Decrement"/> operation.
         /// </summary>
         public static SharedCounterEvent DecrementEvent()
         {
-            return new SharedCounterEvent(SharedCounterOperation.DEC, 0, 0, null);
+            return new SharedCounterEvent(OperationType.Decrement, 0, 0, null);
         }
 
         /// <summary>
-        /// Creates a new event for the 'SET' operation.
+        /// Creates a new event for the <see cref="OperationType.Set"/> operation.
         /// </summary>
         public static SharedCounterEvent SetEvent(ActorId sender, int value)
         {
-            return new SharedCounterEvent(SharedCounterOperation.SET, value, 0, sender);
+            return new SharedCounterEvent(OperationType.Set, value, 0, sender);
         }
 
         /// <summary>
-        /// Creates a new event for the 'GET' operation.
+        /// Creates a new event for the <see cref="OperationType.Get"/> operation.
         /// </summary>
         public static SharedCounterEvent GetEvent(ActorId sender)
         {
-            return new SharedCounterEvent(SharedCounterOperation.GET, 0, 0, sender);
+            return new SharedCounterEvent(OperationType.Get, 0, 0, sender);
         }
 
         /// <summary>
-        /// Creates a new event for the 'ADD' operation.
+        /// Creates a new event for the <see cref="OperationType.Add"/> operation.
         /// </summary>
         public static SharedCounterEvent AddEvent(ActorId sender, int value)
         {
-            return new SharedCounterEvent(SharedCounterOperation.ADD, value, 0, sender);
+            return new SharedCounterEvent(OperationType.Add, value, 0, sender);
         }
 
         /// <summary>
-        /// Creates a new event for the 'CAS' operation.
+        /// Creates a new event for the <see cref="OperationType.CompareExchange"/> operation.
         /// </summary>
-        public static SharedCounterEvent CasEvent(ActorId sender, int value, int comparand)
+        public static SharedCounterEvent CompareExchangeEvent(ActorId sender, int value, int comparand)
         {
-            return new SharedCounterEvent(SharedCounterOperation.CAS, value, comparand, sender);
+            return new SharedCounterEvent(OperationType.CompareExchange, value, comparand, sender);
         }
     }
 }

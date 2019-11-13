@@ -6,7 +6,7 @@ using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Core.Tests
+namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
 {
     public class TaskConfigureAwaitTrueTest : BaseTest
     {

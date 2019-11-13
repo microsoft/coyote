@@ -16,11 +16,11 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         {
         }
 
-        private class Config : Event
+        private class SetupEvent : Event
         {
             public int Flag;
 
-            public Config(int flag)
+            public SetupEvent(int flag)
             {
                 this.Flag = flag;
             }
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             private void InitOnEntry()
             {
                 var counter = SharedCounter.Create(this.Id.Runtime, 0);
-                this.CreateStateMachine(typeof(N1), new E(counter));
+                this.CreateActor(typeof(N1), new E(counter));
 
                 counter.Increment();
                 var v = counter.GetValue();
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M1));
+                r.CreateActor(typeof(M1));
             });
 
             this.AssertFailed(config, test, "Detected an assertion failure.");
@@ -96,10 +96,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             private void InitOnEntry()
             {
-                var flag = (this.ReceivedEvent as Config).Flag;
+                var flag = (this.ReceivedEvent as SetupEvent).Flag;
 
                 var counter = SharedCounter.Create(this.Id.Runtime, 0);
-                var n = this.CreateStateMachine(typeof(N2), new E(counter));
+                var n = this.CreateActor(typeof(N2), new E(counter));
 
                 int v1 = counter.CompareExchange(10, 0); // if 0 then 10
                 int v2 = counter.GetValue();
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             private void InitOnEntry()
             {
                 var counter = SharedCounter.Create(this.Id.Runtime, 0);
-                var n = this.CreateStateMachine(typeof(N3), new E(counter));
+                var n = this.CreateActor(typeof(N3), new E(counter));
 
                 counter.Add(4);
                 counter.Increment();
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M2), new Config(0));
+                r.CreateActor(typeof(M2), new SetupEvent(0));
             });
 
             this.AssertSucceeded(config, test);
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M2), new Config(1));
+                r.CreateActor(typeof(M2), new SetupEvent(1));
             });
 
             this.AssertFailed(config, test, "Detected an assertion failure.");
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M2), new Config(2));
+                r.CreateActor(typeof(M2), new SetupEvent(2));
             });
 
             this.AssertFailed(config, test, "Detected an assertion failure.");
@@ -244,7 +244,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M2), new Config(3));
+                r.CreateActor(typeof(M2), new SetupEvent(3));
             });
 
             this.AssertFailed(config, test, "Detected an assertion failure.");
@@ -256,7 +256,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             var config = Configuration.Create().WithNumberOfIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
-                r.CreateStateMachine(typeof(M3));
+                r.CreateActor(typeof(M3));
             });
 
             this.AssertSucceeded(config, test);

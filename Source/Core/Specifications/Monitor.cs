@@ -232,7 +232,13 @@ namespace Microsoft.Coyote.Specifications
         /// <param name="e">The event to monitor.</param>
         internal void MonitorEvent(Actor sender, Event e)
         {
-            this.Runtime.LogWriter.OnMonitorEvent(sender?.Id, this.GetType().Name, this.Id, this.CurrentStateName,
+            string senderState = null;
+            if (sender is StateMachine machine)
+            {
+                senderState = machine.CurrentStateName;
+            }
+
+            this.Runtime.LogWriter.OnMonitorEvent(sender?.Id, senderState, this.GetType().Name, this.Id, this.CurrentStateName,
                 e.GetType().FullName, isProcessing: true);
             this.HandleEvent(e);
         }

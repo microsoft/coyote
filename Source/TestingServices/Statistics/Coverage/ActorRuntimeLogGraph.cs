@@ -12,6 +12,7 @@ using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.TestingServices.Timers;
 
 namespace Microsoft.Coyote.TestingServices.Coverage
 {
@@ -22,7 +23,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
     public class ActorRuntimeLogGraph : IActorRuntimeLog
     {
         private Graph CurrentGraph;
-        private EventInfo dequeued; // current dequeued event.
+        private EventInfo Dequeued; // current dequeued event.
+        private string HaltedState;
 
         private class EventInfo
         {
@@ -32,7 +34,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         private readonly Dictionary<string, List<EventInfo>> InBox = new Dictionary<string, List<EventInfo>>();
-        private readonly Dictionary<string, string> CurrentStates = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> EventAliases = new Dictionary<string, string>();
+
+        static ActorRuntimeLogGraph()
+        {
+            EventAliases[typeof(GotoStateEvent).FullName] = "goto";
+            EventAliases[typeof(Halt).FullName] = "halt";
+            EventAliases[typeof(Default).FullName] = "default";
+            EventAliases[typeof(PushStateEvent).FullName] = "push";
+            EventAliases[typeof(QuiescentEvent).FullName] = "quiescent";
+            EventAliases[typeof(WildCardEvent).FullName] = "*";
+            EventAliases[typeof(TimerElapsedEvent).FullName] = "timer_elapsed";
+            EventAliases[typeof(TimerSetupEvent).FullName] = "timer_setup";
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorRuntimeLogGraph"/> class.
@@ -107,7 +121,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                         var target = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
                         this.GetOrCreateEventLink(source, target, e);
                         inbox.RemoveAt(i);
-                        this.dequeued = e;
+                        this.Dequeued = e;
                         break;
                     }
                 }
@@ -159,9 +173,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
         private static string GetEventLabel(string fullyQualifiedName)
         {
-            if (fullyQualifiedName == typeof(GotoStateEvent).FullName)
+            if (EventAliases.TryGetValue(fullyQualifiedName, out string label))
             {
-                return "goto";
+                return label;
             }
 
             int i = fullyQualifiedName.IndexOf('+');
@@ -188,14 +202,13 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         private void LinkTransition(string type, ActorId actorId, string currStateName, string newStateName, bool suffixLabel)
         {
             string id = this.GetActorId(actorId);
-            this.CurrentStates[id] = newStateName;
             var source = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
             var target = this.GetOrCreateChild(id, GetLabel(actorId, newStateName));
 
             string label = type;
-            if (this.dequeued != null)
+            if (this.Dequeued != null)
             {
-                var eventLabel = GetEventLabel(this.dequeued.Event);
+                var eventLabel = GetEventLabel(this.Dequeued.Event);
                 if (suffixLabel)
                 {
                     label = eventLabel + "(" + label + ")";
@@ -207,12 +220,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
 
             GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
-            if (this.dequeued != null)
+            if (this.Dequeued != null)
             {
-                link.AddAttribute("EventId", this.dequeued.Event);
+                link.AddAttribute("EventId", this.Dequeued.Event);
             }
 
-            this.dequeued = null;
+            this.Dequeued = null;
         }
 
         /// <summary>
@@ -245,7 +258,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             else
             {
                 string id = this.GetActorId(actorId);
-                this.CurrentStates[id] = restoredStateName;
             }
         }
 
@@ -259,6 +271,10 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public void OnPopUnhandledEvent(ActorId actorId, string currStateName, string eventName)
         {
             this.Next?.OnPopUnhandledEvent(actorId, currStateName, eventName);
+            if (eventName == typeof(Halt).FullName)
+            {
+                this.HaltedState = currStateName;
+            }
         }
 
         /// <summary>
@@ -327,6 +343,11 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             this.Next?.OnSend(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted);
 
+            this.AddEvent(targetActorId, senderId, senderStateName, eventName);
+        }
+
+        private void AddEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName)
+        {
             string targetId = this.GetActorId(targetActorId);
             if (!this.InBox.TryGetValue(targetId, out List<EventInfo> inbox))
             {
@@ -339,7 +360,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 senderStateName = "ExternalState";
             }
 
-            inbox.Add(new EventInfo() { ActorId = this.GetActorId(senderId), State = senderStateName, Event = eventName });
+            string sender = this.GetActorId(senderId);
+            inbox.Add(new EventInfo() { ActorId = sender, State = senderStateName, Event = eventName });
         }
 
         /// <summary>
@@ -389,24 +411,23 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <summary>
-        /// Called when a machine has been halted.
+        /// Called when a state machine has been halted.
         /// </summary>
-        /// <param name="actorId">The id of the machine that has been halted.</param>
-        /// <param name="inboxSize">Approximate size of the machine inbox.</param>
+        /// <param name="actorId">The id of the state machine that has been halted.</param>
+        /// <param name="inboxSize">Approximate size of the state machine inbox.</param>
         public void OnHalt(ActorId actorId, int inboxSize)
         {
             this.Next?.OnHalt(actorId, inboxSize);
 
             string id = this.GetActorId(actorId);
-            if (!this.CurrentStates.TryGetValue(id, out string currStateName))
+            string stateName = this.HaltedState;
+            if (string.IsNullOrEmpty(stateName))
             {
-                currStateName = "Init";
+                stateName = "null";
             }
 
-            this.CurrentStates[id] = "Halt";
-
             // transition to the Halt state
-            var source = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
+            var source = this.GetOrCreateChild(id, GetLabel(actorId, stateName));
             var target = this.GetOrCreateChild(id, "Halt");
             this.Graph.GetOrCreateLink(source, target, "halt");
         }
@@ -443,14 +464,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             this.Next?.OnMachineEvent(actorId, currStateName, eventName);
 
             // raising event to self.
-            string id = this.GetActorId(actorId);
-            if (!this.InBox.TryGetValue(id, out List<EventInfo> inbox))
-            {
-                inbox = new List<EventInfo>();
-                this.InBox[id] = inbox;
-            }
-
-            inbox.Add(new EventInfo() { ActorId = id, State = currStateName, Event = eventName });
+            this.AddEvent(actorId, actorId, currStateName, eventName);
         }
 
         /// <summary>
@@ -533,16 +547,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             this.Next?.OnMonitorState(monitorTypeName, monitorId, stateName, isEntry, isInHotState);
 
-            string id = this.GetActorId(monitorId);
-            // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of the only event in the inbox.
-            if (this.InBox.TryGetValue(id, out List<EventInfo> inbox) && inbox.Count > 0)
+            if (isEntry)
             {
-                var e = inbox[inbox.Count - 1];
-                inbox.RemoveAt(inbox.Count - 1);
-                // draw the link connecting the Sender state to this state!
-                var source = this.GetOrCreateChild(e.ActorId, e.State);
-                var target = this.GetOrCreateChild(id, GetLabel(monitorId, stateName));
-                this.GetOrCreateEventLink(source, target, e);
+                string id = this.GetActorId(monitorId);
+                // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of the only event in the inbox.
+                if (this.InBox.TryGetValue(id, out List<EventInfo> inbox) && inbox.Count > 0)
+                {
+                    var e = inbox[inbox.Count - 1];
+                    inbox.RemoveAt(inbox.Count - 1);
+                    // draw the link connecting the Sender state to this state!
+                    var source = this.GetOrCreateChild(e.ActorId, e.State);
+                    var target = this.GetOrCreateChild(id, GetLabel(monitorId, stateName));
+                    this.GetOrCreateEventLink(source, target, e);
+                }
             }
         }
 
@@ -550,25 +567,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// Called when a monitor is about to process or has raised an event.
         /// </summary>
         /// <param name="senderId">The sender of the event.</param>
+        /// <param name="senderStateName">The name of the state the sender is in.</param>
         /// <param name="monitorTypeName">Name of type of the monitor that will process or has raised the event.</param>
-        /// <param name="monitorId">ID of the monitor that will process or has raised the event</param>
+        /// <param name="monitorId">The id of the monitor that will process or has raised the event</param>
         /// <param name="currStateName">The name of the state in which the event is being raised.</param>
         /// <param name="eventName">The name of the event.</param>
         /// <param name="isProcessing">If true, the monitor is processing the event; otherwise it has raised it.</param>
-        public void OnMonitorEvent(ActorId senderId, string monitorTypeName, ActorId monitorId, string currStateName, string eventName, bool isProcessing)
+        public void OnMonitorEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId monitorId, string currStateName,
+            string eventName, bool isProcessing)
         {
-            this.Next?.OnMonitorEvent(senderId, monitorTypeName, monitorId, currStateName, eventName, isProcessing);
+            this.Next?.OnMonitorEvent(senderId, senderStateName, monitorTypeName, monitorId, currStateName, eventName, isProcessing);
 
             // if sender is null then it means we are dealing with a Monitor call from external code.
-            string sender = this.GetActorId(senderId);
-            string id = this.GetActorId(monitorId);
-            if (!this.InBox.TryGetValue(id, out List<EventInfo> inbox))
-            {
-                inbox = new List<EventInfo>();
-                this.InBox[id] = inbox;
-            }
-
-            inbox.Add(new EventInfo() { ActorId = sender, State = currStateName, Event = eventName });
+            this.AddEvent(monitorId, senderId, senderStateName, eventName);
         }
 
         /// <summary>
@@ -607,12 +618,17 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <summary>
         /// Return current graph and reset for next iteration.
         /// </summary>
+        /// <param name="reset">Set to true will reset the graph for the next iteration.</param>
         /// <returns>The graph.</returns>
-        public Graph SnapshotGraph()
+        public Graph SnapshotGraph(bool reset)
         {
             Graph result = this.CurrentGraph;
-            // start fresh.
-            this.CurrentGraph = null;
+            if (reset)
+            {
+                // start fresh.
+                this.CurrentGraph = null;
+            }
+
             return result;
         }
 

@@ -224,12 +224,13 @@ namespace Microsoft.Coyote.IO
         /// Called when a monitor is about to process or has raised an event.
         /// </summary>
         /// <param name="senderId">The sender of the event.</param>
+        /// <param name="senderStateName">The name of the state the sender is in.</param>
         /// <param name="monitorTypeName">Name of type of the monitor that will process or has raised the event.</param>
-        /// <param name="id">The id of the monitor that will process or has raised the event</param>
+        /// <param name="monitorId">The id of the monitor that will process or has raised the event</param>
         /// <param name="currStateName">The name of the state in which the event is being raised.</param>
         /// <param name="eventName">The name of the event.</param>
         /// <param name="isProcessing">If true, the monitor is processing the event; otherwise it has raised it.</param>
-        void OnMonitorEvent(ActorId senderId, string monitorTypeName, ActorId id, string currStateName,
+        void OnMonitorEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId monitorId, string currStateName,
             string eventName, bool isProcessing);
 
         /// <summary>

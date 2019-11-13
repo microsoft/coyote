@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.TestingServices
                     Console.WriteLine($"... Task {this.Configuration.TestingProcessId} found a bug.");
                 }
 
-                if (this.TestingEngine.TestReport.NumOfFoundBugs > 0)
+                if (this.TestingEngine.TestReport.NumOfFoundBugs > 0 || (this.Configuration.IsDgmlGraphEnabled && !this.Configuration.IsDgmlBugGraph))
                 {
                     await this.EmitTraces();
                 }

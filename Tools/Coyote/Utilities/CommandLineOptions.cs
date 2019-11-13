@@ -59,7 +59,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
             advancedGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
             advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
-            advancedGroup.AddArgument("graph", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
+            advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
+            advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
             advancedGroup.AddArgument("actor-runtime-log", null, "Custom runtime log to use instead of the default", typeof(string));
 
             // Hidden options (for debugging or experimentation only).
@@ -201,6 +202,11 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "graph":
                     this.Configuration.IsDgmlGraphEnabled = true;
+                    this.Configuration.IsDgmlBugGraph = false;
+                    break;
+                case "graph-bug":
+                    this.Configuration.IsDgmlGraphEnabled = true;
+                    this.Configuration.IsDgmlBugGraph = true;
                     break;
                 case "actor-runtime-log":
                     this.Configuration.CustomActorRuntimeLogType = (string)option.Value;

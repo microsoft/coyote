@@ -709,8 +709,8 @@ namespace Microsoft.Coyote.Actors
                         return;
                     }
 
-                    this.DoStatePop();
                     this.Runtime.LogWriter.OnPopUnhandledEvent(this.Id, this.CurrentStateName, e.GetType().FullName);
+                    this.DoStatePop();
                     continue;
                 }
 

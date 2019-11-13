@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.IO
         /// </summary>
         /// <param name="id">The id of the state machine that has been halted.</param>
         /// <param name="inboxSize">Approximate size of the state machine inbox.</param>
-        public virtual void OnHalt(ActorId id, int inboxSize)
+        public void OnHalt(ActorId id, int inboxSize)
         {
             this.Next?.OnHalt(id, inboxSize);
             if (this.Logger.IsVerbose)
@@ -402,19 +402,20 @@ namespace Microsoft.Coyote.IO
         /// Called when a monitor is about to process or has raised an event.
         /// </summary>
         /// <param name="senderId">The sender of the event.</param>
+        /// <param name="senderStateName">The name of the state the sender is in.</param>
         /// <param name="monitorTypeName">Name of type of the monitor that will process or has raised the event.</param>
-        /// <param name="id">The id of the monitor that will process or has raised the event</param>
+        /// <param name="monitorId">The id of the monitor that will process or has raised the event</param>
         /// <param name="currStateName">The name of the state in which the event is being raised.</param>
         /// <param name="eventName">The name of the event.</param>
         /// <param name="isProcessing">If true, the monitor is processing the event; otherwise it has raised it.</param>
-        public virtual void OnMonitorEvent(ActorId senderId, string monitorTypeName, ActorId id, string currStateName,
+        public void OnMonitorEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId monitorId, string currStateName,
             string eventName, bool isProcessing)
         {
-            this.Next?.OnMonitorEvent(senderId, monitorTypeName, id, currStateName, eventName, isProcessing);
+            this.Next?.OnMonitorEvent(senderId, senderStateName, monitorTypeName, monitorId, currStateName, eventName, isProcessing);
 
             if (this.Logger.IsVerbose)
             {
-                this.Logger.WriteLine(this.FormatOnMonitorEventLogMessage(monitorTypeName, id, currStateName, eventName, isProcessing));
+                this.Logger.WriteLine(this.FormatOnMonitorEventLogMessage(monitorTypeName, monitorId, currStateName, eventName, isProcessing));
             }
         }
 

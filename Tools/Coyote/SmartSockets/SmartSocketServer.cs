@@ -29,6 +29,7 @@ namespace Microsoft.Coyote.SmartSockets
         private readonly List<SmartSocketClient> Clients = new List<SmartSocketClient>();
         private readonly SmartSocketTypeResolver Resolver;
         private UdpClient UdpListener;
+        private SocketAsyncEventArgs acceptArgs;
 
         /// <summary>
         /// Address for UDP group.
@@ -203,18 +204,34 @@ namespace Microsoft.Coyote.SmartSockets
         /// </summary>
         internal void Run()
         {
-            while (!this.Stopped)
+            if (this.acceptArgs == null)
+            {
+                this.acceptArgs = new SocketAsyncEventArgs();
+                this.acceptArgs.Completed += this.OnAcceptComplete;
+            }
+
+            if (!this.Stopped)
             {
                 try
                 {
-                    Socket client = this.Listener.Accept();
-                    this.OnAccept(client);
+                    this.Listener.AcceptAsync(this.acceptArgs);
                 }
                 catch (Exception)
                 {
                     // listener was probably closed then, which means we've probably been stopped.
                     Debug.WriteLine("Listener is gone");
                 }
+            }
+        }
+
+        private void OnAcceptComplete(object sender, SocketAsyncEventArgs e)
+        {
+            if (this.acceptArgs == e)
+            {
+                this.acceptArgs = null;
+                Socket client = e.AcceptSocket;
+                this.OnAccept(client);
+                this.Run();
             }
         }
 
@@ -289,7 +306,11 @@ namespace Microsoft.Coyote.SmartSockets
             {
                 try
                 {
-                    this.Listener.Close();
+                    if (this.acceptArgs != null)
+                    {
+                        this.acceptArgs.Dispose();
+                        this.acceptArgs = null;
+                    }
                 }
                 catch (Exception)
                 {

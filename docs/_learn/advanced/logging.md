@@ -18,10 +18,10 @@ output to the `System.Console`.
 
 You can provide your own implementation of `IActorRuntimeLog` and/or
 `ILogger` in order to gain full control over what is logged and how.
-For an interesting example of this see the `GraphMachineRuntimeLog` class
+For an interesting example of this see the `ActorRuntimeLogGraph` class
 which implements `IActorRuntimeLog` and generates a directed graph representing
 all state transitions that happened during the execution of your state machines.
-See [activity coverage](/Coyote/learn/tools/coverage) for example graph output.
+See [activity coverage](/coyote/learn/tools/coverage) for example graph output.
 The `coyote` tester uses this when you specify `--graph` or `--coverage activity`
 command line options.
 
@@ -35,7 +35,7 @@ is found is that in-memory log written to a log file on disk.
 
 ## Customizing the IActorRuntimeLog
 
-You can implement your own `IActorRuntimeLog` (as is done by `GraphMachineRuntimeLog`)
+You can implement your own `IActorRuntimeLog` (as is done by `ActorRuntimeLogGraph`)
 or you can subclass `ActorRuntimeLogWriter`.  The following is an example subclass that overrides
 two of the public methods, and two of the protected methods:
 

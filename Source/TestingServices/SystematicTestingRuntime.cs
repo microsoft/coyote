@@ -1578,7 +1578,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
         {
-            string monitorState = monitor.CurrentStateName;
+            string monitorState = monitor.CurrentStateNameWithTemperature;
             this.BugTrace.AddInvokeActionStep(monitor.Id, monitorState, action);
             this.LogWriter.OnMonitorAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
         }
@@ -1599,9 +1599,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
         {
-            string monitorState = monitor.CurrentStateName;
+            string monitorState = monitor.CurrentStateNameWithTemperature;
             this.BugTrace.AddRaiseEventStep(monitor.Id, monitorState, eventInfo);
-            this.LogWriter.OnMonitorEvent(monitor.Id, monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
+            this.LogWriter.OnMonitorEvent(monitor.Id, monitorState, monitor.GetType().FullName, monitor.Id, monitorState,
                 eventInfo.EventName, isProcessing: false);
         }
 

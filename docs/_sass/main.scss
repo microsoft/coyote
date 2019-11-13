@@ -131,7 +131,7 @@ $black: #000;
 // homepage brand
 .navbar-brand {
     display: block;
-    background: url("/Coyote/assets/images/logo_color.svg") no-repeat 30px center;
+    background: url("/coyote/assets/images/logo_color.svg") no-repeat 30px center;
     width: 267px;
     height: 40px;
     background-size: contain;
@@ -158,7 +158,7 @@ $black: #000;
     .brand-home {
         position: absolute;
         z-index: 10001;
-        background: url("/Coyote/assets/images/logo_rev.svg") no-repeat;
+        background: url("/coyote/assets/images/logo_rev.svg") no-repeat;
         background-position: center 10px;
         background-size: 80px auto;
         transition: all .2s ease-in;
@@ -203,7 +203,7 @@ $black: #000;
 
         &.brand-shrink {
             background-color: transparent;
-            background: url("/Coyote/assets/images/logo_color.png") no-repeat 30px center;
+            background: url("/coyote/assets/images/logo_color.png") no-repeat 30px center;
             width: 267px;
             height: 20px;
             margin-top: 15px;
@@ -486,7 +486,7 @@ footer {
     @include screen(sm) {
         left: -60px;
         top: 157px;
-    }    
+    }
     li {
         display: inline-block;
         width: auto;
@@ -529,7 +529,7 @@ footer {
         margin: -539px 0 0 140px;
         height: 240px;
         padding: 96px 0 0 20px;
-        
+
         @include screen(xl) {
             font-size: 54px;
             max-width: 80%;
@@ -557,16 +557,16 @@ footer {
         @include screen(xl) {
             width: 200px;
             margin: 0 0 0 670px;
-            
+
         }
         @include screen(lg) {
             width: auto;
             margin: 0;
-            
+
         }
         @include screen(md) {
             width: auto;
-            
+
         }
         @include screen(sm) {
         }

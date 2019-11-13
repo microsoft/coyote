@@ -49,7 +49,7 @@ via `ReceiveEventAsync`. Once it gets the response, it can stash the result in a
 that can be safely shared with the calling static method without any race conditions.
 A sample demonstrating this pattern is available in `Samples\SendAndReceive`.
 
-You can use a [SharedRegister](/Coyote/learn/advanced/object-sharing), which will rule out race
+You can use a [SharedRegister](/coyote/learn/advanced/object-sharing), which will rule out race
 conditions as well, but this still requires a separate protocol to know when the result has been made
 available.
 

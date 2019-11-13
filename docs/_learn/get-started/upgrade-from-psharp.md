@@ -29,7 +29,7 @@ actor programming model.
 
 ## Runtime API changes
 - The static runtime factory is renamed from `PSharpRuntime` to `ActorRuntimeFactory`, so you can now do `ActorRuntimeFactory.Create()` to get an actor runtime instance (that can execute state machines).
-- `IActorRuntime.CreateMachine` is renamed to `IActorRuntime.CreateStateMachine`.
+- `IMachineRuntime.CreateMachine` is renamed to `IActorRuntime.CreateStateMachine`.
 - The previously deprecated method `IMachineRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateStateMachineAndExecuteAsync` instead (same semantics, just different method name).
 - The previously deprecated method `IMachineRuntime.SendEventAndExecute` has been removed, please use `IActorRuntime.SendEventAndExecuteAsync` instead (same semantics, just different method name).
 
@@ -41,6 +41,9 @@ actor programming model.
 
 ## Monitor API changes
 - `Monitor.Raise` is renamed to `Monitor.RaiseEvent` to become more descriptive.
+
+## Test attribute changes
+- `[Microsoft.PSharp.Test]` is renamed  to `[Microsoft.Coyote.TestingServices.Test]`
 
 ## Command line tool changes
 - The `PSharpTester` and `PSharpReplayer` executables have now been merged into the `coyote` command line tool. To invoke the tester, you do `coyote test ...`. To invoke the replayer you do `coyote replay ...`. The command line options remain pretty much the same, but the way they are declared has changed from (for example) `-max-steps:100` to `--max-steps 100` (single character arguments are used with a single `-`, e.g. `-i 100`). Read more details in the documentation on using the `coyote` command line tool [here](using-coyote.md).

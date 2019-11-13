@@ -655,7 +655,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.OnMonitorEvent(monitor.Id, monitor.GetType().FullName, monitor.Id, monitor.CurrentStateName,
+                string monitorState = monitor.CurrentStateNameWithTemperature;
+                this.LogWriter.OnMonitorEvent(monitor.Id, monitorState, monitor.GetType().FullName, monitor.Id, monitorState,
                     e.GetType().FullName, isProcessing: false);
             }
         }

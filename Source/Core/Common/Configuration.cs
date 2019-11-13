@@ -307,6 +307,13 @@ namespace Microsoft.Coyote
         public bool IsDgmlGraphEnabled;
 
         /// <summary>
+        /// Is DGML graph showing all test iterations or just one "bug" iteration.
+        /// False means all, and True means only the iteration containing a bug.
+        /// </summary>
+        [DataMember]
+        public bool IsDgmlBugGraph;
+
+        /// <summary>
         /// If specified, requests a custom runtime log to be used instead of the default.
         /// This is the AssemblyQualifiedName of the type to load.
         /// </summary>

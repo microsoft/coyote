@@ -8,6 +8,7 @@ permalink: /learn/overview/benefits
 ## Key Benefits
 
 - Solves difficult complexity in asynchronous code
+- Can quickly find bugs in a distributed system all on one developer's laptop.
 - Ensures explicit specifications (like safety and liveness) are satisfied
 - Integrates design, development and testing
 - Low barrier to entry

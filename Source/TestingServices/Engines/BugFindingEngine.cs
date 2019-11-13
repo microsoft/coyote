@@ -412,7 +412,7 @@ namespace Microsoft.Coyote.TestingServices
             var graphLog = FindGraphLog(runtime);
             if (graphLog != null)
             {
-                this.Graph = graphLog.SnapshotGraph();
+                this.Graph = graphLog.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
                 // Store it here so it is sent back to server in the distributed test scenario.
                 this.TestReport.CoverageInfo.CoverageGraph = this.Graph;
             }

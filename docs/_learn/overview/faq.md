@@ -17,6 +17,6 @@ No, Coyote is very light weight.
 
 #### Seems magical, how does Coyote really work?
 
-See [how does it work](/Coyote/learn/overview/how).
+I'm glad you asked. See [how does it work](/coyote/learn/overview/how).
 
 <br/><br/>

@@ -9,7 +9,7 @@ permalink: /learn/programming-models/machines/unit-testing
 
 The `StateMachineTestKit` API provides the capability to _unit-test_ a single machine _sequentially_ and
 in _isolation_ from other machines, or the external environment. This is orthogonal from using the
-[Coyote tester](/Coyote/learn/tools/testing) for end-to-end testing of a program. You will get the
+[Coyote tester](/coyote/learn/tools/testing) for end-to-end testing of a program. You will get the
 most value out of the Coyote framework if you use both machine-unit-tests and Coyote tests.
 
 Let's discuss how to use `StateMachineTestKit` by going through some simple examples.

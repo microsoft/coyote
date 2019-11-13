@@ -15,7 +15,7 @@ template: basic
 <br/>
 </div>
 
-The Coyote framework can be easily installed by adding the `Microsoft.Coyote` [NuGet package](https://www.nuget.org/packages/Microsoft.Coyote/) to your C# project. You can then immediately start programming the Coyote API as shown in the [samples](http://github.com/Microsoft/CoyoteSamples).
+The Coyote framework can be easily installed by adding the `Microsoft.Coyote` [NuGet package](https://www.nuget.org/packages/Microsoft.Coyote/) to your C# project. You can then immediately start programming the Coyote API as shown in the [samples](http://github.com/microsoft/coyote-samples).
 
 ## Build from source
 
@@ -54,7 +54,7 @@ powershell -f .\Scripts\run-tests.ps1 -test core
 
 ### Building the samples
 
-Clone the [CoyoteSamples repo](http://github.com/microsoft/coyotesamples), then open the solution under `AsyncExamples` or `MachineExamples` and build.
+Clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples), then open the solution under `AsyncTaskExamples` or `StateMachineExamples` and build.
 
 You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
 
@@ -75,6 +75,6 @@ Then in the Coyote project run this `PowerShell` command line from a Visual Stud
 powershell -f .\Scripts\create-nuget-packages.ps1
 ```
 
-Now you can rebuild the samples and so long as the `Common\version.props` file contains the same version in both `Coyote` and `CoyoteSamples` then it will pick up your newly created NuGet package and use that. Note: this can make debugging into the Coyote runtime possible.
+Now you can rebuild the samples and so long as the `Common\version.props` file contains the same version in both `coyote` and `coyote-samples` then it will pick up your newly created NuGet package and use that. Note: this can make debugging into the Coyote runtime possible.
 
-Now you are ready to [start using Coyote](/Coyote/learn/get-started/using-coyote).
+Now you are ready to [start using Coyote](/coyote/learn/get-started/using-coyote).

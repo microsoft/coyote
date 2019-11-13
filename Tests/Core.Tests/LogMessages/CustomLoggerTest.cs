@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Core.Tests.LogMessages
 <ActionLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Act' invoked action 'ActOnEntry'.
 <MonitorLog> Monitor 'S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'Init' is processing event 'Microsoft.Coyote.Core.Tests.LogMessages.E'.
 <MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'OnE' executed action 'Init'.
-<MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'Init' raised event 'Microsoft.Coyote.Actors.GotoStateEvent'.
+<MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' in state 'Init[hot]' raised event 'Microsoft.Coyote.Actors.GotoStateEvent'.
 <MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' exits 'hot' state 'Init[hot]'.
 <MonitorLog> Monitor 'Microsoft.Coyote.Core.Tests.LogMessages.S' with id 'Microsoft.Coyote.Core.Tests.LogMessages.S()' enters 'cold' state 'Done[cold]'.
 <SendLog> Machine 'Microsoft.Coyote.Core.Tests.LogMessages.N()' in state 'Act' sent event 'Microsoft.Coyote.Core.Tests.LogMessages.E' to machine 'Microsoft.Coyote.Core.Tests.LogMessages.M()'.

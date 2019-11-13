@@ -102,7 +102,7 @@ Visual Studio. It captures machines, states and transitions witnessed during the
 program. The file also contains inter-machine transitions. These transitions are usually auto-hidden
 when opened in Visual Studio, but visible when you click on a state.
 
-![](/Coyote/assets/images/PingPongVisualization.png)
+![](/coyote/assets/images/PingPongVisualization.png)
 
 ## Code coverage
 
@@ -144,7 +144,7 @@ time.
 
 **TODO**: Change the Samples directory.
 
-First build all the samples as described [here](https://github.com/p-org/Coyote/tree/master/Samples),
+First build all the samples as described [here](https://github.com/p-org/coyote/tree/master/Samples),
 or only the `PingPong` example: `msbuild PingPong\PingPong`
 
 Then run `coyote` with one of the coverage flags, as well as the other options you want. Here are

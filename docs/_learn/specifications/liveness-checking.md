@@ -24,8 +24,8 @@ cold state. The definition of what is _large_ is where the programmer can help t
 The tester accepts a flag `--max-steps N`. Using this flag, you can say that the program is expected to
 execute around N steps. Executions substantially longer than N are treated as potential infinite
 executions. But what is a step and how does one estimate N? This can be done using a few iterations of
-the tester. For example, consider the sample program in the `CoyoteSamples` repository under
-`MachineExamples\Raft`. Let's compile and test it as follows, setting N as 200:
+the tester. For example, consider the sample program in the [coyote-samples](https://github.com/microsoft/coyote-samples) repository under
+`StateMachineExamples\Raft`. Let's compile and test it as follows, setting N as 200:
 
 ```
 coyote test Binaries\Debug\Raft.dll -i 10 -parallel 4 -sch-portfolio -max-steps 200

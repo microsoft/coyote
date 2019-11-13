@@ -3,7 +3,7 @@
 title:        Coyote
 alt-title:    Coyote
 tagline:      Coyote - for rapid development of reliable asynchronous code.
-baseurl:      "/Coyote"
+baseurl:      "/coyote"
 
 author:
   name:       Microsoft

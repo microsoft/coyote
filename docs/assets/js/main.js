@@ -63,8 +63,8 @@ jQuery(document).ready(function ($) {
     }, {
         offset: '70%'
     });
-    $('#home_quote').waypoint(function () {
-        $('#home_quote').addClass('puff-in-center');
+    $('.section-quote').waypoint(function () {
+        $('.section-quote blockquote').addClass('puff-in-center');
     }, {
         offset: '70%'
     });

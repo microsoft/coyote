@@ -721,17 +721,20 @@ article .btn:first-of-type {
 }
 
 .section-quote {
-    margin: 150px auto 100px auto;
+    margin: 150px auto 10px auto;
+    .row {
+      margin: 0 0 90px 0;
+    }
 }
 
 
-//hide on page load for transition effects
+//hide on page load for transition effects - IDs used here rather than classes, because they reference javascript fx
 #home_figure_1,
 #home_text_1,
 #home_figure_2a,
 #home_figure_2b,
 #home_text_2,
-#home_quote {
+.section-quote blockquote {
     opacity: 0;
 }
 

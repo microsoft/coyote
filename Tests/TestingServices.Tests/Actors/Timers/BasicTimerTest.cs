@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Xunit;
@@ -16,7 +17,38 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
-        private class T1 : StateMachine
+        [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
+        private class A1 : Actor
+        {
+            private int Count;
+
+            protected override Task OnInitializeAsync(Event initialEvent)
+            {
+                this.Count = 0;
+
+                // Start a regular timer.
+                this.StartTimer(TimeSpan.FromMilliseconds(10));
+                return Task.CompletedTask;
+            }
+
+            private void HandleTimeout()
+            {
+                this.Count++;
+                this.Assert(this.Count == 1);
+            }
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestBasicTimerOperationInActor()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(A1));
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+        }
+
+        private class M1 : StateMachine
         {
             private int Count;
 
@@ -43,16 +75,53 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         }
 
         [Fact(Timeout=10000)]
-        public void TestBasicTimerOperation()
+        public void TestBasicTimerOperationInStateMachine()
         {
             this.Test(r =>
             {
-                r.CreateActor(typeof(T1));
+                r.CreateActor(typeof(M1));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
 
-        private class T2 : StateMachine
+        [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
+        private class A2 : Actor
+        {
+            private TimerInfo Timer;
+            private int Count;
+
+            protected override Task OnInitializeAsync(Event initialEvent)
+            {
+                this.Count = 0;
+
+                // Start a periodic timer.
+                this.Timer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10));
+                return Task.CompletedTask;
+            }
+
+            private void HandleTimeout()
+            {
+                this.Count++;
+                this.Assert(this.Count <= 10);
+
+                if (this.Count == 10)
+                {
+                    this.StopTimer(this.Timer);
+                }
+            }
+        }
+
+        [Fact(Timeout=10000)]
+        public void TestBasicPeriodicTimerOperationInActor()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(A2));
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(200));
+        }
+
+        private class M2 : StateMachine
         {
             private TimerInfo Timer;
             private int Count;
@@ -84,17 +153,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
-        public void TestBasicPeriodicTimerOperation()
+        [Fact(Timeout = 10000)]
+        public void TestBasicPeriodicTimerOperationInStateMachine()
         {
             this.Test(r =>
             {
-                r.CreateActor(typeof(T2));
+                r.CreateActor(typeof(M2));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200));
         }
 
-        private class T3 : StateMachine
+        private class M3 : StateMachine
         {
             private TimerInfo PingTimer;
             private TimerInfo PongTimer;
@@ -145,12 +214,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.Test(r =>
             {
-                r.CreateActor(typeof(T3));
+                r.CreateActor(typeof(M3));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }
 
-        private class T4 : StateMachine
+        private class M4 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -169,14 +238,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(T4));
+                r.CreateActor(typeof(M4));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
-            expectedError: "'T4()' registered a timer with a negative due time.",
+            expectedError: "'M4()' registered a timer with a negative due time.",
             replay: true);
         }
 
-        private class T5 : StateMachine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -195,10 +264,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(T5));
+                r.CreateActor(typeof(M5));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
-            expectedError: "'T5()' registered a periodic timer with a negative period.",
+            expectedError: "'M5()' registered a periodic timer with a negative period.",
             replay: true);
         }
 
@@ -212,7 +281,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        private class T6 : StateMachine
+        private class M6 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -224,11 +293,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void Initialize()
             {
                 var timer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10));
-                this.CreateActor(typeof(T7), new TransferTimerEvent(timer));
+                this.CreateActor(typeof(M7), new TransferTimerEvent(timer));
             }
         }
 
-        private class T7 : StateMachine
+        private class M7 : StateMachine
         {
             [Start]
             [OnEntry(nameof(Initialize))]
@@ -248,14 +317,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(T6));
+                r.CreateActor(typeof(M6));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
-            expectedError: "'T7()' is not allowed to dispose timer '', which is owned by 'T6()'.",
+            expectedError: "'M7()' is not allowed to dispose timer '', which is owned by 'M6()'.",
             replay: true);
         }
 
-        private class T8 : StateMachine
+        private class M8 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -288,7 +357,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.Test(r =>
             {
-                r.CreateActor(typeof(T8));
+                r.CreateActor(typeof(M8));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
         }

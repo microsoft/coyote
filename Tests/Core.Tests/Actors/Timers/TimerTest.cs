@@ -77,6 +77,19 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             }
         }
 
+        [Fact(Timeout = 10000)]
+        public async Task TestBasicTimerOperationInStateMachine()
+        {
+            await this.RunAsync(async r =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                r.CreateActor(typeof(T1), new SetupEvent(tcs));
+
+                var result = await GetResultAsync(tcs.Task);
+                Assert.True(result);
+            });
+        }
+
         private class T2 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
@@ -110,6 +123,19 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                     this.RaiseEvent(new HaltEvent());
                 }
             }
+        }
+
+        [Fact(Timeout = 10000)]
+        public async Task TestBasicPeriodicTimerOperationInStateMachine()
+        {
+            await this.RunAsync(async r =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                r.CreateActor(typeof(T2), new SetupEvent(tcs));
+
+                var result = await GetResultAsync(tcs.Task);
+                Assert.True(result);
+            });
         }
 
         private class T3 : StateMachine
@@ -172,6 +198,19 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             }
         }
 
+        [Fact(Timeout = 10000)]
+        public async Task TestDropTimeoutsAfterTimerDisposalInStateMachine()
+        {
+            await this.RunAsync(async r =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                r.CreateActor(typeof(T3), new SetupEvent(tcs));
+
+                var result = await GetResultAsync(tcs.Task);
+                Assert.True(result);
+            });
+        }
+
         private class T4 : StateMachine
         {
             [Start]
@@ -199,6 +238,19 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 tcs.SetResult(false);
                 this.RaiseEvent(new HaltEvent());
             }
+        }
+
+        [Fact(Timeout = 10000)]
+        public async Task TestIllegalDueTimeSpecificationInStateMachine()
+        {
+            await this.RunAsync(async r =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                r.CreateActor(typeof(T4), new SetupEvent(tcs));
+
+                var result = await GetResultAsync(tcs.Task);
+                Assert.True(result);
+            });
         }
 
         private class T5 : StateMachine
@@ -231,59 +283,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
         }
 
         [Fact(Timeout=10000)]
-        public async Task TestBasicTimerOperation()
-        {
-            await this.RunAsync(async r =>
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                r.CreateActor(typeof(T1), new SetupEvent(tcs));
-
-                var result = await GetResultAsync(tcs.Task);
-                Assert.True(result);
-            });
-        }
-
-        [Fact(Timeout=10000)]
-        public async Task TestBasicPeriodicTimerOperation()
-        {
-            await this.RunAsync(async r =>
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                r.CreateActor(typeof(T2), new SetupEvent(tcs));
-
-                var result = await GetResultAsync(tcs.Task);
-                Assert.True(result);
-            });
-        }
-
-        [Fact(Timeout=10000)]
-        public async Task TestDropTimeoutsAfterTimerDisposal()
-        {
-            await this.RunAsync(async r =>
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                r.CreateActor(typeof(T3), new SetupEvent(tcs));
-
-                var result = await GetResultAsync(tcs.Task);
-                Assert.True(result);
-            });
-        }
-
-        [Fact(Timeout=10000)]
-        public async Task TestIllegalDueTimeSpecification()
-        {
-            await this.RunAsync(async r =>
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                r.CreateActor(typeof(T4), new SetupEvent(tcs));
-
-                var result = await GetResultAsync(tcs.Task);
-                Assert.True(result);
-            });
-        }
-
-        [Fact(Timeout=10000)]
-        public async Task TestIllegalPeriodSpecification()
+        public async Task TestIllegalPeriodSpecificationInStateMachine()
         {
             await this.RunAsync(async r =>
             {

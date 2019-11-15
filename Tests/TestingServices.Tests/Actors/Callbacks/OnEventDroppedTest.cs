@@ -40,21 +40,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        private class M1 : StateMachine
-        {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
-            {
-            }
-
-            private void InitOnEntry()
-            {
-                this.SendEvent(this.Id, new HaltEvent());
-                this.SendEvent(this.Id, new E());
-            }
-        }
-
         [Fact(Timeout = 5000)]
         public void TestSendEventDroppedAfterHaltInActor()
         {
@@ -69,6 +54,21 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             expectedError: "Reached test assertion.",
             replay: true);
+        }
+
+        private class M1 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+                this.SendEvent(this.Id, new HaltEvent());
+                this.SendEvent(this.Id, new E());
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -96,20 +96,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        private class M2 : StateMachine
-        {
-            [Start]
-            private class Init : State
-            {
-            }
-
-            protected override Task OnHaltAsync()
-            {
-                this.SendEvent(this.Id, new E());
-                return Task.CompletedTask;
-            }
-        }
-
         [Fact(Timeout = 5000)]
         public void TestRuntimeEventDroppedAfterHaltInActor()
         {
@@ -121,23 +107,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 };
 
                 var m = r.CreateActor(typeof(A2));
-                r.SendEvent(m, new HaltEvent());
-            },
-            expectedError: "Reached test assertion.",
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestRuntimeEventDroppedAfterHaltInStateMachine()
-        {
-            this.TestWithError(r =>
-            {
-                r.OnEventDropped += (e, target) =>
-                {
-                    r.Assert(false, "Reached test assertion.");
-                };
-
-                var m = r.CreateActor(typeof(M2));
                 r.SendEvent(m, new HaltEvent());
             },
             expectedError: "Reached test assertion.",
@@ -159,6 +128,37 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 r.SendEvent(m, new HaltEvent());
             });
+        }
+
+        private class M2 : StateMachine
+        {
+            [Start]
+            private class Init : State
+            {
+            }
+
+            protected override Task OnHaltAsync()
+            {
+                this.SendEvent(this.Id, new E());
+                return Task.CompletedTask;
+            }
+        }
+
+        [Fact(Timeout=5000)]
+        public void TestRuntimeEventDroppedAfterHaltInStateMachine()
+        {
+            this.TestWithError(r =>
+            {
+                r.OnEventDropped += (e, target) =>
+                {
+                    r.Assert(false, "Reached test assertion.");
+                };
+
+                var m = r.CreateActor(typeof(M2));
+                r.SendEvent(m, new HaltEvent());
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]

@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.Actors
         {
             CachedDelegate cachedAction = this.ActionMap[actionName];
             this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
-            await this.InvokeAction(cachedAction);
+            await this.InvokeActionAsync(cachedAction);
             this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
 
             if (this.IsPopInvoked)
@@ -330,12 +330,11 @@ namespace Microsoft.Coyote.Actors
                 entryAction = this.ActionMap[this.StateStack.Peek().EntryAction];
             }
 
-            // Invokes the entry action of the new state,
-            // if there is one available.
+            // Invokes the entry action of the new state, if there is one available.
             if (entryAction != null)
             {
                 this.Runtime.NotifyInvokedOnEntryAction(this, entryAction.MethodInfo, this.ReceivedEvent);
-                await this.InvokeAction(entryAction);
+                await this.InvokeActionAsync(entryAction);
                 this.Runtime.NotifyCompletedOnEntryAction(this, entryAction.MethodInfo, this.ReceivedEvent);
             }
 
@@ -365,7 +364,7 @@ namespace Microsoft.Coyote.Actors
             if (exitAction != null)
             {
                 this.Runtime.NotifyInvokedOnExitAction(this, exitAction.MethodInfo, this.ReceivedEvent);
-                await this.InvokeAction(exitAction);
+                await this.InvokeActionAsync(exitAction);
                 this.Runtime.NotifyCompletedOnExitAction(this, exitAction.MethodInfo, this.ReceivedEvent);
             }
 
@@ -375,7 +374,7 @@ namespace Microsoft.Coyote.Actors
             {
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
                 this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, this.ReceivedEvent);
-                await this.InvokeAction(eventHandlerExitAction);
+                await this.InvokeActionAsync(eventHandlerExitAction);
                 this.Runtime.NotifyCompletedOnExitAction(this, eventHandlerExitAction.MethodInfo, this.ReceivedEvent);
             }
         }

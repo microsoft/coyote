@@ -154,12 +154,28 @@ namespace Microsoft.Coyote.Actors
         /// Initializes the actor with the specified optional event.
         /// </summary>
         /// <param name="initialEvent">Optional event used for initialization.</param>
-        internal virtual Task InitializeAsync(Event initialEvent)
+        internal virtual async Task InitializeAsync(Event initialEvent)
         {
             this.ReceivedEvent = initialEvent;
 
-            // Invoke the custom initializer.
-            return this.OnInitializeAsync(initialEvent);
+            try
+            {
+                try
+                {
+                    // Invoke the custom initializer.
+                    Task task = this.OnInitializeAsync(initialEvent);
+                    this.Runtime.NotifyWaitTask(this, task);
+                    await task;
+                }
+                catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnInitializeAsync)))
+                {
+                    // User handled the exception, return normally.
+                }
+            }
+            catch (Exception ex)
+            {
+                await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnInitializeAsync));
+            }
         }
 
         /// <summary>
@@ -605,14 +621,14 @@ namespace Microsoft.Coyote.Actors
         {
             CachedDelegate cachedAction = this.ActionMap[eventType];
             this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
-            await this.InvokeAction(cachedAction);
+            await this.InvokeActionAsync(cachedAction);
             this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
         }
 
         /// <summary>
         /// Invokes the specified action delegate.
         /// </summary>
-        private protected async Task InvokeAction(CachedDelegate cachedAction)
+        private protected async Task InvokeActionAsync(CachedDelegate cachedAction)
         {
             try
             {
@@ -650,45 +666,15 @@ namespace Microsoft.Coyote.Actors
             }
             catch (Exception ex)
             {
-                Exception innerException = ex;
-                while (innerException is TargetInvocationException)
-                {
-                    innerException = innerException.InnerException;
-                }
-
-                if (innerException is AggregateException)
-                {
-                    innerException = innerException.InnerException;
-                }
-
-                if (innerException is ExecutionCanceledException)
-                {
-                    this.IsHalted = true;
-                    Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from '{this.Id}'.");
-                }
-                else if (innerException is TaskSchedulerException)
-                {
-                    this.IsHalted = true;
-                    Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from '{this.Id}'.");
-                }
-                else if (this.IsSuppressingExceptionAndHalting)
-                {
-                    // Gracefully halt.
-                    await this.HaltAsync();
-                }
-                else
-                {
-                    // Reports the unhandled exception.
-                    this.ReportUnhandledException(innerException, cachedAction.MethodInfo.Name);
-                }
+                await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name);
             }
         }
 
         /// <summary>
         /// Invokes the specified event handler user callback.
         /// </summary>
-        private protected Task InvokeUserCallbackAsync(EventHandlerStatus eventHandlerStatus, Event lastDequeuedEvent,
-            string currentState = default)
+        private protected async Task InvokeUserCallbackAsync(EventHandlerStatus eventHandlerStatus,
+            Event lastDequeuedEvent, string currentState = default)
         {
             try
             {
@@ -696,7 +682,9 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        return this.OnEventDequeueAsync(lastDequeuedEvent);
+                        Task task = this.OnEventDequeueAsync(lastDequeuedEvent);
+                        this.Runtime.NotifyWaitTask(this, task);
+                        await task;
                     }
                     catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventDequeueAsync)))
                     {
@@ -707,7 +695,9 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        return this.OnEventHandledAsync(lastDequeuedEvent);
+                        Task task = this.OnEventHandledAsync(lastDequeuedEvent);
+                        this.Runtime.NotifyWaitTask(this, task);
+                        await task;
                     }
                     catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventHandledAsync)))
                     {
@@ -718,7 +708,9 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        return this.OnEventUnhandledAsync(lastDequeuedEvent, currentState);
+                        Task task = this.OnEventUnhandledAsync(lastDequeuedEvent, currentState);
+                        this.Runtime.NotifyWaitTask(this, task);
+                        await task;
                     }
                     catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventUnhandledAsync)))
                     {
@@ -728,51 +720,20 @@ namespace Microsoft.Coyote.Actors
             }
             catch (Exception ex)
             {
-                Exception innerException = ex;
-                while (innerException is TargetInvocationException)
+                // Reports the unhandled exception.
+                if (eventHandlerStatus is EventHandlerStatus.EventDequeued)
                 {
-                    innerException = innerException.InnerException;
+                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventDequeueAsync));
                 }
-
-                if (innerException is AggregateException)
+                else if (eventHandlerStatus is EventHandlerStatus.EventHandled)
                 {
-                    innerException = innerException.InnerException;
+                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventHandledAsync));
                 }
-
-                if (innerException is ExecutionCanceledException)
+                else if (eventHandlerStatus is EventHandlerStatus.EventUnhandled)
                 {
-                    this.IsHalted = true;
-                    Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from '{this.Id}'.");
-                }
-                else if (innerException is TaskSchedulerException)
-                {
-                    this.IsHalted = true;
-                    Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from '{this.Id}'.");
-                }
-                else if (this.IsSuppressingExceptionAndHalting)
-                {
-                    // Gracefully halt.
-                    return this.HaltAsync();
-                }
-                else
-                {
-                    // Reports the unhandled exception.
-                    if (eventHandlerStatus is EventHandlerStatus.EventDequeued)
-                    {
-                        this.ReportUnhandledException(innerException, nameof(this.OnEventDequeueAsync));
-                    }
-                    else if (eventHandlerStatus is EventHandlerStatus.EventHandled)
-                    {
-                        this.ReportUnhandledException(innerException, nameof(this.OnEventHandledAsync));
-                    }
-                    else if (eventHandlerStatus is EventHandlerStatus.EventUnhandled)
-                    {
-                        this.ReportUnhandledException(innerException, nameof(this.OnEventUnhandledAsync));
-                    }
+                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventUnhandledAsync));
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -790,6 +751,46 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Tries to handle an exception thrown during an action invocation.
+        /// </summary>
+        private Task TryHandleActionInvocationExceptionAsync(Exception ex, string actionName)
+        {
+            Exception innerException = ex;
+            while (innerException is TargetInvocationException)
+            {
+                innerException = innerException.InnerException;
+            }
+
+            if (innerException is AggregateException)
+            {
+                innerException = innerException.InnerException;
+            }
+
+            if (innerException is ExecutionCanceledException)
+            {
+                this.IsHalted = true;
+                Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from '{this.Id}'.");
+            }
+            else if (innerException is TaskSchedulerException)
+            {
+                this.IsHalted = true;
+                Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from '{this.Id}'.");
+            }
+            else if (this.IsSuppressingExceptionAndHalting)
+            {
+                // Gracefully halt.
+                return this.HaltAsync();
+            }
+            else
+            {
+                // Reports the unhandled exception.
+                this.ReportUnhandledException(innerException, actionName);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Checks if the specified event is ignored.
         /// </summary>
         internal bool IsEventIgnored(Event e)
@@ -800,13 +801,44 @@ namespace Microsoft.Coyote.Actors
                 return true;
             }
 
-            return this.IgnoredEvents.Contains(e.GetType());
+            Type eventType = e.GetType();
+            if (this.IgnoredEvents.Contains(eventType))
+            {
+                return true;
+            }
+            else if (this.ActionMap.ContainsKey(eventType))
+            {
+                return false;
+            }
+            else if (this.IgnoredEvents.Contains(typeof(WildCardEvent)))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
         /// Checks if the specified event is deferred.
         /// </summary>
-        internal bool IsEventDeferred(Event e) => this.DeferredEvents.Contains(e.GetType());
+        internal bool IsEventDeferred(Event e)
+        {
+            Type eventType = e.GetType();
+            if (this.DeferredEvents.Contains(eventType))
+            {
+                return true;
+            }
+            else if (this.ActionMap.ContainsKey(eventType))
+            {
+                return false;
+            }
+            else if (this.DeferredEvents.Contains(typeof(WildCardEvent)))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Returns the cached state of this actor.
@@ -879,11 +911,9 @@ namespace Microsoft.Coyote.Actors
 
                 foreach (var attr in doAttributes)
                 {
-                    if (handledEvents.Contains(attr.Event))
-                    {
-                        throw new InvalidOperationException($"declared multiple handlers for event '{attr.Event}'");
-                    }
-
+                    this.Assert(!handledEvents.Contains(attr.Event),
+                        "'{0}' declared multiple handlers for event '{1}'.",
+                        this.Id, attr.Event);
                     actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                     handledEvents.Add(attr.Event);
                 }
@@ -975,10 +1005,10 @@ namespace Microsoft.Coyote.Actors
         /// Wraps the unhandled exception inside an <see cref="AssertionFailureException"/>
         /// exception, and throws it to the user.
         /// </summary>
-        private protected virtual void ReportUnhandledException(Exception ex, string eventHandlerName)
+        private protected virtual void ReportUnhandledException(Exception ex, string actionName)
         {
             this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in '{this.Id}', action '{eventHandlerName}', " +
+                $"in '{this.Id}', action '{actionName}', " +
                 $"'{ex.Source}':\n" +
                 $"   {ex.Message}\n" +
                 $"The stack trace is:\n{ex.StackTrace}");

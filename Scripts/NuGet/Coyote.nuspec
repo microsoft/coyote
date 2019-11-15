@@ -4,10 +4,11 @@
     <id>Microsoft.Coyote</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
-    <projectUrl>https://github.com/microsoft/coyote</projectUrl>
+    <description>Coyote is a framework for building reliable asynchronous software.</description>
+    <projectUrl>https://microsoft.github.io/coyote/</projectUrl>
+    <repository type="git" url="https://github.com/microsoft/coyote"/>
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Coyote is a framework for building reliable asynchronous software.</description>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
     <tags>asynchrony reliability specifications reactive state-machines testing</tags>

@@ -54,19 +54,20 @@ namespace Microsoft.Coyote.Runtime
         internal volatile bool IsRunning;
 
         /// <summary>
+        /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
+        /// </summary>
+        protected internal LogWriter LogWriter { get; private set; }
+
+        /// <summary>
+        /// Used to log messages. Use <see cref="SetLogger"/>
+        /// to replace the logger with a custom one.
+        /// </summary>
+        public ILogger Logger => this.LogWriter.Logger;
+
+        /// <summary>
         /// Returns the id of the currently executing <see cref="ControlledTask"/>.
         /// </summary>
         internal virtual int? CurrentTaskId => Task.CurrentId;
-
-        /// <summary>
-        /// The log writer.
-        /// </summary>
-        protected internal IActorRuntimeLog LogWriter { get; private set; }
-
-        /// <summary>
-        /// The installed logger.
-        /// </summary>
-        public ILogger Logger => this.LogWriter.Logger;
 
         /// <summary>
         /// Callback that is fired when the Coyote program throws an exception.
@@ -87,11 +88,7 @@ namespace Microsoft.Coyote.Runtime
             this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
             this.ActorIdCounter = 0;
             this.LockIdCounter = 0;
-            this.LogWriter = new ActorRuntimeLogWriter
-            {
-                Logger = configuration.IsVerbose ? (ILogger)new ConsoleLogger() : new NulLogger()
-            };
-
+            this.LogWriter = new LogWriter(configuration);
             this.IsRunning = true;
         }
 
@@ -740,41 +737,26 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Use this method to abstract the default <see cref="ActorRuntimeLogWriter"/>
-        /// for logging runtime messages.
+        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
         /// </summary>
-        public IActorRuntimeLog SetLogWriter(IActorRuntimeLog logWriter)
-        {
-            var logger = this.LogWriter.Logger;
-            var prevLogWriter = this.LogWriter;
-            this.LogWriter = logWriter ?? throw new InvalidOperationException("Cannot install a null log writer.");
-            this.SetLogger(logger);
-            return prevLogWriter;
-        }
+        public ILogger SetLogger(ILogger logger) => this.LogWriter.SetLogger(logger);
 
         /// <summary>
-        /// Use this method to abstract the default <see cref="ILogger"/> for logging messages.
+        /// Use this method to override the default <see cref="IActorRuntimeLogFormatter"/>
+        /// for formatting log messages.
         /// </summary>
-        public ILogger SetLogger(ILogger logger)
-        {
-            if (logger == null)
-            {
-                throw new InvalidOperationException("Cannot install a null logger, please use 'NulLogger' instead.");
-            }
-            else if (this.LogWriter == null)
-            {
-                throw new InvalidOperationException("Please call SetLogWriter before calling SetLogger.");
-            }
+        public IActorRuntimeLogFormatter SetLogFormatter(IActorRuntimeLogFormatter formatter) =>
+            this.LogWriter.SetLogFormatter(formatter);
 
-            ILogger prevLogger = null;
-            for (var writer = this.LogWriter; writer != null; writer = writer.Next)
-            {
-                prevLogger = writer.Logger;
-                writer.Logger = logger;
-            }
+        /// <summary>
+        /// Use this method to register an <see cref="IActorRuntimeLog"/>.
+        /// </summary>
+        public void RegisterLog(IActorRuntimeLog log) => this.LogWriter.RegisterLog(log);
 
-            return prevLogger;
-        }
+        /// <summary>
+        /// Use this method to unregister a previously registered <see cref="IActorRuntimeLog"/>.
+        /// </summary>
+        public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
 
         /// <summary>
         /// Raises the <see cref="OnFailure"/> event with the specified <see cref="Exception"/>.

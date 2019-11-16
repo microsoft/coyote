@@ -8,20 +8,22 @@ permalink: /learn/advanced/logging
 ## Logging
 
 The Coyote runtime provides two levels of logging:
-- `IActorRuntimeLog` interface logs high level state machine activity.
-- `ILogger` is a low level logging interface responsible for formatting text output.
+- The `IActorRuntimeLog` interface logs high level actor activity.
+- The `ILogger` is a low level logging interface responsible for formatting text output.
 
-The default implementation of `IActorRuntimeLog` is `ActorRuntimeLogWriter`
-which formats all events as text writing them out using the lower level `ILogger`
-interface.  The default `ILogger` is the`ConsoleLogger` which is used to write
+The default `ILogger` is the`ConsoleLogger` which is used to write
 output to the `System.Console`.
 
-You can provide your own implementation of `IActorRuntimeLog` and/or
-`ILogger` in order to gain full control over what is logged and how.
-For an interesting example of this see the `ActorRuntimeLogGraph` class
+The runtime also provides the `IActorRuntimeLogFormatter` interface which is responsible
+for formatting all runtime log events as text and writing them out using the installed `ILogger`.
+The default `IActorRuntimeLogFormatter` is implemented by `ActorRuntimeLogFormatter`.
+
+You can provide your own implementation of `IActorRuntimeLog`, `IActorRuntimeLogFormatter`
+and/or `ILogger` in order to gain full control over what is logged and how.
+For an interesting example of this see the `ActorRuntimeLogGraphBuilder` class
 which implements `IActorRuntimeLog` and generates a directed graph representing
-all state transitions that happened during the execution of your state machines.
-See [activity coverage](/coyote/learn/tools/coverage) for example graph output.
+all activities that happened during the execution of your actors.
+See [activity coverage](/coyote/learn/tools/coverage) for an example graph output.
 The `coyote` tester uses this when you specify `--graph` or `--coverage activity`
 command line options.
 
@@ -29,68 +31,76 @@ The `--verbose` command line option can also affect the default logging behavior
 When `--verbose` is specified all log output is written to the `System.Console`.
 This can result in a lot of output especially if the test is performing many iterations.
 It is usually more useful to only capture the output of the one failing iteration in a given
-test run and this is done by the testing runtime automatically when `--versbose` is not set.
+test run and this is done by the testing runtime automatically when `--verbose` is not set.
 In the latter case, all logging is redirected into an `InMemoryLogger` and only when a bug
 is found is that in-memory log written to a log file on disk.
 
-## Customizing the IActorRuntimeLog
+## Registering a custom IActorRuntimeLog
 
-You can implement your own `IActorRuntimeLog` (as is done by `ActorRuntimeLogGraph`)
-or you can subclass `ActorRuntimeLogWriter`.  The following is an example subclass that overrides
-two of the public methods, and two of the protected methods:
+You can implement your own `IActorRuntimeLog` (as done by `ActorRuntimeLogGraphBuilder`).
+The following is an example of how to do this:
 
 ```c#
-internal class CustomLogWriter : ActorRuntimeLogWriter
+internal class CustomLogWriter : IActorRuntimeLog
 {
   /* Callbacks on runtime events */
 
-  public override void OnEnqueue(ActorId actorId, string eventName)
+  public void OnCreateActor(ActorId id, ActorId creator)
   {
-    // Override to change the behavior. Base method logs an OnEnqueue runtime event
-    // using the base FormatOnEnqueueLogMessage formatting method.
+    // Override to change the behavior.
   }
 
-  public override void OnSend(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
-      Guid opGroupId, bool isTargetHalted)
+  public void OnEnqueueEvent(ActorId id, string eventName)
   {
-    // Override to change the behavior. Base method logs an OnSend runtime event
-    // using the base FormatOnSendLogMessage formatting method.
+    // Override to change the behavior.
   }
 
-  // More methods that can be overridden.
+  // More methods to implement.
+}
+```
 
+You can then register your new implementation using the following `IActorRuntime` method:
+```c#
+runtime.RegisterLog(new CustomLogWriter());
+```
+You can register multiple `IActorRuntimeLog` objects in case you have loggers that are doing very
+different things. The runtime will invoke the callback for each registered `IActorRuntimeLog`.
+
+## Customizing the IActorRuntimeLogFormatter
+
+You can modify the format of log messages by providing your own `IActorRuntimeLogFormatter`.
+You can either create a new type that implements this interface, or subclass the
+`ActorRuntimeLogFormatter` implementation to override its default behavior.
+The following is an example of how to do this:
+
+```c#
+internal class CustomLogFormatter : ActorRuntimeLogFormatter
+{
   /* Methods for formatting log messages */
 
-  protected override string FormatOnEnqueueLogMessage(ActorId actorId, string eventName)
+  public override bool GetCreateActorLog(ActorId id, ActorId creator, out string text)
   {
     // Override to change the text to be logged.
+    // Set the 'text' parameter to provide the text to be logged.
+    // Return true to log the text, or false to ignore it.
   }
 
-  protected override string FormatOnSendLogMessage(ActorId targetActorId, ActorId senderId, string senderStateName,
-    string eventName, Guid opGroupId, bool isTargetHalted)
+  public override bool GetEnqueueEventLog(ActorId id, string eventName, out string text)
   {
     // Override to change the text to be logged.
+    // Set the 'text' parameter to provide the text to be logged.
+    // Return true to log the text, or false to ignore it.
   }
 
   // More methods that can be overridden.
 }
 ```
 
-You can then provide your new implementation using the following `IActorRuntime` method:
+You can then replace the default `IActorRuntimeLogFormatter` with your new implementation using the following `IActorRuntime` method:
 ```c#
-using (ActorRuntimeLogWriter old = runtime.SetLogWriter(new CustomLogWriter()))
-{
-}
+IActorRuntimeLogFormatter old = runtime.SetLogFormatter(new CustomLogFormatter());
 ```
-The above method replaces the previously installed log writer, installs the specified one, and returns the previously installed one. The runtime will set the previously installed `ILogger` on your new `IActorRuntimeLog`, so you do not need to do that.
-
-You can also chain `IActorRuntimeLog` objects in case you have loggers that are doing very
-different things.  This can be done by using the `Next` method on `IActorRuntimeLog`.  This
-creates a linked list of `IActorRuntimeLog` objects where each `IActorRuntimeLog` object
-in the list will delegate to the next.
-
-Note that `ActorRuntimeLogWriter` is disposable, so be sure to dispose it if you call SetLogWriter
-and you do not link the old object into the linked list using `Next` (as shown in the example above).
+The above method replaces the previously installed log formatter, installs the specified one, and returns the previously installed one.
 
 ## Using and replacing the logger
 
@@ -114,7 +124,7 @@ public interface ILogger : IDisposable
 }
 ```
 
-The current ILogger can be accessed via the following property which you can find on  `IActorRuntime`, `StateMachine`, `Monitor` and `IActorRuntimeLog`:
+The current ILogger can be accessed via the following property which you can find on `IActorRuntime`, `Actor`, `StateMachine`, `Monitor` and `IActorRuntimeLog`:
 ```c#
 ILogger Logger { get; }
 ```

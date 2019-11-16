@@ -9,7 +9,7 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Core.Tests
+namespace Microsoft.Coyote.Core.Tests.Runtime
 {
     public class SendAndExecuteTest : BaseTest
     {
@@ -439,8 +439,8 @@ namespace Microsoft.Coyote.Core.Tests
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.Equal(
-                    "'Microsoft.Coyote.Core.Tests.SendAndExecuteTest+N5(1)' received event " +
-                    "'Microsoft.Coyote.Core.Tests.SendAndExecuteTest+E3' that cannot be handled.", message);
+                    "'Microsoft.Coyote.Core.Tests.Runtime.SendAndExecuteTest+N5(1)' received event " +
+                    "'Microsoft.Coyote.Core.Tests.Runtime.SendAndExecuteTest+E3' that cannot be handled.", message);
             });
         }
     }

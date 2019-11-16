@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Threading.Tasks;
@@ -265,28 +264,6 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
 
             return report;
-        }
-
-        protected static string RemoveNonDeterministicValuesFromReport(string report)
-        {
-            // Match a GUID or other ids (since they can be nondeterministic).
-            report = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
-            report = Regex.Replace(report, @"\([^)]*\)", "()");
-            report = Regex.Replace(report, @"\[[^)]*\]", "[]");
-
-            // Match a namespace.
-            return RemoveNamespaceReferencesFromReport(report);
-        }
-
-        protected static string RemoveNamespaceReferencesFromReport(string report)
-        {
-            report = Regex.Replace(report, @"Microsoft.Coyote.Tests.Common\.", string.Empty);
-            return Regex.Replace(report, @"Microsoft\.[^+]*\+", string.Empty);
-        }
-
-        protected static string RemoveExcessiveEmptySpaceFromReport(string report)
-        {
-            return Regex.Replace(report, @"\s+", " ");
         }
     }
 }

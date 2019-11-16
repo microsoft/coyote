@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.Actors
                         return;
                     }
 
-                    this.Runtime.LogWriter.OnPopUnhandledEvent(this.Id, this.CurrentStateName, e.GetType().FullName);
+                    this.Runtime.LogWriter.LogPopUnhandledEvent(this.Id, this.CurrentStateName, e.GetType().FullName);
                     this.DoStatePop();
                     continue;
                 }
@@ -384,7 +384,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task GotoState(Type s, string onExitActionName)
         {
-            this.Runtime.LogWriter.OnGotoState(this.Id, this.CurrentStateName,
+            this.Runtime.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
@@ -411,7 +411,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task PushState(Type s)
         {
-            this.Runtime.LogWriter.OnPushState(this.Id, this.CurrentStateName, s.FullName);
+            this.Runtime.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);
@@ -436,7 +436,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.DoStatePop();
-            this.Runtime.LogWriter.OnPopState(this.Id, prevStateName, this.CurrentStateName);
+            this.Runtime.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
 
             // Watch out for an extra pop.
             this.Assert(this.CurrentState != null, "'{0}' popped with no matching push.", this.Id);

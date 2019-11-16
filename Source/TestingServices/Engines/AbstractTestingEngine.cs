@@ -298,34 +298,35 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Take care of handling the Configuration settings for CustomRuntimeLoggerType, IsDgmlGraphEnabled,
-        /// and ReportActivityCoverage by setting up the LogWriters on the given <see cref="SystematicTestingRuntime"/> object.
+        /// Take care of handling the <see cref="Configuration"/> settings for <see cref="Configuration.CustomActorRuntimeLogType"/>,
+        /// <see cref="Configuration.IsDgmlGraphEnabled"/>, and <see cref="Configuration.ReportActivityCoverage"/> by setting up the
+        /// LogWriters on the given <see cref="SystematicTestingRuntime"/> object.
         /// </summary>
         protected void InitializeCustomLogging(SystematicTestingRuntime runtime)
         {
             if (!string.IsNullOrEmpty(this.Configuration.CustomActorRuntimeLogType))
             {
-                var logger = this.Activate<IO.IActorRuntimeLog>(this.Configuration.CustomActorRuntimeLogType);
-                if (logger != null)
+                var log = this.Activate<IActorRuntimeLog>(this.Configuration.CustomActorRuntimeLogType);
+                if (log != null)
                 {
-                    runtime.SetLogWriter(logger);
+                    runtime.RegisterLog(log);
                 }
             }
 
             if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.ReportActivityCoverage)
             {
-                // chain the logger with a graph generating logger.
-                var graphLogger = new ActorRuntimeLogGraph();
-                graphLogger.CollapseMachineInstances = this.Configuration.ReportActivityCoverage;
-                var defaultLogger = runtime.SetLogWriter(graphLogger);
-                graphLogger.Next = defaultLogger;
+                // Registers an activity coverage graph builder.
+                runtime.RegisterLog(new ActorRuntimeLogGraphBuilder
+                {
+                    CollapseMachineInstances = this.Configuration.ReportActivityCoverage
+                });
             }
         }
 
         private T Activate<T>(string assemblyQualifiedName)
             where T : class
         {
-            // parses the result of Type.AssemblyQualifiedName
+            // Parses the result of Type.AssemblyQualifiedName.
             // e.g.: ConsoleApp1.Program, ConsoleApp1, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
             try
             {

@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Text;
 using Microsoft.Coyote.IO;
 
-namespace Microsoft.Coyote.Core.Tests.IO
+namespace Microsoft.Coyote.Tests.Common.IO
 {
-    internal class CustomLogger : ILogger
+    public class CustomLogger : ILogger
     {
         private StringBuilder StringBuilder;
 
@@ -77,10 +78,19 @@ namespace Microsoft.Coyote.Core.Tests.IO
             return this.StringBuilder.ToString();
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.StringBuilder.Clear();
+                this.StringBuilder = null;
+            }
+        }
+
         public void Dispose()
         {
-            this.StringBuilder.Clear();
-            this.StringBuilder = null;
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

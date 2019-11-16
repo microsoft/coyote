@@ -579,8 +579,8 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             {
                 this.BugReport = text;
 
-                this.Runtime.LogWriter.OnError($"<ErrorLog> {text}");
-                this.Runtime.LogWriter.OnStrategyError(this.Configuration.SchedulingStrategy, this.Strategy.GetDescription());
+                this.Runtime.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
+                this.Runtime.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy, this.Strategy.GetDescription());
 
                 this.BugFound = true;
 

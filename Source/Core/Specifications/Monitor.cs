@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.Specifications
                 senderState = machine.CurrentStateName;
             }
 
-            this.Runtime.LogWriter.OnMonitorProcessEvent(sender?.Id, senderState, this.GetType().Name,
+            this.Runtime.LogWriter.LogMonitorProcessEvent(sender?.Id, senderState, this.GetType().Name,
                 this.Id, this.CurrentStateName, e.GetType().FullName);
             this.HandleEvent(e);
         }

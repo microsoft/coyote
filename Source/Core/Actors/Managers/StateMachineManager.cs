@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Runtime.LogWriter.OnEnqueueEvent(this.Instance.Id, e.GetType().FullName);
+            this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e.GetType().FullName);
 
         /// <summary>
         /// Notifies the state machine that an event has been raised.

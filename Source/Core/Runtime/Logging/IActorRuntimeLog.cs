@@ -6,33 +6,23 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Runtime.Exploration;
 
-namespace Microsoft.Coyote.IO
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// This interface makes it possible for an external module to track
-    /// what is happening in the actor runtime.
+    /// Interface that allows an external module to track what
+    /// is happening in the <see cref="IActorRuntime"/>.
     /// </summary>
     public interface IActorRuntimeLog
     {
         /// <summary>
-        /// Get or set the underlying logging object.
-        /// </summary>
-        ILogger Logger { get; set; }
-
-        /// <summary>
-        /// Allows you to chain log writers.
-        /// </summary>
-        IActorRuntimeLog Next { get; set; }
-
-        /// <summary>
-        /// Called when an actor has been created.
+        /// Invoked when the specified actor has been created.
         /// </summary>
         /// <param name="id">The id of the actor that has been created.</param>
         /// <param name="creator">The id of the creator, or null.</param>
         void OnCreateActor(ActorId id, ActorId creator);
 
         /// <summary>
-        /// Called when an actor executes an action.
+        /// Invoked when the specified actor executes an action.
         /// </summary>
         /// <param name="id">The id of the actor executing the action.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -40,7 +30,7 @@ namespace Microsoft.Coyote.IO
         void OnExecuteAction(ActorId id, string stateName, string actionName);
 
         /// <summary>
-        /// Called when an event is sent to a target actor.
+        /// Invoked when the specified event is sent to a target actor.
         /// </summary>
         /// <param name="targetActorId">The id of the target actor.</param>
         /// <param name="senderId">The id of the actor that sent the event, if any.</param>
@@ -52,7 +42,7 @@ namespace Microsoft.Coyote.IO
             Guid opGroupId, bool isTargetHalted);
 
         /// <summary>
-        /// Called when an actor raises an event.
+        /// Invoked when the specified actor raises an event.
         /// </summary>
         /// <param name="id">The id of the actor raising the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -60,14 +50,14 @@ namespace Microsoft.Coyote.IO
         void OnRaiseEvent(ActorId id, string stateName, string eventName);
 
         /// <summary>
-        /// Called when an event is about to be enqueued to an actor.
+        /// Invoked when the specified event is about to be enqueued to an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being enqueued to.</param>
         /// <param name="eventName">Name of the event.</param>
         void OnEnqueueEvent(ActorId id, string eventName);
 
         /// <summary>
-        /// Called when an event is dequeued by an actor.
+        /// Invoked when the specified event is dequeued by an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being dequeued by.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -75,7 +65,7 @@ namespace Microsoft.Coyote.IO
         void OnDequeueEvent(ActorId id, string stateName, string eventName);
 
         /// <summary>
-        /// Called when an event is received by an actor.
+        /// Invoked when the specified event is received by an actor.
         /// </summary>
         /// <param name="id">The id of the actor that received the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -85,7 +75,7 @@ namespace Microsoft.Coyote.IO
         void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked);
 
         /// <summary>
-        /// Called when an actor waits to receive an event of a specified type.
+        /// Invoked when the specified actor waits to receive an event of a specified type.
         /// </summary>
         /// <param name="id">The id of the actor that is entering the wait state.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -93,7 +83,7 @@ namespace Microsoft.Coyote.IO
         void OnWaitEvent(ActorId id, string stateName, Type eventType);
 
         /// <summary>
-        /// Called when an actor waits to receive an event of one of the specified types.
+        /// Invoked when the specified actor waits to receive an event of one of the specified types.
         /// </summary>
         /// <param name="id">The id of the actor that is entering the wait state.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -101,14 +91,14 @@ namespace Microsoft.Coyote.IO
         void OnWaitEvent(ActorId id, string stateName, params Type[] eventTypes);
 
         /// <summary>
-        /// Called when a random result has been obtained.
+        /// Invoked when the specified random result has been obtained.
         /// </summary>
         /// <param name="id">The id of the source actor, if any; otherwise, the runtime itself was the source.</param>
         /// <param name="result">The random result (may be bool or int).</param>
         void OnRandom(ActorId id, object result);
 
         /// <summary>
-        /// Called when a state machine enters or exits a state.
+        /// Invoked when the specified state machine enters or exits a state.
         /// </summary>
         /// <param name="id">The id of the actor entering or exiting the state.</param>
         /// <param name="stateName">The name of the state being entered or exited.</param>
@@ -116,7 +106,7 @@ namespace Microsoft.Coyote.IO
         void OnStateTransition(ActorId id, string stateName, bool isEntry);
 
         /// <summary>
-        /// Called when a state machine transitions states via a 'goto'.
+        /// Invoked when the specified state machine transitions states via a 'goto'.
         /// </summary>
         /// <param name="id">The id of the actor.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -124,7 +114,7 @@ namespace Microsoft.Coyote.IO
         void OnGotoState(ActorId id, string currStateName, string newStateName);
 
         /// <summary>
-        /// Called when a state machine is being pushed to a state.
+        /// Invoked when the specified state machine is being pushed to a state.
         /// </summary>
         /// <param name="id">The id of the actor being pushed to the state.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -132,7 +122,7 @@ namespace Microsoft.Coyote.IO
         void OnPushState(ActorId id, string currStateName, string newStateName);
 
         /// <summary>
-        /// Called when a state machine has been popped from a state.
+        /// Invoked when the specified state machine has been popped from a state.
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -140,7 +130,7 @@ namespace Microsoft.Coyote.IO
         void OnPopState(ActorId id, string currStateName, string restoredStateName);
 
         /// <summary>
-        /// Called when an actor is idle (there is nothing to dequeue) and the default
+        /// Invoked when the specified actor is idle (there is nothing to dequeue) and the default
         /// event handler is about to be executed.
         /// </summary>
         /// <param name="id">The id of the actor that the state will execute in.</param>
@@ -148,14 +138,14 @@ namespace Microsoft.Coyote.IO
         void OnDefaultEventHandler(ActorId id, string stateName);
 
         /// <summary>
-        /// Called when an actor has been halted.
+        /// Invoked when the specified actor has been halted.
         /// </summary>
         /// <param name="id">The id of the actor that has been halted.</param>
         /// <param name="inboxSize">Approximate size of the inbox.</param>
         void OnHalt(ActorId id, int inboxSize);
 
         /// <summary>
-        /// Called when an actor handled a raised event.
+        /// Invoked when the specified actor handled a raised event.
         /// </summary>
         /// <param name="id">The id of the actor handling the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -163,16 +153,17 @@ namespace Microsoft.Coyote.IO
         void OnHandleRaisedEvent(ActorId id, string stateName, string eventName);
 
         /// <summary>
-        /// When an event cannot be handled in the current state, its exit handler is executed and then the state is
-        /// popped and any previous "current state" is reentered. This handler is called when that pop has been done.
+        /// Invoked when the specified event cannot be handled in the current state, its exit
+        /// handler is executed and then the state is popped and any previous "current state"
+        /// is reentered. This handler is called when that pop has been done.
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
-        /// <param name="currStateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="eventName">The name of the event that cannot be handled.</param>
-        void OnPopUnhandledEvent(ActorId id, string currStateName, string eventName);
+        void OnPopUnhandledEvent(ActorId id, string stateName, string eventName);
 
         /// <summary>
-        /// Called when an actor throws an exception.
+        /// Invoked when the specified actor throws an exception.
         /// </summary>
         /// <param name="id">The id of the actor that threw the exception.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -181,7 +172,7 @@ namespace Microsoft.Coyote.IO
         void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex);
 
         /// <summary>
-        /// Called when an OnException method is used to handle a thrown exception.
+        /// Invoked when the specified OnException method is used to handle a thrown exception.
         /// </summary>
         /// <param name="id">The id of the actor that threw the exception.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
@@ -190,26 +181,26 @@ namespace Microsoft.Coyote.IO
         void OnExceptionHandled(ActorId id, string stateName, string actionName, Exception ex);
 
         /// <summary>
-        /// Called when an actor timer has been created.
+        /// Invoked when the specified actor timer has been created.
         /// </summary>
         /// <param name="info">Handle that contains information about the timer.</param>
         void OnCreateTimer(TimerInfo info);
 
         /// <summary>
-        /// Called when an actor timer has been stopped.
+        /// Invoked when the specified actor timer has been stopped.
         /// </summary>
         /// <param name="info">Handle that contains information about the timer.</param>
         void OnStopTimer(TimerInfo info);
 
         /// <summary>
-        /// Called when a monitor has been created.
+        /// Invoked when the specified monitor has been created.
         /// </summary>
         /// <param name="monitorTypeName">The name of the type of the monitor that has been created.</param>
         /// <param name="id">The id of the monitor that has been created.</param>
         void OnCreateMonitor(string monitorTypeName, ActorId id);
 
         /// <summary>
-        /// Called when a monitor executes an action.
+        /// Invoked when the specified monitor executes an action.
         /// </summary>
         /// <param name="monitorTypeName">Name of type of the monitor that is executing the action.</param>
         /// <param name="id">The id of the monitor that is executing the action</param>
@@ -218,7 +209,7 @@ namespace Microsoft.Coyote.IO
         void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName);
 
         /// <summary>
-        /// Called when a monitor is about to process an event.
+        /// Invoked when the specified monitor is about to process an event.
         /// </summary>
         /// <param name="senderId">The sender of the event.</param>
         /// <param name="senderStateName">The name of the state the sender is in.</param>
@@ -230,7 +221,7 @@ namespace Microsoft.Coyote.IO
             string stateName, string eventName);
 
         /// <summary>
-        /// Called when a monitor raised an event.
+        /// Invoked when the specified monitor raised an event.
         /// </summary>
         /// <param name="monitorTypeName">Name of type of the monitor raising the event.</param>
         /// <param name="id">The id of the monitor raising the event.</param>
@@ -239,7 +230,7 @@ namespace Microsoft.Coyote.IO
         void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName);
 
         /// <summary>
-        /// Called when a monitor enters or exits a state.
+        /// Invoked when the specified monitor enters or exits a state.
         /// </summary>
         /// <param name="monitorTypeName">The name of the type of the monitor entering or exiting the state</param>
         /// <param name="id">The id of the monitor entering or exiting the state</param>
@@ -252,16 +243,16 @@ namespace Microsoft.Coyote.IO
             bool isEntry, bool? isInHotState);
 
         /// <summary>
-        /// Called for general error reporting via pre-constructed text.
+        /// Invoked when the specified assertion failure has occurred.
         /// </summary>
-        /// <param name="text">The text of the error report.</param>
-        void OnError(string text);
+        /// <param name="error">The text of the error.</param>
+        void OnAssertionFailure(string error);
 
         /// <summary>
-        /// Called for errors detected by a specific scheduling strategy.
+        /// Invoked to describe the specified scheduling strategy.
         /// </summary>
         /// <param name="strategy">The scheduling strategy that was used.</param>
-        /// <param name="strategyDescription">More information about the scheduling strategy.</param>
-        void OnStrategyError(SchedulingStrategy strategy, string strategyDescription);
+        /// <param name="description">More information about the scheduling strategy.</param>
+        void OnStrategyDescription(SchedulingStrategy strategy, string description);
     }
 }

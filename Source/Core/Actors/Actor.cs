@@ -525,7 +525,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 else if (status is DequeueStatus.Default)
                 {
-                    this.Runtime.LogWriter.OnDefaultEventHandler(this.Id,
+                    this.Runtime.LogWriter.LogDefaultEventHandler(this.Id,
                         this is StateMachine stateMachine ? stateMachine.CurrentStateName : default);
 
                     // If the default event was dequeued, then notify the runtime.
@@ -873,7 +873,7 @@ namespace Microsoft.Coyote.Actors
         {
             var info = new TimerInfo(this.Id, dueTime, period, payload);
             var timer = this.Runtime.CreateActorTimer(info, this);
-            this.Runtime.LogWriter.OnCreateTimer(info);
+            this.Runtime.LogWriter.LogCreateTimer(info);
             this.Timers.Add(info, timer);
             return info;
         }
@@ -888,7 +888,7 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(info.OwnerId == this.Id, "Timer '{0}' is already disposed.", info);
             }
 
-            this.Runtime.LogWriter.OnStopTimer(info);
+            this.Runtime.LogWriter.LogStopTimer(info);
             this.Timers.Remove(info);
             timer.Dispose();
         }
@@ -1036,7 +1036,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             string stateName = this is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-            this.Runtime.LogWriter.OnExceptionThrown(this.Id, stateName, methodName, ex);
+            this.Runtime.LogWriter.LogExceptionThrown(this.Id, stateName, methodName, ex);
 
             var ret = this.OnException(nameof(this.OnEventHandledAsync), ex);
             this.IsSuppressingExceptionAndHalting = false;
@@ -1046,7 +1046,7 @@ namespace Microsoft.Coyote.Actors
                 case OnExceptionOutcome.ThrowException:
                     return false;
                 case OnExceptionOutcome.HandledException:
-                    this.Runtime.LogWriter.OnExceptionHandled(this.Id, stateName, methodName, ex);
+                    this.Runtime.LogWriter.LogExceptionHandled(this.Id, stateName, methodName, ex);
                     return true;
                 case OnExceptionOutcome.Halt:
                     this.IsSuppressingExceptionAndHalting = true;
@@ -1064,7 +1064,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>False if the exception should continue to get thrown, true if the actir should gracefully halt.</returns>
         private protected bool OnUnhandledEventExceptionHandler(string methodName, UnhandledEventException ex)
         {
-            this.Runtime.LogWriter.OnExceptionThrown(this.Id, ex.CurrentStateName, methodName, ex);
+            this.Runtime.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, methodName, ex);
 
             var ret = this.OnException(methodName, ex);
             this.IsSuppressingExceptionAndHalting = false;
@@ -1072,7 +1072,7 @@ namespace Microsoft.Coyote.Actors
             {
                 case OnExceptionOutcome.Halt:
                 case OnExceptionOutcome.HandledException:
-                    this.Runtime.LogWriter.OnExceptionHandled(this.Id, ex.CurrentStateName, methodName, ex);
+                    this.Runtime.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, methodName, ex);
                     this.IsSuppressingExceptionAndHalting = true;
                     return true;
                 case OnExceptionOutcome.ThrowException:
@@ -1136,7 +1136,7 @@ namespace Microsoft.Coyote.Actors
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
 
-            this.Runtime.LogWriter.OnHalt(this.Id, this.Inbox.Size);
+            this.Runtime.LogWriter.LogHalt(this.Id, this.Inbox.Size);
             this.Runtime.NotifyHalted(this);
 
             // Dispose any held resources.

@@ -58,11 +58,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal CoverageInfo CoverageInfo;
 
         /// <summary>
-        /// Graph logger builds the coverage graph.
-        /// </summary>
-        internal ActorRuntimeLogGraph CoverageGraph;
-
-        /// <summary>
         /// The program state cache.
         /// </summary>
         internal StateCache StateCache;
@@ -355,7 +350,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor, this.Scheduler));
             this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
-            this.LogWriter.OnCreateActor(id, creator?.Id);
+            this.LogWriter.LogCreateActor(id, creator?.Id);
 
             return actor;
         }
@@ -439,7 +434,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             if (target.IsHalted)
             {
-                this.LogWriter.OnSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
+                this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                     e.GetType().FullName, opGroupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to '{1}' which has halted.", e.GetType().FullName, targetId);
@@ -493,7 +488,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 SendStep = this.Scheduler.ScheduledSteps
             };
 
-            this.LogWriter.OnSendEvent(actor.Id, sender?.Id, stateName, e.GetType().FullName, opGroupId, isTargetHalted: false);
+            this.LogWriter.LogSendEvent(actor.Id, sender?.Id, stateName, e.GetType().FullName, opGroupId, isTargetHalted: false);
             if (sender != null)
             {
                 this.BugTrace.AddSendEventStep(sender.Id, stateName, eventInfo, actor.Id);
@@ -1132,7 +1127,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             monitor.Initialize(this, id);
             monitor.InitializeStateInformation();
 
-            this.LogWriter.OnCreateMonitor(type.FullName, monitor.Id);
+            this.LogWriter.LogCreateMonitor(type.FullName, monitor.Id);
 
             this.BugTrace.AddCreateMonitorStep(id);
 
@@ -1358,7 +1353,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
-            this.LogWriter.OnRandom(caller?.Id, choice);
+            this.LogWriter.LogRandom(caller?.Id, choice);
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
 
             return choice;
@@ -1386,7 +1381,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(2, uniqueId);
-            this.LogWriter.OnRandom(caller?.Id, choice);
+            this.LogWriter.LogRandom(caller?.Id, choice);
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
 
             return choice;
@@ -1409,7 +1404,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
-            this.LogWriter.OnRandom(caller?.Id, choice);
+            this.LogWriter.LogRandom(caller?.Id, choice);
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
 
             return choice;
@@ -1440,7 +1435,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             this.BugTrace.AddInvokeActionStep(actor.Id, stateName, action);
-            this.LogWriter.OnExecuteAction(actor.Id, stateName, action.Name);
+            this.LogWriter.LogExecuteAction(actor.Id, stateName, action.Name);
         }
 
         /// <summary>
@@ -1474,7 +1469,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.OnDequeueEvent(actor.Id, stateName, eventInfo.EventName);
+            this.LogWriter.LogDequeueEvent(actor.Id, stateName, eventInfo.EventName);
             this.BugTrace.AddDequeueEventStep(actor.Id, stateName, eventInfo);
         }
 
@@ -1509,7 +1504,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             this.BugTrace.AddRaiseEventStep(actor.Id, stateName, eventInfo);
-            this.LogWriter.OnRaiseEvent(actor.Id, stateName, eventInfo.EventName);
+            this.LogWriter.LogRaiseEvent(actor.Id, stateName, eventInfo.EventName);
         }
 
         /// <summary>
@@ -1518,7 +1513,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyHandleRaisedEvent(Actor actor, Event e)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.OnHandleRaisedEvent(actor.Id, stateName, e.GetType().FullName);
+            this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e.GetType().FullName);
         }
 
         /// <summary>
@@ -1540,7 +1535,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.OnReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
+            this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
             this.BugTrace.AddReceivedEventStep(actor.Id, stateName, eventInfo);
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
             op.OnReceivedEvent();
@@ -1553,7 +1548,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.OnReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: false);
+            this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: false);
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(actor);
         }
@@ -1584,12 +1579,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             var eventWaitTypesArray = eventTypes.ToArray();
             if (eventWaitTypesArray.Length == 1)
             {
-                this.LogWriter.OnWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
+                this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
                 eventNames = eventWaitTypesArray[0].FullName;
             }
             else
             {
-                this.LogWriter.OnWaitEvent(actor.Id, stateName, eventWaitTypesArray);
+                this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
                 if (eventWaitTypesArray.Length > 0)
                 {
                     string[] eventNameArray = new string[eventWaitTypesArray.Length - 1];
@@ -1627,7 +1622,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string stateName = stateMachine.CurrentStateName;
             this.BugTrace.AddGotoStateStep(stateMachine.Id, stateName);
-            this.LogWriter.OnStateTransition(stateMachine.Id, stateName, isEntry: true);
+            this.LogWriter.LogStateTransition(stateMachine.Id, stateName, isEntry: true);
         }
 
         /// <summary>
@@ -1635,7 +1630,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyExitedState(StateMachine stateMachine)
         {
-            this.LogWriter.OnStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
+            this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
         }
 
         /// <summary>
@@ -1645,7 +1640,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             this.AssertExpectedCallerActor(stateMachine, "Pop");
             this.AssertTransitionStatement(stateMachine);
-            this.LogWriter.OnPopState(stateMachine.Id, string.Empty, stateMachine.CurrentStateName);
+            this.LogWriter.LogPopState(stateMachine.Id, string.Empty, stateMachine.CurrentStateName);
         }
 
         /// <summary>
@@ -1657,7 +1652,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             string stateName = stateMachine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(stateMachine.Id, stateName, action);
-            this.LogWriter.OnExecuteAction(stateMachine.Id, stateName, action.Name);
+            this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
         }
 
         /// <summary>
@@ -1670,7 +1665,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             string stateName = stateMachine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(stateMachine.Id, stateName, action);
-            this.LogWriter.OnExecuteAction(stateMachine.Id, stateName, action.Name);
+            this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
         }
 
         /// <summary>
@@ -1697,7 +1692,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateNameWithTemperature;
             this.BugTrace.AddGotoStateStep(monitor.Id, monitorState);
-            this.LogWriter.OnMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
+            this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
         }
 
         /// <summary>
@@ -1705,7 +1700,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyExitedState(Monitor monitor)
         {
-            this.LogWriter.OnMonitorStateTransition(monitor.GetType().FullName, monitor.Id,
+            this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id,
                 monitor.CurrentStateNameWithTemperature, false, monitor.GetHotState());
         }
 
@@ -1716,7 +1711,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateNameWithTemperature;
             this.BugTrace.AddInvokeActionStep(monitor.Id, monitorState, action);
-            this.LogWriter.OnMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
+            this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
         }
 
         /// <summary>
@@ -1726,7 +1721,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateNameWithTemperature;
             this.BugTrace.AddRaiseEventStep(monitor.Id, monitorState, eventInfo);
-            this.LogWriter.OnMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
+            this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
                 monitorState, eventInfo.EventName);
         }
 
@@ -1745,7 +1740,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
         /// <summary>
         /// Get the coverage graph information (if any). This information is only available
-        /// when Configuration.ReportActivityCoverage is true.
+        /// when <see cref="Configuration.ReportActivityCoverage"/> is enabled.
         /// </summary>
         /// <returns>A new CoverageInfo object.</returns>
         public CoverageInfo GetCoverageInfo()
@@ -1753,12 +1748,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             var result = this.CoverageInfo;
             if (result != null)
             {
-                for (var item = this.LogWriter; item != null; item = item.Next)
+                var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>().FirstOrDefault();
+                if (builder != null)
                 {
-                    if (item is ActorRuntimeLogGraph graphLogger)
-                    {
-                        result.CoverageGraph = graphLogger.Graph;
-                    }
+                    result.CoverageGraph = builder.Graph;
                 }
             }
 

@@ -409,35 +409,13 @@ namespace Microsoft.Coyote.TestingServices
             this.TestReport.Merge(report);
 
             // Save the graph snapshot if there is one.
-            var graphLog = FindGraphLog(runtime);
-            if (graphLog != null)
+            var builder = runtime.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>().FirstOrDefault();
+            if (builder != null)
             {
-                this.Graph = graphLog.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
+                this.Graph = builder.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
                 // Store it here so it is sent back to server in the distributed test scenario.
                 this.TestReport.CoverageInfo.CoverageGraph = this.Graph;
             }
-        }
-
-        /// <summary>
-        /// Look for a GraphStateMachineLog in the chain of log writers.
-        /// </summary>
-        /// <param name="runtime">The runtime to search.</param>
-        /// <returns>A GraphStateMachineLog if found, or null.</returns>
-        private static ActorRuntimeLogGraph FindGraphLog(SystematicTestingRuntime runtime)
-        {
-            IActorRuntimeLog start = runtime.LogWriter;
-            while (start != null)
-            {
-                ActorRuntimeLogGraph graphLogger = runtime.LogWriter as ActorRuntimeLogGraph;
-                if (graphLogger != null)
-                {
-                    return graphLogger;
-                }
-
-                start = start.Next;
-            }
-
-            return null;
         }
 
         /// <summary>

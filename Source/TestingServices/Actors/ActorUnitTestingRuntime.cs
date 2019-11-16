@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Instance.Configure(this, id, actorManager, this.ActorInbox);
             this.Instance.SetupEventHandlers();
 
-            this.LogWriter.OnCreateActor(this.Instance.Id, null);
+            this.LogWriter.LogCreateActor(this.Instance.Id, null);
 
             this.IsMachineWaitingToReceiveEvent = false;
         }
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Actor creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.OnCreateActor(id, creator?.Id);
+            this.LogWriter.LogCreateActor(id, creator?.Id);
             return id;
         }
 
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Event initialEvent, Actor creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.OnCreateActor(id, creator?.Id);
+            this.LogWriter.LogCreateActor(id, creator?.Id);
             return Task.FromResult(id);
         }
 
@@ -213,12 +213,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             if (this.Instance.IsHalted)
             {
-                this.LogWriter.OnSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
+                this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                     e.GetType().FullName, opGroupId, isTargetHalted: true);
                 return;
             }
 
-            this.LogWriter.OnSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
+            this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                 e.GetType().FullName, opGroupId, isTargetHalted: false);
 
             if (!targetId.Equals(this.Instance.Id))
@@ -542,7 +542,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 result = true;
             }
 
-            this.LogWriter.OnRandom(caller?.Id, result);
+            this.LogWriter.LogRandom(caller?.Id, result);
 
             return result;
         }
@@ -565,7 +565,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Random random = new Random(DateTime.Now.Millisecond);
             var result = random.Next(maxValue);
 
-            this.LogWriter.OnRandom(caller?.Id, result);
+            this.LogWriter.LogRandom(caller?.Id, result);
 
             return result;
         }
@@ -578,7 +578,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.OnExecuteAction(actor.Id, stateName, action.Name);
+                this.LogWriter.LogExecuteAction(actor.Id, stateName, action.Name);
             }
         }
 
@@ -590,7 +590,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.OnDequeueEvent(actor.Id, stateName, e.GetType().FullName);
+                this.LogWriter.LogDequeueEvent(actor.Id, stateName, e.GetType().FullName);
             }
         }
 
@@ -602,7 +602,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.OnRaiseEvent(actor.Id, stateName, e.GetType().FullName);
+                this.LogWriter.LogRaiseEvent(actor.Id, stateName, e.GetType().FullName);
             }
         }
 
@@ -617,11 +617,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 var eventWaitTypesArray = eventTypes.ToArray();
                 if (eventWaitTypesArray.Length == 1)
                 {
-                    this.LogWriter.OnWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
+                    this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
                 }
                 else
                 {
-                    this.LogWriter.OnWaitEvent(actor.Id, stateName, eventWaitTypesArray);
+                    this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
                 }
             }
 
@@ -637,7 +637,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.OnReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
+                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
             }
 
             this.IsMachineWaitingToReceiveEvent = false;
@@ -653,7 +653,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.OnReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: false);
+                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: false);
             }
         }
 
@@ -664,7 +664,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.OnStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
+                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: true);
             }
         }
 
@@ -675,7 +675,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.OnStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
+                this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
             }
         }
 
@@ -687,7 +687,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.OnMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
                     true, monitor.GetHotState());
             }
         }
@@ -700,7 +700,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.OnMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
                     false, monitor.GetHotState());
             }
         }
@@ -712,7 +712,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.OnMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, action.Name,
+                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, action.Name,
                     monitor.CurrentStateNameWithTemperature);
             }
         }
@@ -725,7 +725,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.OnMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
+                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
                     monitorState, e.GetType().FullName);
             }
         }

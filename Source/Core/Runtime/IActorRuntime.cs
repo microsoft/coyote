@@ -15,7 +15,8 @@ namespace Microsoft.Coyote.Runtime
     public interface IActorRuntime : IDisposable
     {
         /// <summary>
-        /// The installed logger.
+        /// Used to log messages. Use <see cref="SetLogger"/>
+        /// to replace the logger with a custom one.
         /// </summary>
         ILogger Logger { get; }
 
@@ -254,19 +255,31 @@ namespace Microsoft.Coyote.Runtime
         Guid GetCurrentOperationGroupId(ActorId currentActorId);
 
         /// <summary>
-        /// Use this method to override the default <see cref="ActorRuntimeLogWriter"/>
-        /// for logging runtime messages.
-        /// </summary>
-        /// <param name="logWriter">The runtime log writer to install.</param>
-        /// <returns>The previously installed runtime log writer.</returns>
-        IActorRuntimeLog SetLogWriter(IActorRuntimeLog logWriter);
-
-        /// <summary>
         /// Use this method to override the default <see cref="ILogger"/> for logging messages.
         /// </summary>
         /// <param name="logger">The logger to install.</param>
         /// <returns>The previously installed logger.</returns>
         ILogger SetLogger(ILogger logger);
+
+        /// <summary>
+        /// Use this method to override the default <see cref="IActorRuntimeLogFormatter"/>
+        /// for formatting log messages.
+        /// </summary>
+        /// <param name="formatter">The formatter to install.</param>
+        /// <returns>The previously installed formatter.</returns>
+        IActorRuntimeLogFormatter SetLogFormatter(IActorRuntimeLogFormatter formatter);
+
+        /// <summary>
+        /// Use this method to register an <see cref="IActorRuntimeLog"/>.
+        /// </summary>
+        /// <param name="log">The log writer to register.</param>
+        void RegisterLog(IActorRuntimeLog log);
+
+        /// <summary>
+        /// Use this method to unregister a previously registered <see cref="IActorRuntimeLog"/>.
+        /// </summary>
+        /// <param name="log">The previously registered log writer to unregister.</param>
+        void RemoveLog(IActorRuntimeLog log);
 
         /// <summary>
         /// Terminates the runtime and notifies each active actor to halt execution.

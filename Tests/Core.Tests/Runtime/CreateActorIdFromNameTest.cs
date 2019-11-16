@@ -7,7 +7,7 @@ using Microsoft.Coyote.Actors;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Core.Tests
+namespace Microsoft.Coyote.Core.Tests.Runtime
 {
     public class CreateActorIdFromNameTest : BaseTest
     {

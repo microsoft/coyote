@@ -196,12 +196,5 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             return report;
         }
-
-        private static string RemoveNonDeterministicValuesFromReport(string report)
-        {
-            var result = Regex.Replace(report, @"\'[0-9]+\'", "''");
-            result = Regex.Replace(result, @"\([0-9]+\)", "()");
-            return result;
-        }
     }
 }

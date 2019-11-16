@@ -72,14 +72,14 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Runtime.LogWriter.OnEnqueueEvent(this.Instance.Id, e.GetType().FullName);
+            this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e.GetType().FullName);
 
         /// <summary>
         /// Notifies the actor that an event has been raised.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnRaiseEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Runtime.LogWriter.OnRaiseEvent(this.Instance.Id, default, e.GetType().FullName);
+            this.Runtime.LogWriter.LogRaiseEvent(this.Instance.Id, default, e.GetType().FullName);
 
         /// <summary>
         /// Notifies the actor that it is waiting to receive an event of one of the specified types.

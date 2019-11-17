@@ -7,7 +7,7 @@ permalink: /learn/get-started/using-coyote
 
 ## Using Coyote
 
-As shown in the [overview](/coyote/learn/overview/what-is-coyote), there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state machines](/coyote/learn/programming-models/machines/overview).
+As shown in the [overview](/coyote/learn/overview/what-is-coyote), there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state machines](/coyote/learn/programming-models/state-machines/overview).
 
 **Note:** If you are upgrading to Coyote from P#, see [upgrading from P#](/coyote/learn/get-started/upgrade).
 
@@ -83,4 +83,4 @@ Download the [FailureDetector.dgml](/coyote/assets/images/FailureDetector.dgml) 
 
 **Note**: See [get started with Coyote](/coyote/learn/get-started/install) for information on how to install the DGML editor component of Visual Studio.
 
-You are now ready to dive into the core concepts for using Coyote to test [async tasks](/coyote/learn/programming-models/async/overview) and the more advanced [async state machines](/coyote/learn/programming-models/machines/overview).
+You are now ready to dive into the core concepts for using Coyote to test [async tasks](/coyote/learn/programming-models/async/overview) and the more advanced [async state machines](/coyote/learn/programming-models/state-machines/overview).

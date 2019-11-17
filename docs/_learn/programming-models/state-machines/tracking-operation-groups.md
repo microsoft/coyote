@@ -2,7 +2,7 @@
 layout: reference
 title: Tracking operation groups
 section: learn
-permalink: /learn/programming-models/machines/tracking-operation-groups
+permalink: /learn/programming-models/state-machines/tracking-operation-groups
 ---
 
 ## Tracking operation groups

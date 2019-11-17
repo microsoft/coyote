@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Bar()
             {
-                this.Pop();
+                this.PopState();
             }
         }
 

@@ -2,7 +2,7 @@
 layout: reference
 title: Synchronous execution of machines
 section: learn
-permalink: /learn/programming-models/machines/synchronous-execution
+permalink: /learn/programming-models/state-machines/synchronous-execution
 ---
 
 ## Synchronous execution of machines

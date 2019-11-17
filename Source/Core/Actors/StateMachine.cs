@@ -137,26 +137,14 @@ namespace Microsoft.Coyote.Actors
         /// at the end of the current action.
         /// </summary>
         /// <typeparam name="S">Type of the state.</typeparam>
-        protected void Goto<S>()
+        protected void GotoState<S>()
             where S : State
         {
-#pragma warning disable 618
-            this.Goto(typeof(S));
-#pragma warning restore 618
-        }
-
-        /// <summary>
-        /// Transitions the state machine to the specified <see cref="State"/>
-        /// at the end of the current action.
-        /// </summary>
-        /// <param name="s">Type of the state.</param>
-        [Obsolete("Goto(typeof(T)) is deprecated; use Goto<T>() instead.")]
-        protected void Goto(Type s)
-        {
+            Type state = typeof(S);
             this.Assert(!this.IsHalted, "'{0}' invoked Goto while halted.", this.Id);
-            this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(s.DeclaringType) && val.Name.Equals(s.Name)),
-                "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, s.Name);
-            this.RaiseEvent(new GotoStateEvent(s));
+            this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
+                "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
+            this.RaiseEvent(new GotoStateEvent(state));
         }
 
         /// <summary>
@@ -164,35 +152,23 @@ namespace Microsoft.Coyote.Actors
         /// the end of the current action, pushing current state on the stack.
         /// </summary>
         /// <typeparam name="S">Type of the state.</typeparam>
-        protected void Push<S>()
+        protected void PushState<S>()
             where S : State
         {
-#pragma warning disable 618
-            this.Push(typeof(S));
-#pragma warning restore 618
-        }
-
-        /// <summary>
-        /// Transitions the state machine to the specified <see cref="State"/> at
-        /// the end of the current action, pushing current state on the stack.
-        /// </summary>
-        /// <param name="s">Type of the state.</param>
-        [Obsolete("Push(typeof(T)) is deprecated; use Push<T>() instead.")]
-        protected void Push(Type s)
-        {
+            Type state = typeof(S);
             this.Assert(!this.IsHalted, "'{0}' invoked Push while halted.", this.Id);
-            this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(s.DeclaringType) && val.Name.Equals(s.Name)),
-                "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, s.Name);
-            this.RaiseEvent(new PushStateEvent(s));
+            this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
+                "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
+            this.RaiseEvent(new PushStateEvent(state));
         }
 
         /// <summary>
         /// Pops the current <see cref="State"/> from the state stack
         /// at the end of the current action.
         /// </summary>
-        protected void Pop()
+        protected void PopState()
         {
-            this.Runtime.NotifyPop(this);
+            this.Runtime.NotifyPopState(this);
             this.IsPopInvoked = true;
         }
 
@@ -313,7 +289,7 @@ namespace Microsoft.Coyote.Actors
             if (this.IsPopInvoked)
             {
                 // Performs the state transition, if pop was invoked during the action.
-                await this.PopState();
+                await this.PopStateAsync();
             }
         }
 
@@ -341,7 +317,7 @@ namespace Microsoft.Coyote.Actors
             if (this.IsPopInvoked)
             {
                 // Performs the state transition, if pop was invoked during the action.
-                await this.PopState();
+                await this.PopStateAsync();
             }
         }
 
@@ -423,7 +399,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Performs a pop transition from the current state.
         /// </summary>
-        private async Task PopState()
+        private async Task PopStateAsync()
         {
             this.IsPopInvoked = false;
             var prevStateName = this.CurrentStateName;

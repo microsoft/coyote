@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
                 if (this.Counter == this.NumConsumers)
                 {
                     this.TcsSetup.SetResult(true);
-                    this.Goto<Experiment>();
+                    this.GotoState<Experiment>();
                 }
             }
 

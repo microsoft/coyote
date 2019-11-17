@@ -146,11 +146,11 @@ class LivenessMonitor : Monitor
      alive ++;
      if (alive >= 3)
      {
-        this.Goto<EnoughReplicas>();
+        this.GotoState<EnoughReplicas>();
      }
      else
      {
-        this.Goto<NotEnoughReplicas>();
+        this.GotoState<NotEnoughReplicas>();
      }
   }
 
@@ -160,11 +160,11 @@ class LivenessMonitor : Monitor
      alive --;
      if (alive >= 3)
      {
-        this.Goto<EnoughReplicas>();
+        this.GotoState<EnoughReplicas>();
      }
      else
      {
-        this.Goto<NotEnoughReplicas>();
+        this.GotoState<NotEnoughReplicas>();
      }
   }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Coverage
 
             private void InitOnEntry()
             {
-                this.Goto<Done>();
+                this.GotoState<Done>();
             }
 
             private class Done : State

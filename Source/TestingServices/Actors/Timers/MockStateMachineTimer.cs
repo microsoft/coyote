@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
             // inactive until disposal. Else retry.
             if (isTimeoutSent && this.TimerInfo.Period.TotalMilliseconds < 0)
             {
-                this.Goto<Inactive>();
+                this.GotoState<Inactive>();
             }
         }
 

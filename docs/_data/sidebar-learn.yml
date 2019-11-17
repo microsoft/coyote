@@ -33,22 +33,22 @@ learn-toc:
         - name: Overview
           link: /learn/programming-models/async/overview
     - name: Asynchronous State Machines
-      link: /learn/programming-models/machines
+      link: /learn/programming-models/state-machines
       tertiaryitems:
         - name: Overview
-          link: /learn/programming-models/machines/overview
-        - name: State Machine termination
-          link: /learn/programming-models/machines/machine-termination
+          link: /learn/programming-models/state-machines/overview
+        - name: State machine termination
+          link: /learn/programming-models/state-machines/termination
         - name: Using timers in state machines
-          link: /learn/programming-models/machines/machine-timers
+          link: /learn/programming-models/state-machines/state-machine-timers
         - name: Synchronous execution
-          link: /learn/programming-models/machines/synchronous-execution
+          link: /learn/programming-models/state-machines/synchronous-execution
         - name: Tracking operation groups
-          link: /learn/programming-models/machines/tracking-operation-groups
+          link: /learn/programming-models/state-machines/tracking-operation-groups
         - name: Semantics of unhandled exceptions
-          link: /learn/programming-models/machines/uncaught-exceptions
+          link: /learn/programming-models/state-machines/uncaught-exceptions
         - name: Unit-testing in isolation
-          link: /learn/programming-models/machines/unit-testing
+          link: /learn/programming-models/state-machines/unit-testing
 - title: Specifications
   subfolderitems:
     - name: Overview

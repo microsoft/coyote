@@ -487,7 +487,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 this.Test = true;
                 this.SendEvent(this.Id, new E2(), options: new SendOptions(assert: 1));
-                this.Pop();
+                this.PopState();
             }
 
             private void HandleE2()
@@ -705,7 +705,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void ActiveOnEntry()
             {
                 this.Test = true;
-                this.Pop();
+                this.PopState();
             }
 
             private void ActiveOnExit()
@@ -805,7 +805,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void ActiveOnEntry()
             {
-                this.Pop();
+                this.PopState();
             }
 
             private void ActiveOnExit()

@@ -2,7 +2,7 @@
 layout: reference
 title: Machines programming model
 section: learn
-permalink: /learn/programming-models/machines/overview
+permalink: /learn/programming-models/state-machines/overview
 ---
 
 ## Programming model: asynchronous state machines

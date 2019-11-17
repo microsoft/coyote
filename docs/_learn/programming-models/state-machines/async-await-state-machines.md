@@ -2,7 +2,7 @@
 layout: reference
 title: Testing async/await code using Coyote machines
 section: learn
-permalink: /learn/programming-models/machines/async-await-machines
+permalink: /learn/programming-models/state-machines/async-await-machines
 ---
 
 ## Testing async/await code using Coyote machines

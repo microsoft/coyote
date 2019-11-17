@@ -2,7 +2,7 @@
 layout: reference
 title: Semantics of unhandled exceptions
 section: learn
-permalink: /learn/programming-models/machines/uncaught-exceptions
+permalink: /learn/programming-models/state-machines/uncaught-exceptions
 ---
 
 ## Semantics of unhandled exceptions

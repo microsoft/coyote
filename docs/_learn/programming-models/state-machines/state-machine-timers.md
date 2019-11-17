@@ -1,11 +1,11 @@
 ---
 layout: reference
-title: Using timers in machines
+title: Using timers in state machines
 section: learn
-permalink: /learn/programming-models/machines/machine-timers
+permalink: /learn/programming-models/state-machines/state-machine-timers
 ---
 
-## Using timers in machines
+## Using timers in state machines
 
 Coyote has built-in support for machine timers, which can send a `TimerElapsedEvent` to the machine
 that created them upon timeout, and periodic machine timers, which can continually send such events
@@ -93,7 +93,7 @@ private async Task HandleTimeoutForPing()
          // Stop the ping timer after handling 10 timeout events.
          // This will cause any enqueued events from this timer to be ignored.
          this.StopTimer(this.PingTimerInfo);
-         this.Goto<Pong>();
+         this.GotoState<Pong>();
    }
 }
 ```

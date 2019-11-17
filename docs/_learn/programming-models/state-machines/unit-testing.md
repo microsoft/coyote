@@ -2,7 +2,7 @@
 layout: reference
 title: Unit-testing machines in isolation
 section: learn
-permalink: /learn/programming-models/machines/unit-testing
+permalink: /learn/programming-models/state-machines/unit-testing
 ---
 
 ## Unit-testing machines in isolation

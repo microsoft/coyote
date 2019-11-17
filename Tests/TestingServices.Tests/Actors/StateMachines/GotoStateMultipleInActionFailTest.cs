@@ -50,10 +50,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 switch (errorType)
                 {
                     case ErrorType.CallGoto:
-                        this.Goto<Done>();
+                        this.GotoState<Done>();
                         break;
                     case ErrorType.CallPush:
-                        this.Push<Done>();
+                        this.PushState<Done>();
                         break;
                     case ErrorType.CallRaise:
                         this.RaiseEvent(new UnitEvent());
@@ -70,12 +70,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void ExitMethod()
             {
-                this.Pop();
+                this.PopState();
             }
 
             private void Foo()
             {
-                this.Goto<Done>();
+                this.GotoState<Done>();
             }
 
             private class Done : State

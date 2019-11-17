@@ -668,7 +668,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a state machine invoked pop.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyPop(StateMachine stateMachine)
+        internal virtual void NotifyPopState(StateMachine stateMachine)
         {
         }
 

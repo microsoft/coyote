@@ -326,7 +326,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Process()
             {
-                this.Goto<S2>();
+                this.GotoState<S2>();
             }
 
             private void Finish()
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 this.Assert(ev is E1);
                 this.Assert(this.CurrentState.Name == typeof(S2).Name);
-                this.Goto<S3>();
+                this.GotoState<S3>();
                 return Task.CompletedTask;
             }
         }

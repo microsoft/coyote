@@ -1636,7 +1636,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a state machine invoked pop.
         /// </summary>
-        internal override void NotifyPop(StateMachine stateMachine)
+        internal override void NotifyPopState(StateMachine stateMachine)
         {
             this.AssertExpectedCallerActor(stateMachine, "Pop");
             this.AssertTransitionStatement(stateMachine);

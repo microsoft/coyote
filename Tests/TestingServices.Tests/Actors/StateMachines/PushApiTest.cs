@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.Push<Done>();
+                this.PushState<Done>();
             }
 
             [OnEntry(nameof(EntryDone))]
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Assert(this.cnt == 0); // called once
                 this.cnt++;
 
-                this.Push<Done>();
+                this.PushState<Done>();
             }
 
             [OnEntry(nameof(EntryDone))]
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void EntryDone()
             {
-                this.Pop();
+                this.PopState();
             }
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.Push<Done>();
+                this.PushState<Done>();
             }
 
             private void ExitInit()
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void InitOnEntry()
             {
                 // Added a different failure mode here; try to Goto a state from another actor.
-                this.Push<M4b.Done>();
+                this.PushState<M4b.Done>();
             }
 
             private class Done : State

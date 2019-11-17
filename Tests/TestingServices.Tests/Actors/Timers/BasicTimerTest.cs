@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
                 this.StopTimer(this.PingTimer);
 
-                this.Goto<Pong>();
+                this.GotoState<Pong>();
             }
 
             private void DoPong()
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 // Start a regular timer.
                 this.StartTimer(TimeSpan.FromMilliseconds(10));
-                this.Goto<Final>();
+                this.GotoState<Final>();
             }
 
             [OnEntry(nameof(FinalOnEntry))]

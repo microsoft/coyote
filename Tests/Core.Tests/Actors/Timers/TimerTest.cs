@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 await Task.Delay(100);
                 this.StopTimer(this.PingTimer);
 
-                this.Goto<Pong>();
+                this.GotoState<Pong>();
             }
 
             private void DoPong()

@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
                 this.NumMessages = (this.ReceivedEvent as SetupProducerEvent).NumMessages;
 
                 this.TcsSetup.SetResult(true);
-                this.Goto<Experiment>();
+                this.GotoState<Experiment>();
             }
 
             [OnEventDoAction(typeof(StartExperiment), nameof(Run))]

@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             protected override Task OnHaltAsync()
             {
-                this.Goto<Init>();
+                this.GotoState<Init>();
                 return Task.CompletedTask;
             }
         }

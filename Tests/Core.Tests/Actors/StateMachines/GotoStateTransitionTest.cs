@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.Goto<Final>();
+                this.GotoState<Final>();
             }
 
             private class Final : State

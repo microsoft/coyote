@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void InitOnEntry()
             {
                 this.LockVar = false;
-                this.Goto<Waiting>();
+                this.GotoState<Waiting>();
             }
 
             private void OnTryLock()
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 var e = this.ReceivedEvent as SetupEvent;
                 this.left = e.Left;
                 this.right = e.Right;
-                this.Goto<Trying>();
+                this.GotoState<Trying>();
             }
 
             private async Task TryAccess()
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     var evr = await this.ReceiveEventAsync(typeof(Lock.LockResp));
                     if ((evr as Lock.LockResp).LockResult)
                     {
-                        this.Goto<Done>();
+                        this.GotoState<Done>();
                         return;
                     }
                     else

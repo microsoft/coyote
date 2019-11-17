@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void InitOnEntry()
             {
                 this.Item = default;
-                this.Goto<Active>();
+                this.GotoState<Active>();
             }
 
             [OnEntry(nameof(ActiveInit))]

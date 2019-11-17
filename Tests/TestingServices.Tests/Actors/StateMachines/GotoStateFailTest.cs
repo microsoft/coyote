@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 // this.Goto<object>();
 
                 // Added a different failure mode here; try to Goto a state from another actor.
-                this.Goto<N.Done>();
+                this.GotoState<N.Done>();
             }
 
             private class Done : State

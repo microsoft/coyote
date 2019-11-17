@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             protected override Task OnHaltAsync()
             {
-                this.Goto<Init>();
+                this.GotoState<Init>();
                 return Task.CompletedTask;
             }
         }

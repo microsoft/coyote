@@ -199,7 +199,7 @@ Coyote also supports specifying invariants through assertions. You can do this b
 method, which accepts as input a predicate that must always hold in that specific program point, e.g.
 `this.Assert(k == 0)`, which holds if the integer `k` equals to `0`. These `Assert` statement are
 useful for machine-local invariants, i.e., they are about the state of a single machine. For global
-invariants, often times using [Monitors](/coyote/learn/specifications/overview) is easier.
+invariants, often times using [Monitors](../specifications/overview.md) is easier.
 
 ## An example program
 

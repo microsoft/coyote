@@ -3,7 +3,7 @@
 
 Coyote (previously known as [P#](https://github.com/p-org/PSharp)) is a framework for rapid development of reliable asynchronous software. Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design, implement and automatically test production distributed systems and services.
 
-See our [website](https://microsoft.github.io/microsoft/coyote) for more information about the project, case studies, and reference documentation.
+See our [documentation](docs/_learn) for more information about the project, case studies, and reference documentation.
 
 # Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a

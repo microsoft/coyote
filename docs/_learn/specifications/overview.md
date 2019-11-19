@@ -182,4 +182,4 @@ exactly when the progress will happen. In practice, of course, we cannot generat
 we only have a finite amount of time available to us for testing. The tester resorts to heuristics: it
 considers a sufficiently long and hot execution as a proxy for a liveness violation. The user can
 configure a bound beyond which executions are considered infinite.
-[Keep reading](/coyote/learn/specifications/liveness-checking) to learn more on how this all works.
+[Keep reading](../specifications/liveness-checking.md) to learn more on how this all works.

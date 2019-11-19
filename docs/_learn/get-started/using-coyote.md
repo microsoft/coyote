@@ -7,11 +7,11 @@ permalink: /learn/get-started/using-coyote
 
 ## Using Coyote
 
-As shown in the [overview](/coyote/learn/overview/what-is-coyote), there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](/coyote/learn/programming-models/async/overview) and the more advanced way is using the [asynchronous state machines](/coyote/learn/programming-models/state-machines/overview).
+As shown in the [overview](../overview/what-is-coyote.md), there are two main ways to use Coyote. The simplest is to use the [asynchronous tasks](../programming-models/async/overview.md) and the more advanced way is using the [asynchronous state machines](../programming-models/state-machines/overview.md).
 
-**Note:** If you are upgrading to Coyote from P#, see [upgrading from P#](/coyote/learn/get-started/upgrade).
+**Note:** If you are upgrading to Coyote from P#, see [upgrading from P#](../get-started/upgrade.md).
 
-Assuming you have [installed Coyote](/coyote/learn/get-started/install) and built the samples, you are ready to use the `coyote` command line tool. In your [Coyote samples](http://github.com/microsoft/coyote-samples) local repo you should have the following compiled binaries:
+Assuming you have [installed Coyote](../get-started/install.md) and built the samples, you are ready to use the `coyote` command line tool. In your [Coyote samples](http://github.com/microsoft/coyote-samples) local repo you should have the following compiled binaries:
 
 ```
 coyote\bin\net46\coyote.exe
@@ -81,6 +81,6 @@ Open the DGML diagram using Visual Studio 2019 and you will see the following:
 
 Download the [FailureDetector.dgml](/coyote/assets/images/FailureDetector.dgml) file to view it interactively using Visual Studio. Make sure the downloaded file keeps the file extension `.dgml`.
 
-**Note**: See [get started with Coyote](/coyote/learn/get-started/install) for information on how to install the DGML editor component of Visual Studio.
+**Note**: See [get started with Coyote](../get-started/install.md) for information on how to install the DGML editor component of Visual Studio.
 
-You are now ready to dive into the core concepts for using Coyote to test [async tasks](/coyote/learn/programming-models/async/overview) and the more advanced [async state machines](/coyote/learn/programming-models/state-machines/overview).
+You are now ready to dive into the core concepts for using Coyote to test [async tasks](../programming-models/async/overview.md) and the more advanced [async state machines](../programming-models/state-machines/overview.md).

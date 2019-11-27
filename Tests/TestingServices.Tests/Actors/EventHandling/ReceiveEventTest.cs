@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendPong();
                 }
 
-                this.RaiseEvent(new HaltEvent());
+                this.Halt();
             }
 
             private void SendPong()
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendPong();
                 }
 
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             private void SendPong()

@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 // Make sure that the state machine halts.
                 for (int i = 0; i < 100; i++)
                 {
-                    r.SendEvent(m, new HaltEvent());
+                    r.SendEvent(m, HaltEvent.Instance);
                 }
 
                 // Trying to bring up a halted state machine.

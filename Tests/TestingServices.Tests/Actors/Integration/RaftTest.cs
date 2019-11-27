@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendEvent(this.Servers[idx], new Server.ShutDown());
                 }
 
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             private void UpdateLeader(NotifyLeaderUpdate request)
@@ -928,10 +928,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void ShuttingDown()
             {
-                this.SendEvent(this.ElectionTimer, new HaltEvent());
-                this.SendEvent(this.PeriodicTimer, new HaltEvent());
+                this.SendEvent(this.ElectionTimer, HaltEvent.Instance);
+                this.SendEvent(this.PeriodicTimer, HaltEvent.Instance);
 
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -1019,7 +1019,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 if (this.Counter == 3)
                 {
                     this.SendEvent(this.Cluster, new ClusterManager.ShutDown());
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
                 else
                 {

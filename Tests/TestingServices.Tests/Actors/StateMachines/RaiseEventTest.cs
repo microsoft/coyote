@@ -22,10 +22,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
-        [OnEventDoAction(typeof(E1), nameof(HandleE1))]
-        [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-        private class SomeActor : Actor
+        private class M : StateMachine
         {
+            [Start]
+            [OnEventDoAction(typeof(E1), nameof(HandleE1))]
+            [OnEventDoAction(typeof(E2), nameof(HandleE2))]
+            private class Init : State
+            {
+            }
+
             private void HandleE1()
             {
                 this.RaiseEvent(new E2());
@@ -38,11 +43,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         }
 
         [Fact(Timeout=5000)]
-        public void TestRaiseEventInActor()
+        public void TestRaiseEvent()
         {
             this.TestWithError(r =>
             {
-                var id = r.CreateActor(typeof(SomeActor));
+                var id = r.CreateActor(typeof(M));
                 r.SendEvent(id, new E1());
             },
             configuration: GetConfiguration(),

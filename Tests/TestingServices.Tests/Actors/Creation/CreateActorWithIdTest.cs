@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void Terminate()
             {
                 this.SendEvent((this.ReceivedEvent as TerminateReq).Sender, new TerminateResp());
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -233,7 +233,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 while (!isEventDropped)
                 {
                     // Make sure the actor halts before trying to reuse its id.
-                    r.SendEvent(id, new HaltEvent());
+                    r.SendEvent(id, HaltEvent.Instance);
                 }
 
                 // Trying to bring up a halted actor.

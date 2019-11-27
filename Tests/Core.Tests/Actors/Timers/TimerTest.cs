@@ -68,12 +68,12 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 if (this.Count == 1)
                 {
                     this.Tcs.SetResult(true);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                     return;
                 }
 
                 this.Tcs.SetResult(false);
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 {
                     this.StopTimer(this.Timer);
                     this.Tcs.SetResult(true);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
             }
         }
@@ -188,12 +188,12 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 if (timeout.Info == this.PongTimer)
                 {
                     this.Tcs.SetResult(true);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
                 else
                 {
                     this.Tcs.SetResult(false);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
             }
         }
@@ -231,12 +231,12 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 {
                     this.Logger.WriteLine(ex.Message);
                     tcs.SetResult(true);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                     return;
                 }
 
                 tcs.SetResult(false);
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -273,12 +273,12 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 {
                     this.Logger.WriteLine(ex.Message);
                     tcs.SetResult(true);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                     return;
                 }
 
                 tcs.SetResult(false);
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

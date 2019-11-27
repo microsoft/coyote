@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.left, new Lock.Release());
                 this.SendEvent(this.right, new Lock.Release());
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyDone());
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

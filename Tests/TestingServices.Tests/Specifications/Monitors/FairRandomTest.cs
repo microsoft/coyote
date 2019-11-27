@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             private void HandleEvent2()
             {
                 this.Monitor<UntilDone>(new E2());
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

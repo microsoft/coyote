@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Actors
 
             // TODO: check op-id of default event.
             // A default event handler exists.
-            return (DequeueStatus.Default, DefaultEvent.Event, Guid.Empty, null);
+            return (DequeueStatus.Default, DefaultEvent.Instance, Guid.Empty, null);
         }
 
         /// <summary>

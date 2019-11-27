@@ -18,32 +18,37 @@ that state machines are implementations of the actor programming model.
 - The `Monitor` type is now under the `Microsoft.Coyote.Specifications` namespace.
 
 ## Type changes
-- `Machine` changed to `StateMachine` to make it explicit that its a state machine.
-- `MachineState` changed to `State`, as it is now a nested class inside `StateMachine`.
-- `MonitorState` changed to `State`, as it is now a nested class inside `Monitor`.
-- `MachineId` changed to `ActorId`, as state machines are implementations of the
+- `Machine` was renamed to `StateMachine` to make it explicit that its a state machine.
+- `MachineState` was renamed to `State`, as it is now a nested class inside `StateMachine`.
+- `MonitorState` was renamed to `State`, as it is now a nested class inside `Monitor`.
+- `MachineId` was renamed to `ActorId`, as state machines are implementations of the
 actor programming model.
-- `IMachineRuntime` changed to `IActorRuntime`.
-- `IMachineRuntimeLog` changed to `IActorRuntimeLog`.
-- `RuntimeLogWriter` changed to `ActorRuntimeLogWriter`.
+- `Halt` was renamed to `HaltEvent` to make it explicit that its an event.
+- `Default` was renamed to `DefaultEvent` to make it explicit that its an event.
+- `IMachineRuntime` was renamed to `IActorRuntime`.
+- `IMachineRuntimeLog` was renamed to `IActorRuntimeLog`.
+- `RuntimeLogWriter` was renamed to `ActorRuntimeLogWriter`.
 
 ## Runtime API changes
-- The static runtime factory is renamed from `PSharpRuntime` to `ActorRuntimeFactory`, so you can now do `ActorRuntimeFactory.Create()` to get an actor runtime instance (that can execute state machines).
-- `IMachineRuntime.CreateMachine` is renamed to `IActorRuntime.CreateStateMachine`.
+- The static runtime factory was renamed from `PSharpRuntime` to `ActorRuntimeFactory`, so you can now do `ActorRuntimeFactory.Create()` to get an actor runtime instance (that can execute state machines).
+- `IMachineRuntime.CreateMachine` was renamed to `IActorRuntime.CreateStateMachine`.
 - The previously deprecated method `IMachineRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateStateMachineAndExecuteAsync` instead (same semantics, just different method name).
 - The previously deprecated method `IMachineRuntime.SendEventAndExecute` has been removed, please use `IActorRuntime.SendEventAndExecuteAsync` instead (same semantics, just different method name).
 
 ## Machine API changes
-- `Machine.CreateMachine` becomes `StateMachine.CreateStateMachine`.
-- `Machine.Raise` becomes `StateMachine.RaiseEvent` to become more descriptive.
-- `Machine.Receive` becomes `StateMachine.ReceiveEventAsync` to become more descriptive.
-- `Machine.Send` becomes `StateMachine.SendEvent` to become more descriptive and match the runtime API.
+- `Machine.CreateMachine` was renamed `StateMachine.CreateStateMachine`.
+- `Machine.Raise` was renamed `StateMachine.RaiseEvent` to become more descriptive.
+- `Machine.Receive` was renamed `StateMachine.ReceiveEventAsync` to become more descriptive.
+- `Machine.Send` was renamed `StateMachine.SendEvent` to become more descriptive and match the runtime API.
+
+## Event API changes
+- `Halt` (now `HaltEvent`) can no longer be constructed, use `HaltEvent.Instance` instead to get access to a singleton instance created once to reduce unnecessary allocations.
 
 ## Monitor API changes
-- `Monitor.Raise` is renamed to `Monitor.RaiseEvent` to become more descriptive.
+- `Monitor.Raise` was renamed to `Monitor.RaiseEvent` to become more descriptive.
 
 ## Test attribute changes
-- `[Microsoft.PSharp.Test]` is renamed  to `[Microsoft.Coyote.TestingServices.Test]`
+- `[Microsoft.PSharp.Test]` was renamed  to `[Microsoft.Coyote.TestingServices.Test]`
 
 ## Command line tool changes
 - The `PSharpTester` and `PSharpReplayer` executables have now been merged into the `coyote` command line tool. To invoke the tester, you do `coyote test ...`. To invoke the replayer you do `coyote replay ...`. The command line options remain pretty much the same, but the way they are declared has changed from (for example) `-max-steps:100` to `--max-steps 100` (single character arguments are used with a single `-`, e.g. `-i 100`). Read more details in the documentation on using the `coyote` command line tool [here](using-coyote.md).

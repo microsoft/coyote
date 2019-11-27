@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             private void S3OnEntry()
             {
                 this.Monitor<LivenessMonitor>(new E(this.Id));
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

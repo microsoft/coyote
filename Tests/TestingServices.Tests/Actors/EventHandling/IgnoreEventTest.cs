@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.TestingServices.Tests.Actors
 {
-    public class IgnoreRaisedEventTest : BaseTest
+    public class IgnoreEventTest : BaseTest
     {
-        public IgnoreRaisedEventTest(ITestOutputHelper output)
+        public IgnoreEventTest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         [OnEventDoAction(typeof(E1), nameof(Foo))]
         [OnEventDoAction(typeof(E2), nameof(Bar))]
-        private class A : Actor
+        private class A1 : Actor
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Foo()
             {
-                this.RaiseEvent(new UnitEvent());
+                this.SendEvent(this.Id, new UnitEvent());
             }
 
             private void Bar()
@@ -80,17 +80,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public void TestIgnoreRaisedEventHandledInActor()
+        public void TestIgnoreSentEventHandledInActor()
         {
             this.Test(r =>
             {
-                var id = r.CreateActor(typeof(A));
+                var id = r.CreateActor(typeof(A1));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
             configuration: GetConfiguration().WithNumberOfIterations(5));
         }
 
-        private class M : StateMachine
+        private class M1 : StateMachine
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Foo))]
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.Test(r =>
             {
-                var id = r.CreateActor(typeof(M));
+                var id = r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
             configuration: GetConfiguration().WithNumberOfIterations(5));

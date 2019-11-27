@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
 
             private void HandleE()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()

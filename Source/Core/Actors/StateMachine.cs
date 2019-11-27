@@ -129,7 +129,23 @@ namespace Microsoft.Coyote.Actors
             // Transitions to the start state, and executes
             // the entry action, if there is any.
             this.ReceivedEvent = initialEvent;
-            return this.ExecuteCurrentStateOnEntry();
+            return this.ExecuteCurrentStateOnEntryAsync();
+        }
+
+        /// <summary>
+        /// Raises an <see cref="Event"/> at the end of the current action.
+        /// </summary>
+        /// <param name="e">The event to raise.</param>
+        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
+        protected void RaiseEvent(Event e, Guid opGroupId = default)
+        {
+            this.Assert(!this.IsHalted, "'{0}' invoked RaiseEvent while halted.", this.Id);
+            this.Assert(e != null, "'{0}' is raising a null event.", this.Id);
+
+            // The operation group id of this operation is set using the following precedence:
+            // (1) To the specified raise operation group id, if it is non-empty.
+            // (2) To the operation group id of this actor.
+            this.Inbox.RaiseEvent(e, opGroupId != Guid.Empty ? opGroupId : this.OperationGroupId);
         }
 
         /// <summary>
@@ -138,9 +154,16 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <typeparam name="S">Type of the state.</typeparam>
         protected void GotoState<S>()
-            where S : State
+            where S : State =>
+            this.GotoState(typeof(S));
+
+        /// <summary>
+        /// Transitions the state machine to the specified <see cref="State"/>
+        /// at the end of the current action.
+        /// </summary>
+        /// <param name="state">Type of the state.</param>
+        protected void GotoState(Type state)
         {
-            Type state = typeof(S);
             this.Assert(!this.IsHalted, "'{0}' invoked Goto while halted.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
@@ -153,9 +176,16 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <typeparam name="S">Type of the state.</typeparam>
         protected void PushState<S>()
-            where S : State
+            where S : State =>
+            this.PushState(typeof(S));
+
+        /// <summary>
+        /// Transitions the state machine to the specified <see cref="State"/> at
+        /// the end of the current action, pushing current state on the stack.
+        /// </summary>
+        /// <param name="state">Type of the state.</param>
+        protected void PushState(Type state)
         {
-            Type state = typeof(S);
             this.Assert(!this.IsHalted, "'{0}' invoked Push while halted.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
@@ -216,34 +246,34 @@ namespace Microsoft.Coyote.Actors
                 if (e is GotoStateEvent gotoStateEvent)
                 {
                     // Checks if the event is a goto state event.
-                    await this.GotoState(gotoStateEvent.State, null);
+                    await this.GotoStateAsync(gotoStateEvent.State, null);
                 }
                 else if (e is PushStateEvent pushStateEvent)
                 {
                     // Checks if the event is a push state event.
-                    await this.PushState(pushStateEvent.State);
+                    await this.PushStateAsync(pushStateEvent.State);
                 }
                 else if (this.GotoTransitions.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger a goto state transition.
                     var transition = this.GotoTransitions[e.GetType()];
-                    await this.GotoState(transition.TargetState, transition.Lambda);
+                    await this.GotoStateAsync(transition.TargetState, transition.Lambda);
                 }
                 else if (this.GotoTransitions.ContainsKey(typeof(WildCardEvent)))
                 {
                     var transition = this.GotoTransitions[typeof(WildCardEvent)];
-                    await this.GotoState(transition.TargetState, transition.Lambda);
+                    await this.GotoStateAsync(transition.TargetState, transition.Lambda);
                 }
                 else if (this.PushTransitions.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger a push state transition.
                     Type targetState = this.PushTransitions[e.GetType()].TargetState;
-                    await this.PushState(targetState);
+                    await this.PushStateAsync(targetState);
                 }
                 else if (this.PushTransitions.ContainsKey(typeof(WildCardEvent)))
                 {
                     Type targetState = this.PushTransitions[typeof(WildCardEvent)].TargetState;
-                    await this.PushState(targetState);
+                    await this.PushStateAsync(targetState);
                 }
                 else if (this.CurrentStateEventHandlers.ContainsKey(e.GetType()) &&
                     this.CurrentStateEventHandlers[e.GetType()] is ActionEventHandlerDeclaration)
@@ -261,7 +291,7 @@ namespace Microsoft.Coyote.Actors
                 else
                 {
                     // If the current state cannot handle the event.
-                    await this.ExecuteCurrentStateOnExit(null);
+                    await this.ExecuteCurrentStateOnExitAsync(null);
                     if (this.IsHalted)
                     {
                         return;
@@ -296,7 +326,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Executes the on entry action of the current state.
         /// </summary>
-        private async Task ExecuteCurrentStateOnEntry()
+        private async Task ExecuteCurrentStateOnEntryAsync()
         {
             this.Runtime.NotifyEnteredState(this);
 
@@ -325,7 +355,7 @@ namespace Microsoft.Coyote.Actors
         /// Executes the on exit action of the current state.
         /// </summary>
         /// <param name="eventHandlerExitActionName">Action name</param>
-        private async Task ExecuteCurrentStateOnExit(string eventHandlerExitActionName)
+        private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName)
         {
             this.Runtime.NotifyExitedState(this);
 
@@ -358,13 +388,13 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Performs a goto transition to the specified state.
         /// </summary>
-        private async Task GotoState(Type s, string onExitActionName)
+        private async Task GotoStateAsync(Type s, string onExitActionName)
         {
             this.Runtime.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
-            await this.ExecuteCurrentStateOnExit(onExitActionName);
+            await this.ExecuteCurrentStateOnExitAsync(onExitActionName);
             if (this.IsHalted)
             {
                 return;
@@ -379,13 +409,13 @@ namespace Microsoft.Coyote.Actors
             this.DoStatePush(nextState);
 
             // The state machine performs the on entry action of the new state.
-            await this.ExecuteCurrentStateOnEntry();
+            await this.ExecuteCurrentStateOnEntryAsync();
         }
 
         /// <summary>
         /// Performs a push transition to the specified state.
         /// </summary>
-        private async Task PushState(Type s)
+        private async Task PushStateAsync(Type s)
         {
             this.Runtime.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
@@ -393,7 +423,7 @@ namespace Microsoft.Coyote.Actors
             this.DoStatePush(nextState);
 
             // The state machine performs the on entry statements of the new state.
-            await this.ExecuteCurrentStateOnEntry();
+            await this.ExecuteCurrentStateOnEntryAsync();
         }
 
         /// <summary>
@@ -405,7 +435,7 @@ namespace Microsoft.Coyote.Actors
             var prevStateName = this.CurrentStateName;
 
             // The state machine performs the on exit action of the current state.
-            await this.ExecuteCurrentStateOnExit(null);
+            await this.ExecuteCurrentStateOnExitAsync(null);
             if (this.IsHalted)
             {
                 return;
@@ -911,6 +941,15 @@ namespace Microsoft.Coyote.Actors
                 $"   {ex.Message}\n" +
                 $"The stack trace is:\n{ex.StackTrace}");
         }
+
+        /// <summary>
+        /// User callback that is invoked when the actor finishes handling a dequeued event,
+        /// unless the handler of the dequeued event raised an event or caused the actor to
+        /// halt (either normally or due to an exception). Unless this callback raises an event, the
+        /// actor will either become idle or dequeue the next event from its inbox.
+        /// </summary>
+        /// <param name="e">The event that was handled.</param>
+        protected override Task OnEventHandledAsync(Event e) => Task.CompletedTask;
 
         /// <summary>
         /// Abstract class representing a state.

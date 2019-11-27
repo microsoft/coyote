@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             string stateName = this.Actor is StateMachine stateMachine ?
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
             var eventOrigin = new EventOriginInfo(this.Actor.Id, this.Actor.GetType().FullName, stateName);
-            return (DequeueStatus.Default, DefaultEvent.Event, Guid.Empty, new EventInfo(DefaultEvent.Event, eventOrigin));
+            return (DequeueStatus.Default, DefaultEvent.Instance, Guid.Empty, new EventInfo(DefaultEvent.Instance, eventOrigin));
         }
 
         /// <summary>

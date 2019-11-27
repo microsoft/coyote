@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.SendEvent(this.Id, new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 this.SendEvent(this.Id, new E());
                 return Task.CompletedTask;
             }
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.SendEvent(this.Id, new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 this.SendEvent(this.Id, new E());
             }
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 };
 
                 var m = r.CreateActor(typeof(A2));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             },
             expectedError: "Reached test assertion.",
             replay: true);
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     r.Assert(target == m);
                 };
 
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             });
         }
 
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 };
 
                 var m = r.CreateActor(typeof(M2));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             },
             expectedError: "Reached test assertion.",
             replay: true);
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     r.Assert(target == m);
                 };
 
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             });
         }
 
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.SendEvent((initialEvent as E).Id, new HaltEvent());
+                this.SendEvent((initialEvent as E).Id, HaltEvent.Instance);
                 return Task.CompletedTask;
             }
         }
@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.SendEvent((this.ReceivedEvent as E).Id, new HaltEvent());
+                this.SendEvent((this.ReceivedEvent as E).Id, HaltEvent.Instance);
             }
         }
 

@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.RaiseEvent(new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 return Task.CompletedTask;
             }
 
@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOnHaltAsyncAfterRaiseInActor()
+        public void TestOnHaltAsyncAfterSendInActor()
         {
             this.TestWithError(r =>
             {
@@ -65,7 +65,38 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
+            }
+
+            protected override Task OnHaltAsync()
+            {
+                this.Assert(false, "Reached test assertion.");
+                return Task.CompletedTask;
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestOnHaltAsyncAfterSendInStateMachine()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M1));
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        private class M2 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -80,17 +111,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(M1));
+                r.CreateActor(typeof(M2));
             },
             expectedError: "Reached test assertion.",
             replay: true);
         }
 
-        private class A2 : Actor
+        private class A3 : Actor
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.RaiseEvent(new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 return Task.CompletedTask;
             }
 
@@ -105,65 +136,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(A2));
-            },
-            expectedError: "'A2()' invoked ReceiveEventAsync while halted.",
-            replay: true);
-        }
-
-        private class M2 : StateMachine
-        {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
-            {
-            }
-
-            private void InitOnEntry()
-            {
-                this.RaiseEvent(new HaltEvent());
-            }
-
-            protected override async Task OnHaltAsync()
-            {
-                await this.ReceiveEventAsync(typeof(Event));
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestOnHaltAsyncWithReceiveInStateMachine()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M2));
-            },
-            expectedError: "'M2()' invoked ReceiveEventAsync while halted.",
-            replay: true);
-        }
-
-        private class A3 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.RaiseEvent(new HaltEvent());
-                return Task.CompletedTask;
-            }
-
-            protected override Task OnHaltAsync()
-            {
-                this.RaiseEvent(new E());
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestOnHaltAsyncWithRaiseInActor()
-        {
-            this.TestWithError(r =>
-            {
                 r.CreateActor(typeof(A3));
             },
-            expectedError: "'A3()' invoked RaiseEvent while halted.",
+            expectedError: "'A3()' invoked ReceiveEventAsync while halted.",
             replay: true);
         }
 
@@ -177,7 +152,37 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
+            }
+
+            protected override async Task OnHaltAsync()
+            {
+                await this.ReceiveEventAsync(typeof(Event));
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestOnHaltAsyncWithReceiveInStateMachine()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M3));
+            },
+            expectedError: "'M3()' invoked ReceiveEventAsync while halted.",
+            replay: true);
+        }
+
+        private class M4 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -192,13 +197,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(M3));
+                r.CreateActor(typeof(M4));
             },
-            expectedError: "'M3()' invoked RaiseEvent while halted.",
+            expectedError: "'M4()' invoked RaiseEvent while halted.",
             replay: true);
         }
 
-        private class M4 : StateMachine
+        private class M5 : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -208,7 +213,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -223,9 +228,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(M4));
+                r.CreateActor(typeof(M5));
             },
-            expectedError: "'M4()' invoked Goto while halted.",
+            expectedError: "'M5()' invoked Goto while halted.",
             replay: true);
         }
 
@@ -239,11 +244,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
-        private class M5Receiver : StateMachine
+        private class M6Receiver : StateMachine
         {
             [Start]
             [IgnoreEvents(typeof(E))]
@@ -252,14 +257,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        private class A5Sender : Actor
+        private class A6Sender : Actor
         {
             private ActorId Receiver;
 
             protected override Task OnInitializeAsync(Event initialEvent)
             {
                 this.Receiver = (initialEvent as E).Id;
-                this.RaiseEvent(new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 return Task.CompletedTask;
             }
 
@@ -279,12 +284,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.Test(r =>
             {
-                var m = r.CreateActor(typeof(M5Receiver));
-                r.CreateActor(typeof(A5Sender), new E(m));
+                var m = r.CreateActor(typeof(M6Receiver));
+                r.CreateActor(typeof(A6Sender), new E(m));
             });
         }
 
-        private class M5Sender : StateMachine
+        private class M6Sender : StateMachine
         {
             private ActorId Receiver;
 
@@ -297,7 +302,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void InitOnEntry()
             {
                 this.Receiver = (this.ReceivedEvent as E).Id;
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -316,8 +321,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.Test(r =>
             {
-                var m = r.CreateActor(typeof(M5Receiver));
-                r.CreateActor(typeof(M5Sender), new E(m));
+                var m = r.CreateActor(typeof(M6Receiver));
+                r.CreateActor(typeof(M6Sender), new E(m));
             });
         }
     }

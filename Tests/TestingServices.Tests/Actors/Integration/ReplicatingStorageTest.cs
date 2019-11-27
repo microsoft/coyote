@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.NumberOfFaults--;
                 if (this.NumberOfFaults == 0)
                 {
-                    this.SendEvent(this.FailureTimer, new HaltEvent());
+                    this.SendEvent(this.FailureTimer, HaltEvent.Instance);
                 }
             }
         }
@@ -420,8 +420,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void Terminate()
             {
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeFail(this.NodeId));
-                this.SendEvent(this.SyncTimer, new HaltEvent());
-                this.RaiseEvent(new HaltEvent());
+                this.SendEvent(this.SyncTimer, HaltEvent.Instance);
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -715,7 +715,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Counter == 1)
                 {
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
                 else
                 {

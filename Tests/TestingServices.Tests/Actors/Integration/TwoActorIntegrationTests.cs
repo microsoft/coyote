@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Count == 2)
                 {
-                    this.SendEvent(this.TargetId, new HaltEvent());
+                    this.SendEvent(this.TargetId, HaltEvent.Instance);
                     this.SendEvent(this.TargetId, new IgnoredE());
                 }
 
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 if (this.Count2 == 2)
                 {
                     this.SendEvent((this.ReceivedEvent as E4).Id, new E1(), options: new SendOptions(assert: 1));
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                     return;
                 }
 

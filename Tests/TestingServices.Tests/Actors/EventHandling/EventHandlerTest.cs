@@ -57,8 +57,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             protected override Task OnInitializeAsync(Event initialEvent)
             {
+                this.SendEvent(this.Id, new UnitEvent());
                 this.SendEvent(this.Id, new E1(), options: new SendOptions(assert: 1));
-                this.RaiseEvent(new UnitEvent());
                 return Task.CompletedTask;
             }
 
@@ -841,7 +841,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private void InitOnEntry()
             {
                 this.SendEvent(this.Id, new UnitEvent(), options: new SendOptions(assert: 1));
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             private void InitOnExit()

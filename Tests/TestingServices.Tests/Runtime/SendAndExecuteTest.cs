@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
                 this.Assert(this.MHalted);
                 this.SEReturned = true;
-                this.Goto<Done>();
+                this.GotoState<Done>();
             }
         }
 

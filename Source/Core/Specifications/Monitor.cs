@@ -168,34 +168,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Returns from the execution context, and transitions
-        /// the monitor to the given <see cref="State"/>.
-        /// </summary>
-        /// <typeparam name="S">Type of the state.</typeparam>
-        protected void Goto<S>()
-            where S : State
-        {
-#pragma warning disable 618
-            this.Goto(typeof(S));
-#pragma warning restore 618
-        }
-
-        /// <summary>
-        /// Returns from the execution context, and transitions
-        /// the monitor to the given <see cref="State"/>.
-        /// </summary>
-        /// <param name="s">Type of the state.</param>
-        [Obsolete("Goto(typeof(T)) is deprecated; use Goto<T>() instead.")]
-        protected void Goto(Type s)
-        {
-            // If the state is not a state of the monitor, then report an error and exit.
-            this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(s.DeclaringType) && val.Name.Equals(s.Name)),
-                "Monitor '{0}' is trying to transition to non-existing state '{1}'.", this.GetType().Name, s.Name);
-            this.RaiseEvent(new GotoStateEvent(s));
-        }
-
-        /// <summary>
-        /// Raises an <see cref="Event"/> internally and returns from the execution context.
+        /// Raises an <see cref="Event"/> and returns from the execution context.
         /// </summary>
         /// <param name="e">The event to raise.</param>
         protected void RaiseEvent(Event e)
@@ -203,10 +176,33 @@ namespace Microsoft.Coyote.Specifications
             // If the event is null, then report an error and exit.
             this.Assert(e != null, "Monitor '{0}' is raising a null event.", this.GetType().Name);
 
-            var eventOrigin = new EventOriginInfo(this.Id, this.GetType().FullName, NameResolver.GetQualifiedStateName(this.CurrentState));
+            var eventOrigin = new EventOriginInfo(this.Id, this.GetType().FullName,
+                NameResolver.GetQualifiedStateName(this.CurrentState));
             EventInfo raisedEvent = new EventInfo(e, eventOrigin);
             this.Runtime.NotifyRaisedEvent(this, e, raisedEvent);
             this.HandleEvent(e);
+        }
+
+        /// <summary>
+        /// Returns from the execution context, and transitions
+        /// the monitor to the given <see cref="State"/>.
+        /// </summary>
+        /// <typeparam name="S">Type of the state.</typeparam>
+        protected void GotoState<S>()
+            where S : State =>
+            this.GotoState(typeof(S));
+
+        /// <summary>
+        /// Returns from the execution context, and transitions
+        /// the monitor to the given <see cref="State"/>.
+        /// </summary>
+        /// <param name="state">Type of the state.</param>
+        protected void GotoState(Type state)
+        {
+            // If the state is not a state of the monitor, then report an error and exit.
+            this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
+                "Monitor '{0}' is trying to transition to non-existing state '{1}'.", this.GetType().Name, state.Name);
+            this.RaiseEvent(new GotoStateEvent(state));
         }
 
         /// <summary>

@@ -822,7 +822,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.Goto<Responded>();
+                this.GotoState<Responded>();
             }
 
             [Cold]

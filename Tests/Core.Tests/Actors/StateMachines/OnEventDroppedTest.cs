@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             private void InitOnEntry()
             {
                 this.Tcs = (this.ReceivedEvent as E).Tcs;
-                this.Goto<S1>();
+                this.GotoState<S1>();
             }
 
             [OnEventGotoState(typeof(EventProcessed), typeof(S2))]

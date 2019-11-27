@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 
             private void Init()
             {
-                this.Goto<S2>();
+                this.GotoState<S2>();
             }
         }
 

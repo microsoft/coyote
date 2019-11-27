@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Init()
             {
-                this.Goto<S2>();
+                this.GotoState<S2>();
             }
 
             private void IncrementValue()

@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
 
             private void OnE()
             {
-                this.Goto<Done>();
+                this.GotoState<Done>();
             }
         }
 

@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.counter == 4)
                 {
-                    this.Goto<S2>();
+                    this.GotoState<S2>();
                 }
             }
         }
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.counter == 1)
                 {
-                    this.Goto<S2>();
+                    this.GotoState<S2>();
                 }
             }
         }

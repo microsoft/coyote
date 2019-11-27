@@ -577,7 +577,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.Goto<Progressing>();
+                this.GotoState<Progressing>();
             }
         }
 

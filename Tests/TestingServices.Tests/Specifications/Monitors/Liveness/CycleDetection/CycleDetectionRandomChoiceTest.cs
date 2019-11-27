@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 if (this.Choose())
                 {
                     this.Monitor<WatchDog>(new WatchDog.NotifyDone());
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
             }
 

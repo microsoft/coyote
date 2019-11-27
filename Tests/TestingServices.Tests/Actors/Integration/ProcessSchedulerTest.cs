@@ -76,8 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.RLockActorId = e.RLockActorId;
                 this.RWantActorId = e.RWantActorId;
                 this.NodeActorId = e.NodeActorId;
-                this.RaiseEvent(new Wakeup());
-                return Task.CompletedTask;
+                return this.OnWakeup();
             }
 
             private async Task OnWakeup()
@@ -148,8 +147,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.RLockActorId = e.RLockActorId;
                 this.RWantActorId = e.RWantActorId;
                 this.NodeActorId = e.NodeActorId;
-                this.RaiseEvent(new Progress());
-                return Task.CompletedTask;
+                return this.OnProgress();
             }
 
             private async Task OnSleep()

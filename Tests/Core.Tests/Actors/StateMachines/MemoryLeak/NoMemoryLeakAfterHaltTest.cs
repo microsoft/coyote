@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
                 var sender = (this.ReceivedEvent as E).Id;
                 this.SendEvent(sender, new E(this.Id));
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

@@ -348,7 +348,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void FinalOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

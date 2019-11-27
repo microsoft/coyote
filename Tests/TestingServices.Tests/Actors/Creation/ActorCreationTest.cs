@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             protected override Task OnInitializeAsync(Event e)
             {
                 this.Value = (e as SetupEvent).Value;
-                this.RaiseEvent(new UnitEvent());
+                this.SendEvent(this.Id, new UnitEvent());
                 return Task.CompletedTask;
             }
 

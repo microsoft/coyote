@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                     this.SendEvent(this.Master, new FinishedProcessing());
                 }
 
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 

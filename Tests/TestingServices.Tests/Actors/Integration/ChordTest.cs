@@ -625,7 +625,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void ProcessTerminate()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             private static int GetSuccessorNodeId(int start, List<int> nodeIds)

@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                 };
 
                 var m = r.CreateActor(typeof(M1));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
 
                 await WaitAsync(tcs.Task);
                 Assert.True(called);
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.SendEvent(this.Id, new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 this.SendEvent(this.Id, new E());
             }
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                     tcs.SetResult(true);
                 };
 
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
 
                 await WaitAsync(tcs.Task);
                 Assert.True(called);
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.SendEvent((this.ReceivedEvent as E).Id, new HaltEvent());
+                this.SendEvent((this.ReceivedEvent as E).Id, HaltEvent.Instance);
             }
         }
 

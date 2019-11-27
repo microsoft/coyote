@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             private void HandleTimeout()
             {
                 this.Tcs.SetResult(true);
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 if (this.Counter == 10)
                 {
                     this.Tcs.SetResult(true);
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
             }
         }

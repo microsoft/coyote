@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override async Task OnHaltAsync()
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             private void InitOnEntry()
             {
                 this.tcs = (this.ReceivedEvent as E).Tcs;
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnHaltAsync()

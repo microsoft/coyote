@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.RaiseEvent(new E(this.Id));
+                this.SendEvent(this.Id, new E(this.Id));
                 return Task.CompletedTask;
             }
 
@@ -178,7 +178,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.RaiseEvent(new E(this.Id));
+                this.SendEvent(this.Id, new E(this.Id));
                 return Task.CompletedTask;
             }
 
@@ -351,42 +351,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M5));
             },
-            replay: true);
-        }
-
-        [OnEventDoAction(typeof(E), nameof(Act))]
-        private class A6 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                throw new Ex1();
-            }
-
-            private void Act()
-            {
-                this.Assert(false, "Reached test assertion.");
-            }
-
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
-            {
-                if (ex is Ex1)
-                {
-                    this.RaiseEvent(new E(this.Id));
-                    return OnExceptionOutcome.HandledException;
-                }
-
-                return OnExceptionOutcome.ThrowException;
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestRaiseDuringOnExceptionInActor()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(A6));
-            },
-            expectedError: "Reached test assertion.",
             replay: true);
         }
 
@@ -671,7 +635,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 {
                     this.Assert(ex is UnhandledEventException);
                     this.SendEvent(this.Id, new E(this.Id));
-                    this.RaiseEvent(new E());
+                    this.SendEvent(this.Id, new E());
                 }
                 catch (Exception)
                 {

@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 var m = r.CreateActor(typeof(A1));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 var m = r.CreateActor(typeof(M1));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
         }
@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 var m = r.CreateActor(typeof(A2));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
             expectedError: "'A2()' halted before dequeueing must-handle event 'MustHandleEvent'.",
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 var m = r.CreateActor(typeof(M2));
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
             expectedError: "'M2()' halted before dequeueing must-handle event 'MustHandleEvent'.",
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             protected override Task OnInitializeAsync(Event initialEvent)
             {
                 this.DeferEvent(typeof(MustHandleEvent));
-                this.RaiseEvent(new HaltEvent());
+                this.Halt();
                 return Task.CompletedTask;
             }
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
         }
 
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             protected override Task OnInitializeAsync(Event initialEvent)
             {
                 this.DeferEvent(typeof(MustHandleEvent));
-                this.SendEvent(this.Id, new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
                 return Task.CompletedTask;
             }
         }
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void InitOnEntry()
             {
-                this.SendEvent(this.Id, new HaltEvent());
+                this.SendEvent(this.Id, HaltEvent.Instance);
             }
         }
 
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             this.TestWithError(r =>
             {
                 var m = r.CreateActor(typeof(M5));
-                r.SendEvent(m, new HaltEvent());
+                r.SendEvent(m, HaltEvent.Instance);
                 r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
                 r.SendEvent(m, new MoveEvent());
             },

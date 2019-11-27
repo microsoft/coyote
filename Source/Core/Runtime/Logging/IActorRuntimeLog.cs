@@ -42,10 +42,10 @@ namespace Microsoft.Coyote.Runtime
             Guid opGroupId, bool isTargetHalted);
 
         /// <summary>
-        /// Invoked when the specified actor raises an event.
+        /// Invoked when the specified state machine raises an event.
         /// </summary>
         /// <param name="id">The id of the actor raising the event.</param>
-        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="stateName">The name of the current state.</param>
         /// <param name="eventName">The name of the event being raised.</param>
         void OnRaiseEvent(ActorId id, string stateName, string eventName);
 

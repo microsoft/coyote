@@ -227,22 +227,6 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.SendEvent(id, e, this, opGroupId, options);
 
         /// <summary>
-        /// Raises an <see cref="Event"/> internally at the end of the current action.
-        /// </summary>
-        /// <param name="e">The event to raise.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        protected void RaiseEvent(Event e, Guid opGroupId = default)
-        {
-            this.Assert(!this.IsHalted, "'{0}' invoked RaiseEvent while halted.", this.Id);
-            this.Assert(e != null, "'{0}' is raising a null event.", this.Id);
-
-            // The operation group id of this operation is set using the following precedence:
-            // (1) To the specified raise operation group id, if it is non-empty.
-            // (2) To the operation group id of this actor.
-            this.Inbox.RaiseEvent(e, opGroupId != Guid.Empty ? opGroupId : this.OperationGroupId);
-        }
-
-        /// <summary>
         /// Waits to receive an <see cref="Event"/> of the specified type
         /// that satisfies an optional predicate.
         /// </summary>
@@ -479,6 +463,15 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Halts the actor at the end of the current action.
+        /// </summary>
+        protected void Halt()
+        {
+            this.Assert(!this.IsHalted, "'{0}' invoked Halt while halted.", this.Id);
+            this.Inbox.RaiseEvent(HaltEvent.Instance, Guid.Empty);
+        }
+
+        /// <summary>
         /// Enqueues the specified event and its metadata.
         /// </summary>
         internal EnqueueStatus Enqueue(Event e, Guid opGroupId, EventInfo info)
@@ -508,7 +501,7 @@ namespace Microsoft.Coyote.Actors
                 (DequeueStatus status, Event e, Guid opGroupId, EventInfo info) = this.Inbox.Dequeue();
                 if (opGroupId != Guid.Empty)
                 {
-                    // Inherit the operation group id of the dequeue or raise operation, if it is non-empty.
+                    // Inherit the operation group id of the dequeued operation, if it is non-empty.
                     this.Manager.OperationGroupId = opGroupId;
                 }
 
@@ -521,6 +514,8 @@ namespace Microsoft.Coyote.Actors
                 }
                 else if (status is DequeueStatus.Raised)
                 {
+                    // Only supported by types (e.g. StateMachine) that allow
+                    // the user to explicitly raise events.
                     this.Runtime.NotifyHandleRaisedEvent(this, e);
                 }
                 else if (status is DequeueStatus.Default)
@@ -1103,9 +1098,9 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// User callback that is invoked when the actor finishes handling a dequeued event,
-        /// unless the handler of the dequeued event raised an event or caused the actor to
-        /// halt (either normally or due to an exception). Unless this callback raises an event, the
-        /// actor will either become idle or dequeue the next event from its inbox.
+        /// unless the handler of the dequeued event caused the actor to halt (either normally
+        /// or due to an exception). The actor will either become idle or dequeue the next
+        /// event from its inbox.
         /// </summary>
         /// <param name="e">The event that was handled.</param>
         protected virtual Task OnEventHandledAsync(Event e) => Task.CompletedTask;

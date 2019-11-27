@@ -413,10 +413,10 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Logs that the specified actor handled a raised event.
+        /// Logs that the specified state machine handled a raised event.
         /// </summary>
         /// <param name="id">The id of the actor handling the event.</param>
-        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="stateName">The name of the current state.</param>
         /// <param name="eventName">The name of the event being handled.</param>
         public void LogHandleRaisedEvent(ActorId id, string stateName, string eventName)
         {

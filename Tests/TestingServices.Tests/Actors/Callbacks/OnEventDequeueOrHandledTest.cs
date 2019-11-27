@@ -33,21 +33,21 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         private class Begin : Event
         {
-            public Event Ev;
+            public Event Event;
 
-            public Begin(Event ev)
+            public Begin(Event e)
             {
-                this.Ev = ev;
+                this.Event = e;
             }
         }
 
         private class End : Event
         {
-            public Event Ev;
+            public Event Event;
 
-            public End(Event ev)
+            public End(Event e)
             {
-                this.Ev = ev;
+                this.Event = e;
             }
         }
 
@@ -76,19 +76,19 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Process()
             {
-                if (this.counter == 0 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Ev is E1)
+                if (this.counter == 0 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Event is E1)
                 {
                     this.counter++;
                 }
-                else if (this.counter == 1 && this.ReceivedEvent is End && (this.ReceivedEvent as End).Ev is E1)
+                else if (this.counter == 1 && this.ReceivedEvent is End && (this.ReceivedEvent as End).Event is E1)
                 {
                     this.counter++;
                 }
-                else if (this.counter == 2 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Ev is E2)
+                else if (this.counter == 2 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Event is E2)
                 {
                     this.counter++;
                 }
-                else if (this.counter == 3 && this.ReceivedEvent is End && (this.ReceivedEvent as End).Ev is E2)
+                else if (this.counter == 3 && this.ReceivedEvent is End && (this.ReceivedEvent as End).Event is E2)
                 {
                     this.counter++;
                 }
@@ -102,45 +102,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.Goto<S2>();
                 }
             }
-        }
-
-        [OnEventDoAction(typeof(E1), nameof(Process))]
-        [OnEventDoAction(typeof(E2), nameof(Process))]
-        [OnEventDoAction(typeof(E3), nameof(ProcessE3))]
-        private class A1 : Actor
-        {
-            private void Process()
-            {
-                this.RaiseEvent(new E3());
-            }
-
-            private void ProcessE3()
-            {
-            }
-
-            protected override Task OnEventDequeueAsync(Event ev)
-            {
-                this.Monitor<Spec1>(new Begin(ev));
-                return Task.CompletedTask;
-            }
-
-            protected override Task OnEventHandledAsync(Event ev)
-            {
-                this.Monitor<Spec1>(new End(ev));
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestOnProcessingCalledInActor()
-        {
-            this.Test(r =>
-            {
-                r.RegisterMonitor(typeof(Spec1));
-                var m = r.CreateActor(typeof(A1), new UnitEvent());
-                r.SendEvent(m, new E1());
-                r.SendEvent(m, new E2());
-            });
         }
 
         private class M1 : StateMachine
@@ -162,15 +123,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override Task OnEventDequeueAsync(Event ev)
+            protected override Task OnEventDequeueAsync(Event e)
             {
-                this.Monitor<Spec1>(new Begin(ev));
+                this.Monitor<Spec1>(new Begin(e));
                 return Task.CompletedTask;
             }
 
-            protected override Task OnEventHandledAsync(Event ev)
+            protected override Task OnEventHandledAsync(Event e)
             {
-                this.Monitor<Spec1>(new End(ev));
+                this.Monitor<Spec1>(new End(e));
                 return Task.CompletedTask;
             }
         }
@@ -207,7 +168,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Process()
             {
-                if (this.counter == 0 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Ev is E1)
+                if (this.counter == 0 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Event is E1)
                 {
                     this.counter++;
                 }
@@ -228,18 +189,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             private void Process()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.Halt();
             }
 
-            protected override Task OnEventDequeueAsync(Event ev)
+            protected override Task OnEventDequeueAsync(Event e)
             {
-                this.Monitor<Spec2>(new Begin(ev));
+                this.Monitor<Spec2>(new Begin(e));
                 return Task.CompletedTask;
             }
 
-            protected override Task OnEventHandledAsync(Event ev)
+            protected override Task OnEventHandledAsync(Event e)
             {
-                this.Monitor<Spec2>(new End(ev));
+                this.Monitor<Spec2>(new End(e));
                 return Task.CompletedTask;
             }
         }
@@ -265,18 +226,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Process()
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnEventDequeueAsync(Event ev)
+            protected override Task OnEventDequeueAsync(Event e)
             {
-                this.Monitor<Spec2>(new Begin(ev));
+                this.Monitor<Spec2>(new Begin(e));
                 return Task.CompletedTask;
             }
 
-            protected override Task OnEventHandledAsync(Event ev)
+            protected override Task OnEventHandledAsync(Event e)
             {
-                this.Monitor<Spec2>(new End(ev));
+                this.Monitor<Spec2>(new End(e));
                 return Task.CompletedTask;
             }
         }
@@ -334,9 +295,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Monitor<Spec3>(new Done());
             }
 
-            protected override Task OnEventHandledAsync(Event ev)
+            protected override Task OnEventHandledAsync(Event e)
             {
-                this.Assert(ev is E1);
+                this.Assert(e is E1);
                 this.Assert(this.CurrentState.Name == typeof(S2).Name);
                 this.GotoState<S3>();
                 return Task.CompletedTask;
@@ -376,9 +337,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override Task OnEventHandledAsync(Event ev)
+            protected override Task OnEventHandledAsync(Event e)
             {
-                this.RaiseEvent(new HaltEvent());
+                this.Halt();
                 return Task.CompletedTask;
             }
 
@@ -413,9 +374,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override Task OnEventHandledAsync(Event ev)
+            protected override Task OnEventHandledAsync(Event e)
             {
-                this.RaiseEvent(new HaltEvent());
+                this.RaiseEvent(HaltEvent.Instance);
                 return Task.CompletedTask;
             }
 

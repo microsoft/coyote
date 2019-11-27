@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Gets an instance of the default event.
         /// </summary>
-        public static DefaultEvent Event { get; } = new DefaultEvent();
+        public static DefaultEvent Instance { get; } = new DefaultEvent();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultEvent"/> class.

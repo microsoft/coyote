@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.CreateActor(typeof(ChainReplicationMaster),
                     new ChainReplicationMaster.SetupEvent(this.Servers, this.Clients));
 
-                this.RaiseEvent(new HaltEvent());
+                this.Halt();
                 return Task.CompletedTask;
             }
         }
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 if (this.Failures < 1)
                 {
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
                 else
                 {
@@ -1089,7 +1089,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Next >= 3)
                 {
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
                 else
                 {

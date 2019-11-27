@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
 
                 if (doHalt)
                 {
-                    this.RaiseEvent(new HaltEvent());
+                    this.RaiseEvent(HaltEvent.Instance);
                 }
             }
         }

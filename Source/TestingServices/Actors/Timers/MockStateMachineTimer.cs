@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
         /// </summary>
         public void Dispose()
         {
-            this.Runtime.SendEvent(this.Id, new HaltEvent());
+            this.Runtime.SendEvent(this.Id, HaltEvent.Instance);
         }
     }
 }

@@ -141,25 +141,25 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void BecomeAvailable()
+            private void BecomeAvailable(Event e)
             {
-                this.UpdateLeader(this.ReceivedEvent as NotifyLeaderUpdate);
+                this.UpdateLeader(e as NotifyLeaderUpdate);
                 this.RaiseEvent(new LocalEvent());
             }
 
-            private void SendClientRequestToLeader()
+            private void SendClientRequestToLeader(Event e)
             {
-                this.SendEvent(this.Leader, this.ReceivedEvent);
+                this.SendEvent(this.Leader, e);
             }
 
-            private void RedirectClientRequest()
+            private void RedirectClientRequest(Event e)
             {
-                this.SendEvent(this.Id, (this.ReceivedEvent as RedirectRequest).Request);
+                this.SendEvent(this.Id, (e as RedirectRequest).Request);
             }
 
-            private void RefreshLeader()
+            private void RefreshLeader(Event e)
             {
-                this.UpdateLeader(this.ReceivedEvent as NotifyLeaderUpdate);
+                this.UpdateLeader(e as NotifyLeaderUpdate);
             }
 
             private void ShuttingDown()
@@ -413,11 +413,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.MatchIndex = new Dictionary<ActorId, int>();
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.ServerId = (this.ReceivedEvent as ConfigureEvent).Id;
-                this.Servers = (this.ReceivedEvent as ConfigureEvent).Servers;
-                this.ClusterManager = (this.ReceivedEvent as ConfigureEvent).ClusterManager;
+                this.ServerId = (e as ConfigureEvent).Id;
+                this.Servers = (e as ConfigureEvent).Servers;
+                this.ClusterManager = (e as ConfigureEvent).ClusterManager;
 
                 this.ElectionTimer = this.CreateActor(typeof(ElectionTimer));
                 this.SendEvent(this.ElectionTimer, new ElectionTimer.ConfigureEvent(this.Id));
@@ -451,15 +451,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.ElectionTimer, new ElectionTimer.StartTimerEvent());
             }
 
-            private void RedirectClientRequest()
+            private void RedirectClientRequest(Event e)
             {
                 if (this.LeaderId != null)
                 {
-                    this.SendEvent(this.LeaderId, this.ReceivedEvent);
+                    this.SendEvent(this.LeaderId, e);
                 }
                 else
                 {
-                    this.SendEvent(this.ClusterManager, new ClusterManager.RedirectRequest(this.ReceivedEvent));
+                    this.SendEvent(this.ClusterManager, new ClusterManager.RedirectRequest(e));
                 }
             }
 
@@ -468,21 +468,21 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.RaiseEvent(new BecomeCandidate());
             }
 
-            private void VoteAsFollower()
+            private void VoteAsFollower(Event e)
             {
-                var request = this.ReceivedEvent as VoteRequest;
+                var request = e as VoteRequest;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
                 }
 
-                this.Vote(this.ReceivedEvent as VoteRequest);
+                this.Vote(e as VoteRequest);
             }
 
-            private void RespondVoteAsFollower()
+            private void RespondVoteAsFollower(Event e)
             {
-                var request = this.ReceivedEvent as VoteResponse;
+                var request = e as VoteResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
@@ -490,21 +490,21 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void AppendEntriesAsFollower()
+            private void AppendEntriesAsFollower(Event e)
             {
-                var request = this.ReceivedEvent as AppendEntriesRequest;
+                var request = e as AppendEntriesRequest;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
                 }
 
-                this.AppendEntries(this.ReceivedEvent as AppendEntriesRequest);
+                this.AppendEntries(e as AppendEntriesRequest);
             }
 
-            private void RespondAppendEntriesAsFollower()
+            private void RespondAppendEntriesAsFollower(Event e)
             {
-                var request = this.ReceivedEvent as AppendEntriesResponse;
+                var request = e as AppendEntriesResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
@@ -559,25 +559,25 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void VoteAsCandidate()
+            private void VoteAsCandidate(Event e)
             {
-                var request = this.ReceivedEvent as VoteRequest;
+                var request = e as VoteRequest;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
-                    this.Vote(this.ReceivedEvent as VoteRequest);
+                    this.Vote(e as VoteRequest);
                     this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
-                    this.Vote(this.ReceivedEvent as VoteRequest);
+                    this.Vote(e as VoteRequest);
                 }
             }
 
-            private void RespondVoteAsCandidate()
+            private void RespondVoteAsCandidate(Event e)
             {
-                var request = this.ReceivedEvent as VoteResponse;
+                var request = e as VoteResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
@@ -601,25 +601,25 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void AppendEntriesAsCandidate()
+            private void AppendEntriesAsCandidate(Event e)
             {
-                var request = this.ReceivedEvent as AppendEntriesRequest;
+                var request = e as AppendEntriesRequest;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
-                    this.AppendEntries(this.ReceivedEvent as AppendEntriesRequest);
+                    this.AppendEntries(e as AppendEntriesRequest);
                     this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
-                    this.AppendEntries(this.ReceivedEvent as AppendEntriesRequest);
+                    this.AppendEntries(e as AppendEntriesRequest);
                 }
             }
 
-            private void RespondAppendEntriesAsCandidate()
+            private void RespondAppendEntriesAsCandidate(Event e)
             {
-                var request = this.ReceivedEvent as AppendEntriesResponse;
+                var request = e as AppendEntriesResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
@@ -674,9 +674,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ProcessClientRequest()
+            private void ProcessClientRequest(Event e)
             {
-                this.LastClientRequest = this.ReceivedEvent as Client.Request;
+                this.LastClientRequest = e as Client.Request;
 
                 var log = new Log(this.CurrentTerm, this.LastClientRequest.Command);
                 this.Logs.Add(log);
@@ -712,9 +712,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void VoteAsLeader()
+            private void VoteAsLeader(Event e)
             {
-                var request = this.ReceivedEvent as VoteRequest;
+                var request = e as VoteRequest;
 
                 if (request.Term > this.CurrentTerm)
                 {
@@ -722,19 +722,19 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.VotedFor = null;
 
                     this.RedirectLastClientRequestToClusterManager();
-                    this.Vote(this.ReceivedEvent as VoteRequest);
+                    this.Vote(e as VoteRequest);
 
                     this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
-                    this.Vote(this.ReceivedEvent as VoteRequest);
+                    this.Vote(e as VoteRequest);
                 }
             }
 
-            private void RespondVoteAsLeader()
+            private void RespondVoteAsLeader(Event e)
             {
-                var request = this.ReceivedEvent as VoteResponse;
+                var request = e as VoteResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
@@ -745,24 +745,24 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void AppendEntriesAsLeader()
+            private void AppendEntriesAsLeader(Event e)
             {
-                var request = this.ReceivedEvent as AppendEntriesRequest;
+                var request = e as AppendEntriesRequest;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
 
                     this.RedirectLastClientRequestToClusterManager();
-                    this.AppendEntries(this.ReceivedEvent as AppendEntriesRequest);
+                    this.AppendEntries(e as AppendEntriesRequest);
 
                     this.RaiseEvent(new BecomeFollower());
                 }
             }
 
-            private void RespondAppendEntriesAsLeader()
+            private void RespondAppendEntriesAsLeader(Event e)
             {
-                var request = this.ReceivedEvent as AppendEntriesResponse;
+                var request = e as AppendEntriesResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
@@ -994,9 +994,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Counter = 0;
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Cluster = (this.ReceivedEvent as ConfigureEvent).Cluster;
+                this.Cluster = (e as ConfigureEvent).Cluster;
                 this.RaiseEvent(new LocalEvent());
             }
 
@@ -1066,9 +1066,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
+                this.Target = (e as ConfigureEvent).Target;
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -1139,9 +1139,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
+                this.Target = (e as ConfigureEvent).Target;
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -1211,10 +1211,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessLeaderElected()
+            private void ProcessLeaderElected(Event e)
             {
-                var term = (this.ReceivedEvent as NotifyLeaderElected).Term;
-
+                var term = (e as NotifyLeaderElected).Term;
                 this.Assert(!this.TermsWithLeader.Contains(term), $"Detected more than one leader.");
                 this.TermsWithLeader.Add(term);
             }

@@ -64,11 +64,11 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.TcsSetup = (this.ReceivedEvent as SetupProducerEvent).TcsSetup;
-                this.Consumer = (this.ReceivedEvent as SetupProducerEvent).Consumer;
-                this.NumMessages = (this.ReceivedEvent as SetupProducerEvent).NumMessages;
+                this.TcsSetup = (e as SetupProducerEvent).TcsSetup;
+                this.Consumer = (e as SetupProducerEvent).Consumer;
+                this.NumMessages = (e as SetupProducerEvent).NumMessages;
 
                 this.TcsSetup.SetResult(true);
                 this.GotoState<Experiment>();
@@ -101,10 +101,10 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.TcsExperiment = (this.ReceivedEvent as SetupConsumerEvent).TcsExperiment;
-                this.NumMessages = (this.ReceivedEvent as SetupConsumerEvent).NumMessages;
+                this.TcsExperiment = (e as SetupConsumerEvent).TcsExperiment;
+                this.NumMessages = (e as SetupConsumerEvent).NumMessages;
             }
 
             private void HandleMessage()

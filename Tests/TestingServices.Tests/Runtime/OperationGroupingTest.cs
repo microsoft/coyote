@@ -263,11 +263,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private void CheckEvent()
+            private void CheckEvent(Event e)
             {
                 var id = this.OperationGroupId;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
-                this.SendEvent((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((e as E).Id, new E());
             }
         }
 
@@ -310,11 +310,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private void CheckEvent()
+            private void CheckEvent(Event e)
             {
                 var id = this.OperationGroupId;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
-                this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
+                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
             }
         }
 
@@ -357,12 +357,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private void CheckEvent()
+            private void CheckEvent(Event e)
             {
                 this.CreateActor(typeof(M9C));
                 var id = this.OperationGroupId;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
-                this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
+                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
             }
         }
 

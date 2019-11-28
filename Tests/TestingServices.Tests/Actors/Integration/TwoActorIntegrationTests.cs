@@ -89,17 +89,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [OnEventDoAction(typeof(E3), nameof(M2.EntryAction))]
         private class M2 : Actor
         {
-            private void EntryAction()
+            private void EntryAction(Event e)
             {
-                if (this.ReceivedEvent.GetType() == typeof(E3))
+                if (e.GetType() == typeof(E3))
                 {
-                    this.Action2();
+                    this.Action2(e);
                 }
             }
 
-            private void Action2()
+            private void Action2(Event e)
             {
-                this.Assert((this.ReceivedEvent as E3).Value == false);
+                this.Assert((e as E3).Value == false);
             }
         }
 
@@ -173,9 +173,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private void ActiveOnEntry(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E4).Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                 this.RaiseEvent(new SuccessE());
             }
         }
@@ -246,9 +246,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private void ActiveOnEntry(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E4).Id, new E1(), options: new SendOptions(assert: 1));
+                this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                 this.RaiseEvent(new SuccessE());
             }
 
@@ -325,18 +325,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private void ActiveOnEntry(Event e)
             {
                 this.Count2 += 1;
 
                 if (this.Count2 == 1)
                 {
-                    this.SendEvent((this.ReceivedEvent as E4).Id, new E1(), options: new SendOptions(assert: 1));
+                    this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                 }
 
                 if (this.Count2 == 2)
                 {
-                    this.SendEvent((this.ReceivedEvent as E4).Id, new E1(), options: new SendOptions(assert: 1));
+                    this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                     this.RaiseEvent(HaltEvent.Instance);
                     return;
                 }

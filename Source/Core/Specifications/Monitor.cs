@@ -40,6 +40,11 @@ namespace Microsoft.Coyote.Specifications
             new ConcurrentDictionary<Type, Dictionary<string, MethodInfo>>();
 
         /// <summary>
+        /// A cached array that contains a single event type.
+        /// </summary>
+        private static readonly Type[] SingleEventTypeArray = new Type[] { typeof(Event) };
+
+        /// <summary>
         /// The runtime that executes this monitor.
         /// </summary>
         private CoyoteRuntime Runtime;
@@ -60,9 +65,9 @@ namespace Microsoft.Coyote.Specifications
         internal Dictionary<Type, ActionEventHandlerDeclaration> ActionBindings;
 
         /// <summary>
-        /// Map from action names to actions.
+        /// Map from action names to cached action delegates.
         /// </summary>
-        private readonly Dictionary<string, MethodInfo> ActionMap;
+        private readonly Dictionary<string, CachedDelegate> ActionMap;
 
         /// <summary>
         /// Set of currently ignored event types.
@@ -141,18 +146,12 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Gets the latest received event, or null if no event
-        /// has been received.
-        /// </summary>
-        protected internal Event ReceivedEvent { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Monitor"/> class.
         /// </summary>
         protected Monitor()
             : base()
         {
-            this.ActionMap = new Dictionary<string, MethodInfo>();
+            this.ActionMap = new Dictionary<string, CachedDelegate>();
             this.LivenessTemperature = 0;
         }
 
@@ -250,9 +249,6 @@ namespace Microsoft.Coyote.Specifications
                 return;
             }
 
-            // Assigns the receieved event.
-            this.ReceivedEvent = e;
-
             while (true)
             {
                 if (this.ActiveState is null)
@@ -274,31 +270,31 @@ namespace Microsoft.Coyote.Specifications
                 {
                     // Checks if the event is a goto state event.
                     Type targetState = (e as GotoStateEvent).State;
-                    this.GotoState(targetState, null);
+                    this.GotoState(targetState, null, e);
                 }
                 else if (this.GotoTransitions.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger a goto state transition.
                     var transition = this.GotoTransitions[e.GetType()];
-                    this.GotoState(transition.TargetState, transition.Lambda);
+                    this.GotoState(transition.TargetState, transition.Lambda, e);
                 }
                 else if (this.GotoTransitions.ContainsKey(typeof(WildCardEvent)))
                 {
                     // Checks if the event can trigger a goto state transition.
                     var transition = this.GotoTransitions[typeof(WildCardEvent)];
-                    this.GotoState(transition.TargetState, transition.Lambda);
+                    this.GotoState(transition.TargetState, transition.Lambda, e);
                 }
                 else if (this.ActionBindings.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger an action.
                     var handler = this.ActionBindings[e.GetType()];
-                    this.Do(handler.Name);
+                    this.Do(handler.Name, e);
                 }
                 else if (this.ActionBindings.ContainsKey(typeof(WildCardEvent)))
                 {
                     // Checks if the event can trigger an action.
                     var handler = this.ActionBindings[typeof(WildCardEvent)];
-                    this.Do(handler.Name);
+                    this.Do(handler.Name, e);
                 }
 
                 break;
@@ -323,22 +319,22 @@ namespace Microsoft.Coyote.Specifications
         /// Invokes an action.
         /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
-        private void Do(string actionName)
+        private void Do(string actionName, Event e)
         {
-            MethodInfo action = this.ActionMap[actionName];
-            this.Runtime.NotifyInvokedAction(this, action, this.ReceivedEvent);
-            this.ExecuteAction(action);
+            CachedDelegate cachedAction = this.ActionMap[actionName];
+            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
+            this.ExecuteAction(cachedAction, e);
         }
 
         /// <summary>
         /// Executes the on entry function of the current state.
         /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
-        private void ExecuteCurrentStateOnEntry()
+        private void ExecuteCurrentStateOnEntry(Event e)
         {
             this.Runtime.NotifyEnteredState(this);
 
-            MethodInfo entryAction = null;
+            CachedDelegate entryAction = null;
             if (this.ActiveState.EntryAction != null)
             {
                 entryAction = this.ActionMap[this.ActiveState.EntryAction];
@@ -348,7 +344,7 @@ namespace Microsoft.Coyote.Specifications
             // if there is one available.
             if (entryAction != null)
             {
-                this.ExecuteAction(entryAction);
+                this.ExecuteAction(entryAction, e);
             }
         }
 
@@ -356,11 +352,11 @@ namespace Microsoft.Coyote.Specifications
         /// Executes the on exit function of the current state.
         /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
-        private void ExecuteCurrentStateOnExit(string eventHandlerExitActionName)
+        private void ExecuteCurrentStateOnExit(string eventHandlerExitActionName, Event e)
         {
             this.Runtime.NotifyExitedState(this);
 
-            MethodInfo exitAction = null;
+            CachedDelegate exitAction = null;
             if (this.ActiveState.ExitAction != null)
             {
                 exitAction = this.ActionMap[this.ActiveState.ExitAction];
@@ -370,15 +366,15 @@ namespace Microsoft.Coyote.Specifications
             // if there is one available.
             if (exitAction != null)
             {
-                this.ExecuteAction(exitAction);
+                this.ExecuteAction(exitAction, e);
             }
 
             // Invokes the exit action of the event handler,
             // if there is one available.
             if (eventHandlerExitActionName != null)
             {
-                MethodInfo eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
-                this.ExecuteAction(eventHandlerExitAction);
+                CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
+                this.ExecuteAction(eventHandlerExitAction, e);
             }
         }
 
@@ -386,11 +382,18 @@ namespace Microsoft.Coyote.Specifications
         /// Executes the specified action.
         /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
-        private void ExecuteAction(MethodInfo action)
+        private void ExecuteAction(CachedDelegate cachedAction, Event e)
         {
             try
             {
-                action.Invoke(this, null);
+                if (cachedAction.Handler is Action<Event> actionWithEvent)
+                {
+                    actionWithEvent(e);
+                }
+                else if (cachedAction.Handler is Action action)
+                {
+                    action();
+                }
             }
             catch (Exception ex)
             {
@@ -415,7 +418,7 @@ namespace Microsoft.Coyote.Specifications
                 else
                 {
                     // Reports the unhandled exception.
-                    this.ReportUnhandledException(innerException, action.Name);
+                    this.ReportUnhandledException(innerException, cachedAction.MethodInfo.Name);
                 }
             }
         }
@@ -423,10 +426,10 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Performs a goto transition to the given state.
         /// </summary>
-        private void GotoState(Type s, string onExitActionName)
+        private void GotoState(Type s, string onExitActionName, Event e)
         {
             // The monitor performs the on exit statements of the current state.
-            this.ExecuteCurrentStateOnExit(onExitActionName);
+            this.ExecuteCurrentStateOnExit(onExitActionName, e);
 
             var nextState = StateMap[this.GetType()].First(val => val.GetType().Equals(s));
             this.ConfigureStateTransitions(nextState);
@@ -440,7 +443,7 @@ namespace Microsoft.Coyote.Specifications
             }
 
             // The monitor performs the on entry statements of the new state.
-            this.ExecuteCurrentStateOnEntry();
+            this.ExecuteCurrentStateOnEntry(e);
         }
 
         /// <summary>
@@ -564,7 +567,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void GotoStartState()
         {
-            this.ExecuteCurrentStateOnEntry();
+            this.ExecuteCurrentStateOnEntry(DefaultEvent.Instance);
         }
 
         /// <summary>
@@ -686,7 +689,7 @@ namespace Microsoft.Coyote.Specifications
             // Populates the map of actions for this monitor instance.
             foreach (var kvp in MonitorActionMap[monitorType])
             {
-                this.ActionMap.Add(kvp.Key, kvp.Value);
+                this.ActionMap.Add(kvp.Key, new CachedDelegate(kvp.Value, this));
             }
 
             var initialStates = StateMap[monitorType].Where(state => state.IsStart).ToList();
@@ -750,18 +753,27 @@ namespace Microsoft.Coyote.Specifications
 
             do
             {
-                method = monitorType.GetMethod(
-                    actionName,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
-                    Type.DefaultBinder, Array.Empty<Type>(), null);
+                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic |
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+                method = monitorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, SingleEventTypeArray, null);
+                if (method is null)
+                {
+                    method = monitorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, Array.Empty<Type>(), null);
+                }
+
                 monitorType = monitorType.BaseType;
             }
             while (method is null && monitorType != typeof(Monitor));
 
             this.Assert(method != null, "Cannot detect action declaration '{0}' in monitor '{1}'.",
                 actionName, this.GetType().Name);
-            this.Assert(method.GetParameters().Length == 0, "Action '{0}' in monitor '{1}' must have 0 formal parameters.",
+
+            ParameterInfo[] parameters = method.GetParameters();
+            this.Assert(parameters.Length is 0 ||
+                (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
+                "Action '{0}' in monitor '{1}' must either accept no parameters or a single parameter of type 'Event'.",
                 method.Name, this.GetType().Name);
+
             this.Assert(method.ReturnType == typeof(void), "Action '{0}' in monitor '{1}' must have 'void' return type.",
                 method.Name, this.GetType().Name);
 

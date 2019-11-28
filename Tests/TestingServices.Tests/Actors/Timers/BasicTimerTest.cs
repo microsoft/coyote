@@ -202,9 +202,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.PongTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(50));
             }
 
-            private void HandleTimeout()
+            private void HandleTimeout(Event e)
             {
-                var timeout = this.ReceivedEvent as TimerElapsedEvent;
+                var timeout = e as TimerElapsedEvent;
                 this.Assert(timeout.Info == this.PongTimer);
             }
         }
@@ -305,10 +305,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Initialize()
+            private void Initialize(Event e)
             {
-                var timer = (this.ReceivedEvent as TransferTimerEvent).Timer;
-                this.StopTimer(timer);
+                this.StopTimer((e as TransferTimerEvent).Timer);
             }
         }
 

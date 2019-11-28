@@ -14,26 +14,37 @@ namespace Microsoft.Coyote.Actors
     {
         internal readonly MethodInfo MethodInfo;
         internal readonly Delegate Handler;
+        internal readonly bool IsAsync;
 
-        internal CachedDelegate(MethodInfo methodInfo, Actor actor)
+        internal CachedDelegate(MethodInfo method, object caller)
         {
-            this.MethodInfo = methodInfo;
-
-            // MethodInfo.Invoke catches the exception to wrap it in a TargetInvocationException.
-            // This unwinds the stack before StateMachine.ExecuteAction's exception filter is invoked,
-            // so call through the delegate instead (which is also much faster than Invoke).
-            if (methodInfo.ReturnType == typeof(void))
+            ParameterInfo[] parameters = method.GetParameters();
+            if (parameters.Length == 1 && method.ReturnType == typeof(void))
             {
-                this.Handler = Delegate.CreateDelegate(typeof(Action), actor, methodInfo);
+                this.Handler = Delegate.CreateDelegate(typeof(Action<Event>), caller, method);
+                this.IsAsync = false;
             }
-            else if (methodInfo.ReturnType == typeof(Task))
+            else if (method.ReturnType == typeof(void))
             {
-                this.Handler = Delegate.CreateDelegate(typeof(Func<Task>), actor, methodInfo);
+                this.Handler = Delegate.CreateDelegate(typeof(Action), caller, method);
+                this.IsAsync = false;
+            }
+            else if (parameters.Length == 1 && method.ReturnType == typeof(Task))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<Event, Task>), caller, method);
+                this.IsAsync = true;
+            }
+            else if (method.ReturnType == typeof(Task))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<Task>), caller, method);
+                this.IsAsync = true;
             }
             else
             {
-                throw new InvalidOperationException($"'{actor.Id}' is trying to cache invalid delegate '{methodInfo.Name}'.");
+                throw new InvalidOperationException($"Trying to cache invalid action delegate '{method.Name}'.");
             }
+
+            this.MethodInfo = method;
         }
     }
 }

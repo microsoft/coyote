@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.SendEvent(this.Id, new E());
                 return Task.CompletedTask;
@@ -151,9 +151,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as E).Tcs;
+                this.Tcs = (e as E).Tcs;
                 this.GotoState<S1>();
             }
 
@@ -182,9 +182,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E).Id, HaltEvent.Instance);
+                this.SendEvent((e as E).Id, HaltEvent.Instance);
             }
         }
 
@@ -196,9 +196,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((e as E).Id, new E());
             }
         }
 

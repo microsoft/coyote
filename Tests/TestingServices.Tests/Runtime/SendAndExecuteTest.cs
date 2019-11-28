@@ -54,12 +54,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var e = this.ReceivedEvent as ExecuteSynchronouslySetupEvent;
                 ActorId b;
-
-                if (e.ExecuteSynchronously)
+                if ((e as ExecuteSynchronouslySetupEvent).ExecuteSynchronously)
                 {
                      b = await this.Runtime.CreateActorAndExecuteAsync(typeof(M1B));
                 }
@@ -245,11 +243,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 this.E1Handled = true;
             }
 
-            private void HandleEventE4()
+            private void HandleEventE4(Event e)
             {
                 this.Assert(this.E1Handled);
-                var e = this.ReceivedEvent as E4;
-                e.X = 1;
+                (e as E4).X = 1;
             }
         }
 
@@ -289,9 +286,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var creator = (this.ReceivedEvent as E2).Id;
+                var creator = (e as E2).Id;
                 var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E1());
                 this.Assert(!handled);
             }
@@ -337,7 +334,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<M5SafetyMonitor>(new MHalts());
                 return Task.CompletedTask;
@@ -413,15 +410,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M6B), this.ReceivedEvent);
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M6B), e);
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M6SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 this.Assert(false);
                 return OnExceptionOutcome.ThrowException;
@@ -439,9 +436,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.HandleException = (this.ReceivedEvent as HandleExceptionSetupEvent).HandleException;
+                this.HandleException = (e as HandleExceptionSetupEvent).HandleException;
             }
 
             private void HandleE()
@@ -449,7 +446,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return this.HandleException ? OnExceptionOutcome.HandledException : OnExceptionOutcome.ThrowException;
             }

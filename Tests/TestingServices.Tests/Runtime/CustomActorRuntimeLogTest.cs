@@ -59,10 +59,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private void Act()
+            private void Act(Event e)
             {
-                ActorId m = (this.ReceivedEvent as E).Id;
-                this.SendEvent(m, new E(this.Id));
+                this.SendEvent((e as E).Id, new E(this.Id));
             }
         }
 

@@ -63,19 +63,19 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [OnEventDoAction(typeof(SetupEvent), nameof(Run))]
         private class Sender1 : Actor
         {
-            private void Run()
+            private void Run(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as SetupEvent).Id, new Event1());
-                this.SendEvent((this.ReceivedEvent as SetupEvent).Id, new Event1());
+                this.SendEvent((e as SetupEvent).Id, new Event1());
+                this.SendEvent((e as SetupEvent).Id, new Event1());
             }
         }
 
         [OnEventDoAction(typeof(SetupEvent), nameof(Run))]
         private class Sender2 : Actor
         {
-            private void Run()
+            private void Run(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as SetupEvent).Id, new Event2());
+                this.SendEvent((e as SetupEvent).Id, new Event2());
             }
         }
 

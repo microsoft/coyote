@@ -35,6 +35,11 @@ namespace Microsoft.Coyote.Actors
             new ConcurrentDictionary<Type, bool>();
 
         /// <summary>
+        /// A cached array that contains a single event type.
+        /// </summary>
+        private static readonly Type[] SingleEventTypeArray = new Type[] { typeof(Event) };
+
+        /// <summary>
         /// The runtime that executes this actor.
         /// </summary>
         internal CoyoteRuntime Runtime { get; private set; }
@@ -90,12 +95,6 @@ namespace Microsoft.Coyote.Actors
         /// and the actor gracefully halt.
         /// </summary>
         private protected bool IsSuppressingExceptionAndHalting;
-
-        /// <summary>
-        /// Gets the latest received <see cref="Event"/>, or null if
-        /// no <see cref="Event"/> has been received.
-        /// </summary>
-        protected internal Event ReceivedEvent { get; private protected set; }
 
         /// <summary>
         /// Id used to identify subsequent operations performed by this actor. This value
@@ -156,8 +155,6 @@ namespace Microsoft.Coyote.Actors
         /// <param name="initialEvent">Optional event used for initialization.</param>
         internal virtual async Task InitializeAsync(Event initialEvent)
         {
-            this.ReceivedEvent = initialEvent;
-
             try
             {
                 try
@@ -167,14 +164,14 @@ namespace Microsoft.Coyote.Actors
                     this.Runtime.NotifyWaitTask(this, task);
                     await task;
                 }
-                catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnInitializeAsync)))
+                catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnInitializeAsync), initialEvent))
                 {
                     // User handled the exception, return normally.
                 }
             }
             catch (Exception ex)
             {
-                await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnInitializeAsync));
+                await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnInitializeAsync), initialEvent);
             }
         }
 
@@ -533,9 +530,6 @@ namespace Microsoft.Coyote.Actors
                     break;
                 }
 
-                // Assigns the received event.
-                this.ReceivedEvent = e;
-
                 if (status is DequeueStatus.Success)
                 {
                     // Inform the user of a successful dequeue.
@@ -573,16 +567,16 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.ActionMap.ContainsKey(e.GetType()))
             {
-                await this.InvokeAction(e.GetType());
+                await this.InvokeAction(e.GetType(), e);
             }
             else if (this.ActionMap.ContainsKey(typeof(WildCardEvent)))
             {
-                await this.InvokeAction(typeof(WildCardEvent));
+                await this.InvokeAction(typeof(WildCardEvent), e);
             }
             else if (e is HaltEvent)
             {
                 // If the event is the halt event, then terminate the actor.
-                await this.HaltAsync();
+                await this.HaltAsync(e);
                 return;
             }
             else
@@ -594,10 +588,10 @@ namespace Microsoft.Coyote.Actors
                     return;
                 }
 
-                var unhandledEx = new UnhandledEventException(e, default, "Unhandled Event");
-                if (this.OnUnhandledEventExceptionHandler(nameof(this.HandleEventAsync), unhandledEx))
+                var ex = new UnhandledEventException(e, default, "Unhandled Event");
+                if (this.OnUnhandledEventExceptionHandler(ex, nameof(this.HandleEventAsync), e))
                 {
-                    await this.HaltAsync();
+                    await this.HaltAsync(e);
                     return;
                 }
                 else
@@ -612,29 +606,60 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invokes the action for the specified event type.
         /// </summary>
-        private async Task InvokeAction(Type eventType)
+        private async Task InvokeAction(Type eventType, Event e)
         {
             CachedDelegate cachedAction = this.ActionMap[eventType];
-            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
-            await this.InvokeActionAsync(cachedAction);
-            this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
+            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
+            await this.InvokeActionAsync(cachedAction, e);
+            this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, e);
         }
 
         /// <summary>
         /// Invokes the specified action delegate.
         /// </summary>
-        private protected async Task InvokeActionAsync(CachedDelegate cachedAction)
+        private protected async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
         {
             try
             {
-                if (cachedAction.Handler is Action action)
+                if (cachedAction.IsAsync)
+                {
+                    try
+                    {
+                        Task task = null;
+                        if (cachedAction.Handler is Func<Event, Task> taskFuncWithEvent)
+                        {
+                            task = taskFuncWithEvent(e);
+                        }
+                        else if (cachedAction.Handler is Func<Task> taskFunc)
+                        {
+                            task = taskFunc();
+                        }
+
+                        this.Runtime.NotifyWaitTask(this, task);
+
+                        // We have no reliable stack for awaited operations.
+                        await task;
+                    }
+                    catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name, e))
+                    {
+                        // User handled the exception, return normally.
+                    }
+                }
+                else
                 {
                     // Use an exception filter to call OnFailure before the stack has been unwound.
                     try
                     {
-                        action();
+                        if (cachedAction.Handler is Action<Event> actionWithEvent)
+                        {
+                            actionWithEvent(e);
+                        }
+                        else if (cachedAction.Handler is Action action)
+                        {
+                            action();
+                        }
                     }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name))
+                    catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name, e))
                     {
                         // User handled the exception, return normally.
                     }
@@ -644,24 +669,10 @@ namespace Microsoft.Coyote.Actors
                         // false to process the exception normally.
                     }
                 }
-                else if (cachedAction.Handler is Func<Task> taskFunc)
-                {
-                    try
-                    {
-                        // We have no reliable stack for awaited operations.
-                        Task task = taskFunc();
-                        this.Runtime.NotifyWaitTask(this, task);
-                        await task;
-                    }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name))
-                    {
-                        // User handled the exception, return normally.
-                    }
-                }
             }
             catch (Exception ex)
             {
-                await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name);
+                await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name, e);
             }
         }
 
@@ -669,7 +680,7 @@ namespace Microsoft.Coyote.Actors
         /// Invokes the specified event handler user callback.
         /// </summary>
         private protected async Task InvokeUserCallbackAsync(EventHandlerStatus eventHandlerStatus,
-            Event lastDequeuedEvent, string currentState = default)
+            Event e, string currentState = default)
         {
             try
             {
@@ -677,11 +688,11 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        Task task = this.OnEventDequeueAsync(lastDequeuedEvent);
+                        Task task = this.OnEventDequeueAsync(e);
                         this.Runtime.NotifyWaitTask(this, task);
                         await task;
                     }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventDequeueAsync)))
+                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventDequeueAsync), e))
                     {
                         // User handled the exception, return normally.
                     }
@@ -690,11 +701,11 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        Task task = this.OnEventHandledAsync(lastDequeuedEvent);
+                        Task task = this.OnEventHandledAsync(e);
                         this.Runtime.NotifyWaitTask(this, task);
                         await task;
                     }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventHandledAsync)))
+                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventHandledAsync), e))
                     {
                         // User handled the exception, return normally.
                     }
@@ -703,11 +714,11 @@ namespace Microsoft.Coyote.Actors
                 {
                     try
                     {
-                        Task task = this.OnEventUnhandledAsync(lastDequeuedEvent, currentState);
+                        Task task = this.OnEventUnhandledAsync(e, currentState);
                         this.Runtime.NotifyWaitTask(this, task);
                         await task;
                     }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventUnhandledAsync)))
+                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventUnhandledAsync), e))
                     {
                         // User handled the exception, return normally.
                     }
@@ -718,15 +729,15 @@ namespace Microsoft.Coyote.Actors
                 // Reports the unhandled exception.
                 if (eventHandlerStatus is EventHandlerStatus.EventDequeued)
                 {
-                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventDequeueAsync));
+                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventDequeueAsync), e);
                 }
                 else if (eventHandlerStatus is EventHandlerStatus.EventHandled)
                 {
-                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventHandledAsync));
+                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventHandledAsync), e);
                 }
                 else if (eventHandlerStatus is EventHandlerStatus.EventUnhandled)
                 {
-                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventUnhandledAsync));
+                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventUnhandledAsync), e);
                 }
             }
         }
@@ -748,7 +759,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Tries to handle an exception thrown during an action invocation.
         /// </summary>
-        private Task TryHandleActionInvocationExceptionAsync(Exception ex, string actionName)
+        private Task TryHandleActionInvocationExceptionAsync(Exception ex, string actionName, Event e)
         {
             Exception innerException = ex;
             while (innerException is TargetInvocationException)
@@ -774,7 +785,7 @@ namespace Microsoft.Coyote.Actors
             else if (this.IsSuppressingExceptionAndHalting)
             {
                 // Gracefully halt.
-                return this.HaltAsync();
+                return this.HaltAsync(e);
             }
             else
             {
@@ -948,6 +959,9 @@ namespace Microsoft.Coyote.Actors
             // Populates the map of event handlers for this actor instance.
             foreach (var kvp in ActionCache[actorType])
             {
+                // MethodInfo.Invoke catches the exception to wrap it in a TargetInvocationException.
+                // This unwinds the stack before the ExecuteAction exception filter is invoked, so
+                // call through a delegate instead (which is also much faster than Invoke).
                 this.ActionMap.Add(kvp.Key, new CachedDelegate(kvp.Value, this));
             }
         }
@@ -962,15 +976,24 @@ namespace Microsoft.Coyote.Actors
 
             do
             {
-                method = actorType.GetMethod(actionName,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
-                    Type.DefaultBinder, Array.Empty<Type>(), null);
+                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic |
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+                method = actorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, SingleEventTypeArray, null);
+                if (method is null)
+                {
+                    method = actorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, Array.Empty<Type>(), null);
+                }
+
                 actorType = actorType.BaseType;
             }
             while (method is null && actorType != typeof(StateMachine) && actorType != typeof(Actor));
 
             this.Assert(method != null, "Cannot detect action declaration '{0}' in '{1}'.", actionName, this.GetType().Name);
-            this.Assert(method.GetParameters().Length is 0, "Action '{0}' in '{1}' must have 0 formal parameters.",
+
+            ParameterInfo[] parameters = method.GetParameters();
+            this.Assert(parameters.Length is 0 ||
+                (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
+                "Action '{0}' in '{1}' must either accept no parameters or a single parameter of type 'Event'.",
                 method.Name, this.GetType().Name);
 
             // Check if the action is an 'async' method.
@@ -1021,8 +1044,9 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>
         /// <param name="methodName">The handler (outermost) that threw the exception.</param>
+        /// <param name="e">The event being handled when the exception was thrown.</param>
         /// <returns>False if the exception should continue to get thrown, true if it was handled in this method.</returns>
-        private protected bool OnExceptionHandler(Exception ex, string methodName)
+        private protected bool OnExceptionHandler(Exception ex, string methodName, Event e)
         {
             if (ex is ExecutionCanceledException)
             {
@@ -1033,7 +1057,7 @@ namespace Microsoft.Coyote.Actors
             string stateName = this is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
             this.Runtime.LogWriter.LogExceptionThrown(this.Id, stateName, methodName, ex);
 
-            var ret = this.OnException(nameof(this.OnEventHandledAsync), ex);
+            var ret = this.OnException(ex, nameof(this.OnEventHandledAsync), e);
             this.IsSuppressingExceptionAndHalting = false;
 
             switch (ret)
@@ -1054,14 +1078,15 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invokes user callback when the actor receives an event that it cannot handle.
         /// </summary>
-        /// <param name="methodName">The handler (outermost) that threw the exception.</param>
         /// <param name="ex">The exception thrown by the actor.</param>
-        /// <returns>False if the exception should continue to get thrown, true if the actir should gracefully halt.</returns>
-        private protected bool OnUnhandledEventExceptionHandler(string methodName, UnhandledEventException ex)
+        /// <param name="methodName">The handler (outermost) that threw the exception.</param>
+        /// <param name="e">The unhandled event.</param>
+        /// <returns>False if the exception should continue to get thrown, true if the actor should gracefully halt.</returns>
+        private protected bool OnUnhandledEventExceptionHandler(UnhandledEventException ex, string methodName, Event e)
         {
             this.Runtime.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, methodName, ex);
 
-            var ret = this.OnException(methodName, ex);
+            var ret = this.OnException(ex, methodName, e);
             this.IsSuppressingExceptionAndHalting = false;
             switch (ret)
             {
@@ -1078,12 +1103,13 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// User callback when a actor throws an exception.
+        /// User callback when the actor throws an exception.
         /// </summary>
-        /// <param name="methodName">The handler (outermost) that threw the exception.</param>
         /// <param name="ex">The exception thrown by the actor.</param>
+        /// <param name="methodName">The handler (outermost) that threw the exception.</param>
+        /// <param name="e">The event being handled when the exception was thrown.</param>
         /// <returns>The action that the runtime should take.</returns>
-        protected virtual OnExceptionOutcome OnException(string methodName, Exception ex)
+        protected virtual OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
         {
             return OnExceptionOutcome.ThrowException;
         }
@@ -1117,16 +1143,17 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// User callback that is invoked when the actor halts.
         /// </summary>
+        /// <param name="e">The event being handled when the actor halts.</param>
         /// <returns>Task that represents the asynchronous operation.</returns>
-        protected virtual Task OnHaltAsync() => Task.CompletedTask;
+        protected virtual Task OnHaltAsync(Event e) => Task.CompletedTask;
 
         /// <summary>
         /// Halts the actor.
         /// </summary>
-        private protected Task HaltAsync()
+        /// <param name="e">The event being handled when the actor halts.</param>
+        private protected Task HaltAsync(Event e)
         {
             this.IsHalted = true;
-            this.ReceivedEvent = null;
 
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
@@ -1142,7 +1169,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             // Invoke user callback.
-            return this.OnHaltAsync();
+            return this.OnHaltAsync(e);
         }
 
         /// <summary>

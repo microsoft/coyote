@@ -108,9 +108,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Master = (this.ReceivedEvent as SetupEvent).Id;
+                this.Master = (e as SetupEvent).Id;
                 this.RaiseEvent(new UnitEvent());
             }
 
@@ -148,9 +148,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Workers = (this.ReceivedEvent as MConfig).Ids;
+                this.Workers = (e as MConfig).Ids;
             }
 
             private void ProcessNotification()

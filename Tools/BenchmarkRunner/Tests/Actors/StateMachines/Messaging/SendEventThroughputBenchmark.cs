@@ -71,12 +71,12 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.TcsSetup = (this.ReceivedEvent as SetupProducerEvent).TcsSetup;
-                this.TcsExperiment = (this.ReceivedEvent as SetupProducerEvent).TcsExperiment;
-                this.NumConsumers = (this.ReceivedEvent as SetupProducerEvent).NumConsumers;
-                this.NumMessages = (this.ReceivedEvent as SetupProducerEvent).NumMessages;
+                this.TcsSetup = (e as SetupProducerEvent).TcsSetup;
+                this.TcsExperiment = (e as SetupProducerEvent).TcsExperiment;
+                this.NumConsumers = (e as SetupProducerEvent).NumConsumers;
+                this.NumMessages = (e as SetupProducerEvent).NumMessages;
 
                 this.Consumers = new ActorId[this.NumConsumers];
                 this.Counter = 0;
@@ -137,10 +137,10 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Producer = (this.ReceivedEvent as SetupConsumerEvent).Producer;
-                this.NumMessages = (this.ReceivedEvent as SetupConsumerEvent).NumMessages;
+                this.Producer = (e as SetupConsumerEvent).Producer;
+                this.NumMessages = (e as SetupConsumerEvent).NumMessages;
                 this.SendEvent(this.Producer, new Ack());
             }
 

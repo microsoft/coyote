@@ -128,8 +128,7 @@ namespace Microsoft.Coyote.Actors
         {
             // Transitions to the start state, and executes
             // the entry action, if there is any.
-            this.ReceivedEvent = initialEvent;
-            return this.ExecuteCurrentStateOnEntryAsync();
+            return this.ExecuteCurrentStateOnEntryAsync(initialEvent);
         }
 
         /// <summary>
@@ -217,7 +216,7 @@ namespace Microsoft.Coyote.Actors
                     // is halt, then terminate the state machine.
                     if (e is HaltEvent)
                     {
-                        await this.HaltAsync();
+                        await this.HaltAsync(e);
                         return;
                     }
 
@@ -229,10 +228,10 @@ namespace Microsoft.Coyote.Actors
                         return;
                     }
 
-                    var unhandledEx = new UnhandledEventException(e, currentStateName, "Unhandled Event");
-                    if (this.OnUnhandledEventExceptionHandler(nameof(this.HandleEventAsync), unhandledEx))
+                    var ex = new UnhandledEventException(e, currentStateName, "Unhandled Event");
+                    if (this.OnUnhandledEventExceptionHandler(ex, nameof(this.HandleEventAsync), e))
                     {
-                        await this.HaltAsync();
+                        await this.HaltAsync(e);
                         return;
                     }
                     else
@@ -246,52 +245,52 @@ namespace Microsoft.Coyote.Actors
                 if (e is GotoStateEvent gotoStateEvent)
                 {
                     // Checks if the event is a goto state event.
-                    await this.GotoStateAsync(gotoStateEvent.State, null);
+                    await this.GotoStateAsync(gotoStateEvent.State, null, e);
                 }
                 else if (e is PushStateEvent pushStateEvent)
                 {
                     // Checks if the event is a push state event.
-                    await this.PushStateAsync(pushStateEvent.State);
+                    await this.PushStateAsync(pushStateEvent.State, e);
                 }
                 else if (this.GotoTransitions.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger a goto state transition.
                     var transition = this.GotoTransitions[e.GetType()];
-                    await this.GotoStateAsync(transition.TargetState, transition.Lambda);
+                    await this.GotoStateAsync(transition.TargetState, transition.Lambda, e);
                 }
                 else if (this.GotoTransitions.ContainsKey(typeof(WildCardEvent)))
                 {
                     var transition = this.GotoTransitions[typeof(WildCardEvent)];
-                    await this.GotoStateAsync(transition.TargetState, transition.Lambda);
+                    await this.GotoStateAsync(transition.TargetState, transition.Lambda, e);
                 }
                 else if (this.PushTransitions.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger a push state transition.
                     Type targetState = this.PushTransitions[e.GetType()].TargetState;
-                    await this.PushStateAsync(targetState);
+                    await this.PushStateAsync(targetState, e);
                 }
                 else if (this.PushTransitions.ContainsKey(typeof(WildCardEvent)))
                 {
                     Type targetState = this.PushTransitions[typeof(WildCardEvent)].TargetState;
-                    await this.PushStateAsync(targetState);
+                    await this.PushStateAsync(targetState, e);
                 }
                 else if (this.CurrentStateEventHandlers.ContainsKey(e.GetType()) &&
                     this.CurrentStateEventHandlers[e.GetType()] is ActionEventHandlerDeclaration)
                 {
                     // Checks if the event triggers an action.
                     var handler = this.CurrentStateEventHandlers[e.GetType()] as ActionEventHandlerDeclaration;
-                    await this.InvokeAction(handler.Name);
+                    await this.InvokeAction(handler.Name, e);
                 }
                 else if (this.CurrentStateEventHandlers.ContainsKey(typeof(WildCardEvent))
                     && this.CurrentStateEventHandlers[typeof(WildCardEvent)] is ActionEventHandlerDeclaration)
                 {
                     var handler = this.CurrentStateEventHandlers[typeof(WildCardEvent)] as ActionEventHandlerDeclaration;
-                    await this.InvokeAction(handler.Name);
+                    await this.InvokeAction(handler.Name, e);
                 }
                 else
                 {
                     // If the current state cannot handle the event.
-                    await this.ExecuteCurrentStateOnExitAsync(null);
+                    await this.ExecuteCurrentStateOnExitAsync(null, e);
                     if (this.IsHalted)
                     {
                         return;
@@ -309,24 +308,24 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invokes the action with the specified name.
         /// </summary>
-        private async Task InvokeAction(string actionName)
+        private async Task InvokeAction(string actionName, Event e)
         {
             CachedDelegate cachedAction = this.ActionMap[actionName];
-            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
-            await this.InvokeActionAsync(cachedAction);
-            this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, this.ReceivedEvent);
+            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
+            await this.InvokeActionAsync(cachedAction, e);
+            this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, e);
 
             if (this.IsPopInvoked)
             {
                 // Performs the state transition, if pop was invoked during the action.
-                await this.PopStateAsync();
+                await this.PopStateAsync(e);
             }
         }
 
         /// <summary>
         /// Executes the on entry action of the current state.
         /// </summary>
-        private async Task ExecuteCurrentStateOnEntryAsync()
+        private async Task ExecuteCurrentStateOnEntryAsync(Event e)
         {
             this.Runtime.NotifyEnteredState(this);
 
@@ -339,23 +338,22 @@ namespace Microsoft.Coyote.Actors
             // Invokes the entry action of the new state, if there is one available.
             if (entryAction != null)
             {
-                this.Runtime.NotifyInvokedOnEntryAction(this, entryAction.MethodInfo, this.ReceivedEvent);
-                await this.InvokeActionAsync(entryAction);
-                this.Runtime.NotifyCompletedOnEntryAction(this, entryAction.MethodInfo, this.ReceivedEvent);
+                this.Runtime.NotifyInvokedOnEntryAction(this, entryAction.MethodInfo, e);
+                await this.InvokeActionAsync(entryAction, e);
+                this.Runtime.NotifyCompletedOnEntryAction(this, entryAction.MethodInfo, e);
             }
 
             if (this.IsPopInvoked)
             {
                 // Performs the state transition, if pop was invoked during the action.
-                await this.PopStateAsync();
+                await this.PopStateAsync(e);
             }
         }
 
         /// <summary>
         /// Executes the on exit action of the current state.
         /// </summary>
-        /// <param name="eventHandlerExitActionName">Action name</param>
-        private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName)
+        private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName, Event e)
         {
             this.Runtime.NotifyExitedState(this);
 
@@ -369,9 +367,9 @@ namespace Microsoft.Coyote.Actors
             // if there is one available.
             if (exitAction != null)
             {
-                this.Runtime.NotifyInvokedOnExitAction(this, exitAction.MethodInfo, this.ReceivedEvent);
-                await this.InvokeActionAsync(exitAction);
-                this.Runtime.NotifyCompletedOnExitAction(this, exitAction.MethodInfo, this.ReceivedEvent);
+                this.Runtime.NotifyInvokedOnExitAction(this, exitAction.MethodInfo, e);
+                await this.InvokeActionAsync(exitAction, e);
+                this.Runtime.NotifyCompletedOnExitAction(this, exitAction.MethodInfo, e);
             }
 
             // Invokes the exit action of the event handler,
@@ -379,22 +377,22 @@ namespace Microsoft.Coyote.Actors
             if (eventHandlerExitActionName != null)
             {
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
-                this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, this.ReceivedEvent);
-                await this.InvokeActionAsync(eventHandlerExitAction);
-                this.Runtime.NotifyCompletedOnExitAction(this, eventHandlerExitAction.MethodInfo, this.ReceivedEvent);
+                this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, e);
+                await this.InvokeActionAsync(eventHandlerExitAction, e);
+                this.Runtime.NotifyCompletedOnExitAction(this, eventHandlerExitAction.MethodInfo, e);
             }
         }
 
         /// <summary>
         /// Performs a goto transition to the specified state.
         /// </summary>
-        private async Task GotoStateAsync(Type s, string onExitActionName)
+        private async Task GotoStateAsync(Type s, string onExitActionName, Event e)
         {
             this.Runtime.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
-            await this.ExecuteCurrentStateOnExitAsync(onExitActionName);
+            await this.ExecuteCurrentStateOnExitAsync(onExitActionName, e);
             if (this.IsHalted)
             {
                 return;
@@ -409,13 +407,13 @@ namespace Microsoft.Coyote.Actors
             this.DoStatePush(nextState);
 
             // The state machine performs the on entry action of the new state.
-            await this.ExecuteCurrentStateOnEntryAsync();
+            await this.ExecuteCurrentStateOnEntryAsync(e);
         }
 
         /// <summary>
         /// Performs a push transition to the specified state.
         /// </summary>
-        private async Task PushStateAsync(Type s)
+        private async Task PushStateAsync(Type s, Event e)
         {
             this.Runtime.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
@@ -423,19 +421,19 @@ namespace Microsoft.Coyote.Actors
             this.DoStatePush(nextState);
 
             // The state machine performs the on entry statements of the new state.
-            await this.ExecuteCurrentStateOnEntryAsync();
+            await this.ExecuteCurrentStateOnEntryAsync(e);
         }
 
         /// <summary>
         /// Performs a pop transition from the current state.
         /// </summary>
-        private async Task PopStateAsync()
+        private async Task PopStateAsync(Event e)
         {
             this.IsPopInvoked = false;
             var prevStateName = this.CurrentStateName;
 
             // The state machine performs the on exit action of the current state.
-            await this.ExecuteCurrentStateOnExitAsync(null);
+            await this.ExecuteCurrentStateOnExitAsync(null, e);
             if (this.IsHalted)
             {
                 return;

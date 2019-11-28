@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         private class M1 : StateMachine
         {
-            private Data data;
+            private Data Data;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -110,17 +110,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.data = (this.ReceivedEvent as E1).Data;
+                this.Data = (e as E1).Data;
                 this.Process();
             }
 
             private void Process()
             {
-                if (this.data.X != 10)
+                if (this.Data.X != 10)
                 {
-                    this.data.X++;
+                    this.Data.X++;
                     this.SendEvent(this.Id, new UnitEvent());
                 }
                 else
@@ -130,9 +130,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void Terminate()
+            private void Terminate(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as TerminateReq).Sender, new TerminateResp());
+                this.SendEvent((e as TerminateReq).Sender, new TerminateResp());
                 this.RaiseEvent(HaltEvent.Instance);
             }
         }
@@ -275,9 +275,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                ActorId id = (this.ReceivedEvent as E2).Mid;
+                ActorId id = (e as E2).Mid;
                 this.SendEvent(id, new UnitEvent());
             }
         }

@@ -48,9 +48,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var m = (this.ReceivedEvent as SetupEvent).Id;
+                var m = (e as SetupEvent).Id;
                 this.SendEvent(m, new E1());
                 this.SendEvent(m, new E2(this.Id));
                 await this.ReceiveEventAsync(typeof(E2));
@@ -72,10 +72,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.Id, new UnitEvent());
             }
 
-            private void Bar()
+            private void Bar(Event e)
             {
-                var e = this.ReceivedEvent as E2;
-                this.SendEvent(e.Id, new E2(this.Id));
+                this.SendEvent((e as E2).Id, new E2(this.Id));
             }
         }
 
@@ -105,10 +104,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.RaiseEvent(new UnitEvent());
             }
 
-            private void Bar()
+            private void Bar(Event e)
             {
-                var e = this.ReceivedEvent as E2;
-                this.SendEvent(e.Id, new E2(this.Id));
+                this.SendEvent((e as E2).Id, new E2(this.Id));
             }
         }
 

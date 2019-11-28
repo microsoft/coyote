@@ -71,11 +71,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                var e = this.ReceivedEvent as SetupEvent;
-                this.LKActorId = e.LKActorId;
-                this.RLockActorId = e.RLockActorId;
-                this.RWantActorId = e.RWantActorId;
-                this.NodeActorId = e.NodeActorId;
+                this.LKActorId = (initialEvent as SetupEvent).LKActorId;
+                this.RLockActorId = (initialEvent as SetupEvent).RLockActorId;
+                this.RWantActorId = (initialEvent as SetupEvent).RWantActorId;
+                this.NodeActorId = (initialEvent as SetupEvent).NodeActorId;
                 return this.OnWakeup();
             }
 
@@ -142,11 +141,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                var e = this.ReceivedEvent as SetupEvent;
-                this.LKActorId = e.LKActorId;
-                this.RLockActorId = e.RLockActorId;
-                this.RWantActorId = e.RWantActorId;
-                this.NodeActorId = e.NodeActorId;
+                this.LKActorId = (initialEvent as SetupEvent).LKActorId;
+                this.RLockActorId = (initialEvent as SetupEvent).RLockActorId;
+                this.RWantActorId = (initialEvent as SetupEvent).RWantActorId;
+                this.NodeActorId = (initialEvent as SetupEvent).NodeActorId;
                 return this.OnProgress();
             }
 
@@ -263,30 +261,29 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            private void OnSetReq()
+            private void OnSetReq(Event e)
             {
-                var e = this.ReceivedEvent as SetReq;
-                this.StateType = e.Value;
+                var evt = e as SetReq;
+                this.StateType = evt.Value;
                 this.Unblock();
-                this.SendEvent(e.Target, new SetResp());
+                this.SendEvent(evt.Target, new SetResp());
             }
 
-            private void OnValueReq()
+            private void OnValueReq(Event e)
             {
-                var e = this.ReceivedEvent as ValueReq;
-                this.SendEvent(e.Target, new ValueResp(this.StateType));
+                this.SendEvent((e as ValueReq).Target, new ValueResp(this.StateType));
             }
 
-            private void OnWaiting()
+            private void OnWaiting(Event e)
             {
-                var e = this.ReceivedEvent as Waiting;
-                if (this.StateType == e.WaitingOn)
+                var evt = e as Waiting;
+                if (this.StateType == evt.WaitingOn)
                 {
-                    this.SendEvent(e.Target, new WaitResp());
+                    this.SendEvent(evt.Target, new WaitResp());
                 }
                 else
                 {
-                    this.BlockedActors.Add(e.Target, e.WaitingOn);
+                    this.BlockedActors.Add(evt.Target, evt.WaitingOn);
                 }
             }
 
@@ -370,36 +367,36 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            private void OnAtomicTestSet()
+            private void OnAtomicTestSet(Event e)
             {
-                var e = this.ReceivedEvent as AtomicTestSet;
+                var evt = e as AtomicTestSet;
                 if (this.LK == false)
                 {
                     this.LK = true;
                     this.Unblock();
                 }
 
-                this.SendEvent(e.Target, new AtomicTestSet_Resp());
+                this.SendEvent(evt.Target, new AtomicTestSet_Resp());
             }
 
-            private void OnSetReq()
+            private void OnSetReq(Event e)
             {
-                var e = this.ReceivedEvent as SetReq;
-                this.LK = e.Value;
+                var evt = e as SetReq;
+                this.LK = evt.Value;
                 this.Unblock();
-                this.SendEvent(e.Target, new SetResp());
+                this.SendEvent(evt.Target, new SetResp());
             }
 
-            private void OnWaiting()
+            private void OnWaiting(Event e)
             {
-                var e = this.ReceivedEvent as Waiting;
-                if (this.LK == e.WaitingOn)
+                var evt = e as Waiting;
+                if (this.LK == evt.WaitingOn)
                 {
-                    this.SendEvent(e.Target, new WaitResp());
+                    this.SendEvent(evt.Target, new WaitResp());
                 }
                 else
                 {
-                    this.BlockedActors.Add(e.Target, e.WaitingOn);
+                    this.BlockedActors.Add(evt.Target, evt.WaitingOn);
                 }
             }
 
@@ -470,17 +467,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            private void OnSetReq()
+            private void OnSetReq(Event e)
             {
-                var e = this.ReceivedEvent as SetReq;
-                this.RLock = e.Value;
-                this.SendEvent(e.Target, new SetResp());
+                var evt = e as SetReq;
+                this.RLock = evt.Value;
+                this.SendEvent(evt.Target, new SetResp());
             }
 
-            private void OnValueReq()
+            private void OnValueReq(Event e)
             {
-                var e = this.ReceivedEvent as ValueReq;
-                this.SendEvent(e.Target, new ValueResp(this.RLock));
+                var evt = e as ValueReq;
+                this.SendEvent(evt.Target, new ValueResp(this.RLock));
             }
         }
 
@@ -532,17 +529,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            private void OnSetReq()
+            private void OnSetReq(Event e)
             {
-                var e = this.ReceivedEvent as SetReq;
-                this.RWant = e.Value;
-                this.SendEvent(e.Target, new SetResp());
+                var evt = e as SetReq;
+                this.RWant = evt.Value;
+                this.SendEvent(evt.Target, new SetResp());
             }
 
-            private void OnValueReq()
+            private void OnValueReq(Event e)
             {
-                var e = this.ReceivedEvent as ValueReq;
-                this.SendEvent(e.Target, new ValueResp(this.RWant));
+                this.SendEvent((e as ValueReq).Target, new ValueResp(this.RWant));
             }
         }
 

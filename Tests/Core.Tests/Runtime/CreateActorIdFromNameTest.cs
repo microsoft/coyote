@@ -34,11 +34,11 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                if (this.ReceivedEvent is Conf)
+                if (e is Conf)
                 {
-                    (this.ReceivedEvent as Conf).Tcs.SetResult(true);
+                    (e as Conf).Tcs.SetResult(true);
                 }
             }
         }
@@ -183,9 +183,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private void Process()
+            private void Process(Event e)
             {
-                (this.ReceivedEvent as Conf).Tcs.SetResult(true);
+                (e as Conf).Tcs.SetResult(true);
             }
         }
 
@@ -244,11 +244,11 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
                 await this.Runtime.CreateActorAndExecuteAsync(typeof(M6));
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
-                this.Runtime.SendEvent(m, this.ReceivedEvent);
+                this.Runtime.SendEvent(m, e);
             }
         }
 

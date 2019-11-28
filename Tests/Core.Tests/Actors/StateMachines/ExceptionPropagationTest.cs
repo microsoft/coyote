@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.Core.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 try
                 {
                     this.Assert(false);
@@ -57,9 +57,9 @@ namespace Microsoft.Coyote.Core.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 try
                 {
                     throw new InvalidOperationException();

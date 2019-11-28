@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         private class A2 : Actor
         {
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.SendEvent(this.Id, new E());
                 return Task.CompletedTask;
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.SendEvent(this.Id, new E());
                 return Task.CompletedTask;
@@ -255,9 +255,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E).Id, HaltEvent.Instance);
+                this.SendEvent((e as E).Id, HaltEvent.Instance);
             }
         }
 
@@ -269,9 +269,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((e as E).Id, new E());
             }
         }
 

@@ -89,9 +89,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private ActorId Server;
             private int Counter;
 
-            private async Task SetupEvent()
+            private async Task SetupEvent(Event e)
             {
-                this.Server = (this.ReceivedEvent as SetupEvent).Id;
+                this.Server = (e as SetupEvent).Id;
                 this.Counter = 0;
                 while (this.Counter < 5)
                 {
@@ -212,9 +212,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Server = (this.ReceivedEvent as SetupEvent).Id;
+                this.Server = (e as SetupEvent).Id;
                 this.Counter = 0;
                 this.RaiseEvent(new UnitEvent());
             }

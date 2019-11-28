@@ -47,11 +47,11 @@ namespace Microsoft.Coyote.TestingServices.Timers
         /// <summary>
         /// Initializes the timer with the specified configuration.
         /// </summary>
-        private void Setup()
+        private void Setup(Event e)
         {
-            this.TimerInfo = (this.ReceivedEvent as TimerSetupEvent).Info;
-            this.Owner = (this.ReceivedEvent as TimerSetupEvent).Owner;
-            this.Delay = (this.ReceivedEvent as TimerSetupEvent).Delay;
+            this.TimerInfo = (e as TimerSetupEvent).Info;
+            this.Owner = (e as TimerSetupEvent).Owner;
+            this.Delay = (e as TimerSetupEvent).Delay;
             this.TimeoutEvent = new TimerElapsedEvent(this.TimerInfo);
         }
 

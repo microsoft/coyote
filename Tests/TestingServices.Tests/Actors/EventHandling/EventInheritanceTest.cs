@@ -167,32 +167,32 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.TCS = (this.ReceivedEvent as SetupEvent).TCS;
+                this.TCS = (e as SetupEvent).TCS;
             }
 
-            private void E1_handler()
+            private void E1_handler(Event e)
             {
                 ++E1count;
-                Xunit.Assert.True(this.ReceivedEvent is E1);
+                Xunit.Assert.True(e is E1);
                 this.CheckComplete();
             }
 
-            private void E2_handler()
+            private void E2_handler(Event e)
             {
                 ++E2count;
-                Xunit.Assert.True(this.ReceivedEvent is E1);
-                Xunit.Assert.True(this.ReceivedEvent is E2);
+                Xunit.Assert.True(e is E1);
+                Xunit.Assert.True(e is E2);
                 this.CheckComplete();
             }
 
-            private void E3_handler()
+            private void E3_handler(Event e)
             {
                 ++E3count;
-                Xunit.Assert.True(this.ReceivedEvent is E1);
-                Xunit.Assert.True(this.ReceivedEvent is E2);
-                Xunit.Assert.True(this.ReceivedEvent is E3);
+                Xunit.Assert.True(e is E1);
+                Xunit.Assert.True(e is E2);
+                Xunit.Assert.True(e is E3);
                 this.CheckComplete();
             }
 

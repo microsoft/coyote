@@ -40,9 +40,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void OnInitEntry()
+            private void OnInitEntry(Event e)
             {
-                this.ApplyFix = (this.ReceivedEvent as SetupEvent).ApplyFix;
+                this.ApplyFix = (e as SetupEvent).ApplyFix;
                 this.SendEvent(this.Id, new Message());
             }
 

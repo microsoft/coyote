@@ -47,9 +47,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 Engine.Send(this.Runtime, this.Id);
             }
 
-            private void HandleEvent()
+            private void HandleEvent(Event e)
             {
-                this.Assert((this.ReceivedEvent as E).Value == 2);
+                this.Assert((e as E).Value == 2);
             }
         }
 

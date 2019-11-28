@@ -67,9 +67,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E1).Counter;
+                var counter = (e as E1).Counter;
                 counter.TryUpdate(1, "N", "M");
             }
         }
@@ -122,9 +122,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E1).Counter;
+                var counter = (e as E1).Counter;
                 counter.TryUpdate(1, "N", "M");
             }
         }
@@ -159,9 +159,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E1).Counter;
+                var counter = (e as E1).Counter;
                 var b = counter.TryRemove(1, out string v);
 
                 this.Assert(b == false || v == "M");
@@ -176,10 +176,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E2).Counter;
-                var flag = (this.ReceivedEvent as E2).Flag;
+                var counter = (e as E2).Counter;
+                var flag = (e as E2).Flag;
 
                 counter.TryAdd(1, "M");
 
@@ -210,9 +210,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E2).Counter;
+                var counter = (e as E2).Counter;
                 bool b = counter.TryGetValue(1, out string v);
 
                 this.Assert(b);
@@ -230,9 +230,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E1).Counter;
+                var counter = (e as E1).Counter;
 
                 this.CreateActor(typeof(N6), new E1(counter));
                 counter.TryAdd(1, "M");
@@ -250,9 +250,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E1).Counter;
+                var counter = (e as E1).Counter;
                 counter.TryAdd(2, "N");
             }
         }

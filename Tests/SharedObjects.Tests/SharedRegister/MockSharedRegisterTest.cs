@@ -57,9 +57,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var flag = (this.ReceivedEvent as Setup).Flag;
+                var flag = (e as Setup).Flag;
 
                 var counter = SharedRegister.Create<int>(this.Id.Runtime, 0);
                 counter.SetValue(5);
@@ -98,9 +98,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E<int>).Counter;
+                var counter = (e as E<int>).Counter;
                 counter.SetValue(2);
             }
         }
@@ -113,9 +113,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var flag = (this.ReceivedEvent as Setup).Flag;
+                var flag = (e as Setup).Flag;
 
                 var counter = SharedRegister.Create<S>(this.Id.Runtime);
                 counter.SetValue(new S(1, 1));
@@ -153,9 +153,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E<S>).Counter;
+                var counter = (e as E<S>).Counter;
                 counter.SetValue(new S(5, 5));
             }
         }

@@ -38,9 +38,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
 
                 // Start a regular timer.
                 this.StartTimer(TimeSpan.FromTicks(1));
@@ -84,9 +84,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.Counter = 0;
 
                 // Start a periodic timer.

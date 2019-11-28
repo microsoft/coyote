@@ -46,9 +46,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(this.OperationGroupId == Guid.Empty);
             }
         }
@@ -77,9 +77,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.Runtime.SendEvent(this.Id, new E(this.Id), OperationGroup);
             }
 

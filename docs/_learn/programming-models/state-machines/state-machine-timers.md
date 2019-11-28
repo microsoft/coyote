@@ -75,9 +75,9 @@ private void DoPing()
    this.PingTimerInfo = this.StartPeriodicTimer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), payload: new object());
 }
 
-private async Task HandleTimeoutForPing()
+private async Task HandleTimeoutForPing(Event e)
 {
-   var timeout = (this.ReceivedEvent as TimerElapsedEvent);
+   var timeout = (e as TimerElapsedEvent);
 
    // Ensure that we are handling a valid timeout event.
    this.Assert(timeout.Info == this.PingTimerInfo, "Handling timeout event from an invalid timer.");
@@ -141,9 +141,9 @@ class MultiTimers : StateMachine {
       this.TimerInfo2 = StartPeriodicTimer(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(200));
    }
 
-   void HandleTimeout()
+   void HandleTimeout(Event e)
    {
-      var timeout = (this.ReceivedEvent as TimerElapsedEvent);
+      var timeout = (e as TimerElapsedEvent);
       if (timeout.Timer == this.TimerInfo1)
       {
          this.Logger.WriteLine("Timeout from timer 1.");

@@ -131,11 +131,12 @@ An event can contain arbitrary data (scalar values or references) and be send to
 (there is no deep-copying for performance reasons). A machine can also send data to itself (e.g. for
 processing in a later state) using `RaiseEvent`.
 
-In the previous example, the `Server` machine sends `this.Id` of type `ActorId` (i.e. a handle to the
-current machine instance) to the `Client` machine. The receiver (in our case `Client`) can retrieve the
-sent payload by using the property `ReceivedEvent`, which is a handle to the received event, casting
-`ReceivedEvent` to the expected event type (in this case `ConfigEvent`), and then accessing the payload
-as a field of the received event.
+In the previous example, the `Server` machine sends `this.Id` of type `ActorId`
+(i.e. a handle to the current machine instance) to the `Client` machine. The receiver
+(in our case `Client`) can retrieve the sent payload as the input parameter of the
+corresponding event-handler (we will see in a bit how these handlers can be declared),
+cast it to the expected event type (in this case `ConfigEvent`), and then accessing the
+payload as a field of the received event.
 
 As discussed earlier, the `CreateStateMachine` and `SendEvent` methods are non-blocking. The
 Coyote runtime will take care of all the underlying concurrency using the Task Parallel Library,
@@ -155,11 +156,11 @@ library. Two of the most important event-handling declarations in Coyote machine
 [OnEventDoAction(typeof(PongEvent), nameof(SomeActionAsync))]
 class SomeState : State { }
 
-void SomeAction() {
+void SomeAction(Event e) {
   // Code executing when exiting the state.
 }
 
-async Task SomeActionAsync() {
+async Task SomeActionAsync(Event e) {
   // Code executing when exiting the state.
   await // You can use await inside an async handler
 }
@@ -172,7 +173,10 @@ The attribute `OnEventGotoState` indicates that when the machine receives the `U
 first `OnEventDoAction` attribute indicates that the `PingEvent` event must be handled by invoking the
 action `SomeAction`, and that the machine will remain in `SomeState`. The second `OnEventDoAction`
 attribute shows how state machine event-handling methods can be declared using `async Task` so that
-they can `await` awaitable C# methods.
+they can `await` awaitable C# methods. You need to declare all `OnEntry`, `OnExit` and
+`OnEventDoAction` actions with an `Event` in-parameter (as seen in the above code snippet),
+which gives access to the event-to-handle. You can commit this `Event` in-parameter, if you
+do not need to access the event or its payload in some event-handler.
 
 You can associate each event with at most one handler in a particular state of a machine. If a Coyote
 machine is in a state `SomeState` and dequeues an event `SomeEvent`, but no event-handler is declared
@@ -259,8 +263,8 @@ namespace PingPong {
     [OnEventDoAction(typeof(ConfigEvent), nameof(Configure))]
     class Init : State { }
 
-    void Configure() {
-      this.Server = (this.ReceivedEvent as ConfigEvent).Target;
+    void Configure(Event e) {
+      this.Server = (e as ConfigEvent).Target;
       this.RaiseEvent(new UnitEvent());
     }
 

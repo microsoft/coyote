@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Core.Tests
 
         private class M1a : StateMachine
         {
-            private E e;
+            private E Event;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -44,28 +44,26 @@ namespace Microsoft.Coyote.Core.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.e = this.ReceivedEvent as E;
+                this.Event = e as E;
                 throw new NotImplementedException();
             }
 
             private void OnF()
             {
-                this.e.Tcs.SetResult(true);
+                this.Event.Tcs.SetResult(true);
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.e.X++;
+                this.Event.X++;
                 return OnExceptionOutcome.HandledException;
             }
         }
 
         private class M1b : StateMachine
         {
-            private E e;
-
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             private class Init : State
@@ -74,20 +72,19 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.e = this.ReceivedEvent as E;
                 throw new NotImplementedException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.e.X++;
+                (e as E).X++;
                 return OnExceptionOutcome.ThrowException;
             }
         }
 
         private class M2a : StateMachine
         {
-            private E e;
+            private E Event;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -96,29 +93,27 @@ namespace Microsoft.Coyote.Core.Tests
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
                 await Task.CompletedTask;
-                this.e = this.ReceivedEvent as E;
+                this.Event = e as E;
                 throw new NotImplementedException();
             }
 
             private void OnF()
             {
-                this.e.Tcs.SetResult(true);
+                this.Event.Tcs.SetResult(true);
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.e.X++;
+                (e as E).X++;
                 return OnExceptionOutcome.HandledException;
             }
         }
 
         private class M2b : StateMachine
         {
-            private E e;
-
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             private class Init : State
@@ -128,21 +123,18 @@ namespace Microsoft.Coyote.Core.Tests
             private async Task InitOnEntry()
             {
                 await Task.CompletedTask;
-                this.e = this.ReceivedEvent as E;
                 throw new NotImplementedException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.e.X++;
+                (e as E).X++;
                 return OnExceptionOutcome.ThrowException;
             }
         }
 
         private class M3 : StateMachine
         {
-            private E e;
-
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             private class Init : State
@@ -151,25 +143,24 @@ namespace Microsoft.Coyote.Core.Tests
 
             private void InitOnEntry()
             {
-                this.e = this.ReceivedEvent as E;
                 throw new NotImplementedException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
-                this.e.Tcs.TrySetResult(true);
+                (e as E).Tcs.TrySetResult(true);
                 return Task.CompletedTask;
             }
         }
 
         private class M4 : StateMachine
         {
-            private E e;
+            private E Event;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -177,12 +168,12 @@ namespace Microsoft.Coyote.Core.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.e = this.ReceivedEvent as E;
+                this.Event = e as E;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is UnhandledEventException)
                 {
@@ -192,9 +183,10 @@ namespace Microsoft.Coyote.Core.Tests
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
-                this.e.Tcs.TrySetResult(true);
+                this.Assert(e is F);
+                this.Event.Tcs.TrySetResult(true);
                 return Task.CompletedTask;
             }
         }

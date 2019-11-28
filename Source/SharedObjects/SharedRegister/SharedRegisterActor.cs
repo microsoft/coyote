@@ -31,23 +31,23 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Processes the next dequeued event.
         /// </summary>
-        private void ProcessEvent()
+        private void ProcessEvent(Event e)
         {
-            var e = this.ReceivedEvent as SharedRegisterEvent;
-            switch (e.Operation)
+            var opEvent = e as SharedRegisterEvent;
+            switch (opEvent.Operation)
             {
                 case SharedRegisterEvent.OperationType.Set:
-                    this.Value = (T)e.Value;
+                    this.Value = (T)opEvent.Value;
                     break;
 
                 case SharedRegisterEvent.OperationType.Get:
-                    this.SendEvent(e.Sender, new SharedRegisterResponseEvent<T>(this.Value));
+                    this.SendEvent(opEvent.Sender, new SharedRegisterResponseEvent<T>(this.Value));
                     break;
 
                 case SharedRegisterEvent.OperationType.Update:
-                    var func = (Func<T, T>)e.Func;
+                    var func = (Func<T, T>)opEvent.Func;
                     this.Value = func(this.Value);
-                    this.SendEvent(e.Sender, new SharedRegisterResponseEvent<T>(this.Value));
+                    this.SendEvent(opEvent.Sender, new SharedRegisterResponseEvent<T>(this.Value));
                     break;
             }
         }

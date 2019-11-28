@@ -32,9 +32,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
             }
 
-            private void HandleTransfer()
+            private void HandleTransfer(Event e)
             {
-                int value = (this.ReceivedEvent as Transfer).Value;
+                int value = (e as Transfer).Value;
                 this.Assert(value > 0, "Value is 0.");
             }
         }

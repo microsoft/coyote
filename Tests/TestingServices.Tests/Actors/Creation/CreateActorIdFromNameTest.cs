@@ -186,9 +186,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var id = (this.ReceivedEvent as E2).Mid;
+                var id = (e as E2).Mid;
                 this.SendEvent(id, new UnitEvent());
             }
         }

@@ -54,9 +54,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Result = (this.ReceivedEvent as SetupEvent).Result;
+                this.Result = (e as SetupEvent).Result;
             }
 
             private void HandleE1()
@@ -78,9 +78,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Result = (this.ReceivedEvent as SetupEvent).Result;
+                this.Result = (e as SetupEvent).Result;
             }
 
             private void HandleE1()

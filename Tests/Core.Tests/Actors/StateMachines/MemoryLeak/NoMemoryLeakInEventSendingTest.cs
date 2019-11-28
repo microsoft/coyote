@@ -47,9 +47,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
 
                 try
                 {
@@ -59,8 +59,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                     while (counter < 1000)
                     {
                         this.SendEvent(n, new E(this.Id));
-                        E e = (E)await this.ReceiveEventAsync(typeof(E));
-                        e.LargeArray[10] = 7;
+                        E received = (E)await this.ReceiveEventAsync(typeof(E));
+                        received.LargeArray[10] = 7;
                         counter++;
                     }
                 }
@@ -81,9 +81,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void Act()
+            private void Act(Event e)
             {
-                var sender = (this.ReceivedEvent as E).Id;
+                var sender = (e as E).Id;
                 this.SendEvent(sender, new E(this.Id));
             }
         }

@@ -46,79 +46,79 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Processes the next dequeued event.
         /// </summary>
-        private void ProcessEvent()
+        private void ProcessEvent(Event e)
         {
-            var e = this.ReceivedEvent as SharedDictionaryEvent;
-            switch (e.Operation)
+            var opEvent = e as SharedDictionaryEvent;
+            switch (opEvent.Operation)
             {
                 case SharedDictionaryEvent.OperationType.TryAdd:
-                    if (this.Dictionary.ContainsKey((TKey)e.Key))
+                    if (this.Dictionary.ContainsKey((TKey)opEvent.Key))
                     {
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<bool>(false));
                     }
                     else
                     {
-                        this.Dictionary[(TKey)e.Key] = (TValue)e.Value;
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(true));
+                        this.Dictionary[(TKey)opEvent.Key] = (TValue)opEvent.Value;
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<bool>(true));
                     }
 
                     break;
 
                 case SharedDictionaryEvent.OperationType.TryUpdate:
-                    if (!this.Dictionary.ContainsKey((TKey)e.Key))
+                    if (!this.Dictionary.ContainsKey((TKey)opEvent.Key))
                     {
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<bool>(false));
                     }
                     else
                     {
-                        var currentValue = this.Dictionary[(TKey)e.Key];
-                        if (currentValue.Equals((TValue)e.ComparisonValue))
+                        var currentValue = this.Dictionary[(TKey)opEvent.Key];
+                        if (currentValue.Equals((TValue)opEvent.ComparisonValue))
                         {
-                            this.Dictionary[(TKey)e.Key] = (TValue)e.Value;
-                            this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(true));
+                            this.Dictionary[(TKey)opEvent.Key] = (TValue)opEvent.Value;
+                            this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<bool>(true));
                         }
                         else
                         {
-                            this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<bool>(false));
+                            this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<bool>(false));
                         }
                     }
 
                     break;
 
                 case SharedDictionaryEvent.OperationType.TryGet:
-                    if (!this.Dictionary.ContainsKey((TKey)e.Key))
+                    if (!this.Dictionary.ContainsKey((TKey)opEvent.Key))
                     {
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
                     }
                     else
                     {
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, this.Dictionary[(TKey)e.Key])));
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, this.Dictionary[(TKey)opEvent.Key])));
                     }
 
                     break;
 
                 case SharedDictionaryEvent.OperationType.Get:
-                    this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<TValue>(this.Dictionary[(TKey)e.Key]));
+                    this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<TValue>(this.Dictionary[(TKey)opEvent.Key]));
                     break;
 
                 case SharedDictionaryEvent.OperationType.Set:
-                    this.Dictionary[(TKey)e.Key] = (TValue)e.Value;
+                    this.Dictionary[(TKey)opEvent.Key] = (TValue)opEvent.Value;
                     break;
 
                 case SharedDictionaryEvent.OperationType.Count:
-                    this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<int>(this.Dictionary.Count));
+                    this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<int>(this.Dictionary.Count));
                     break;
 
                 case SharedDictionaryEvent.OperationType.TryRemove:
-                    if (this.Dictionary.ContainsKey((TKey)e.Key))
+                    if (this.Dictionary.ContainsKey((TKey)opEvent.Key))
                     {
-                        var value = this.Dictionary[(TKey)e.Key];
-                        this.Dictionary.Remove((TKey)e.Key);
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, value)));
+                        var value = this.Dictionary[(TKey)opEvent.Key];
+                        this.Dictionary.Remove((TKey)opEvent.Key);
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(true, value)));
                     }
                     else
                     {
-                        this.SendEvent(e.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
+                        this.SendEvent(opEvent.Sender, new SharedDictionaryResponseEvent<Tuple<bool, TValue>>(Tuple.Create(false, default(TValue))));
                     }
 
                     break;

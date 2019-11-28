@@ -47,9 +47,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
                 await this.ReceiveEventAsync(typeof(E1));
                 tcs.SetResult(true);
@@ -64,11 +64,11 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
-                await this.ReceiveEventAsync(typeof(E1), e => e is E1);
+                await this.ReceiveEventAsync(typeof(E1), evt => evt is E1);
                 tcs.SetResult(true);
             }
         }
@@ -81,9 +81,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
                 await this.ReceiveEventAsync(typeof(E1), typeof(E2));
                 tcs.SetResult(true);
@@ -98,9 +98,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 var id = this.CreateActor(typeof(M5), new E2(this.Id));
                 this.SendEvent(id, new E2(this.Id));
                 await this.ReceiveEventAsync(typeof(E2));
@@ -120,18 +120,18 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var id = (this.ReceivedEvent as E2).Id;
-                var e = (E2)await this.ReceiveEventAsync(typeof(E2));
-                this.SendEvent(e.Id, new E2(this.Id));
+                var id = (e as E2).Id;
+                var received = (E2)await this.ReceiveEventAsync(typeof(E2));
+                this.SendEvent(received.Id, new E2(this.Id));
             }
 
-            private async Task Handle()
+            private async Task Handle(Event e)
             {
-                var id = (this.ReceivedEvent as E2).Id;
-                var e = (E2)await this.ReceiveEventAsync(typeof(E2));
-                this.SendEvent(e.Id, new E2(this.Id));
+                var id = (e as E2).Id;
+                var received = (E2)await this.ReceiveEventAsync(typeof(E2));
+                this.SendEvent(received.Id, new E2(this.Id));
             }
         }
 

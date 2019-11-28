@@ -37,9 +37,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void OnInitEntry()
+            private void OnInitEntry(Event e)
             {
-                var applyFix = (this.ReceivedEvent as SetupEvent).ApplyFix;
+                var applyFix = (e as SetupEvent).ApplyFix;
                 var machine1 = this.CreateActor(typeof(Node), new SetupEvent(applyFix));
                 var machine2 = this.CreateActor(typeof(Node), new SetupEvent(applyFix));
                 this.SendEvent(machine1, new Node.SetNeighbour(machine2));
@@ -70,15 +70,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void OnInitEntry()
+            private void OnInitEntry(Event e)
             {
-                this.ApplyFix = (this.ReceivedEvent as SetupEvent).ApplyFix;
+                this.ApplyFix = (e as SetupEvent).ApplyFix;
             }
 
-            private void OnSetNeighbour()
+            private void OnSetNeighbour(Event e)
             {
-                var e = this.ReceivedEvent as SetNeighbour;
-                this.Next = e.Next;
+                this.Next = (e as SetNeighbour).Next;
                 this.SendEvent(this.Id, new Message());
             }
 

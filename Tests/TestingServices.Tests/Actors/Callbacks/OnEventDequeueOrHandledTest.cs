@@ -74,21 +74,21 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Process()
+            private void Process(Event e)
             {
-                if (this.counter == 0 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Event is E1)
+                if (this.counter == 0 && e is Begin beginEvent1 && beginEvent1.Event is E1)
                 {
                     this.counter++;
                 }
-                else if (this.counter == 1 && this.ReceivedEvent is End && (this.ReceivedEvent as End).Event is E1)
+                else if (this.counter == 1 && e is End endEvent1 && endEvent1.Event is E1)
                 {
                     this.counter++;
                 }
-                else if (this.counter == 2 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Event is E2)
+                else if (this.counter == 2 && e is Begin beginEvent2 && beginEvent2.Event is E2)
                 {
                     this.counter++;
                 }
-                else if (this.counter == 3 && this.ReceivedEvent is End && (this.ReceivedEvent as End).Event is E2)
+                else if (this.counter == 3 && e is End endEvent2 && endEvent2.Event is E2)
                 {
                     this.counter++;
                 }
@@ -166,9 +166,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Process()
+            private void Process(Event e)
             {
-                if (this.counter == 0 && this.ReceivedEvent is Begin && (this.ReceivedEvent as Begin).Event is E1)
+                if (this.counter == 0 && e is Begin && (e as Begin).Event is E1)
                 {
                     this.counter++;
                 }
@@ -343,7 +343,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -411,12 +411,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -452,12 +452,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -488,12 +488,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.HandledException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -531,12 +531,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.HandledException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -569,12 +569,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -611,12 +611,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -648,12 +648,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -689,12 +689,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -725,12 +725,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.HandledException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -768,12 +768,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.HandledException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -806,12 +806,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;
@@ -848,12 +848,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new InvalidOperationException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<Spec4>(new Done());
                 return Task.CompletedTask;

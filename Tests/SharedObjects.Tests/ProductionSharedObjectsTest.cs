@@ -38,11 +38,11 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var dictionary = (this.ReceivedEvent as E).Dictionary;
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var dictionary = (e as E).Dictionary;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 for (int i = 0; i < 100; i++)
                 {
@@ -74,11 +74,11 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var dictionary = (this.ReceivedEvent as E).Dictionary;
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var dictionary = (e as E).Dictionary;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 for (int i = 0; i < 100; i++)
                 {

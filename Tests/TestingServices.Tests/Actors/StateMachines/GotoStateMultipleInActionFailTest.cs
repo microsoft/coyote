@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var errorType = (this.ReceivedEvent as SetupEvent).ErrorTypeVal;
+                var errorType = (e as SetupEvent).ErrorTypeVal;
                 this.Foo();
                 switch (errorType)
                 {

@@ -53,9 +53,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 var nTcs = new TaskCompletionSource<bool>();
                 var n = this.CreateActor(typeof(N), new SetupEvent(nTcs));
                 await nTcs.Task;
@@ -97,9 +97,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(true);
             }
 
@@ -108,11 +108,10 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private void ActOnEntry()
+            private void ActOnEntry(Event e)
             {
-                var e = this.ReceivedEvent as E;
                 this.Monitor<S>(e);
-                ActorId m = e.Id;
+                ActorId m = (e as E).Id;
                 this.SendEvent(m, new E(this.Id));
             }
         }

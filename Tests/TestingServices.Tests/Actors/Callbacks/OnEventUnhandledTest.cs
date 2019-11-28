@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 this.Assert(this.x == 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.Halt;
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 this.Assert(this.x == 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.Halt;
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 this.Assert(this.x == 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.ThrowException;
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 this.Assert(this.x == 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.ThrowException;
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }

@@ -90,9 +90,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.GotoState<Waiting>();
             }
 
-            private void OnTryLock()
+            private void OnTryLock(Event e)
             {
-                var target = (this.ReceivedEvent as TryLock).Target;
+                var target = (e as TryLock).Target;
                 if (this.LockVar)
                 {
                     this.SendEvent(target, new LockResp(false));
@@ -148,11 +148,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var e = this.ReceivedEvent as SetupEvent;
-                this.left = e.Left;
-                this.right = e.Right;
+                this.left = (e as SetupEvent).Left;
+                this.right = (e as SetupEvent).Right;
                 this.GotoState<Trying>();
             }
 

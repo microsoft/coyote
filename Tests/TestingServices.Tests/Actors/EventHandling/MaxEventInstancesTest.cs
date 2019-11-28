@@ -95,9 +95,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Action1()
+            private void Action1(Event e)
             {
-                this.Assert((this.ReceivedEvent as E2).Value == 100);
+                this.Assert((e as E2).Value == 100);
                 this.SendEvent(this.N, new E3());
                 this.SendEvent(this.N, new E3());
             }
@@ -114,9 +114,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.M = (this.ReceivedEvent as SetupEvent).Id;
+                this.M = (e as SetupEvent).Id;
                 this.RaiseEvent(new UnitEvent());
             }
 

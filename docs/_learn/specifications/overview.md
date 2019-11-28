@@ -73,16 +73,16 @@ class GlobalSpec : Monitor
      my_x = my_y = 0;
    }
 
-   void UpdatedXAction()
+   void UpdatedXAction(Event e)
    {
-      my_x = (this.ReceivedEvent as UpdatedXEvent).value;
+      my_x = (e as UpdatedXEvent).value;
       this.Assert(Math.mod(my_x - my_y) <= 5);
    }
 
 
-   void UpdatedYAction()
+   void UpdatedYAction(Event e)
    {
-      my_y = (this.ReceivedEvent as UpdatedYEvent).value;
+      my_y = (e as UpdatedYEvent).value;
       this.Assert(Math.mod(my_x - my_y) <= 5);
    }
 }

@@ -171,10 +171,9 @@ Event coverage: 100.0%
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var id = (this.ReceivedEvent as Setup).Id;
-                this.SendEvent(id, new UnitEvent());
+                this.SendEvent((e as Setup).Id, new UnitEvent());
             }
         }
 

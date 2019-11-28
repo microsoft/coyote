@@ -56,10 +56,10 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                this.NumMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                this.Tcs = (e as SetupTcsEvent).Tcs;
+                this.NumMessages = (e as SetupTcsEvent).NumMessages;
                 this.Target = this.CreateActor(typeof(M2), new SetupTargetEvent(this.Id, this.NumMessages));
                 this.SendMessage();
             }
@@ -89,9 +89,9 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Target = (this.ReceivedEvent as SetupTargetEvent).Target;
+                this.Target = (e as SetupTargetEvent).Target;
             }
 
             private void SendMessage()
@@ -108,10 +108,10 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                var tcs = (e as SetupTcsEvent).Tcs;
+                var numMessages = (e as SetupTcsEvent).NumMessages;
                 var target = this.CreateActor(typeof(M4), new SetupTargetEvent(this.Id, numMessages));
 
                 var counter = 0;
@@ -134,10 +134,10 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var target = (this.ReceivedEvent as SetupTargetEvent).Target;
-                var numMessages = (this.ReceivedEvent as SetupTargetEvent).NumMessages;
+                var target = (e as SetupTargetEvent).Target;
+                var numMessages = (e as SetupTargetEvent).NumMessages;
 
                 var counter = 0;
                 while (counter < numMessages)

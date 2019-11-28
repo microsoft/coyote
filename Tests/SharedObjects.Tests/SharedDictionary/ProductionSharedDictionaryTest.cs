@@ -36,11 +36,11 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
-                this.CreateActor(typeof(N1), this.ReceivedEvent);
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
+                this.CreateActor(typeof(N1), e);
 
                 string v;
                 while (counter.TryRemove(1, out v) == false)
@@ -61,10 +61,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-
+                var counter = (e as E).Counter;
                 var b = counter.TryAdd(1, "N");
                 this.Assert(b == true);
             }
@@ -78,9 +77,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.CreateActor(typeof(N2), this.ReceivedEvent);
+                this.CreateActor(typeof(N2), e);
             }
         }
 
@@ -92,10 +91,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 counter.TryAdd(1, "N");
 
@@ -113,10 +112,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 for (int i = 0; i < 100; i++)
                 {
@@ -138,10 +137,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 for (int i = 0; i < 100; i++)
                 {
@@ -161,9 +160,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.CreateActor(typeof(N4), this.ReceivedEvent);
+                this.CreateActor(typeof(N4), e);
             }
         }
 
@@ -175,10 +174,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 counter.TryAdd(1, "N");
 
@@ -202,10 +201,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                this.CreateActor(typeof(N5), this.ReceivedEvent);
+                var counter = (e as E).Counter;
+                this.CreateActor(typeof(N5), e);
 
                 for (int i = 0; i <= 100000; i++)
                 {
@@ -222,10 +221,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                var tcs = (this.ReceivedEvent as E).Tcs;
+                var counter = (e as E).Counter;
+                var tcs = (e as E).Tcs;
 
                 while (!counter.TryGetValue(100000, out _))
                 {

@@ -103,9 +103,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ForwardFindSuccessor()
+            private void ForwardFindSuccessor(Event e)
             {
-                this.SendEvent(this.ChordNodes[0], this.ReceivedEvent);
+                this.SendEvent(this.ChordNodes[0], e);
             }
 
             private void ProcessCreateNewNode()
@@ -399,14 +399,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.FingerTable = new Dictionary<int, Finger>();
             }
 
-            private void Setup()
+            private void Setup(Event e)
             {
-                this.NodeId = (this.ReceivedEvent as SetupEvent).Id;
-                this.Keys = (this.ReceivedEvent as SetupEvent).Keys;
-                this.ManagerId = (this.ReceivedEvent as SetupEvent).ManagerId;
+                this.NodeId = (e as SetupEvent).Id;
+                this.Keys = (e as SetupEvent).Keys;
+                this.ManagerId = (e as SetupEvent).ManagerId;
 
-                var nodes = (this.ReceivedEvent as SetupEvent).Nodes;
-                var nodeIds = (this.ReceivedEvent as SetupEvent).NodeIds;
+                var nodes = (e as SetupEvent).Nodes;
+                var nodeIds = (e as SetupEvent).NodeIds;
 
                 this.NumOfIds = (int)Math.Pow(2, nodes.Count);
 
@@ -431,14 +431,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.RaiseEvent(new Local());
             }
 
-            private void JoinCluster()
+            private void JoinCluster(Event e)
             {
-                this.NodeId = (this.ReceivedEvent as Join).Id;
-                this.ManagerId = (this.ReceivedEvent as Join).ManagerId;
-                this.NumOfIds = (this.ReceivedEvent as Join).NumOfIds;
+                this.NodeId = (e as Join).Id;
+                this.ManagerId = (e as Join).ManagerId;
+                this.NumOfIds = (e as Join).NumOfIds;
 
-                var nodes = (this.ReceivedEvent as Join).Nodes;
-                var nodeIds = (this.ReceivedEvent as Join).NodeIds;
+                var nodes = (e as Join).Nodes;
+                var nodeIds = (e as Join).NodeIds;
 
                 for (var idx = 1; idx <= nodes.Count; idx++)
                 {
@@ -469,10 +469,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessFindSuccessor()
+            private void ProcessFindSuccessor(Event e)
             {
-                var sender = (this.ReceivedEvent as FindSuccessor).Sender;
-                var key = (this.ReceivedEvent as FindSuccessor).Key;
+                var sender = (e as FindSuccessor).Sender;
+                var key = (e as FindSuccessor).Key;
 
                 if (this.Keys.Contains(key))
                 {
@@ -525,25 +525,25 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ProcessFindPredecessor()
+            private void ProcessFindPredecessor(Event e)
             {
-                var sender = (this.ReceivedEvent as FindPredecessor).Sender;
+                var sender = (e as FindPredecessor).Sender;
                 if (this.Predecessor != null)
                 {
                     this.SendEvent(sender, new FindPredecessorResp(this.Predecessor));
                 }
             }
 
-            private void ProcessQueryId()
+            private void ProcessQueryId(Event e)
             {
-                var sender = (this.ReceivedEvent as QueryId).Sender;
+                var sender = (e as QueryId).Sender;
                 this.SendEvent(sender, new QueryIdResp(this.NodeId));
             }
 
-            private void SendKeys()
+            private void SendKeys(Event e)
             {
-                var sender = (this.ReceivedEvent as AskForKeys).Node;
-                var senderId = (this.ReceivedEvent as AskForKeys).Id;
+                var sender = (e as AskForKeys).Node;
+                var senderId = (e as AskForKeys).Id;
 
                 this.Assert(this.Predecessor.Equals(sender), "Predecessor is corrupted.");
 
@@ -581,18 +581,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ProcessFindSuccessorResp()
+            private void ProcessFindSuccessorResp(Event e)
             {
-                var successor = (this.ReceivedEvent as FindSuccessorResp).Node;
-                var key = (this.ReceivedEvent as FindSuccessorResp).Key;
+                var successor = (e as FindSuccessorResp).Node;
+                var key = (e as FindSuccessorResp).Key;
 
                 this.Assert(this.FingerTable.ContainsKey(key), "Finger table of {0} does not contain {1}.", this.NodeId, key);
                 this.FingerTable[key] = new Finger(this.FingerTable[key].Start, this.FingerTable[key].End, successor);
             }
 
-            private void ProcessFindPredecessorResp()
+            private void ProcessFindPredecessorResp(Event e)
             {
-                var successor = (this.ReceivedEvent as FindPredecessorResp).Node;
+                var successor = (e as FindPredecessorResp).Node;
                 if (!successor.Equals(this.Id))
                 {
                     this.FingerTable[(this.NodeId + 1) % this.NumOfIds] = new Finger(
@@ -605,18 +605,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void UpdatePredecessor()
+            private void UpdatePredecessor(Event e)
             {
-                var predecessor = (this.ReceivedEvent as NotifySuccessor).Node;
+                var predecessor = (e as NotifySuccessor).Node;
                 if (!predecessor.Equals(this.Id))
                 {
                     this.Predecessor = predecessor;
                 }
             }
 
-            private void UpdateKeys()
+            private void UpdateKeys(Event e)
             {
-                var keys = (this.ReceivedEvent as AskForKeysResp).Keys;
+                var keys = (e as AskForKeysResp).Keys;
                 foreach (var key in keys)
                 {
                     this.Keys.Add(key);
@@ -705,10 +705,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.ClusterManager = (this.ReceivedEvent as SetupEvent).ClusterManager;
-                this.Keys = (this.ReceivedEvent as SetupEvent).Keys;
+                this.ClusterManager = (e as SetupEvent).ClusterManager;
+                this.Keys = (e as SetupEvent).Keys;
 
                 // LIVENESS BUG: can never detect the key, and keeps looping without
                 // exiting the process. Enable to introduce the bug.
@@ -776,10 +776,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessFindSuccessorResp()
+            private void ProcessFindSuccessorResp(Event e)
             {
-                var successor = (this.ReceivedEvent as ChordNode.FindSuccessorResp).Node;
-                var key = (this.ReceivedEvent as ChordNode.FindSuccessorResp).Key;
+                var successor = (e as ChordNode.FindSuccessorResp).Node;
+                var key = (e as ChordNode.FindSuccessorResp).Key;
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientResponse(key));
                 this.SendEvent(successor, new ChordNode.QueryId(this.Id));
             }

@@ -69,10 +69,9 @@ ActorId m1 = this.CreateMachineAnsExecuteAsync(typeof(M1), ...);
 ActorId m2 = this.CreateMachineAnsExecuteAsync(typeof(M2), ...);
 ```
 
-When `M` receives an event, it will choose to run the appropriate state machine as follows.
+When `M` receives an event `e`, it will choose to run the appropriate state machine as follows.
 
 ```c#
-Event e = this.ReceivedEvent;
 if (SomeCondition(e))
 {
    bool b1 = await this.SendEventAndExecuteAsync(m1, e);

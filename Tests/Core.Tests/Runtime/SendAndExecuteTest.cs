@@ -80,13 +80,13 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as Config1).Tcs;
-                var e = new E1();
+                var tcs = (e as Config1).Tcs;
+                var e1 = new E1();
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N1));
-                await this.Runtime.SendEventAndExecuteAsync(m, e);
-                this.Assert(e.Value == 1);
+                await this.Runtime.SendEventAndExecuteAsync(m, e1);
+                this.Assert(e1.Value == 1);
                 tcs.SetResult(true);
             }
         }
@@ -113,11 +113,10 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
                 this.LEHandled = true;
             }
 
-            private void HandleEventE()
+            private void HandleEventE(Event e)
             {
                 this.Assert(this.LEHandled);
-                var e = this.ReceivedEvent as E1;
-                e.Value = 1;
+                (e as E1).Value = 1;
             }
         }
 
@@ -150,9 +149,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as Config1).Tcs;
+                var tcs = (e as Config1).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N2), new E2(this.Id));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
@@ -169,9 +168,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var creator = (this.ReceivedEvent as E2).Id;
+                var creator = (e as E2).Id;
                 var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E3());
                 this.Assert(!handled);
             }
@@ -205,9 +204,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as Config1).Tcs;
+                var tcs = (e as Config1).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N3));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Monitor<SafetyMonitor>(new SEReturns());
@@ -229,7 +228,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<SafetyMonitor>(new MHalts());
                 return Task.CompletedTask;
@@ -299,16 +298,16 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as Config2).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N4), this.ReceivedEvent);
+                var tcs = (e as Config2).Tcs;
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N4), e);
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 this.Assert(false);
                 return OnExceptionOutcome.ThrowException;
@@ -326,9 +325,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.HandleException = (this.ReceivedEvent as Config2).HandleException;
+                this.HandleException = (e as Config2).HandleException;
             }
 
             private void HandleE()
@@ -336,7 +335,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
                 throw new Exception();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return this.HandleException ? OnExceptionOutcome.HandledException : OnExceptionOutcome.ThrowException;
             }
@@ -397,9 +396,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as Config1).Tcs;
+                var tcs = (e as Config1).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N5));
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);

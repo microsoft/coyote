@@ -72,14 +72,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
         private class N : StateMachine
         {
             [Start]
-            [OnEventDoAction(typeof(E), nameof(Foo))]
+            [OnEventDoAction(typeof(E), nameof(Process))]
             private class S : State
             {
             }
 
-            private void Foo()
+            private void Process(Event e)
             {
-                this.SendEvent((this.ReceivedEvent as E).A, new E(this.Id));
+                this.SendEvent((e as E).A, new E(this.Id));
             }
         }
 

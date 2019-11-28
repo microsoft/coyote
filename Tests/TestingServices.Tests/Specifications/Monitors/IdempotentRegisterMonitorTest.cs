@@ -43,10 +43,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void Check()
+            private void Check(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
-                counter.Value++;
+                (e as E).Counter.Value++;
             }
         }
 

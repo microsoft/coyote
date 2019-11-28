@@ -53,9 +53,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.Count = 0;
 
                 // Start a regular timer.
@@ -104,9 +104,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.Count = 0;
 
                 // Start a periodic timer.
@@ -166,9 +166,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private async Task DoPing()
+            private async Task DoPing(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
 
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
                 await Task.Delay(100);
@@ -182,9 +182,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 this.PongTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(50));
             }
 
-            private void HandleTimeout()
+            private void HandleTimeout(Event e)
             {
-                var timeout = this.ReceivedEvent as TimerElapsedEvent;
+                var timeout = e as TimerElapsedEvent;
                 if (timeout.Info == this.PongTimer)
                 {
                     this.Tcs.SetResult(true);
@@ -219,9 +219,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void Initialize()
+            private void Initialize(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
 
                 try
                 {
@@ -261,9 +261,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private void Initialize()
+            private void Initialize(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
 
                 try
                 {

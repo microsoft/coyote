@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex1();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex1();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex1();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex1();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex1();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex1();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -299,7 +299,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex2();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -333,7 +333,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new Ex2();
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -373,7 +373,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Assert(false, "Reached test assertion.");
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -409,7 +409,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Assert(false, "Reached test assertion.");
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -451,7 +451,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Assert(false, "Reached test assertion.");
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is Ex1)
                 {
@@ -500,12 +500,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new NotImplementedException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<GetsDone>(new Done());
                 return Task.CompletedTask;
@@ -535,12 +535,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 throw new NotImplementedException();
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<GetsDone>(new Done());
                 return Task.CompletedTask;
@@ -559,7 +559,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         private class A9 : Actor
         {
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is UnhandledEventException)
                 {
@@ -569,7 +569,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<GetsDone>(new Done());
                 return Task.CompletedTask;
@@ -599,7 +599,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override OnExceptionOutcome OnException(string methodName, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 if (ex is UnhandledEventException)
                 {
@@ -609,7 +609,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<GetsDone>(new Done());
                 return Task.CompletedTask;
@@ -629,7 +629,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         private class A10 : Actor
         {
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 try
                 {
@@ -663,7 +663,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected override OnExceptionOutcome OnException(string method, Exception ex)
+            protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
                 try
                 {

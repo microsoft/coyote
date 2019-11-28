@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.Assert(false);
                 return Task.CompletedTask;
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override async Task OnHaltAsync()
+            protected override async Task OnHaltAsync(Event e)
             {
                 await this.ReceiveEventAsync(typeof(Event));
             }
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.RaiseEvent(new E());
                 return Task.CompletedTask;
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 this.GotoState<Init>();
                 return Task.CompletedTask;
@@ -218,13 +218,13 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.tcs = (this.ReceivedEvent as E).Tcs;
+                this.tcs = (e as E).Tcs;
                 this.RaiseEvent(HaltEvent.Instance);
             }
 
-            protected override Task OnHaltAsync()
+            protected override Task OnHaltAsync(Event e)
             {
                 // No-ops, but no failure.
                 this.SendEvent(this.Id, new E());

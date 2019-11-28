@@ -39,13 +39,13 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
-                var numMachines = (this.ReceivedEvent as SetupEvent).NumMachines;
-                var doHalt = (this.ReceivedEvent as SetupEvent).DoHalt;
+                var tcs = (e as SetupEvent).Tcs;
+                var numMachines = (e as SetupEvent).NumMachines;
+                var doHalt = (e as SetupEvent).DoHalt;
 
-                var counter = Interlocked.Increment(ref (this.ReceivedEvent as SetupEvent).Counter);
+                var counter = Interlocked.Increment(ref (e as SetupEvent).Counter);
                 if (counter == numMachines)
                 {
                     tcs.TrySetResult(true);

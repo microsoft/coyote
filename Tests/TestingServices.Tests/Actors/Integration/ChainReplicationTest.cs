@@ -199,10 +199,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Master = (this.ReceivedEvent as SetupEvent).Master;
-                this.Servers = (this.ReceivedEvent as SetupEvent).Servers;
+                this.Master = (e as SetupEvent).Master;
+                this.Servers = (e as SetupEvent).Servers;
 
                 this.CheckNodeIdx = 0;
                 this.Failures = 100;
@@ -268,10 +268,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.Master, new FailureDetected(this.Servers[this.CheckNodeIdx]));
             }
 
-            private void ProcessFailureCorrected()
+            private void ProcessFailureCorrected(Event e)
             {
                 this.CheckNodeIdx = 0;
-                this.Servers = (this.ReceivedEvent as FailureCorrected).Servers;
+                this.Servers = (e as FailureCorrected).Servers;
             }
         }
 
@@ -371,10 +371,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Servers = (this.ReceivedEvent as SetupEvent).Servers;
-                this.Clients = (this.ReceivedEvent as SetupEvent).Clients;
+                this.Servers = (e as SetupEvent).Servers;
+                this.Clients = (e as SetupEvent).Clients;
 
                 this.FailureDetector = this.CreateActor(
                     typeof(FailureDetector),
@@ -394,11 +394,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void CheckWhichNodeFailed()
+            private void CheckWhichNodeFailed(Event e)
             {
                 this.Assert(this.Servers.Count > 1, "All nodes have failed.");
 
-                var failedServer = (this.ReceivedEvent as FailureDetector.FailureDetected).Server;
+                var failedServer = (e as FailureDetector.FailureDetected).Server;
 
                 if (this.Head.Equals(failedServer))
                 {
@@ -507,11 +507,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.Id, this.Servers[this.FaultyNodeIndex], this.LastAckSent, this.LastUpdateReceivedSucc));
             }
 
-            private void SetLastUpdate()
+            private void SetLastUpdate(Event e)
             {
-                this.LastUpdateReceivedSucc = (this.ReceivedEvent as
+                this.LastUpdateReceivedSucc = (e as
                     ChainReplicationServer.NewSuccInfo).LastUpdateReceivedSucc;
-                this.LastAckSent = (this.ReceivedEvent as
+                this.LastAckSent = (e as
                     ChainReplicationServer.NewSuccInfo).LastAckSent;
                 this.RaiseEvent(new FixPredecessor());
             }
@@ -668,11 +668,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.ServerId = (this.ReceivedEvent as SetupEvent).Id;
-                this.IsHead = (this.ReceivedEvent as SetupEvent).IsHead;
-                this.IsTail = (this.ReceivedEvent as SetupEvent).IsTail;
+                this.ServerId = (e as SetupEvent).Id;
+                this.IsHead = (e as SetupEvent).IsHead;
+                this.IsTail = (e as SetupEvent).IsTail;
 
                 this.KeyValueStore = new Dictionary<int, int>();
                 this.History = new List<int>();
@@ -681,10 +681,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.NextSeqId = 0;
             }
 
-            private void SetupPredSucc()
+            private void SetupPredSucc(Event e)
             {
-                this.Predecessor = (this.ReceivedEvent as PredSucc).Predecessor;
-                this.Successor = (this.ReceivedEvent as PredSucc).Successor;
+                this.Predecessor = (e as PredSucc).Predecessor;
+                this.Successor = (e as PredSucc).Successor;
                 this.RaiseEvent(new Local());
             }
 
@@ -707,10 +707,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Assert(this.IsHead, "Server {0} is not head", this.ServerId);
             }
 
-            private void ProcessQueryAction()
+            private void ProcessQueryAction(Event e)
             {
-                var client = (this.ReceivedEvent as Client.Query).Client;
-                var key = (this.ReceivedEvent as Client.Query).Key;
+                var client = (e as Client.Query).Client;
+                var key = (e as Client.Query).Key;
 
                 this.Assert(this.IsTail, "Server {0} is not tail", this.Id);
 
@@ -727,16 +727,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ProcessBecomeHead()
+            private void ProcessBecomeHead(Event e)
             {
                 this.IsHead = true;
                 this.Predecessor = this.Id;
 
-                var target = (this.ReceivedEvent as ChainReplicationMaster.BecomeHead).Target;
+                var target = (e as ChainReplicationMaster.BecomeHead).Target;
                 this.SendEvent(target, new ChainReplicationMaster.HeadChanged());
             }
 
-            private void ProcessBecomeTail()
+            private void ProcessBecomeTail(Event e)
             {
                 this.IsTail = true;
                 this.Successor = this.Id;
@@ -750,20 +750,20 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendEvent(this.Predecessor, new BackwardAck(this.SentHistory[i].NextSeqId));
                 }
 
-                var target = (this.ReceivedEvent as ChainReplicationMaster.BecomeTail).Target;
+                var target = (e as ChainReplicationMaster.BecomeTail).Target;
                 this.SendEvent(target, new ChainReplicationMaster.TailChanged());
             }
 
-            private void SendPong()
+            private void SendPong(Event e)
             {
-                var target = (this.ReceivedEvent as FailureDetector.Ping).Target;
+                var target = (e as FailureDetector.Ping).Target;
                 this.SendEvent(target, new FailureDetector.Pong());
             }
 
-            private void UpdatePredecessor()
+            private void UpdatePredecessor(Event e)
             {
-                var master = (this.ReceivedEvent as NewPredecessor).Master;
-                this.Predecessor = (this.ReceivedEvent as NewPredecessor).Predecessor;
+                var master = (e as NewPredecessor).Master;
+                this.Predecessor = (e as NewPredecessor).Predecessor;
 
                 if (this.History.Count > 0)
                 {
@@ -782,12 +782,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void UpdateSuccessor()
+            private void UpdateSuccessor(Event e)
             {
-                var master = (this.ReceivedEvent as NewSuccessor).Master;
-                this.Successor = (this.ReceivedEvent as NewSuccessor).Successor;
-                var lastUpdateReceivedSucc = (this.ReceivedEvent as NewSuccessor).LastUpdateReceivedSucc;
-                var lastAckSent = (this.ReceivedEvent as NewSuccessor).LastAckSent;
+                var master = (e as NewSuccessor).Master;
+                this.Successor = (e as NewSuccessor).Successor;
+                var lastUpdateReceivedSucc = (e as NewSuccessor).LastUpdateReceivedSucc;
+                var lastAckSent = (e as NewSuccessor).LastAckSent;
 
                 if (this.SentHistory.Count > 0)
                 {
@@ -825,11 +825,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessUpdateOnEntry()
+            private void ProcessUpdateOnEntry(Event e)
             {
-                var client = (this.ReceivedEvent as Client.Update).Client;
-                var key = (this.ReceivedEvent as Client.Update).Key;
-                var value = (this.ReceivedEvent as Client.Update).Value;
+                var client = (e as Client.Update).Client;
+                var key = (e as Client.Update).Key;
+                var value = (e as Client.Update).Value;
 
                 if (this.KeyValueStore.ContainsKey(key))
                 {
@@ -860,13 +860,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessFwdUpdateOnEntry()
+            private void ProcessFwdUpdateOnEntry(Event e)
             {
-                var pred = (this.ReceivedEvent as ForwardUpdate).Predecessor;
-                var nextSeqId = (this.ReceivedEvent as ForwardUpdate).NextSeqId;
-                var client = (this.ReceivedEvent as ForwardUpdate).Client;
-                var key = (this.ReceivedEvent as ForwardUpdate).Key;
-                var value = (this.ReceivedEvent as ForwardUpdate).Value;
+                var pred = (e as ForwardUpdate).Predecessor;
+                var nextSeqId = (e as ForwardUpdate).NextSeqId;
+                var client = (e as ForwardUpdate).Client;
+                var key = (e as ForwardUpdate).Key;
+                var value = (e as ForwardUpdate).Value;
 
                 if (pred.Equals(this.Predecessor))
                 {
@@ -918,9 +918,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessBckAckOnEntry()
+            private void ProcessBckAckOnEntry(Event e)
             {
-                var nextSeqId = (this.ReceivedEvent as BackwardAck).NextSeqId;
+                var nextSeqId = (e as BackwardAck).NextSeqId;
 
                 this.RemoveItemFromSent(nextSeqId);
 
@@ -1034,12 +1034,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.HeadNode = (this.ReceivedEvent as SetupEvent).HeadNode;
-                this.TailNode = (this.ReceivedEvent as SetupEvent).TailNode;
+                this.HeadNode = (e as SetupEvent).HeadNode;
+                this.TailNode = (e as SetupEvent).TailNode;
 
-                this.StartIn = (this.ReceivedEvent as SetupEvent).Value;
+                this.StartIn = (e as SetupEvent).Value;
                 this.Next = 1;
 
                 this.KeyValueStore = new Dictionary<int, int>
@@ -1178,9 +1178,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Setup()
+            private void Setup(Event e)
             {
-                this.Servers = (this.ReceivedEvent as SetupEvent).Servers;
+                this.Servers = (e as SetupEvent).Servers;
                 this.History = new Dictionary<ActorId, List<int>>();
                 this.SentHistory = new Dictionary<ActorId, List<int>>();
                 this.TempSeq = new List<int>();
@@ -1195,10 +1195,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void CheckUpdatePropagationInvariant()
+            private void CheckUpdatePropagationInvariant(Event e)
             {
-                var server = (this.ReceivedEvent as HistoryUpdate).Server;
-                var history = (this.ReceivedEvent as HistoryUpdate).History;
+                var server = (e as HistoryUpdate).Server;
+                var history = (e as HistoryUpdate).History;
 
                 this.IsSorted(history);
 
@@ -1226,12 +1226,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void CheckInprocessRequestsInvariant()
+            private void CheckInprocessRequestsInvariant(Event e)
             {
                 this.ClearTempSeq();
 
-                var server = (this.ReceivedEvent as SentUpdate).Server;
-                var sentHistory = (this.ReceivedEvent as SentUpdate).SentHistory;
+                var server = (e as SentUpdate).Server;
+                var sentHistory = (e as SentUpdate).SentHistory;
 
                 this.ExtractSeqId(sentHistory);
 
@@ -1391,9 +1391,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Assert(this.TempSeq.Count == 0, "Temp sequence is not cleared.");
             }
 
-            private void ProcessUpdateServers()
+            private void ProcessUpdateServers(Event e)
             {
-                this.Servers = (this.ReceivedEvent as UpdateServers).Servers;
+                this.Servers = (e as UpdateServers).Servers;
             }
         }
 
@@ -1465,9 +1465,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Setup()
+            private void Setup(Event e)
             {
-                this.Servers = (this.ReceivedEvent as SetupEvent).Servers;
+                this.Servers = (e as SetupEvent).Servers;
                 this.LastUpdateResponse = new Dictionary<int, int>();
                 this.RaiseEvent(new Local());
             }
@@ -1479,11 +1479,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ResponseToUpdateAction()
+            private void ResponseToUpdateAction(Event e)
             {
-                var tail = (this.ReceivedEvent as ResponseToUpdate).Tail;
-                var key = (this.ReceivedEvent as ResponseToUpdate).Key;
-                var value = (this.ReceivedEvent as ResponseToUpdate).Value;
+                var tail = (e as ResponseToUpdate).Tail;
+                var key = (e as ResponseToUpdate).Key;
+                var value = (e as ResponseToUpdate).Value;
 
                 if (this.Servers.Contains(tail))
                 {
@@ -1498,11 +1498,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ResponseToQueryAction()
+            private void ResponseToQueryAction(Event e)
             {
-                var tail = (this.ReceivedEvent as ResponseToQuery).Tail;
-                var key = (this.ReceivedEvent as ResponseToQuery).Key;
-                var value = (this.ReceivedEvent as ResponseToQuery).Value;
+                var tail = (e as ResponseToQuery).Tail;
+                var key = (e as ResponseToQuery).Key;
+                var value = (e as ResponseToQuery).Value;
 
                 if (this.Servers.Contains(tail))
                 {
@@ -1511,9 +1511,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ProcessUpdateServers()
+            private void ProcessUpdateServers(Event e)
             {
-                this.Servers = (this.ReceivedEvent as UpdateServers).Servers;
+                this.Servers = (e as UpdateServers).Servers;
             }
         }
 

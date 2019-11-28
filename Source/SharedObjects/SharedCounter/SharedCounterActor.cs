@@ -29,18 +29,18 @@ namespace Microsoft.Coyote.SharedObjects
         /// <summary>
         /// Processes the next dequeued event.
         /// </summary>
-        private void ProcessEvent()
+        private void ProcessEvent(Event e)
         {
-            var e = this.ReceivedEvent as SharedCounterEvent;
-            switch (e.Operation)
+            var opEvent = e as SharedCounterEvent;
+            switch (opEvent.Operation)
             {
                 case SharedCounterEvent.OperationType.Set:
-                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
-                    this.Counter = e.Value;
+                    this.SendEvent(opEvent.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.Counter = opEvent.Value;
                     break;
 
                 case SharedCounterEvent.OperationType.Get:
-                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.SendEvent(opEvent.Sender, new SharedCounterResponseEvent(this.Counter));
                     break;
 
                 case SharedCounterEvent.OperationType.Increment:
@@ -52,21 +52,21 @@ namespace Microsoft.Coyote.SharedObjects
                     break;
 
                 case SharedCounterEvent.OperationType.Add:
-                    this.Counter += e.Value;
-                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
+                    this.Counter += opEvent.Value;
+                    this.SendEvent(opEvent.Sender, new SharedCounterResponseEvent(this.Counter));
                     break;
 
                 case SharedCounterEvent.OperationType.CompareExchange:
-                    this.SendEvent(e.Sender, new SharedCounterResponseEvent(this.Counter));
-                    if (this.Counter == e.Comparand)
+                    this.SendEvent(opEvent.Sender, new SharedCounterResponseEvent(this.Counter));
+                    if (this.Counter == opEvent.Comparand)
                     {
-                        this.Counter = e.Value;
+                        this.Counter = opEvent.Value;
                     }
 
                     break;
 
                 default:
-                    throw new System.ArgumentOutOfRangeException("Unsupported SharedCounter operation: " + e.Operation);
+                    throw new System.ArgumentOutOfRangeException("Unsupported SharedCounter operation: " + opEvent.Operation);
             }
         }
     }

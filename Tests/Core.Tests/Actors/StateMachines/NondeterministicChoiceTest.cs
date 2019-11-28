@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.tcs = (this.ReceivedEvent as ConfigEvent).Tcs;
+                this.tcs = (e as ConfigEvent).Tcs;
                 this.tcs.SetResult(this.Random());
             }
         }
@@ -77,9 +77,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.tcs = (this.ReceivedEvent as ConfigEvent).Tcs;
+                this.tcs = (e as ConfigEvent).Tcs;
                 this.tcs.SetResult(this.RandomInteger(10) == 5);
             }
         }

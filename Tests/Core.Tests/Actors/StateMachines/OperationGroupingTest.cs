@@ -61,9 +61,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(this.OperationGroupId == Guid.Empty);
             }
         }
@@ -92,9 +92,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E());
             }
 
@@ -128,9 +128,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
                 this.Runtime.SendEvent(this.Id, new E(), OperationGroup1);
             }
 
@@ -161,9 +161,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 this.CreateActor(typeof(M4B), new SetupEvent(tcs));
             }
         }
@@ -176,9 +176,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(this.OperationGroupId == Guid.Empty);
             }
         }
@@ -204,9 +204,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 var target = this.CreateActor(typeof(M5B), new SetupEvent(tcs));
                 this.SendEvent(target, new E());
             }
@@ -223,9 +223,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
             }
 
             private void CheckEvent()
@@ -255,9 +255,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 var target = this.CreateActor(typeof(M6B), new SetupEvent(tcs));
                 this.Runtime.SendEvent(target, new E(), OperationGroup1);
             }
@@ -274,9 +274,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
             }
 
             private void CheckEvent()
@@ -309,9 +309,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
+                var tcss = (e as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
                 var target = this.CreateActor(typeof(M7B), new SetupEvent(tcss[1]));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
@@ -334,15 +334,15 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
             }
 
-            private void CheckEvent()
+            private void CheckEvent(Event e)
             {
                 this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
-                this.SendEvent((this.ReceivedEvent as E).Id, new E());
+                this.SendEvent((e as E).Id, new E());
             }
         }
 
@@ -374,9 +374,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
+                var tcss = (e as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
                 var target = this.CreateActor(typeof(M8B), new SetupEvent(tcss[1]));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
@@ -399,15 +399,15 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                this.Tcs = (e as SetupEvent).Tcs;
             }
 
-            private void CheckEvent()
+            private void CheckEvent(Event e)
             {
                 this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
-                this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
+                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
             }
         }
 
@@ -439,9 +439,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
+                var tcss = (e as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
                 var target = this.CreateActor(typeof(M9B), new SetupMultipleEvent(tcss[1], tcss[2]));
                 this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
@@ -465,18 +465,18 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcss = (this.ReceivedEvent as SetupMultipleEvent).Tcss;
+                var tcss = (e as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
                 this.TargetTcs = tcss[1];
             }
 
-            private void CheckEvent()
+            private void CheckEvent(Event e)
             {
                 this.CreateActor(typeof(M9C), new SetupEvent(this.TargetTcs));
                 this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
-                this.Runtime.SendEvent((this.ReceivedEvent as E).Id, new E(), OperationGroup2);
+                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
             }
         }
 
@@ -488,9 +488,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupEvent).Tcs;
+                var tcs = (e as SetupEvent).Tcs;
                 tcs.SetResult(this.OperationGroupId == OperationGroup1);
             }
         }

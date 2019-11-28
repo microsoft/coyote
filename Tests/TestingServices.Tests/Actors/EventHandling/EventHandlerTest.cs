@@ -62,13 +62,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return Task.CompletedTask;
             }
 
-            private void HandleUnitEvent()
+            private void HandleUnitEvent(Event e)
             {
                 this.Test = true;
+                this.Assert(e is Event);
             }
 
-            private void HandleE1()
+            private void HandleE1(Event e)
             {
+                this.Assert(e is Event);
                 this.Assert(this.Test == false, "Reached test assertion.");
             }
         }
@@ -1048,9 +1050,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private void ActiveOnEntry(Event e)
             {
-                this.Assert(this.ReceivedEvent.GetType() == typeof(DefaultEvent));
+                this.Assert(e.GetType() == typeof(DefaultEvent));
             }
         }
 
@@ -1130,9 +1132,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.RealMachine = (this.ReceivedEvent as SetupEvent).Id;
+                this.RealMachine = (e as SetupEvent).Id;
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -1230,9 +1232,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.RealMachine = (this.ReceivedEvent as SetupEvent).Id;
+                this.RealMachine = (e as SetupEvent).Id;
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -1327,9 +1329,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.RealMachine = (this.ReceivedEvent as SetupEvent).Id;
+                this.RealMachine = (e as SetupEvent).Id;
             }
 
             [OnEntry(nameof(EntryS1))]

@@ -67,9 +67,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var counter = (this.ReceivedEvent as E).Counter;
+                var counter = (e as E).Counter;
                 counter.Decrement();
             }
         }
@@ -94,9 +94,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var flag = (this.ReceivedEvent as SetupEvent).Flag;
+                var flag = (e as SetupEvent).Flag;
 
                 var counter = SharedCounter.Create(this.Id.Runtime, 0);
                 var n = this.CreateActor(typeof(N2), new E(counter));
@@ -139,9 +139,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Counter = (this.ReceivedEvent as E).Counter;
+                this.Counter = (e as E).Counter;
                 this.Counter.Add(5);
             }
 
@@ -184,9 +184,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Counter = (this.ReceivedEvent as E).Counter;
+                this.Counter = (e as E).Counter;
                 this.Counter.Add(-4);
                 this.Counter.Decrement();
 

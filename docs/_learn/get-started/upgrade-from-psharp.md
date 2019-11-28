@@ -40,6 +40,7 @@ actor programming model.
 - `Machine.Raise` was renamed `StateMachine.RaiseEvent` to become more descriptive.
 - `Machine.Receive` was renamed `StateMachine.ReceiveEventAsync` to become more descriptive.
 - `Machine.Send` was renamed `StateMachine.SendEvent` to become more descriptive and match the runtime API.
+- `ReceivedEvent` has been removed. You can now declare event-handlers that take a single `Event` as an in-parameter. Some of the user callbacks (e.g. `OnException` and `OnHaltAsync`) now give access to the last dequeued event.
 
 ## Event API changes
 - `Halt` (now `HaltEvent`) can no longer be constructed, use `HaltEvent.Instance` instead to get access to a singleton instance created once to reduce unnecessary allocations.

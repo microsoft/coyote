@@ -67,9 +67,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void Check()
+            private void Check(Event e)
             {
-                this.Assert((this.ReceivedEvent as CheckE).Value == true);
+                this.Assert((e as CheckE).Value == true);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 
             private void Check()
             {
-                // this.Assert((this.ReceivedEvent as CheckE).Value == true); // passes
+                // this.Assert((e as CheckE).Value == true); // passes
             }
         }
 
@@ -95,9 +95,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private void Check()
+            private void Check(Event e)
             {
-                this.Assert((this.ReceivedEvent as CheckE).Value == false);
+                this.Assert((e as CheckE).Value == false);
             }
         }
 

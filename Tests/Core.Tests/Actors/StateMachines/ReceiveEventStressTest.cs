@@ -53,10 +53,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                var tcs = (e as SetupTcsEvent).Tcs;
+                var numMessages = (e as SetupTcsEvent).NumMessages;
 
                 var id = this.CreateActor(typeof(M2), new SetupTcsEvent(tcs, numMessages));
 
@@ -77,10 +77,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                var tcs = (e as SetupTcsEvent).Tcs;
+                var numMessages = (e as SetupTcsEvent).NumMessages;
 
                 var counter = 0;
                 while (counter < numMessages)
@@ -119,10 +119,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                var tcs = (e as SetupTcsEvent).Tcs;
+                var numMessages = (e as SetupTcsEvent).NumMessages;
 
                 var id = this.CreateActor(typeof(M4), new SetupTcsEvent(tcs, numMessages));
 
@@ -150,10 +150,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                this.NumMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                this.Tcs = (e as SetupTcsEvent).Tcs;
+                this.NumMessages = (e as SetupTcsEvent).NumMessages;
                 this.Counter = 0;
             }
 
@@ -195,10 +195,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var tcs = (this.ReceivedEvent as SetupTcsEvent).Tcs;
-                var numMessages = (this.ReceivedEvent as SetupTcsEvent).NumMessages;
+                var tcs = (e as SetupTcsEvent).Tcs;
+                var numMessages = (e as SetupTcsEvent).NumMessages;
 
                 var id = this.CreateActor(typeof(M6), new SetupIdEvent(this.Id, numMessages));
 
@@ -222,10 +222,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry()
+            private async Task InitOnEntry(Event e)
             {
-                var id = (this.ReceivedEvent as SetupIdEvent).Id;
-                var numMessages = (this.ReceivedEvent as SetupIdEvent).NumMessages;
+                var id = (e as SetupIdEvent).Id;
+                var numMessages = (e as SetupIdEvent).NumMessages;
 
                 var counter = 0;
                 while (counter < numMessages)

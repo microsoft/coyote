@@ -101,9 +101,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void UpdateAliveNodes()
+            private void UpdateAliveNodes(Event e)
             {
-                var node = (this.ReceivedEvent as NotifyNode).Node;
+                var node = (e as NotifyNode).Node;
                 this.AliveNodes.Add(node);
 
                 if (this.AliveNodes.Count == this.NumberOfReplicas &&
@@ -197,10 +197,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.RepairTimer, new RepairTimer.ConfigureEvent(this.Id));
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Environment = (this.ReceivedEvent as ConfigureEvent).Environment;
-                this.NumberOfReplicas = (this.ReceivedEvent as ConfigureEvent).NumberOfReplicas;
+                this.Environment = (e as ConfigureEvent).Environment;
+                this.NumberOfReplicas = (e as ConfigureEvent).NumberOfReplicas;
 
                 for (int idx = 0; idx < this.NumberOfReplicas; idx++)
                 {
@@ -227,9 +227,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessClientRequest()
+            private void ProcessClientRequest(Event e)
             {
-                var command = (this.ReceivedEvent as Client.Request).Command;
+                var command = (e as Client.Request).Command;
                 var aliveNodeIds = this.StorageNodeMap.Where(n => n.Value).Select(n => n.Key);
                 foreach (var nodeId in aliveNodeIds)
                 {
@@ -266,10 +266,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private void ProcessSyncReport()
+            private void ProcessSyncReport(Event e)
             {
-                var nodeId = (this.ReceivedEvent as StorageNode.SyncReport).NodeId;
-                var data = (this.ReceivedEvent as StorageNode.SyncReport).Data;
+                var nodeId = (e as StorageNode.SyncReport).NodeId;
+                var data = (e as StorageNode.SyncReport).Data;
 
                 // LIVENESS BUG: can fail to ever repair again as it thinks there
                 // are enough replicas. Enable to introduce a bug fix.
@@ -286,9 +286,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.DataMap[nodeId] = data;
             }
 
-            private void ProcessFailure()
+            private void ProcessFailure(Event e)
             {
-                var node = (this.ReceivedEvent as NotifyFailure).Node;
+                var node = (e as NotifyFailure).Node;
                 var nodeId = this.StorageNodes.IndexOf(node);
                 this.StorageNodeMap.Remove(nodeId);
                 this.DataMap.Remove(nodeId);
@@ -378,11 +378,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.SyncTimer, new SyncTimer.ConfigureEvent(this.Id));
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Environment = (this.ReceivedEvent as ConfigureEvent).Environment;
-                this.NodeManager = (this.ReceivedEvent as ConfigureEvent).NodeManager;
-                this.NodeId = (this.ReceivedEvent as ConfigureEvent).Id;
+                this.Environment = (e as ConfigureEvent).Environment;
+                this.NodeManager = (e as ConfigureEvent).NodeManager;
+                this.NodeId = (e as ConfigureEvent).Id;
 
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeCreated(this.NodeId));
                 this.SendEvent(this.Environment, new Environment.NotifyNode(this.Id));
@@ -398,16 +398,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void Store()
+            private void Store(Event e)
             {
-                var cmd = (this.ReceivedEvent as StoreRequest).Command;
+                var cmd = (e as StoreRequest).Command;
                 this.Data += cmd;
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeUpdate(this.NodeId, this.Data));
             }
 
-            private void Sync()
+            private void Sync(Event e)
             {
-                var data = (this.ReceivedEvent as SyncRequest).Data;
+                var data = (e as SyncRequest).Data;
                 this.Data = data;
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeUpdate(this.NodeId, this.Data));
             }
@@ -463,9 +463,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
+                this.Target = (e as ConfigureEvent).Target;
                 this.RaiseEvent(new StartTimerEvent());
             }
 
@@ -537,9 +537,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
+                this.Target = (e as ConfigureEvent).Target;
                 this.RaiseEvent(new StartTimerEvent());
             }
 
@@ -611,9 +611,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.Target = (this.ReceivedEvent as ConfigureEvent).Target;
+                this.Target = (e as ConfigureEvent).Target;
                 this.RaiseEvent(new StartTimerEvent());
             }
 
@@ -694,9 +694,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Counter = 0;
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.NodeManager = (this.ReceivedEvent as ConfigureEvent).NodeManager;
+                this.NodeManager = (e as ConfigureEvent).NodeManager;
                 this.RaiseEvent(new LocalEvent());
             }
 
@@ -792,9 +792,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.DataMap = new Dictionary<int, int>();
             }
 
-            private void SetupEvent()
+            private void SetupEvent(Event e)
             {
-                this.NumberOfReplicas = (this.ReceivedEvent as ConfigureEvent).NumberOfReplicas;
+                this.NumberOfReplicas = (e as ConfigureEvent).NumberOfReplicas;
                 this.RaiseEvent(new LocalEvent());
             }
 
@@ -807,22 +807,22 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessNodeCreated()
+            private void ProcessNodeCreated(Event e)
             {
-                var nodeId = (this.ReceivedEvent as NotifyNodeCreated).NodeId;
+                var nodeId = (e as NotifyNodeCreated).NodeId;
                 this.DataMap.Add(nodeId, 0);
             }
 
-            private void FailAndCheckRepair()
+            private void FailAndCheckRepair(Event e)
             {
-                this.ProcessNodeFail();
+                this.ProcessNodeFail(e);
                 this.RaiseEvent(new LocalEvent());
             }
 
-            private void ProcessNodeUpdate()
+            private void ProcessNodeUpdate(Event e)
             {
-                var nodeId = (this.ReceivedEvent as NotifyNodeUpdate).NodeId;
-                var data = (this.ReceivedEvent as NotifyNodeUpdate).Data;
+                var nodeId = (e as NotifyNodeUpdate).NodeId;
+                var data = (e as NotifyNodeUpdate).Data;
                 this.DataMap[nodeId] = data;
             }
 
@@ -835,15 +835,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ProcessNodeFail()
+            private void ProcessNodeFail(Event e)
             {
-                var nodeId = (this.ReceivedEvent as NotifyNodeFail).NodeId;
+                var nodeId = (e as NotifyNodeFail).NodeId;
                 this.DataMap.Remove(nodeId);
             }
 
-            private void CheckIfRepaired()
+            private void CheckIfRepaired(Event e)
             {
-                this.ProcessNodeUpdate();
+                this.ProcessNodeUpdate(e);
                 var consensus = this.DataMap.Select(kvp => kvp.Value).GroupBy(v => v).
                     OrderByDescending(v => v.Count()).FirstOrDefault();
 

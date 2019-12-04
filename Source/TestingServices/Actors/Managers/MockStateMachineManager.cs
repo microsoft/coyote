@@ -42,16 +42,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal int ProgramCounter;
 
         /// <summary>
-        /// True if a transition statement was called in the current action, else false.
-        /// </summary>
-        internal bool IsTransitionStatementCalledInCurrentAction;
-
-        /// <summary>
-        /// True if the state machine is executing an on exit action, else false.
-        /// </summary>
-        internal bool IsInsideOnExit;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MockStateMachineManager"/> class.
         /// </summary>
         internal MockStateMachineManager(SystematicTestingRuntime runtime, StateMachine instance, Guid operationGroupId)
@@ -61,8 +51,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.IsEventHandlerRunning = true;
             this.OperationGroupId = operationGroupId;
             this.ProgramCounter = 0;
-            this.IsTransitionStatementCalledInCurrentAction = false;
-            this.IsInsideOnExit = false;
         }
 
         /// <summary>

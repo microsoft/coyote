@@ -89,14 +89,16 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
                 }
             }
 
-            private void HandleCreationAck()
+            private Transition HandleCreationAck()
             {
                 this.Counter++;
                 if (this.Counter == this.NumConsumers)
                 {
                     this.TcsSetup.SetResult(true);
-                    this.GotoState<Experiment>();
+                    return this.GotoState<Experiment>();
                 }
+
+                return default;
             }
 
             [OnEventDoAction(typeof(StartExperiment), nameof(Run))]

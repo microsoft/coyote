@@ -107,14 +107,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     info.Assert, info.EventName, this.Actor.Id);
             }
 
-            if (info.Assume >= 0)
-            {
-                var eventCount = this.Queue.Count(val => val.e.GetType().Equals(e.GetType()));
-                this.ActorManager.Assert(eventCount <= info.Assume,
-                    "There are more than {0} instances of '{1}' in the input queue of '{2}'.",
-                    info.Assume, info.EventName, this.Actor.Id);
-            }
-
             if (!this.ActorManager.IsEventHandlerRunning)
             {
                 if (this.TryDequeueEvent(true).e is null)

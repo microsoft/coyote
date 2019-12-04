@@ -75,7 +75,7 @@ private void DoPing()
    this.PingTimerInfo = this.StartPeriodicTimer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), payload: new object());
 }
 
-private async Task HandleTimeoutForPing(Event e)
+private async Task<Transition> HandleTimeoutForPing(Event e)
 {
    var timeout = (e as TimerElapsedEvent);
 
@@ -93,8 +93,10 @@ private async Task HandleTimeoutForPing(Event e)
          // Stop the ping timer after handling 10 timeout events.
          // This will cause any enqueued events from this timer to be ignored.
          this.StopTimer(this.PingTimerInfo);
-         this.GotoState<Pong>();
+         return this.GotoState<Pong>();
    }
+
+   return default;
 }
 ```
 

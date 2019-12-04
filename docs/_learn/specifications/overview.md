@@ -141,31 +141,27 @@ class LivenessMonitor : Monitor
   class EnoughReplicas : State { }
 
   // Notification that a new replica is up.
-  void OnUp()
+  Transition OnUp()
   {
      alive ++;
      if (alive >= 3)
      {
-        this.GotoState<EnoughReplicas>();
+        return this.GotoState<EnoughReplicas>();
      }
-     else
-     {
-        this.GotoState<NotEnoughReplicas>();
-     }
+     
+     return this.GotoState<NotEnoughReplicas>();
   }
 
   // Notification that a replica has gone down.
-  void OnDown()
+  Transition OnDown()
   {
      alive --;
      if (alive >= 3)
      {
-        this.GotoState<EnoughReplicas>();
+        return this.GotoState<EnoughReplicas>();
      }
-     else
-     {
-        this.GotoState<NotEnoughReplicas>();
-     }
+     
+     return this.GotoState<NotEnoughReplicas>();
   }
 }
 ```

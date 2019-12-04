@@ -29,6 +29,16 @@ namespace Microsoft.Coyote.Actors
                 this.Handler = Delegate.CreateDelegate(typeof(Action), caller, method);
                 this.IsAsync = false;
             }
+            else if (parameters.Length == 1 && method.ReturnType == typeof(StateMachine.Transition))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<Event, StateMachine.Transition>), caller, method);
+                this.IsAsync = false;
+            }
+            else if (method.ReturnType == typeof(StateMachine.Transition))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<StateMachine.Transition>), caller, method);
+                this.IsAsync = false;
+            }
             else if (parameters.Length == 1 && method.ReturnType == typeof(Task))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Func<Event, Task>), caller, method);
@@ -37,6 +47,16 @@ namespace Microsoft.Coyote.Actors
             else if (method.ReturnType == typeof(Task))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Func<Task>), caller, method);
+                this.IsAsync = true;
+            }
+            else if (parameters.Length == 1 && method.ReturnType == typeof(Task<StateMachine.Transition>))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<Event, Task<StateMachine.Transition>>), caller, method);
+                this.IsAsync = true;
+            }
+            else if (method.ReturnType == typeof(Task<StateMachine.Transition>))
+            {
+                this.Handler = Delegate.CreateDelegate(typeof(Func<Task<StateMachine.Transition>>), caller, method);
                 this.IsAsync = true;
             }
             else

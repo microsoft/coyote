@@ -67,7 +67,7 @@ seen in the following code snippet:
 [OnExit(nameof(InitOnExit))]
 class SomeState : State { }
 
-void InitOnEntry() {
+Transition InitOnEntry() {
   // Code executing when entering the state.
 }
 
@@ -77,41 +77,45 @@ void InitOnExit() {
 ```
 
 A method declared using the `OnEntry` attribute denotes an action that will be executed when the
-machine transitions to the state, while a method indicated by the `OnExit` attribute denotes an action
-that will be executed when the machine leaves the state. Actions in Coyote are essentially methods with
-no input parameters and the `void` return type. Coyote actions can contain arbitrary C# code. However,
-since (1) a Coyote machine is an actor and (2) we want to explicitly declare all sources of concurrency
+machine transitions to the state, while a method indicated by the `OnExit` attribute denotes
+an action that will be executed when the machine leaves the state. Actions in Coyote are
+C# methods that take either no input parameters or a single input parameter of type `Event`,
+and return either `void` or a `Transition` (which we will explain in a bit).
+Coyote actions can contain arbitrary C# code. However, since (1) a Coyote machine
+is an actor and (2) we want to explicitly declare all sources of concurrency
 using Coyote (so that the tester can take control and explore interleavings to find bugs), the
-framework typically only allows the use of _sequential_ C# code inside a machine. In practice, we just
-_assume_ that the C# code is sequential, as it would be very challenging to impose this rule in real
-life programs. Using non-controlled concurrency inside a machine handler results into undefined
+framework typically only allows the use of _sequential_ C# code inside a machine. In practice,
+we just _assume_ that the C# code is sequential, as it would be very challenging to impose
+this rule in real life programs.
+Using non-controlled concurrency inside a machine handler results into undefined
 behavior, but the Coyote tester will try to identify such cases and report an error.
 
 An example of an `OnEntry` action is the following:
 
 ```c#
-void InitOnEntry() {
+Transition InitOnEntry() {
   this.Client = this.CreateStateMachine(typeof(Client));
   this.SendEvent(this.Client, new ConfigEvent(this.Id));
   this.SendEvent(this.Client, new PingEvent());
-  this.RaiseEvent(new UnitEvent());
+  return this.RaiseEvent(new UnitEvent());
 }
 ```
 
-The above action contains three of the most important machine APIs. The `CreateStateMachine` method is used
+The above action contains three of the most important machine APIs.
+The `CreateStateMachine` method is used
 to create a new instance of the `Client` machine. A handle to this instance (with type `ActorId`) is
 stored in the `Client` field. Next, the `SendEvent` method is used to send an event (in this case
 the events `ConfigEvent` and `PingEvent`) to a target machine (in this case the machine whose
 address is stored in the field `Client`).
 
-When an event is being sent, it is enqueued in the event queue of the target machine, which can then
-dequeue the received event, and handle it asynchronously from the sender machine.
+When an event is being sent, it is enqueued in the event queue of the target machine, which
+can then dequeue the received event, and handle it asynchronously from the sender machine.
 Finally, the `RaiseEvent` method is used to send an event to the caller machine (i.e. to itself).
 Similar to invoking `SendEvent`, when a machine raises an event, it still continues execution
-of the method that raised. However, when the current machine action finishes, instead of
-dequeuing from the inbox, the machine immediately handles the raised event (i.e. has higher
-priority than the queue).
-
+of the method that raised until the `Transition` result of invoking `RaiseEvent` is returned
+by the action. When the current machine action finishes, instead of dequeuing the next event
+from the inbox (if there is one), the machine immediately handles the raised event
+(prioritizing it over the inbox) by performing a raise event transition.
 In Coyote, events (e.g. `PingEvent`, `UnitEvent` and `ConfigEvent` in the above example) can be declared as follows:
 
 ```c#
@@ -235,10 +239,10 @@ namespace PingPong {
     [OnEventGotoState(typeof(UnitEvent), typeof(Active))]
     class Init : State { }
 
-    void InitOnEntry() {
+    Transition InitOnEntry() {
       this.Client = this.CreateStateMachine(typeof(Client));
       this.SendEvent(this.Client, new ConfigEvent(this.Id));
-      this.RaiseEvent(new UnitEvent());
+      return this.RaiseEvent(new UnitEvent());
     }
 
     [OnEntry(nameof(ServerActiveEntry))]
@@ -263,9 +267,9 @@ namespace PingPong {
     [OnEventDoAction(typeof(ConfigEvent), nameof(Configure))]
     class Init : State { }
 
-    void Configure(Event e) {
+    Transition Configure(Event e) {
       this.Server = (e as ConfigEvent).Target;
-      this.RaiseEvent(new UnitEvent());
+      return this.RaiseEvent(new UnitEvent());
     }
 
     [OnEventDoAction(typeof(PingEvent), nameof(SendPong))]

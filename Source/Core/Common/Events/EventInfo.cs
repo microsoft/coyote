@@ -29,20 +29,14 @@ namespace Microsoft.Coyote.Runtime
         internal bool MustHandle { get; set; }
 
         /// <summary>
-        /// Specifies that there must not be more than N instances of the
-        /// event in the inbox queue of the receiver.
+        /// Asserts that there must not be more than N instances of the
+        /// event type in the inbox queue of the receiver.
         /// </summary>
         internal int Assert { get; set; }
 
         /// <summary>
-        /// Speciﬁes that during testing, an execution that increases the cardinality of the
-        /// event beyond N in the receiver inbox queue must not be generated.
-        /// </summary>
-        internal int Assume { get; set; }
-
-        /// <summary>
-        /// User-defined hash of the event payload. The default value is 0. Set it to a custom value
-        /// to improve the accuracy of liveness checking when state-caching is enabled.
+        /// User-defined hash of the event. The default value is 0. Override to
+        /// improve the accuracy of stateful techniques during testing.
         /// </summary>
         internal int HashedState { get; set; }
 
@@ -59,7 +53,6 @@ namespace Microsoft.Coyote.Runtime
             this.EventName = e.GetType().FullName;
             this.MustHandle = false;
             this.Assert = -1;
-            this.Assume = -1;
             this.HashedState = 0;
         }
 

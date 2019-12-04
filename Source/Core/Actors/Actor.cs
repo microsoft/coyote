@@ -81,20 +81,20 @@ namespace Microsoft.Coyote.Actors
         private protected readonly Dictionary<TimerInfo, IActorTimer> Timers;
 
         /// <summary>
-        /// Checks if the actor halted.
+        /// The current status of the actor. It is marked volatile as
+        /// the runtime can read it concurrently.
         /// </summary>
-        internal volatile bool IsHalted;
+        private protected volatile Status CurrentStatus;
+
+        /// <summary>
+        /// Checks if the actor is halted.
+        /// </summary>
+        internal bool IsHalted => this.CurrentStatus is Status.Halted;
 
         /// <summary>
         /// Checks if a default handler is available.
         /// </summary>
         internal bool IsDefaultHandlerAvailable { get; private set; }
-
-        /// <summary>
-        /// Checks if <see cref="OnException"/> should suppress the exception
-        /// and the actor gracefully halt.
-        /// </summary>
-        private protected bool IsSuppressingExceptionAndHalting;
 
         /// <summary>
         /// Id used to identify subsequent operations performed by this actor. This value
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// User-defined hashed state of the actor. Override to improve the
-        /// accuracy of liveness checking when state-caching is enabled.
+        /// accuracy of stateful techniques during testing.
         /// </summary>
         protected virtual int HashedState => 0;
 
@@ -133,9 +133,8 @@ namespace Microsoft.Coyote.Actors
             this.IgnoredEvents = new HashSet<Type>();
             this.DeferredEvents = new HashSet<Type>();
             this.Timers = new Dictionary<TimerInfo, IActorTimer>();
-            this.IsHalted = false;
+            this.CurrentStatus = Status.Active;
             this.IsDefaultHandlerAvailable = false;
-            this.IsSuppressingExceptionAndHalting = false;
         }
 
         /// <summary>
@@ -155,23 +154,11 @@ namespace Microsoft.Coyote.Actors
         /// <param name="initialEvent">Optional event used for initialization.</param>
         internal virtual async Task InitializeAsync(Event initialEvent)
         {
-            try
+            // Invoke the custom initializer, if there is one.
+            await this.InvokeUserCallbackAsync(UserCallbackType.OnInitialize, initialEvent);
+            if (this.CurrentStatus is Status.Halting)
             {
-                try
-                {
-                    // Invoke the custom initializer.
-                    Task task = this.OnInitializeAsync(initialEvent);
-                    this.Runtime.NotifyWaitTask(this, task);
-                    await task;
-                }
-                catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnInitializeAsync), initialEvent))
-                {
-                    // User handled the exception, return normally.
-                }
-            }
-            catch (Exception ex)
-            {
-                await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnInitializeAsync), initialEvent);
+                await this.HaltAsync(initialEvent);
             }
         }
 
@@ -232,7 +219,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
-            this.Assert(!this.IsHalted, "'{0}' invoked ReceiveEventAsync while halted.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(eventType, predicate);
         }
@@ -244,7 +231,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
-            this.Assert(!this.IsHalted, "'{0}' invoked ReceiveEventAsync while halted.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(eventTypes);
         }
@@ -257,7 +244,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
-            this.Assert(!this.IsHalted, "'{0}' invoked ReceiveEventAsync while halted.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(events);
         }
@@ -265,7 +252,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Sets the actor to ignore all events of the the specified type. This can be reverted
         /// by setting the <paramref name="ignore"/> parameter to false.
-        /// Ignoring of the
         /// </summary>
         /// <param name="eventType">The event type to ignore.</param>
         /// <param name="ignore">True to ignore events of the specified type, else false.</param>
@@ -286,7 +272,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Sets the actor to defer all events of the the specified type. This can be reverted
         /// by setting the <paramref name="defer"/> parameter to false.
-        /// Ignoring of the
         /// </summary>
         /// <param name="eventType">The event type to defer.</param>
         /// <param name="defer">True to defer events of the specified type, else false.</param>
@@ -354,10 +339,8 @@ namespace Microsoft.Coyote.Actors
         /// controlled during analysis or testing.
         /// </summary>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool Random()
-        {
-            return this.Runtime.GetNondeterministicBooleanChoice(this, 2);
-        }
+        protected bool Random() =>
+            this.Runtime.GetNondeterministicBooleanChoice(this, 2);
 
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be
@@ -367,10 +350,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool Random(int maxValue)
-        {
-            return this.Runtime.GetNondeterministicBooleanChoice(this, maxValue);
-        }
+        protected bool Random(int maxValue) =>
+            this.Runtime.GetNondeterministicBooleanChoice(this, maxValue);
 
         /// <summary>
         /// Returns a fair nondeterministic boolean choice, that can be
@@ -393,20 +374,15 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic integer.</returns>
-        protected int RandomInteger(int maxValue)
-        {
-            return this.Runtime.GetNondeterministicIntegerChoice(this, maxValue);
-        }
+        protected int RandomInteger(int maxValue) =>
+            this.Runtime.GetNondeterministicIntegerChoice(this, maxValue);
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
         /// <param name="e">The event to send.</param>
-        protected void Monitor<T>(Event e)
-        {
-            this.Monitor(typeof(T), e);
-        }
+        protected void Monitor<T>(Event e) => this.Monitor(typeof(T), e);
 
         /// <summary>
         /// Invokes the specified monitor with the specified event.
@@ -422,58 +398,95 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate)
-        {
-            this.Runtime.Assert(predicate);
-        }
+        protected void Assert(bool predicate) => this.Runtime.Assert(predicate);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate, string s, object arg0)
-        {
+        protected void Assert(bool predicate, string s, object arg0) =>
             this.Runtime.Assert(predicate, s, arg0);
-        }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate, string s, object arg0, object arg1)
-        {
+        protected void Assert(bool predicate, string s, object arg0, object arg1) =>
             this.Runtime.Assert(predicate, s, arg0, arg1);
-        }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
-        {
+        protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             this.Runtime.Assert(predicate, s, arg0, arg1, arg2);
-        }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate, string s, params object[] args)
-        {
+        protected void Assert(bool predicate, string s, params object[] args) =>
             this.Runtime.Assert(predicate, s, args);
-        }
 
         /// <summary>
         /// Halts the actor at the end of the current action.
         /// </summary>
         protected void Halt()
         {
-            this.Assert(!this.IsHalted, "'{0}' invoked Halt while halted.", this.Id);
-            this.Inbox.RaiseEvent(HaltEvent.Instance, Guid.Empty);
+            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked Halt while halting.", this.Id);
+            this.CurrentStatus = Status.Halting;
         }
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor is initialized with an optional event.
+        /// </summary>
+        /// <param name="initialEvent">Optional event used for initialization.</param>
+        /// <returns>Task that represents the asynchronous operation.</returns>
+        protected virtual Task OnInitializeAsync(Event initialEvent) => Task.CompletedTask;
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor successfully dequeues
+        /// an event from its inbox. This method is not called when the dequeue happens
+        /// via a receive statement.
+        /// </summary>
+        /// <param name="e">The event that was dequeued.</param>
+        protected virtual Task OnEventDequeuedAsync(Event e) => Task.CompletedTask;
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor finishes handling a dequeued
+        /// event, unless the handler of the dequeued event caused the actor to halt (either
+        /// normally or due to an exception). The actor will either become idle or dequeue
+        /// the next event from its inbox.
+        /// </summary>
+        /// <param name="e">The event that was handled.</param>
+        protected virtual Task OnEventHandledAsync(Event e) => Task.CompletedTask;
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor receives an event that
+        /// it is not prepared to handle. The callback is invoked first, after which the
+        /// actor will necessarily throw an <see cref="UnhandledEventException"/>
+        /// </summary>
+        /// <param name="e">The event that was unhandled.</param>
+        /// <param name="state">The state when the event was dequeued.</param>
+        protected virtual Task OnEventUnhandledAsync(Event e, string state) => Task.CompletedTask;
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor handles an exception.
+        /// </summary>
+        /// <param name="ex">The exception thrown by the actor.</param>
+        /// <param name="e">The event being handled when the exception was thrown.</param>
+        /// <returns>The action that the runtime should take.</returns>
+        protected virtual Task OnExceptionHandledAsync(Exception ex, Event e) => Task.CompletedTask;
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor halts.
+        /// </summary>
+        /// <param name="e">The event being handled when the actor halted.</param>
+        /// <returns>Task that represents the asynchronous operation.</returns>
+        protected virtual Task OnHaltAsync(Event e) => Task.CompletedTask;
 
         /// <summary>
         /// Enqueues the specified event and its metadata.
         /// </summary>
         internal EnqueueStatus Enqueue(Event e, Guid opGroupId, EventInfo info)
         {
-            if (this.IsHalted)
+            if (this.CurrentStatus is Status.Halted)
             {
                 return EnqueueStatus.Dropped;
             }
@@ -487,13 +500,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal async Task RunEventHandlerAsync()
         {
-            if (this.IsHalted)
-            {
-                return;
-            }
-
             Event lastDequeuedEvent = null;
-            while (!this.IsHalted && this.Runtime.IsRunning)
+            while (this.CurrentStatus != Status.Halted && this.Runtime.IsRunning)
             {
                 (DequeueStatus status, Event e, Guid opGroupId, EventInfo info) = this.Inbox.Dequeue();
                 if (opGroupId != Guid.Empty)
@@ -506,8 +514,10 @@ namespace Microsoft.Coyote.Actors
                 {
                     // Notify the runtime for a new event to handle. This is only used
                     // during bug-finding and operation bounding, because the runtime
-                    // has to schedule a actor when a new operation is dequeued.
+                    // has to schedule an actor when a new operation is dequeued.
                     this.Runtime.NotifyDequeuedEvent(this, e, info);
+                    await this.InvokeUserCallbackAsync(UserCallbackType.OnEventDequeued, e);
+                    lastDequeuedEvent = e;
                 }
                 else if (status is DequeueStatus.Raised)
                 {
@@ -527,14 +537,8 @@ namespace Microsoft.Coyote.Actors
                 }
                 else if (status is DequeueStatus.NotAvailable)
                 {
+                    // Terminate the handler as there is no event available.
                     break;
-                }
-
-                if (status is DequeueStatus.Success)
-                {
-                    // Inform the user of a successful dequeue.
-                    lastDequeuedEvent = e;
-                    await this.InvokeUserCallbackAsync(EventHandlerStatus.EventDequeued, lastDequeuedEvent);
                 }
 
                 if (e is TimerElapsedEvent timeoutEvent &&
@@ -544,18 +548,23 @@ namespace Microsoft.Coyote.Actors
                     this.UnregisterTimer(timeoutEvent.Info);
                 }
 
-                if (!this.IsHalted)
+                if (this.CurrentStatus is Status.Active)
                 {
                     // Handles the next event, if the actor is not halted.
                     await this.HandleEventAsync(e);
                 }
 
-                if (!this.Inbox.IsEventRaised && lastDequeuedEvent != null && !this.IsHalted)
+                if (!this.Inbox.IsEventRaised && lastDequeuedEvent != null && this.CurrentStatus != Status.Halted)
                 {
-                    // Inform the user that the actor is done handling the current event.
-                    // The actor will either go idle or dequeue its next event.
-                    await this.InvokeUserCallbackAsync(EventHandlerStatus.EventHandled, lastDequeuedEvent);
+                    // Inform the user that the actor handled the dequeued event.
+                    await this.InvokeUserCallbackAsync(UserCallbackType.OnEventHandled, lastDequeuedEvent);
                     lastDequeuedEvent = null;
+                }
+
+                if (this.CurrentStatus is Status.Halting)
+                {
+                    // If the current status is halting, then halt the actor.
+                    await this.HaltAsync(e);
                 }
             }
         }
@@ -565,180 +574,118 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private protected virtual async Task HandleEventAsync(Event e)
         {
-            if (this.ActionMap.ContainsKey(e.GetType()))
+            if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate cachedAction) ||
+                this.ActionMap.TryGetValue(typeof(WildCardEvent), out cachedAction))
             {
-                await this.InvokeAction(e.GetType(), e);
-            }
-            else if (this.ActionMap.ContainsKey(typeof(WildCardEvent)))
-            {
-                await this.InvokeAction(typeof(WildCardEvent), e);
+                this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
+                await this.InvokeActionAsync(cachedAction, e);
             }
             else if (e is HaltEvent)
             {
-                // If the event is the halt event, then terminate the actor.
-                await this.HaltAsync(e);
-                return;
+                // If it is the halt event, then change the actor status to halting.
+                this.CurrentStatus = Status.Halting;
             }
             else
             {
-                await this.InvokeUserCallbackAsync(EventHandlerStatus.EventUnhandled, e);
-                if (this.IsHalted)
+                await this.InvokeUserCallbackAsync(UserCallbackType.OnEventUnhandled, e);
+                if (this.CurrentStatus is Status.Active)
                 {
-                    // Invoking a user callback caused the actor to halt.
-                    return;
-                }
-
-                var ex = new UnhandledEventException(e, default, "Unhandled Event");
-                if (this.OnUnhandledEventExceptionHandler(ex, nameof(this.HandleEventAsync), e))
-                {
-                    await this.HaltAsync(e);
-                    return;
-                }
-                else
-                {
-                    // If the event cannot be handled then report an error and exit.
-                    this.Assert(false, "'{0}' received event '{1}' that cannot be handled.",
+                    // If the event cannot be handled then report an error, else halt gracefully.
+                    var ex = new UnhandledEventException(e, default, "Unhandled Event");
+                    bool isHalting = this.OnUnhandledEventExceptionHandler(ex, e);
+                    this.Assert(isHalting, "'{0}' received event '{1}' that cannot be handled.",
                         this.Id, e.GetType().FullName);
                 }
             }
         }
 
         /// <summary>
-        /// Invokes the action for the specified event type.
-        /// </summary>
-        private async Task InvokeAction(Type eventType, Event e)
-        {
-            CachedDelegate cachedAction = this.ActionMap[eventType];
-            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
-            await this.InvokeActionAsync(cachedAction, e);
-            this.Runtime.NotifyCompletedAction(this, cachedAction.MethodInfo, e);
-        }
-
-        /// <summary>
         /// Invokes the specified action delegate.
         /// </summary>
-        private protected async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
+        private async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
         {
             try
             {
                 if (cachedAction.IsAsync)
                 {
-                    try
+                    Task task = null;
+                    if (cachedAction.Handler is Func<Event, Task> taskFuncWithEvent)
                     {
-                        Task task = null;
-                        if (cachedAction.Handler is Func<Event, Task> taskFuncWithEvent)
-                        {
-                            task = taskFuncWithEvent(e);
-                        }
-                        else if (cachedAction.Handler is Func<Task> taskFunc)
-                        {
-                            task = taskFunc();
-                        }
-
-                        this.Runtime.NotifyWaitTask(this, task);
-
-                        // We have no reliable stack for awaited operations.
-                        await task;
+                        task = taskFuncWithEvent(e);
                     }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name, e))
+                    else if (cachedAction.Handler is Func<Task> taskFunc)
                     {
-                        // User handled the exception, return normally.
+                        task = taskFunc();
                     }
+
+                    this.Runtime.NotifyWaitTask(this, task);
+
+                    // We have no reliable stack for awaited operations.
+                    await task;
                 }
-                else
+                else if (cachedAction.Handler is Action<Event> actionWithEvent)
                 {
-                    // Use an exception filter to call OnFailure before the stack has been unwound.
-                    try
-                    {
-                        if (cachedAction.Handler is Action<Event> actionWithEvent)
-                        {
-                            actionWithEvent(e);
-                        }
-                        else if (cachedAction.Handler is Action action)
-                        {
-                            action();
-                        }
-                    }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name, e))
-                    {
-                        // User handled the exception, return normally.
-                    }
-                    catch (Exception ex) when (!this.IsSuppressingExceptionAndHalting && this.InvokeOnFailureExceptionFilter(cachedAction, ex))
-                    {
-                        // If the exception filter does not fail-fast, it returns
-                        // false to process the exception normally.
-                    }
+                    actionWithEvent(e);
                 }
+                else if (cachedAction.Handler is Action action)
+                {
+                    action();
+                }
+            }
+            catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name, e))
+            {
+                // User handled the exception.
+                await this.OnExceptionHandledAsync(ex, e);
+            }
+            catch (Exception ex) when (!cachedAction.IsAsync && this.InvokeOnFailureExceptionFilter(cachedAction, ex))
+            {
+                // Use an exception filter to call OnFailure before the stack
+                // has been unwound. If the exception filter does not fail-fast,
+                // it returns false to process the exception normally.
             }
             catch (Exception ex)
             {
-                await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name, e);
+                await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name);
             }
         }
 
         /// <summary>
         /// Invokes the specified event handler user callback.
         /// </summary>
-        private protected async Task InvokeUserCallbackAsync(EventHandlerStatus eventHandlerStatus,
-            Event e, string currentState = default)
+        private protected async Task InvokeUserCallbackAsync(string callbackType, Event e, string currentState = default)
         {
             try
             {
-                if (eventHandlerStatus is EventHandlerStatus.EventDequeued)
+                Task task = null;
+                if (callbackType is UserCallbackType.OnInitialize)
                 {
-                    try
-                    {
-                        Task task = this.OnEventDequeueAsync(e);
-                        this.Runtime.NotifyWaitTask(this, task);
-                        await task;
-                    }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventDequeueAsync), e))
-                    {
-                        // User handled the exception, return normally.
-                    }
+                    task = this.OnInitializeAsync(e);
                 }
-                else if (eventHandlerStatus is EventHandlerStatus.EventHandled)
+                else if (callbackType is UserCallbackType.OnEventDequeued)
                 {
-                    try
-                    {
-                        Task task = this.OnEventHandledAsync(e);
-                        this.Runtime.NotifyWaitTask(this, task);
-                        await task;
-                    }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventHandledAsync), e))
-                    {
-                        // User handled the exception, return normally.
-                    }
+                    task = this.OnEventDequeuedAsync(e);
                 }
-                else if (eventHandlerStatus is EventHandlerStatus.EventUnhandled)
+                else if (callbackType is UserCallbackType.OnEventHandled)
                 {
-                    try
-                    {
-                        Task task = this.OnEventUnhandledAsync(e, currentState);
-                        this.Runtime.NotifyWaitTask(this, task);
-                        await task;
-                    }
-                    catch (Exception ex) when (this.OnExceptionHandler(ex, nameof(this.OnEventUnhandledAsync), e))
-                    {
-                        // User handled the exception, return normally.
-                    }
+                    task = this.OnEventHandledAsync(e);
                 }
+                else if (callbackType is UserCallbackType.OnEventUnhandled)
+                {
+                    task = this.OnEventUnhandledAsync(e, currentState);
+                }
+
+                this.Runtime.NotifyWaitTask(this, task);
+                await task;
+            }
+            catch (Exception ex) when (this.OnExceptionHandler(ex, callbackType, e))
+            {
+                // User handled the exception.
+                await this.OnExceptionHandledAsync(ex, e);
             }
             catch (Exception ex)
             {
                 // Reports the unhandled exception.
-                if (eventHandlerStatus is EventHandlerStatus.EventDequeued)
-                {
-                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventDequeueAsync), e);
-                }
-                else if (eventHandlerStatus is EventHandlerStatus.EventHandled)
-                {
-                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventHandledAsync), e);
-                }
-                else if (eventHandlerStatus is EventHandlerStatus.EventUnhandled)
-                {
-                    await this.TryHandleActionInvocationExceptionAsync(ex, nameof(this.OnEventUnhandledAsync), e);
-                }
+                await this.TryHandleActionInvocationExceptionAsync(ex, callbackType);
             }
         }
 
@@ -748,18 +695,18 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="action">The action being executed when the failure occurred.</param>
         /// <param name="ex">The exception being tested.</param>
-        private bool InvokeOnFailureExceptionFilter(CachedDelegate action, Exception ex)
+        private protected bool InvokeOnFailureExceptionFilter(CachedDelegate action, Exception ex)
         {
             // This is called within the exception filter so the stack has not yet been unwound.
             // If the call does not fail-fast, return false to process the exception normally.
-            this.Runtime.RaiseOnFailureEvent(new MachineActionExceptionFilterException(action.MethodInfo.Name, ex));
+            this.Runtime.RaiseOnFailureEvent(new ActionExceptionFilterException(action.MethodInfo.Name, ex));
             return false;
         }
 
         /// <summary>
         /// Tries to handle an exception thrown during an action invocation.
         /// </summary>
-        private Task TryHandleActionInvocationExceptionAsync(Exception ex, string actionName, Event e)
+        private protected Task TryHandleActionInvocationExceptionAsync(Exception ex, string actionName)
         {
             Exception innerException = ex;
             while (innerException is TargetInvocationException)
@@ -774,18 +721,13 @@ namespace Microsoft.Coyote.Actors
 
             if (innerException is ExecutionCanceledException)
             {
-                this.IsHalted = true;
+                this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from '{this.Id}'.");
             }
             else if (innerException is TaskSchedulerException)
             {
-                this.IsHalted = true;
+                this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from '{this.Id}'.");
-            }
-            else if (this.IsSuppressingExceptionAndHalting)
-            {
-                // Gracefully halt.
-                return this.HaltAsync(e);
             }
             else
             {
@@ -971,45 +913,52 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private protected MethodInfo GetActionWithName(string actionName)
         {
-            MethodInfo method;
+            MethodInfo action;
             Type actorType = this.GetType();
 
             do
             {
                 BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic |
                     BindingFlags.Instance | BindingFlags.FlattenHierarchy;
-                method = actorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, SingleEventTypeArray, null);
-                if (method is null)
+                action = actorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, SingleEventTypeArray, null);
+                if (action is null)
                 {
-                    method = actorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, Array.Empty<Type>(), null);
+                    action = actorType.GetMethod(actionName, bindingFlags, Type.DefaultBinder, Array.Empty<Type>(), null);
                 }
 
                 actorType = actorType.BaseType;
             }
-            while (method is null && actorType != typeof(StateMachine) && actorType != typeof(Actor));
+            while (action is null && actorType != typeof(StateMachine) && actorType != typeof(Actor));
 
-            this.Assert(method != null, "Cannot detect action declaration '{0}' in '{1}'.", actionName, this.GetType().Name);
+            this.Assert(action != null, "Cannot detect action declaration '{0}' in '{1}'.", actionName, this.GetType().Name);
+            this.AssertActionValidity(action);
+            return action;
+        }
 
-            ParameterInfo[] parameters = method.GetParameters();
+        /// <summary>
+        /// Checks the validity of the specified action.
+        /// </summary>
+        private protected virtual void AssertActionValidity(MethodInfo action)
+        {
+            ParameterInfo[] parameters = action.GetParameters();
             this.Assert(parameters.Length is 0 ||
                 (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
                 "Action '{0}' in '{1}' must either accept no parameters or a single parameter of type 'Event'.",
-                method.Name, this.GetType().Name);
+                action.Name, this.GetType().Name);
 
             // Check if the action is an 'async' method.
-            if (method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null)
+            if (action.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null)
             {
-                this.Assert(method.ReturnType == typeof(Task),
+                this.Assert(action.ReturnType == typeof(Task),
                     "Async action '{0}' in '{1}' must have 'Task' return type.",
-                    method.Name, this.GetType().Name);
+                    action.Name, this.GetType().Name);
             }
             else
             {
-                this.Assert(method.ReturnType == typeof(void), "Action '{0}' in '{1}' must have 'void' return type.",
-                    method.Name, this.GetType().Name);
+                this.Assert(action.ReturnType == typeof(void),
+                    "Action '{0}' in '{1}' must have 'void' return type.",
+                    action.Name, this.GetType().Name);
             }
-
-            return method;
         }
 
         /// <summary>
@@ -1033,77 +982,62 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// User callback that is invoked when the actor is initialized with an optional event.
-        /// </summary>
-        /// <param name="initialEvent">Optional event used for initialization.</param>
-        /// <returns>Task that represents the asynchronous operation.</returns>
-        protected virtual Task OnInitializeAsync(Event initialEvent) => Task.CompletedTask;
-
-        /// <summary>
-        /// Invokes user callback when a actor throws an exception.
+        /// Invokes user callback when the actor throws an exception.
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>
         /// <param name="methodName">The handler (outermost) that threw the exception.</param>
         /// <param name="e">The event being handled when the exception was thrown.</param>
-        /// <returns>False if the exception should continue to get thrown, true if it was handled in this method.</returns>
+        /// <returns>True if the exception was handled, else false if it should continue to get thrown.</returns>
         private protected bool OnExceptionHandler(Exception ex, string methodName, Event e)
         {
             if (ex is ExecutionCanceledException)
             {
-                // Internal exception, used during testing.
+                // Internal exception used during testing.
                 return false;
             }
 
             string stateName = this is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
             this.Runtime.LogWriter.LogExceptionThrown(this.Id, stateName, methodName, ex);
 
-            var ret = this.OnException(ex, nameof(this.OnEventHandledAsync), e);
-            this.IsSuppressingExceptionAndHalting = false;
-
-            switch (ret)
+            OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
+            if (outcome is OnExceptionOutcome.ThrowException)
             {
-                case OnExceptionOutcome.ThrowException:
-                    return false;
-                case OnExceptionOutcome.HandledException:
-                    this.Runtime.LogWriter.LogExceptionHandled(this.Id, stateName, methodName, ex);
-                    return true;
-                case OnExceptionOutcome.Halt:
-                    this.IsSuppressingExceptionAndHalting = true;
-                    return false;
+                return false;
+            }
+            else if (outcome is OnExceptionOutcome.Halt)
+            {
+                this.CurrentStatus = Status.Halting;
             }
 
-            return false;
+            this.Runtime.LogWriter.LogExceptionHandled(this.Id, stateName, methodName, ex);
+            return true;
         }
 
         /// <summary>
         /// Invokes user callback when the actor receives an event that it cannot handle.
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>
-        /// <param name="methodName">The handler (outermost) that threw the exception.</param>
         /// <param name="e">The unhandled event.</param>
-        /// <returns>False if the exception should continue to get thrown, true if the actor should gracefully halt.</returns>
-        private protected bool OnUnhandledEventExceptionHandler(UnhandledEventException ex, string methodName, Event e)
+        /// <returns>True if the the actor should gracefully halt, else false if the exception
+        /// should continue to get thrown.</returns>
+        private protected bool OnUnhandledEventExceptionHandler(UnhandledEventException ex, Event e)
         {
-            this.Runtime.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, methodName, ex);
+            this.Runtime.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
 
-            var ret = this.OnException(ex, methodName, e);
-            this.IsSuppressingExceptionAndHalting = false;
-            switch (ret)
+            OnExceptionOutcome outcome = this.OnException(ex, string.Empty, e);
+            if (outcome is OnExceptionOutcome.ThrowException)
             {
-                case OnExceptionOutcome.Halt:
-                case OnExceptionOutcome.HandledException:
-                    this.Runtime.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, methodName, ex);
-                    this.IsSuppressingExceptionAndHalting = true;
-                    return true;
-                case OnExceptionOutcome.ThrowException:
-                    return false;
+                return false;
             }
 
-            return false;
+            this.CurrentStatus = Status.Halting;
+            this.Runtime.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
+            return true;
         }
 
         /// <summary>
-        /// User callback when the actor throws an exception.
+        /// User callback when the actor throws an exception. By default,
+        /// the actor throws the exception causing the runtime to fail.
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>
         /// <param name="methodName">The handler (outermost) that threw the exception.</param>
@@ -1115,45 +1049,12 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// User callback that is invoked when the actor successfully dequeues
-        /// an event from its inbox. This method is not called when the dequeue happens
-        /// via a receive statement.
-        /// </summary>
-        /// <param name="e">The event that was dequeued.</param>
-        protected virtual Task OnEventDequeueAsync(Event e) => Task.CompletedTask;
-
-        /// <summary>
-        /// User callback that is invoked when the actor finishes handling a dequeued event,
-        /// unless the handler of the dequeued event caused the actor to halt (either normally
-        /// or due to an exception). The actor will either become idle or dequeue the next
-        /// event from its inbox.
-        /// </summary>
-        /// <param name="e">The event that was handled.</param>
-        protected virtual Task OnEventHandledAsync(Event e) => Task.CompletedTask;
-
-        /// <summary>
-        /// User callback that is invoked when the actor receives an event that it is not prepared
-        /// to handle. The callback is invoked first, after which the actor will necessarily throw
-        /// an <see cref="UnhandledEventException"/>
-        /// </summary>
-        /// <param name="e">The event that was unhandled.</param>
-        /// <param name="state">The state when the event was dequeued.</param>
-        protected virtual Task OnEventUnhandledAsync(Event e, string state) => Task.CompletedTask;
-
-        /// <summary>
-        /// User callback that is invoked when the actor halts.
-        /// </summary>
-        /// <param name="e">The event being handled when the actor halts.</param>
-        /// <returns>Task that represents the asynchronous operation.</returns>
-        protected virtual Task OnHaltAsync(Event e) => Task.CompletedTask;
-
-        /// <summary>
         /// Halts the actor.
         /// </summary>
         /// <param name="e">The event being handled when the actor halts.</param>
         private protected Task HaltAsync(Event e)
         {
-            this.IsHalted = true;
+            this.CurrentStatus = Status.Halted;
 
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
@@ -1200,6 +1101,40 @@ namespace Microsoft.Coyote.Actors
         public override string ToString()
         {
             return this.Id.Name;
+        }
+
+        /// <summary>
+        /// The status of the actor.
+        /// </summary>
+        private protected enum Status
+        {
+            /// <summary>
+            /// The actor is active.
+            /// </summary>
+            Active = 0,
+
+            /// <summary>
+            /// The actor is halting.
+            /// </summary>
+            Halting,
+
+            /// <summary>
+            /// The actor is halted.
+            /// </summary>
+            Halted
+        }
+
+        /// <summary>
+        /// The type of a user callback.
+        /// </summary>
+        private protected static class UserCallbackType
+        {
+            internal const string OnInitialize = nameof(Actor.OnInitializeAsync);
+            internal const string OnEventDequeued = nameof(Actor.OnEventDequeuedAsync);
+            internal const string OnEventHandled = nameof(Actor.OnEventHandledAsync);
+            internal const string OnEventUnhandled = nameof(Actor.OnEventUnhandledAsync);
+            internal const string OnExceptionHandled = nameof(Actor.OnExceptionHandledAsync);
+            internal const string OnHalt = nameof(Actor.OnHaltAsync);
         }
 
         /// <summary>

@@ -19,31 +19,24 @@ namespace Microsoft.Coyote.Actors
         public bool MustHandle { get; private set; }
 
         /// <summary>
-        /// Specifies that there must not be more than N instances of the
+        /// Asserts that there must not be more than N instances of the
         /// event in the inbox queue of the receiver.
         /// </summary>
         public int Assert { get; private set; }
 
         /// <summary>
-        /// Specifies that during testing, an execution that increases the cardinality of the
-        /// event beyond N in the receiver inbox queue must not be generated.
-        /// </summary>
-        public int Assume { get; private set; }
-
-        /// <summary>
-        /// User-defined hash of the event payload. The default value is 0. Set it to a custom value
-        /// to improve the accuracy of liveness checking when state-caching is enabled.
+        /// User-defined hash of the event. The default value is 0. Override to
+        /// improve the accuracy of stateful techniques during testing.
         /// </summary>
         public int HashedState { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendOptions"/> class.
         /// </summary>
-        public SendOptions(bool mustHandle = false, int assert = -1, int assume = -1, int hashedState = 0)
+        public SendOptions(bool mustHandle = false, int assert = -1, int hashedState = 0)
         {
             this.MustHandle = mustHandle;
             this.Assert = assert;
-            this.Assume = assume;
             this.HashedState = hashedState;
         }
 
@@ -51,7 +44,7 @@ namespace Microsoft.Coyote.Actors
         /// A string that represents the current options.
         /// </summary>
         public override string ToString() =>
-            string.Format("SendOptions[MustHandle='{0}', Assert='{1}', Assume='{2}', HashedState='{3}']",
-                this.MustHandle, this.Assert, this.Assume, this.HashedState);
+            string.Format("SendOptions[MustHandle='{0}', Assert='{1}', HashedState='{3}']",
+                this.MustHandle, this.Assert, this.HashedState);
     }
 }

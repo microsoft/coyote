@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <summary>
-        /// Invoked when the specified state machine transitions states via a 'goto'.
+        /// Invoked when the specified state machine performs a goto transition to the specified state.
         /// </summary>
         /// <param name="id">The id of the actor.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -259,7 +259,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <summary>
-        /// Invoked when the specified state machine has been popped from a state.
+        /// Invoked when the specified state machine has popped its current state.
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="currStateName">The name of the current state.</param>

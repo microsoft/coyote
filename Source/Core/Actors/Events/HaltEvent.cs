@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Actors
     public sealed class HaltEvent : Event
     {
         /// <summary>
-        /// Gets an instance of the halt event.
+        /// Gets a <see cref="HaltEvent"/> instance.
         /// </summary>
         public static HaltEvent Instance { get; } = new HaltEvent();
 

@@ -299,7 +299,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Logs that the specified state machine transitions states via a 'goto'.
+        /// Logs that the specified state machine performs a goto state transition.
         /// </summary>
         /// <param name="id">The id of the actor.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -322,7 +322,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Logs that the specified state machine is being pushed to a state.
+        /// Logs that the specified state machine performs a push state transition.
         /// </summary>
         /// <param name="id">The id of the actor being pushed to the state.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -345,7 +345,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Logs that the specified state machine has been popped from a state.
+        /// Logs that the specified state machine performs a pop state transition.
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="currStateName">The name of the current state.</param>
@@ -368,7 +368,7 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Logs that the specified actor has been halted.
+        /// Logs that the specified actor has halted.
         /// </summary>
         /// <param name="id">The id of the actor that has been halted.</param>
         /// <param name="inboxSize">Approximate size of the inbox.</param>

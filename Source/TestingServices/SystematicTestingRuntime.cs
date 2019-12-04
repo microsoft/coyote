@@ -247,10 +247,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Guid opGroupId)
         {
             this.AssertExpectedCallerActor(creator, "CreateActor");
-            if (creator is StateMachine stateMachine)
-            {
-                this.AssertNoPendingTransitionStatement(stateMachine, "create an actor");
-            }
 
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
             this.BugTrace.AddCreateActorStep(creator, actor.Id, initialEvent is null ? null : new EventInfo(initialEvent));
@@ -281,10 +277,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.AssertExpectedCallerActor(creator, "CreateActorAndExecuteAsync");
             this.Assert(creator != null, "Only an actor can call 'CreateActorAndExecuteAsync': avoid calling " +
                 "it directly from the 'Test' method; instead call it through a 'harness' actor.");
-            if (creator is StateMachine stateMachine)
-            {
-                this.AssertNoPendingTransitionStatement(stateMachine, "create an actor");
-            }
 
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
             this.BugTrace.AddCreateActorStep(creator, actor.Id, initialEvent is null ? null : new EventInfo(initialEvent));
@@ -442,11 +434,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return EnqueueStatus.Dropped;
             }
 
-            if (sender is StateMachine stateMachine)
-            {
-                this.AssertNoPendingTransitionStatement(stateMachine, "send an event");
-            }
-
             EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, opGroupId, options);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
@@ -484,7 +471,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 MustHandle = options?.MustHandle ?? false,
                 Assert = options?.Assert ?? -1,
-                Assume = options?.Assume ?? -1,
                 SendStep = this.Scheduler.ScheduledSteps
             };
 
@@ -1218,41 +1204,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Asserts that a transition statement (raise, goto or pop) has not
-        /// already been called. Records that RGP has been called.
-        /// </summary>
-        [DebuggerHidden]
-        internal void AssertTransitionStatement(StateMachine stateMachine)
-        {
-            var stateManager = stateMachine.Manager as MockStateMachineManager;
-            this.Assert(!stateManager.IsInsideOnExit,
-                "'{0}' has called raise, goto, push or pop inside an OnExit method.",
-                stateMachine.Id.Name);
-            this.Assert(!stateManager.IsTransitionStatementCalledInCurrentAction,
-                "'{0}' has called multiple raise, goto, push or pop in the same action.",
-                stateMachine.Id.Name);
-            stateManager.IsTransitionStatementCalledInCurrentAction = true;
-        }
-
-        /// <summary>
-        /// Asserts that a transition statement (raise, goto or pop) has not already been called.
-        /// </summary>
-        [DebuggerHidden]
-        private void AssertNoPendingTransitionStatement(StateMachine stateMachine, string action)
-        {
-            if (!this.Configuration.EnableNoApiCallAfterTransitionStmtAssertion)
-            {
-                // The check is disabled.
-                return;
-            }
-
-            var stateManager = stateMachine.Manager as MockStateMachineManager;
-            this.Assert(!stateManager.IsTransitionStatementCalledInCurrentAction,
-                "'{0}' cannot {1} after calling raise, goto, push or pop in the same action.",
-                stateMachine.Id.Name, action);
-        }
-
-        /// <summary>
         /// Asserts that the actor calling an actor method is also
         /// the actor that is currently executing.
         /// </summary>
@@ -1343,7 +1294,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             string stateName = string.Empty;
             if (caller is StateMachine callerStateMachine)
             {
-                this.AssertNoPendingTransitionStatement(callerStateMachine, "invoke 'Random'");
                 (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
                 stateName = callerStateMachine.CurrentStateName;
             }
@@ -1371,7 +1321,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             string stateName = string.Empty;
             if (caller is StateMachine callerStateMachine)
             {
-                this.AssertNoPendingTransitionStatement(callerStateMachine, "invoke 'FairRandom'");
                 (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
                 stateName = callerStateMachine.CurrentStateName;
             }
@@ -1396,13 +1345,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
             this.AssertExpectedCallerActor(caller, "RandomInteger");
 
-            string stateName = string.Empty;
-            if (caller is StateMachine callerStateMachine)
-            {
-                this.AssertNoPendingTransitionStatement(callerStateMachine, "invoke 'RandomInteger'");
-                stateName = callerStateMachine.CurrentStateName;
-            }
-
+            string stateName = caller is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
             var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
             this.LogWriter.LogRandom(caller?.Id, choice);
             this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
@@ -1427,26 +1370,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyInvokedAction(Actor actor, MethodInfo action, Event receivedEvent)
         {
-            string stateName = string.Empty;
-            if (actor is StateMachine stateMachine)
-            {
-                (stateMachine.Manager as MockStateMachineManager).IsTransitionStatementCalledInCurrentAction = false;
-                stateName = stateMachine.CurrentStateName;
-            }
-
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
             this.BugTrace.AddInvokeActionStep(actor.Id, stateName, action);
             this.LogWriter.LogExecuteAction(actor.Id, stateName, action.Name);
-        }
-
-        /// <summary>
-        /// Notifies that an actor completed an action.
-        /// </summary>
-        internal override void NotifyCompletedAction(Actor actor, MethodInfo action, Event receivedEvent)
-        {
-            if (actor is StateMachine stateMachine)
-            {
-                (stateMachine.Manager as MockStateMachineManager).IsTransitionStatementCalledInCurrentAction = false;
-            }
         }
 
         /// <summary>
@@ -1496,13 +1422,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
-            string stateName = string.Empty;
-            if (actor is StateMachine stateMachine)
-            {
-                this.AssertTransitionStatement(stateMachine);
-                stateName = stateMachine.CurrentStateName;
-            }
-
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
             this.BugTrace.AddRaiseEventStep(actor.Id, stateName, eventInfo);
             this.LogWriter.LogRaiseEvent(actor.Id, stateName, eventInfo.EventName);
         }
@@ -1523,10 +1443,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyReceiveCalled(Actor actor)
         {
             this.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
-            if (actor is StateMachine stateMachine)
-            {
-                this.AssertNoPendingTransitionStatement(stateMachine, "invoke 'ReceiveEventAsync'");
-            }
         }
 
         /// <summary>
@@ -1639,7 +1555,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyPopState(StateMachine stateMachine)
         {
             this.AssertExpectedCallerActor(stateMachine, "Pop");
-            this.AssertTransitionStatement(stateMachine);
             this.LogWriter.LogPopState(stateMachine.Id, string.Empty, stateMachine.CurrentStateName);
         }
 
@@ -1648,8 +1563,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
-            (stateMachine.Manager as MockStateMachineManager).IsTransitionStatementCalledInCurrentAction = false;
-
             string stateName = stateMachine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(stateMachine.Id, stateName, action);
             this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
@@ -1660,29 +1573,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
-            (stateMachine.Manager as MockStateMachineManager).IsInsideOnExit = true;
-            (stateMachine.Manager as MockStateMachineManager).IsTransitionStatementCalledInCurrentAction = false;
-
             string stateName = stateMachine.CurrentStateName;
             this.BugTrace.AddInvokeActionStep(stateMachine.Id, stateName, action);
             this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
-        }
-
-        /// <summary>
-        /// Notifies that a state machine completed invoking an action.
-        /// </summary>
-        internal override void NotifyCompletedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
-        {
-            (stateMachine.Manager as MockStateMachineManager).IsTransitionStatementCalledInCurrentAction = false;
-        }
-
-        /// <summary>
-        /// Notifies that a state machine completed invoking an action.
-        /// </summary>
-        internal override void NotifyCompletedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
-        {
-            (stateMachine.Manager as MockStateMachineManager).IsInsideOnExit = false;
-            (stateMachine.Manager as MockStateMachineManager).IsTransitionStatementCalledInCurrentAction = false;
         }
 
         /// <summary>

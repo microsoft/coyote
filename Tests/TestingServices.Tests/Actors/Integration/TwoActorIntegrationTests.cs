@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime.Exploration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
-        private class M1 : StateMachine
+        private class M1a : StateMachine
         {
             private bool Test = false;
             private ActorId TargetId;
@@ -65,10 +65,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private Transition InitOnEntry()
             {
-                this.TargetId = this.CreateActor(typeof(M2));
-                this.RaiseEvent(new E1());
+                this.TargetId = this.CreateActor(typeof(M1b));
+                return this.RaiseEvent(new E1());
             }
 
             private void InitOnExit()
@@ -86,8 +86,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [OnEventDoAction(typeof(E3), nameof(M2.EntryAction))]
-        private class M2 : Actor
+        [OnEventDoAction(typeof(E3), nameof(EntryAction))]
+        private class M1b : Actor
         {
             private void EntryAction(Event e)
             {
@@ -99,11 +99,23 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Action2(Event e)
             {
-                this.Assert((e as E3).Value == false);
+                this.Assert((e as E3).Value == false, "Reached test assertion.");
             }
         }
 
-        private class M3 : StateMachine
+        [Fact(Timeout = 5000)]
+        public void TestTwoActorIntegration1()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M1a));
+            },
+            configuration: GetConfiguration().WithNumberOfIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        private class M2a : StateMachine
         {
             private ActorId TargetId;
             private int Count;
@@ -115,10 +127,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private Transition InitOnEntry()
             {
-                this.TargetId = this.CreateActor(typeof(M4));
-                this.RaiseEvent(new SuccessE());
+                this.TargetId = this.CreateActor(typeof(M2b));
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -127,7 +139,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private Transition ActiveOnEntry()
             {
                 this.Count += 1;
                 if (this.Count == 1)
@@ -140,7 +152,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendEvent(this.TargetId, new IgnoredE());
                 }
 
-                this.RaiseEvent(new SuccessE());
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEventGotoState(typeof(E1), typeof(Active))]
@@ -153,7 +165,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        private class M4 : StateMachine
+        private class M2b : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(E4), typeof(Active))]
@@ -164,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Action1()
             {
-                this.Assert(false);
+                this.Assert(false, "Reached test assertion.");
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -173,14 +185,26 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry(Event e)
+            private Transition ActiveOnEntry(Event e)
             {
                 this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
-                this.RaiseEvent(new SuccessE());
+                return this.RaiseEvent(new SuccessE());
             }
         }
 
-        private class M5 : StateMachine
+        [Fact(Timeout = 5000)]
+        public void TestTwoActorIntegration2()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M2a));
+            },
+            configuration: GetConfiguration().WithNumberOfIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        private class M3a : StateMachine
         {
             private ActorId TargetId;
             private int Count;
@@ -192,10 +216,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private Transition InitOnEntry()
             {
-                this.TargetId = this.CreateActor(typeof(M6));
-                this.RaiseEvent(new SuccessE());
+                this.TargetId = this.CreateActor(typeof(M3b));
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -204,7 +228,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private Transition ActiveOnEntry()
             {
                 this.Count += 1;
                 if (this.Count == 1)
@@ -218,7 +242,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendEvent(this.TargetId, new IgnoredE());
                 }
 
-                this.RaiseEvent(new SuccessE());
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEventGotoState(typeof(E1), typeof(Active))]
@@ -231,7 +255,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        private class M6 : StateMachine
+        private class M3b : StateMachine
         {
             [Start]
             [OnEventGotoState(typeof(E4), typeof(Active))]
@@ -246,10 +270,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry(Event e)
+            private Transition ActiveOnEntry(Event e)
             {
                 this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
-                this.RaiseEvent(new SuccessE());
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEventDoAction(typeof(IgnoredE), nameof(Action1))]
@@ -260,11 +284,23 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void Action1()
             {
-                this.Assert(false);
+                this.Assert(false, "Reached test assertion.");
             }
         }
 
-        private class M7 : StateMachine
+        [Fact(Timeout = 5000)]
+        public void TestTwoActorIntegration3()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M3a));
+            },
+            configuration: GetConfiguration().WithNumberOfIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        private class M4a : StateMachine
         {
             private ActorId TargetId;
 
@@ -275,10 +311,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private Transition InitOnEntry()
             {
-                this.TargetId = this.CreateActor(typeof(M8));
-                this.RaiseEvent(new SuccessE());
+                this.TargetId = this.CreateActor(typeof(M4b));
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -287,70 +323,70 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void ActiveOnEntry()
+            private Transition ActiveOnEntry()
             {
                 this.SendEvent(this.TargetId, new E4(this.Id), options: new SendOptions(assert: 1));
-                this.RaiseEvent(new SuccessE());
+                return this.RaiseEvent(new SuccessE());
             }
 
             [OnEventGotoState(typeof(E1), typeof(Active))]
             private class Waiting : State
             {
             }
-
-            private class Done : State
-            {
-            }
         }
 
-        private class M8 : StateMachine
+        private class M4b : StateMachine
         {
-            private int Count2 = 0;
+            private int Count = 0;
 
             [Start]
-            [OnEntry(nameof(EntryWaitPing))]
             [OnEventGotoState(typeof(E4), typeof(Active))]
             private class Waiting : State
             {
             }
 
-            private void EntryWaitPing()
-            {
-            }
-
             [OnEntry(nameof(ActiveOnEntry))]
             [OnEventGotoState(typeof(SuccessE), typeof(Waiting))]
-            [OnEventDoAction(typeof(HaltEvent), nameof(Action1))]
             private class Active : State
             {
             }
 
-            private void ActiveOnEntry(Event e)
+            private Transition ActiveOnEntry(Event e)
             {
-                this.Count2 += 1;
-
-                if (this.Count2 == 1)
+                this.Count++;
+                if (this.Count == 1)
                 {
                     this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                 }
-
-                if (this.Count2 == 2)
+                else if (this.Count == 2)
                 {
                     this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
-                    this.RaiseEvent(HaltEvent.Instance);
-                    return;
+                    return this.Halt();
                 }
 
-                this.RaiseEvent(new SuccessE());
+                return this.RaiseEvent(new SuccessE());
             }
 
-            private void Action1()
+            protected override Task OnHaltAsync(Event e)
             {
-                this.Assert(false);
+                this.Assert(false, "Reached test assertion.");
+                return Task.CompletedTask;
             }
         }
 
-        private class M9 : StateMachine
+        [Fact(Timeout = 5000)]
+        public void TestTwoActorIntegration4()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M4a));
+            },
+            configuration: GetConfiguration().WithNumberOfIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        private class M5a : StateMachine
         {
             private ActorId TargetId;
 
@@ -362,14 +398,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
-            {
-                this.RaiseEvent(new E1());
-            }
+            private Transition InitOnEntry() => this.RaiseEvent(new E1());
 
             private void InitOnExit()
             {
-                this.TargetId = this.CreateActor(typeof(M10));
+                this.TargetId = this.CreateActor(typeof(M5b));
                 this.SendEvent(this.TargetId, new E1(), options: new SendOptions(assert: 1));
             }
 
@@ -386,7 +419,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         [OnEventDoAction(typeof(E1), nameof(HandleE1))]
         [OnEventDoAction(typeof(E2), nameof(HandleE2))]
-        private class M10 : Actor
+        private class M5b : Actor
         {
             private void HandleE1()
             {
@@ -394,56 +427,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void HandleE2()
             {
-                this.Assert(false);
+                this.Assert(false, "Reached test assertion.");
             }
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestTwoActorIntegration1()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M1));
-            },
-            configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Detected an assertion failure.",
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestTwoActorIntegration2()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M3));
-            },
-            configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Detected an assertion failure.",
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestTwoActorIntegration3()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M5));
-            },
-            configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Detected an assertion failure.",
-            replay: true);
-        }
-
-        [Fact(Timeout=5000)]
-        public void TestTwoActorIntegration4()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M7));
-            },
-            configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS),
-            expectedError: "Detected an assertion failure.",
-            replay: true);
         }
 
         [Fact(Timeout=5000)]
@@ -451,9 +436,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.CreateActor(typeof(M9));
+                r.CreateActor(typeof(M5a));
             },
-            expectedError: "Detected an assertion failure.",
+            configuration: GetConfiguration().WithNumberOfIterations(100),
+            expectedError: "Reached test assertion.",
             replay: true);
         }
     }

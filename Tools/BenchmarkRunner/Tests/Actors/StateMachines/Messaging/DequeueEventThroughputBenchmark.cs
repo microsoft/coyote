@@ -64,14 +64,14 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry(Event e)
+            private Transition InitOnEntry(Event e)
             {
                 this.TcsSetup = (e as SetupProducerEvent).TcsSetup;
                 this.Consumer = (e as SetupProducerEvent).Consumer;
                 this.NumMessages = (e as SetupProducerEvent).NumMessages;
 
                 this.TcsSetup.SetResult(true);
-                this.GotoState<Experiment>();
+                return this.GotoState<Experiment>();
             }
 
             [OnEventDoAction(typeof(StartExperiment), nameof(Run))]

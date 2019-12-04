@@ -253,13 +253,6 @@ namespace Microsoft.Coyote
         public bool AttachDebugger;
 
         /// <summary>
-        /// Enables the testing assertion that a raise/goto/push/pop transition must
-        /// be the last API called in an event handler.
-        /// </summary>
-        [DataMember]
-        public bool EnableNoApiCallAfterTransitionStmtAssertion;
-
-        /// <summary>
         /// The schedule file to be replayed.
         /// </summary>
         public string ScheduleFile;
@@ -383,8 +376,6 @@ namespace Microsoft.Coyote
             this.EnableCycleDetection = false;
             this.EnableUserDefinedStateHashing = false;
             this.EnableMonitorsInProduction = false;
-            this.EnableNoApiCallAfterTransitionStmtAssertion = true;
-
             this.AttachDebugger = false;
 
             this.ScheduleFile = string.Empty;

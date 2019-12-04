@@ -550,14 +550,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notifies that an actor completed invoking an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedAction(Actor actor, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
         /// Notifies that an actor dequeued an <see cref="Event"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -689,22 +681,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notifies that a state machine completed invoking an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that a state machine completed invoking an action.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyCompletedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
-        {
-        }
-
-        /// <summary>
         /// Notifies that a monitor entered a state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -763,8 +739,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         protected internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.Configuration.AttachDebugger && exception is MachineActionExceptionFilterException &&
-                !((exception as MachineActionExceptionFilterException).InnerException is RuntimeException))
+            if (this.Configuration.AttachDebugger && exception is ActionExceptionFilterException &&
+                !((exception as ActionExceptionFilterException).InnerException is RuntimeException))
             {
                 System.Diagnostics.Debugger.Break();
                 this.Configuration.AttachDebugger = false;

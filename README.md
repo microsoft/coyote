@@ -15,9 +15,9 @@ deterministically reproducing hard-to-find safety and liveness bugs.
 
 Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design,
 implement and systematically test production distributed systems and services.
-In the words of an Azure Service Architect:
+In the words of an Azure service architect:
 > Coyote found several issues early in the dev process, this sort of issues that would
-> usually bleed through into production and become very expensive to fix later
+> usually bleed through into production and become very expensive to fix later.
 
 See our [documentation](docs/_learn) for more information about the project, case studies, and reference documentation.
 

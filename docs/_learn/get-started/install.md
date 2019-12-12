@@ -77,4 +77,4 @@ powershell -f .\Scripts\create-nuget-packages.ps1
 
 Now you can rebuild the samples and so long as the `Common\version.props` file contains the same version in both `coyote` and `coyote-samples` then it will pick up your newly created NuGet package and use that. Note: this can make debugging into the Coyote runtime possible.
 
-Now you are ready to [start using Coyote](using-coyote.md).
+Now you are ready to [start using Coyote](/coyote/learn/get-started/using-coyote).

@@ -58,4 +58,8 @@ actor programming model.
 - `[Microsoft.PSharp.Test]` was renamed  to `[Microsoft.Coyote.TestingServices.Test]`
 
 ## Command line tool changes
-- The `PSharpTester` and `PSharpReplayer` executables have now been merged into the `coyote` command line tool. To invoke the tester, you do `coyote test ...`. To invoke the replayer you do `coyote replay ...`. The command line options remain pretty much the same, but the way they are declared has changed from (for example) `-max-steps:100` to `--max-steps 100` (single character arguments are used with a single `-`, e.g. `-i 100`). Read more details in the documentation on using the `coyote` command line tool [here](using-coyote.md).
+- The `PSharpTester` and `PSharpReplayer` executables have now been merged into the `coyote` command line tool.
+To invoke the tester, you do `coyote test ...`. To invoke the replayer you do `coyote replay ...`. The command
+line options remain pretty much the same, but the way they are declared has changed from (for example)
+`-max-steps:100` to `--max-steps 100` (single character arguments are used with a single `-`, e.g. `-i 100`).
+Read more details in the documentation on using the `coyote` command line tool [here](/coyote/learn/tools/testing).

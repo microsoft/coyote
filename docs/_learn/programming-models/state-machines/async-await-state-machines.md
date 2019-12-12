@@ -33,7 +33,7 @@ Coyote runtime (at least while testing). In other words, the code executed by a 
 not spawn `Tasks` or `Threads` neither must it do any synchronization operation other than the Coyote
 `SendEvent` or `ReceiveEventAsync` (i.e., no use of `locks`, `mutexes` or similar constructs).
 This goes along with the recommendation that different `Machines` must not share object references
-(use [Shared Objects](..Features/ObjectSharing.md) if you must).
+(use [Shared Objects](/coyote/learn/advanced/object-sharing) if you must).
 
 The reason for all these restrictions is that `coyote` tester needs to be aware of all
 concurrency in the program in order to control it. The `coyote` tester keeps track of all
@@ -46,7 +46,7 @@ The `coyote` tester essentially serializes the entire execution to a single thre
 scheduling decisions during an execution, `coyote` can explore different interleavings for a program.
 The exact choice of which `StateMachine` to schedule is determined by a `SchedulingStrategy`.
 The `coyote` tester has several strategies and we recommend using a
-[portfolio](../Features/TestingMethodology.md#parallel-and-portfolio-testing) of them. The strategies
+portfolio of them. The strategies
 have been crafted from over a decade of research on finding concurrency bugs efficiently in practice.
 (See, for example, [this paper](http://dl.acm.org/citation.cfm?id=2786861).)
 

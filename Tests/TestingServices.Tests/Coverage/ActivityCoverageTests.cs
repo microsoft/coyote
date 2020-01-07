@@ -127,10 +127,12 @@ Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
+		Events sent: Actors.UnitEvent
 		Next states: Done
 
 	State: Done
 		State has no expected events, so coverage is 100%
+		Events received: Actors.UnitEvent
 		Previous states: Init
 ";
 

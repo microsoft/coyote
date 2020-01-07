@@ -28,13 +28,14 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
         private class EventInfo
         {
-            public string ActorId;
+            public ActorId ActorId;
             public string State;
             public string Event;
         }
 
         private readonly Dictionary<string, List<EventInfo>> Inbox = new Dictionary<string, List<EventInfo>>();
         private static readonly Dictionary<string, string> EventAliases = new Dictionary<string, string>();
+        private readonly HashSet<string> Namespaces = new HashSet<string>();
 
         static ActorRuntimeLogGraphBuilder()
         {
@@ -90,8 +91,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="creator">The id of the creator, or null.</param>
         public void OnCreateActor(ActorId id, ActorId creator)
         {
-            string resolvedId = this.ResolveActorId(id);
-            this.Graph.GetOrCreateNode(resolvedId, resolvedId);
+            var resolvedId = this.GetResolveActorId(id);
+            this.Graph.GetOrCreateNode(resolvedId);
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="eventName">Name of the event.</param>
         public void OnDequeueEvent(ActorId id, string stateName, string eventName)
         {
-            string resolvedId = this.ResolveActorId(id);
+            var resolvedId = this.GetResolveActorId(id);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
                 for (int i = inbox.Count - 1; i >= 0; i--)
@@ -158,7 +159,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     {
                         // Yay, found it so we can draw the complete link connecting the Sender state to this state!
                         var source = this.GetOrCreateChild(e.ActorId, e.State);
-                        var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                        var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
                         this.GetOrCreateEventLink(source, target, e);
                         inbox.RemoveAt(i);
                         this.Dequeued = e;
@@ -178,7 +179,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// and <paramref name="eventName"/> was one of them</param>
         public void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
         {
-            string resolvedId = this.ResolveActorId(id);
+            string resolvedId = this.GetResolveActorId(id);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
                 for (int i = inbox.Count - 1; i >= 0; i--)
@@ -188,7 +189,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     {
                         // Yay, found it so we can draw the complete link connecting the Sender state to this state!
                         var source = this.GetOrCreateChild(e.ActorId, e.State);
-                        var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                        var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
                         this.GetOrCreateEventLink(source, target, e);
                         inbox.RemoveAt(i);
                         break;
@@ -279,7 +280,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="inboxSize">Approximate size of the inbox.</param>
         public void OnHalt(ActorId id, int inboxSize)
         {
-            string resolvedId = this.ResolveActorId(id);
             string stateName = this.HaltedState;
             if (string.IsNullOrEmpty(stateName))
             {
@@ -287,8 +287,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
 
             // Transition to the Halt state.
-            var source = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
-            var target = this.GetOrCreateChild(resolvedId, "Halt");
+            var source = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
+            var target = this.GetOrCreateChild(id, "Halt");
             this.Graph.GetOrCreateLink(source, target, "halt");
         }
 
@@ -312,7 +312,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             // We used the inbox to store raised event, but it should be the first one handled since
             // raised events are highest priority.
-            string resolvedId = this.ResolveActorId(id);
+            string resolvedId = this.GetResolveActorId(id);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
                 for (int i = inbox.Count - 1; i >= 0; i--)
@@ -320,11 +320,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     EventInfo e = inbox[i];
                     if (e.Event == eventName)
                     {
-                        // Yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(e.ActorId, e.State);
-                        var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
-                        this.GetOrCreateEventLink(source, target, e);
-                        inbox.RemoveAt(i);
+                        this.Dequeued = e;
                         break;
                     }
                 }
@@ -393,7 +389,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="id">The id of the monitor that has been created.</param>
         public void OnCreateMonitor(string monitorTypeName, ActorId id)
         {
-            string resolvedId = this.ResolveActorId(id);
+            string resolvedId = this.GetResolveActorId(id);
             this.Graph.GetOrCreateNode(resolvedId, monitorTypeName);
         }
 
@@ -406,7 +402,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="actionName">The name of the action being executed.</param>
         public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
         {
-            string resolvedId = this.ResolveActorId(id);
+            string resolvedId = this.GetResolveActorId(id);
             // Monitors process actions immediately, so this state transition is a result of the only event in the inbox.
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
             {
@@ -414,7 +410,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 inbox.RemoveAt(inbox.Count - 1);
                 // draw the link connecting the Sender state to this state!
                 var source = this.GetOrCreateChild(e.ActorId, e.State);
-                var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
                 this.GetOrCreateEventLink(source, target, e);
             }
         }
@@ -463,7 +459,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             if (isEntry)
             {
-                string resolvedId = this.ResolveActorId(id);
+                string resolvedId = this.GetResolveActorId(id);
                 // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of the only event in the inbox.
                 if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
                 {
@@ -471,7 +467,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     inbox.RemoveAt(inbox.Count - 1);
                     // draw the link connecting the Sender state to this state!
                     var source = this.GetOrCreateChild(e.ActorId, e.State);
-                    var target = this.GetOrCreateChild(resolvedId, GetLabel(id, stateName));
+                    var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
                     this.GetOrCreateEventLink(source, target, e);
                 }
             }
@@ -511,7 +507,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             return result;
         }
 
-        private string ResolveActorId(ActorId id)
+        private string GetResolveActorId(ActorId id)
         {
             if (id == null)
             {
@@ -529,7 +525,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
         private void AddEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName)
         {
-            string targetId = this.ResolveActorId(targetActorId);
+            string targetId = this.GetResolveActorId(targetActorId);
             if (!this.Inbox.TryGetValue(targetId, out List<EventInfo> inbox))
             {
                 inbox = new List<EventInfo>();
@@ -541,20 +537,18 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 senderStateName = "ExternalState";
             }
 
-            string sender = this.ResolveActorId(senderId);
-            inbox.Add(new EventInfo() { ActorId = sender, State = senderStateName, Event = eventName });
+            inbox.Add(new EventInfo() { ActorId = senderId, State = senderStateName, Event = eventName });
         }
 
         private void LinkTransition(string type, ActorId actorId, string currStateName, string newStateName, bool suffixLabel)
         {
-            string id = this.ResolveActorId(actorId);
-            var source = this.GetOrCreateChild(id, GetLabel(actorId, currStateName));
-            var target = this.GetOrCreateChild(id, GetLabel(actorId, newStateName));
+            var source = this.GetOrCreateChild(actorId, this.GetLabel(actorId, currStateName));
+            var target = this.GetOrCreateChild(actorId, this.GetLabel(actorId, newStateName));
 
             string label = type;
             if (this.Dequeued != null)
             {
-                var eventLabel = GetEventLabel(this.Dequeued.Event);
+                var eventLabel = this.GetEventLabel(this.Dequeued.Event);
                 if (suffixLabel)
                 {
                     label = eventLabel + "(" + label + ")";
@@ -574,24 +568,44 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             this.Dequeued = null;
         }
 
-        private GraphNode GetOrCreateChild(string actorId, string stateName)
+        private GraphNode GetOrCreateChild(ActorId actorId, string stateName)
         {
-            GraphNode parent = this.Graph.GetOrCreateNode(actorId);
+            this.AddNamespace(actorId);
+
+            string id = this.GetResolveActorId(actorId);
+            GraphNode parent = this.Graph.GetOrCreateNode(id);
             parent.AddAttribute("Group", "Expanded");
-            GraphNode child = this.Graph.GetOrCreateNode(actorId + "." + stateName, stateName);
+            GraphNode child = this.Graph.GetOrCreateNode(id + "." + stateName, stateName);
             this.Graph.GetOrCreateLink(parent, child, null, "Contains");
             return child;
         }
 
         private void GetOrCreateEventLink(GraphNode source, GraphNode target, EventInfo e)
         {
-            string label = GetEventLabel(e.Event);
+            string label = this.GetEventLabel(e.Event);
             GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
             link.AddAttribute("EventId", e.Event);
         }
 
-        private static string GetLabel(ActorId actorId, string fullyQualifiedName)
+        private void AddNamespace(ActorId actorId)
         {
+            if (actorId != null && !this.Namespaces.Contains(actorId.Type))
+            {
+                string typeName = actorId.Type;
+                int index = typeName.Length;
+                do
+                {
+                    typeName = typeName.Substring(0, index);
+                    this.Namespaces.Add(typeName);
+                    index = typeName.LastIndexOfAny(Separators);
+                }
+                while (index > 0);
+            }
+        }
+
+        private string GetLabel(ActorId actorId, string fullyQualifiedName)
+        {
+            this.AddNamespace(actorId);
             if (fullyQualifiedName.StartsWith(actorId.Type))
             {
                 fullyQualifiedName = fullyQualifiedName.Substring(actorId.Type.Length + 1).Trim('+');
@@ -600,17 +614,23 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             return fullyQualifiedName;
         }
 
-        private static string GetEventLabel(string fullyQualifiedName)
+        private static readonly char[] Separators = new char[] { '.', '+' };
+
+        private string GetEventLabel(string fullyQualifiedName)
         {
             if (EventAliases.TryGetValue(fullyQualifiedName, out string label))
             {
                 return label;
             }
 
-            int i = fullyQualifiedName.IndexOf('+');
+            int i = fullyQualifiedName.LastIndexOfAny(Separators);
             if (i > 0)
             {
-                return fullyQualifiedName.Substring(i + 1);
+                string ns = fullyQualifiedName.Substring(0, i);
+                if (this.Namespaces.Contains(ns))
+                {
+                    return fullyQualifiedName.Substring(i + 1);
+                }
             }
 
             return fullyQualifiedName;

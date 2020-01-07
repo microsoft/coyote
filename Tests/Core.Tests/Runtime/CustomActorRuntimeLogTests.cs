@@ -171,9 +171,9 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
 
             string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
   <Nodes>
-    <Node Id='M()' Label='M()' Group='Expanded'/>
+    <Node Id='M()' Group='Expanded'/>
     <Node Id='M().Init' Label='Init'/>
-    <Node Id='N()' Label='N()' Group='Expanded'/>
+    <Node Id='N()' Group='Expanded'/>
     <Node Id='N().Act' Label='Act'/>
     <Node Id='N().Init' Label='Init'/>
   </Nodes>

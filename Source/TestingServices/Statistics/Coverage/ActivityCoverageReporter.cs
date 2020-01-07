@@ -89,11 +89,10 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     hasExternalSource = true;
                 }
 
-                string targetId = link.Target.Id;
                 string eventId = GetEventId(link);
                 if (link.Category != "Contains" && !string.IsNullOrEmpty(eventId))
                 {
-                    if (uncoveredEvents.TryGetValue(targetId, out var events))
+                    if (uncoveredEvents.TryGetValue(srcId, out var events))
                     {
                         events.Remove(eventId);
                     }
@@ -129,14 +128,13 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 foreach (var link in this.CoverageInfo.CoverageGraph.Links)
                 {
                     string srcId = link.Source.Id;
-                    string targetId = link.Target.Id;
                     string eventId = GetEventId(link);
                     if (link.Category != "Contains" && !string.IsNullOrEmpty(eventId))
                     {
-                        var id = GetMachineId(targetId);
+                        var id = GetMachineId(srcId);
                         if (id == machine)
                         {
-                            if (uncoveredMachineEvents.TryGetValue(targetId, out var events))
+                            if (uncoveredMachineEvents.TryGetValue(srcId, out var events))
                             {
                                 events.Remove(eventId);
                             }

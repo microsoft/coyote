@@ -62,3 +62,6 @@ Status CallExternalServiceMock(WorkItem work)
 When using such a mock, the Coyote tester will control the values that `Random` returns in a way that provides good coverage. All these techniques can be put together to write very expressive test cases. A Coyote test has the power of encoding many different scenarios concisely and leave their exploration to the automated tester.
 
 Using Coyote has two main components. First, using one of Coyote's programming models to write the code. Second, designing mocks for external dependencies, capturing the sources of non-determinism that you want tested in your system. Additionally, Coyote also offers ways of writing [specifications](../specifications/overview.md) concisely.
+
+See [animating state machine demo](/coyote/learn/core/demo) which shows the systematic testing process in action on a test application that implements
+the [Raft Consensus Algorithm](https://raft.github.io/).

@@ -24,6 +24,8 @@ learn-toc:
       link: /learn/core/non-determinism
     - name: Systematic testing
       link: /learn/core/systematic-testing
+    - name: Demo
+      link: /learn/core/demo
 - title: Programming
   link: /learn/programming-models
   subfolderitems:
@@ -57,8 +59,16 @@ learn-toc:
       link: /learn/specifications/liveness-checking
 - title: Tutorials and Samples
   subfolderitems:
-    - name: Raft on Kubernetes
-      link: /learn/tutorials/raft
+    - name: Hello World Tasks
+      link: /learn/tutorials/hello-world-tasks
+    - name: Hello World Actors
+      link: /learn/tutorials/hello-world-actors
+    - name: Hello World State Machines
+      link: /learn/tutorials/hello-world-state-machines
+    - name: Azure Example
+      link: /learn/tutorials/raft-azure
+    - name: Mocking Example
+      link: /learn/tutorials/raft-mocking
 - title: Tools
   subfolderitems:
     - name: Testing

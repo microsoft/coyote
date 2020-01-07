@@ -29,3 +29,6 @@ refers to these exploration strategies as _scheduling strategies_ and Coyote mak
 new strategies, as they come out of research. New scheduling strategies are being developed in Microsoft
 Research based on a wealth of experience gathered from the Microsoft product groups that are using Coyote
 today. See [case studies](/coyote/case-studies/azure-batch-service).
+
+See [animating state machine demo](/coyote/learn/core/demo) for a visual explanation of what Coyote does
+when it is looking for bugs.

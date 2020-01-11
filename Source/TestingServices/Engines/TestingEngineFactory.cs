@@ -3,8 +3,8 @@
 
 using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices
 {
@@ -40,13 +40,13 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Func<Task> test) =>
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Func<ControlledTask> test) =>
             BugFindingEngine.Create(configuration, test);
 
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Func<IActorRuntime, Task> test) =>
+        public static ITestingEngine CreateBugFindingEngine(Configuration configuration, Func<IActorRuntime, ControlledTask> test) =>
             BugFindingEngine.Create(configuration, test);
 
         /// <summary>
@@ -76,13 +76,13 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new replay engine.
         /// </summary>
-        public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<Task> test) =>
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<ControlledTask> test) =>
             ReplayEngine.Create(configuration, test);
 
         /// <summary>
         /// Creates a new replay engine.
         /// </summary>
-        public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<IActorRuntime, Task> test) =>
+        public static ITestingEngine CreateReplayEngine(Configuration configuration, Func<IActorRuntime, ControlledTask> test) =>
             ReplayEngine.Create(configuration, test);
     }
 }

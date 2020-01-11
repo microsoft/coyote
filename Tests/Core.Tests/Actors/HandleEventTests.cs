@@ -105,9 +105,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             var result = new Result();
 
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M1>(configuration: configuration);
+            var test = new ActorTestKit<M1>(configuration: configuration);
 
-            await test.StartMachineAsync(new SetupEvent(result));
+            await test.StartActorAsync(new SetupEvent(result));
 
             await test.SendEventAsync(new E1());
 
@@ -121,9 +121,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             var result = new Result();
 
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M2>(configuration: configuration);
+            var test = new ActorTestKit<M2>(configuration: configuration);
 
-            await test.StartMachineAsync(new SetupEvent(result));
+            await test.StartActorAsync(new SetupEvent(result));
 
             await test.SendEventAsync(new E1());
             await test.SendEventAsync(new E2());

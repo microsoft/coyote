@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         /// <summary>
         /// Coyote semantics test: current state must be of the expected type.
         /// </summary>
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCurrentState()
         {
             this.Test(r =>

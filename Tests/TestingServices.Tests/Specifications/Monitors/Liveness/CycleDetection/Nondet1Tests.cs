@@ -99,13 +99,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
-        public void TestNondet1()
+        [Theory(Timeout = 5000)]
+        [InlineData(96)]
+        public void TestNondet1(int seed)
         {
             var configuration = GetConfiguration();
             configuration.EnableCycleDetection = true;
             configuration.SchedulingStrategy = SchedulingStrategy.DFS;
-            configuration.RandomSchedulingSeed = 96;
+            configuration.RandomSchedulingSeed = seed;
 
             this.TestWithError(r =>
             {

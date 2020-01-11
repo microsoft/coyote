@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestBasicTimerOperationInStateMachine()
         {
             this.Test(r =>
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestBasicPeriodicTimerOperationInActor()
         {
             this.Test(r =>
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestDropTimeoutsAfterTimerDisposal()
         {
             this.Test(r =>
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestIllegalDueTimeSpecification()
         {
             this.TestWithError(r =>
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestIllegalPeriodSpecification()
         {
             this.TestWithError(r =>
@@ -310,7 +310,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestTimerDisposedByNonOwner()
         {
             this.TestWithError(r =>
@@ -347,7 +347,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             private Transition FinalOnEntry() => this.Halt();
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestExplicitHaltWithTimer()
         {
             this.Test(r =>

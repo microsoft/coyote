@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCreateWithId1()
         {
             await this.RunAsync(async r =>
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCreateWithId2()
         {
             await this.RunAsync(async r =>
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCreateWithId4()
         {
             await this.RunAsync(async r =>
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCreateWithId5()
         {
             await this.RunAsync(async r =>
@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateWithId9()
         {
             this.Run(r =>
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCreateWithId10()
         {
             await this.RunAsync(async r =>
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCreateWithId11()
         {
             await this.RunAsync(async r =>

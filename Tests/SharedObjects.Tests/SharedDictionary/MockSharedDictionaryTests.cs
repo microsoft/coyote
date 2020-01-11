@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary1()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -269,7 +269,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, "Detected an assertion failure.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary2()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, 1);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary3()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -293,7 +293,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary4()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary5()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary6()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary7()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);

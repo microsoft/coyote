@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCycleDetectionRingOfNodesNoBug()
         {
             var configuration = GetConfiguration();
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             configuration: configuration);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCycleDetectionRingOfNodesBug()
         {
             var configuration = GetConfiguration();

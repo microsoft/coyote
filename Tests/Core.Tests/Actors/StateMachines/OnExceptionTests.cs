@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestUnhandledEventCanHalt()
         {
             await this.RunAsync(async r =>

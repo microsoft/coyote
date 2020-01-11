@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Core.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestAssertFailureNoEventHandler()
         {
             var runtime = ActorRuntimeFactory.Create();
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Core.Tests
             await tcs.Task;
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestAssertFailureEventHandler()
         {
             await this.RunAsync(async r =>
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Core.Tests
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestUnhandledExceptionEventHandler()
         {
             await this.RunAsync(async r =>

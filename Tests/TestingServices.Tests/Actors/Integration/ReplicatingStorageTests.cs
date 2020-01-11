@@ -857,14 +857,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
-        public void TestReplicatingStorageLivenessBug()
+        [Theory(Timeout = 10000)]
+        [InlineData(315)]
+        public void TestReplicatingStorageLivenessBug(int seed)
         {
             var configuration = GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 200;
             configuration.MaxFairSchedulingSteps = 2000;
             configuration.LivenessTemperatureThreshold = 1000;
-            configuration.RandomSchedulingSeed = 315;
+            configuration.RandomSchedulingSeed = seed;
             configuration.SchedulingIterations = 1;
 
             this.TestWithError(r =>

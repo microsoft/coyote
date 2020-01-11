@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout=15000)]
+        [Fact(Timeout = 15000)]
         public async Task TestNoMemoryLeakAfterHalt()
         {
             await this.RunAsync(async r =>

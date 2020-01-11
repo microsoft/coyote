@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary1()
         {
             var runtime = ActorRuntimeFactory.Create();
@@ -260,7 +260,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             Assert.False(failed);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary2()
         {
             var runtime = ActorRuntimeFactory.Create();
@@ -280,7 +280,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             Assert.True(failed);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary3()
         {
             var runtime = ActorRuntimeFactory.Create();
@@ -303,7 +303,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             Assert.False(failed);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary4()
         {
             var runtime = ActorRuntimeFactory.Create();
@@ -323,7 +323,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             Assert.False(failed);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary5()
         {
             var runtime = ActorRuntimeFactory.Create();

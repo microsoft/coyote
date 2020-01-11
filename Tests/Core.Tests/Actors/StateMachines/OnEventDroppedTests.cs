@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestOnDroppedCalled1()
         {
             await this.RunAsync(async r =>
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestOnDroppedCalled2()
         {
             await this.RunAsync(async r =>
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestOnDroppedParams()
         {
             await this.RunAsync(async r =>
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestProcessedOrDropped()
         {
             var config = GetConfiguration();

@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMaxEventInstancesAssertionFailure()
         {
             var configuration = GetConfiguration();

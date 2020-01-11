@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestAllNameofWithNameof()
         {
             this.Test(r =>
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             Assert.Equal(11111, WithNameofValue);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestAllNameofWithoutNameof()
         {
             this.Test(r =>

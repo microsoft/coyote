@@ -322,7 +322,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateInheritingAbstractState()
         {
             this.TestWithError(r =>
@@ -333,7 +333,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Error reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateInheritingStateDuplicateStart()
         {
             this.TestWithError(r =>
@@ -343,7 +343,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Monitor 'M2' can not declare more than one start states.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateInheritingStateOnEntry()
         {
             this.TestWithError(r =>
@@ -353,7 +353,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Error reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingStateOnEntry()
         {
             this.Test(r =>
@@ -362,7 +362,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateInheritingStateOnEventDoAction()
         {
             this.TestWithError(r =>
@@ -373,7 +373,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Error reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingStateOnEventDoAction()
         {
             this.Test(r =>
@@ -383,7 +383,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingTwoStatesOnEventDoAction()
         {
             this.Test(r =>
@@ -393,7 +393,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingDeepStateOnEventDoAction()
         {
             this.Test(r =>
@@ -403,7 +403,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateInheritingStateOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -414,7 +414,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingStateOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingTwoStatesOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -436,7 +436,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMonitorStateOverridingDeepStateOnEventGotoState()
         {
             this.TestWithError(r =>

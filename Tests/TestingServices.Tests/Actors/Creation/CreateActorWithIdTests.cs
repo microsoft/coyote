@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId1()
         {
             this.Test(r =>
@@ -156,7 +156,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId2()
         {
             this.Test(r =>
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId3()
         {
             this.TestWithError(r =>
@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId4()
         {
             this.TestWithError(r =>
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId5()
         {
             this.TestWithError(r =>
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId6()
         {
             this.TestWithError(r =>
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCreateActorWithId7()
         {
             this.TestWithError(r =>

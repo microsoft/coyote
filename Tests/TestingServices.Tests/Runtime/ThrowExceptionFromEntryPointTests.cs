@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestThrowExceptionTestFromEntryPoint()
         {
             this.TestWithException<InvalidOperationException>(r =>
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestThrowExceptionTestFromEntryPointNoMachines()
         {
             this.TestWithException<InvalidOperationException>(r =>

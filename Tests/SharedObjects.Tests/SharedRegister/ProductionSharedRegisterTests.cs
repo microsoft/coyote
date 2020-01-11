@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestProductionSharedRegister()
         {
             var runtime = ActorRuntimeFactory.Create();

@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestGetOperationGroupIdSet()
         {
             await this.RunAsync(async r =>

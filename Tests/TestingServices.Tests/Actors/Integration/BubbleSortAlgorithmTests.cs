@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public void TestBubbleSortAlgorithm()
         {
             this.Test(r =>

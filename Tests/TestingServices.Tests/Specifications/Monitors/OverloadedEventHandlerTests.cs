@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
 #pragma warning restore CA1801 // Parameter not used
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestOverloadedMonitorEventHandler()
         {
             this.Test(r =>

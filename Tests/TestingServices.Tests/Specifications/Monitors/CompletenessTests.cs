@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCompleteness1()
         {
             this.TestWithError(r =>
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCompleteness2()
         {
             this.TestWithError(r =>

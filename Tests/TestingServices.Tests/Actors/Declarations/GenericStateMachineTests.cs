@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestGenericMachine1()
         {
             this.Test(r =>
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestGenericMachine2()
         {
             this.Test(r =>

@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             }
         }
 
-        [Fact(Timeout=10000)]
+        [Fact(Timeout = 10000)]
         public async Task TestIllegalPeriodSpecificationInStateMachine()
         {
             await this.RunAsync(async r =>

@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestSyncSendBlocks()
         {
             await this.RunAsync(async r =>
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestSendCycleDoesNotDeadlock()
         {
             await this.RunAsync(async r =>
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestMachineHaltsOnSendExec()
         {
             var config = GetConfiguration();
@@ -339,7 +339,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
@@ -359,7 +359,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestUnHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
@@ -412,7 +412,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestUnhandledEventOnSendExec()
         {
             await this.RunAsync(async r =>

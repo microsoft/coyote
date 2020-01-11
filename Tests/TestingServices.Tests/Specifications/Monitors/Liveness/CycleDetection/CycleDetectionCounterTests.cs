@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCycleDetectionCounterNoBug()
         {
             var configuration = GetConfiguration();
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             configuration: configuration);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCycleDetectionCounterBug()
         {
             var configuration = GetConfiguration();

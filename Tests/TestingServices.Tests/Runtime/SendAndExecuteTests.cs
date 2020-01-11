@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestSendAndExecuteNoDeadlockWithReceive()
         {
             this.Test(r =>
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestSendAndExecuteDeadlockWithReceive()
         {
             this.TestWithError(r =>

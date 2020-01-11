@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Coverage
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateTransitionActivityCoverage()
         {
             var configuration = Configuration.Create();

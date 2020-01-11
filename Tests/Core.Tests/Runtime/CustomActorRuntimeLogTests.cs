@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public async Task TestCustomActorRuntimeLogFormatter()
         {
             CustomLogger logger = new CustomLogger(true);

@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout=22000)]
+        [Fact(Timeout = 22000)]
         public async Task TestNoMemoryLeakInEventSending()
         {
             await this.RunAsync(async r =>

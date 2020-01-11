@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedRegister1()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedRegister2()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, "Detected an assertion failure.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedRegister3()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedRegister4()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);

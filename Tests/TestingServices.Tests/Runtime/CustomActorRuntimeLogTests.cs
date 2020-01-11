@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestCustomActorRuntimeLogFormatter()
         {
             Action<IActorRuntime> test = r =>

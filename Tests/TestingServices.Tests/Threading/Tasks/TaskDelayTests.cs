@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading.Tasks
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestInterleavingsInLoopWithSynchronousDelays()
         {
             this.Test(async () =>

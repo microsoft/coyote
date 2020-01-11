@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestLiveness2LoopMachine()
         {
             var configuration = GetConfiguration();

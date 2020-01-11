@@ -534,7 +534,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateInheritingAbstractState()
         {
             this.TestWithError(r =>
@@ -544,7 +544,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Error reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateInheritingStateDuplicateStart()
         {
             this.TestWithError(r =>
@@ -554,7 +554,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "'M2()' can not declare more than one start states.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateInheritingStateOnEntry()
         {
             this.TestWithError(r =>
@@ -564,7 +564,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Error reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingStateOnEntry()
         {
             this.Test(r =>
@@ -573,7 +573,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateInheritingStateOnEventDoAction()
         {
             this.TestWithError(r =>
@@ -583,7 +583,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Error reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingStateOnEventDoAction()
         {
             this.Test(r =>
@@ -592,7 +592,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingTwoStatesOnEventDoAction()
         {
             this.Test(r =>
@@ -601,7 +601,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingDeepStateOnEventDoAction()
         {
             this.Test(r =>
@@ -610,7 +610,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateInheritingStateOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -620,7 +620,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingStateOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -630,7 +630,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingTwoStatesOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -640,7 +640,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingDeepStateOnEventGotoState()
         {
             this.TestWithError(r =>
@@ -650,7 +650,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateInheritingStateOnEventPushState()
         {
             this.TestWithError(r =>
@@ -660,7 +660,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingStateOnEventPushState()
         {
             this.TestWithError(r =>
@@ -670,7 +670,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingTwoStatesOnEventPushState()
         {
             this.TestWithError(r =>
@@ -680,7 +680,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "Done reached.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineStateOverridingDeepStateOnEventPushState()
         {
             this.TestWithError(r =>

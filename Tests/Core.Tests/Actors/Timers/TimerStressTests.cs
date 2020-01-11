@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             }
         }
 
-        [Fact(Timeout= 6000)]
+        [Fact(Timeout =  6000)]
         public async Task TestTimerLifetime()
         {
             await this.RunAsync(async r =>

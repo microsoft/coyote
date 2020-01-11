@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestRuntimeEventDroppedAfterHaltInStateMachine()
         {
             this.TestWithError(r =>
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestEventProcessedOrDroppedInStateMachine()
         {
             this.Test(r =>

@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedCounter1()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedCounter2()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertSucceeded(config, test);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedCounter3()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -226,7 +226,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, "Detected an assertion failure.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedCounter4()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, "Detected an assertion failure.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedCounter5()
         {
             var config = Configuration.Create().WithNumberOfIterations(100);
@@ -250,7 +250,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             this.AssertFailed(config, test, "Detected an assertion failure.");
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMockSharedCounter6()
         {
             var config = Configuration.Create().WithNumberOfIterations(50);

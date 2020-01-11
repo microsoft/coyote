@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             private Transition Init() => this.GotoState<S2>();
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestGenericMonitor()
         {
             this.Test(r =>

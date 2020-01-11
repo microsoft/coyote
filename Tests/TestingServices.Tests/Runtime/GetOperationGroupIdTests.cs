@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestGetOperationGroupIdNotSet()
         {
             this.Test(r =>
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestGetOperationGroupIdSet()
         {
             this.Test(r =>
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             });
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestGetOperationGroupIdOfNotCurrentMachine()
         {
             this.TestWithError(r =>

@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             }
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineMonitorIntegration1()
         {
             this.TestWithError(r =>
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             replay: true);
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineMonitorIntegration2()
         {
             this.Test(r =>
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             configuration: GetConfiguration().WithStrategy(SchedulingStrategy.DFS));
         }
 
-        [Fact(Timeout=5000)]
+        [Fact(Timeout = 5000)]
         public void TestMachineMonitorIntegration3()
         {
             this.Test(r =>

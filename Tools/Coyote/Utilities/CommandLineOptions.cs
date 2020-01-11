@@ -361,11 +361,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         this.Configuration.MaxFairSchedulingSteps / 2;
                 }
             }
-
-            if (this.Configuration.RandomSchedulingSeed is null)
-            {
-                this.Configuration.RandomSchedulingSeed = DateTime.Now.Millisecond;
-            }
         }
     }
 }

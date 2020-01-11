@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// True if the actor is waiting to receive and event, else false.
         /// </summary>
-        internal bool IsMachineWaitingToReceiveEvent { get; private set; }
+        internal bool IsActorWaitingToReceiveEvent { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorUnitTestingRuntime"/> class.
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal ActorUnitTestingRuntime(Type actorType, Configuration configuration)
             : base(configuration)
         {
-            if (!actorType.IsSubclassOf(typeof(StateMachine)))
+            if (!actorType.IsSubclassOf(typeof(Actor)))
             {
                 this.Assert(false, "Type '{0}' is not an actor.", actorType.FullName);
             }
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             this.LogWriter.LogCreateActor(this.Instance.Id, null);
 
-            this.IsMachineWaitingToReceiveEvent = false;
+            this.IsActorWaitingToReceiveEvent = false;
         }
 
         /// <summary>
@@ -625,7 +625,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
             }
 
-            this.IsMachineWaitingToReceiveEvent = true;
+            this.IsActorWaitingToReceiveEvent = true;
             this.QuiescenceCompletionSource.SetResult(true);
         }
 
@@ -640,7 +640,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
             }
 
-            this.IsMachineWaitingToReceiveEvent = false;
+            this.IsActorWaitingToReceiveEvent = false;
             this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
         }
 

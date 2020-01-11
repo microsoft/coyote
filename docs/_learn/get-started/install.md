@@ -35,7 +35,7 @@ Clone the [Coyote repo](http://github.com/microsoft/coyote), then open `Coyote.s
 You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
 
 ```
-powershell -f .\Scripts\build.ps1
+powershell -f Scripts/build.ps1
 ```
 
 ### Running the tests
@@ -43,30 +43,28 @@ powershell -f .\Scripts\build.ps1
 To run all available tests, execute the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
 
 ```
-powershell -f .\Scripts\run-tests.ps1
+powershell -f Scripts/run-tests.ps1
 ```
 
 You can also run a specific category of tests by adding the `-test` option to specify the category name, for example:
 
 ```
-powershell -f .\Scripts\run-tests.ps1 -test core
+powershell -f Scripts/run-tests.ps1 -test core
 ```
 
 ### Building the samples
 
-Clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples), then open the solution under `AsyncTaskExamples` or `StateMachineExamples` and build.
-
-You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
+Clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples), then use the following `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:
 
 ```
-powershell -f .\Scripts\build-examples.ps1
+powershell -f build.ps1
 ```
 
 ### Using a local NuGet package
 
 The samples use the published Microsoft.Coyote NuGet package by default. If you want the samples to use the same Coyote bits you built from the Coyote repo, then edit the Nuget.config file and uncomment the following line:
 ```xml
-<add key="Coyote" value="..\Coyote\bin\nuget"/>
+<add key="Coyote" value="../Coyote/bin/nuget"/>
 ```
 
 Then in the Coyote project run this `PowerShell` command line from a Visual Studio 2019 Developer Command Prompt:

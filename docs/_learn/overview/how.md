@@ -30,5 +30,5 @@ new strategies, as they come out of research. New scheduling strategies are bein
 Research based on a wealth of experience gathered from the Microsoft product groups that are using Coyote
 today. See [case studies](/coyote/case-studies/azure-batch-service).
 
-See [animating state machine demo](/coyote/learn/core/demo) for a visual explanation of what Coyote does
+See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) for a visual explanation of what Coyote does
 when it is looking for bugs.

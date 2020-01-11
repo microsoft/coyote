@@ -31,19 +31,19 @@ actor programming model.
 
 ## Runtime API changes
 - The static runtime factory was renamed from `PSharpRuntime` to `ActorRuntimeFactory`, so you can now do `ActorRuntimeFactory.Create()` to get an actor runtime instance (that can execute state machines).
-- `IMachineRuntime.CreateMachine` was renamed to `IActorRuntime.CreateStateMachine`.
-- The previously deprecated method `IMachineRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateStateMachineAndExecuteAsync` instead (same semantics, just different method name).
+- `IMachineRuntime.CreateMachine` was renamed to `IActorRuntime.CreateActor`.
+- The previously deprecated method `IMachineRuntime.CreateMachineAndExecute` has been removed, please use `IActorRuntime.CreateActorAndExecuteAsync` instead (same semantics, just different method name).
 - The previously deprecated method `IMachineRuntime.SendEventAndExecute` has been removed, please use `IActorRuntime.SendEventAndExecuteAsync` instead (same semantics, just different method name).
 
 ## Machine API changes
-- `Machine.CreateMachine` was renamed `StateMachine.CreateStateMachine`.
+- `Machine.CreateMachine` was renamed `StateMachine.CreateActor`.
 - `Machine.Raise` was renamed `StateMachine.RaiseEvent` to become more descriptive.
 - `Machine.Goto` was renamed `StateMachine.GotoState` to become more descriptive.
 - `Machine.Push` was renamed `StateMachine.PushState` to become more descriptive.
 - `Machine.Pop` was renamed `StateMachine.PopState` to become more descriptive.
 - `Machine.Receive` was renamed `StateMachine.ReceiveEventAsync` to become more descriptive.
 - `Machine.Send` was renamed `StateMachine.SendEvent` to become more descriptive and match the runtime API.
-- The `ReceivedEvent` property has been removed. You can now declare event-handlers that take a single `Event` as an in-parameter, which is the `Event` that triggered the handler. A handler that does not require access to this `Event` can be still declared without an in-parameter. Some of the user callbacks (e.g. `OnException` and `OnHaltAsync`) now give access to the last dequeued event.
+- The `ReceivedEvent` property has been removed. You can now declare event handlers that take a single `Event` as an in-parameter, which is the `Event` that triggered the handler. A handler that does not require access to this `Event` can be still declared without an in-parameter. Some of the user callbacks (e.g. `OnException` and `OnHaltAsync`) now give access to the last dequeued event.
 - All `Machine` transitions are now typed: `RaiseEvent`, `GotoState`, `PushState`, `PopState` and `Halt` now return a `struct` of type `Transition`, which must be returned as the result of an event handler. This return type is optional, and an event handler can return `void` or a `default` Transition.
 - Introduced new API `Halt` for performing a halt transition (this is more efficient than halting via a `RaiseEvent`).
 

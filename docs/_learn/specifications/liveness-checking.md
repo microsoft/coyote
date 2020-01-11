@@ -79,24 +79,24 @@ See the following technical paper that explains the concept behind fair and unfa
 
 [Fair stateless model checking. Madan Musuvathi and Shaz Qadeer. PLDI 2008.](https://www.microsoft.com/en-us/research/publication/fair-stateless-model-checking/)
 
-Consider a program with two machines A and B. The machine A continuously sends an event to itself until
-it receives a message from B. The machine B is ready to send the message to A immediately upon
+Consider a program with two actors A and B. The actor A continuously sends an event to itself until
+it receives a message from B. The actor B is ready to send the message to A immediately upon
 creation. (Contrast this example to Figure 3 of the paper.) This program has an infinite execution:
 where A is continuously scheduled without giving B a chance. Such an infinite execution is called
 _unfair_ because B is starved over an infinitely long period of time, which is unrealistic in modern
 systems.
 
 The Coyote tester works by taking over the scheduling of the Coyote program. It uses one of several
-_schedulers_: algorithms that decide which machine to schedule next. A scheduler is called _fair_ if it
+_schedulers_: algorithms that decide which actor to schedule next. A scheduler is called _fair_ if it
 is not expected to generate unfair executions. For example, the random scheduler, which makes decisions
-on the next machine to schedule randomly, is fair. In the program described above, it is very likely
+on the next actor to schedule randomly, is fair. In the program described above, it is very likely
 that B will be given a chance to execute. Some schedulers don't have this property and are called
 _unfair_ schedulers. Unfair schedulers have a role to play in finding violations of safety properties,
 but not in finding violations of liveness properties. The "PCT" scheduler of Coyote is unfair.
 
 When using the portfolio scheduler, multiple schedulers are used, with an equal mix of fair and unfair
 schedulers. Because of their nature, unfair schedulers are expected to generate longer than usual
-executions. The unfairness in scheduling can lead to starvation of certain machines, which may stall
+executions. The unfairness in scheduling can lead to starvation of certain actors, which may stall
 progress. The expected length of a program's execution is best determined by looking at lengths of
 "fair terminating executions", i.e., executions that terminate under a fair scheduler.
 

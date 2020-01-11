@@ -17,13 +17,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         {
         }
 
-        private class M1 : StateMachine
+        private class M1 : Actor
         {
-            [Start]
-            private class Init : State
-            {
-            }
-
             internal int Add(int m, int k)
             {
                 return m + k;
@@ -34,19 +29,14 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public void TestInvokeInternalMethod()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M1>(configuration: configuration);
+            var test = new ActorTestKit<M1>(configuration: configuration);
 
-            int result = test.StateMachine.Add(3, 4);
+            int result = test.ActorInstance.Add(3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");
         }
 
-        private class M2 : StateMachine
+        private class M2 : Actor
         {
-            [Start]
-            private class Init : State
-            {
-            }
-
             internal async Task<int> AddAsync(int m, int k)
             {
                 await Task.CompletedTask;
@@ -58,19 +48,14 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestInvokeInternalAsyncMethod()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M2>(configuration: configuration);
+            var test = new ActorTestKit<M2>(configuration: configuration);
 
-            int result = await test.StateMachine.AddAsync(3, 4);
+            int result = await test.ActorInstance.AddAsync(3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");
         }
 
-        private class M3 : StateMachine
+        private class M3 : Actor
         {
-            [Start]
-            private class Init : State
-            {
-            }
-
 #pragma warning disable IDE0051 // Remove unused private members
             private int Add(int m, int k)
             {
@@ -83,7 +68,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public void TestInvokePrivateMethod()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M3>(configuration: configuration);
+            var test = new ActorTestKit<M3>(configuration: configuration);
 
             int result = (int)test.Invoke("Add", 3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");
@@ -92,13 +77,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             test.Assert(result == 7, $"Incorrect result '{result}'");
         }
 
-        private class M4 : StateMachine
+        private class M4 : Actor
         {
-            [Start]
-            private class Init : State
-            {
-            }
-
 #pragma warning disable IDE0051 // Remove unused private members
             private async Task<int> AddAsync(int m, int k)
             {
@@ -112,7 +92,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestInvokePrivateAsyncMethod()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M4>(configuration: configuration);
+            var test = new ActorTestKit<M4>(configuration: configuration);
 
             int result = (int)await test.InvokeAsync("AddAsync", 3, 4);
             test.Assert(result == 7, $"Incorrect result '{result}'");

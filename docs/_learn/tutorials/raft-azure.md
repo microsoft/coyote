@@ -9,7 +9,7 @@ permalink: /learn/tutorials/raft-azure
 
 The [Raft Example ](http://github.com/microsoft/coyote-samples/) implements the [Raft Consensus Algorithm](https://raft.github.io/) as an Azure Service
 built on the [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).
-See [animating state machine demo](/coyote/learn/core/demo) which shows the Coyote [systematic testing process](/learn/core/systematic-testing) in action on this application.
+See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows the Coyote [systematic testing process](/learn/core/systematic-testing) in action on this application.
 
 ## What you will need
 

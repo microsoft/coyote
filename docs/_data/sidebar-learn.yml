@@ -24,8 +24,6 @@ learn-toc:
       link: /learn/core/non-determinism
     - name: Systematic testing
       link: /learn/core/systematic-testing
-    - name: Demo
-      link: /learn/core/demo
 - title: Programming
   link: /learn/programming-models
   subfolderitems:
@@ -34,23 +32,25 @@ learn-toc:
       tertiaryitems:
         - name: Overview
           link: /learn/programming-models/async/overview
-    - name: Asynchronous State Machines
-      link: /learn/programming-models/state-machines
+    - name: Asynchronous Actors
+      link: /learn/programming-models/actors
       tertiaryitems:
         - name: Overview
-          link: /learn/programming-models/state-machines/overview
-        - name: State machine termination
-          link: /learn/programming-models/state-machines/termination
-        - name: Using timers in state machines
-          link: /learn/programming-models/state-machines/state-machine-timers
+          link: /learn/programming-models/actors/overview
+        - name: Actor termination
+          link: /learn/programming-models/actors/termination
+        - name: Using timers in actors
+          link: /learn/programming-models/actors/timers
         - name: Synchronous execution
-          link: /learn/programming-models/state-machines/synchronous-execution
+          link: /learn/programming-models/actors/synchronous-execution
         - name: Tracking operation groups
-          link: /learn/programming-models/state-machines/tracking-operation-groups
+          link: /learn/programming-models/actors/tracking-operation-groups
         - name: Semantics of unhandled exceptions
-          link: /learn/programming-models/state-machines/uncaught-exceptions
+          link: /learn/programming-models/actors/uncaught-exceptions
         - name: Unit-testing in isolation
-          link: /learn/programming-models/state-machines/unit-testing
+          link: /learn/programming-models/actors/unit-testing
+        - name: State Machine Demo
+          link: /learn/programming-models/actors/state-machine-demo
 - title: Specifications
   subfolderitems:
     - name: Overview
@@ -62,9 +62,7 @@ learn-toc:
     - name: Hello World Tasks
       link: /learn/tutorials/hello-world-tasks
     - name: Hello World Actors
-      link: /learn/tutorials/hello-world-actors
-    - name: Hello World State Machines
-      link: /learn/tutorials/hello-world-state-machines
+      link: /learn/tutorials/hello-world-actorss
     - name: Azure Example
       link: /learn/tutorials/raft-azure
     - name: Mocking Example

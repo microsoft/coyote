@@ -22,7 +22,7 @@ Code and activity coverage options:
 -----------------------------------
   -c, --coverage string       : Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
                                  code: Generate code coverage statistics (via VS instrumentation)
-                                 activity: Generate activity (machine, event, etc.) coverage statistics
+                                 activity: Generate activity (actor, state, event, etc.) coverage statistics
                                  activity-debug: Print activity coverage statistics with debug info
   -instr, --instrument string
                               : Additional file spec(s) to instrument for code coverage (wildcards supported)
@@ -64,7 +64,7 @@ subsequent sections.
 ## Activity coverage
 
 Activity coverage includes event coverage, which is defined in the following section, as well as a
-summary of machine states that were entered and exited and which state transitions occurred.
+summary of states that were entered and exited and which state transitions occurred.
 
 ## Definition of event coverage
 

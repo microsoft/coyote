@@ -2,7 +2,7 @@
 layout: reference
 title: Testing async/await code using Coyote machines
 section: learn
-permalink: /learn/programming-models/state-machines/async-await-machines
+permalink: /learn/programming-models/actors/async-await-machines
 ---
 
 ## Testing async/await code using Coyote machines
@@ -125,8 +125,8 @@ create machines:
 [Microsoft.Coyote.TestingServices.Test]
 void Test(IActorRuntime runtime)
 {
-   runtime.CreateStateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));
-   runtime.CreateStateMachine(typeof(RunTask), new TaskPayload(async () => await HandleRequest2(...)));
+   runtime.CreateActor(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));
+   runtime.CreateActor(typeof(RunTask), new TaskPayload(async () => await HandleRequest2(...)));
 }
 ```
 

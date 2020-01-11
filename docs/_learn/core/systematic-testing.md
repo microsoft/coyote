@@ -63,5 +63,5 @@ When using such a mock, the Coyote tester will control the values that `Random` 
 
 Using Coyote has two main components. First, using one of Coyote's programming models to write the code. Second, designing mocks for external dependencies, capturing the sources of non-determinism that you want tested in your system. Additionally, Coyote also offers ways of writing [specifications](../specifications/overview.md) concisely.
 
-See [animating state machine demo](/coyote/learn/core/demo) which shows the systematic testing process in action on a test application that implements
+See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows the systematic testing process in action on a test application that implements
 the [Raft Consensus Algorithm](https://raft.github.io/).

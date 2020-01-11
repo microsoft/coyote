@@ -68,8 +68,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestGotoStateTransition()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M1>(configuration: configuration);
-            await test.StartMachineAsync();
+            var test = new ActorTestKit<M1>(configuration: configuration);
+            await test.StartActorAsync();
             test.AssertStateTransition("Final");
         }
 
@@ -77,8 +77,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestGotoStateTransitionAfterSend()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M2>(configuration: configuration);
-            await test.StartMachineAsync();
+            var test = new ActorTestKit<M2>(configuration: configuration);
+            await test.StartActorAsync();
             test.AssertStateTransition("Init");
 
             await test.SendEventAsync(new Message());
@@ -89,8 +89,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestGotoStateTransitionAfterRaise()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M3>(configuration: configuration);
-            await test.StartMachineAsync();
+            var test = new ActorTestKit<M3>(configuration: configuration);
+            await test.StartActorAsync();
             test.AssertStateTransition("Final");
         }
     }

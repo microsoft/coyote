@@ -46,7 +46,7 @@ all those messages were going to Azure and back.
 You can now play with other test parameters like `--graph` to see a [DGML Graph](https://en.wikipedia.org/wiki/DGML) of all the messages sent during the test.
 You can browse these graphs using Visual Studio.  See [Dgml Editor setup](/coyote/learn/get-started/install).
 
-See the [animating state machine demo](/coyote/learn/core/demo) which shows what the [systematic testing](/learn/core/systematic-testing) looks like on this application.
+See the [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows what the [systematic testing](/learn/core/systematic-testing) looks like on this application.
 
 ## Design
 

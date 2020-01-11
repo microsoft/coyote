@@ -92,9 +92,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestReceiveEventStatement()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M1>(configuration: configuration);
+            var test = new ActorTestKit<M1>(configuration: configuration);
 
-            await test.StartMachineAsync();
+            await test.StartActorAsync();
             test.AssertIsWaitingToReceiveEvent(true);
 
             await test.SendEventAsync(new E1());
@@ -106,9 +106,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestMultipleReceiveEventStatements()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M2>(configuration: configuration);
+            var test = new ActorTestKit<M2>(configuration: configuration);
 
-            await test.StartMachineAsync();
+            await test.StartActorAsync();
             test.AssertIsWaitingToReceiveEvent(true);
 
             await test.SendEventAsync(new E1());
@@ -126,9 +126,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestMultipleReceiveEventStatementsUnordered()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M2>(configuration: configuration);
+            var test = new ActorTestKit<M2>(configuration: configuration);
 
-            await test.StartMachineAsync();
+            await test.StartActorAsync();
             test.AssertIsWaitingToReceiveEvent(true);
 
             await test.SendEventAsync(new E2());
@@ -148,9 +148,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestReceiveEventStatementWithMultipleTypes()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M3>(configuration: configuration);
+            var test = new ActorTestKit<M3>(configuration: configuration);
 
-            await test.StartMachineAsync();
+            await test.StartActorAsync();
             test.AssertIsWaitingToReceiveEvent(true);
 
             await test.SendEventAsync(new E1());
@@ -162,9 +162,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
         public async Task TestMultipleReceiveEventStatementsWithMultipleTypes()
         {
             var configuration = GetConfiguration();
-            var test = new StateMachineTestKit<M4>(configuration: configuration);
+            var test = new ActorTestKit<M4>(configuration: configuration);
 
-            await test.StartMachineAsync();
+            await test.StartActorAsync();
             test.AssertIsWaitingToReceiveEvent(true);
 
             await test.SendEventAsync(new E1());

@@ -1027,6 +1027,11 @@ pre code::after {
     content: none;
 }
 
+code.highlighter-rouge {
+    background-color: transparent;
+    color: #4091B1;
+}
+
 //trigger navbar collapse sooner so topnav doesn't collide with branding
 @media (max-width: 1110px) {
 

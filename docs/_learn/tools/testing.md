@@ -27,7 +27,7 @@ Type `coyote -?` to see the full command line options. If you are using the .NET
 
 In its essence, the Coyote tester:
  1. **serializes** the execution of an asynchronous program,
- 2. **takes control** of the underlying machine/task scheduler and any declared sources of non-determinism in the program,
+ 2. **takes control** of the underlying actor/task scheduler and any declared sources of non-determinism in the program,
  3. **explores** scheduling decisions and non-deterministic choices to trigger bugs.
 
 Because of the above capabilities, the `coyote` tester is capable of quickly discovering bugs that
@@ -50,14 +50,14 @@ A Coyote test method can be declared as follows: (**todo**: what about tasks?)
 public static void Execute(IActorRuntime runtime)
 {
   runtime.RegisterMonitor(typeof(SomeMonitor));
-  runtime.CreateStateMachine(typeof(SomeMachine));
+  runtime.CreateActor(typeof(SomeMachine));
 }
 ```
 
 This method acts as the entry point to each testing iteration. Note that the `coyote` tester will
 internally create a special machine, which invokes the test method and executes it. This allows us to
-capture and report any errors that occur outside the scope of a user machine (e.g. before the very
-first machine is created).
+capture and report any errors that occur outside the scope of an actor (e.g. before the very
+first actor is created).
 
 Note that similar to unit-testing, static state should be appropriately reset before each test
 iteration because the iterations run in shared memory. However,
@@ -132,6 +132,6 @@ coyote test ..\coyote-samples\StateMachineExamples\bin\net46\Raft.exe -i 1000 -m
 This looks for bugs in the sample implementation of the [Raft Concensus Algorithm](https://raft.github.io/).  In the picture you can see why the test failed, two
 of the server nodes have taken on the `Leader` role, which is not allowed.
 See also the [DGML diagram](/coyote/assets/images/raft.dgml) which you can open
-in Visual Studio.  Here we've manually highlighted the Server machines in green, and the Leader states in red to highlight the problem.
+in Visual Studio.  Here we've manually highlighted the Server state machines in green, and the Leader states in red to highlight the problem.
 
 ![raft](/coyote/assets/images/raft.png)

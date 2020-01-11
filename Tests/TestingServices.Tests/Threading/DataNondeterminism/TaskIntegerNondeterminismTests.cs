@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,11 +15,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
         public TaskIntegerNondeterminismTests(ITestOutputHelper output)
             : base(output)
         {
-        }
-
-        private class SharedEntry
-        {
-            public int Value = 0;
         }
 
         [Fact(Timeout = 5000)]

@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Runtime;
@@ -23,22 +24,53 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         private readonly SystematicTestingRuntime Runtime;
 
         /// <summary>
-        /// The type of the task.
-        /// </summary>
-        private readonly MachineTaskType Type;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MachineTask"/> class.
         /// </summary>
         [DebuggerStepThrough]
-        internal MachineTask(SystematicTestingRuntime runtime, Task task, MachineTaskType taskType)
+        internal MachineTask(SystematicTestingRuntime runtime, Task task)
             : base(task)
         {
-            IO.Debug.WriteLine("<ControlledTask> Creating task '{0}' from task '{1}' (option: {2}).",
-                task.Id, Task.CurrentId, taskType);
+            IO.Debug.WriteLine("<ControlledTask> Creating task '{0}' from task '{1}'.", task.Id, Task.CurrentId);
             this.Runtime = runtime;
-            this.Type = taskType;
         }
+
+        /// <summary>
+        /// Waits for the task to complete execution.
+        /// </summary>
+        public override void Wait()
+        {
+            var callerOp = this.Runtime.Scheduler.GetExecutingOperation<TaskOperation>();
+            IO.Debug.WriteLine("<ControlledTask> '{0}' is waiting task '{1}' to complete from task '{2}'.",
+                callerOp.Name, this.Id, Task.CurrentId);
+            callerOp.OnWaitTask(this.AwaiterTask);
+        }
+
+        /// <summary>
+        /// Waits for the task to complete execution within a specified number of milliseconds.
+        /// </summary>
+        public override bool Wait(int millisecondsTimeout) => this.Wait(millisecondsTimeout, default);
+
+        /// <summary>
+        /// Waits for the task to complete execution. The wait terminates if a timeout interval
+        /// elapses or a cancellation token is canceled before the task completes.
+        /// </summary>
+        public override bool Wait(int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            // TODO: support timeouts and cancellation tokens.
+            this.Wait();
+            return true;
+        }
+
+        /// <summary>
+        /// Waits for the task to complete execution within a specified time interval.
+        /// </summary>
+        public override bool Wait(TimeSpan timeout) => this.Wait((int)timeout.TotalMilliseconds, default);
+
+        /// <summary>
+        /// Waits for the task to complete execution. The wait terminates if
+        /// a cancellation token is canceled before the task completes.
+        /// </summary>
+        public override void Wait(CancellationToken cancellationToken) => this.Wait();
 
         /// <summary>
         /// Gets an awaiter for this awaitable.
@@ -79,9 +111,6 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        /// <param name="continueOnCapturedContext">
-        /// True to attempt to marshal the continuation back to the original context captured; otherwise, false.
-        /// </param>
         [DebuggerHidden]
         public override ConfiguredControlledTaskAwaitable ConfigureAwait(bool continueOnCapturedContext)
         {
@@ -130,7 +159,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
                     "Task with id '{0}' that is not controlled by the runtime is executing controlled task '{1}'.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", this.Id);
 
-                if (this.Type is MachineTaskType.CompletionSourceTask)
+                if (callerOp.IsExecutingInRootAsyncMethod())
                 {
                     IO.Debug.WriteLine("<ControlledTask> '{0}' is executing continuation of task '{1}' on task '{2}'.",
                         callerOp.Name, this.Id, Task.CurrentId);
@@ -138,7 +167,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
                     IO.Debug.WriteLine("<ControlledTask> '{0}' resumed after continuation of task '{1}' on task '{2}'.",
                         callerOp.Name, this.Id, Task.CurrentId);
                 }
-                else if (this.Type is MachineTaskType.ExplicitTask)
+                else
                 {
                     IO.Debug.WriteLine("<ControlledTask> '{0}' is dispatching continuation of task '{1}'.", callerOp.Name, this.Id);
                     this.Runtime.DispatchWork(new ActionExecutor(this.Runtime, continuation), this.AwaiterTask);
@@ -163,21 +192,30 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         private readonly SystematicTestingRuntime Runtime;
 
         /// <summary>
-        /// The type of the task.
+        /// Gets the result value of this task.
         /// </summary>
-        private readonly MachineTaskType Type;
+        public override TResult Result
+        {
+            get
+            {
+                var callerOp = this.Runtime.Scheduler.GetExecutingOperation<TaskOperation>();
+                IO.Debug.WriteLine("<ControlledTask> '{0}' is waiting task '{1}' with result type '{2}' to complete from task '{3}'.",
+                    callerOp.Name, this.Id, typeof(TResult), Task.CurrentId);
+                callerOp.OnWaitTask(this.AwaiterTask);
+                return this.AwaiterTask.Result;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineTask{TResult}"/> class.
         /// </summary>
         [DebuggerStepThrough]
-        internal MachineTask(SystematicTestingRuntime runtime, Task<TResult> task, MachineTaskType taskType)
+        internal MachineTask(SystematicTestingRuntime runtime, Task<TResult> task)
             : base(task)
         {
-            IO.Debug.WriteLine("<ControlledTask> Creating task '{0}' with result type '{1}' from task '{2}' (option: {3}).",
-                task.Id, typeof(TResult), Task.CurrentId, taskType);
+            IO.Debug.WriteLine("<ControlledTask> Creating task '{0}' with result type '{1}' from task '{2}'.",
+                task.Id, typeof(TResult), Task.CurrentId);
             this.Runtime = runtime;
-            this.Type = taskType;
         }
 
         /// <summary>
@@ -219,9 +257,6 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
         /// <summary>
         /// Configures an awaiter used to await this task.
         /// </summary>
-        /// <param name="continueOnCapturedContext">
-        /// True to attempt to marshal the continuation back to the original context captured; otherwise, false.
-        /// </param>
         [DebuggerHidden]
         public override ConfiguredControlledTaskAwaitable<TResult> ConfigureAwait(bool continueOnCapturedContext)
         {
@@ -270,7 +305,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
                     "Task with id '{0}' that is not controlled by the runtime is executing controlled task '{1}'.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", this.Id);
 
-                if (this.Type is MachineTaskType.CompletionSourceTask)
+                if (callerOp.IsExecutingInRootAsyncMethod())
                 {
                     IO.Debug.WriteLine("<ControlledTask> '{0}' is executing continuation of task '{1}' with result type '{2}' on task '{3}'.",
                         callerOp.Name, this.Id, typeof(TResult), Task.CurrentId);
@@ -278,7 +313,7 @@ namespace Microsoft.Coyote.TestingServices.Threading.Tasks
                     IO.Debug.WriteLine("<ControlledTask> '{0}' resumed after continuation of task '{1}' with result type '{2}' on task '{3}'.",
                         callerOp.Name, this.Id, typeof(TResult), Task.CurrentId);
                 }
-                else if (this.Type is MachineTaskType.ExplicitTask)
+                else
                 {
                     IO.Debug.WriteLine("<ControlledTask> '{0}' is dispatching continuation of task '{1}' with result type '{2}'.",
                         callerOp.Name, this.Id, typeof(TResult));

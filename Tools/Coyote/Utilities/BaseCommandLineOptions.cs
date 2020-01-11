@@ -89,6 +89,7 @@ namespace Microsoft.Coyote.Utilities
                     break;
                 case "debug":
                     this.Configuration.EnableDebugging = true;
+                    Debug.IsEnabled = true;
                     break;
                 case "timeout":
                     this.Configuration.Timeout = (int)(uint)option.Value;

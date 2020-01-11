@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Tests.Common.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,11 +13,6 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         public TaskWaitAllTests(ITestOutputHelper output)
             : base(output)
         {
-        }
-
-        private class SharedEntry
-        {
-            public volatile int Value = 0;
         }
 
         private static async ControlledTask WriteAsync(SharedEntry entry, int value)
@@ -32,7 +28,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoSynchronousTasks()
+        public void TestWaitAllWithTwoSynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             ControlledTask task1 = WriteAsync(entry, 5);
@@ -44,7 +40,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoAsynchronousTasks()
+        public void TestWaitAllWithTwoAsynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             ControlledTask task1 = WriteWithDelayAsync(entry, 3);
@@ -56,7 +52,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoParallelTasks()
+        public void TestWaitAllWithTwoParallelTasks()
         {
             SharedEntry entry = new SharedEntry();
 
@@ -90,7 +86,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoSynchronousTaskResults()
+        public void TestWaitAllWithTwoSynchronousTaskResults()
         {
             ControlledTask<int> task1 = GetWriteResultAsync(5);
             ControlledTask<int> task2 = GetWriteResultAsync(3);
@@ -102,7 +98,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoAsynchronousTaskResults()
+        public void TestWaitAllWithTwoAsynchronousTaskResults()
         {
             ControlledTask<int> task1 = GetWriteResultWithDelayAsync(5);
             ControlledTask<int> task2 = GetWriteResultWithDelayAsync(3);
@@ -114,7 +110,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoParallelSynchronousTaskResults()
+        public void TestWaitAllWithTwoParallelSynchronousTaskResults()
         {
             ControlledTask<int> task1 = ControlledTask.Run(async () =>
             {
@@ -135,7 +131,7 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithTwoParallelAsynchronousTaskResults()
+        public void TestWaitAllWithTwoParallelAsynchronousTaskResults()
         {
             ControlledTask<int> task1 = ControlledTask.Run(async () =>
             {

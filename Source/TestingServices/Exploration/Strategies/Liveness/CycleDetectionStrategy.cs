@@ -72,11 +72,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         private int CurrentCycleIndex;
 
         /// <summary>
-        /// Nondeterminitic seed.
-        /// </summary>
-        private readonly int Seed;
-
-        /// <summary>
         /// Randomizer.
         /// </summary>
         private readonly IRandomNumberGenerator Random;
@@ -104,9 +99,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.EndOfCycleIndex = 0;
             this.CurrentCycleIndex = 0;
 
-            this.Seed = this.Configuration.RandomSchedulingSeed ?? DateTime.Now.Millisecond;
-            this.Random = new DefaultRandomNumberGenerator(this.Seed);
-
+            this.Random = new DefaultRandomNumberGenerator(this.Configuration.RandomSchedulingSeed);
             this.FingerprintIndexMap = new Dictionary<Fingerprint, List<int>>();
         }
 

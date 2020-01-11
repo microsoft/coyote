@@ -70,7 +70,7 @@ namespace Microsoft.Coyote
         /// Seed for random scheduling strategies.
         /// </summary>
         [DataMember]
-        public int? RandomSchedulingSeed;
+        public int RandomSchedulingSeed;
 
         /// <summary>
         /// If true, the seed will increment in each
@@ -351,7 +351,7 @@ namespace Microsoft.Coyote
 
             this.SchedulingStrategy = SchedulingStrategy.Random;
             this.SchedulingIterations = 1;
-            this.RandomSchedulingSeed = null;
+            this.RandomSchedulingSeed = DateTime.Now.Millisecond;
             this.IncrementalSchedulingSeed = false;
 
             this.PerformFullExploration = false;

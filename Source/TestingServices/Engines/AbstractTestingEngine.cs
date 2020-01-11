@@ -215,85 +215,85 @@ namespace Microsoft.Coyote.TestingServices
         {
             this.Configuration = configuration;
             this.Logger = new ConsoleLogger();
-            this.ErrorReporter = new ErrorReporter(this.Configuration, this.Logger);
+            this.ErrorReporter = new ErrorReporter(configuration, this.Logger);
             this.Profiler = new Profiler();
 
             this.PerIterationCallbacks = new HashSet<Action<int>>();
 
             // Initializes scheduling strategy specific components.
-            this.SetRandomNumberGenerator();
+            this.RandomNumberGenerator = new DefaultRandomNumberGenerator(configuration.RandomSchedulingSeed);
 
-            this.TestReport = new TestReport(this.Configuration);
+            this.TestReport = new TestReport(configuration);
             this.CancellationTokenSource = new CancellationTokenSource();
             this.PrintGuard = 1;
 
-            if (this.Configuration.SchedulingStrategy == SchedulingStrategy.Interactive)
+            if (configuration.SchedulingStrategy == SchedulingStrategy.Interactive)
             {
-                this.Strategy = new InteractiveStrategy(this.Configuration, this.Logger);
-                this.Configuration.SchedulingIterations = 1;
-                this.Configuration.PerformFullExploration = false;
-                this.Configuration.IsVerbose = true;
+                this.Strategy = new InteractiveStrategy(configuration, this.Logger);
+                configuration.SchedulingIterations = 1;
+                configuration.PerformFullExploration = false;
+                configuration.IsVerbose = true;
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.Replay)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.Replay)
             {
                 var scheduleDump = this.GetScheduleForReplay(out bool isFair);
                 ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
-                this.Strategy = new ReplayStrategy(this.Configuration, schedule, isFair);
+                this.Strategy = new ReplayStrategy(configuration, schedule, isFair);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.Random)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.Random)
             {
-                this.Strategy = new RandomStrategy(this.Configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
+                this.Strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
             {
                 this.Strategy = new ProbabilisticRandomStrategy(
-                    this.Configuration.MaxFairSchedulingSteps,
-                    this.Configuration.CoinFlipBound,
+                    configuration.MaxFairSchedulingSteps,
+                    configuration.CoinFlipBound,
                     this.RandomNumberGenerator);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.PCT)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.PCT)
             {
-                this.Strategy = new PCTStrategy(this.Configuration.MaxUnfairSchedulingSteps, this.Configuration.PrioritySwitchBound,
+                this.Strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.PrioritySwitchBound,
                     this.RandomNumberGenerator);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
             {
-                var prefixLength = this.Configuration.SafetyPrefixBound == 0 ?
-                    this.Configuration.MaxUnfairSchedulingSteps : this.Configuration.SafetyPrefixBound;
-                var prefixStrategy = new PCTStrategy(prefixLength, this.Configuration.PrioritySwitchBound, this.RandomNumberGenerator);
-                var suffixStrategy = new RandomStrategy(this.Configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
+                var prefixLength = configuration.SafetyPrefixBound == 0 ?
+                    configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
+                var prefixStrategy = new PCTStrategy(prefixLength, configuration.PrioritySwitchBound, this.RandomNumberGenerator);
+                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
                 this.Strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.DFS)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.DFS)
             {
-                this.Strategy = new DFSStrategy(this.Configuration.MaxUnfairSchedulingSteps);
+                this.Strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.IDDFS)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.IDDFS)
             {
-                this.Strategy = new IterativeDeepeningDFSStrategy(this.Configuration.MaxUnfairSchedulingSteps);
+                this.Strategy = new IterativeDeepeningDFSStrategy(configuration.MaxUnfairSchedulingSteps);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.DelayBounding)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.DelayBounding)
             {
-                this.Strategy = new ExhaustiveDelayBoundingStrategy(this.Configuration.MaxUnfairSchedulingSteps,
-                    this.Configuration.DelayBound, this.RandomNumberGenerator);
+                this.Strategy = new ExhaustiveDelayBoundingStrategy(configuration.MaxUnfairSchedulingSteps,
+                    configuration.DelayBound, this.RandomNumberGenerator);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.RandomDelayBounding)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.RandomDelayBounding)
             {
-                this.Strategy = new RandomDelayBoundingStrategy(this.Configuration.MaxUnfairSchedulingSteps,
-                    this.Configuration.DelayBound, this.RandomNumberGenerator);
+                this.Strategy = new RandomDelayBoundingStrategy(configuration.MaxUnfairSchedulingSteps,
+                    configuration.DelayBound, this.RandomNumberGenerator);
             }
-            else if (this.Configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
             {
                 Error.ReportAndExit("Portfolio testing strategy is only " +
                     "available in parallel testing.");
             }
 
-            if (this.Configuration.SchedulingStrategy != SchedulingStrategy.Replay &&
-                this.Configuration.ScheduleFile.Length > 0)
+            if (configuration.SchedulingStrategy != SchedulingStrategy.Replay &&
+                configuration.ScheduleFile.Length > 0)
             {
                 var scheduleDump = this.GetScheduleForReplay(out bool isFair);
                 ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
-                this.Strategy = new ReplayStrategy(this.Configuration, schedule, isFair, this.Strategy);
+                this.Strategy = new ReplayStrategy(configuration, schedule, isFair, this.Strategy);
             }
         }
 
@@ -722,15 +722,6 @@ namespace Microsoft.Coyote.TestingServices
             this.Logger.Dispose();
             this.Logger = logger;
             this.ErrorReporter.Logger = logger;
-        }
-
-        /// <summary>
-        /// Sets the random number generator to be used by the scheduling strategy.
-        /// </summary>
-        private void SetRandomNumberGenerator()
-        {
-            int seed = this.Configuration.RandomSchedulingSeed ?? DateTime.Now.Millisecond;
-            this.RandomNumberGenerator = new DefaultRandomNumberGenerator(seed);
         }
     }
 }

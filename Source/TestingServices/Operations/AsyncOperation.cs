@@ -15,11 +15,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     internal abstract class AsyncOperation : IAsyncOperation
     {
         /// <summary>
-        /// Stores the unique scheduler id that executes this operation.
-        /// </summary>
-        internal static readonly AsyncLocal<Guid> SchedulerId = new AsyncLocal<Guid>();
-
-        /// <summary>
         /// The scheduler executing this operation.
         /// </summary>
         internal readonly OperationScheduler Scheduler;

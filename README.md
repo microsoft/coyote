@@ -1,6 +1,6 @@
 <div align="center">
   <img src="/docs/assets/images/logo_color.svg" width="70%">
-  <h2>Build reliable asynchronous software, with confidence</h2>
+  <h2>Build reliable asynchronous software with confidence</h2>
 </div>
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)

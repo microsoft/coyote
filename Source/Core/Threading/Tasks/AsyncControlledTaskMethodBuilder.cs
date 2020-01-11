@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Threading.Tasks
                     IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
                         this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, System.Threading.Tasks.Task.CurrentId);
                     this.UseBuilder = true;
-                    return CoyoteRuntime.Provider.Current.CreateControlledTaskCompletionSource(this.MethodBuilder.Task);
+                    return CoyoteRuntime.Provider.Current.CreateAsyncControlledTaskMethodBuilderTask(this.MethodBuilder.Task);
                 }
             }
         }
@@ -62,11 +62,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Creates an instance of the <see cref="AsyncControlledTaskMethodBuilder"/> struct.
         /// </summary>
         [DebuggerHidden]
-        public static AsyncControlledTaskMethodBuilder Create()
-        {
-            IO.Debug.WriteLine("<AsyncBuilder> Creating async builder from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
-            return default;
-        }
+        public static AsyncControlledTaskMethodBuilder Create() => default;
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -77,7 +73,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Move next from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
+            CoyoteRuntime.Provider.Current.NotifyStartedAsyncControlledTaskStateMachine(stateMachine.GetType());
             this.MethodBuilder.Start(ref stateMachine);
         }
 #pragma warning restore CA1822 // Mark members as static
@@ -86,11 +83,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Associates the builder with the specified state machine.
         /// </summary>
         [DebuggerHidden]
-        public void SetStateMachine(IAsyncStateMachine stateMachine)
-        {
-            IO.Debug.WriteLine("<AsyncBuilder> Set state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
+        public void SetStateMachine(IAsyncStateMachine stateMachine) =>
             this.MethodBuilder.SetStateMachine(stateMachine);
-        }
 
         /// <summary>
         /// Marks the task as successfully completed.
@@ -126,7 +120,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.AssertAwaitingControlledAwaiter(ref awaiter);
+            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -139,7 +133,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.AssertAwaitingUnsafeControlledAwaiter(ref awaiter);
+            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }
@@ -193,7 +187,7 @@ namespace Microsoft.Coyote.Threading.Tasks
                     IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (completed '{1}', result '{2}', result type '{3}') from task '{4}'.",
                         this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, this.Result, typeof(TResult), System.Threading.Tasks.Task.CurrentId);
                     this.UseBuilder = true;
-                    return CoyoteRuntime.Provider.Current.CreateControlledTaskCompletionSource(this.MethodBuilder.Task);
+                    return CoyoteRuntime.Provider.Current.CreateAsyncControlledTaskMethodBuilderTask(this.MethodBuilder.Task);
                 }
             }
         }
@@ -203,12 +197,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
         [DebuggerHidden]
-        public static AsyncControlledTaskMethodBuilder<TResult> Create()
-        {
-            IO.Debug.WriteLine("<AsyncBuilder> Creating async builder with result type '{0}' from task '{1}'.",
-                typeof(TResult), System.Threading.Tasks.Task.CurrentId);
-            return default;
-        }
+        public static AsyncControlledTaskMethodBuilder<TResult> Create() => default;
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>
@@ -220,8 +209,9 @@ namespace Microsoft.Coyote.Threading.Tasks
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Move next from task '{0}' (result type '{1}').",
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}' (result type '{1}').",
                 System.Threading.Tasks.Task.CurrentId, typeof(TResult));
+            CoyoteRuntime.Provider.Current.NotifyStartedAsyncControlledTaskStateMachine(stateMachine.GetType());
             this.MethodBuilder.Start(ref stateMachine);
         }
 #pragma warning restore CA1822 // Mark members as static
@@ -230,12 +220,8 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// Associates the builder with the specified state machine.
         /// </summary>
         [DebuggerHidden]
-        public void SetStateMachine(IAsyncStateMachine stateMachine)
-        {
-            IO.Debug.WriteLine("<AsyncBuilder> Set state machine with result type '{0}' from task '{1}'.",
-                typeof(TResult), System.Threading.Tasks.Task.CurrentId);
+        public void SetStateMachine(IAsyncStateMachine stateMachine) =>
             this.MethodBuilder.SetStateMachine(stateMachine);
-        }
 
         /// <summary>
         /// Marks the task as successfully completed.
@@ -274,7 +260,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.AssertAwaitingControlledAwaiter(ref awaiter);
+            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -287,7 +273,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.AssertAwaitingUnsafeControlledAwaiter(ref awaiter);
+            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Tests.Common.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,11 +13,6 @@ namespace Microsoft.Coyote.Core.Tests.Threading.Tasks
         public TaskWaitAnyTests(ITestOutputHelper output)
             : base(output)
         {
-        }
-
-        private class SharedEntry
-        {
-            public volatile int Value = 0;
         }
 
         private static async ControlledTask WriteAsync(SharedEntry entry, int value)

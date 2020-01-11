@@ -359,6 +359,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         /// <param name="tasks">The tasks to wait for completion.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <returns>True if all tasks completed execution within the allotted time; otherwise, false.</returns>
         public static bool WaitAll(ControlledTask[] tasks, int millisecondsTimeout) =>
             CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, millisecondsTimeout);
 
@@ -370,6 +371,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <param name="tasks">The tasks to wait for completion.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
         /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        /// <returns>True if all tasks completed execution within the allotted time; otherwise, false.</returns>
         public static bool WaitAll(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, millisecondsTimeout, cancellationToken);
 
@@ -392,6 +394,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// A time span that represents the number of milliseconds to wait, or
         /// TimeSpan.FromMilliseconds(-1) to wait indefinitely.
         /// </param>
+        /// <returns>True if all tasks completed execution within the allotted time; otherwise, false.</returns>
         public static bool WaitAll(ControlledTask[] tasks, TimeSpan timeout) =>
             CoyoteRuntime.Provider.Current.WaitAllTasks(tasks, timeout);
 
@@ -460,10 +463,43 @@ namespace Microsoft.Coyote.Threading.Tasks
         public static ControlledYieldAwaitable Yield() => default;
 
         /// <summary>
-        /// Converts the specified <see cref="ControlledTask"/> into a <see cref="Task"/>.
+        /// Waits for the task to complete execution.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task ToTask() => this.InternalTask;
+        public virtual void Wait() => this.InternalTask.Wait();
+
+        /// <summary>
+        /// Waits for the task to complete execution within a specified number of milliseconds.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
+        public virtual bool Wait(int millisecondsTimeout) => this.InternalTask.Wait(millisecondsTimeout);
+
+        /// <summary>
+        /// Waits for the task to complete execution. The wait terminates if a timeout interval
+        /// elapses or a cancellation token is canceled before the task completes.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
+        public virtual bool Wait(int millisecondsTimeout, CancellationToken cancellationToken) =>
+            this.InternalTask.Wait(millisecondsTimeout, cancellationToken);
+
+        /// <summary>
+        /// Waits for the task to complete execution within a specified time interval.
+        /// </summary>
+        /// <param name="timeout">
+        /// A time span that represents the number of milliseconds to wait, or
+        /// TimeSpan.FromMilliseconds(-1) to wait indefinitely.
+        /// </param>
+        /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
+        public virtual bool Wait(TimeSpan timeout) => this.InternalTask.Wait(timeout);
+
+        /// <summary>
+        /// Waits for the task to complete execution. The wait terminates if
+        /// a cancellation token is canceled before the task completes.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        public virtual void Wait(CancellationToken cancellationToken) => this.InternalTask.Wait(cancellationToken);
 
         /// <summary>
         /// Gets an awaiter for this awaitable.
@@ -526,6 +562,12 @@ namespace Microsoft.Coyote.Threading.Tasks
             awaiter.UnsafeOnCompleted(continuation);
 
         /// <summary>
+        /// Converts the specified <see cref="ControlledTask"/> into a <see cref="Task"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task ToTask() => this.InternalTask;
+
+        /// <summary>
         /// Disposes the <see cref="ControlledTask"/>, releasing all of its unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
@@ -564,7 +606,7 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Gets the result value of this task.
         /// </summary>
-        public TResult Result => this.AwaiterTask.Result;
+        public virtual TResult Result => this.AwaiterTask.Result;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTask{TResult}"/> class.

@@ -1,0 +1,285 @@
+---
+layout: reference
+section: learn
+title: Hello World Tasks Example
+permalink: /learn/tutorials/hello-world-tasks
+---
+
+## Hello World Tasks Example
+
+The [Hello World Tasks Example ](http://github.com/microsoft/coyote-samples/) is a simple program to get you started 
+using the [Asynchronous Tasks Programming Model ](/coyote/learn/programming-models/async/overview) with Coyote.
+
+## <a name="install-and-build"> </a>What you will need
+
+To run the Hello World Tasks  example, you will need to:
+
+- Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
+- Build the [Coyote project](/coyote/learn/get-started/install).
+- Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+
+## Build the Sample
+
+Build the `coyote-samples` repo by running the following command:
+
+```
+powershell -f build.ps1
+```
+
+## <a name="run-from-prompt"> </a>Run the HelloWorldTasks application
+
+Now you can run the HelloWorldTasks application:
+- in .Net Core:
+
+```shell
+dotnet .\bin\netcoreapp2.2\HelloWorldTasks.dll
+```
+
+- in .Net 4.6:
+
+```shell
+.\bin\net46\HelloWorldTasks.exe
+```
+
+- in .Net 4.7:
+
+```shell
+.\bin\net47\HelloWorldTasks.exe
+```
+
+Note that in the code there is a bug (put intentionally) that should be caught by a Coyote assertion. 
+The program should display exactly the string `Hello World!` however sometimes it displays `Good Morning`. 
+With good luck you will need to run the program only a few times 
+in order to get the buggy result, but on average this bug happens rarely and may need many manual runs, 
+sometimes 20 - 30, in order to be reproduced.
+
+The typical "normal" run will look like this:
+
+```shell
+C:\git\CoyoteSamples>.\bin\net47\HelloWorldTasks.exe
+Hello World!
+```
+
+When the error is caught, the run may look like this:
+
+```shell
+C:\git\CoyoteSamples>.\bin\net47\HelloWorldTasks.exe
+Good Morning
+
+Unhandled Exception: Microsoft.Coyote.Runtime.AssertionFailureException: { ... Exception text here }
+```
+
+## How to reproduce the bug
+
+There are two ways to reproduce the bug: 
+
+The first way is to run `HelloWorldTasks.exe` from the command prompt repeatedly, until you finally get this exception:
+
+```shell
+Good Morning
+
+Unhandled Exception: Microsoft.Coyote.Runtime.AssertionFailureException: Value is 'Good Morning' instead of 'Hello World!'.
+   at Microsoft.Coyote.Runtime.CoyoteRuntime.Assert(Boolean predicate, String s, Object[] args)
+   at Microsoft.Coyote.Samples.HelloWorld.Greeter.<RunAsync>d__4.MoveNext() in C:\git\CoyoteSamples\HelloWorldTasks\Greeter.cs:line 38
+```
+
+<a name="find-the-trickiest-bugs"> </a>
+Although this is one of the simplest Async Tasks programs, you may need to perform many executions before getting this 
+exception. Even in this simplest example, reproducing the bug may take you considerable, significant amount of time.
+
+**Here is where Coyote really shines**:
+
+The second way to reproduce the bug is to run the code under `coyote test`
+
+From the command line you enter:
+
+```shell
+coyote test .\bin\net47\HelloWorldTasks.exe --iterations 30
+```
+
+And in just 3 seconds `coyote test` has found the bug in this simple program -- something that would take many minutes if testing manually. 
+So, even in this simple case Coyote finds the bug tens or even hundreds of times quicker. 
+But when using Coyote for testing much more complex, real-world systems the time savings can be even more impressive -- really enormous ! 
+This will give you the possibility to find out and fix even the trickiest and almost impossible to reproduce concurrency 
+bugs **before pushing to production** such a system:
+
+```shell
+C:\git\CoyoteSamples>coyote test .\bin\net47\HelloWorldTasks.exe --iterations 30
+. Testing .\bin\net47\HelloWorldTasks.exe
+Starting TestingProcessScheduler in process 29056
+... Created '1' testing task.
+... Task 0 is using 'Random' strategy (seed:476).
+..... Iteration #1
+..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+..... Iteration #20
+... Task 0 found a bug.
+... Emitting task 0 traces:
+..... Writing .\bin\net47\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_19.txt
+..... Writing .\bin\net47\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_19.pstrace
+..... Writing .\bin\net47\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_19.schedule
+... Elapsed 3.0564874 sec.
+... Testing statistics:
+..... Found 1 bug.
+... Scheduling statistics:
+..... Explored 24 schedules: 24 fair and 0 unfair.
+..... Found 4.17% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 9 (min), 14 (avg), 19 (max).
+... Elapsed 3.2118672 sec.
+. Done
+```
+
+To learn more about testing with Coyote read [Testing Coyote programs end-to-end and reproducing bugs](/coyote/learn/tools/testing).
+
+## The Code
+
+This section shows how to write a program using the Coyote asynchronous task programming model. As mentioned in 
+[Asynchronous Tasks Programming Model ](/coyote/learn/programming-models/async/overview), 
+the `ControlledTask` type is a drop-in replacement for the `Task` type, and thus any
+prior experience writing asynchronous code using `async` and `await` is useful and relevant. If you are not already 
+familiar with `async` and `await`, you can learn more in the C# [docs](https://docs.microsoft.com/en-us/dotnet/standard/async-in-depth).
+
+The program consists of two code files: 
+1. `Program.cs` contains the `Main()` entry point of the application.
+2. `Greeter.cs` defines the `Greeter` class. Its `RunAsync()` method is where "all the work" is done
+
+Here is the code for `Greeter.cs`:
+
+```c#
+using System;
+using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Threading.Tasks;
+
+namespace Microsoft.Coyote.Samples.HelloWorld
+{
+    internal class Greeter
+    {
+        private const string HelloWorld = "Hello World!";
+        private const string GoodMorning = "Good Morning";
+
+        private string Value;
+
+        private async ControlledTask WriteWithDelayAsync(string value)
+        {
+            await ControlledTask.Delay(100);
+            this.Value = value;
+        }
+
+        public async ControlledTask RunAsync()
+        {
+            ControlledTask task1 = this.WriteWithDelayAsync(GoodMorning);
+            ControlledTask task2 = this.WriteWithDelayAsync(HelloWorld);
+            ControlledTask task3 = this.WriteWithDelayAsync(HelloWorld);
+
+            await ControlledTask.WhenAll(task1, task2, task3);
+
+            Console.WriteLine(this.Value);
+
+            Specification.Assert(this.Value == HelloWorld, $"Value is '{this.Value}' instead of '{HelloWorld}'.");
+        }
+    }
+}
+``` 
+`WriteWithDelayAsync()` is a C# `async` method that asynchronously waits for a `ControlledTask` to complete after `100`ms 
+delay (created via the `ControlledTask.Delay(100)` call), and then modifies the value of the `SharedEntry` object.
+
+The `RunAsync()` asynchronous method is invoking the `WriteWithDelayAsync()` 
+method three times, first passing the value `"Good Morning"` and then twice passing the value `"Hello World!"` respectively. 
+Each method call returns a `ControlledTask` object, which can be awaited upon using `await`. 
+After invoking the three asynchronous method calls The `RunAsync` method calls `ControlledTask.WhenAll(...)` to `await` on the completion 
+of all three tasks.
+
+Because the `WriteWithDelayAsync()` method awaits a `ControlledTask.Delay` to complete, it will yield control to the caller
+ of the method, which is the `RunAsync()` method. However, the `RunAsync()` method is not doing any awaiting immediately after invoking 
+ the `WriteWithDelayAsync()` method calls. This means that the three calls will be executed _asynchronously_, and thus the value 
+ in the `Value` member can be either `"Good Morning"` or `"Hello World!"` after `ControlledTask.WhenAll(...)` completes.
+
+Using `Specification.Assert`, Coyote allows you to write assertions that check these kinds of safety 
+properties. In this case, the assertion will check if the value is `"Hello World!"` or not, and if not, it will throw an exception, 
+or during testing will report an error together with a reproducible trace.
+
+Definitely, this Assertion will fire sometimes because the asynchronous tasks do not have a guaranteed order. Despite 
+having this assertion here on purpose, imagine if in a real project the programmer who wrote the Assert didn't realize how asynchronous 
+the code was, or perhaps the programmer who wrote the code didn't read and understand the Assert properly and has violated 
+the specification in their overly asynchronous implementation. Either way this is a demonstration showing that assertions 
+like this can be very useful in finding some pretty tricky bugs.
+
+The code for `Program.cs` is much simpler:
+
+```c#
+using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Samples.HelloWorld;
+using Microsoft.Coyote.Threading.Tasks;
+
+namespace Microsoft.Coyote.Samples.HelloWorldTasks
+{
+    public static class Program
+    {
+        public static async Task Main()
+        {
+            await Execute();
+        }
+
+        [Microsoft.Coyote.TestingServices.Test]
+        public static async ControlledTask Execute()
+        {
+            var greeter = new Greeter();
+            await greeter.RunAsync();
+        }
+    }
+}
+```
+The `static async Task Main()` method is the entry point to the program, as usual for a .NET executable. 
+If you didn't want the program to be testable with `coyote test`, you could ommit the second method above, 
+and simply write`Main()` as:
+
+```c#
+public static async Task Main()
+{
+    var greeter = new Greeter();
+    await greeter.RunAsync();
+}
+```
+
+<a name="coyote-testable"> </a>However, here the intent is that the code must be testable with `coyote test`. This is done by including the 
+`Execute()` method and the only thing the `Main()` method does is to call this `async Execute()` method and await its 
+execution.
+
+It is a rule in Coyote that for any executable to be testable with `coyote test`, it must contain a static 
+`Execute()` method which must have a specific, signature. In this code one of this allowed signatures for the 
+method is specified.
+
+<a name="using-controlledtask"> </a>
+
+Do note the `[Microsoft.Coyote.TestingServices.Test]` attribute of the `Execute()` method, and its return 
+type: `ControlledTask`. When these are specified, then `coyote test` can find by Reflection the `Execute()` method 
+in the executable assembly and can control its execution. 
+
+The `ControlledTask` type uses a C# 7 feature known as `async task types` 
+(see [here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types.md)) that allows framework developers 
+to create custom task types that can be used with `async` and `await`. This is where the magic happens. 
+In production, `ControlledTask` enables C# to build a custom asynchronous state machine that uses regular `Task` objects. 
+However, during testing, Coyote uses dependency injection to supply another custom implementation of an asynchronous state 
+machine that allows controlling the scheduling of `ControlledTask` objects, and thus systematically explore their interleavings.
+
+Also note that **with `coyote test` the `Main()` method is not executed**! This is why it is recommended that the 
+`Main()` method should not contain any other code except awaiting the `Execute()` method -- if it did contain other 
+actions, their code would never be executed (and tested) with `coyote test`.
+
+
+## Summary
+In this tutorial you learned:
+1. [How to install and build Coyote](#install-and-build)
+2. [How to build the samples used in the tutorials](#install-and-build)
+3. [How to run the HelloWorldTasks sample from the command-line](#run-from-prompt)
+4. [Using the ControlledTask type in order to enable Coyote to control the scheduling of the program](#using-controlledtask)
+5. [How to write code that is Coyote-testable](#coyote-testable)
+6. [How testing with Coyote results in finding even the trickiest concurrency bugs quickly even before pushing to production.](#find-the-trickiest-bugs)

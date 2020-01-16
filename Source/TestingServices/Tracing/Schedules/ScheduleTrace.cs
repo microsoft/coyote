@@ -7,9 +7,8 @@ using System.Collections.Generic;
 namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
 {
     /// <summary>
-    /// Class implementing a program schedule trace.
-    /// A trace is a series of transitions from some
-    /// initial state to some end state.
+    /// Class implementing a program schedule trace. A trace is a series
+    /// of transitions from some initial state to some end state.
     /// </summary>
     internal sealed class ScheduleTrace : IEnumerable, IEnumerable<ScheduleStep>
     {
@@ -52,7 +51,6 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
 
             foreach (var step in traceDump)
             {
-                int intChoice;
                 if (step.StartsWith("--") || step.Length == 0)
                 {
                     continue;
@@ -65,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
                 {
                     this.AddNondeterministicBooleanChoice(false);
                 }
-                else if (int.TryParse(step, out intChoice))
+                else if (int.TryParse(step, out int intChoice))
                 {
                     this.AddNondeterministicIntegerChoice(intChoice);
                 }

@@ -17,7 +17,6 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
-using Microsoft.Coyote.TestingServices.Tracing.Error;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
 
 namespace Microsoft.Coyote.TestingServices
@@ -28,11 +27,6 @@ namespace Microsoft.Coyote.TestingServices
     [DebuggerStepThrough]
     internal sealed class BugFindingEngine : AbstractTestingEngine
     {
-        /// <summary>
-        /// The bug trace, if any.
-        /// </summary>
-        private BugTrace BugTrace;
-
         /// <summary>
         /// The readable trace, if any.
         /// </summary>
@@ -294,7 +288,6 @@ namespace Microsoft.Coyote.TestingServices
                         this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
                     }
 
-                    this.BugTrace = runtime.BugTrace;
                     this.ConstructReproducableTrace(runtime);
                 }
             }
@@ -369,21 +362,6 @@ namespace Microsoft.Coyote.TestingServices
                 this.Graph.SaveDgml(graphPath);
                 this.Logger.WriteLine($"..... Writing {graphPath}");
                 yield return graphPath;
-            }
-
-            // Emits the bug trace, if it exists.
-            if (this.BugTrace != null)
-            {
-                string bugTracePath = directory + file + "_" + index + ".pstrace";
-
-                using (FileStream stream = File.Open(bugTracePath, FileMode.Create))
-                {
-                    DataContractSerializer serializer = new DataContractSerializer(typeof(BugTrace));
-                    this.Logger.WriteLine($"..... Writing {bugTracePath}");
-                    serializer.WriteObject(stream, this.BugTrace);
-                }
-
-                yield return bugTracePath;
             }
 
             // Emits the reproducable trace, if it exists.

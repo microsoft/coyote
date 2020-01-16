@@ -21,7 +21,6 @@ using Microsoft.Coyote.TestingServices.StateCaching;
 using Microsoft.Coyote.TestingServices.Threading;
 using Microsoft.Coyote.TestingServices.Threading.Tasks;
 using Microsoft.Coyote.TestingServices.Timers;
-using Microsoft.Coyote.TestingServices.Tracing.Error;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
 using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
@@ -46,11 +45,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// The intercepting task scheduler.
         /// </summary>
         private readonly InterceptingTaskScheduler TaskScheduler;
-
-        /// <summary>
-        /// The bug trace.
-        /// </summary>
-        internal BugTrace BugTrace;
 
         /// <summary>
         /// Data structure containing information regarding testing coverage.
@@ -87,7 +81,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.RootTaskId = Task.CurrentId;
             this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
 
-            this.BugTrace = new BugTrace();
             this.StateCache = new StateCache(this);
             this.CoverageInfo = new CoverageInfo();
 
@@ -249,7 +242,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.AssertExpectedCallerActor(creator, "CreateActor");
 
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.BugTrace.AddCreateActorStep(creator, actor.Id, initialEvent is null ? null : new EventInfo(initialEvent));
             this.RunActorEventHandler(actor, initialEvent, true, null);
             return actor.Id;
         }
@@ -279,7 +271,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 "it directly from the 'Test' method; instead call it through a 'harness' actor.");
 
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.BugTrace.AddCreateActorStep(creator, actor.Id, initialEvent is null ? null : new EventInfo(initialEvent));
             this.RunActorEventHandler(actor, initialEvent, true, creator);
 
             // Wait until the actor reaches quiescence.
@@ -475,11 +466,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             };
 
             this.LogWriter.LogSendEvent(actor.Id, sender?.Id, stateName, e.GetType().FullName, opGroupId, isTargetHalted: false);
-            if (sender != null)
-            {
-                this.BugTrace.AddSendEventStep(sender.Id, stateName, eventInfo, actor.Id);
-            }
-
             return actor.Enqueue(e, opGroupId, eventInfo);
         }
 
@@ -1116,8 +1102,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             this.LogWriter.LogCreateMonitor(type.FullName, monitor.Id);
 
-            this.BugTrace.AddCreateMonitorStep(id);
-
             if (this.Configuration.ReportActivityCoverage)
             {
                 this.ReportActivityCoverageOfMonitor(monitor);
@@ -1260,11 +1244,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
             this.AssertExpectedCallerActor(caller, "Random");
 
-            string stateName = string.Empty;
             if (caller is StateMachine callerStateMachine)
             {
                 (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
-                stateName = callerStateMachine.CurrentStateName;
             }
             else if (caller is Actor callerActor)
             {
@@ -1273,8 +1255,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
             this.LogWriter.LogRandom(caller?.Id, choice);
-            this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
-
             return choice;
         }
 
@@ -1287,11 +1267,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
             this.AssertExpectedCallerActor(caller, "FairRandom");
 
-            string stateName = string.Empty;
             if (caller is StateMachine callerStateMachine)
             {
                 (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
-                stateName = callerStateMachine.CurrentStateName;
             }
             else if (caller is Actor callerActor)
             {
@@ -1300,8 +1278,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(2, uniqueId);
             this.LogWriter.LogRandom(caller?.Id, choice);
-            this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
-
             return choice;
         }
 
@@ -1314,11 +1290,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
             this.AssertExpectedCallerActor(caller, "RandomInteger");
 
-            string stateName = caller is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
             var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
             this.LogWriter.LogRandom(caller?.Id, choice);
-            this.BugTrace.AddRandomChoiceStep(caller?.Id, stateName, choice);
-
             return choice;
         }
 
@@ -1340,7 +1313,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedAction(Actor actor, MethodInfo action, Event receivedEvent)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.BugTrace.AddInvokeActionStep(actor.Id, stateName, action);
             this.LogWriter.LogExecuteAction(actor.Id, stateName, action.Name);
         }
 
@@ -1365,7 +1337,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
             this.LogWriter.LogDequeueEvent(actor.Id, stateName, eventInfo.EventName);
-            this.BugTrace.AddDequeueEventStep(actor.Id, stateName, eventInfo);
         }
 
         /// <summary>
@@ -1392,7 +1363,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.BugTrace.AddRaiseEventStep(actor.Id, stateName, eventInfo);
             this.LogWriter.LogRaiseEvent(actor.Id, stateName, eventInfo.EventName);
         }
 
@@ -1421,7 +1391,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
             this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
-            this.BugTrace.AddReceivedEventStep(actor.Id, stateName, eventInfo);
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
             op.OnReceivedEvent();
         }
@@ -1460,44 +1429,18 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
             op.OnWaitEvent(eventTypes);
 
-            string eventNames;
             var eventWaitTypesArray = eventTypes.ToArray();
             if (eventWaitTypesArray.Length == 1)
             {
                 this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
-                eventNames = eventWaitTypesArray[0].FullName;
             }
             else
             {
                 this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
-                if (eventWaitTypesArray.Length > 0)
-                {
-                    string[] eventNameArray = new string[eventWaitTypesArray.Length - 1];
-                    for (int i = 0; i < eventWaitTypesArray.Length - 2; i++)
-                    {
-                        eventNameArray[i] = eventWaitTypesArray[i].FullName;
-                    }
-
-                    eventNames = string.Join(", ", eventNameArray) + " or " +
-                        eventWaitTypesArray[eventWaitTypesArray.Length - 1].FullName;
-                }
-                else
-                {
-                    eventNames = string.Empty;
-                }
             }
 
-            this.BugTrace.AddWaitToReceiveStep(actor.Id, stateName, eventNames);
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(actor);
-        }
-
-        /// <summary>
-        /// Notifies that an actor has halted.
-        /// </summary>
-        internal override void NotifyHalted(Actor actor)
-        {
-            this.BugTrace.AddHaltStep(actor.Id, null);
         }
 
         /// <summary>
@@ -1506,7 +1449,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyEnteredState(StateMachine stateMachine)
         {
             string stateName = stateMachine.CurrentStateName;
-            this.BugTrace.AddGotoStateStep(stateMachine.Id, stateName);
             this.LogWriter.LogStateTransition(stateMachine.Id, stateName, isEntry: true);
         }
 
@@ -1533,7 +1475,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             string stateName = stateMachine.CurrentStateName;
-            this.BugTrace.AddInvokeActionStep(stateMachine.Id, stateName, action);
             this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
         }
 
@@ -1543,7 +1484,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             string stateName = stateMachine.CurrentStateName;
-            this.BugTrace.AddInvokeActionStep(stateMachine.Id, stateName, action);
             this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
         }
 
@@ -1553,7 +1493,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyEnteredState(Monitor monitor)
         {
             string monitorState = monitor.CurrentStateNameWithTemperature;
-            this.BugTrace.AddGotoStateStep(monitor.Id, monitorState);
             this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
         }
 
@@ -1572,7 +1511,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
         {
             string monitorState = monitor.CurrentStateNameWithTemperature;
-            this.BugTrace.AddInvokeActionStep(monitor.Id, monitorState, action);
             this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
         }
 
@@ -1582,7 +1520,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
         {
             string monitorState = monitor.CurrentStateNameWithTemperature;
-            this.BugTrace.AddRaiseEventStep(monitor.Id, monitorState, eventInfo);
             this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
                 monitorState, eventInfo.EventName);
         }

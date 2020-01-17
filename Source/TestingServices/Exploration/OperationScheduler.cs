@@ -636,7 +636,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             foreach (var op in this.OperationMap.Values)
             {
                 op.IsActive = true;
-                op.Status = AsyncOperationStatus.Completed;
+                op.Status = AsyncOperationStatus.Canceled;
 
                 if (op.IsHandlerRunning)
                 {

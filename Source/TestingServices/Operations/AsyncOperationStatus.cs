@@ -41,6 +41,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// The operation is completed.
         /// </summary>
-        Completed
+        Completed,
+
+        /// <summary>
+        /// The operation is being canceled.
+        /// </summary>
+        Canceled
     }
 }

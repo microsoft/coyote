@@ -30,8 +30,14 @@ namespace Microsoft.Coyote.Actors
             {
                 if (!ActorConstructorCache.TryGetValue(type, out constructor))
                 {
+                    var constructorInfo = type.GetConstructor(Type.EmptyTypes);
+                    if (constructorInfo == null)
+                    {
+                        throw new Exception("Could not find empty constructor for type " + type.FullName);
+                    }
+
                     constructor = Expression.Lambda<Func<Actor>>(
-                        Expression.New(type.GetConstructor(Type.EmptyTypes))).Compile();
+                        Expression.New(constructorInfo)).Compile();
                     ActorConstructorCache.Add(type, constructor);
                 }
             }

@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                     return this.Halt();
                 }
 
-                return default;
+                return Transition.None;
             }
         }
 

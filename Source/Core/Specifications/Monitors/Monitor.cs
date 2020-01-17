@@ -366,7 +366,7 @@ namespace Microsoft.Coyote.Specifications
             if (exitAction != null)
             {
                 Transition transition = this.ExecuteAction(exitAction, e);
-                this.Assert(transition.TypeValue is Transition.Type.Default,
+                this.Assert(transition.TypeValue is Transition.Type.None,
                     "Monitor '{0}' has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
@@ -378,7 +378,7 @@ namespace Microsoft.Coyote.Specifications
             {
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
                 Transition transition = this.ExecuteAction(eventHandlerExitAction, e);
-                this.Assert(transition.TypeValue is Transition.Type.Default,
+                this.Assert(transition.TypeValue is Transition.Type.None,
                     "Monitor '{0}' has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
@@ -437,7 +437,7 @@ namespace Microsoft.Coyote.Specifications
                 }
             }
 
-            return default;
+            return Transition.None;
         }
 
         /// <summary>
@@ -888,7 +888,13 @@ namespace Microsoft.Coyote.Specifications
 
         /// <summary>
         /// Defines the <see cref="Monitor"/> transition that is the
-        /// result of executing an event handler.
+        /// result of executing an event handler.  Transitions are created by using
+        /// <see cref="Monitor.GotoState{T}"/>, or <see cref="Monitor.RaiseEvent"/>.
+        /// The Transition is processed by the Coyote runtime when
+        /// an event handling method returns a Transition object.
+        /// This means such a method can only do one such Transition per method call.
+        /// If the method wants to do a conditional transition it can return
+        /// Transition.None to indicate no transition is to be performed.
         /// </summary>
         public readonly struct Transition
         {
@@ -906,6 +912,11 @@ namespace Microsoft.Coyote.Specifications
             /// The event participating in the transition, if there is one.
             /// </summary>
             internal readonly Event Event;
+
+            /// <summary>
+            /// This special transition represents a transition that does not change the current <see cref="Monitor.State"/>.
+            /// </summary>
+            public static Transition None = default;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Transition"/> struct.
@@ -927,17 +938,18 @@ namespace Microsoft.Coyote.Specifications
             {
                 /// <summary>
                 /// A transition that does not change the <see cref="Monitor.State"/>.
+                /// This is the value used by <see cref="Transition.None"/>.
                 /// </summary>
-                Default = 0,
+                None = 0,
 
                 /// <summary>
-                /// A transition that raises an <see cref="Event"/> bypassing
+                /// A transition created by <see cref="Monitor.RaiseEvent(Event)"/> that raises an <see cref="Event"/> bypassing
                 /// the <see cref="Monitor.State"/> inbox.
                 /// </summary>
                 Raise,
 
                 /// <summary>
-                /// A transition from the current <see cref="Monitor.State"/>
+                /// A transition created by <see cref="Monitor.GotoState{S}"/> from the current <see cref="Monitor.State"/>
                 /// to the specified <see cref="Monitor.State"/>.
                 /// </summary>
                 Goto

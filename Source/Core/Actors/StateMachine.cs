@@ -146,7 +146,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Creates a transition that pops the current <see cref="State"/>
+        /// Creates a <see cref="StateMachine.Transition"/> that pops the current <see cref="State"/>
         /// and pushes the specified <see cref="State"/> to the state stack
         /// at the end of the current action.
         /// </summary>
@@ -384,7 +384,7 @@ namespace Microsoft.Coyote.Actors
                 await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name);
             }
 
-            return default;
+            return Transition.None;
         }
 
         /// <summary>
@@ -1047,7 +1047,14 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Defines the <see cref="StateMachine"/> transition that is the
-        /// result of executing an event handler.
+        /// result of executing an event handler.  Transitions are created by using
+        /// <see cref="StateMachine.GotoState{T}"/>, <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.PushState{T}"/> or
+        /// <see cref="StateMachine.PopState"/> and <see cref="StateMachine.Halt"/>.
+        /// The Transition is processed by the Coyote runtime when
+        /// an event handling method of a StateMachine returns a Transition object.
+        /// This means such a method can only do one such Transition per method call.
+        /// If the method wants to do a conditional transition it can return
+        /// Transition.None to indicate no transition is to be performed.
         /// </summary>
         public readonly struct Transition
         {
@@ -1065,6 +1072,11 @@ namespace Microsoft.Coyote.Actors
             /// The event participating in the transition, if there is one.
             /// </summary>
             internal readonly Event Event;
+
+            /// <summary>
+            /// This special transition represents a transition that does not change the current <see cref="StateMachine.State"/>.
+            /// </summary>
+            public static Transition None = default;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Transition"/> struct.
@@ -1086,36 +1098,37 @@ namespace Microsoft.Coyote.Actors
             {
                 /// <summary>
                 /// A transition that does not change the <see cref="StateMachine.State"/>.
+                /// This is the value used by <see cref="Transition.None"/>.
                 /// </summary>
                 Default = 0,
 
                 /// <summary>
-                /// A transition that raises an <see cref="Event"/> bypassing
+                /// A transition created by <see cref="StateMachine.RaiseEvent(Event)"/> that raises an <see cref="Event"/> bypassing
                 /// the <see cref="StateMachine.State"/> inbox.
                 /// </summary>
                 RaiseEvent,
 
                 /// <summary>
-                /// A transition that pops the current <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="StateMachine.GotoState{S}"/> that pops the current <see cref="StateMachine.State"/>
                 /// and pushes the specified <see cref="StateMachine.State"/> on the
                 /// stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 GotoState,
 
                 /// <summary>
-                /// A transition that pushes the specified <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="StateMachine.PushState{S}"/> that pushes the specified <see cref="StateMachine.State"/>
                 /// on the stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 PushState,
 
                 /// <summary>
-                /// A transition that pops the current <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="StateMachine.PopState"/> that pops the current <see cref="StateMachine.State"/>
                 /// from the stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 PopState,
 
                 /// <summary>
-                /// A transition that halts the <see cref="StateMachine"/>.
+                /// A transition created by <see cref="StateMachine.Halt"/> that halts the <see cref="StateMachine"/>.
                 /// </summary>
                 Halt
             }

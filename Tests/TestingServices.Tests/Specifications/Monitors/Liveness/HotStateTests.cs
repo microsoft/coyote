@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                     return this.RaiseEvent(UnitEvent.Instance);
                 }
 
-                return default;
+                return Transition.None;
             }
 
             private class Done : State

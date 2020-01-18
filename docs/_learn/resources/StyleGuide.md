@@ -1,8 +1,8 @@
 ---
+layout: reference
 title: Coyote writer's guide to consistency
-permalink: /styleguide
-layout: page
-template: basic
+section: learn
+permalink: /learn/resources/styleguide
 ---
 
 ## Why a style guide ?
@@ -68,7 +68,7 @@ These basic guidelines will get you started creating clear and useful content.
 - Lowercase everything except the first word in a sentence, UI label, phrase, heading, or title (including the titles of blogs, articles, and press releases).
 - Don't capitalize the spelled-out form of an acronym unless it's a proper noun.
 - Use title-style capitalization for product and service names, book and song titles, article titles in citations, names of blogs, and titles of people (Vice President, for example). This typically means capitalizing the first and last word of a title, and using lower case for articles, prepositions, and conjuctions.
-- In programming languages, follow the traditional capitalization of keywords and other special terms. Review the [ELL code style guide](https://github.com/Microsoft/ELL/blob/master/StyleGuide.md) for further guidance.
+- In programming languages, follow the traditional capitalization of keywords and other special terms.
 - Don't use all uppercase for emphasis.
 - Don't use all lowercase as a design choice.
 
@@ -145,4 +145,3 @@ Refer to this list to understand which common terms to use and when. (List to be
 | app, application, demo, program | Use **application** to refer to the "actuation code" that a user writes that runs on the target device. Do not use app, demo, or program to refer to this code. |
 | folder, directory, subdirectory | Use **directory** to refer to the structure of the file system or to match the API. |
 | root directory | Use root directory to refer to the directory or folder from which all other directories or folders branch. |
-

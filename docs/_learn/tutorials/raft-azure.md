@@ -7,14 +7,22 @@ permalink: /learn/tutorials/raft-azure
 
 ## Raft Azure Example
 
-The [Raft Example ](http://github.com/microsoft/coyote-samples/) implements the [Raft Consensus Algorithm](https://raft.github.io/) as an Azure Service
-built on the [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).
-See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows the Coyote [systematic testing process](/learn/core/systematic-testing) in action on this application.
+The [Cloud Messaging Example ](https://github.com/microsoft/coyote-samples/tree/master/CloudMessaging) implements the [Raft Consensus Algorithm](https://raft.github.io/) as an
+Azure Service built on the [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).
+See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows the Coyote
+[systematic testing process](/learn/core/systematic-testing) in action on this application.
+
+This example is organized into the following projects:
+- **Raft** - a .NET core C# class library that implements the [Raft Consensus Algorithm](https://raft.github.io/) using the Coyote [Actor Programming Model](../programming-models/actors/overview).
+- **Raft.Azure** - a C# executable that shows how to run Coyote messages through an [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).
+- **Raft.Mocking** - demonstrates how to use mocks to systematically test the CloudMessaging sample application, in-memory on your local machine without using any Azure messaging, discussed in more detail in [Mocking Example](mocking).
+- **Raft.Nondeterminism** - demonstrates how to introduce controlled nondeterminism in your Coyote tests to systematically exercise corner-cases.
 
 ## What you will need
 
 To run the Azure example, you will need an [Azure subscription](https://azure.microsoft.com/en-us/free/).
-You will also need to install the [Azure Command-line tool](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).  This tool is called the `Azure CLI`.
+You will also need to install the [Azure Command-line tool](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
+This tool is called the `Azure CLI`.
 
 You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
@@ -24,13 +32,19 @@ You will also need to:
 ## Setup Azure
 
 - Open a Developer Command Prompt for Visual Studio 2019.
-- Run `powershell -f setup.ps1` to create a new Azure Resource Group called `CoyoteRaftResourceGroup` and an Azure Service Bus namespace called `CoyoteRaftServiceBus`.
+- Run `powershell -f setup.ps1` to create a new Azure Resource Group called `CoyoteSamplesRG` and an Azure Service Bus
+namespace called `CoyoteSampleMessageBus`.
 
-Then copy the connection string from your new service bus by going to Azure Portal, find the `CoyoteRaftServiceBus` resource, click on 'Shared access policies' and select the 'RootManageSharedAccessKey' and copy the contents of the field named 'Primary Connection String' then save this connection string in a new environment variable which we will use later to run the sample.
+This script will provide the connection string you need so the sample can connect to the Azure Service Bus.
+Copy the command line from the output of `setup.ps1` and paste it into your console window:
 
 ```
 set CONNECTION_STRING=...
 ```
+
+If you need to find this connection string again later you can get it from your [Azure Portal](http://portal.azure.com),
+find the message bus resource you created above, click on 'Shared access policies' and select the 'RootManageSharedAccessKey'
+and wait for the keys to load, then copy the contents of the field named 'Primary Connection String'.
 
 ## Build the Sample
 
@@ -40,17 +54,53 @@ Build the `coyote-samples` repo by running the following command:
 powershell -f build.ps1
 ```
 
-## Run the Raft.Client application
+## Run the Raft.Azure application
 
-Now you can run the Raft.Client application
+Now you can run the Raft.Azure application
 
 ```shell
-dotnet .\bin\netcoreapp2.2\Raft.Client.dll --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
+dotnet ./bin/netcoreapp2.2/Raft.Azure.dll --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
 ```
 
-Note we don't want to try and run Raft.Client using the `coyote` test tool until we complete the [mocking](raft-mocking) of the Azure Message Bus calls.
+Note: you don't want to try and run Raft.Azure client using the `coyote test` tool until you complete the [mocking](raft-mocking) of the Azure Message Bus calls.
 
 ## Design
 
-add info about the design of this app, some pretty pictures, how the Azure messaging plugs in and so on...
-TBD...
+The `Raft.dll` library contains a `Server` [state machine](../programming-models/actors/state-machines), a `Client` actor, and a `ClusterManager` state machine.
+It also contains an interface named `IServerManager` and some Coyote `Event` declarations which describe the message types that are
+sent between the Server and Client.
+
+![image](../../assets/images/cloudmessaging.svg)
+
+The `ClusterManager` is an abstract state machine that models the concept of being able to broadcast messages to all `Servers` registered in
+a cluster.  Sending an event to this cluster will result in all `Servers` getting that same event.  So, as the raft protocol requires,
+broadcasting `VoteRequestEvents` can be done by a `Server` using this `SendEvent` instruction:
+
+```c#
+    this.SendEvent(this.ClusterManager, new VoteRequestEvent(this.CurrentTerm, this.Manager.ServerId, lastLogIndex, lastLogTerm));
+```
+
+The second project builds `Raft.Azure.dll` and contains all the `Azure` specific code that hooks all this up to an `Azure Service Bus`.
+Notice it implements the `IServerManager` interface in a class named `AzureServer` and it subclasses the `ClusterManager` in a state machine
+named `AzureClusterManager`. This subclass forwards all events received to an Azure Service Bus topic.  It also has an `AzureMessageReceiver`
+class which subscribes to the Azure service bus topic, and forwards those events back into the local Coyote state machine using `SendEvent`.
+
+Multiple processes are spawned using `Raft.Azure.dll`.  The first one is the `Client` process, then one for each `Server` instance
+as requested by the command line argument `--local-cluster-size`.  The following diagram shows what this looks like when we have 2 servers
+in the cluster:
+
+![servers](../../assets/images/RaftServers.svg)
+
+The `Server` state machine is where the interesting code lives, it is a complete implementation of the `Raft`
+protocol.  All the `Server` instances then form a fault tolerant server cluster, that can handle `ClientRequestEvents` in a reliable way.  `Server` instances can come and go, and the `cluster` protocol is
+able to figure out which server should handle which client request, and how to replicate the logs across all
+servers for safe keeping and reliability.  The whole idea is that with this cluster there is no single point
+of failure.
+
+The `RunClient` method shows how you would use the `cluster` by sending a `ClientRequestEvent` and waiting for the async response that comes back from the service bus in the `ClientResponseEvent`.
+
+A real application of this protocol would simply add whatever new `[DataMember]` fields that you need on `ClientRequestEvent`.
+These serializable members will be automatically replicated across the Servers.
+
+TODO: in a real application the Server would have to actually also do some real work, I think when the log replication has committed, Pantazis can you add an IServerManager callback like the NotifyElectedLeader callback, called  NotifyCommit(ClientRequestEvent) or something which is where a real app could plugin the actual job ?  Or is it more complicated than that?
+

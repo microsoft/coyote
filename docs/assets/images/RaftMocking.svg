@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="1111.9037333333333" height="773.47859784008335" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <image id="CodeSchema_Assembly" width="15" height="15" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAACZSURBVDhPpZHrDcMgEIMBdQj+dhQYg/1gC1ilWQRazjJV1SQNST8J3VnCZx5affHssD1k0+y9p9qnlMKuI6ZZnHOo72QRs4myD8kYMclIHPUm007fkRjWSyB5sDX916n+Sr5kzjkv/b2WU2ZrLaox5o4FRWqtq/VJjBGJlErLf81+le5QAphDCJT7pJTW5tbag/0hck+2HaVeRi+y+Nr6zuYAAAAASUVORK5CYII=" />
+    <image id="CodeSchema_Namespace" width="12" height="12" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAEOSURBVChTjZKxaoRAEIbHsznBMo/gY6QRrATfQDDFiSnvHa5IaZlGxCadjSAYSCXanV0CVyhckTyHk/k3e0suae6Hwd9v5nd3VYKYebuu65PUu3hWUAQv7CSVi3U1JhKwa5qGkyTBzFUgjmOuqgrBg8Yq8BaGIXdd9y8wTRMHQYDArPFPw/d9XMzwRX97G0nul2Uh13XR/FJTvyTs1fM8GscRO8nNE8qyhH3Qc0bC7tu2NatsNL9d2NI8zxxFEQ72qbGRsC5NUx6GAf1cQSx186E1/HAch+q6VgNgEHzf92TbNrx6ISpgWdZLlmUkh8PtlYqiIPl4sJUCF8n+HqWOUmeNwM5S+DWeZYU7IqJvNbTwkVne5JcAAAAASUVORK5CYII=" />
+    <image id="CodeSchema_Class" width="16" height="16" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAFUSURBVDhPY0AH////5/n3799hIL4OZEtAhYkDMM2Pj876f29H03+SDEHWfLBGEozvbqsjaAgTiABpBuLtT4/Psbm3vR4sAQJPjs1muL+jQQMotx9mCFQt3EAmqACGZmwAphaI4QYyAp14HKjZAptmGatUBiXPRigPAkCu+vXxCYOiR8MNRkZGR7wG4AMgw0GGMAFNcZW2TDmCbBNI0q75GRiDAIhGdwkMgAz4AsSeMENgJgPlJCFKMAFMDcgLUCFENCJHG5AGRycMwNIHFDiA1ICjEQRgLgGZCsQvoMJg8OPDYzAW0fJg+P/vDwMovIAGLAdiDUaoGqwAZM2pPnMoD2jQ+8dQFtwbL+AuwAaA+h+YFp54Y1Z0kkFE0wMqCgFs/DIg6gNeA5iYmBSB3lEEGnQEqgEMQIENDHTUQMQHgAbA8wkIIwc00QBqyHYgPo7QzMAAAIfcGSkfjgnSAAAAAElFTkSuQmCC" />
+    <image id="CodeSchema_Interface" width="16" height="9" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAFxSURBVChTYyAE/v//zwLECf/+/dsPxPeBeDcQ54DEQfKMUEU8QMoFxAaCA4yMjB9ADKjm5WfvvQmpXX6W4cbTjwwywtwM5QF6DN7GsiB1roxABRpAvP3k7dcKX378ZrDXknjBysLsCJS8ARRPOHHr1XzXxu0MIDlksLrEmSHEUrGRAeiczTXLzvxnCJoNxiHde4D6EMClYRtYfPrOa/+///rzf/OZR2C+StbK/0C91xlB/tIrWqdw5dF7qNnYwbflCQycbCxAbzEwMIXMAYv9X5vCwASkr3gYyoIFQADoLLAEDLvoSYPFN5x6CHTtf4aD156D+QpivKAwugELg8M7LzwVefPpB0OwpcJLoE0OoDAAuq7g6I2X/Y712xj+/P0H1ggD83PsGOIdVDvAHKABAkCcAMUiYEEgALI5gIYc3n/l2X+b6s3/eaIW/NcpWPN//r6bIP+fBslDleIGQEU8IJcA8Xkg/gzVWAHEwHTAwAAAzqT6wt3Hgl4AAAAASUVORK5CYII=" />
+  </defs>
+  <rect width="1111.9037333333333" height="773.47859784008335" fill="#FFFFFF" />
+  <g transform="translate(450.524981487555,192.344743585442)">
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll)" />
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll)">
+      <path d="M 108.227021448232,137.655956414558 L 107.652086739742,187.134461791243" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="3.713132377351049" />
+      <path d="M 107.547514804047,196.133854254641 L 111.663435827441,186.181005711174 C 108.985330067653,187.149953929865 106.318843411831,187.118969652622 103.663975859976,186.088052879446 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll)">
+      <rect x="-189.17355845632284" y="-172.34474358544208" rx="5" ry="5" width="598.40333333333342" height="310.00070000000005" fill="none" stroke="#F9EC31" stroke-width="5" />
+      <rect x="-189.17355845632284" y="-172.34474358544208" rx="5" ry="5" width="598.40333333333342" height="310.00070000000005" fill="#094167" stroke="#094167" stroke-width="1" />
+      <use x="56.826441543677163" y="-167.34474358544208" xlink:href="#CodeSchema_Assembly" />
+      <text x="76.826441543677163" y="-154.39474358544209" fill="#FFFFFF">Raft.Mocking.dll</text>
+      <rect x="-184.17355845632284" y="-144.38474358544207" width="588.40333333333342" height="277.04070000000007" fill="#FFFFFF" stroke="#094167" stroke-width="1" />
+      <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging)">
+        <path d="M 73.8664415436772,-23.0403355086652 L 94.940589434117,-25.7623450656908" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1" />
+        <path d="M 103.866441542077,-26.9152388798927 L 93.4364308380317,-29.6012911343173 C 94.7697903505315,-27.0846935261293 95.1113885177025,-24.4399966052523 94.4612253395445,-21.6672003716861 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking)">
+        <rect x="-169.17355845632284" y="-132.34464358544264" rx="5" ry="5" width="243.04000000000002" height="250.00050000000022" fill="none" stroke="#F9EC31" stroke-width="5" />
+        <rect x="-169.17355845632284" y="-132.34464358544264" rx="5" ry="5" width="243.04000000000002" height="250.00050000000022" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="-149.17355845632284" y="-126.34464358544264" xlink:href="#CodeSchema_Namespace" />
+        <text x="-132.17355845632284" y="-114.39464358544264" fill="#FFFFFF">Microsoft‎.Coyote‎.Samples‎.Mocking</text>
+        <rect x="-164.17355845632284" y="-104.38464358544263" width="233.04000000000002" height="217.04050000000021" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=MockServerHost)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=SafetyMonitor)">
+          <path d="M -47.6535584563228,42.6556564145567 L -47.6535584563228,63.6557564145576" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1.5" />
+          <path d="M -47.6535584563228,72.6557564145576 L -43.6535584563228,62.6557564145576 C -46.3202251229895,63.6557564145576 -48.9868917896561,63.6557564145576 -51.6535584563228,62.6557564145576 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=MockServerHost)">
+          <path d="M -47.6535584563228,-12.3444435854426 L -47.6535584563228,8.65565641455674" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1" />
+          <path d="M -47.6535584563228,17.6556564145567 L -43.6535584563228,7.65565641455673 C -46.3202251229895,8.65565641455674 -48.9868917896562,8.65565641455674 -51.6535584563228,7.65565641455674 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=Program)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)">
+          <path d="M -47.6535584563228,-67.3445435854426 L -47.6535584563228,-46.3444435854426" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1.792481250360578" />
+          <path d="M -47.6535584563228,-37.3444435854426 L -43.6535584563228,-47.3444435854426 C -46.3202251229895,-46.3444435854426 -48.9868917896562,-46.3444435854426 -51.6535584563228,-47.3444435854426 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=SafetyMonitor)">
+          <rect x="-115.73355845632281" y="72.655756414557572" rx="5" ry="5" width="136.16" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-115.73355845632281" y="72.655756414557572" rx="5" ry="5" width="136.16" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-96.733558456322811" y="77.655756414557572" xlink:href="#CodeSchema_Class" />
+          <text x="-75.733558456322811" y="90.605756414557575" fill="#FFFFFF">SafetyMonitor</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=MockServerHost)">
+          <rect x="-121.67522512298947" y="17.655656414556745" rx="5" ry="5" width="148.04333333333332" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-121.67522512298947" y="17.655656414556745" rx="5" ry="5" width="148.04333333333332" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-102.67522512298947" y="22.655656414556745" xlink:href="#CodeSchema_Class" />
+          <text x="-81.675225122989474" y="35.605656414556748" fill="#FFFFFF">MockServerHost</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)">
+          <rect x="-121.58355845632283" y="-37.344443585442633" rx="5" ry="5" width="147.85999999999999" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-121.58355845632283" y="-37.344443585442633" rx="5" ry="5" width="147.85999999999999" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-102.58355845632283" y="-32.344443585442633" xlink:href="#CodeSchema_Class" />
+          <text x="-81.583558456322834" y="-19.39444358544263" fill="#FFFFFF">RaftTestScenario</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=Program)">
+          <rect x="-100.95689178965614" y="-92.344543585442636" rx="5" ry="5" width="106.60666666666663" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-100.95689178965614" y="-92.344543585442636" rx="5" ry="5" width="106.60666666666663" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-81.95689178965614" y="-87.344543585442636" xlink:href="#CodeSchema_Class" />
+          <text x="-60.95689178965614" y="-74.394543585442634" fill="#FFFFFF">Program</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging)">
+        <rect x="103.86644154207704" y="-115.34464458684312" rx="5" ry="5" width="285.36333333333334" height="140.0003" fill="none" stroke="#F9EC31" stroke-width="5" />
+        <rect x="103.86644154207704" y="-115.34464458684312" rx="5" ry="5" width="285.36333333333334" height="140.0003" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="123.86644154207704" y="-109.34464458684312" xlink:href="#CodeSchema_Namespace" />
+        <text x="140.86644154207704" y="-97.394644586843114" fill="#FFFFFF">Microsoft‎.Coyote‎.Samples‎.CloudMessaging</text>
+        <rect x="108.86644154207704" y="-87.384644586843109" width="275.36333333333334" height="107.0403" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClient)">
+          <rect x="159.37477488109158" y="-75.344544586843114" rx="5" ry="5" width="120.69000000000034" height="25.000000000000028" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="159.37477488109158" y="-75.344544586843114" rx="5" ry="5" width="120.69000000000034" height="25.000000000000028" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="179.37477488109158" y="-70.344544586843114" xlink:href="#CodeSchema_Class" />
+          <text x="200.37477488109158" y="-57.394544586843111" fill="#FFFFFF">MockClient</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)">
+          <rect x="159.37477487541054" y="-20.34444458684311" rx="5" ry="5" width="174.34666666666641" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="159.37477487541054" y="-20.34444458684311" rx="5" ry="5" width="174.34666666666641" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="178.37477487541054" y="-15.34444458684311" xlink:href="#CodeSchema_Class" />
+          <text x="199.37477487541054" y="-2.3944445868431092" fill="#FFFFFF">MockClusterManager</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll)">
+      <rect x="-430.52498148755541" y="196.13385425464128" rx="5" ry="5" width="1071.9037333333333" height="365" fill="none" stroke="#F9EC31" stroke-width="5" />
+      <rect x="-430.52498148755541" y="196.13385425464128" rx="5" ry="5" width="1071.9037333333333" height="365" fill="#BCFFBE" stroke="#094167" stroke-width="1" />
+      <use x="76.475018512444592" y="201.13385425464128" xlink:href="#CodeSchema_Assembly" />
+      <text x="96.475018512444592" y="214.08385425464127" fill="#000000">Raft.dll</text>
+      <rect x="-425.52498148755541" y="224.09385425464129" width="1061.9037333333333" height="332.04" fill="#FFFFFF" stroke="#094167" stroke-width="1" />
+      <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging)">
+        <rect x="-410.52498148755546" y="236.13385425464125" rx="5" ry="5" width="1031.9037333333333" height="305" fill="none" stroke="#F9EC31" stroke-width="5" />
+        <rect x="-410.52498148755546" y="236.13385425464125" rx="5" ry="5" width="1031.9037333333333" height="305" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="-17.524981487555465" y="242.13385425464125" xlink:href="#CodeSchema_Namespace" />
+        <text x="-0.52498148755546481" y="254.08385425464124" fill="#FFFFFF">Microsoft‎.Coyote‎.Samples‎.CloudMessaging</text>
+        <rect x="-405.52498148755546" y="264.09385425464126" width="1021.9037333333333" height="272.04" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesRequestEvent)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Log)">
+          <path d="M 288.551239677408,356.133854254641 L 279.198976735968,377.866810835706" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+          <path d="M 275.641450473318,386.133854254641 L 283.268498951345,378.529373239225 C 280.423723909144,378.393851763506 277.974229562793,377.339769907906 275.920015912292,375.367127672425 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=RegisterClientEvent)">
+          <path d="M -112.696648154222,466.133854254641 L -112.696648154222,487.133854254641" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.5" />
+          <path d="M -112.696648154222,496.133854254641 L -108.696648154222,486.133854254641 C -111.363314820889,487.133854254641 -114.029981487555,487.133854254641 -116.696648154222,486.133854254641 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=RegisterServerEvent)">
+          <path d="M -157.014829972404,466.133854254641 L -254.716419252163,493.690712769445" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.792481250360578" />
+          <path d="M -263.37846633604,496.133854254641 L -252.668128916089,497.269051308369 C -254.354472365467,494.973979004094 -255.078366138858,492.407446534797 -254.839810236264,489.569453900478 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Log)">
+          <path d="M 113.350177725964,301.133854254641 L 120.998152469248,306.967187587975 C 153.046808536345,331.411632032419 169.071136569893,344.891308807005 169.071136569893,347.406217911733 L 169.071136569893,351.178581568825 C 169.071136569893,353.627616335413 190.395481431025,364.089643934531 233.044171153289,382.564664366178" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="3.6239637567217926" />
+          <path d="M 241.306185649772,386.133854254641 L 233.712476159664,378.496081269023 C 233.572940025654,381.340662218551 232.515402280924,383.788666513805 230.539862925474,385.840094154786 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=IServerManager)">
+          <path d="M 49.9516604189254,294.860619604528 L -237.516684068235,332.93758039249" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="3.5849625007211561" />
+          <path d="M -246.438757096033,334.119364165701 L -236.000105388163,336.771636874488 C -237.341604990722,334.2593689892 -237.691763145747,331.615791795779 -237.05057985324,328.840905294222 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=VoteResponseEvent)">
+          <path d="M 90.1473175613919,301.133854254641 L 78.1006933746101,323.231774110302" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="2.4036774610288019" />
+          <path d="M 73.7928947033114,331.133854254641 L 82.0913732911273,324.26834239262 C 79.2713719145122,323.86996650605 76.9300148347081,322.593581714554 75.0673020517149,320.439188018132 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=VoteRequestEvent)">
+          <path d="M 121.052562402831,301.133854254641 L 124.685100434957,303.018662280174 C 147.787967114983,315.006002301451 159.339400454996,323.095429899363 159.339400454996,327.286945073909 L 159.339400454996,336.089126940457 C 159.339400454996,341.008648780023 151.334486343922,355.214417950811 135.324658121774,378.706434452821" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="2.9036774610288019" />
+          <path d="M 130.241997884504,386.133854254641 L 139.190473615613,380.140125691405 C 136.425016610932,379.459421154638 134.224299632615,377.953447751003 132.588322680661,375.622205480498 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientResponseEvent)">
+          <path d="M 51.3928664146665,299.645974018438 L -70.1576379097063,329.019775546843" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1" />
+          <path d="M -78.9058189330524,331.133854254641 L -68.2460272592018,332.672958367463 C -69.8444410641065,330.315802365116 -70.4708347553061,327.723748728569 -70.1252083328005,324.896797457822 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientRequestEvent)">
+          <path d="M 143.971660418925,294.745464811262 L 430.695084933465,332.021404145308" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="2.292481250360578" />
+          <path d="M 439.619977952016,333.181699197188 L 430.21911684335,327.925863353521 C 430.866980496706,330.699197772189 430.523189370223,333.343610518426 429.187743463901,335.859101592233 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesResponseEvent)">
+          <path d="M 52.3869767588609,300.425986326677 L 42.5865683378738,303.018662280174 C -2.72600839633595,315.006002301451 -26.283383440746,325.191187486636 -28.0855567953564,333.574217835729 L -32.4107728464214,353.693490673553 C -34.1163360403944,361.627127013694 -46.6507314430755,371.174878838264 -70.0139590544649,382.336746147261" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="3.4036774610288019" />
+          <path d="M -78.1737366262414,386.133854254641 L -67.4197134987652,385.541413056119 C -69.4514245200382,383.54560208382 -70.5764935888916,381.127890210702 -70.7949207053254,378.288277436762 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesRequestEvent)">
+          <path d="M 140.666796022557,300.837737255451 L 240.49631242882,328.713356937733" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="3.4770981551934379" />
+          <path d="M 249.164714400281,331.133854254641 L 240.608933239506,324.591789692982 C 240.854904623917,327.429149238257 240.137720233722,329.997564637209 238.45738006892,332.297035889837 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Log)">
+          <rect x="229.88903830494769" y="386.13385425464128" rx="5" ry="5" width="80.74666666666667" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="229.88903830494769" y="386.13385425464128" rx="5" ry="5" width="80.74666666666667" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="249.88903830494769" y="391.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="270.88903830494769" y="404.08385425464127" fill="#FFFFFF">Log</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=IServerManager)">
+          <rect x="-390.52498148755546" y="331.13385425464128" rx="5" ry="5" width="144.51" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-390.52498148755546" y="331.13385425464128" rx="5" ry="5" width="144.51" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="-371.52498148755546" y="339.13385425464128" xlink:href="#CodeSchema_Interface" />
+          <text x="-350.52498148755546" y="349.08385425464127" fill="#FFFFFF">IServerManager</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=VoteResponseEvent)">
+          <rect x="-15.262368531142862" y="331.08799109866294" rx="5" ry="5" width="164.45333333333338" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-15.262368531142862" y="331.08799109866294" rx="5" ry="5" width="164.45333333333338" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="4.7376314688571384" y="336.08799109866294" xlink:href="#CodeSchema_Class" />
+          <text x="25.737631468857138" y="349.03799109866293" fill="#FFFFFF">VoteResponseEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientResponseEvent)">
+          <rect x="-216.01488148755573" y="331.13385425464128" rx="5" ry="5" width="170.76666666666665" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-216.01488148755573" y="331.13385425464128" rx="5" ry="5" width="170.76666666666665" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-197.01488148755573" y="336.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="-176.01488148755573" y="349.08385425464127" fill="#FFFFFF">ClientResponseEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesRequestEvent)">
+          <rect x="179.20531851244496" y="331.13385425464128" rx="5" ry="5" width="229.45000000000002" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="179.20531851244496" y="331.13385425464128" rx="5" ry="5" width="229.45000000000002" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="199.20531851244496" y="336.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="220.20531851244496" y="349.08385425464127" fill="#FFFFFF">AppendLogEntriesRequestEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=RegisterServerEvent)">
+          <rect x="-390.52498148755558" y="496.13385425464128" rx="5" ry="5" width="165.65666666666672" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-390.52498148755558" y="496.13385425464128" rx="5" ry="5" width="165.65666666666672" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-370.52498148755558" y="501.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="-349.52498148755558" y="514.08385425464132" fill="#FFFFFF">RegisterServerEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClusterManager)">
+          <rect x="-185.2133148208888" y="441.13385425464128" rx="5" ry="5" width="145.03333333333336" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-185.2133148208888" y="441.13385425464128" rx="5" ry="5" width="145.03333333333336" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-165.2133148208888" y="446.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="-144.2133148208888" y="459.08385425464127" fill="#FFFFFF">ClusterManager</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientRequestEvent)">
+          <rect x="438.65541851244461" y="331.13385425464128" rx="5" ry="5" width="162.72333333333336" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="438.65541851244461" y="331.13385425464128" rx="5" ry="5" width="162.72333333333336" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="458.65541851244461" y="336.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="479.65541851244461" y="349.08385425464127" fill="#FFFFFF">ClientRequestEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesResponseEvent)">
+          <rect x="-224.01449502838557" y="386.13385425464128" rx="5" ry="5" width="237.49333333333334" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-224.01449502838557" y="386.13385425464128" rx="5" ry="5" width="237.49333333333334" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-204.01449502838557" y="391.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="-183.01449502838557" y="404.08385425464127" fill="#FFFFFF">AppendLogEntriesResponseEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=VoteRequestEvent)">
+          <rect x="43.426629464268004" y="386.05235109866294" rx="5" ry="5" width="156.41000000000008" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="43.426629464268004" y="386.05235109866294" rx="5" ry="5" width="156.41000000000008" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="63.426629464268004" y="391.05235109866294" xlink:href="#CodeSchema_Class" />
+          <text x="84.426629464268" y="404.00235109866293" fill="#FFFFFF">VoteRequestEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=RegisterClientEvent)">
+          <rect x="-194.20331482088875" y="496.13385425464128" rx="5" ry="5" width="163.01333333333332" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-194.20331482088875" y="496.13385425464128" rx="5" ry="5" width="163.01333333333332" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-175.20331482088875" y="501.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="-154.20331482088875" y="514.08385425464132" fill="#FFFFFF">RegisterClientEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)">
+          <rect x="49.895157254316018" y="276.12363109866294" rx="5" ry="5" width="94.020000000000039" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="49.895157254316018" y="276.12363109866294" rx="5" ry="5" width="94.020000000000039" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="69.895157254316018" y="281.12363109866294" xlink:href="#CodeSchema_Class" />
+          <text x="90.895157254316018" y="294.07363109866293" fill="#FFFFFF">Server</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=NotifyJoinedServiceEvent)">
+          <rect x="-1.1899814875554355" y="441.13385425464128" rx="5" ry="5" width="194.14333333333343" height="25" fill="none" stroke="#F9EC31" stroke-width="5" />
+          <rect x="-1.1899814875554355" y="441.13385425464128" rx="5" ry="5" width="194.14333333333343" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="18.810018512444564" y="446.13385425464128" xlink:href="#CodeSchema_Class" />
+          <text x="39.810018512444564" y="459.08385425464127" fill="#FFFFFF">NotifyJoinedServiceEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=MockServerHost)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=IServerManager)">
+      <path d="M -58.4444415419856,42.6556564145567 L -301.597946779946,324.321094854233" stroke-dasharray="2,2" fill="none" stroke="#00A600" stroke-width="1" />
+      <path d="M -307.479098401893,331.133734254617 L -297.916645755114,326.177980086166 C -300.588666868778,325.192376576003 -302.607226691114,323.449813132463 -303.972325222123,320.950289755547 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=MockServerHost)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=Server)">
+      <path d="M -40.6599655727266,42.6556564145567 L 85.5737023014384,268.279434448327" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1" />
+      <path d="M 89.9680675353293,276.133704254691 L 88.5762260782792,265.453686588113 C 86.7372978283072,267.628417376639 84.4101067745696,268.930451520014 81.5946529170662,269.359789018238 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=MockServerHost)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=NotifyJoinedServiceEvent)">
+      <path d="M -43.4167644039378,42.6556564145567 L 88.7558397869325,432.610308908421" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1.5" />
+      <path d="M 91.6448911267262,441.134004254691 L 92.2231431252979,430.379208830038 C 90.0186094678615,432.182301302525 87.4930701060035,433.038316514316 84.646525039724,432.94725446541 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClient)">
+      <path d="M 25.3652998227534,-35.2221576041786 L 150.578032753596,-53.0178608579091" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1" />
+      <path d="M 159.48849077516,-54.2842485733994 L 149.025142877649,-56.8373546768832 C 150.390419758709,-54.3379287129557 150.765645748484,-51.6977930028626 150.150820846974,-48.916947546604 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=IServerManager)">
+      <path d="M -56.8337636660834,-12.3444435854426 L -303.762395579267,323.879837722894" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="2.8502198590705463" />
+      <path d="M -309.089776277795,331.133734254617 L -299.946510376442,325.44157397427 C -302.687744241234,324.669079307861 -304.8370469173,323.090596137927 -306.394418404641,320.706124464468 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=RegisterServerEvent)">
+      <path d="M -53.7466622140283,-12.3444435854426 L -297.66006211295,488.043801876616" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1.5" />
+      <path d="M -301.603544396517,496.133854254641 L -293.626318580098,488.897565960643 C -296.461535834724,488.628021474181 -298.858588391176,487.45958227905 -300.817476249454,485.39224837525 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.Mocking Type=RaftTestScenario)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=RegisterClientEvent)">
+      <path d="M -49.1775911118023,-12.3444435854426 L -110.083377947319,487.200190649731" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1.5" />
+      <path d="M -111.172615498743,496.134034254617 L -105.991754394989,486.691646938709 C -108.75984556141,487.361559175868 -111.406910333228,487.038822123594 -113.932948710444,485.723435781889 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClient)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientResponseEvent)">
+      <path d="M 208.94578826015,-50.3445445868431 L -113.981691719521,324.316538795211" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.792481250360578" />
+      <path d="M -119.85756153328,331.133734254617 L -110.298952647145,326.170570328059 C -112.971736836646,325.187038026879 -114.991646602396,323.446039563543 -116.358681944395,320.947574938051 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClient)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientRequestEvent)">
+      <path d="M 228.954500242695,-50.3445445868431 L 505.434490134656,323.89504980534" stroke-dasharray="2,0" fill="none" stroke="#FF00FF" stroke-width="1" />
+      <path d="M 510.782359817508,331.133854254641 L 508.057528814029,320.713907229705 C 506.506905608627,323.102772815287 504.362074660686,324.687326795392 501.623035970205,325.467569170018 z" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=VoteResponseEvent)">
+      <path d="M 240.16188242682,4.65555541315689 L 77.4594232752772,323.119200270664" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.5" />
+      <path d="M 73.3647776277012,331.133804254691 L 81.4764301179089,324.048531226917 C 78.6467720136517,323.725814440675 76.2720745369028,322.512586100653 74.3523376876625,320.408846206849 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClientResponseEvent)">
+      <path d="M 233.134058664963,4.65555541315689 L -110.633160332666,324.998060742784" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -117.217498610442,331.133734254618 L -107.174601185432,327.242691809369 C -109.724171664246,325.973518265417 -111.542149001086,324.02260322015 -112.62853319595,321.389946673569 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesRequestEvent)">
+      <path d="M 248.233212851061,4.65555541315689 L 291.042815109212,322.214486050891" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.5" />
+      <path d="M 292.245213870128,331.133804254641 L 294.873356670778,320.689051245623 C 292.364195583842,322.036352901126 289.721434634583,322.392619200656 286.945073823,321.757850144215 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=ClusterManager)">
+      <path d="M 236.817295974787,4.65555541315689 L -97.437330061053,434.032130049723" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="2.5" />
+      <path d="M -102.965835920265,441.133934254618 L -93.6666942078542,435.700154408829 C -96.3852109195872,434.851167954792 -98.4894492025188,433.213092144655 -99.9794090566492,430.785926978418 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=AppendLogEntriesResponseEvent)">
+      <path d="M 235.729081864544,4.65555541315689 L -88.5588763442071,379.328779106945" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.5" />
+      <path d="M -94.4488020175191,386.133834254618 L -84.8799712037626,381.190406612009 C -87.5507200260334,380.201360688177 -89.5670326623808,378.456197525714 -90.9289091128046,375.954917124621 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.Mocking.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=MockClusterManager)-&gt;(Assembly=file:///D:/git/foundry99/CoyoteSamples/bin/netcoreapp2.2/Raft.dll Namespace=Microsoft.Coyote.Samples.CloudMessaging Type=VoteRequestEvent)">
+      <path d="M 242.70829207033,4.65555541315689 L 128.166542067823,377.530668028015" stroke-dasharray="2,2" fill="none" stroke="#00AEEF" stroke-width="1.5" />
+      <path d="M 125.523754443361,386.133904254691 L 132.283845682397,377.749325169257 C 129.441095582886,377.922192120528 126.89198855276,377.139143935502 124.636524592019,375.400180614179 z" fill="#00AEEF" stroke="#00AEEF" stroke-width="1" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>

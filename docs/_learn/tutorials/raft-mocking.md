@@ -7,19 +7,19 @@ permalink: /learn/tutorials/raft-mocking
 
 ## Raft Mocking Example
 
-In the [previous example](raft-azure) you created an Azure example that uses Coyote
-which performs messaging using an Azure Service Bus.  This is a great way to build
+In the [previous example](raft-azure) you created an Azure application that uses Coyote
+and performs messaging using an [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).  This is a great way to build
 a reliable business application.  But there is overhead in using an enterprise scale
-service bus, which limits our ability to test the state machine.
+service bus, which limits our ability to fully test the state machine.
 
 In this example you will `mock` the Azure Service Bus which allows the [Coyote tester](/coyote/learn/tools/testing)
-to perform many per tests per second and thereby find bugs in the example core more quickly.
+to perform thousands of tests per second and thereby find bugs in the application code more efficiently.
 
 ## What you will need
 
 You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install) and in the build output find the netcoreapp2.2 version `coyote.dll`.
+- Build the [Coyote project](/coyote/learn/get-started/install) and in the build output find the netcoreapp2.2 version of `coyote.dll`.
 This will live in a path like this: `c:\git\coyote\bin\netcoreapp2.2\coyote.dll`.  Set this path in a new environment variable named `coyote`
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 
@@ -34,21 +34,48 @@ powershell -f build.ps1
 
 ## Run the Raft.Mocking application
 
-Now you can run the Raft.Mocking application
+Now you can run `coyote test` tool on the Raft.Mocking application:
 
 ```shell
-dotnet %coyote% test Mocking/bin/netcoreapp2.2/Raft.Mocking.dll -i 1000 -ms 200
+dotnet %coyote% test ./bin/netcoreapp2.2/Raft.Mocking.dll -i 1000 -ms 200
 ```
 
-Notice this application is able to run 200 steps per iteration and a thousand iterations pretty quickly, much faster than if
-all those messages were going to Azure and back.
+Notice because of the mocking of Azure API's this application is now able to run 200 steps per iteration and a thousand
+iterations pretty quickly, much faster than if all those messages were going to Azure and back.  This means the test
+can quickly explore every kind of asynchronous timing of events to find all the bugs.  Not only is it faster but it is
+also systematic in how it explores every possible interleaving of asynchronous operations.  This systematic approach ensures
+the test doesn't just test the same happy paths over and over (like a stress test does) but instead it is more likely to
+find one bad path where a bug is hiding.
 
-You can now play with other test parameters like `--graph` to see a [DGML Graph](https://en.wikipedia.org/wiki/DGML) of all the messages sent during the test.
+You can now play with other test parameters like `--graph` to see a [DGML Graph](https://en.wikipedia.org/wiki/DGML) of all
+the messages sent during the test.
 You can browse these graphs using Visual Studio.  See [Dgml Editor setup](/coyote/learn/get-started/install).
-
-See the [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows what the [systematic testing](/learn/core/systematic-testing) looks like on this application.
 
 ## Design
 
-Add some pretty pictures of the design, where the Mocking plugs in,
-point out how the original app was designed with a messaging interface to make mocking easy, etc, etc.
+ The following diagram illustrates how the `MockClient` actor sends `ClientRequestEvents`, and how the `MockClusterManager` subclasses
+ from `ClusterManager`. There is also a `MockServerHost` that implements the `IServerManager` interface and a `RaftTestScenario`
+ class which sets everything up:
+
+ ![Mocking](../../assets/images/RaftMocking.svg)
+
+This mock test setup is able to fully test the `Server` implementation and get good coverage.
+
+The test also include a coyote `Monitor`
+called `SafetyMonitor` which provides a global invariant check, namely checking there is never more than one `Server` that is
+elected to be the `Leader` at the same time.  The `Monitor` class in Coyote shows how to inject additional work that you want
+to do at test time only, and have almost no overhead in the production code.
+
+The way this works is that the Coyote `ProductionRuntime` checks the mode it is in and bypasses the creation of `Monitor` classes
+when in production mode:
+
+```c#
+        internal override void TryCreateMonitor(Type type)
+        {
+            // Check if monitors are enabled in production.
+            if (!this.Configuration.EnableMonitorsInProduction)
+            {
+                return;
+            }
+            ...
+```

@@ -14,4 +14,4 @@ Have questions or comments? Want to contribute? Send us an email. We want to hea
 
 We look forward to you joining the community as a contributor. On [GitHub](https://github.com/microsoft/coyote/), look at open [issues](https://github.com/microsoft/coyote/issues) or visit to find tasks seeking contribution. Feel free to create a pull request containing your great improvements.
 
-See the [style guide](/coyote/styleguide.md) for help on writing consistent content for Coyote project.
+See the [style guide](/coyote/learn/resources/styleguide) for help on writing consistent content for Coyote project.

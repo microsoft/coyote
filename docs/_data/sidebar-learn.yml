@@ -37,6 +37,8 @@ learn-toc:
       tertiaryitems:
         - name: Overview
           link: /learn/programming-models/actors/overview
+        - name: State Machines
+          link: /learn/programming-models/actors/state-machines
         - name: Actor termination
           link: /learn/programming-models/actors/termination
         - name: Using timers in actors
@@ -62,7 +64,7 @@ learn-toc:
     - name: Hello World Tasks
       link: /learn/tutorials/hello-world-tasks
     - name: Hello World Actors
-      link: /learn/tutorials/hello-world-actorss
+      link: /learn/tutorials/hello-world-actors
     - name: Azure Example
       link: /learn/tutorials/raft-azure
     - name: Mocking Example
@@ -85,3 +87,5 @@ learn-toc:
   subfolderitems:
     - name: Publications
       link: /learn/resources/publications
+    - name: Style Guide
+      link: /learn/resources/styleguide

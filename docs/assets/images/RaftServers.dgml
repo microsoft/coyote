@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="AzureClusterManager" Bounds="363.540013400572,476.92030670166,134.44,25.96" />
+    <Node Id="AzureClusterManager1" Bounds="57.3416760253906,486.586783677951,134.44,25.96" Label="AzureClusterManager" />
+    <Node Id="AzureClusterManager2" Bounds="173.813392481172,178.920299072266,134.44,25.96" Label="AzureClusterManager" />
+    <Node Id="AzureMessageReceiver" Bounds="53.9999788411458,373.666554893772,141.123333333333,25.96" />
+    <Node Id="AzureMessageReceiver1" Bounds="360.198316192327,365.000102539063,141.123333333333,25.96" Label="AzureMessageReceiver" />
+    <Node Id="AzureMessageReceiver2" Bounds="170.47164952056,67.0001025390626,141.123333333333,25.96" Label="AzureMessageReceiver" />
+    <Node Id="AzureServiceBus" Bounds="254.955,266.88,113.213333333333,25.96" Label="Azure Service bus" UseManualLocation="True" />
+    <Node Id="Client" Bounds="89.3733167012532,430.626683677951,71.1333333333333,25.96" Label="RunClient" UseManualLocation="True" />
+    <Node Id="Raft.AzureClient.dll" Bounds="33.9999788411458,333.666454893772,181.123333333333,198.880428784179" Group="Expanded" Label="Raft.AzureClient.dll (Client)" UseManualLocation="True" />
+    <Node Id="Raft.AzureClient.dll(Server)" Bounds="334.123316192327,325.000002539063,193.273333333333,197.880404162598" Group="Expanded" Label="Raft.AzureClient.dll (Server 1)" UseManualLocation="True" />
+    <Node Id="Raft.AzureClient.dll(Server2)" Bounds="144.39664952056,27.0000025390624,193.273333333334,197.880396533203" Group="Expanded" Label="Raft.AzureClient.dll (Server 2)" UseManualLocation="True" />
+    <Node Id="Server" Bounds="404.249982920794,420.960231323242,53.02,25.96" />
+    <Node Id="Server1" Bounds="214.523346704805,122.960200805664,53.0199999999999,25.96" Label="Server" />
+  </Nodes>
+  <Links>
+    <Link Source="AzureClusterManager" Target="AzureServiceBus" Bounds="323.369972942017,300.667394434297,100.023865576764,176.252912267364" />
+    <Link Source="AzureClusterManager1" Target="AzureServiceBus" Bounds="135.643028809954,299.684855881838,158.99373019464,186.235260084959" />
+    <Link Source="AzureClusterManager2" Target="AzureServiceBus" Bounds="251.441089376822,204.880299072266,44.0828824399274,54.978139717864" />
+    <Link Source="AzureMessageReceiver" Target="Client" Bounds="124.647860646876,399.626554893772,0.146129528384094,22.0003273094629" />
+    <Link Source="AzureMessageReceiver1" Target="Server" Bounds="430.759979248047,390.960205078125,0,21" />
+    <Link Source="AzureMessageReceiver2" Target="Server1" Bounds="241.033309936523,92.9601974487305,0,21" />
+    <Link Source="AzureServiceBus" Target="AzureMessageReceiver" Bounds="155.030399004632,292.840000610352,133.872042693054,76.6863702656838" />
+    <Link Source="AzureServiceBus" Target="AzureMessageReceiver1" Bounds="327.330098487525,292.840000610352,80.7129163533737,66.4402359825647" />
+    <Link Source="AzureServiceBus" Target="AzureMessageReceiver2" Bounds="248.608084164438,101.447247733169,58.3736080203146,165.432752877183" />
+    <Link Source="Client" Target="AzureClusterManager1" Bounds="124.710266138518,456.586683677951,0.141968470803704,21.0003056507064" />
+    <Link Source="Raft.AzureClient.dll" Target="AzureClusterManager1" Category="Contains" />
+    <Link Source="Raft.AzureClient.dll" Target="AzureMessageReceiver" Category="Contains" />
+    <Link Source="Raft.AzureClient.dll" Target="AzureServiceBus" Bounds="215.123316192627,298.540923619445,73.6181034120663,60.2644605876644" />
+    <Link Source="Raft.AzureClient.dll" Target="Client" Category="Contains" Bounds="-860.380668995459,-341.010310712208,2.54872713318184,21.0652611822156" />
+    <Link Source="Raft.AzureClient.dll(Server)" Target="AzureClusterManager" Category="Contains" Bounds="-482.796701919788,-383.98938189709,0.0100609239609639,21.0001010328695" />
+    <Link Source="Raft.AzureClient.dll(Server)" Target="AzureMessageReceiver1" Category="Contains" />
+    <Link Source="Raft.AzureClient.dll(Server)" Target="Server" Category="Contains" />
+    <Link Source="Raft.AzureClient.dll(Server2)" Target="AzureClusterManager2" Category="Contains" />
+    <Link Source="Raft.AzureClient.dll(Server2)" Target="AzureMessageReceiver2" Category="Contains" />
+    <Link Source="Raft.AzureClient.dll(Server2)" Target="Server1" Category="Contains" Bounds="32.4495820312051,323.22375,3.10412150557313,31.144383031848" />
+    <Link Source="Server" Target="AzureClusterManager" Bounds="430.759979248047,446.920196533203,0,21" />
+    <Link Source="Server1" Target="AzureClusterManager2" Bounds="241.033309936523,148.920196533203,0,21" />
+  </Links>
+  <Categories>
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Comment" ValueLabel="Has comment">
+      <Condition Expression="HasCategory('Comment')" />
+      <Setter Property="Background" Value="#FFFFFACD" />
+      <Setter Property="Stroke" Value="#FFE5C365" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="NodeRadius" Value="2" />
+      <Setter Property="MaxWidth" Value="250" />
+    </Style>
+  </Styles>
+</DirectedGraph>

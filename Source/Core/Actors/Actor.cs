@@ -295,14 +295,14 @@ namespace Microsoft.Coyote.Actors
         /// The timer is automatically disposed after it timeouts. To manually stop and dispose
         /// the timer, invoke the <see cref="StopTimer"/> method.
         /// </summary>
-        /// <param name="dueTime">The amount of time to wait before sending the first timeout event.</param>
+        /// <param name="startDelay">The amount of time to wait before sending the timeout event.</param>
         /// <param name="payload">Optional payload of the timeout event.</param>
         /// <returns>Handle that contains information about the timer.</returns>
-        protected TimerInfo StartTimer(TimeSpan dueTime, object payload = null)
+        protected TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
         {
             // The specified due time and period must be valid.
-            this.Assert(dueTime.TotalMilliseconds >= 0, "'{0}' registered a timer with a negative due time.", this.Id);
-            return this.RegisterTimer(dueTime, Timeout.InfiniteTimeSpan, payload);
+            this.Assert(startDelay.TotalMilliseconds >= 0, "'{0}' registered a timer with a negative due time.", this.Id);
+            return this.RegisterTimer(startDelay, Timeout.InfiniteTimeSpan, payload);
         }
 
         /// <summary>
@@ -311,16 +311,16 @@ namespace Microsoft.Coyote.Actors
         /// an optional payload to be used during timeout. The timer can be stopped by invoking the
         /// <see cref="StopTimer"/> method.
         /// </summary>
-        /// <param name="dueTime">The amount of time to wait before sending the first timeout event.</param>
+        /// <param name="startDelay">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
         /// <param name="payload">Optional payload of the timeout event.</param>
         /// <returns>Handle that contains information about the timer.</returns>
-        protected TimerInfo StartPeriodicTimer(TimeSpan dueTime, TimeSpan period, object payload = null)
+        protected TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, object payload = null)
         {
             // The specified due time and period must be valid.
-            this.Assert(dueTime.TotalMilliseconds >= 0, "'{0}' registered a periodic timer with a negative due time.", this.Id);
+            this.Assert(startDelay.TotalMilliseconds >= 0, "'{0}' registered a periodic timer with a negative due time.", this.Id);
             this.Assert(period.TotalMilliseconds >= 0, "'{0}' registered a periodic timer with a negative period.", this.Id);
-            return this.RegisterTimer(dueTime, period, payload);
+            return this.RegisterTimer(startDelay, period, payload);
         }
 
         /// <summary>

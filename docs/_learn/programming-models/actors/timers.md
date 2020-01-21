@@ -19,11 +19,11 @@ To make use of timers, you must include the `Microsoft.Coyote.Actors.Timers` nam
 You can start a non-periodic timer using the function `StartTimer`.
 
 ```c#
-TimerInfo StartTimer(TimeSpan dueTime, object payload = null)
+TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
 ```
 
 `StartTimer` takes as argument:
-1. `TimeSpan dueTime`, which is the amount of time to wait before sending the timeout event.
+1. `TimeSpan startDelay`, which is the amount of time to wait before sending the timeout event.
 2. `object payload`, which is an optional payload of the timeout event that will be passed through in the `TimerElapsedEvent` event.
 
 `StartTimer` returns `TimerInfo`, which contains information about the created non-periodic timer. The

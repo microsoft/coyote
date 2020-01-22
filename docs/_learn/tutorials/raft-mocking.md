@@ -47,9 +47,9 @@ also systematic in how it explores every possible interleaving of asynchronous o
 the test doesn't just test the same happy paths over and over (like a stress test does) but instead it is more likely to
 find one bad path where a bug is hiding.
 
-You can now play with other test parameters like `--graph` to see a [DGML Graph](https://en.wikipedia.org/wiki/DGML) of all
+You can now play with other test parameters like `--graph` to see a [DGML diagram](/coyote/learn/tools/dgml) of all
 the messages sent during the test.
-You can browse these graphs using Visual Studio.  See [Dgml Editor setup](/coyote/learn/get-started/install).
+You can browse these graphs using Visual Studio.
 
 ## Design
 

@@ -94,7 +94,7 @@ Note that while `--coverage` is a shortcut for specifying both `--coverage code`
 
 ## Activity coverage visualization example
 
-The activity coverage can additionally be displayed in [DGML](https://en.wikipedia.org/wiki/DGML)
+The activity coverage can additionally be displayed in [DGML diagram](dgml)
 format. Run `coyote` as described in the [`coyote` examples](#coyote test-examples) section below. This
 produces a file in the DGML format as described in the
 [activity coverage output files](#activity-coverage-output-files) section. Open the file using

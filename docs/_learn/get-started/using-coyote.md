@@ -57,7 +57,7 @@ coyote replay ./bin/net46/Monitors.exe .\bin\net46\Output\Monitors.exe\CoyoteOut
 ```
 Attach a debugger during replay and you can see what exactly is going wrong.
 
-You might be wondering what the `Monitors` sample app is really doing. The `coyote` command line tool can help you with that also. If you run the following command line it will produce a [DGML](https://en.wikipedia.org/wiki/DGML) visualization of the state machines that are being tested:
+You might be wondering what the `Monitors` sample app is really doing. The `coyote` command line tool can help you with that also. If you run the following command line it will produce a [DGML diagram](../tools/dgml) of the state machines that are being tested:
 
 ```
 coyote test ./bin/net46/Monitors.exe --iterations 10 --max-steps 20 --graph
@@ -76,7 +76,5 @@ Open the DGML diagram using Visual Studio 2019 and you will see the following:
 
 Download the [FailureDetector.dgml](/coyote/assets/images/FailureDetector.dgml) file to view it interactively using Visual Studio. Make sure the downloaded file keeps the file extension `.dgml`.
 Use CTRL+A to select everything and this will show you all the detailed links as well.
-
-**Note**: See [get started with Coyote](../get-started/install.md) for information on how to install the DGML editor component of Visual Studio.
 
 You are now ready to dive into the core concepts for using Coyote to test [async tasks](../programming-models/async/overview.md) and the more advanced [async actors](../programming-models/actors/overview.md).

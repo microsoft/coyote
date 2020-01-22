@@ -22,8 +22,8 @@ The following diagram shows how Coyote can be used to test this scenario and hel
 ![FailoverCoffeeMachine](../../assets/images/FailoverCoffeeMachine.svg)
 
 The `CoffeeMachine` is modeled as a [state machine](../programming-models/actors/state-machines) and it is started by another state machine called `FailoverDriver`.
-The FailoverDriver lets the first CoffeeMachine instance run for a bit then it randomly kills it by using the `HaltEvent`,
-then it starts a new `CoffeeMachine`.  The new CoffeeMachine instance needs to figure out the state of the sensors such
+The FailoverDriver lets the first `CoffeeMachine` instance run for a bit then it randomly kills it by using the `HaltEvent`,
+then it starts a new `CoffeeMachine`.  The new `CoffeeMachine` instance needs to figure out the state of the sensors such
 that when a `MakeCoffeeEvent` arrives, it doesn't do something silly that breaks the machine.  The `MockSensors` class models
 the physical sensors in the machine, and these sensor states persist across both instances of the `CoffeeMachine`.
 
@@ -32,7 +32,7 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 - do not turn on grinder if there are no beans in the hopper
 - do not turn on shot maker if there is no water
 
-There is also a correctness assert in the CoffeeMachine to make sure the correct number of espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make sure it never gets stuck, i.e., it always finishes the job it was
+There is also a correctness assert in the `CoffeeMachine` to make sure the correct number of espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make sure it never gets stuck, i.e., it always finishes the job it was
 given or it goes to an error state if the machine needs to be fixed.  See [Liveness Checking](../specifications/liveness-checking).
 
 A number of excellent bugs were found by [coyote test](../tools/testing) during the development of this sample, and this
@@ -43,7 +43,7 @@ this testing methodology.
 
 ## <a name="install-and-build"> </a>What you will need
 
-To run the Hello World Actors  example, you will need to:
+To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
@@ -60,7 +60,7 @@ powershell -f build.ps1
 
 ## Run the Failover Coffee Machine application
 
-Now you can run the CoffeeMachine application:
+Now you can run the `CoffeeMachine` application:
 - in .Net Core:
 
 ```shell
@@ -145,19 +145,28 @@ like:
 
 If you see these errors, just press ENTER to terminate the program and run it again.
 
-You can leave this running and you will see the `FailoverDriver` halting the `CoffeeMachine` at random times.
-The CoffeeMachine must recover and make the next coffee without incident.  Eventually the CoffeeMachine will run
-out of water or coffee beans and then it will stop with an error message saying the machine needs to be manually
-refilled.  At this point you can terminate the example and re-run it.
+You can leave this running and you will see the `FailoverDriver` halting each `CoffeeMachine` instance at random times.
+Each halted machine is terminated and discarded then a new `CoffeeMachine` instance is started.  Each new `CoffeeMachine` instance
+must figure out what is happening with the sensors and make the next coffee without incident.
+Eventually a `CoffeeMachine` will report there is no more water or coffee beans and then it will stop with an error message
+saying the machine needs to be manually refilled.  At this point you can terminate the example and re-run it.
 
-You can now use `coyote test` to test the code and see if it contains any bugs.  From the `coyote-samples` folder:
+You can now use `coyote test` to test the code and see if any bugs can be found.  From the `coyote-samples` folder:
 
 ```
 ..\Coyote\bin\net46\coyote.exe test .\bin\net46\CoffeeMachine.exe -i 100 -ms 2000 --graph-bug
 ```
 
-Chances are this will find a bug pretty quickly, one of the safety assertions will fire and you will see
-the test output log contains something like this:
+Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
+that a test output log and [DGML diagram](../tools/dgml) are produced, like this:
+
+```
+.\bin\net46\Output\CoffeeMachine.exe\CoyoteOutput\CoffeeMachine_0_0.txt
+.\bin\net46\Output\CoffeeMachine.exe\CoyoteOutput\CoffeeMachine_0_0.dgml
+```
+
+This log can be pretty big, it contains the test iteration that failed, and towards the end you will
+see something like this:
 
 ```
 <ActionLog> 'Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)' invoked action 'OnGrinderButton'
@@ -173,8 +182,8 @@ The `Timer` machines were removed from this diagram just for simplicity.  The `F
 CoffeeMachine on the left which ran to completion but it went to the `RefillRequired` state which means it
 detected the coffee beans empty state.  Then this first machine was halted.  The FailoverDriver then started a new
 CoffeeMachine, which made it all the way to GrindingBeans where it tripped the saftey assert in `MockSensors`.
-So the bug here is that somehow, the second CoffeeMachine instance missed the fact that it was low on coffee beans.
-So bug exists in the code somewhere.  Can you find it?
+So the bug here is that somehow, the second `CoffeeMachine` instance missed the fact that it was low on coffee beans.
+A bug exists in the code somewhere.  Can you find it?
 
 It is not a trivial bug because the `CheckSensors` state is clearly checking the coffee level by sending the
 `ReadHopperLevelEvent` to the `MockSensors` actor and `CheckInitialState` does not advance to the `HeatingWater`
@@ -192,9 +201,8 @@ if ((int)this.HopperLevel.Value == 0)
 ...
 ```
 
-And so it missed the fact it might be negative.  The fix is easy, just change this check to `<=` and the bug goes
-away, but the point is this bug was found because of the failover test methodology used here.
-
+And so it missed the fact it might be negative.  The fix is easy, just change this condition to `<=` and the bug goes
+away.   The fact that such a tricky bug was found so quickly shows the power of Coyote.
 
 ### Testing the Scheduling of Highly Asynchronous Operations
 
@@ -203,7 +211,7 @@ poll sensor readings and do something based on that.  In this case we are pollin
 in a tight loop while in the `GrindingBeans` state.  Meanwhile the
 `MockSensors` class has a [timer](../programming-models/actors/timers) running and when `HandleTimer` calls `MonitorGrinder` it decreases the
 coffee level by 1 percent during every time interval.  So we have a very asynchronous operation here.
-Coffee level is decreasing based on a timer, and the CoffeeMachine is monitoring that coffee level using
+Coffee level is decreasing based on a timer, and the `CoffeeMachine` is monitoring that coffee level using
 async events.  This all seems to work perfectly in the production code where we see this output:
 
 ```
@@ -231,13 +239,13 @@ based system where the `MockSensors` can send important events to the `CoffeeMac
 based eventing is used to model the `ShotCompleteEvent`, `WaterHotEvent`, `WaterEmptyEvent` and `HopperEmptyEvent`.
 
 This shows how Coyote can help find actual design flaws in your code so you can design a system that is
-more robust in the face of unexpected faults in the system.  A number of different
-`scheduling strategies` that test different kinds of fairness algorithms are included in the `coyote test` engine.
+more robust in the face of unexpected faults.  The `coyote test` engine provides several different
+`scheduling strategies` that test different kinds of fairness algorithms.
 These are designed to find different kinds of bugs.  The following command line shows how to use `--sch-portfolio`
-to test a bunch of different strategies at once, each in different test processes:
+and the `--parallel` options to test a bunch of different strategies in parallel, each in different test processes:
 
 ```
-d:\git\foundry99\CoyoteSamples>..\Coyote\bin\net46\coyote.exe test D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachine.exe -i 100 -ms 2000 --graph-bug --sch-portfolio -p 8
+d:\git\foundry99\CoyoteSamples>..\Coyote\bin\net46\coyote.exe test D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachine.exe -i 100 -ms 2000 --graph-bug --sch-portfolio --parallel 8
 . Testing D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachine.exe
 Starting TestingProcessScheduler in process 42036
 Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
@@ -261,9 +269,9 @@ Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
 ...
 ```
 
-The `-p 8` option means use 8 test processes, each one is assigned a random scheduling strategy.
-Each process runs until it finds a bug, then they are all terminated and the bug is reported.
-This can be an excellent way to leverage the full power of your PC to find those bugs that are
+The `--parallel 8` option means use 8 test processes in parallel, each one is assigned a random scheduling strategy.
+Each process runs until the first one finds a bug, then they are all terminated and the bug is reported.
+This can be useful when you want to leverage the full power of your PC to find those bugs that are
 particularly hard to find.
 
 You can find out how much testing was actually done during this parallel test operation by adding
@@ -272,8 +280,10 @@ events were covered.
 
 ### Liveness Monitor
 
-As described in the documentation on [Liveness Checking](../specifications/liveness-checking) the CoffeeMachine
-must also eventually `finish` what it is doing. This can be done using a very simple LivenessMonitor as shown below:
+As described in the documentation on [Liveness Checking](../specifications/liveness-checking) the `CoffeeMachine`
+must also eventually `finish` what it is doing. It must either make a coffee when requested and return to the `Ready`
+state, or it must find a problem and go to the `Error` state or the `RefillRequired` state.
+This "liveness" property can be enforced using a very simple `LivenessMonitor` as shown below:
 
 ```c#
 internal class LivenessMonitor : Monitor
@@ -309,8 +319,8 @@ this.Monitor<LivenessMonitor>(new LivenessMonitor.IdleEvent());
 ```
 
 The `Busy` state is marked as a `[Hot]` state and the `Idle` state is marked as a `[Cold]` state.
-Then during testing if `coyote test` finds the LivenessMonitor to be stuck in the `[Hot]` state
-too long it then raises an exception and the test fails.
+During testing if `coyote test` finds the LivenessMonitor to be stuck in the `[Hot]` state
+too long it raises an exception and the test fails.
 
 
 ### Halting the CoffeeMachine at Random Times
@@ -318,9 +328,9 @@ too long it then raises an exception and the test fails.
 The first implementation of the `FailoverDriver` used a [timer](../programming-models/actors/timers) with random time interval of up to 10
 seconds to decide when to halt the `CoffeeMachine`.  This works ok in production mode, but does not work
 as expected during `coyote test`.  The reason is that `coyote test` does not actually honor the number of
-seconds given to a `StartTimer` call.  In order to make the test run fast, the `coyote test` engine
-essentially replaces the timer with a random coin toss.  This makes the test run really fast, but in this
-case it caused the `FailoverDriver` to Halt the `CoffeeMachine too frequently.
+seconds given to a `StartTimer` call.  The `coyote test` engine randomly decides whether or not to raise
+the `TimerElapsedEvent` immediately.  This makes the test run really fast, but in this
+case it caused the `FailoverDriver` to Halt the `CoffeeMachine` too frequently.
 
 The solution is to find another source of "time" that is not based on a real time clock.  The number of events
 sent to the `MockSensors` is one such measure.  We can count these using the following code:
@@ -346,14 +356,14 @@ if (this.HaltSteps < MockSensors.Steps)
 ### Reliable Termination Handshake
 
 You may notice in the code that when the `FailoverDriver` wants to stop the first `CoffeeMachine` it sends
-a `CoffeeMachine.TerminateEvent` and waits for a `CoffeeMachine.Halted` state to be reached before it
+a `CoffeeMachine.TerminateEvent` and waits for a `CoffeeMachine.HaltedEvent` before it
 starts a new `CoffeeMachine` by running `this.GotoState<Test>()`.
 
 This may seem a bit convoluted compared to just `this.SendEvent(this.CoffeeMachineId, HaltEvent.Instance)`
 followed by `this.GotoState<Test>()`.  The reason a direct halt event was not used in this case is that
 `Halt` events are processed asynchronously, which means the `GotoState` would end up creating the new
 `CoffeeMachine` instance before the old one was fully halted.  This can lead to confusion in the `MockSensors`
-class which was written to expect one and only one client `CoffeeMachine`.  The `TerminateEvent`
+class which was written to expect one and only one client `CoffeeMachine` at a time.  The `TerminateEvent`
 handshake solves that problem.
 
 Since the `TerminateEvent` could be sent to the `CoffeeMachine` at any time we need an easy way to handle this

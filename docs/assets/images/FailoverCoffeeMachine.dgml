@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="CoffeeMachine" Bounds="37.5393359700262,71.9200000000001,99.7166666666667,25.96" Label="CoffeeMachine" UseManualLocation="True" />
+    <Node Id="CoffeeMachine1" Bounds="185.815065323855,71.9200000000001,99.7166666666668,25.96" Label="CoffeeMachine" UseManualLocation="True" />
+    <Node Id="FailoverDriver" Bounds="133.715,0,92.2866666666666,25.96" Label="FailoverDriver" />
+    <Node Id="MockSensors" Bounds="134.786666666667,129.5675,90.1433333333333,25.96" Label="MockSensors" />
+  </Nodes>
+  <Links>
+    <Link Source="CoffeeMachine" Target="MockSensors" Bounds="108.21624574475,97.8800091552735,43.1863122885816,26.9258594977511" />
+    <Link Source="CoffeeMachine1" Target="MockSensors" Bounds="198.686104941799,97.8800091552735,24.4198857226855,25.2216092017367" />
+    <Link Source="FailoverDriver" Target="CoffeeMachine" Bounds="111.188754273689,25.9599957275391,51.9824390709567,40.4342442785921" Label="Halt" LabelBounds="138.407920474472,47.7557714029754,21.6,15.96" />
+    <Link Source="FailoverDriver" Target="CoffeeMachine1" Bounds="189.931744688907,25.9599957275391,30.1503435455284,38.8499589153881" Label="Run" LabelBounds="206.586926541021,28.1987744883022,20.7566666666667,15.96" />
+  </Links>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+</DirectedGraph>

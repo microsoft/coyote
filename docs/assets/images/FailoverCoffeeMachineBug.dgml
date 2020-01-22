@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Bounds="-62.1394236985434,763.673003831358,355.706666666667,517.479822802732" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Active" Bounds="175.14390963479,803.672915232724,52.28,25.96" Label="Active" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).CheckState" Bounds="50.1872429681234,875.592915232724,92.8333333333333,25.96" Label="CheckSensors" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" Bounds="48.0639096347901,1163.27291523272,97.08,25.96" Label="GrindingBeans" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Halt" Bounds="176.28390963479,875.592915232724,50,25.96" Label="Halt" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" Bounds="50.0555763014567,947.512915232724,93.0966666666667,25.96" Label="HeatingWater" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Init" Bounds="71.6039096347901,803.672915232724,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).MakingCoffee" Bounds="49.5355763014568,1091.35291523272,94.1366666666667,25.96" Label="MakingCoffee" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Ready" Bounds="70.5622429681235,1019.43291523272,52.0833333333333,25.9599999999999" Label="Ready" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" Bounds="50.1222429681235,1235.19291523272,92.9633333333333,25.96" Label="RefillRequired" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Bounds="394.145585927712,746.615877783203,355.706666666667,445.559778857417" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).CheckState" Bounds="546.747252594379,858.535767211911,94.5633333333333,25.96" Label="CHeckSensors" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).GrindingBeans" Category="Category1" Bounds="545.488919261046,1146.21576721191,97.0799999999999,25.96" Label="GrindingBeans" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" Bounds="547.480585927712,930.455767211911,93.0966666666668,25.96" Label="HeatingWater" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Init" Bounds="569.028919261046,786.615767211911,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).MakingCoffee" Bounds="546.960585927712,1074.29576721191,94.1366666666668,25.96" Label="MakingCoffee" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Ready" Bounds="567.987252594379,1002.37576721191,52.0833333333335,25.9599999999999" Label="Ready" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2)" Bounds="161.003674580682,369.339773264352,348.276666666667,301.720255541992" Group="Expanded" UseManualLocation="True" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Init" Bounds="375.218630787783,409.339839477539,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stop" Bounds="294.218630787783,553.179942626953,50,25.96" Label="Stop" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stopped" Bounds="367.951964121116,625.099925537109,64.5333333333334,25.96" Label="Stopped" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Bounds="375.218630787783,481.259852905273,50,25.96" Label="Test" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1)" Bounds="-4.47591142460624E-06,1375.55507886907,348.886666666667,141.9203" Group="Expanded" Label="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Busy[hot]" Bounds="139.594995524089,1471.51527886907,69.6966666666667,25.96" Label="Busy[hot]" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Idle[cold]" Bounds="139.595006713867,1415.55517886907,69.23,25.96" Label="Idle[cold]" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)" Bounds="379.076662190755,1413.12262175541,368.733333333333,85.9602" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Bounds="399.076662190755,1453.12272175541,328.733333333333,25.96" />
+  </Nodes>
+  <Links>
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Active" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).CheckState" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Halt" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).MakingCoffee" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Ready" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Active" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Halt" Bounds="201.283905029297,829.632934570313,0,36.9599609375" Label="halt" LabelBounds="181.41390963479,844.632915232724,19.8699999999999,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).CheckState" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" Bounds="96.6039123535156,901.552917480469,0,36.9600219726563" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="71.4105763014569,916.552915232724,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).CheckState" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Bounds="90.2615555339891,901.553089599609,456.521206819163,544.67203495794" EventId="Microsoft.Coyote.Samples.CoffeeMachine.ReadPortaFilterCoffeeLevelEvent" Label="ReadPowerButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" Bounds="96.6039123535156,1189.23291015625,0,36.9599609375" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="71.4105763014569,1204.23291523272,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+CoffeeCompletedEvent" Label="CoffeeCompletedEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." EventId="Microsoft.Coyote.Samples.CoffeeMachine.GrinderButtonEvent" Label="GrinderButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Ready" Bounds="96.6039123535156,973.472900390625,0,36.9600219726563" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="71.4105763014569,988.472915232724,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Busy[hot]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+BusyEvent" Label="BusyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." EventId="Microsoft.Coyote.Samples.CoffeeMachine.WaterHeaterButtonEvent" Label="ReadWaterTemperatureEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Init" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).CheckState" Bounds="96.6039123535156,829.632934570313,0,36.9599609375" EventId="Microsoft.Coyote.Actors.PushStateEvent" Label="push(push)" LabelBounds="37.9105763014564,844.632915232724,58.6933333333337,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Init" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." EventId="Microsoft.Coyote.Samples.CoffeeMachine.RegisterClientEvent" Label="RegisterClientEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).MakingCoffee" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" Bounds="96.6039123535156,1117.31286621094,0,36.9600830078125" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="71.4105763014569,1132.31291523272,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).MakingCoffee" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Busy[hot]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+BusyEvent" Label="BusyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Ready" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).MakingCoffee" Bounds="96.6039123535156,1045.39294433594,0,36.9599609375" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+MakeCoffeeEvent" Label="MakeCoffeeEvent" LabelBounds="4.00390963479012,1060.39291523272,92.6,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Ready" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Idle[cold]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+IdleEvent" Label="IdleEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stop" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+TerminatedEvent" Label="TerminatedEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Idle[cold]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+IdleEvent" Label="IdleEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." EventId="Microsoft.Coyote.Samples.CoffeeMachine.PowerButtonEvent" Label="PowerButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).CheckState" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).GrindingBeans" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).MakingCoffee" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7)" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Ready" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).CheckState" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" Bounds="594.028930664063,884.495788574219,0,36.9599609375" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="568.835585927713,899.495767211911,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).CheckState" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Bounds="563.835756827776,880.496021728516,10.0635977551606,563.628134293546" EventId="Microsoft.Coyote.Samples.CoffeeMachine.DumpGrindsButtonEvent" Label="ReadPowerButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).GrindingBeans" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Bounds="227.786361694336,1073.30236816406,263.525161743164,444.167602539063" EventId="Microsoft.Coyote.Samples.CoffeeMachine.GrinderButtonEvent" Label="GrinderButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Ready" Bounds="594.028930664063,956.415771484375,0,36.9600219726563" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="568.835585927713,971.415767211911,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Busy[hot]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+BusyEvent" Label="BusyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." EventId="Microsoft.Coyote.Samples.CoffeeMachine.WaterHeaterButtonEvent" Label="ReadWaterTemperatureEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Init" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).CheckState" Bounds="594.028930664063,812.575744628906,0,36.9600219726563" EventId="Microsoft.Coyote.Actors.PushStateEvent" Label="push(push)" LabelBounds="535.335585927713,827.575767211911,58.6933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Init" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." EventId="Microsoft.Coyote.Samples.CoffeeMachine.RegisterClientEvent" Label="RegisterClientEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).MakingCoffee" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).GrindingBeans" Bounds="594.028930664063,1100.25573730469,0,36.9600830078125" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="568.835585927713,1115.25576721191,25.1933333333332,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).MakingCoffee" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Busy[hot]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+BusyEvent" Label="BusyEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Ready" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).MakingCoffee" Bounds="594.028930664063,1028.33581542969,0,36.9599609375" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+MakeCoffeeEvent" Label="MakeCoffeeEvent" LabelBounds="501.428919261045,1043.33576721191,92.6000000000004,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Ready" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Idle[cold]" EventId="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor+IdleEvent" Label="IdleEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stop" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stopped" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2)" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Init" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Bounds="400.218688964844,435.299896240234,0,36.9599914550781" EventId="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver+StartTestEvent" Label="StartTestEvent" LabelBounds="326.315341247349,450.299901035348,73.9033333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stop" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).RefillRequired" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+TerminateEvent" Label="TerminateEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stop" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stopped" Bounds="333.837432861328,579.139892578125,45.0325012207031,39.9844360351563" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+TerminatedEvent" Label="TerminatedEvent" LabelBounds="271.652007914015,594.139901035348,88.0666666666667,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stopped" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Bounds="400.218688964844,516.219909667969,0,108.880004882813" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="goto" LabelBounds="375.025341247349,558.179901035348,25.1933333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).Ready" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+MakeCoffeeEvent" Label="MakeCoffeeEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).Ready" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+MakeCoffeeEvent" Label="MakeCoffeeEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Test" Target="Microsoft.Coyote.Samples.CoffeeMachine.FailoverDriver(2).Stop" Bounds="340.567413330078,507.219909667969,45.0325317382813,39.9844360351563" EventId="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine+CoffeeCompletedEvent" Label="CoffeeCompletedEvent" LabelBounds="237.798674580682,522.219901035348,121.92,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1)" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Busy[hot]" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1)" Target="Microsoft.Coyote.Samples.CoffeeMachine.LivenessMonitor(1).Idle[cold]" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)" Target="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).CheckState" Bounds="96.0428315952119,908.45068679747,456.521206819163,544.67203495794" EventId="Microsoft.Coyote.Samples.CoffeeMachine.PortaFilterCoffeeLevelEvent" Label="PowerButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).GrindingBeans" EventId="Microsoft.Coyote.Samples.CoffeeMachine.HopperEmptyEvent" Label="PortaFilterCoffeeLevelEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(4).HeatingWater" EventId="Microsoft.Coyote.Samples.CoffeeMachine.WaterHotEvent" Label="WaterTemperatureEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).CheckState" Bounds="563.675087158532,889.494587461864,10.0635977551606,563.628134293546" EventId="Microsoft.Coyote.Samples.CoffeeMachine.PortaFilterCoffeeLevelEvent" Label="PowerButtonEvent" />
+    <Link Source="Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)." Target="Microsoft.Coyote.Samples.CoffeeMachine.CoffeeMachine(7).HeatingWater" EventId="Microsoft.Coyote.Samples.CoffeeMachine.WaterHotEvent" Label="WaterTemperatureEvent" />
+  </Links>
+  <Categories>
+    <Category Id="Category1" Label="Category 1" Background="#FFE51400" IsTag="True" />
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+  </Categories>
+  <Properties>
+    <Property Id="Background" Label="Background" Description="The background color" DataType="System.Windows.Media.Brush" />
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventId" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Category 1" ValueLabel="Has category">
+      <Condition Expression="HasCategory('Category1')" />
+      <Setter Property="Background" Value="#FFE51400" />
+    </Style>
+  </Styles>
+</DirectedGraph>

@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="718.43000000000018" height="670.42250000000058" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="718.43000000000018" height="670.42250000000058" fill="#FFFFFF" />
+  <g transform="translate(19,20)">
+    <g id="CheckSensors-&gt;Error">
+      <path d="M 347,97.8800000000001 L 347,134.84" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 347,143.84 L 351,133.84 C 348.333333333333,134.84 345.666666666667,134.84 343,133.84 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="289.91666666666674" y="125.83000000000011" fill="#A0A0A0">Door open</text>
+    </g>
+    <g id="CheckSensors-&gt;HeatingWater">
+      <path d="M 312.348164627364,97.8800000000001 L 299,102.88 C 270.366576042256,113.605603390838 253.743010007519,124.331206781676 249.129301895788,135.056810172515" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 247.16573971079,143.84 L 253.251115395225,134.953594496126 C 250.430515203563,135.347708273996 247.828088588012,134.765912071033 245.443835548571,133.208205887239 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="238.91314888063255" y="126.54732031522629" fill="#A0A0A0">ok</text>
+    </g>
+    <g id="CheckSensors-&gt;RefillRequired">
+      <path d="M 367.213570634038,97.8800000000001 L 375,102.88 C 393.666666666667,114.866666666667 403,197.630416666667 403,351.17125 C 403,504.712083333334 391.166666666667,587.475833333334 367.5,599.462500000001 L 365.656849695532,600.396016689418" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 357.627919911012,604.462500000001 L 368.356278920738,603.512598448029 C 366.259291667471,601.585487768606 365.054407723594,599.20654561023 364.741627089109,596.3757719729 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="DumpGrinds-&gt;Ready">
+      <path d="M 164.571666666667,609.898138325282 L 104.5,599.462500000001 C 35.5000000000001,587.475833333334 1.00000000000006,540.672083333334 1.00000000000006,459.05125 C 1,377.430416666667 41.3333333333333,330.626666666667 122,318.64 L 208.056079751441,305.852493273299" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 216.958333333333,304.529662534436 L 206.479015691736,302.042917318998 C 207.860104827165,304.533640890796 208.252054675717,307.171345655801 207.654865237392,309.956031614013 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="GrindingBeans-&gt;MonitorPortaFilter">
+      <path d="M 243,385.56 L 243,408.2475" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 243,417.2475 L 247,407.2475 C 244.333333333333,408.2475 241.666666666667,408.2475 239,407.2475 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="GrindingBeans-&gt;RefillRequired">
+      <path d="M 283.078754499328,385.56 L 287.5,386.991875 C 317.166666666667,396.599791666667 332,437.410208333334 332,509.423125 L 332,595.4625" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 332,604.462500000001 L 336,594.462500000001 C 333.333333333333,595.4625 330.666666666667,595.4625 328,594.462500000001 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="282.25333333333333" y="492.84500000000043" fill="#A0A0A0">no coffee</text>
+    </g>
+    <g id="HeatingWater-&gt;MonitorWaterTemperature">
+      <path d="M 245,169.8 L 245,206.76" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 245,215.76 L 249,205.76 C 246.333333333333,206.76 243.666666666667,206.76 241,205.76 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="120.71333333333303" y="197.75000000000017" fill="#A0A0A0">ReadWaterTemperature</text>
+    </g>
+    <g id="HeatingWater-&gt;RefillRequired">
+      <path d="M 289.68984222934,169.574339099739 L 308,174.8 C 350,186.786666666667 371,257.56375 371,387.13125 C 371,512.949400928291 364.870743518032,583.330391482465 352.612230554097,598.274221662524" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 346.077308120134,604.462500000001 L 356.088678974527,600.491045151232 C 353.529012530019,599.242358319407 351.695448578174,597.30608500564 350.587987118992,594.682225209932 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Init-&gt;CheckSensors">
+      <path d="M 347,25.96 L 347,62.9200000000001" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 347,71.9200000000001 L 351,61.9200000000001 C 348.333333333333,62.9200000000001 345.666666666667,62.9200000000001 343,61.9200000000001 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="296.68666666666672" y="53.910000000000039" fill="#A0A0A0">power on</text>
+    </g>
+    <g id="MakingShots-&gt;MonitorShots">
+      <path d="M 211.27806930049,500.855 L 218.904699481379,523.994798071202" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 221.72193069951,532.5425 L 222.390652425498,521.792950648833 C 220.171025693053,523.57743048333 217.638373269706,524.412165659073 214.792695155454,524.29715617606 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="MonitorPortaFilter-&gt;MakingShots">
+      <path d="M 234.894184483282,443.2075 L 219.872978680099,467.261248931639" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 215.105815516718,474.895 L 223.795441728635,468.531793552213 C 221.003904764301,467.967495326214 218.742052595897,466.555002537064 217.009885223425,464.294315184763 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="MonitorPortaFilter-&gt;MonitorPortaFilter">
+      <path d="M 184.691666666667,423.774575925247 C 155.691666666667,424.076880730608 141.191666666666,426.227855422192 141.191666666666,430.2275 C 141.191666666666,433.789516380781 152.692174725367,435.885281525397 175.693190842767,436.514795433847" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 184.691666666667,436.680424074754 L 174.766972924958,432.497069663124 C 175.717728419197,435.18168790438 175.668653266336,437.847902963314 174.619747466375,440.495714839924 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="31.541666666666515" y="435.19750000000039" fill="#A0A0A0">PortaFilterLevelEvent</text>
+    </g>
+    <g id="MonitorShots-&gt;DumpGrinds">
+      <path d="M 219.502780867631,558.502500000001 L 217,563.502500000001 C 211.667293357063,574.156062826668 208.704400059095,584.809625653335 208.111320106095,595.463188480002" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 208,604.462500000001 L 212.123383015661,594.512740580489 C 209.444551442391,595.479680347572 206.778088769799,595.446696612432 204.123994997884,594.413789375071 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="179.67763027631756" y="586.47837181884472" fill="#A0A0A0">Done</text>
+    </g>
+    <g id="MonitorShots-&gt;RefillRequired">
+      <path d="M 250.184093437152,558.502500000001 L 259.5,563.502500000001 C 281.153650499916,575.124369731 298.420358616484,586.746239461999 311.300124349706,598.368109192999" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 317.922691879867,604.462500000001 L 313.272901649467,594.74759131215 C 312.202997061854,597.38698807742 310.397251637558,599.349230308579 307.855665376576,600.634318005626 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="246.59666666666675" y="586.45250000000055" fill="#A0A0A0">no water</text>
+    </g>
+    <g id="MonitorShots-&gt;MonitorShots">
+      <path d="M 179.936666666667,539.033848394553 C 150.936666666667,539.095314272042 136.436666666667,541.258198140525 136.436666666667,545.5225 C 136.436666666667,549.32015981787 147.936836171814,551.451153215216 170.937175182107,551.915480192039" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 179.936666666667,552.011151605448 L 169.979752312004,547.905076041857 C 170.951348724835,550.582222194327 170.92300163938,553.248738189752 169.894711055642,555.904624028132 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="31.85000000000008" y="550.49250000000052" fill="#A0A0A0">ShotCompleteEvent</text>
+    </g>
+    <g id="MonitorWaterTemperature-&gt;Ready">
+      <path d="M 244.27808676307,241.72 L 244,246.72 C 243.407489645806,257.373336168405 243.078280681483,268.02667233681 243.012373107029,278.680008505214" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 243,287.68 L 247.013744116604,277.685508608918 C 244.345705180331,278.681841558107 241.679041033727,278.678175452321 239.013751676794,277.674510291558 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="223.38333333333333" y="269.67000000000024" fill="#A0A0A0">Hot</text>
+    </g>
+    <g id="Ready-&gt;GrindingBeans">
+      <path d="M 243,313.64 L 243,350.6" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 243,359.6 L 247,349.6 C 244.333333333333,350.6 241.666666666667,350.6 239,349.6 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="170.11666666666656" y="341.59000000000032" fill="#A0A0A0">start espresso</text>
+    </g>
+    <g id="CheckSensors">
+      <rect x="300.58333333333326" y="71.920000000000073" rx="3" ry="3" width="92.833333333333485" height="25.960000000000008" fill="#5F9EA0" stroke="#A5A6A9" stroke-width="1" />
+      <text x="310.58333333333326" y="89.870000000000076" fill="#000000">CheckSensors</text>
+    </g>
+    <g id="DumpGrinds">
+      <rect x="164.5716666666668" y="604.46250000000055" rx="3" ry="3" width="86.8566666666666" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="174.5716666666668" y="622.41250000000059" fill="#FFFFFF">DumpGrinds</text>
+    </g>
+    <g id="Error">
+      <rect x="322" y="143.84000000000003" rx="3" ry="3" width="50" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="334" y="161.79000000000002" fill="#FFFFFF">Error</text>
+    </g>
+    <g id="GrindingBeans">
+      <rect x="194.46000000000004" y="359.60000000000048" rx="3" ry="3" width="97.079999999999927" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="204.46000000000004" y="377.55000000000047" fill="#FFFFFF">GrindingBeans</text>
+    </g>
+    <g id="HeatingWater">
+      <rect x="198.45166666666665" y="143.84000000000026" rx="3" ry="3" width="93.096666666666692" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="208.45166666666665" y="161.79000000000025" fill="#FFFFFF">HeatingWater</text>
+    </g>
+    <g id="Init">
+      <rect x="322" rx="3" ry="3" width="50" height="25.96" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="338" y="17.950000000000003" fill="#FFFFFF">Init</text>
+    </g>
+    <g id="MakingShots">
+      <rect x="162.5183333333334" y="474.89500000000044" rx="3" ry="3" width="88.963333333333281" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="172.5183333333334" y="492.84500000000043" fill="#FFFFFF">MakingShots</text>
+    </g>
+    <g id="MonitorPortaFilter">
+      <rect x="184.69166666666649" y="417.24750000000051" rx="3" ry="3" width="116.61666666666702" height="25.960000000000036" fill="#5F9EA0" stroke="#A5A6A9" stroke-width="1" />
+      <text x="194.69166666666649" y="435.1975000000005" fill="#000000">MonitorPortaFilter</text>
+    </g>
+    <g id="MonitorShots">
+      <rect x="179.93666666666672" y="532.54250000000047" rx="3" ry="3" width="92.126666666666665" height="25.960000000000036" fill="#5F9EA0" stroke="#A5A6A9" stroke-width="1" />
+      <text x="189.93666666666672" y="550.49250000000052" fill="#000000">MonitorShots</text>
+    </g>
+    <g id="MonitorWaterTemperature">
+      <rect x="164.60833333333352" y="215.76000000000022" rx="3" ry="3" width="160.78333333333296" height="25.960000000000036" fill="#5F9EA0" stroke="#A5A6A9" stroke-width="1" />
+      <text x="174.60833333333352" y="233.71000000000021" fill="#000000">MonitorWaterTemperature</text>
+    </g>
+    <g id="Ready">
+      <rect x="216.95833333333337" y="287.6800000000004" rx="3" ry="3" width="52.083333333333258" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="226.95833333333337" y="305.63000000000039" fill="#FFFFFF">Ready</text>
+    </g>
+    <g id="RefillRequired">
+      <rect x="285.51833333333337" y="604.46250000000055" rx="3" ry="3" width="92.963333333333367" height="25.960000000000036" fill="#008000" stroke="#A5A6A9" stroke-width="1" />
+      <text x="295.51833333333337" y="622.41250000000059" fill="#FFFFFF">RefillRequired</text>
+    </g>
+    <g id="bf4cf081-9525-4721-8b31-523f7f3113e31">
+      <rect x="434.00000000000011" rx="2" ry="2" width="245.43000000000006" height="121.72" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
+      <g>
+        <text x="444.00000000000011" y="17.950000000000003" fill="#3D3D3D">This graph shows the state machine for an </text>
+        <text x="444.00000000000011" y="33.910000000000004" fill="#3D3D3D">espresso machine.  The machine provides </text>
+        <text x="444.00000000000011" y="49.870000000000005" fill="#3D3D3D">automatic grinding of coffee beans, and </text>
+        <text x="444.00000000000011" y="65.83" fill="#3D3D3D">pooring of shots and dumping of used </text>
+        <text x="444.00000000000011" y="81.79" fill="#3D3D3D">coffee grinds. If an error occurs the </text>
+        <text x="444.00000000000011" y="97.750000000000014" fill="#3D3D3D">machine needs to be fixed, then turned off </text>
+        <text x="444.00000000000011" y="113.71000000000002" fill="#3D3D3D">and back on.</text>
+      </g>
+    </g>
+  </g>
+</svg>

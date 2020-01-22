@@ -25,7 +25,7 @@ replayed reliably over and over again, until the bug is identified. This makes a
 The exact mechanism Coyote uses to do this depends on the programming model you have chosen. The Coyote
 tester uses several state-of-the-art exploration strategies that have been known to find very deep bugs
 easily. The tester runs a _portfolio_ of available strategies, maximizing chances of revealing bugs. Coyote
-refers to these exploration strategies as _scheduling strategies_ and Coyote makes it easy to incorporate
+refers to these exploration strategies as _scheduling strategies_ and makes it easy to incorporate
 new strategies, as they come out of research. New scheduling strategies are being developed in Microsoft
 Research based on a wealth of experience gathered from the Microsoft product groups that are using Coyote
 today. See [case studies](/coyote/case-studies/azure-batch-service).

@@ -9,9 +9,9 @@ permalink: /learn/overview/what-is-coyote
 
 Coyote is a .NET programming framework designed to help ensure that your code is free of bugs. Too often developers are drowning in the complexity of
 their own code and many hours are wasted trying to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or various other
-sources of _non-determinism_ (like interleavings, failures, timeouts and so on).
+sources of _non-determinism_ (like message ordering, failures, timeouts and so on).
 
-Coyote provides programming models to express concurrent systems. These programming models provide convenient ways to program at a high-level of abstraction.
+Coyote provides programming models to express concurrent systems. These programming models offer convenient ways to program at a high-level of abstraction.
 As mentioned below, Coyote currently supports two programming models: a familiar Tasks-based programming as well as a more advanced actor-based programming
 model. These programming models are built using asynchronous APIs, supported by a lightweight runtime, making it easy to program efficient non-blocking code.
 
@@ -22,8 +22,7 @@ it can manipulate every possible scheduling. With appropriate _mocking_, Coyote 
  dependence on the bigger production environment.
 
 Coyote is not a verification system (like TLA+, for instance). It does not use theorem proving to make correctness guarantees, instead it uses intelligent
-search strategies to drive systematic testing, based on deep understanding of concurrency primitives that you have used in your production code, as well as
-sources of non-determinism that you have explicitly declared in your test code. This approach has proven to work well for large production teams, including
+search strategies to drive systematic testing, based on deep understanding of concurrency primitives that you have used in your code. This approach has proven to work well for large production teams, including
 many teams in Azure because it has a small barrier to entry with almost immediate benefits for those who adopt it.
 
 Coyote does not require that a team starts from scratch and rebuild their system. Often times it is too expensive to start over. Instead Coyote can be
@@ -31,7 +30,7 @@ adopted gradually, adding more and more structure around your _Coyote-aware_ cod
 but it is certainly not an all or nothing proposition.
 
 So Coyote brings together elements of design, development and testing into an integrated package that works really well in the real world. See our
-[case studies](../../case-studies/azure-batch-service.md) for some really great customer testimonials.
+[case studies](../../case-studies/azure-batch-service.md) for some great customer testimonials.
 
 ## Supported programming models
 
@@ -45,9 +44,8 @@ testing, however, is where the magic happens. Coyote controls the execution of e
 to find bugs.
 
 - [Asynchronous actors](../programming-models/actors/overview.md) is an [actor-based programming model](https://en.wikipedia.org/wiki/Actor_model) that allows
-you to express your design and concurrency at a higher-level.  This programming model starts with the `Actor` type which represents a long-lived, interactive
-asynchronous actor that can create new actors, send events to other actors, and handle received events. This more advanced programming model is ideal for cases
-when asynchronous tasks get too unwieldy.  This programming model also provides a `StateMachine` model which is an `Actor` that defines explicit `States` and
-event driven state transitions.
+you to express your design and concurrency at a higher-level of abstraction.  This programming model starts with the `Actor` type that represents a long-lived, interactive
+asynchronous actor. An actor can create new actors, send events to other actors, and handle received events. This more advanced programming model is ideal for cases
+when asynchronous tasks get too unwieldy.  This programming model also provides a `StateMachine` type for easy development of event-driven state-machines. A `StateMachine`
+is simply an `Actor` with explicit `States` and event-driven state transitions.
 
-![image](/coyote/assets/images/core.png)

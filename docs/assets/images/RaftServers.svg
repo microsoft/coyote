@@ -1,60 +1,114 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="533.39667068451422" height="545.54688113888892" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="527.32167068451429" height="545.54688200558769" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="533.39667068451422" height="545.54688113888892" fill="#FFFFFF" />
-  <g transform="translate(-13.9999788411458,-7.0000025390624)">
-    <path d="M 302.433213970238,292.84 L 289.23554745728,305.578087725054 L 262.31858067292,332.083611546785 L 222.108936291874,366.74789244405" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 215.123312174479,372.422489847432 L 225.407160039754,369.222103451405 C 222.949617388671,367.782799720701 221.268255195076,365.712985167399 220.36307345897,363.012659791499 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 317.17565503587,292.84 L 325.007101434222,301.995231530591 L 339.545296753642,318.33580092568" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 345.593910098394,325.000204620362 L 341.835185801861,314.907039028604 C 340.532615819521,317.439710059791 338.557977687763,319.23189179157 335.911271406589,320.283584223939 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 307.088970881102,266.88 L 305.097397272694,255.993007185408 L 300.069089654275,233.350206787741" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 297.026229377564,224.880200805664 L 296.642738137431,235.643700908732 C 298.814273953227,233.801000902809 301.323905355324,232.899412672672 304.171632343722,232.938936218322 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 215.123312174479,364.677409358019 L 233.318655266127,349.911806928639 L 260.897105224478,325.191411105275 L 287.317792682193,299.090211133394" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
-    <path d="M 293.793505831182,292.84 L 283.82039738413,296.906584304221 C 286.391835477246,298.130846222433 288.243749887141,300.049576044356 289.376140613814,302.662773769989 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 353.478717214827,325.000204620362 L 343.200390553919,313.429375770745" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 325.043777811758,292.84 L 328.537764774383,303.027838588484 C 329.905999924769,300.530030812782 331.926745626707,298.790002675306 334.6000018802,297.807754176058 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 303.482281442503,224.880200805664 L 307.598818337101,236.765050884 L 311.560661088258,258.023069654735" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 313.159030525882,266.88 L 315.319477970862,256.328579866318 C 312.872798917186,257.786274182495 310.24852325933,258.259865126976 307.446650997294,257.749352699761 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <rect x="33.999978841145804" y="333.66645489377186" rx="5" ry="5" width="181.123333333333" height="198.88042878417946" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-    <text x="53.999978841145804" y="351.61645489377185" fill="#000000">Raft.AzureClient.dll (Client)</text>
-    <rect x="38.999978841145804" y="361.62645489377184" width="171.123333333333" height="165.92042878417945" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <path d="M 124.647860646876,399.626554893772 L 124.79399017526,421.626882203235" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 124.853768228857,430.626683677951 L 128.787259935845,420.600336237779 C 126.12729409744,421.618026195295 123.46068625308,421.635738211175 120.787436402764,420.65347228542 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 124.852234609322,456.586683677951 L 124.710266138518,477.586989328658" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 124.649424783989,486.586783677951 L 128.716934888707,476.614052780749 C 126.04356900508,477.596002862662 123.376963271956,477.577975794653 120.717117689335,476.559971576723 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <rect x="57.3416760253906" y="486.5867836779513" rx="3" ry="3" width="134.44" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="67.3416760253906" y="504.53678367795129" fill="#3D3D3D">AzureClusterManager</text>
-    <rect x="53.999978841145804" y="373.66655489377183" rx="3" ry="3" width="141.123333333333" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="63.999978841145804" y="391.61655489377182" fill="#3D3D3D">AzureMessageReceiver</text>
-    <rect x="89.373316701253245" y="430.62668367795118" rx="3" ry="3" width="71.13333333333334" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="99.373316701253245" y="448.57668367795117" fill="#3D3D3D">RunClient</text>
-    <rect x="334.123316192327" y="325.000002539063" rx="5" ry="5" width="193.273333333333" height="197.880404162598" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-    <text x="353.123316192327" y="342.950002539063" fill="#000000">Raft.AzureClient.dll (Server 1)</text>
-    <rect x="339.123316192327" y="352.960002539063" width="183.273333333333" height="164.920404162598" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <path d="M 430.759982858994,390.960204620362 L 430.759982858994,411.960204620362" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 430.759982858994,420.960204620362 L 434.759982858994,410.960204620362 C 432.093316192327,411.960204620362 429.42664952566,411.960204620362 426.759982858994,410.960204620362 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 430.759982858994,446.920204620362 L 430.759982858994,467.920204620362" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 430.759982858994,476.920204620362 L 434.759982858994,466.920204620362 C 432.093316192327,467.920204620362 429.42664952566,467.920204620362 426.759982858994,466.920204620362 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <rect x="363.540013400572" y="476.92030670166" rx="3" ry="3" width="134.44" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="373.540013400572" y="494.87030670166" fill="#3D3D3D">AzureClusterManager</text>
-    <rect x="360.198316192327" y="365.000102539063" rx="3" ry="3" width="141.123333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="370.198316192327" y="382.950102539063" fill="#3D3D3D">AzureMessageReceiver</text>
-    <rect x="404.249982920794" y="420.960231323242" rx="3" ry="3" width="53.02" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="414.249982920794" y="438.910231323242" fill="#3D3D3D">Server</text>
-    <rect x="144.39664952056" y="27.0000025390624" rx="5" ry="5" width="193.273333333334" height="197.880396533203" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-    <text x="164.39664952056" y="44.9500025390624" fill="#000000">Raft.AzureClient.dll (Server 2)</text>
-    <rect x="149.39664952056" y="54.9600025390624" width="183.273333333334" height="164.920396533203" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <path d="M 241.033316187227,92.9602008056639 L 241.033316187227,113.960200805664" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 241.033316187227,122.960200805664 L 245.033316187227,112.960200805664 C 242.36664952056,113.960200805664 239.699982853894,113.960200805664 237.033316187227,112.960200805664 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <path d="M 241.033316187227,148.920200805664 L 241.033316187227,169.920200805664" fill="none" stroke="#A0A0A0" stroke-width="1" />
-    <path d="M 241.033316187227,178.920200805664 L 245.033316187227,168.920200805664 C 242.36664952056,169.920200805664 239.699982853894,169.920200805664 237.033316187227,168.920200805664 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    <rect x="173.813392481172" y="178.920299072266" rx="3" ry="3" width="134.44" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="183.813392481172" y="196.870299072266" fill="#3D3D3D">AzureClusterManager</text>
-    <rect x="170.47164952056" y="67.0001025390626" rx="3" ry="3" width="141.123333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="180.47164952056" y="84.9501025390626" fill="#3D3D3D">AzureMessageReceiver</text>
-    <rect x="214.523346704805" y="122.960200805664" rx="3" ry="3" width="53.0199999999999" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="224.523346704805" y="140.910200805664" fill="#3D3D3D">Server</text>
-    <rect x="254.955" y="266.88" rx="3" ry="3" width="113.213333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-    <text x="264.95500000000004" y="284.83" fill="#3D3D3D">Azure Service bus</text>
+  <rect width="527.32167068451429" height="545.54688200558769" fill="#FFFFFF" />
+  <g transform="translate(-13.9999788411458,-7.00000167236327)">
+    <g id="AzureServiceBus-&gt;AzureMessageReceiver" />
+    <g id="AzureServiceBus-&gt;AzureMessageReceiver1" />
+    <g id="AzureServiceBus-&gt;AzureMessageReceiver2" />
+    <g id="AzureServiceBus-&gt;Raft.AzureClient.dll">
+      <path d="M 302.749042384369,292.84 L 275.145749793251,320.253218692538 L 257.60846796845,337.739208416971 L 222.324414616066,366.562975194713" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 215.123312174479,371.961504959915 L 225.523883671887,369.163628528174 C 223.124196803503,367.629805186059 221.524632428629,365.496145203367 220.725190547264,362.762648580096 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="AzureServiceBus-&gt;Raft.AzureClient.dll(Server)">
+      <path d="M 319.239199485792,292.84 L 322.583390973104,299.547993329409 L 336.033545111958,326.53254342219" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 340.198316192327,334.510931846435 L 339.11674318047,323.795046450443 C 337.215528582216,325.915540299172 334.851561641699,327.149546545208 332.024842358919,327.497065188549 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="AzureServiceBus-&gt;Raft.AzureClient.dll(Server2)">
+      <path d="M 307.024616796515,266.88 L 305.585573150003,255.821561012876 L 301.344009052771,233.400909274515" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 298.445577426293,224.880399072266 L 297.879163588046,235.635824464311 C 300.08171124503,233.830306552512 302.606306860511,232.971511996519 305.45295043449,233.059440796331 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Raft.AzureClient.dll-&gt;AzureServiceBus" />
+    <g id="Raft.AzureClient.dll-&gt;AzureServiceBus">
+      <path d="M 215.123312174479,364.578204341791 L 238.169219977107,347.195752786146 L 256.575512849447,330.407629393205 L 287.848383710074,299.181936639246" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+      <path d="M 294.234293172617,292.84 L 284.320199707905,297.048414282476 C 286.908837541297,298.235875978128 288.787929878851,300.127997300363 289.957476720567,302.724778249181 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Raft.AzureClient.dll(Server)-&gt;AzureServiceBus">
+      <path d="M 340.198316192327,347.453557487404 L 327.154452824339,322.490801029633 L 316.553803611515,300.921508264373" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 312.592841080404,292.84 L 313.402129108584,303.579881418686 C 315.356543127904,301.508317528241 317.751064095126,300.334699000505 320.585692010249,300.059025835476 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Raft.AzureClient.dll(Server2)-&gt;AzureServiceBus">
+      <path d="M 304.849394270637,224.880399072266 L 308.700636902066,236.682697895497 L 311.912796793935,257.955543493594" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 313.076444534993,266.88 L 315.749927714442,256.446760441301 C 313.234938498588,257.78315123566 310.590655089282,258.127935751529 307.817077486526,257.481113988908 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Raft.AzureClient.dll">
+      <rect x="33.9999788411458" y="333.666454893772" rx="5" ry="5" width="181.123333333333" height="198.880428784179" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="68.9999788411458" y="351.616454893772" fill="#000000">Raft.Azure.dll (Client)</text>
+      <rect x="38.9999788411458" y="361.626454893772" width="171.123333333333" height="165.920428784179" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="AzureMessageReceiver-&gt;Client">
+        <path d="M 124.647860646876,399.626554893772 L 124.79399017526,421.626882203235" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 124.853768228856,430.626683677951 L 128.787259935845,420.600336237779 C 126.12729409744,421.618026195294 123.46068625308,421.635738211175 120.787436402764,420.65347228542 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Client-&gt;AzureClusterManager1">
+        <path d="M 124.852234609322,456.586683677951 L 124.710266138518,477.586989328657" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 124.649424783989,486.586783677951 L 128.716934888707,476.614052780749 C 126.04356900508,477.596002862662 123.376963271956,477.577975794653 120.717117689335,476.559971576723 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="AzureClusterManager1">
+        <rect x="57.3416760253906" y="486.586783677951" rx="3" ry="3" width="134.44" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="67.3416760253906" y="504.536783677951" fill="#3D3D3D">AzureClusterManager</text>
+      </g>
+      <g id="AzureMessageReceiver">
+        <rect x="53.9999788411458" y="373.666554893772" rx="3" ry="3" width="141.123333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="63.9999788411458" y="391.616554893772" fill="#3D3D3D">AzureMessageReceiver</text>
+      </g>
+      <g id="Client">
+        <rect x="89.3733167012532" y="430.626683677951" rx="3" ry="3" width="71.1333333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="99.3733167012532" y="448.576683677951" fill="#3D3D3D">RunClient</text>
+      </g>
+    </g>
+    <g id="Raft.AzureClient.dll(Server)">
+      <rect x="340.19831619232707" y="325.00000253906296" rx="5" ry="5" width="181.123333333333" height="197.88040416259707" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="369.19831619232707" y="342.95000253906295" fill="#000000">Raft.Azure.dll (Server 1)</text>
+      <rect x="345.19831619232707" y="352.96000253906294" width="171.123333333333" height="164.92040416259707" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="AzureMessageReceiver1-&gt;Server">
+        <path d="M 430.759982873328,390.960102539063 L 430.75998289652,411.960231323242" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 430.759982906459,420.960231323242 L 434.759982895416,410.960231318824 C 432.093316229853,411.960231321769 429.426649563187,411.960231324714 426.759982895416,410.960231327659 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Server-&gt;AzureClusterManager">
+        <path d="M 430.759989990612,446.920231323242 L 430.760001428724,467.920306701661" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 430.760006330755,476.92030670166 L 434.760000884053,466.920304522981 C 432.093334762057,467.920305975435 429.426668095391,467.920307427888 426.760000884054,466.920308880342 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="AzureClusterManager">
+        <rect x="363.540013400572" y="476.92030670166" rx="3" ry="3" width="134.44" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="373.540013400572" y="494.87030670166" fill="#3D3D3D">AzureClusterManager</text>
+      </g>
+      <g id="AzureMessageReceiver1">
+        <rect x="360.198316192327" y="365.000102539063" rx="3" ry="3" width="141.123333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="370.198316192327" y="382.950102539063" fill="#3D3D3D">AzureMessageReceiver</text>
+      </g>
+      <g id="Server">
+        <rect x="404.249982920794" y="420.960231323242" rx="3" ry="3" width="53.02" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="414.249982920794" y="438.910231323242" fill="#3D3D3D">Server</text>
+      </g>
+    </g>
+    <g id="Raft.AzureClient.dll(Server2)">
+      <rect x="150.47164952056" y="27.000001672363268" rx="5" ry="5" width="181.123333333333" height="197.88039739990279" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="179.47164952056" y="44.950001672363271" fill="#000000">Raft.Azure.dll (Server 2)</text>
+      <rect x="155.47164952056" y="54.960001672363269" width="171.123333333333" height="164.92039739990278" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="AzureMessageReceiver2-&gt;Server1">
+        <path d="M 241.033323265809,92.9601016723633 L 241.033334718115,113.960201672365" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 241.033339626223,122.960201672363 L 245.033334172769,112.960199490984 C 242.366668051448,113.960200945238 239.700001384782,113.960202399492 237.03333417277,112.960203853746 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="Server1-&gt;AzureClusterManager2">
+        <path d="M 241.033357322679,148.920201672363 L 241.033374501136,169.920299072269" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 241.033381863298,178.920299072266 L 245.033373683117,168.920295800197 C 242.366707834469,169.920297981578 239.700041167803,169.92030016296 237.03337368312,168.920302344341 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="AzureClusterManager2">
+        <rect x="173.813392481172" y="178.920299072266" rx="3" ry="3" width="134.44" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="183.813392481172" y="196.870299072266" fill="#3D3D3D">AzureClusterManager</text>
+      </g>
+      <g id="AzureMessageReceiver2">
+        <rect x="170.47164952056" y="67.0001025390626" rx="3" ry="3" width="141.123333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="180.47164952056" y="84.9501025390626" fill="#3D3D3D">AzureMessageReceiver</text>
+      </g>
+      <g id="Server1">
+        <rect x="214.523346704805" y="122.960200805664" rx="3" ry="3" width="53.0199999999999" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="224.523346704805" y="140.910200805664" fill="#3D3D3D">Server</text>
+      </g>
+    </g>
+    <g id="AzureServiceBus">
+      <rect x="254.955" y="266.88" rx="3" ry="3" width="113.213333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="264.95500000000004" y="284.83" fill="#3D3D3D">Azure Service bus</text>
+    </g>
   </g>
 </svg>

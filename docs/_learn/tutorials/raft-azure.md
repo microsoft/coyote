@@ -5,7 +5,7 @@ title: Raft Example
 permalink: /learn/tutorials/raft-azure
 ---
 
-## Raft Azure Example
+## Azure Messaging Example
 
 The [Cloud Messaging Example ](https://github.com/microsoft/coyote-samples/tree/master/CloudMessaging) implements the [Raft Consensus Algorithm](https://raft.github.io/) as an
 Azure Service built on the [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).
@@ -92,15 +92,57 @@ in the cluster:
 ![servers](../../assets/images/RaftServers.svg)
 
 The `Server` state machine is where the interesting code lives, it is a complete implementation of the `Raft`
-protocol.  All the `Server` instances then form a fault tolerant server cluster, that can handle `ClientRequestEvents` in a reliable way.  `Server` instances can come and go, and the `cluster` protocol is
-able to figure out which server should handle which client request, and how to replicate the logs across all
-servers for safe keeping and reliability.  The whole idea is that with this cluster there is no single point
-of failure.
+protocol.  All the `Server` instances then form a fault tolerant server cluster, that can handle `ClientRequestEvents` in a reliable way.
+`Server` instances can come and go, and the `cluster` protocol is able to figure out which server should handle which client request, and how to
+replicate the logs across all servers for safe keeping and reliability.  The whole idea is that with this cluster there is no single point of failure.
+Clearly for this to be reliable, it must also be bug free, and therefore is an excellent candidate for thorough testing by the `coyote test` tool.
 
-The `RunClient` method shows how you would use the `cluster` by sending a `ClientRequestEvent` and waiting for the async response that comes back from the service bus in the `ClientResponseEvent`.
+The `RunClient` method shows how you would use the `cluster` by sending a `ClientRequestEvent` and waiting for the async response that comes back from
+the service bus in the `ClientResponseEvent`.  The client example code can also use the `ClusterManager` to kick things off with this:
+
+```c#
+runtime.SendEvent(clusterManager, new ClientRequestEvent(command));
+```
+
+This goes to all servers in the cluster via the Azure Service Bus.  The servers then implement their Raft voting protocol to figure out which
+server will handle the request.  Eventually a response comes back over the Azure Service Bus which is received by a C# event call back
+`ResponseReceived` on the `AzureMessageReceiver`.  For this example, we setup an `CancellationTokenSource` which the sample code waits on
+before kicking off the next `ClientRequestEvent`.
+
+The `Server` setup is performed by `RunServer` which delegates to the `AzureServer` class.  This class has to be careful to ensure the `Server`
+state machine is up and running before it starts trying to process any messages from the Azure Service Bus.  For this reason we are using
+a new runtime method:
+
+```c#
+this.HostedServer = this.Runtime.CreateActorIdFromName(typeof(Server), this.ServerId);
+```
+
+This creates only the `ActorId` object and does not actually create the actor.  This is handy when you need to give that `ActorId` to
+another `Actor` as part of an initialization process.  Then at a later time when everything is ready we can create the actual actor using
+this predetermined id as follows:
+
+```c#
+this.Runtime.CreateActor(this.HostedServer, typeof(Server), new Server.SetupServerEvent(this, this.ClusterManager));
+```
+
+This example also tells the `Server` actors to start processing events by sending the following event:
+
+```
+this.Runtime.SendEvent(this.HostedServer, new NotifyJoinedServiceEvent());
+```
+
+Notice the `Server` when it is in the start `Init` state, is deferring all events using a special wild card:
+
+```c#
+[DeferEvents(typeof(WildCardEvent))]
+```
+
+Then only when `NotifyJoinedServiceEvent` arrives does it go to the `Follower` state where the raft protocol begins.
 
 A real application of this protocol would simply add whatever new `[DataMember]` fields that you need on `ClientRequestEvent`.
 These serializable members will be automatically replicated across the Servers.
 
-TODO: in a real application the Server would have to actually also do some real work, I think when the log replication has committed, Pantazis can you add an IServerManager callback like the NotifyElectedLeader callback, called  NotifyCommit(ClientRequestEvent) or something which is where a real app could plugin the actual job ?  Or is it more complicated than that?
+TODO: in a real application the Server would have to actually also do some real work, I think when the log replication has committed, Pantazis
+can you add an IServerManager callback like the NotifyElectedLeader callback, called  NotifyCommit(ClientRequestEvent) or something which is where
+ a real app could plugin the actual job ?  Or is it more complicated than that?
 

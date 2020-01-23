@@ -5,7 +5,7 @@ title: Raft Example
 permalink: /learn/tutorials/raft-mocking
 ---
 
-## Raft Mocking Example
+## Azure Mocking Example
 
 In the [previous example](raft-azure) you created an Azure application that uses Coyote
 and performs messaging using an [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).  This is a great way to build

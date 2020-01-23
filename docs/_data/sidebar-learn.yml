@@ -65,9 +65,9 @@ learn-toc:
       link: /learn/tutorials/hello-world-tasks
     - name: Hello World Actors
       link: /learn/tutorials/hello-world-actors
-    - name: Azure Example
+    - name: Azure Messaging Example
       link: /learn/tutorials/raft-azure
-    - name: Mocking Example
+    - name: Azure Mocking Example
       link: /learn/tutorials/raft-mocking
     - name: Failover Coffee Machine Example
       link: /learn/tutorials/failover-coffee-machine

@@ -36,7 +36,7 @@ There is also a correctness assert in the `CoffeeMachine` to make sure the corre
 given or it goes to an error state if the machine needs to be fixed.  See [Liveness Checking](../specifications/liveness-checking).
 
 A number of excellent bugs were found by [coyote test](../tools/testing) during the development of this sample, and this
-illustrates the fact that Coyote can by applied to any type of software, not just cloud services.  There is still one bug
+illustrates the fact that Coyote can be applied to any type of software, not just cloud services.  There is still one bug
 remaining in the code which you can find using `coyote test`, and it happens after failover just to prove the usefulness of
 this testing methodology.
 

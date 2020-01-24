@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.TestingServices.Coverage
 {
@@ -48,12 +49,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
         }
 
-        private static string GetEventId(GraphLink link)
+        private static IEnumerable<string> GetEventIds(GraphLink link)
         {
-            if (link.Attributes != null)
+            if (link.AttributeLists != null)
             {
-                link.Attributes.TryGetValue("EventId", out string id);
-                return id;
+                link.AttributeLists.TryGetValue("EventIds", out HashSet<string> idList);
+                return idList;
             }
 
             return null;
@@ -89,12 +90,24 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     hasExternalSource = true;
                 }
 
-                string eventId = GetEventId(link);
-                if (link.Category != "Contains" && !string.IsNullOrEmpty(eventId))
+                string targetId = link.Target.Id;
+                IEnumerable<string> eventIds = GetEventIds(link);
+                if (link.Category != "Contains" && eventIds != null)
                 {
-                    if (uncoveredEvents.TryGetValue(srcId, out var events))
+                    if (uncoveredEvents.TryGetValue(srcId, out var sourceEvents))
                     {
-                        events.Remove(eventId);
+                        foreach (var eventId in eventIds)
+                        {
+                            sourceEvents.Remove(eventId);
+                        }
+                    }
+
+                    if (uncoveredEvents.TryGetValue(targetId, out var targetEvents))
+                    {
+                        foreach (var eventId in eventIds)
+                        {
+                            targetEvents.Remove(eventId);
+                        }
                     }
                 }
             }
@@ -128,15 +141,31 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 foreach (var link in this.CoverageInfo.CoverageGraph.Links)
                 {
                     string srcId = link.Source.Id;
-                    string eventId = GetEventId(link);
-                    if (link.Category != "Contains" && !string.IsNullOrEmpty(eventId))
+                    string targetId = link.Target.Id;
+                    IEnumerable<string> eventIds = GetEventIds(link);
+                    if (link.Category != "Contains" && eventIds != null)
                     {
                         var id = GetMachineId(srcId);
                         if (id == machine)
                         {
                             if (uncoveredMachineEvents.TryGetValue(srcId, out var events))
                             {
-                                events.Remove(eventId);
+                                foreach (var eventId in eventIds)
+                                {
+                                    events.Remove(eventId);
+                                }
+                            }
+                        }
+
+                        id = GetMachineId(targetId);
+                        if (id == machine)
+                        {
+                            if (uncoveredMachineEvents.TryGetValue(targetId, out var events))
+                            {
+                                foreach (var eventId in eventIds)
+                                {
+                                    events.Remove(eventId);
+                                }
                             }
                         }
                     }
@@ -177,38 +206,42 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     HashSet<string> stateIncomingStates = new HashSet<string>();
                     HashSet<string> stateOutgoingEvents = new HashSet<string>();
                     HashSet<string> stateOutgoingStates = new HashSet<string>();
+                    string gotoEventId = typeof(GotoStateEvent).FullName;
+                    string pushEventId = typeof(PushStateEvent).FullName;
                     foreach (var link in this.CoverageInfo.CoverageGraph.Links)
                     {
                         string srcId = link.Source.Id;
                         string targetId = link.Target.Id;
-                        string label = link.Label; // this is the event name (shortened for display).
-                        if (link.Category != "Contains" && !string.IsNullOrEmpty(label) && srcId != targetId)
+                        if (link.AttributeLists != null && link.AttributeLists.TryGetValue("EventIds", out HashSet<string> eventList))
                         {
-                            if (targetId == key)
+                            foreach (string id in eventList)
                             {
-                                // Hide the special internal only "goto" event which corresponds to user
-                                // explicitly calling Goto() from within some action action.
-                                if (label != "goto")
+                                if (targetId == key)
                                 {
-                                    stateIncomingEvents.Add(label);
+                                    // Hide the special internal only "goto" event which corresponds to user
+                                    // explicitly calling Goto() from within some action action.
+                                    if (id != gotoEventId && id != pushEventId)
+                                    {
+                                        stateIncomingEvents.Add(id);
+                                    }
+
+                                    if (!srcId.StartsWith(externalSrcId))
+                                    {
+                                        stateIncomingStates.Add(GetStateName(srcId));
+                                    }
                                 }
 
-                                if (!srcId.StartsWith(externalSrcId))
+                                if (srcId == key)
                                 {
-                                    stateIncomingStates.Add(GetStateName(srcId));
-                                }
-                            }
+                                    if (id != gotoEventId && id != pushEventId)
+                                    {
+                                        stateOutgoingEvents.Add(id);
+                                    }
 
-                            if (srcId == key)
-                            {
-                                if (label != "goto")
-                                {
-                                    stateOutgoingEvents.Add(label);
-                                }
-
-                                if (!srcId.StartsWith(externalSrcId))
-                                {
-                                    stateOutgoingStates.Add(GetStateName(targetId));
+                                    if (!srcId.StartsWith(externalSrcId))
+                                    {
+                                        stateOutgoingStates.Add(GetStateName(targetId));
+                                    }
                                 }
                             }
                         }

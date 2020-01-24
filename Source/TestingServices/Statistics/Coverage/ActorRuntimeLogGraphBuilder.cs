@@ -36,6 +36,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         private readonly Dictionary<string, List<EventInfo>> Inbox = new Dictionary<string, List<EventInfo>>();
         private static readonly Dictionary<string, string> EventAliases = new Dictionary<string, string>();
         private readonly HashSet<string> Namespaces = new HashSet<string>();
+        private readonly Dictionary<ActorId, string> CurrentStates = new Dictionary<ActorId, string>();
 
         static ActorRuntimeLogGraphBuilder()
         {
@@ -402,13 +403,14 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="actionName">The name of the action being executed.</param>
         public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
         {
+            this.CurrentStates[id] = stateName;
             string resolvedId = this.GetResolveActorId(id);
             // Monitors process actions immediately, so this state transition is a result of the only event in the inbox.
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
             {
                 var e = inbox[inbox.Count - 1];
                 inbox.RemoveAt(inbox.Count - 1);
-                // draw the link connecting the Sender state to this state!
+                // Draw the link connecting the Sender state to this state!
                 var source = this.GetOrCreateChild(e.ActorId, e.State);
                 var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
                 this.GetOrCreateEventLink(source, target, e);
@@ -428,7 +430,14 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             ActorId id, string stateName, string eventName)
         {
             // If sender is null then it means we are dealing with a Monitor call from external code.
-            this.AddEvent(id, senderId, senderStateName, eventName);
+            var e = this.AddEvent(id, senderId, senderStateName, eventName);
+
+            // Draw the link connecting the Sender state to this state!
+            var source = this.GetOrCreateChild(senderId, senderStateName);
+            var shortStateName = this.GetLabel(id, stateName);
+            var target = this.GetOrCreateChild(id, shortStateName);
+            this.GetOrCreateEventLink(source, target, e);
+            this.CurrentStates[id] = stateName;
         }
 
         /// <summary>
@@ -441,6 +450,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
         {
             // Raising event to self.
+            this.CurrentStates[id] = stateName;
             this.AddEvent(id, id, stateName, eventName);
         }
 
@@ -465,9 +475,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 {
                     var e = inbox[inbox.Count - 1];
                     inbox.RemoveAt(inbox.Count - 1);
-                    // draw the link connecting the Sender state to this state!
-                    var source = this.GetOrCreateChild(e.ActorId, e.State);
-                    var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
+
+                    // draw the link connecting the current state to this new state!
+                    string currentState = this.CurrentStates[id];
+                    var shortStateName = this.GetLabel(id, currentState);
+                    var source = this.GetOrCreateChild(id, shortStateName);
+
+                    shortStateName = this.GetLabel(id, stateName);
+                    string label = (isInHotState == true) ? "[hot]" : "[cold]";
+                    var target = this.GetOrCreateChild(id, shortStateName, shortStateName + label);
+                    target.Label = label;
                     this.GetOrCreateEventLink(source, target, e);
                 }
             }
@@ -523,7 +540,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             return id.Name;
         }
 
-        private void AddEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName)
+        private EventInfo AddEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName)
         {
             string targetId = this.GetResolveActorId(targetActorId);
             if (!this.Inbox.TryGetValue(targetId, out List<EventInfo> inbox))
@@ -537,7 +554,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 senderStateName = "ExternalState";
             }
 
-            inbox.Add(new EventInfo() { ActorId = senderId, State = senderStateName, Event = eventName });
+            var info = new EventInfo() { ActorId = senderId, State = senderStateName, Event = eventName };
+            inbox.Add(info);
+            return info;
         }
 
         private void LinkTransition(string type, ActorId actorId, string currStateName, string newStateName, bool suffixLabel)
@@ -562,20 +581,28 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
             if (this.Dequeued != null)
             {
-                link.AddAttribute("EventId", this.Dequeued.Event);
+                if (link.AddListAttribute("EventIds", this.Dequeued.Event) > 1)
+                {
+                    link.Label = "*";
+                }
             }
 
             this.Dequeued = null;
         }
 
-        private GraphNode GetOrCreateChild(ActorId actorId, string stateName)
+        private GraphNode GetOrCreateChild(ActorId actorId, string stateName, string label = null)
         {
             this.AddNamespace(actorId);
 
             string id = this.GetResolveActorId(actorId);
             GraphNode parent = this.Graph.GetOrCreateNode(id);
             parent.AddAttribute("Group", "Expanded");
-            GraphNode child = this.Graph.GetOrCreateNode(id + "." + stateName, stateName);
+            if (label == null)
+            {
+                label = stateName;
+            }
+
+            GraphNode child = this.Graph.GetOrCreateNode(id + "." + stateName, label);
             this.Graph.GetOrCreateLink(parent, child, null, "Contains");
             return child;
         }
@@ -584,7 +611,10 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             string label = this.GetEventLabel(e.Event);
             GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
-            link.AddAttribute("EventId", e.Event);
+            if (link.AddListAttribute("EventIds", e.Event) > 1)
+            {
+                link.Label = "*";
+            }
         }
 
         private void AddNamespace(ActorId actorId)
@@ -837,14 +867,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             foreach (var node in other.InternalNodes.Values)
             {
-                this.GetOrCreateNode(node.Id, node.Label, node.Category);
+                var newNode = this.GetOrCreateNode(node.Id, node.Label, node.Category);
+                newNode.Merge(node);
             }
 
             foreach (var link in other.InternalLinks.Values)
             {
                 var source = this.GetOrCreateNode(link.Source.Id, link.Source.Label, link.Source.Category);
                 var target = this.GetOrCreateNode(link.Target.Id, link.Target.Label, link.Target.Category);
-                this.GetOrCreateLink(source, target, link.Label, link.Category);
+                var newLink = this.GetOrCreateLink(source, target, link.Label, link.Category);
+                newLink.Merge(link);
             }
         }
     }
@@ -862,6 +894,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public Dictionary<string, string> Attributes { get; internal set; }
 
         /// <summary>
+        /// Optional list of attributes that have a multi-part value.
+        /// </summary>
+        [DataMember]
+        public Dictionary<string, HashSet<string>> AttributeLists { get; internal set; }
+
+        /// <summary>
         /// Add an attribute to the node.
         /// </summary>
         public void AddAttribute(string name, string value)
@@ -874,16 +912,71 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             this.Attributes[name] = value;
         }
 
+        /// <summary>
+        /// Creates a compound attribute value containing a merged list of unique values.
+        /// </summary>
+        /// <param name="key">The attribute name.</param>
+        /// <param name="value">The new value to add to the unique list.</param>
+        public int AddListAttribute(string key, string value)
+        {
+            if (this.AttributeLists == null)
+            {
+                this.AttributeLists = new Dictionary<string, HashSet<string>>();
+            }
+
+            if (!this.AttributeLists.TryGetValue(key, out HashSet<string> list))
+            {
+                list = new HashSet<string>();
+                this.AttributeLists[key] = list;
+            }
+
+            list.Add(value);
+            return list.Count;
+        }
+
         internal void WriteAttributes(TextWriter writer)
         {
             if (this.Attributes != null)
             {
                 List<string> names = new List<string>(this.Attributes.Keys);
-                names.Sort();
+                names.Sort();  // creates a more stable output file (can be handy for expected output during testing).
                 foreach (string name in names)
                 {
                     var value = this.Attributes[name];
                     writer.Write(" {0}='{1}'", name, value);
+                }
+            }
+
+            if (this.AttributeLists != null)
+            {
+                List<string> names = new List<string>(this.AttributeLists.Keys);
+                names.Sort();  // creates a more stable output file (can be handy for expected output during testing).
+                foreach (string name in names)
+                {
+                    var value = this.AttributeLists[name];
+                    writer.Write(" {0}='{1}'", name, string.Join(",", value));
+                }
+            }
+        }
+
+        internal void Merge(GraphObject other)
+        {
+            if (other.Attributes != null)
+            {
+                foreach (var key in other.Attributes.Keys)
+                {
+                    this.AddAttribute(key, other.Attributes[key]);
+                }
+            }
+
+            if (other.AttributeLists != null)
+            {
+                foreach (var key in other.AttributeLists.Keys)
+                {
+                    foreach (var value in other.AttributeLists[key])
+                    {
+                        this.AddListAttribute(key, value);
+                    }
                 }
             }
         }

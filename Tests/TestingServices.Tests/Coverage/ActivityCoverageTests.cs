@@ -140,12 +140,21 @@ Event coverage: 100.0%
             Assert.Equal(expected, result);
         }
 
+        private class HelloEvent : Event
+        {
+        }
+
         private class M3A : StateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
+            [OnEventDoAction(typeof(HelloEvent), nameof(OnHello))]
             [OnEventGotoState(typeof(UnitEvent), typeof(Done))]
             private class Init : State
+            {
+            }
+
+            private void OnHello()
             {
             }
 
@@ -169,7 +178,9 @@ Event coverage: 100.0%
 
             private void InitOnEntry(Event e)
             {
-                this.SendEvent((e as Setup).Id, UnitEvent.Instance);
+                ActorId target = ((Setup)e).Id;
+                this.SendEvent(target, new HelloEvent());
+                this.SendEvent(target, UnitEvent.Instance);
             }
         }
 
@@ -202,7 +213,7 @@ Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
-		Events received: Actors.UnitEvent
+		Events received: HelloEvent, Actors.UnitEvent
 		Events sent: Actors.UnitEvent
 		Previous states: Init
 		Next states: Done
@@ -218,9 +229,8 @@ Event coverage: 100.0%
 
 	State: Init
 		State has no expected events, so coverage is 100%
-		Events sent: Actors.UnitEvent
+		Events sent: HelloEvent, Actors.UnitEvent
 		Next states: Init
-
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);

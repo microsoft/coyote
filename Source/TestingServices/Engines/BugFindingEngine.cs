@@ -346,14 +346,17 @@ namespace Microsoft.Coyote.TestingServices
                 }
             }
 
-            // Emits the human readable trace, if it exists.
-            if (!string.IsNullOrEmpty(this.ReadableTrace))
+            if (!this.Configuration.PerformFullExploration)
             {
-                string readableTracePath = directory + file + "_" + index + ".txt";
+                // Emits the human readable trace, if it exists.
+                if (!string.IsNullOrEmpty(this.ReadableTrace))
+                {
+                    string readableTracePath = directory + file + "_" + index + ".txt";
 
-                this.Logger.WriteLine($"..... Writing {readableTracePath}");
-                File.WriteAllText(readableTracePath, this.ReadableTrace);
-                yield return readableTracePath;
+                    this.Logger.WriteLine($"..... Writing {readableTracePath}");
+                    File.WriteAllText(readableTracePath, this.ReadableTrace);
+                    yield return readableTracePath;
+                }
             }
 
             if (this.Graph != null)
@@ -364,14 +367,17 @@ namespace Microsoft.Coyote.TestingServices
                 yield return graphPath;
             }
 
-            // Emits the reproducable trace, if it exists.
-            if (!string.IsNullOrEmpty(this.ReproducableTrace))
+            if (!this.Configuration.PerformFullExploration)
             {
-                string reproTracePath = directory + file + "_" + index + ".schedule";
+                // Emits the reproducable trace, if it exists.
+                if (!string.IsNullOrEmpty(this.ReproducableTrace))
+                {
+                    string reproTracePath = directory + file + "_" + index + ".schedule";
 
-                this.Logger.WriteLine($"..... Writing {reproTracePath}");
-                File.WriteAllText(reproTracePath, this.ReproducableTrace);
-                yield return reproTracePath;
+                    this.Logger.WriteLine($"..... Writing {reproTracePath}");
+                    File.WriteAllText(reproTracePath, this.ReproducableTrace);
+                    yield return reproTracePath;
+                }
             }
 
             this.Logger.WriteLine($"... Elapsed {this.Profiler.Results()} sec.");
@@ -383,17 +389,17 @@ namespace Microsoft.Coyote.TestingServices
         private void GatherIterationStatistics(SystematicTestingRuntime runtime)
         {
             TestReport report = runtime.Scheduler.GetReport();
-            report.CoverageInfo.Merge(runtime.CoverageInfo);
+            if (this.Configuration.ReportActivityCoverage)
+            {
+                report.CoverageInfo.CoverageGraph = this.Graph;
+            }
+
+            var coverageInfo = runtime.GetCoverageInfo();
+            report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 
-            // Save the graph snapshot if there is one.
-            var builder = runtime.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>().FirstOrDefault();
-            if (builder != null)
-            {
-                this.Graph = builder.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
-                // Store it here so it is sent back to server in the distributed test scenario.
-                this.TestReport.CoverageInfo.CoverageGraph = this.Graph;
-            }
+            // Also save the graph snapshot of the last iteration, if there is one.
+            this.Graph = coverageInfo.CoverageGraph;
         }
 
         /// <summary>

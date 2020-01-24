@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             {
                 this.CoverageGraph = coverageInfo.CoverageGraph;
             }
-            else if (coverageInfo.CoverageGraph != null)
+            else if (coverageInfo.CoverageGraph != null && this.CoverageGraph != coverageInfo.CoverageGraph)
             {
                 this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
             }

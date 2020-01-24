@@ -115,18 +115,18 @@ namespace Microsoft.Coyote.TestingServices
                 await this.SendTestReport();
             }
 
-            if (!this.Configuration.PerformFullExploration)
+            if (!this.Configuration.PerformFullExploration &&
+                this.TestingEngine.TestReport.NumOfFoundBugs > 0 &&
+                !this.Configuration.RunAsParallelBugFindingTask)
             {
-                if (this.TestingEngine.TestReport.NumOfFoundBugs > 0 &&
-                    !this.Configuration.RunAsParallelBugFindingTask)
-                {
-                    Console.WriteLine($"... Task {this.Configuration.TestingProcessId} found a bug.");
-                }
+                Console.WriteLine($"... Task {this.Configuration.TestingProcessId} found a bug.");
+            }
 
-                if (this.TestingEngine.TestReport.NumOfFoundBugs > 0 || (this.Configuration.IsDgmlGraphEnabled && !this.Configuration.IsDgmlBugGraph))
-                {
-                    await this.EmitTraces();
-                }
+            // we want the graph generation even if doing full exploration.
+            if ((!this.Configuration.PerformFullExploration && this.TestingEngine.TestReport.NumOfFoundBugs > 0) ||
+                (this.Configuration.IsDgmlGraphEnabled && !this.Configuration.IsDgmlBugGraph))
+            {
+                await this.EmitTraces();
             }
 
             // Closes the remote notification listener.

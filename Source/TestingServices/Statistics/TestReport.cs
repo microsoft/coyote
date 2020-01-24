@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.TestingServices
                 report.AppendFormat(
                     "{0} Found {1:F2}% buggy schedules.",
                     prefix.Equals("...") ? "....." : prefix,
-                    ((double)this.NumOfFoundBugs / totalExploredSchedules) * 100);
+                    (double)this.NumOfFoundBugs * 100.0 / totalExploredSchedules);
             }
 
             if (this.NumOfExploredFairSchedules > 0)

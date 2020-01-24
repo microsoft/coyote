@@ -178,10 +178,10 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
     <Node Id='N().Init' Label='Init'/>
   </Nodes>
   <Links>
-    <Link Source='M().Init' Target='N().Init' Label='E' EventId='E'/>
+    <Link Source='M().Init' Target='N().Init' Label='E' EventIds='E'/>
     <Link Source='M()' Target='M().Init' Category='Contains'/>
-    <Link Source='N().Act' Target='M().Init' Label='E' EventId='E'/>
-    <Link Source='N().Init' Target='N().Act' Label='E' EventId='E'/>
+    <Link Source='N().Act' Target='M().Init' Label='E' EventIds='E'/>
+    <Link Source='N().Init' Target='N().Act' Label='E' EventIds='E'/>
     <Link Source='N()' Target='N().Act' Category='Contains'/>
     <Link Source='N()' Target='N().Init' Category='Contains'/>
   </Links>

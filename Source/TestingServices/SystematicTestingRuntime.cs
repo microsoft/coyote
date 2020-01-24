@@ -1492,7 +1492,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyEnteredState(Monitor monitor)
         {
-            string monitorState = monitor.CurrentStateNameWithTemperature;
+            string monitorState = monitor.CurrentStateName;
             this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
         }
 
@@ -1502,7 +1502,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyExitedState(Monitor monitor)
         {
             this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id,
-                monitor.CurrentStateNameWithTemperature, false, monitor.GetHotState());
+                monitor.CurrentStateName, false, monitor.GetHotState());
         }
 
         /// <summary>
@@ -1510,7 +1510,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
         {
-            string monitorState = monitor.CurrentStateNameWithTemperature;
+            string monitorState = monitor.CurrentStateName;
             this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
         }
 
@@ -1519,7 +1519,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
         {
-            string monitorState = monitor.CurrentStateNameWithTemperature;
+            string monitorState = monitor.CurrentStateName;
             this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
                 monitorState, eventInfo.EventName);
         }
@@ -1586,7 +1586,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 var builder = this.LogWriter.GetLogsOfType<ActorRuntimeLogGraphBuilder>().FirstOrDefault();
                 if (builder != null)
                 {
-                    result.CoverageGraph = builder.Graph;
+                    result.CoverageGraph = builder.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
                 }
             }
 

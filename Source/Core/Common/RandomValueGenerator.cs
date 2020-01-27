@@ -17,18 +17,18 @@ namespace Microsoft.Coyote
         /// Returns a nondeterministic boolean choice, that can be controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool GetNextBoolean() => CoyoteRuntime.Provider.Current.GetNondeterministicBooleanChoice(null, 2);
+        public static bool GetNextBoolean() => CoyoteRuntime.Current.GetNondeterministicBooleanChoice(null, 2);
 
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool GetNextBoolean(int maxValue) => CoyoteRuntime.Provider.Current.GetNondeterministicBooleanChoice(null, maxValue);
+        public static bool GetNextBoolean(int maxValue) => CoyoteRuntime.Current.GetNondeterministicBooleanChoice(null, maxValue);
 
         /// <summary>
         /// Returns a nondeterministic integer, that can be controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetNextInteger(int maxValue) => CoyoteRuntime.Provider.Current.GetNondeterministicIntegerChoice(null, maxValue);
+        public static int GetNextInteger(int maxValue) => CoyoteRuntime.Current.GetNondeterministicIntegerChoice(null, maxValue);
     }
 }

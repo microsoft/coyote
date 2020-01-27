@@ -79,8 +79,7 @@ namespace Microsoft.Coyote.Actors
             }
             else
             {
-                // Atomically increments and safely wraps into an unsigned long.
-                this.Value = (ulong)Interlocked.Increment(ref runtime.ActorIdCounter) - 1;
+                this.Value = runtime.GetNextOperationId();
                 this.NameValue = string.Empty;
 
                 // Checks for overflow.

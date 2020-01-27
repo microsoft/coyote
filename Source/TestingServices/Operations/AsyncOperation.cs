@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
-using System.Threading;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling
 {
@@ -38,12 +36,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Is the source of the operation active.
         /// </summary>
-        internal bool IsActive;
+        internal bool IsActive; // TODO: figure out if this can be replaced by status.
 
         /// <summary>
         /// True if the handler of the source of the operation is running, else false.
         /// </summary>
-        internal bool IsHandlerRunning;
+        internal bool IsHandlerRunning; // TODO: figure out if this can be replaced by status.
 
         /// <summary>
         /// True if the next awaiter is controlled, else false.

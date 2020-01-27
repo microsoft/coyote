@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -12,46 +11,61 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Runtime for executing explicit and implicit asynchronous machines.
+    /// Runtime for executing asynchronous operations.
     /// </summary>
     internal abstract class CoyoteRuntime : IActorRuntime
     {
         /// <summary>
-        /// Provides access to the runtime associated with the current execution context.
+        /// Provides access to the runtime associated with each asynchronous control flow.
         /// </summary>
-        internal static RuntimeProvider Provider { get; set; } = new RuntimeProvider();
+        /// <remarks>
+        /// In testing mode, each testing iteration uses a unique runtime instance. To safely
+        /// retrieve it from static methods, we store it in each asynchronous control flow.
+        /// </remarks>
+        private static readonly AsyncLocal<CoyoteRuntime> AsyncLocalInstance = new AsyncLocal<CoyoteRuntime>();
+
+        /// <summary>
+        /// The default executing runtime.
+        /// </summary>
+        private static readonly CoyoteRuntime Default = new ProductionRuntime(Configuration.Create());
+
+        /// <summary>
+        /// The currently executing runtime.
+        /// </summary>
+        protected internal static CoyoteRuntime Current => IsExecutionControlled ?
+            (AsyncLocalInstance.Value ?? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                "Uncontrolled task with id '{0}' tried to access the runtime. Please make sure to avoid using concurrency " +
+                "APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you " +
+                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"))) :
+            Default;
+
+        /// <summary>
+        /// If true, the program execution is controlled by the runtime to
+        /// explore interleavings and sources of nondeterminism.
+        /// </summary>
+        protected static bool IsExecutionControlled { get; private protected set; } = false;
 
         /// <summary>
         /// The configuration used by the runtime.
         /// </summary>
-        internal readonly Configuration Configuration;
+        protected internal readonly Configuration Configuration;
 
         /// <summary>
-        /// Map from task ids to <see cref="ControlledTask"/> objects.
+        /// Monotonically increasing operation id counter.
         /// </summary>
-        protected readonly ConcurrentDictionary<int, ControlledTask> TaskMap;
-
-        /// <summary>
-        /// Monotonically increasing actor id counter.
-        /// </summary>
-        internal long ActorIdCounter;
-
-        /// <summary>
-        /// Monotonically increasing lock id counter.
-        /// </summary>
-        internal long LockIdCounter;
+        private long OperationIdCounter;
 
         /// <summary>
         /// Records if the runtime is running.
         /// </summary>
-        internal volatile bool IsRunning;
+        protected internal volatile bool IsRunning;
 
         /// <summary>
         /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
@@ -63,11 +77,6 @@ namespace Microsoft.Coyote.Runtime
         /// to replace the logger with a custom one.
         /// </summary>
         public ILogger Logger => this.LogWriter.Logger;
-
-        /// <summary>
-        /// Returns the id of the currently executing <see cref="ControlledTask"/>.
-        /// </summary>
-        internal virtual int? CurrentTaskId => Task.CurrentId;
 
         /// <summary>
         /// Callback that is fired when the Coyote program throws an exception.
@@ -85,9 +94,7 @@ namespace Microsoft.Coyote.Runtime
         protected CoyoteRuntime(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.TaskMap = new ConcurrentDictionary<int, ControlledTask>();
-            this.ActorIdCounter = 0;
-            this.LockIdCounter = 0;
+            this.OperationIdCounter = 0;
             this.LogWriter = new LogWriter(configuration);
             this.IsRunning = true;
         }
@@ -251,6 +258,14 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Returns the next available unique operation id.
+        /// </summary>
+        /// <returns>Value representing the next available unique operation id.</returns>
+        internal ulong GetNextOperationId() =>
+            // Atomically increments and safely wraps the value into an unsigned long.
+            (ulong)Interlocked.Increment(ref this.OperationIdCounter) - 1;
+
+        /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal abstract ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
@@ -275,159 +290,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal abstract Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
             Guid opGroupId, SendOptions options);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
-        /// </summary>
-        internal abstract ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
-        /// </summary>
-        internal abstract ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
-        /// </summary>
-        internal abstract ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
-        /// </summary>
-        internal abstract ControlledTask<TResult> CreateControlledTask<TResult>(Func<ControlledTask<TResult>> function,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
-        /// </summary>
-        internal abstract ControlledTask CreateControlledTaskDelay(int millisecondsDelay, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
-        /// </summary>
-        internal abstract ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> associated with the completion of an async
-        /// method generated by <see cref="AsyncControlledTaskMethodBuilder"/>.
-        /// </summary>
-        internal abstract ControlledTask CreateAsyncControlledTaskMethodBuilderTask(Task task);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask{TResult}"/> associated with the completion of an async
-        /// method generated by <see cref="AsyncControlledTaskMethodBuilder"/>.
-        /// </summary>
-        internal abstract ControlledTask<TResult> CreateAsyncControlledTaskMethodBuilderTask<TResult>(Task<TResult> task);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        internal abstract ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        internal abstract ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        internal abstract ControlledTask<ControlledTask> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks);
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        internal abstract ControlledTask<ControlledTask<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete execution.
-        /// </summary>
-        internal abstract void WaitAllTasks(params ControlledTask[] tasks);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds.
-        /// </summary>
-        internal abstract bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds or until a cancellation
-        /// token is cancelled.
-        /// </summary>
-        internal abstract bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution unless the wait is cancelled.
-        /// </summary>
-        internal abstract void WaitAllTasks(ControlledTask[] tasks, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified time interval.
-        /// </summary>
-        internal abstract bool WaitAllTasks(ControlledTask[] tasks, TimeSpan timeout);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
-        /// </summary>
-        internal abstract int WaitAnyTask(params ControlledTask[] tasks);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds.
-        /// </summary>
-        internal abstract int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds or until a cancellation
-        /// token is cancelled.
-        /// </summary>
-        internal abstract int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution unless the wait is cancelled.
-        /// </summary>
-        internal abstract int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified time interval.
-        /// </summary>
-        internal abstract int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout);
-
-        /// <summary>
-        /// Creates a controlled awaiter that switches into a target environment.
-        /// </summary>
-        internal abstract ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter();
-
-        /// <summary>
-        /// Ends the wait for the completion of the yield operation.
-        /// </summary>
-        internal abstract void OnGetYieldResult(YieldAwaitable.YieldAwaiter awaiter);
-
-        /// <summary>
-        /// Sets the action to perform when the yield operation completes.
-        /// </summary>
-        internal abstract void OnYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter);
-
-        /// <summary>
-        /// Schedules the continuation action that is invoked when the yield operation completes.
-        /// </summary>
-        internal abstract void OnUnsafeYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter);
-
-        /// <summary>
-        /// Creates a mutual exclusion lock that is compatible with <see cref="ControlledTask"/> objects.
-        /// </summary>
-        internal abstract ControlledLock CreateControlledLock();
 
         /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner actor.
@@ -697,24 +559,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Notifies that the currently executing task operation started executing the
-        /// specified asynchronous controlled task state machine.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyStartedAsyncControlledTaskStateMachine(Type stateMachineType)
-        {
-        }
-
-        /// <summary>
-        /// Notifies that the currently executing task operation is scheduling the next action
-        /// when the specified awaiter completes.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedAwaitOnCompleted(Type awaiterType, Type stateMachineType)
-        {
-        }
-
-        /// <summary>
         /// Use this method to override the default <see cref="ILogger"/> for logging messages.
         /// </summary>
         public ILogger SetLogger(ILogger logger) => this.LogWriter.SetLogger(logger);
@@ -760,6 +604,21 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Returns an <see cref="ITaskController"/> object that is responsible for controlling the execution
+        /// of tasks during systematic testing, if one is installed, else returns false.
+        /// </summary>
+        protected internal virtual bool TryGetTaskController(out ITaskController taskController)
+        {
+            taskController = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Sets the specified runtime to the current asynchronous control flow.
+        /// </summary>
+        internal static void SetRuntimeToAsynchronousControlFlow(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
+
+        /// <summary>
         /// Throws an <see cref="AssertionFailureException"/> exception
         /// containing the specified exception.
         /// </summary>
@@ -777,7 +636,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
-                this.ActorIdCounter = 0;
+                this.OperationIdCounter = 0;
             }
         }
 

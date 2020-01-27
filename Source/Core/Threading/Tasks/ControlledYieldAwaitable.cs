@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Threading.Tasks
 {
@@ -15,11 +14,26 @@ namespace Microsoft.Coyote.Threading.Tasks
     public readonly struct ControlledYieldAwaitable
     {
         /// <summary>
+        /// Responsible for controlling the execution of tasks during systematic testing.
+        /// </summary>
+        private readonly ITaskController TaskController;
+
+        /// <summary>
         /// Gets an awaiter for this awaitable.
         /// </summary>
-#pragma warning disable CA1822 // Mark members as static
-        public ControlledYieldAwaiter GetAwaiter() => CoyoteRuntime.Provider.Current.CreateControlledYieldAwaiter();
-#pragma warning restore CA1822 // Mark members as static
+        public ControlledYieldAwaiter GetAwaiter()
+        {
+            this.TaskController?.OnGetControlledAwaiter();
+            return new ControlledYieldAwaiter(this.TaskController, default);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ControlledYieldAwaitable"/> struct.
+        /// </summary>
+        internal ControlledYieldAwaitable(ITaskController taskController)
+        {
+            this.TaskController = taskController;
+        }
 
         /// <summary>
         /// Provides an awaiter that switches into a target environment.
@@ -29,9 +43,9 @@ namespace Microsoft.Coyote.Threading.Tasks
         public readonly struct ControlledYieldAwaiter : ICriticalNotifyCompletion, INotifyCompletion
         {
             /// <summary>
-            /// The runtime executing this awaiter.
+            /// Responsible for controlling the execution of tasks during systematic testing.
             /// </summary>
-            private readonly CoyoteRuntime Runtime;
+            private readonly ITaskController TaskController;
 
             /// <summary>
             /// The internal yield awaiter.
@@ -48,26 +62,50 @@ namespace Microsoft.Coyote.Threading.Tasks
             /// <summary>
             /// Initializes a new instance of the <see cref="ControlledYieldAwaiter"/> struct.
             /// </summary>
-            internal ControlledYieldAwaiter(CoyoteRuntime runtime, YieldAwaitable.YieldAwaiter awaiter)
+            internal ControlledYieldAwaiter(ITaskController taskController, YieldAwaitable.YieldAwaiter awaiter)
             {
-                this.Runtime = runtime;
+                this.TaskController = taskController;
                 this.Awaiter = awaiter;
             }
 
             /// <summary>
             /// Ends the await operation.
             /// </summary>
-            public void GetResult() => this.Runtime.OnGetYieldResult(this.Awaiter);
+            public void GetResult()
+            {
+                this.TaskController?.OnControlledYieldAwaiterGetResult();
+                this.Awaiter.GetResult();
+            }
 
             /// <summary>
             /// Posts the continuation action back to the current context.
             /// </summary>
-            public void OnCompleted(Action continuation) => this.Runtime.OnYieldCompleted(continuation, this.Awaiter);
+            public void OnCompleted(Action continuation)
+            {
+                if (this.TaskController is null)
+                {
+                    this.Awaiter.OnCompleted(continuation);
+                }
+                else
+                {
+                    this.TaskController.ScheduleYieldAwaiterContinuation(continuation);
+                }
+            }
 
             /// <summary>
             /// Posts the continuation action back to the current context.
             /// </summary>
-            public void UnsafeOnCompleted(Action continuation) => this.Runtime.OnUnsafeYieldCompleted(continuation, this.Awaiter);
+            public void UnsafeOnCompleted(Action continuation)
+            {
+                if (this.TaskController is null)
+                {
+                    this.Awaiter.UnsafeOnCompleted(continuation);
+                }
+                else
+                {
+                    this.TaskController.ScheduleYieldAwaiterContinuation(continuation);
+                }
+            }
         }
     }
 }

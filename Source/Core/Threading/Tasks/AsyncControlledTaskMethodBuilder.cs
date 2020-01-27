@@ -18,6 +18,11 @@ namespace Microsoft.Coyote.Threading.Tasks
     public struct AsyncControlledTaskMethodBuilder
     {
         /// <summary>
+        /// Responsible for controlling the execution of tasks during systematic testing.
+        /// </summary>
+        private readonly ITaskController TaskController;
+
+        /// <summary>
         /// The <see cref="AsyncTaskMethodBuilder"/> to which most operations are delegated.
         /// </summary>
 #pragma warning disable IDE0044 // Add readonly modifier
@@ -45,39 +50,53 @@ namespace Microsoft.Coyote.Threading.Tasks
                 if (this.IsCompleted)
                 {
                     IO.Debug.WriteLine("<AsyncBuilder> Creating completed builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, System.Threading.Tasks.Task.CurrentId);
+                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, ControlledTask.CurrentId);
                     return ControlledTask.CompletedTask;
                 }
                 else
                 {
                     IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, System.Threading.Tasks.Task.CurrentId);
+                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, ControlledTask.CurrentId);
                     this.UseBuilder = true;
-                    return CoyoteRuntime.Provider.Current.CreateAsyncControlledTaskMethodBuilderTask(this.MethodBuilder.Task);
+                    this.TaskController?.OnAsyncControlledTaskMethodBuilderTask();
+                    return new ControlledTask(this.TaskController, this.MethodBuilder.Task);
                 }
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncControlledTaskMethodBuilder"/> struct.
+        /// </summary>
+        private AsyncControlledTaskMethodBuilder(ITaskController taskManager)
+        {
+            this.TaskController = taskManager;
+            this.MethodBuilder = default;
+            this.IsCompleted = false;
+            this.UseBuilder = false;
         }
 
         /// <summary>
         /// Creates an instance of the <see cref="AsyncControlledTaskMethodBuilder"/> struct.
         /// </summary>
         [DebuggerHidden]
-        public static AsyncControlledTaskMethodBuilder Create() => default;
+        public static AsyncControlledTaskMethodBuilder Create()
+        {
+            CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController);
+            return new AsyncControlledTaskMethodBuilder(taskController);
+        }
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#pragma warning disable CA1822 // Mark members as static
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
-            CoyoteRuntime.Provider.Current.NotifyStartedAsyncControlledTaskStateMachine(stateMachine.GetType());
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", ControlledTask.CurrentId);
+            this.TaskController?.OnAsyncControlledTaskMethodBuilderStart(stateMachine.GetType());
             this.MethodBuilder.Start(ref stateMachine);
         }
-#pragma warning restore CA1822 // Mark members as static
 
         /// <summary>
         /// Associates the builder with the specified state machine.
@@ -95,12 +114,12 @@ namespace Microsoft.Coyote.Threading.Tasks
             if (this.UseBuilder)
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
-                    this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId);
+                    this.MethodBuilder.Task.Id, ControlledTask.CurrentId);
                 this.MethodBuilder.SetResult();
             }
             else
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Set result (completed) from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
+                IO.Debug.WriteLine("<AsyncBuilder> Set result (completed) from task '{0}'.", ControlledTask.CurrentId);
                 this.IsCompleted = true;
             }
         }
@@ -120,7 +139,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncControlledTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -133,7 +152,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncControlledTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }
@@ -146,6 +165,11 @@ namespace Microsoft.Coyote.Threading.Tasks
     [StructLayout(LayoutKind.Auto)]
     public struct AsyncControlledTaskMethodBuilder<TResult>
     {
+        /// <summary>
+        /// Responsible for controlling the execution of tasks during systematic testing.
+        /// </summary>
+        private readonly ITaskController TaskController;
+
         /// <summary>
         /// The <see cref="AsyncTaskMethodBuilder"/> to which most operations are delegated.
         /// </summary>
@@ -178,18 +202,31 @@ namespace Microsoft.Coyote.Threading.Tasks
             {
                 if (this.IsCompleted)
                 {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating completed builder task '{0}' (completed '{1}', result '{2}', result type '{3}') from task '{4}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, this.Result, typeof(TResult), System.Threading.Tasks.Task.CurrentId);
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating completed builder task '{0}' (isCompleted {1}) from task '{2}'.",
+                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, ControlledTask.CurrentId);
                     return ControlledTask.FromResult(this.Result);
                 }
                 else
                 {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (completed '{1}', result '{2}', result type '{3}') from task '{4}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, this.Result, typeof(TResult), System.Threading.Tasks.Task.CurrentId);
+                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
+                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, ControlledTask.CurrentId);
                     this.UseBuilder = true;
-                    return CoyoteRuntime.Provider.Current.CreateAsyncControlledTaskMethodBuilderTask(this.MethodBuilder.Task);
+                    this.TaskController?.OnAsyncControlledTaskMethodBuilderTask();
+                    return new ControlledTask<TResult>(this.TaskController, this.MethodBuilder.Task);
                 }
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncControlledTaskMethodBuilder{TResult}"/> struct.
+        /// </summary>
+        private AsyncControlledTaskMethodBuilder(ITaskController taskManager)
+        {
+            this.TaskController = taskManager;
+            this.MethodBuilder = default;
+            this.Result = default;
+            this.IsCompleted = false;
+            this.UseBuilder = false;
         }
 
         /// <summary>
@@ -197,7 +234,11 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
         [DebuggerHidden]
-        public static AsyncControlledTaskMethodBuilder<TResult> Create() => default;
+        public static AsyncControlledTaskMethodBuilder<TResult> Create()
+        {
+            CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController);
+            return new AsyncControlledTaskMethodBuilder<TResult>(taskController);
+        }
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>
@@ -205,16 +246,13 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#pragma warning disable CA1822 // Mark members as static
         public void Start<TStateMachine>(ref TStateMachine stateMachine)
             where TStateMachine : IAsyncStateMachine
         {
-            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}' (result type '{1}').",
-                System.Threading.Tasks.Task.CurrentId, typeof(TResult));
-            CoyoteRuntime.Provider.Current.NotifyStartedAsyncControlledTaskStateMachine(stateMachine.GetType());
+            IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", ControlledTask.CurrentId);
+            this.TaskController?.OnAsyncControlledTaskMethodBuilderStart(stateMachine.GetType());
             this.MethodBuilder.Start(ref stateMachine);
         }
-#pragma warning restore CA1822 // Mark members as static
 
         /// <summary>
         /// Associates the builder with the specified state machine.
@@ -232,14 +270,13 @@ namespace Microsoft.Coyote.Threading.Tasks
         {
             if (this.UseBuilder)
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Set result with type '{0}' of task '{1}' from task '{2}'.",
-                    typeof(TResult), this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId);
+                IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
+                    this.MethodBuilder.Task.Id, ControlledTask.CurrentId);
                 this.MethodBuilder.SetResult(result);
             }
             else
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Set completed result '{0}' with type '{1}' from task '{2}'.",
-                    result, typeof(TResult), System.Threading.Tasks.Task.CurrentId);
+                IO.Debug.WriteLine("<AsyncBuilder> Set result (completed) from task '{0}'.", ControlledTask.CurrentId);
                 this.Result = result;
                 this.IsCompleted = true;
             }
@@ -260,7 +297,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncControlledTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -273,7 +310,7 @@ namespace Microsoft.Coyote.Threading.Tasks
             where TStateMachine : IAsyncStateMachine
         {
             this.UseBuilder = true;
-            CoyoteRuntime.Provider.Current.NotifyInvokedAwaitOnCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncControlledTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }

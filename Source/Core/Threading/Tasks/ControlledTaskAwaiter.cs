@@ -18,9 +18,14 @@ namespace Microsoft.Coyote.Threading.Tasks
         // the generic ControlledTaskAwaiter<> as ControlledTaskAwaiter.
 
         /// <summary>
-        /// The controlled task being awaited.
+        /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledTask ControlledTask;
+        private readonly ITaskController TaskController;
+
+        /// <summary>
+        /// The task being awaited.
+        /// </summary>
+        private readonly Task AwaitedTask;
 
         /// <summary>
         /// The task awaiter.
@@ -30,37 +35,60 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
-        public bool IsCompleted => this.ControlledTask.IsCompleted;
+        public bool IsCompleted => this.AwaitedTask.IsCompleted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTaskAwaiter"/> struct.
         /// </summary>
         [DebuggerStepThrough]
-        internal ControlledTaskAwaiter(ControlledTask task, Task awaiterTask)
+        internal ControlledTaskAwaiter(ITaskController taskController, Task awaitedTask)
         {
-            this.ControlledTask = task;
-            this.Awaiter = awaiterTask.GetAwaiter();
+            this.TaskController = taskController;
+            this.AwaitedTask = awaitedTask;
+            this.Awaiter = awaitedTask.GetAwaiter();
         }
 
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
         [DebuggerHidden]
-        public void GetResult() => this.ControlledTask.GetResult(this.Awaiter);
+        public void GetResult()
+        {
+            this.TaskController?.OnWaitTask(this.AwaitedTask);
+            this.Awaiter.GetResult();
+        }
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
         [DebuggerHidden]
-        public void OnCompleted(Action continuation) =>
-            this.ControlledTask.OnCompleted(continuation, this.Awaiter);
+        public void OnCompleted(Action continuation)
+        {
+            if (this.TaskController is null)
+            {
+                this.Awaiter.OnCompleted(continuation);
+            }
+            else
+            {
+                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            }
+        }
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
         [DebuggerHidden]
-        public void UnsafeOnCompleted(Action continuation) =>
-            this.ControlledTask.UnsafeOnCompleted(continuation, this.Awaiter);
+        public void UnsafeOnCompleted(Action continuation)
+        {
+            if (this.TaskController is null)
+            {
+                this.Awaiter.UnsafeOnCompleted(continuation);
+            }
+            else
+            {
+                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            }
+        }
     }
 
     /// <summary>
@@ -74,9 +102,14 @@ namespace Microsoft.Coyote.Threading.Tasks
         // the generic ControlledTaskAwaiter<> as ControlledTaskAwaiter.
 
         /// <summary>
-        /// The controlled task being awaited.
+        /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledTask<TResult> ControlledTask;
+        private readonly ITaskController TaskController;
+
+        /// <summary>
+        /// The task being awaited.
+        /// </summary>
+        private readonly Task<TResult> AwaitedTask;
 
         /// <summary>
         /// The task awaiter.
@@ -86,36 +119,59 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Gets a value that indicates whether the controlled task has completed.
         /// </summary>
-        public bool IsCompleted => this.ControlledTask.IsCompleted;
+        public bool IsCompleted => this.AwaitedTask.IsCompleted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledTaskAwaiter{TResult}"/> struct.
         /// </summary>
         [DebuggerStepThrough]
-        internal ControlledTaskAwaiter(ControlledTask<TResult> task, Task<TResult> awaiterTask)
+        internal ControlledTaskAwaiter(ITaskController taskController, Task<TResult> awaitedTask)
         {
-            this.ControlledTask = task;
-            this.Awaiter = awaiterTask.GetAwaiter();
+            this.TaskController = taskController;
+            this.AwaitedTask = awaitedTask;
+            this.Awaiter = awaitedTask.GetAwaiter();
         }
 
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
         [DebuggerHidden]
-        public TResult GetResult() => this.ControlledTask.GetResult(this.Awaiter);
+        public TResult GetResult()
+        {
+            this.TaskController?.OnWaitTask(this.AwaitedTask);
+            return this.Awaiter.GetResult();
+        }
 
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
         [DebuggerHidden]
-        public void OnCompleted(Action continuation) =>
-            this.ControlledTask.OnCompleted(continuation, this.Awaiter);
+        public void OnCompleted(Action continuation)
+        {
+            if (this.TaskController is null)
+            {
+                this.Awaiter.OnCompleted(continuation);
+            }
+            else
+            {
+                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            }
+        }
 
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
         [DebuggerHidden]
-        public void UnsafeOnCompleted(Action continuation) =>
-            this.ControlledTask.UnsafeOnCompleted(continuation, this.Awaiter);
+        public void UnsafeOnCompleted(Action continuation)
+        {
+            if (this.TaskController is null)
+            {
+                this.Awaiter.UnsafeOnCompleted(continuation);
+            }
+            else
+            {
+                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+            }
+        }
     }
 }

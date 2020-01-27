@@ -152,7 +152,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading.Tasks
 
                 ControlledTask.WaitAll(task1, task2);
 
-                Specification.Assert(task1.Result == 5 && task2.Result == 3, "Found unexpected value.");
+                Specification.Assert(task1.Result == 5, $"The first task result is {task1.Result} instead of 5.");
+                Specification.Assert(task2.Result == 3, $"The second task result is {task2.Result} instead of 3.");
                 Specification.Assert(task1.Result == task2.Result, "Results are not equal.");
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),

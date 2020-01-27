@@ -110,22 +110,31 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         {
             int? taskId = Task.CurrentId;
 
+            // TODO: figure out if this check is still needed.
             // If the caller is the root task, then return.
             if (taskId != null && taskId == this.Runtime.RootTaskId)
             {
                 return;
             }
 
+            AsyncOperation current = this.ScheduledOperation;
             if (!this.IsRunning)
             {
+                // TODO: check if this stop is needed.
                 this.Stop();
 
-                // If scheduler is not running, throw exception to force terminate the caller.
-                throw new ExecutionCanceledException();
+                if (current.Status != AsyncOperationStatus.Completed)
+                {
+                    // If scheduler is not running, throw exception to force terminate the current operation.
+                    throw new ExecutionCanceledException();
+                }
             }
 
-            // Checks if concurrency not controlled by the runtime was used.
-            this.CheckNoExternalConcurrencyUsed();
+            if (current.Status != AsyncOperationStatus.Completed)
+            {
+                // Checks if concurrency not controlled by the runtime was used.
+                this.CheckNoExternalConcurrencyUsed();
+            }
 
             // Checks if the scheduling steps bound has been reached.
             this.CheckIfSchedulingStepsBoundIsReached();
@@ -143,7 +152,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 }
             }
 
-            AsyncOperation current = this.ScheduledOperation;
             if (!this.Strategy.GetNext(out IAsyncOperation next, ops, current))
             {
                 // Checks if the program has deadlocked.
@@ -152,7 +160,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                 this.HasFullyExploredSchedule = true;
                 this.Stop();
-                throw new ExecutionCanceledException();
+
+                if (current.Status != AsyncOperationStatus.Completed)
+                {
+                    // The schedule is explored so throw exception to force terminate the current operation.
+                    throw new ExecutionCanceledException();
+                }
             }
 
             this.ScheduledOperation = next as AsyncOperation;
@@ -184,9 +197,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
 
                     while (!current.IsActive)
                     {
-                        IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the current operation of '{current.Name}' on task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the operation of '{current.Name}' on task '{Task.CurrentId}'.");
                         System.Threading.Monitor.Wait(current);
-                        IO.Debug.WriteLine($"<ScheduleDebug> Waking up the current operation of '{current.Name}' on task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine($"<ScheduleDebug> Waking up the operation of '{current.Name}' on task '{Task.CurrentId}'.");
                     }
 
                     if (current.Status != AsyncOperationStatus.Enabled)
@@ -278,14 +291,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         }
 
         /// <summary>
-        /// Schedules the specified asynchronous operation to execute on the given <paramref name="task"/>.
+        /// Schedules the specified asynchronous operation to execute on the task with the given id.
         /// </summary>
         /// <param name="op">The operation to schedule.</param>
-        /// <param name="task">The task to be used to execute the operation.</param>
-        internal void ScheduleOperation(AsyncOperation op, Task task)
+        /// <param name="taskId">The id of the task to be used to execute the operation.</param>
+        internal void ScheduleOperation(AsyncOperation op, int taskId)
         {
-            IO.Debug.WriteLine($"<ScheduleDebug> Scheduling operation '{op.Name}' to execute on task '{task.Id}'.");
-            this.ControlledTaskMap.TryAdd(task.Id, op);
+            IO.Debug.WriteLine($"<ScheduleDebug> Scheduling operation '{op.Name}' to execute on task '{taskId}'.");
+            this.ControlledTaskMap.TryAdd(taskId, op);
         }
 
         /// <summary>
@@ -294,7 +307,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <param name="op">The operation to start executing.</param>
         internal static void StartOperation(AsyncOperation op)
         {
-            IO.Debug.WriteLine($"<ScheduleDebug> Starting the current operation of '{op.Name}' on task '{Task.CurrentId}'.");
+            IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
 
             lock (op)
             {
@@ -302,9 +315,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 System.Threading.Monitor.PulseAll(op);
                 while (!op.IsActive)
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the current operation of '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the operation of '{op.Name}' on task '{Task.CurrentId}'.");
                     System.Threading.Monitor.Wait(op);
-                    IO.Debug.WriteLine($"<ScheduleDebug> Waking up the current operation of '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Waking up the operation of '{op.Name}' on task '{Task.CurrentId}'.");
                 }
 
                 if (op.Status != AsyncOperationStatus.Enabled)
@@ -564,7 +577,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
                     this.Stop();
-                    throw new ExecutionCanceledException();
+
+                    if (this.ScheduledOperation.Status != AsyncOperationStatus.Completed)
+                    {
+                        // The schedule is explored so throw exception to force terminate the current operation.
+                        throw new ExecutionCanceledException();
+                    }
                 }
             }
         }

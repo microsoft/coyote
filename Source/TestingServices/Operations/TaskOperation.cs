@@ -7,10 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.TestingServices.Threading.Tasks;
 using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling
@@ -30,19 +29,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             new Dictionary<Type, MethodBase>();
 
         /// <summary>
-        /// The executor for this operation.
-        /// </summary>
-        internal readonly ControlledTaskExecutor Executor;
-
-        /// <summary>
         /// The unique id of the operation.
         /// </summary>
-        public override ulong Id => this.Executor.Id.Value;
+        public override ulong Id { get; }
 
         /// <summary>
         /// The unique name of the operation.
         /// </summary>
-        public override string Name => this.Executor.Id.Name;
+        public override string Name { get; }
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -63,10 +57,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
-        internal TaskOperation(ControlledTaskExecutor executor, OperationScheduler scheduler)
+        internal TaskOperation(ulong operationId, string operationName, OperationScheduler scheduler)
             : base(scheduler)
         {
-            this.Executor = executor;
+            this.Id = operationId;
+            this.Name = operationName;
             this.JoinDependencies = new HashSet<Task>();
         }
 

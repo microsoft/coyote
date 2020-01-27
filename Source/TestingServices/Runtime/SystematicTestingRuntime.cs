@@ -8,8 +8,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
@@ -18,11 +16,8 @@ using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
 using Microsoft.Coyote.TestingServices.StateCaching;
-using Microsoft.Coyote.TestingServices.Threading;
-using Microsoft.Coyote.TestingServices.Threading.Tasks;
 using Microsoft.Coyote.TestingServices.Timers;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
-using Microsoft.Coyote.Threading;
 using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
@@ -31,15 +26,20 @@ using Monitor = Microsoft.Coyote.Specifications.Monitor;
 namespace Microsoft.Coyote.TestingServices.Runtime
 {
     /// <summary>
-    /// Runtime for systematically testing controlled concurrent entities
-    /// and sources of nondeterminism in a specified program.
+    /// Runtime for controlling and systematically testing asynchronous operations
+    /// and declared sources of nondeterminism.
     /// </summary>
     internal sealed class SystematicTestingRuntime : CoyoteRuntime
     {
         /// <summary>
         /// The asynchronous operation scheduler.
         /// </summary>
-        internal OperationScheduler Scheduler;
+        internal readonly OperationScheduler Scheduler;
+
+        /// <summary>
+        /// Responsible for controlling the execution of tasks.
+        /// </summary>
+        private readonly ITaskController TaskController;
 
         /// <summary>
         /// The intercepting task scheduler.
@@ -77,6 +77,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal SystematicTestingRuntime(Configuration configuration, ISchedulingStrategy strategy)
             : base(configuration)
         {
+            IsExecutionControlled = true;
+
             this.Monitors = new List<Monitor>();
             this.RootTaskId = Task.CurrentId;
             this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
@@ -95,10 +97,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, this.Configuration);
+            this.TaskController = new TaskController(this, this.Scheduler);
             this.TaskScheduler = new InterceptingTaskScheduler(this.Scheduler.ControlledTaskMap);
 
-            // Set a provider to the runtime in each asynchronous control flow.
-            Provider = new AsyncLocalRuntimeProvider(this);
+            // Update the current asynchronous control flow with this runtime instance,
+            // allowing future retrieval in the same asynchronous call stack.
+            SetRuntimeToAsynchronousControlFlow(this);
         }
 
         /// <summary>
@@ -212,13 +216,62 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal void RunTest(Delegate testMethod, string testName)
         {
-            this.Assert(testMethod != null, "Unable to run a null test method.");
-            this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
-
             testName = string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'";
             this.Logger.WriteLine($"<TestLog> Running test{testName}.");
+            this.Assert(testMethod != null, "Unable to execute a null test method.");
+            this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
 
-            this.DispatchWork(new TestEntryPointExecutor(this, testMethod), null);
+            ulong operationId = this.GetNextOperationId();
+            var op = new TaskOperation(operationId, testName, this.Scheduler);
+            this.Scheduler.RegisterOperation(op);
+            op.OnEnabled();
+
+            Task task = new Task(async () =>
+            {
+                try
+                {
+                    // Update the current asynchronous control flow with the current runtime instance,
+                    // allowing future retrieval in the same asynchronous call stack.
+                    SetRuntimeToAsynchronousControlFlow(this);
+
+                    OperationScheduler.StartOperation(op);
+
+                    if (testMethod is Action<IActorRuntime> actionWithRuntime)
+                    {
+                        actionWithRuntime(this);
+                    }
+                    else if (testMethod is Action action)
+                    {
+                        action();
+                    }
+                    else if (testMethod is Func<IActorRuntime, ControlledTask> functionWithRuntime)
+                    {
+                        await functionWithRuntime(this);
+                    }
+                    else if (testMethod is Func<ControlledTask> function)
+                    {
+                        await function();
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
+                    }
+
+                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{op.Name}' on task '{Task.CurrentId}'.");
+                    op.OnCompleted();
+
+                    // Task has completed, schedule the next enabled operation.
+                    this.Scheduler.ScheduleNextEnabledOperation();
+                }
+                catch (Exception ex)
+                {
+                    this.ProcessUnhandledExceptionInOperation(op, ex);
+                }
+            });
+
+            this.Scheduler.ScheduleOperation(op, task.Id);
+            task.Start();
+            this.Scheduler.WaitOperationStart(op);
         }
 
         /// <summary>
@@ -486,9 +539,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 try
                 {
-                    // Set the runtime in the async control flow runtime provider, allowing
-                    // future retrieval in the same asynchronous call stack.
-                    Provider.SetCurrentRuntime(this);
+                    // Update the current asynchronous control flow with this runtime instance,
+                    // allowing future retrieval in the same asynchronous call stack.
+                    SetRuntimeToAsynchronousControlFlow(this);
 
                     OperationScheduler.StartOperation(op);
 
@@ -508,7 +561,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         ResetProgramCounter(actor);
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed event handler of '{actor.Id}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{actor.Id}' on task '{Task.CurrentId}'.");
                     op.OnCompleted();
 
                     // The actor is inactive or halted, schedule the next enabled operation.
@@ -516,559 +569,49 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 catch (Exception ex)
                 {
-                    Exception innerException = ex;
-                    while (innerException is TargetInvocationException)
-                    {
-                        innerException = innerException.InnerException;
-                    }
-
-                    if (innerException is AggregateException)
-                    {
-                        innerException = innerException.InnerException;
-                    }
-
-                    if (innerException is ExecutionCanceledException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from '{actor.Id}'.");
-                    }
-                    else if (innerException is TaskSchedulerException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from '{actor.Id}'.");
-                    }
-                    else if (innerException is ObjectDisposedException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> ObjectDisposedException was thrown from '{actor.Id}' with reason '{ex.Message}'.");
-                    }
-                    else
-                    {
-                        // Reports the unhandled exception.
-                        string message = string.Format(CultureInfo.InvariantCulture,
-                            $"Exception '{ex.GetType()}' was thrown in '{actor.Id}', " +
-                            $"'{ex.Source}':\n" +
-                            $"   {ex.Message}\n" +
-                            $"The stack trace is:\n{ex.StackTrace}");
-                        this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
-                    }
+                    this.ProcessUnhandledExceptionInOperation(op, ex);
                 }
             });
 
-            this.Scheduler.ScheduleOperation(op, task);
+            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start(this.TaskScheduler);
             this.Scheduler.WaitOperationStart(op);
         }
 
         /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
+        /// Processes an unhandled exception in the specified asynchronous operation.
         /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask CreateControlledTask(Action action, CancellationToken cancellationToken)
+        private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
         {
-            // TODO: support cancellations during testing.
-            this.Assert(action != null, "The task cannot execute a null action.");
-            var executor = new ActionExecutor(this, action);
-            this.DispatchWork(executor, null);
-            return new MachineTask(this, executor.AwaiterTask);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous work.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask CreateControlledTask(Func<ControlledTask> function, CancellationToken cancellationToken)
-        {
-            // TODO: support cancellations during testing.
-            this.Assert(function != null, "The task cannot execute a null function.");
-            var executor = new FuncExecutor(this, function);
-            this.DispatchWork(executor, null);
-            return new MachineTask(this, executor.AwaiterTask);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<TResult> function,
-            CancellationToken cancellationToken)
-        {
-            this.Assert(function != null, "The task cannot execute a null function.");
-            var executor = new FuncExecutor<TResult>(this, function);
-            this.DispatchWork(executor, null);
-            return new MachineTask<TResult>(this, executor.AwaiterTask);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask{TResult}"/> to execute the specified asynchronous work.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult> CreateControlledTask<TResult>(Func<ControlledTask<TResult>> function,
-            CancellationToken cancellationToken)
-        {
-            this.Assert(function != null, "The task cannot execute a null function.");
-            var executor = new FuncTaskExecutor<TResult>(this, function);
-            this.DispatchWork(executor, null);
-            return new MachineTask<TResult>(this, executor.AwaiterTask);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask CreateControlledTaskDelay(int millisecondsDelay, CancellationToken cancellationToken) =>
-            this.CreateControlledTaskDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
-
-        /// <summary>
-        /// Creates a new <see cref="ControlledTask"/> to execute the specified asynchronous delay.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask CreateControlledTaskDelay(TimeSpan delay, CancellationToken cancellationToken)
-        {
-            // TODO: support cancellations during testing.
-            if (delay.TotalMilliseconds == 0)
+            Exception innerException = ex;
+            while (innerException is TargetInvocationException)
             {
-                // If the delay is 0, then complete synchronously.
-                return ControlledTask.CompletedTask;
+                innerException = innerException.InnerException;
             }
 
-            var executor = new DelayExecutor(this);
-            this.DispatchWork(executor, null);
-            return new MachineTask(this, executor.AwaiterTask);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> associated with the completion of an async
-        /// method generated by <see cref="AsyncControlledTaskMethodBuilder"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask CreateAsyncControlledTaskMethodBuilderTask(Task task)
-        {
-            if (!this.Scheduler.IsRunning)
+            if (innerException is AggregateException)
             {
-                return ControlledTask.FromException(new ExecutionCanceledException());
+                innerException = innerException.InnerException;
             }
 
-            this.Scheduler.CheckNoExternalConcurrencyUsed();
-            return new MachineTask(this, task);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask{TResult}"/> associated with the completion of an async
-        /// method generated by <see cref="AsyncControlledTaskMethodBuilder"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult> CreateAsyncControlledTaskMethodBuilderTask<TResult>(Task<TResult> task)
-        {
-            if (!this.Scheduler.IsRunning)
+            if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
             {
-                return ControlledTask.FromException<TResult>(new ExecutionCanceledException());
+                IO.Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from operation '{op.Name}'.");
             }
-
-            this.Scheduler.CheckNoExternalConcurrencyUsed();
-            return new MachineTask<TResult>(this, task);
-        }
-
-        /// <summary>
-        /// Schedules the specified <see cref="ControlledTaskExecutor"/> to be executed asynchronously.
-        /// This is a fire and forget invocation.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal void DispatchWork(ControlledTaskExecutor executor, Task parentTask)
-        {
-            var op = new TaskOperation(executor, this.Scheduler);
-            this.Scheduler.RegisterOperation(op);
-            op.OnEnabled();
-
-            Task task = new Task(async () =>
+            else if (innerException is ObjectDisposedException)
             {
-                try
-                {
-                    // Set the runtime in the async control flow runtime provider, allowing
-                    // future retrieval in the same asynchronous call stack.
-                    Provider.SetCurrentRuntime(this);
-
-                    OperationScheduler.StartOperation(op);
-                    if (parentTask != null)
-                    {
-                        op.OnWaitTask(parentTask);
-                    }
-
-                    try
-                    {
-                        await executor.ExecuteAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Reports the unhandled exception.
-                        string message = string.Format(CultureInfo.InvariantCulture,
-                            $"Exception '{ex.GetType()}' was thrown in task {Task.CurrentId}, " +
-                            $"'{ex.Source}':\n" +
-                            $"   {ex.Message}\n" +
-                            $"The stack trace is:\n{ex.StackTrace}");
-                        IO.Debug.WriteLine($"<Exception> {message}");
-                        executor.TryCompleteWithException(ex);
-                    }
-
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed '{executor.Id}' on task '{Task.CurrentId}'.");
-                    op.OnCompleted();
-
-                    // Task has completed, schedule the next enabled operation.
-                    this.Scheduler.ScheduleNextEnabledOperation();
-                }
-                catch (Exception ex)
-                {
-                    Exception innerException = ex;
-                    while (innerException is TargetInvocationException)
-                    {
-                        innerException = innerException.InnerException;
-                    }
-
-                    if (innerException is AggregateException)
-                    {
-                        innerException = innerException.InnerException;
-                    }
-
-                    if (innerException is ExecutionCanceledException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from task '{Task.CurrentId}'.");
-                    }
-                    else if (innerException is TaskSchedulerException)
-                    {
-                        IO.Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from task '{Task.CurrentId}'.");
-                    }
-                    else
-                    {
-                        // Reports the unhandled exception.
-                        string message = string.Format(CultureInfo.InvariantCulture,
-                            $"Exception '{ex.GetType()}' was thrown in task {Task.CurrentId}, " +
-                            $"'{ex.Source}':\n" +
-                            $"   {ex.Message}\n" +
-                            $"The stack trace is:\n{ex.StackTrace}");
-                        this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
-                    }
-                }
-            });
-
-            IO.Debug.WriteLine($"<CreateLog> '{executor.Id}' was created to execute task '{task.Id}'.");
-            this.Scheduler.ScheduleOperation(op, task);
-            task.Start();
-            this.Scheduler.WaitOperationStart(op);
-            this.Scheduler.ScheduleNextEnabledOperation();
-        }
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask WaitAllTasksAsync(IEnumerable<ControlledTask> tasks)
-        {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-all operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            List<Exception> exceptions = null;
-            foreach (var task in tasks)
-            {
-                if (task.IsFaulted)
-                {
-                    if (exceptions == null)
-                    {
-                        exceptions = new List<Exception>();
-                    }
-
-                    exceptions.Add(task.Exception);
-                }
-            }
-
-            if (exceptions != null)
-            {
-                return ControlledTask.FromException(new AggregateException(exceptions));
+                IO.Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from operation '{op.Name}' with reason '{ex.Message}'.");
             }
             else
             {
-                return ControlledTask.CompletedTask;
+                // Report the unhandled exception.
+                string message = string.Format(CultureInfo.InvariantCulture,
+                    $"Exception '{ex.GetType()}' was thrown in operation '{op.Name}', " +
+                    $"'{ex.Source}':\n" +
+                    $"   {ex.Message}\n" +
+                    $"The stack trace is:\n{ex.StackTrace}");
+                this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
             }
-        }
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<TResult[]> WaitAllTasksAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
-        {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-all operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            int idx = 0;
-            TResult[] result = new TResult[tasks.Count()];
-            foreach (var task in tasks)
-            {
-                result[idx] = task.Result;
-                idx++;
-            }
-
-            return ControlledTask.FromResult(result);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<ControlledTask> WaitAnyTaskAsync(IEnumerable<ControlledTask> tasks)
-        {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-any operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            ControlledTask result = null;
-            foreach (var task in tasks)
-            {
-                if (task.IsCompleted)
-                {
-                    result = task;
-                    break;
-                }
-            }
-
-            return ControlledTask.FromResult(result);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="ControlledTask"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledTask<ControlledTask<TResult>> WaitAnyTaskAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
-        {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-any operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            ControlledTask<TResult> result = null;
-            foreach (var task in tasks)
-            {
-                if (task.IsCompleted)
-                {
-                    result = task;
-                    break;
-                }
-            }
-
-            return ControlledTask.FromResult(result);
-        }
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete execution.
-        /// </summary>
-        internal override void WaitAllTasks(params ControlledTask[] tasks) =>
-            this.WaitAllTasks(tasks, Timeout.Infinite, default);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds.
-        /// </summary>
-        internal override bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout) =>
-            this.WaitAllTasks(tasks, millisecondsTimeout, default);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds or until a cancellation
-        /// token is cancelled.
-        /// </summary>
-        internal override bool WaitAllTasks(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
-        {
-            // TODO: support cancellations during testing.
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a wait-all operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            // TODO: support timeouts during testing, this would become false if there is a timeout.
-            return true;
-        }
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution unless the wait is cancelled.
-        /// </summary>
-        internal override void WaitAllTasks(ControlledTask[] tasks, CancellationToken cancellationToken) =>
-            this.WaitAllTasks(tasks, Timeout.Infinite, cancellationToken);
-
-        /// <summary>
-        /// Waits for all of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified time interval.
-        /// </summary>
-        internal override bool WaitAllTasks(ControlledTask[] tasks, TimeSpan timeout)
-        {
-            long totalMilliseconds = (long)timeout.TotalMilliseconds;
-            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
-            {
-                throw new ArgumentOutOfRangeException(nameof(timeout));
-            }
-
-            return this.WaitAllTasks(tasks, (int)totalMilliseconds, default);
-        }
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete execution.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(params ControlledTask[] tasks) =>
-            this.WaitAnyTask(tasks, Timeout.Infinite, default);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout) =>
-            this.WaitAnyTask(tasks, millisecondsTimeout, default);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified number of milliseconds or until a cancellation
-        /// token is cancelled.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
-        {
-            // TODO: support cancellations during testing.
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a wait-any operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            int result = -1;
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                if (tasks[i].IsCompleted)
-                {
-                    result = i;
-                    break;
-                }
-            }
-
-            // TODO: support timeouts during testing, this would become false if there is a timeout.
-            return result;
-        }
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution unless the wait is cancelled.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, CancellationToken cancellationToken) =>
-            this.WaitAnyTask(tasks, Timeout.Infinite, cancellationToken);
-
-        /// <summary>
-        /// Waits for any of the provided <see cref="ControlledTask"/> objects to complete
-        /// execution within a specified time interval.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override int WaitAnyTask(ControlledTask[] tasks, TimeSpan timeout)
-        {
-            long totalMilliseconds = (long)timeout.TotalMilliseconds;
-            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
-            {
-                throw new ArgumentOutOfRangeException(nameof(timeout));
-            }
-
-            return this.WaitAnyTask(tasks, (int)totalMilliseconds, default);
-        }
-
-        /// <summary>
-        /// Creates a controlled awaiter that switches into a target environment.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override ControlledYieldAwaitable.ControlledYieldAwaiter CreateControlledYieldAwaiter()
-        {
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.OnGetControlledAwaiter();
-            return new ControlledYieldAwaitable.ControlledYieldAwaiter(this, default);
-        }
-
-        /// <summary>
-        /// Ends the wait for the completion of the yield operation.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal override void OnGetYieldResult(YieldAwaitable.YieldAwaiter awaiter)
-        {
-            this.Scheduler.ScheduleNextEnabledOperation();
-            awaiter.GetResult();
-        }
-
-        /// <summary>
-        /// Sets the action to perform when the yield operation completes.
-        /// </summary>
-        [DebuggerHidden]
-        internal override void OnYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
-            this.DispatchYield(continuation);
-
-        /// <summary>
-        /// Schedules the continuation action that is invoked when the yield operation completes.
-        /// </summary>
-        [DebuggerHidden]
-        internal override void OnUnsafeYieldCompleted(Action continuation, YieldAwaitable.YieldAwaiter awaiter) =>
-            this.DispatchYield(continuation);
-
-        /// <summary>
-        /// Dispatches the work.
-        /// </summary>
-        [DebuggerHidden]
-        private void DispatchYield(Action continuation)
-        {
-            try
-            {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.Assert(callerOp != null,
-                    "Uncontrolled task with id '{0}' invoked a yield operation.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
-                IO.Debug.WriteLine("<ControlledTask> '{0}' is executing a yield operation.", callerOp.Id);
-                this.DispatchWork(new ActionExecutor(this, continuation), null);
-            }
-            catch (ExecutionCanceledException)
-            {
-                IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from task '{Task.CurrentId}'.");
-            }
-        }
-
-        /// <summary>
-        /// Creates a mutual exclusion lock that is compatible with <see cref="ControlledTask"/> objects.
-        /// </summary>
-        internal override ControlledLock CreateControlledLock()
-        {
-            var id = (ulong)Interlocked.Increment(ref this.LockIdCounter) - 1;
-            return new MachineLock(this, id);
         }
 
         /// <summary>
@@ -1525,55 +1068,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Notifies that the currently executing task operation started executing the
-        /// specified asynchronous controlled task state machine.
-        /// </summary>
-        internal override void NotifyStartedAsyncControlledTaskStateMachine(Type stateMachineType)
-        {
-            try
-            {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                callerOp.SetRootAsyncControlledTaskStateMachine(stateMachineType);
-            }
-            catch (RuntimeException ex)
-            {
-                this.Assert(false, ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Notifies that the currently executing task operation is scheduling the next action
-        /// when the specified awaiter completes.
-        /// </summary>
-        [DebuggerHidden]
-        internal override void NotifyInvokedAwaitOnCompleted(Type awaiterType, Type stateMachineType)
-        {
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp.IsAwaiterControlled, "Controlled task '{0}' is trying to wait for an uncontrolled " +
-                "task or awaiter to complete. Please make sure to use Coyote APIs to express concurrency " +
-                "(e.g. ControlledTask instead of Task).",
-                Task.CurrentId);
-            this.Assert(awaiterType.Namespace == typeof(ControlledTask).Namespace,
-                "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency (e.g. ControlledTask instead of Task).",
-                Task.CurrentId);
-            callerOp.SetExecutingAsyncControlledTaskStateMachineType(stateMachineType);
-        }
-
-        /// <summary>
-        /// Notifies that a <see cref="ControlledTaskExecutor"/> is waiting for the specified task to complete.
-        /// </summary>
-        internal void NotifyWaitTask(ControlledTaskExecutor actor, Task task)
-        {
-            this.Assert(task != null, "Controlled task '{0}' is waiting for a null task to complete.", Task.CurrentId);
-            if (!task.IsCompleted)
-            {
-                var op = this.Scheduler.GetOperationWithId<TaskOperation>(actor.Id.Value);
-                op.OnWaitTask(task);
-            }
-        }
-
-        /// <summary>
         /// Get the coverage graph information (if any). This information is only available
         /// when <see cref="Configuration.ReportActivityCoverage"/> is enabled.
         /// </summary>
@@ -1694,6 +1188,16 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             return fingerprint;
+        }
+
+        /// <summary>
+        /// Returns an <see cref="ITaskController"/> object that is responsible for controlling the execution
+        /// of tasks during systematic testing, if one is installed, else returns false.
+        /// </summary>
+        protected internal override bool TryGetTaskController(out ITaskController taskController)
+        {
+            taskController = this.TaskController;
+            return true;
         }
 
         /// <summary>

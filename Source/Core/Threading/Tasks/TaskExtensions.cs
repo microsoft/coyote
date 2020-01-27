@@ -13,12 +13,12 @@ namespace Microsoft.Coyote.Threading.Tasks
         /// <summary>
         /// Converts the specified <see cref="Task"/> into a <see cref="ControlledTask"/>.
         /// </summary>
-        public static ControlledTask ToControlledTask(this Task @this) => new ControlledTask(@this);
+        public static ControlledTask ToControlledTask(this Task @this) => new ControlledTask(null, @this);
 
         /// <summary>
         /// Converts the specified <see cref="Task{TResult}"/> into a <see cref="ControlledTask{TResult}"/>.
         /// </summary>
         public static ControlledTask<TResult> ToControlledTask<TResult>(this Task<TResult> @this) =>
-            new ControlledTask<TResult>(@this);
+            new ControlledTask<TResult>(null, @this);
     }
 }

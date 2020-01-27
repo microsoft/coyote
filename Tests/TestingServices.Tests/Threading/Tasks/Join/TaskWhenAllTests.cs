@@ -156,7 +156,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading.Tasks
                 int[] results = await ControlledTask.WhenAll(task1, task2);
 
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
+                Specification.Assert(results[0] == 5, $"The first task result is {results[0]} instead of 5.");
+                Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
                 Specification.Assert(results[0] == results[1], "Results are not equal.");
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),

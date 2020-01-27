@@ -719,15 +719,10 @@ namespace Microsoft.Coyote.Actors
                 innerException = innerException.InnerException;
             }
 
-            if (innerException is ExecutionCanceledException)
+            if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
             {
                 this.CurrentStatus = Status.Halted;
-                Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from '{this.Id}'.");
-            }
-            else if (innerException is TaskSchedulerException)
-            {
-                this.CurrentStatus = Status.Halted;
-                Debug.WriteLine($"<Exception> TaskSchedulerException was thrown from '{this.Id}'.");
+                Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from '{this.Id}'.");
             }
             else
             {

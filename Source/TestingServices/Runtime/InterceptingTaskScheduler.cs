@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.TestingServices.Scheduling;
 
-namespace Microsoft.Coyote.TestingServices.Threading
+namespace Microsoft.Coyote.TestingServices.Runtime
 {
     /// <summary>
     /// A task scheduler that intercepts (non-controlled) tasks during testing.

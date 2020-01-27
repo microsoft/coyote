@@ -27,7 +27,7 @@ potential of stalling the entire blockchain network.
 
 The Blockchain Service code heavily utilized .NET tasks and the 
 corresponding async/await style of programming concurrent systems. 
-Integrating Coyote' Task-based programming model into the system was
+Integrating Coyote's Task-based programming model into the system was
 easy and required minimal effort. The development team wrote mocks for their
 external dependencies using Coyote. Writing of mocks is common for any
 kind of unit testing. The Coyote mocks turned out to be concise and it

@@ -28,12 +28,12 @@ learn-toc:
   link: /learn/programming-models
   subfolderitems:
     - name: Asynchronous Tasks
-      link: /learn/programming-models/async
+      link: /learn/programming-models/async/overview
       tertiaryitems:
         - name: Overview
           link: /learn/programming-models/async/overview
     - name: Asynchronous Actors
-      link: /learn/programming-models/actors
+      link: /learn/programming-models/actors/overview
       tertiaryitems:
         - name: Overview
           link: /learn/programming-models/actors/overview

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
@@ -22,7 +23,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             DropEvent
         }
 
-        private readonly ILogger Logger;
+        private readonly TextWriter Logger;
         private readonly Action<Notification, Event, EventInfo> Notify;
         private readonly Type[] IgnoredEvents;
         private readonly Type[] DeferredEvents;
@@ -32,7 +33,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
 
         public Guid OperationGroupId { get; set; }
 
-        internal MockStateMachineManager(ILogger logger, Action<Notification, Event, EventInfo> notify,
+        internal MockStateMachineManager(TextWriter logger, Action<Notification, Event, EventInfo> notify,
             Type[] ignoredEvents = null, Type[] deferredEvents = null, bool isDefaultHandlerInstalled = false)
         {
             this.Logger = logger;

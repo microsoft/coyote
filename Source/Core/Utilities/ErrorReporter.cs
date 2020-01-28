@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-
+using System.IO;
 using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Utilities
@@ -20,12 +20,12 @@ namespace Microsoft.Coyote.Utilities
         /// <summary>
         /// The installed logger.
         /// </summary>
-        internal ILogger Logger { get; set; }
+        internal TextWriter Logger { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorReporter"/> class.
         /// </summary>
-        internal ErrorReporter(Configuration configuration, ILogger logger)
+        internal ErrorReporter(Configuration configuration, TextWriter logger)
         {
             this.Configuration = configuration;
             this.Logger = logger ?? new ConsoleLogger();

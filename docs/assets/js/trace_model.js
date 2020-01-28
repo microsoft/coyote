@@ -1,6 +1,3 @@
-
-const actorNS = "http://schemas.datacontract.org/2004/07/Microsoft.Coyote.Actors";
-const runtimeNS = "http://schemas.datacontract.org/2004/07/Microsoft.Coyote.Runtime";
 var events = "";
 
 function Event() {
@@ -55,17 +52,20 @@ function Model() {
 
 function getOrCreateActor(model, actor)
 {
-    var name = actor.getElementsByTagNameNS(actorNS, "Name")[0].textContent;
-    var type = actor.getElementsByTagNameNS(actorNS, "Type")[0].textContent;
+    var name = actor;
+    var type = name;
+    var pos = name.lastIndexOf('(');
+    if (pos > 0) {
+        type = name.substr(0, pos);
+    }
     return model.getOrCreateActor(name, type);
 }
 
 function handleGotoState(model, step)
 {
-    var ns = step.namespaceURI;
     // GotoState happens in response to something, like a previous SendEvent or RaiseEvent, which means the event info should be in our inbox.
-    var state = step.getElementsByTagNameNS(ns, "MachineState")[0].textContent;
-    var source = getOrCreateActor(model, step.getElementsByTagNameNS(ns, "SourceId")[0]);
+    var state = step.getAttribute("newState");
+    var source = getOrCreateActor(model, step.getAttribute("id"));
     var e = null;
     // raised events are special because they do not result in HandleDequeueEvent!
     if (source.raisedEvent)
@@ -95,11 +95,9 @@ function handleRaiseEvent(model, step)
 {
     // event needs to capture transition on receiver side also, so for now this Event is incomplete,
     // so store it in the actor inbox for now.
-    var ns = step.namespaceURI;
-    var eventInfo = step.getElementsByTagNameNS(ns, "EventInfo")[0];
-    var eventName = eventInfo.getElementsByTagNameNS(runtimeNS, "EventName")[0].textContent;
-    var senderState = step.getElementsByTagNameNS(ns, "MachineState")[0].textContent;
-    var source = getOrCreateActor(model, step.getElementsByTagNameNS(ns, "SourceId")[0]);
+    var eventName = step.getAttribute("event");
+    var senderState = step.getAttribute("state");
+    var source = getOrCreateActor(model, step.getAttribute("id"));
     source.raisedEvent = true;
     var e = new Event();
     e.name = eventName;
@@ -113,12 +111,10 @@ function handleSendEvent(model, step)
 {
     // event needs to capture transition on receiver side also, so for now this Event is incomplete,
     // so store it in the actor inbox for now.
-    var ns = step.namespaceURI;
-    var eventInfo = step.getElementsByTagNameNS(ns, "EventInfo")[0];
-    var eventName = eventInfo.getElementsByTagNameNS(runtimeNS, "EventName")[0].textContent;
-    var senderState = step.getElementsByTagNameNS(ns, "MachineState")[0].textContent;
-    var source = getOrCreateActor(model, step.getElementsByTagNameNS(ns, "SourceId")[0]);
-    var target = getOrCreateActor(model, step.getElementsByTagNameNS(ns, "TargetId")[0]);
+    var eventName = step.getAttribute("event");
+    var senderState = step.getAttribute("senderState");
+    var source = getOrCreateActor(model, step.getAttribute("sender"));
+    var target = getOrCreateActor(model, step.getAttribute("target"));
     var e = new Event();
     e.name = eventName;
     e.sender = source.name;
@@ -129,11 +125,9 @@ function handleSendEvent(model, step)
 
 function handleDequeueEvent(model, step){
     // event is being handled by the target machine, so we now know the receiver state.
-    var ns = step.namespaceURI;
-    var eventInfo = step.getElementsByTagNameNS(ns, "EventInfo")[0];
-    var eventName = eventInfo.getElementsByTagNameNS(runtimeNS, "EventName")[0].textContent;
-    var state = step.getElementsByTagNameNS(ns, "MachineState")[0].textContent;
-    var source = getOrCreateActor(model, step.getElementsByTagNameNS(ns, "SourceId")[0]);
+    var eventName = step.getAttribute("event");
+    var state = step.getAttribute("state");
+    var source = getOrCreateActor(model, step.getAttribute("id"));
 
     var e = source.dequeue();
     if (e != null) {
@@ -147,21 +141,19 @@ function handleDequeueEvent(model, step){
 function convertTrace(doc) {
     var model = new Model();
     var ns = doc.documentElement.namespaceURI;
-    var steps = doc.documentElement.getElementsByTagNameNS(ns, "Steps")[0];
-    var children = steps.getElementsByTagNameNS(ns, "BugTraceStep");
-    for (var i = 0; i < children.length; i++)
+    var steps = doc.documentElement.childNodes;
+    for (var i = 0; i < steps.length; i++)
     {
-        var step = children[i];
-        var type = step.getElementsByTagNameNS(ns, "Type");
-        if (type != null && type.length > 0) {
-            type = type[0].textContent;
-            if (type == "GotoState") {
+        var step = steps[i];
+        if (step.nodeType == 1) {
+            type = step.tagName;
+            if (type == "Goto") {
                 handleGotoState(model, step);
-            } else if (type == "RaiseEvent"){
+            } else if (type == "Raise") {
                 handleRaiseEvent(model, step);
-            } else if (type == "SendEvent"){
+            } else if (type == "Send") {
                 handleSendEvent(model, step);
-            } else if (type == "DequeueEvent") {
+            } else if (type == "DequeueEvent" || type == "MonitorEvent") {
                 handleDequeueEvent(model, step);
             }
         }

@@ -3,18 +3,20 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace Microsoft.Coyote.IO
 {
     /// <summary>
-    /// Thread safe logger that writes text in-memory.
+    /// Thread safe logger that writes text to an in-memory buffer.
+    /// The buffered text can be extracted using the ToString() method.
     /// </summary>
-    public sealed class InMemoryLogger : ILogger
+    public sealed class InMemoryLogger : TextWriter
     {
         /// <summary>
-        /// Underlying string writer.
+        /// Underlying string builder.
         /// </summary>
-        private readonly StringWriter Writer;
+        private readonly StringBuilder Builder;
 
         /// <summary>
         /// Serializes access to the string writer.
@@ -22,232 +24,73 @@ namespace Microsoft.Coyote.IO
         private readonly object Lock;
 
         /// <summary>
-        /// If true, then messages are logged. The default value is true.
+        /// When overridden in a derived class, returns the character encoding in which the
+        /// output is written.
         /// </summary>
-        public bool IsVerbose { get; set; }
+        public override Encoding Encoding => Encoding.Unicode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryLogger"/> class.
         /// </summary>
         public InMemoryLogger()
         {
-            this.Writer = new StringWriter();
+            this.Builder = new StringBuilder();
             this.Lock = new object();
-            this.IsVerbose = true;
+        }
+
+        /// <summary>
+        /// Writes the specified Unicode character value to the standard output stream.
+        /// </summary>
+        /// <param name="value">The Unicode character.</param>
+        public override void Write(char value)
+        {
+            try
+            {
+                lock (this.Lock)
+                {
+                    this.Builder.Append(value);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // The writer was disposed.
+            }
         }
 
         /// <summary>
         /// Writes the specified string value.
         /// </summary>
-        public void Write(string value)
+        public override void Write(string value)
         {
-            if (this.IsVerbose)
+            try
             {
-                try
+                lock (this.Lock)
                 {
-                    lock (this.Lock)
-                    {
-                        this.Writer.Write(value);
-                    }
+                    this.Builder.Append(value);
                 }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // The writer was disposed.
             }
         }
 
         /// <summary>
-        /// Writes the text representation of the specified argument.
+        /// Writes a string followed by a line terminator to the text string or stream.
         /// </summary>
-        public void Write(string format, object arg0)
+        /// <param name="value">The string to write.</param>
+        public override void WriteLine(string value)
         {
-            if (this.IsVerbose)
+            try
             {
-                try
+                lock (this.Lock)
                 {
-                    lock (this.Lock)
-                    {
-                        this.Writer.Write(format, arg0.ToString());
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
+                    this.Builder.AppendLine(value);
                 }
             }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments.
-        /// </summary>
-        public void Write(string format, object arg0, object arg1)
-        {
-            if (this.IsVerbose)
+            catch (ObjectDisposedException)
             {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.Write(format, arg0.ToString(), arg1.ToString());
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments.
-        /// </summary>
-        public void Write(string format, object arg0, object arg1, object arg2)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.Write(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified array of objects.
-        /// </summary>
-        public void Write(string format, params object[] args)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.Write(format, args);
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the specified string value, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string value)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.WriteLine(value);
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified argument, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string format, object arg0)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.WriteLine(format, arg0.ToString());
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string format, object arg0, object arg1)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.WriteLine(format, arg0.ToString(), arg1.ToString());
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string format, object arg0, object arg1, object arg2)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.WriteLine(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified array of objects,
-        /// followed by the current line terminator.
-        /// </summary>
-        public void WriteLine(string format, params object[] args)
-        {
-            if (this.IsVerbose)
-            {
-                try
-                {
-                    lock (this.Lock)
-                    {
-                        this.Writer.WriteLine(format, args);
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The writer was disposed.
-                }
+                // The writer was disposed.
             }
         }
 
@@ -258,16 +101,8 @@ namespace Microsoft.Coyote.IO
         {
             lock (this.Lock)
             {
-                return this.Writer.ToString();
+                return this.Builder.ToString();
             }
-        }
-
-        /// <summary>
-        /// Disposes the logger.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Writer.Dispose();
         }
     }
 }

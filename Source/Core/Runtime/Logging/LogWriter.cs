@@ -3,19 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Logging;
 
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Manages the installed <see cref="ILogger"/> and all registered
+    /// Manages the installed <see cref="TextWriter"/> and all registered
     /// <see cref="IActorRuntimeLog"/> objects.
     /// </summary>
-    internal class LogWriter
+    internal sealed class LogWriter
     {
         /// <summary>
         /// The set of registered log writers.
@@ -25,12 +27,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Used to log messages.
         /// </summary>
-        internal ILogger Logger { get; private set; }
-
-        /// <summary>
-        /// Used to format log messages.
-        /// </summary>
-        internal IActorRuntimeLogFormatter LogFormatter { get; private set; }
+        internal TextWriter Logger { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogWriter"/> class.
@@ -38,8 +35,15 @@ namespace Microsoft.Coyote.Runtime
         internal LogWriter(Configuration configuration)
         {
             this.Logs = new HashSet<IActorRuntimeLog>();
-            this.Logger = configuration.IsVerbose ? (ILogger)new ConsoleLogger() : new NulLogger();
-            this.LogFormatter = new ActorRuntimeLogFormatter();
+
+            if (configuration.IsVerbose)
+            {
+                this.GetOrCreateTextLog();
+            }
+            else
+            {
+                this.Logger = TextWriter.Null;
+            }
         }
 
         /// <summary>
@@ -49,12 +53,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="creator">The id of the creator, null otherwise.</param>
         public void LogCreateActor(ActorId id, ActorId creator)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetCreateActorLog(id, creator, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -72,12 +70,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="actionName">The name of the action being executed.</param>
         public void LogExecuteAction(ActorId id, string stateName, string actionName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetExecuteActionLog(id, stateName, actionName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -99,12 +91,6 @@ namespace Microsoft.Coyote.Runtime
         public void LogSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
             Guid opGroupId, bool isTargetHalted)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetSendEventLog(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -122,12 +108,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventName">The name of the event being raised.</param>
         public void LogRaiseEvent(ActorId id, string stateName, string eventName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetRaiseEventLog(id, stateName, eventName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -144,12 +124,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventName">Name of the event.</param>
         public void LogEnqueueEvent(ActorId id, string eventName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetEnqueueEventLog(id, eventName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -167,12 +141,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventName">Name of the event.</param>
         public void LogDequeueEvent(ActorId id, string stateName, string eventName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetDequeueEventLog(id, stateName, eventName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -192,12 +160,6 @@ namespace Microsoft.Coyote.Runtime
         /// and <paramref name="eventName"/> was one of them</param>
         public void LogReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetReceiveEventLog(id, stateName, eventName, wasBlocked, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -215,12 +177,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventType">The type of the event being waited for.</param>
         public void LogWaitEvent(ActorId id, string stateName, Type eventType)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetWaitEventLog(id, stateName, eventType, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -238,12 +194,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventTypes">The types of the events being waited for, if any.</param>
         public void LogWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetWaitEventLog(id, stateName, eventTypes, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -260,12 +210,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="result">The random result (may be bool or int).</param>
         public void LogRandom(ActorId id, object result)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetRandomLog(id, result, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -283,12 +227,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
         public void LogStateTransition(ActorId id, string stateName, bool isEntry)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetStateTransitionLog(id, stateName, isEntry, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -306,12 +244,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="newStateName">The target state of the transition.</param>
         public void LogGotoState(ActorId id, string currStateName, string newStateName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetGotoStateLog(id, currStateName, newStateName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -329,12 +261,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="newStateName">The target state of the transition.</param>
         public void LogPushState(ActorId id, string currStateName, string newStateName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetPushStateLog(id, currStateName, newStateName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -352,12 +278,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="restoredStateName">The name of the state being re-entered, if any.</param>
         public void LogPopState(ActorId id, string currStateName, string restoredStateName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetPopStateLog(id, currStateName, restoredStateName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -374,12 +294,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="inboxSize">Approximate size of the inbox.</param>
         public void LogHalt(ActorId id, int inboxSize)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetHaltLog(id, inboxSize, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -397,12 +311,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         public void LogDefaultEventHandler(ActorId id, string stateName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetDefaultEventHandlerLog(id, stateName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -439,12 +347,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventName">The name of the event that cannot be handled.</param>
         public void LogPopUnhandledEvent(ActorId id, string stateName, string eventName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetPopUnhandledEventLog(id, stateName, eventName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -463,12 +365,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="ex">The exception.</param>
         public void LogExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetExceptionThrownLog(id, stateName, actionName, ex, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -487,12 +383,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="ex">The exception.</param>
         public void LogExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetExceptionHandledLog(id, stateName, actionName, ex, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -508,12 +398,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="info">Handle that contains information about the timer.</param>
         public void LogCreateTimer(TimerInfo info)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetCreateTimerLog(info, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -529,12 +413,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="info">Handle that contains information about the timer.</param>
         public void LogStopTimer(TimerInfo info)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetStopTimerLog(info, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -551,12 +429,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="id">The id of the monitor that has been created.</param>
         public void LogCreateMonitor(string monitorTypeName, ActorId id)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetCreateMonitorLog(monitorTypeName, id, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -575,12 +447,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="actionName">The name of the action being executed.</param>
         public void LogMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetMonitorExecuteActionLog(monitorTypeName, id, stateName, actionName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -602,12 +468,6 @@ namespace Microsoft.Coyote.Runtime
         public void LogMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName,
             ActorId id, string stateName, string eventName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetMonitorProcessEventLog(monitorTypeName, id, stateName, eventName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -626,12 +486,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="eventName">The name of the event.</param>
         public void LogMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetMonitorRaiseEventLog(monitorTypeName, id, stateName, eventName, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -654,12 +508,6 @@ namespace Microsoft.Coyote.Runtime
         public void LogMonitorStateTransition(string monitorTypeName, ActorId id, string stateName,
             bool isEntry, bool? isInHotState)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetMonitorStateTransitionLog(monitorTypeName, id, stateName, isEntry, isInHotState, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -675,12 +523,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="error">The text of the error.</param>
         public void LogAssertionFailure(string error)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetErrorLog(error, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -697,12 +539,6 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="description">More information about the scheduling strategy.</param>
         public void LogStrategyDescription(SchedulingStrategy strategy, string description)
         {
-            if (this.Logger.IsVerbose &&
-                this.LogFormatter.GetStrategyErrorLog(strategy, description, out string text))
-            {
-                this.Logger.WriteLine(text);
-            }
-
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
@@ -713,33 +549,68 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Use this method to notify all logs that the test iteration is complete.
+        /// </summary>
+        internal void LogCompletion()
+        {
+            foreach (var log in this.Logs)
+            {
+                log.OnCompleted();
+            }
+        }
+
+        /// <summary>
         /// Returns all registered logs of type <typeparamref name="TActorRuntimeLog"/>,
         /// if there are any.
         /// </summary>
-        internal IEnumerable<TActorRuntimeLog> GetLogsOfType<TActorRuntimeLog>()
+        public IEnumerable<TActorRuntimeLog> GetLogsOfType<TActorRuntimeLog>()
             where TActorRuntimeLog : IActorRuntimeLog =>
             this.Logs.OfType<TActorRuntimeLog>();
 
         /// <summary>
-        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
+        /// Use this method to override the default <see cref="TextWriter"/> for logging messages.
         /// </summary>
-        internal ILogger SetLogger(ILogger logger)
+        internal TextWriter SetLogger(TextWriter logger)
         {
             var prevLogger = this.Logger;
-            this.Logger = logger ?? throw new InvalidOperationException(
-                "Cannot install a null logger, please use 'NulLogger' instead.");
+            if (logger == null)
+            {
+                this.Logger = TextWriter.Null;
+
+                var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
+                if (textLog != null)
+                {
+                    textLog.Logger = this.Logger;
+                }
+            }
+            else
+            {
+                this.Logger = logger;
+
+                // This overrides the original IsVerbose flag and creates a text logger anyway!
+                var textLog = this.GetOrCreateTextLog();
+                textLog.Logger = this.Logger;
+            }
+
             return prevLogger;
         }
 
-        /// <summary>
-        /// Use this method to override the default <see cref="IActorRuntimeLogFormatter"/>
-        /// for formatting log messages.
-        /// </summary>
-        internal IActorRuntimeLogFormatter SetLogFormatter(IActorRuntimeLogFormatter formatter)
+        private ActorRuntimeLogTextFormatter GetOrCreateTextLog()
         {
-            var prevFormatter = this.LogFormatter;
-            this.LogFormatter = formatter ?? throw new InvalidOperationException("Cannot install a null formatter.");
-            return prevFormatter;
+            var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
+            if (textLog == null)
+            {
+                if (this.Logger == null)
+                {
+                    this.Logger = new ConsoleLogger();
+                }
+
+                textLog = new ActorRuntimeLogTextFormatter();
+                textLog.Logger = this.Logger;
+                this.Logs.Add(textLog);
+            }
+
+            return textLog;
         }
 
         /// <summary>
@@ -752,6 +623,21 @@ namespace Microsoft.Coyote.Runtime
                 throw new InvalidOperationException("Cannot register a null log.");
             }
 
+            // Make sure we only have one text logger
+            if (log is ActorRuntimeLogTextFormatter a)
+            {
+                var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
+                if (textLog != null)
+                {
+                    this.Logs.Remove(textLog);
+                }
+
+                if (this.Logger != null)
+                {
+                    a.Logger = this.Logger;
+                }
+            }
+
             this.Logs.Add(log);
         }
 
@@ -760,12 +646,10 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void RemoveLog(IActorRuntimeLog log)
         {
-            if (log == null)
+            if (log != null)
             {
-                throw new InvalidOperationException("Cannot remove a null log.");
+                this.Logs.Remove(log);
             }
-
-            this.Logs.Remove(log);
         }
     }
 }

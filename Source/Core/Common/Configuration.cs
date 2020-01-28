@@ -300,6 +300,12 @@ namespace Microsoft.Coyote
         public bool IsDgmlGraphEnabled;
 
         /// <summary>
+        /// Produce an XML formatted runtime log file.
+        /// </summary>
+        [DataMember]
+        public bool IsXmlLogEnabled { get; internal set; }
+
+        /// <summary>
         /// Is DGML graph showing all test iterations or just one "bug" iteration.
         /// False means all, and True means only the iteration containing a bug.
         /// </summary>

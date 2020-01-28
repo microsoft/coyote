@@ -254,5 +254,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="strategy">The scheduling strategy that was used.</param>
         /// <param name="description">More information about the scheduling strategy.</param>
         void OnStrategyDescription(SchedulingStrategy strategy, string description);
+
+        /// <summary>
+        /// Invoked when a log is complete (and is about to be closed).
+        /// </summary>
+        void OnCompleted();
     }
 }

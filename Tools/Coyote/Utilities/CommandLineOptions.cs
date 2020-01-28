@@ -60,7 +60,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
-            advancedGroup.AddArgument("actor-runtime-log", null, "Custom runtime log to use instead of the default", typeof(string));
+            advancedGroup.AddArgument("xml-trace", null, "Specify a filename for XML runtime log output to be written to", typeof(bool));
+            advancedGroup.AddArgument("actor-runtime-log", null, "Specify an additional custom logger using fully qualified 'assembly,class' name", typeof(string));
 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
@@ -206,6 +207,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "graph-bug":
                     this.Configuration.IsDgmlGraphEnabled = true;
                     this.Configuration.IsDgmlBugGraph = true;
+                    break;
+                case "xml-trace":
+                    this.Configuration.IsXmlLogEnabled = true;
                     break;
                 case "actor-runtime-log":
                     this.Configuration.CustomActorRuntimeLogType = (string)option.Value;

@@ -13,9 +13,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
@@ -87,7 +89,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// The installed logger.
         /// </summary>
-        protected ILogger Logger;
+        protected TextWriter Logger;
 
         /// <summary>
         /// The bug-finding scheduling strategy.
@@ -710,17 +712,21 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Installs the specified <see cref="IO.ILogger"/>.
+        /// Installs the specified <see cref="TextWriter"/>.
         /// </summary>
-        public void SetLogger(IO.ILogger logger)
+        public void SetLogger(TextWriter logger)
         {
+            this.Logger.Dispose();
+
             if (logger is null)
             {
-                throw new InvalidOperationException("Cannot install a null logger.");
+                this.Logger = TextWriter.Null;
+            }
+            else
+            {
+                this.Logger = logger;
             }
 
-            this.Logger.Dispose();
-            this.Logger = logger;
             this.ErrorReporter.Logger = logger;
         }
     }

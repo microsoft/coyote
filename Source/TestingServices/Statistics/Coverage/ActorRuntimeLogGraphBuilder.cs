@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <summary>
         /// Get or set the underlying logging object.
         /// </summary>
-        public ILogger Logger { get; set; }
+        public TextWriter Logger { get; set; }
 
         /// <summary>
         /// Get the Graph object built by this logger.
@@ -482,8 +482,14 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     var source = this.GetOrCreateChild(id, shortStateName);
 
                     shortStateName = this.GetLabel(id, stateName);
-                    string label = (isInHotState == true) ? "[hot]" : "[cold]";
-                    var target = this.GetOrCreateChild(id, shortStateName, shortStateName + label);
+                    string suffix = string.Empty;
+                    if (isInHotState.HasValue)
+                    {
+                        suffix = (isInHotState == true) ? "[hot]" : "[cold]";
+                    }
+
+                    string label = shortStateName + suffix;
+                    var target = this.GetOrCreateChild(id, shortStateName, label);
                     target.Label = label;
                     this.GetOrCreateEventLink(source, target, e);
                 }
@@ -664,6 +670,13 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
 
             return fullyQualifiedName;
+        }
+
+        /// <summary>
+        /// Invoked when a log is complete (and is about to be closed).
+        /// </summary>
+        public void OnCompleted()
+        {
         }
     }
 

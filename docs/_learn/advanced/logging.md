@@ -8,18 +8,17 @@ permalink: /learn/advanced/logging
 ## Logging
 
 The Coyote runtime provides two levels of logging:
-- The `IActorRuntimeLog` interface logs high level actor activity.
-- The `ILogger` is a low level logging interface responsible for formatting text output.
+- The `IActorRuntimeLog` interface logs high level `Actor` and `StateMachine` activity.
+- The `System.IO.TextWriter` interface is used for low level logging formatted as text.
 
-The default `ILogger` is the`ConsoleLogger` which is used to write
+The default `Logger` is the`ConsoleLogger` which is used to write
 output to the `System.Console`.
 
-The runtime also provides the `IActorRuntimeLogFormatter` interface which is responsible
-for formatting all runtime log events as text and writing them out using the installed `ILogger`.
-The default `IActorRuntimeLogFormatter` is implemented by `ActorRuntimeLogFormatter`.
+The runtime also provides the `ActorRuntimeLogTextFormatter` base class which is responsible
+for formatting all runtime log events as text and writing them out using the installed `TextWriter`.
 
-You can provide your own implementation of `IActorRuntimeLog`, `IActorRuntimeLogFormatter`
-and/or `ILogger` in order to gain full control over what is logged and how.
+You can provide your own implementation of `IActorRuntimeLog`, `ActorRuntimeLogTextFormatter`
+and/or `System.IO.TextWriter` in order to gain full control over what is logged and how.
 For an interesting example of this see the `ActorRuntimeLogGraphBuilder` class
 which implements `IActorRuntimeLog` and generates a directed graph representing
 all activities that happened during the execution of your actors.
@@ -66,143 +65,106 @@ runtime.RegisterLog(new CustomLogWriter());
 You can register multiple `IActorRuntimeLog` objects in case you have loggers that are doing very
 different things. The runtime will invoke the callback for each registered `IActorRuntimeLog`.
 
-## Customizing the IActorRuntimeLogFormatter
+## Customizing the ActorRuntimeLogTextFormatter
 
-You can modify the format of log messages by providing your own `IActorRuntimeLogFormatter`.
-You can either create a new type that implements this interface, or subclass the
-`ActorRuntimeLogFormatter` implementation to override its default behavior.
+You can modify the format of text log messages by providing your own `ActorRuntimeLogTextFormatter`.
+You can subclass the default `ActorRuntimeLogTextFormatter` implementation to override its default behavior.
 The following is an example of how to do this:
 
 ```c#
-internal class CustomLogFormatter : ActorRuntimeLogFormatter
+internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
 {
   /* Methods for formatting log messages */
 
-  public override bool GetCreateActorLog(ActorId id, ActorId creator, out string text)
+  public override void OnCreateActor(ActorId id, ActorId creator)
   {
     // Override to change the text to be logged.
-    // Set the 'text' parameter to provide the text to be logged.
-    // Return true to log the text, or false to ignore it.
+    this.Logger.WriteLine("Hello!");
   }
 
-  public override bool GetEnqueueEventLog(ActorId id, string eventName, out string text)
+  public override void OnEnqueueEvent(ActorId id, string eventName)
   {
-    // Override to change the text to be logged.
-    // Set the 'text' parameter to provide the text to be logged.
-    // Return true to log the text, or false to ignore it.
+    // Override to conditionally hide certain events from the log.
+    if (eventName != "<magic>")
+    {
+      base.OnEnqueueEvent(id, eventName);
+    }
   }
 
   // More methods that can be overridden.
 }
 ```
 
-You can then replace the default `IActorRuntimeLogFormatter` with your new implementation using the following `IActorRuntime` method:
+You can then replace the default `ActorRuntimeLogFormatter` with your new implementation using the following `IActorRuntime` method:
 ```c#
-IActorRuntimeLogFormatter old = runtime.SetLogFormatter(new CustomLogFormatter());
-```
-The above method replaces the previously installed log formatter, installs the specified one, and returns the previously installed one.
-
-## Using and replacing the logger
-
-The `ILogger` interface is responsible for writing log messages using the `Write` and `WriteLine` methods. The `IsVerbose` property will be set to `true` when `--verbose` flag is provided to the `coyote` tester.
-```c#
-public interface ILogger : IDisposable
-{
-  bool IsVerbose { get; set; }
-
-  void Write(string value);
-  void Write(string format, object arg0);
-  void Write(string format, object arg0, object arg1);
-  void Write(string format, object arg0, object arg1, object arg2);
-  void Write(string format, params object[] args);
-
-  void WriteLine(string value);
-  void WriteLine(string format, object arg0);
-  void WriteLine(string format, object arg0, object arg1);
-  void WriteLine(string format, object arg0, object arg1, object arg2);
-  void WriteLine(string format, params object[] args);
-}
+runtime.RegisterLog(new CustomLogFormatter());
 ```
 
-The current ILogger can be accessed via the following property which you can find on `IActorRuntime`, `Actor`, `StateMachine`, `Monitor` and `IActorRuntimeLog`:
+The above method replaces the previously installed `ActorRuntimeLogFormatter` with the specified one.
+
+## Using and replacing the TextWriter
+
+The `System.IO.TextWriter` is responsible for writing text messages using the `Write` and `WriteLine` methods.
+The current `TextWriter` can be accessed via the `Logger` property on the following `IActorRuntime`, `Actor`, `StateMachine`, `Monitor` and `IActorRuntimeLog`:
 ```c#
-ILogger Logger { get; }
+TextWriter Logger { get; }
 ```
 
-It is possible to replace the default logger with a custom one that implements the `ILogger` and `IDisposable` interfaces. For example, you could write the following `CustomLogger` that uses a `StringBuilder` for writing the log:
+It is possible to replace the default logger with a custom one.  The following example captures all log output in a `StringBuilder`:
 
 ```c#
-public class CustomLogger : ILogger
-{
-  private StringBuilder StringBuilder;
+    public class CustomLogger : TextWriter
+    {
+        private StringBuilder StringBuilder;
 
-  public bool IsVerbose { get; set; } = false;
+        public CustomLogger()
+        {
+            this.StringBuilder = new StringBuilder();
+        }
 
-  public CustomLogger(bool isVerbose)
-  {
-    this.StringBuilder = new StringBuilder();
-    this.IsVerbose = isVerbose;
-  }
+        public override Encoding Encoding => Encoding.Unicode;
 
-  public void Write(string value) => this.StringBuilder.Append(value);
+        public override void Write(string value)
+        {
+            this.StringBuilder.Append(value);
+        }
 
-  public void Write(string format, object arg0) =>
-    this.StringBuilder.AppendFormat(format, arg0.ToString());
+        public override void WriteLine(string value)
+        {
+            this.StringBuilder.AppendLine(value);
+        }
 
-  public void Write(string format, object arg0, object arg1) =>
-    this.StringBuilder.AppendFormat(format, arg0.ToString(), arg1.ToString());
+        public override string ToString()
+        {
+            return this.StringBuilder.ToString();
+        }
 
-  public void Write(string format, object arg0, object arg1, object arg2) =>
-    this.StringBuilder.AppendFormat(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.StringBuilder.Clear();
+                this.StringBuilder = null;
+            }
 
-  public void Write(string format, params object[] args) =>
-    this.StringBuilder.AppendFormat(format, args);
-
-  public void WriteLine(string value) =>
-    this.StringBuilder.AppendLine(value);
-
-  public void WriteLine(string format, object arg0)
-  {
-    this.StringBuilder.AppendFormat(format, arg0.ToString());
-    this.StringBuilder.AppendLine();
-  }
-
-  public void WriteLine(string format, object arg0, object arg1)
-  {
-    this.StringBuilder.AppendFormat(format, arg0.ToString(), arg1.ToString());
-    this.StringBuilder.AppendLine();
-  }
-
-  public void WriteLine(string format, object arg0, object arg1, object arg2)
-  {
-    this.StringBuilder.AppendFormat(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
-    this.StringBuilder.AppendLine();
-  }
-
-  public void WriteLine(string format, params object[] args)
-  {
-    this.StringBuilder.AppendFormat(format, args);
-    this.StringBuilder.AppendLine();
-  }
-
-  public override string ToString() => this.StringBuilder.ToString();
-
-  public void Dispose()
-  {
-    this.StringBuilder = null;
-  }
-}
+            base.Dispose(disposing);
+        }
+    }
 ```
-
-You could use this log level interface to intercept all logging messages and
-send them to an Azure Log table, or over a TCP socket.
 
 To replace the default logger, call the following `IActorRuntime` method:
+
 ```c#
-using (ILogger old = runtime.SetLogger(new CustomLogger()))
+using (var oldLogger = runtime.SetLogger(new CustomLogger()))
 {
 }
 ```
+
 The above method replaces the previously installed logger with the specified one and returns the previously installed logger.
 
-Note that `SetLogger` is _not_ calling `Dispose` on the previously installed logger. This allows the logger to be accessed and used after being removed from the Coyote runtime, so it is your responsibility to call Dispose, as shown in the example above.
+Note that `SetLogger` does not `Dispose` the previously installed logger. This allows the logger to be accessed and
+used after being removed from the Coyote runtime, so it is your responsibility to call Dispose, which can be done with a
+`using` block.
+
+You could write a custom `Logger` to intercept all logging messages and send them to an Azure Log table, or over a TCP socket.
+

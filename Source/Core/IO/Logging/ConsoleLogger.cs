@@ -2,147 +2,53 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
+using System.Text;
 
 namespace Microsoft.Coyote.IO
 {
     /// <summary>
     /// Logger that writes text to the console.
     /// </summary>
-    public sealed class ConsoleLogger : ILogger
+    public sealed class ConsoleLogger : TextWriter
     {
-        /// <summary>
-        /// If true, then messages are logged. The default value is true.
-        /// </summary>
-        public bool IsVerbose { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleLogger"/> class.
         /// </summary>
         public ConsoleLogger()
         {
-            this.IsVerbose = true;
+        }
+
+        /// <summary>
+        /// When overridden in a derived class, returns the character encoding in which the
+        /// output is written.
+        /// </summary>
+        public override Encoding Encoding => Console.OutputEncoding;
+
+        /// <summary>
+        /// Writes the specified Unicode character value to the standard output stream.
+        /// </summary>
+        /// <param name="value">The Unicode character.</param>
+        public override void Write(char value)
+        {
+            Console.Write(value);
         }
 
         /// <summary>
         /// Writes the specified string value.
         /// </summary>
-        public void Write(string value)
+        public override void Write(string value)
         {
-            if (this.IsVerbose)
-            {
-                Console.Write(value);
-            }
+            Console.Write(value);
         }
 
         /// <summary>
-        /// Writes the text representation of the specified argument.
+        /// Writes a string followed by a line terminator to the text string or stream.
         /// </summary>
-        public void Write(string format, object arg0)
+        /// <param name="value">The string to write.</param>
+        public override void WriteLine(string value)
         {
-            if (this.IsVerbose)
-            {
-                Console.Write(format, arg0.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments.
-        /// </summary>
-        public void Write(string format, object arg0, object arg1)
-        {
-            if (this.IsVerbose)
-            {
-                Console.Write(format, arg0.ToString(), arg1.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments.
-        /// </summary>
-        public void Write(string format, object arg0, object arg1, object arg2)
-        {
-            if (this.IsVerbose)
-            {
-                Console.Write(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified array of objects.
-        /// </summary>
-        public void Write(string format, params object[] args)
-        {
-            if (this.IsVerbose)
-            {
-                Console.Write(format, args);
-            }
-        }
-
-        /// <summary>
-        /// Writes the specified string value, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string value)
-        {
-            if (this.IsVerbose)
-            {
-                Console.WriteLine(value);
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified argument, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string format, object arg0)
-        {
-            if (this.IsVerbose)
-            {
-                Console.WriteLine(format, arg0.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string format, object arg0, object arg1)
-        {
-            if (this.IsVerbose)
-            {
-                Console.WriteLine(format, arg0.ToString(), arg1.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified arguments, followed by the
-        /// current line terminator.
-        /// </summary>
-        public void WriteLine(string format, object arg0, object arg1, object arg2)
-        {
-            if (this.IsVerbose)
-            {
-                Console.WriteLine(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Writes the text representation of the specified array of objects,
-        /// followed by the current line terminator.
-        /// </summary>
-        public void WriteLine(string format, params object[] args)
-        {
-            if (this.IsVerbose)
-            {
-                Console.WriteLine(format, args);
-            }
-        }
-
-        /// <summary>
-        /// Disposes the logger.
-        /// </summary>
-        public void Dispose()
-        {
+            Console.WriteLine(value);
         }
     }
 }

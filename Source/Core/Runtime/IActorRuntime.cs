@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
@@ -18,7 +19,7 @@ namespace Microsoft.Coyote.Runtime
         /// Used to log messages. Use <see cref="SetLogger"/>
         /// to replace the logger with a custom one.
         /// </summary>
-        ILogger Logger { get; }
+        TextWriter Logger { get; }
 
         /// <summary>
         /// Callback that is fired when the runtime throws an exception.
@@ -255,19 +256,11 @@ namespace Microsoft.Coyote.Runtime
         Guid GetCurrentOperationGroupId(ActorId currentActorId);
 
         /// <summary>
-        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
+        /// Use this method to override the default <see cref="TextWriter"/> for logging messages.
         /// </summary>
         /// <param name="logger">The logger to install.</param>
         /// <returns>The previously installed logger.</returns>
-        ILogger SetLogger(ILogger logger);
-
-        /// <summary>
-        /// Use this method to override the default <see cref="IActorRuntimeLogFormatter"/>
-        /// for formatting log messages.
-        /// </summary>
-        /// <param name="formatter">The formatter to install.</param>
-        /// <returns>The previously installed formatter.</returns>
-        IActorRuntimeLogFormatter SetLogFormatter(IActorRuntimeLogFormatter formatter);
+        TextWriter SetLogger(TextWriter logger);
 
         /// <summary>
         /// Use this method to register an <see cref="IActorRuntimeLog"/>.

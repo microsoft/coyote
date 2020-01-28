@@ -14,12 +14,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             this.Logger.WriteLine("<CreateLog>.");
         }
 
-        public override void OnEnqueueEvent(ActorId id, string eventName)
+        public override void OnEnqueueEvent(ActorId id, Event e)
         {
         }
 
         public override void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName,
-            string eventName, Guid opGroupId, bool isTargetHalted)
+            Event e, Guid opGroupId, bool isTargetHalted)
         {
         }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             this.Logger.WriteLine("<StateLog>.");
         }
 
-        public override void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
+        public override void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
         {
         }
     }

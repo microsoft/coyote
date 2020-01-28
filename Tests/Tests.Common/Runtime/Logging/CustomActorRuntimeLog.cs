@@ -28,23 +28,23 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName, Guid opGroupId, bool isTargetHalted)
+        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
         {
         }
 
-        public void OnRaiseEvent(ActorId id, string stateName, string eventName)
+        public void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
         }
 
-        public void OnEnqueueEvent(ActorId id, string eventName)
+        public void OnEnqueueEvent(ActorId id, Event e)
         {
         }
 
-        public void OnDequeueEvent(ActorId id, string stateName, string eventName)
+        public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
         }
 
-        public void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
+        public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
         }
 
@@ -85,11 +85,11 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnHandleRaisedEvent(ActorId id, string stateName, string eventName)
+        public void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
         }
 
-        public void OnPopUnhandledEvent(ActorId id, string stateName, string eventName)
+        public void OnPopUnhandledEvent(ActorId id, string stateName, Event e)
         {
         }
 
@@ -117,11 +117,11 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, string eventName)
+        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
         {
         }
 
-        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
+        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
         {
         }
 

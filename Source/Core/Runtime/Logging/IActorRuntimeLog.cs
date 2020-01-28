@@ -35,10 +35,10 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="targetActorId">The id of the target actor.</param>
         /// <param name="senderId">The id of the actor that sent the event, if any.</param>
         /// <param name="senderStateName">The state name, if the sender actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The event being sent.</param>
+        /// <param name="e">The event being sent.</param>
         /// <param name="opGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
-        void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
+        void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e,
             Guid opGroupId, bool isTargetHalted);
 
         /// <summary>
@@ -46,33 +46,33 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor raising the event.</param>
         /// <param name="stateName">The name of the current state.</param>
-        /// <param name="eventName">The name of the event being raised.</param>
-        void OnRaiseEvent(ActorId id, string stateName, string eventName);
+        /// <param name="e">The event being raised.</param>
+        void OnRaiseEvent(ActorId id, string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified event is about to be enqueued to an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being enqueued to.</param>
-        /// <param name="eventName">Name of the event.</param>
-        void OnEnqueueEvent(ActorId id, string eventName);
+        /// <param name="e">The event being enqueued.</param>
+        void OnEnqueueEvent(ActorId id, Event e);
 
         /// <summary>
         /// Invoked when the specified event is dequeued by an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being dequeued by.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">Name of the event.</param>
-        void OnDequeueEvent(ActorId id, string stateName, string eventName);
+        /// <param name="e">The event being dequeued.</param>
+        void OnDequeueEvent(ActorId id, string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified event is received by an actor.
         /// </summary>
         /// <param name="id">The id of the actor that received the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event.</param>
+        /// <param name="e">The the event being received.</param>
         /// <param name="wasBlocked">The actor was waiting for one or more specific events,
-        /// and <paramref name="eventName"/> was one of them</param>
-        void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked);
+        /// and <paramref name="e"/> was one of them</param>
+        void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked);
 
         /// <summary>
         /// Invoked when the specified actor waits to receive an event of a specified type.
@@ -149,8 +149,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor handling the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event being handled.</param>
-        void OnHandleRaisedEvent(ActorId id, string stateName, string eventName);
+        /// <param name="e">The event being handled.</param>
+        void OnHandleRaisedEvent(ActorId id, string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified event cannot be handled in the current state, its exit
@@ -159,8 +159,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event that cannot be handled.</param>
-        void OnPopUnhandledEvent(ActorId id, string stateName, string eventName);
+        /// <param name="e">The event that cannot be handled.</param>
+        void OnPopUnhandledEvent(ActorId id, string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified actor throws an exception.
@@ -216,9 +216,9 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorTypeName">Name of type of the monitor that will process the event.</param>
         /// <param name="id">The id of the monitor that will process the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
+        /// <param name="e">The event being processed.</param>
         void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id,
-            string stateName, string eventName);
+            string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified monitor raised an event.
@@ -226,8 +226,8 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorTypeName">Name of type of the monitor raising the event.</param>
         /// <param name="id">The id of the monitor raising the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
-        void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName);
+        /// <param name="e">The event being raised.</param>
+        void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified monitor enters or exits a state.

@@ -42,14 +42,14 @@ The following is an example of how to do this:
 ```c#
 internal class CustomLogWriter : IActorRuntimeLog
 {
-  /* Callbacks on runtime events */
+  // Callbacks on runtime events
 
   public void OnCreateActor(ActorId id, ActorId creator)
   {
     // Override to change the behavior.
   }
 
-  public void OnEnqueueEvent(ActorId id, string eventName)
+  public void OnEnqueueEvent(ActorId id, Event e)
   {
     // Override to change the behavior.
   }
@@ -74,7 +74,7 @@ The following is an example of how to do this:
 ```c#
 internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
 {
-  /* Methods for formatting log messages */
+  // Methods for formatting log messages
 
   public override void OnCreateActor(ActorId id, ActorId creator)
   {
@@ -82,12 +82,12 @@ internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
     this.Logger.WriteLine("Hello!");
   }
 
-  public override void OnEnqueueEvent(ActorId id, string eventName)
+  public override void OnEnqueueEvent(ActorId id, Event e)
   {
     // Override to conditionally hide certain events from the log.
-    if (eventName != "<magic>")
+    if (!(e is SecretEvent))
     {
-      base.OnEnqueueEvent(id, eventName);
+      base.OnEnqueueEvent(id, e);
     }
   }
 
@@ -95,12 +95,12 @@ internal class CustomLogFormatter : ActorRuntimeLogTextFormatter
 }
 ```
 
-You can then replace the default `ActorRuntimeLogFormatter` with your new implementation using the following `IActorRuntime` method:
+You can then replace the default `ActorRuntimeLogTextFormatter` with your new implementation using the following `IActorRuntime` method:
 ```c#
 runtime.RegisterLog(new CustomLogFormatter());
 ```
 
-The above method replaces the previously installed `ActorRuntimeLogFormatter` with the specified one.
+The above method replaces the previously installed `ActorRuntimeLogTextFormatter` with the specified one.
 
 ## Using and replacing the TextWriter
 

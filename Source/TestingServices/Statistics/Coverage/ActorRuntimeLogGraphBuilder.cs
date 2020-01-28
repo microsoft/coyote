@@ -112,12 +112,13 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="targetActorId">The id of the target actor.</param>
         /// <param name="senderId">The id of the actor that sent the event, if any.</param>
         /// <param name="senderStateName">The state name, if the sender actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The event being sent.</param>
+        /// <param name="e">The event being sent.</param>
         /// <param name="opGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
-        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
+        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e,
             Guid opGroupId, bool isTargetHalted)
         {
+            string eventName = e.GetType().FullName;
             this.AddEvent(targetActorId, senderId, senderStateName, eventName);
         }
 
@@ -126,9 +127,10 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         /// <param name="id">The id of the actor raising the event.</param>
         /// <param name="stateName">The name of the current state.</param>
-        /// <param name="eventName">The name of the event being raised.</param>
-        public void OnRaiseEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being raised.</param>
+        public void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             // Raising event to self.
             this.AddEvent(id, id, stateName, eventName);
         }
@@ -137,8 +139,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// Invoked when the specified event is about to be enqueued to an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being enqueued to.</param>
-        /// <param name="eventName">Name of the event.</param>
-        public void OnEnqueueEvent(ActorId id, string eventName)
+        /// <param name="e">The event being enqueued.</param>
+        public void OnEnqueueEvent(ActorId id, Event e)
         {
         }
 
@@ -147,23 +149,24 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         /// <param name="id">The id of the actor that the event is being dequeued by.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">Name of the event.</param>
-        public void OnDequeueEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being dequeued.</param>
+        public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
             var resolvedId = this.GetResolveActorId(id);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
+                string eventName = e.GetType().FullName;
                 for (int i = inbox.Count - 1; i >= 0; i--)
                 {
-                    EventInfo e = inbox[i];
-                    if (e.Event == eventName)
+                    EventInfo info = inbox[i];
+                    if (info.Event == eventName)
                     {
                         // Yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(e.ActorId, e.State);
+                        var source = this.GetOrCreateChild(info.ActorId, info.State);
                         var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
-                        this.GetOrCreateEventLink(source, target, e);
+                        this.GetOrCreateEventLink(source, target, info);
                         inbox.RemoveAt(i);
-                        this.Dequeued = e;
+                        this.Dequeued = info;
                         break;
                     }
                 }
@@ -175,23 +178,24 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         /// <param name="id">The id of the actor that received the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event.</param>
+        /// <param name="e">The event being received.</param>
         /// <param name="wasBlocked">The actor was waiting for one or more specific events,
-        /// and <paramref name="eventName"/> was one of them</param>
-        public void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
+        /// and <paramref name="e"/> was one of them.</param>
+        public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             string resolvedId = this.GetResolveActorId(id);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
+                string eventName = e.GetType().FullName;
                 for (int i = inbox.Count - 1; i >= 0; i--)
                 {
-                    EventInfo e = inbox[i];
-                    if (e.Event == eventName)
+                    EventInfo info = inbox[i];
+                    if (info.Event == eventName)
                     {
                         // Yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(e.ActorId, e.State);
+                        var source = this.GetOrCreateChild(info.ActorId, info.State);
                         var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
-                        this.GetOrCreateEventLink(source, target, e);
+                        this.GetOrCreateEventLink(source, target, info);
                         inbox.RemoveAt(i);
                         break;
                     }
@@ -308,20 +312,21 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         /// <param name="id">The id of the actor handling the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event being handled.</param>
-        public void OnHandleRaisedEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being handled.</param>
+        public void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
             // We used the inbox to store raised event, but it should be the first one handled since
             // raised events are highest priority.
             string resolvedId = this.GetResolveActorId(id);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
+                string eventName = e.GetType().FullName;
                 for (int i = inbox.Count - 1; i >= 0; i--)
                 {
-                    EventInfo e = inbox[i];
-                    if (e.Event == eventName)
+                    EventInfo info = inbox[i];
+                    if (info.Event == eventName)
                     {
-                        this.Dequeued = e;
+                        this.Dequeued = info;
                         break;
                     }
                 }
@@ -335,10 +340,10 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         /// <param name="actorId">Id of the machine that the pop executed in.</param>
         /// <param name="currStateName">The name of the current state of the machine, if any.</param>
-        /// <param name="eventName">The name of the event that cannot be handled.</param>
-        public void OnPopUnhandledEvent(ActorId actorId, string currStateName, string eventName)
+        /// <param name="e">The event that cannot be handled.</param>
+        public void OnPopUnhandledEvent(ActorId actorId, string currStateName, Event e)
         {
-            if (eventName == typeof(HaltEvent).FullName)
+            if (e is HaltEvent)
             {
                 this.HaltedState = currStateName;
             }
@@ -425,18 +430,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="monitorTypeName">Name of type of the monitor that will process the event.</param>
         /// <param name="id">The id of the monitor that will process the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
+        /// <param name="e">The event being processed.</param>
         public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName,
-            ActorId id, string stateName, string eventName)
+            ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             // If sender is null then it means we are dealing with a Monitor call from external code.
-            var e = this.AddEvent(id, senderId, senderStateName, eventName);
+            var info = this.AddEvent(id, senderId, senderStateName, eventName);
 
             // Draw the link connecting the Sender state to this state!
             var source = this.GetOrCreateChild(senderId, senderStateName);
             var shortStateName = this.GetLabel(id, stateName);
             var target = this.GetOrCreateChild(id, shortStateName);
-            this.GetOrCreateEventLink(source, target, e);
+            this.GetOrCreateEventLink(source, target, info);
             this.CurrentStates[id] = stateName;
         }
 
@@ -446,10 +452,11 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <param name="monitorTypeName">Name of type of the monitor raising the event.</param>
         /// <param name="id">The id of the monitor raising the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
-        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being raised.</param>
+        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
         {
             // Raising event to self.
+            string eventName = e.GetType().FullName;
             this.CurrentStates[id] = stateName;
             this.AddEvent(id, id, stateName, eventName);
         }

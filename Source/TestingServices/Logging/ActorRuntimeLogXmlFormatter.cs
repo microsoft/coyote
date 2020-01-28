@@ -81,8 +81,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnDequeueEvent(ActorId id, string stateName, string eventName)
+        public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("DequeueEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -94,8 +95,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnEnqueueEvent(ActorId id, string eventName)
+        public void OnEnqueueEvent(ActorId id, Event e)
         {
+            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("EnqueueEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("event", eventName);
@@ -158,7 +160,7 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnHandleRaisedEvent(ActorId id, string stateName, string eventName)
+        public void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
         }
 
@@ -172,8 +174,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, string eventName)
+        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("MonitorEvent");
             if (senderId != null)
             {
@@ -188,8 +191,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
+        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("MonitorRaise");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
@@ -219,8 +223,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnPopUnhandledEvent(ActorId id, string stateName, string eventName)
+        public void OnPopUnhandledEvent(ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("PopUnhandled");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("state", stateName);
@@ -237,8 +242,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnRaiseEvent(ActorId id, string stateName, string eventName)
+        public void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
+            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Raise");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -258,8 +264,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
+        public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
+            var eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Receive");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -272,8 +279,9 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName, Guid opGroupId, bool isTargetHalted)
+        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
         {
+            var eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Send");
             this.Writer.WriteAttributeString("target", targetActorId.ToString());
             if (senderId != null)

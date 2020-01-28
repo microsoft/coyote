@@ -85,17 +85,17 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="targetActorId">The id of the target actor.</param>
         /// <param name="senderId">The id of the actor that sent the event, if any.</param>
         /// <param name="senderStateName">The state name, if the sender actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The event being sent.</param>
+        /// <param name="e">The event being sent.</param>
         /// <param name="opGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
-        public void LogSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, string eventName,
+        public void LogSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e,
             Guid opGroupId, bool isTargetHalted)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnSendEvent(targetActorId, senderId, senderStateName, eventName, opGroupId, isTargetHalted);
+                    log.OnSendEvent(targetActorId, senderId, senderStateName, e, opGroupId, isTargetHalted);
                 }
             }
         }
@@ -105,14 +105,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor raising the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event being raised.</param>
-        public void LogRaiseEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being raised.</param>
+        public void LogRaiseEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnRaiseEvent(id, stateName, eventName);
+                    log.OnRaiseEvent(id, stateName, e);
                 }
             }
         }
@@ -121,14 +121,14 @@ namespace Microsoft.Coyote.Runtime
         /// Logs that the specified event is about to be enqueued to an actor.
         /// </summary>
         /// <param name="id">The id of the actor that the event is being enqueued to.</param>
-        /// <param name="eventName">Name of the event.</param>
-        public void LogEnqueueEvent(ActorId id, string eventName)
+        /// <param name="e">The event being enqueued.</param>
+        public void LogEnqueueEvent(ActorId id, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnEnqueueEvent(id, eventName);
+                    log.OnEnqueueEvent(id, e);
                 }
             }
         }
@@ -138,14 +138,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor that the event is being dequeued by.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">Name of the event.</param>
-        public void LogDequeueEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being dequeued.</param>
+        public void LogDequeueEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnDequeueEvent(id, stateName, eventName);
+                    log.OnDequeueEvent(id, stateName, e);
                 }
             }
         }
@@ -155,16 +155,16 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor that received the event.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event.</param>
+        /// <param name="e">The event being received.</param>
         /// <param name="wasBlocked">The state machine was waiting for one or more specific events,
-        /// and <paramref name="eventName"/> was one of them</param>
-        public void LogReceiveEvent(ActorId id, string stateName, string eventName, bool wasBlocked)
+        /// and <paramref name="e"/> was one of them.</param>
+        public void LogReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnReceiveEvent(id, stateName, eventName, wasBlocked);
+                    log.OnReceiveEvent(id, stateName, e, wasBlocked);
                 }
             }
         }
@@ -325,14 +325,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor handling the event.</param>
         /// <param name="stateName">The name of the current state.</param>
-        /// <param name="eventName">The name of the event being handled.</param>
-        public void LogHandleRaisedEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being handled.</param>
+        public void LogHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnHandleRaisedEvent(id, stateName, eventName);
+                    log.OnHandleRaisedEvent(id, stateName, e);
                 }
             }
         }
@@ -344,14 +344,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
-        /// <param name="eventName">The name of the event that cannot be handled.</param>
-        public void LogPopUnhandledEvent(ActorId id, string stateName, string eventName)
+        /// <param name="e">The event that cannot be handled.</param>
+        public void LogPopUnhandledEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnPopUnhandledEvent(id, stateName, eventName);
+                    log.OnPopUnhandledEvent(id, stateName, e);
                 }
             }
         }
@@ -464,15 +464,15 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorTypeName">Name of type of the monitor that will process the event.</param>
         /// <param name="id">The id of the monitor that will process the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
+        /// <param name="e">The event being processed.</param>
         public void LogMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName,
-            ActorId id, string stateName, string eventName)
+            ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorProcessEvent(senderId, senderStateName, monitorTypeName, id, stateName, eventName);
+                    log.OnMonitorProcessEvent(senderId, senderStateName, monitorTypeName, id, stateName, e);
                 }
             }
         }
@@ -483,14 +483,14 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="monitorTypeName">Name of type of the monitor raising the event.</param>
         /// <param name="id">The id of the monitor raising the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="eventName">The name of the event.</param>
-        public void LogMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, string eventName)
+        /// <param name="e">The event being raised.</param>
+        public void LogMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorRaiseEvent(monitorTypeName, id, stateName, eventName);
+                    log.OnMonitorRaiseEvent(monitorTypeName, id, stateName, e);
                 }
             }
         }

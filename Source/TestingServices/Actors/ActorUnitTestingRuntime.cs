@@ -210,12 +210,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Instance.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                    e.GetType().FullName, opGroupId, isTargetHalted: true);
+                    e, opGroupId, isTargetHalted: true);
                 return;
             }
 
             this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                e.GetType().FullName, opGroupId, isTargetHalted: false);
+                e, opGroupId, isTargetHalted: false);
 
             if (!targetId.Equals(this.Instance.Id))
             {
@@ -408,7 +408,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogDequeueEvent(actor.Id, stateName, e.GetType().FullName);
+                this.LogWriter.LogDequeueEvent(actor.Id, stateName, e);
             }
         }
 
@@ -420,7 +420,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogRaiseEvent(actor.Id, stateName, e.GetType().FullName);
+                this.LogWriter.LogRaiseEvent(actor.Id, stateName, e);
             }
         }
 
@@ -455,7 +455,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
+                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
             }
 
             this.IsActorWaitingToReceiveEvent = false;
@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (this.Configuration.IsVerbose)
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: false);
+                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
             }
         }
 
@@ -544,7 +544,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
                 this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
-                    monitorState, e.GetType().FullName);
+                    monitorState, e);
             }
         }
     }

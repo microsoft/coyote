@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             if (target.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                    e.GetType().FullName, opGroupId, isTargetHalted: true);
+                    e, opGroupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to '{1}' which has halted.", e.GetType().FullName, targetId);
                 this.TryHandleDroppedEvent(e, targetId);
@@ -518,7 +518,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 SendStep = this.Scheduler.ScheduledSteps
             };
 
-            this.LogWriter.LogSendEvent(actor.Id, sender?.Id, stateName, e.GetType().FullName, opGroupId, isTargetHalted: false);
+            this.LogWriter.LogSendEvent(actor.Id, sender?.Id, stateName, e, opGroupId, isTargetHalted: false);
             return actor.Enqueue(e, opGroupId, eventInfo);
         }
 
@@ -879,7 +879,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.LogDequeueEvent(actor.Id, stateName, eventInfo.EventName);
+            this.LogWriter.LogDequeueEvent(actor.Id, stateName, e);
         }
 
         /// <summary>
@@ -906,7 +906,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.LogRaiseEvent(actor.Id, stateName, eventInfo.EventName);
+            this.LogWriter.LogRaiseEvent(actor.Id, stateName, e);
         }
 
         /// <summary>
@@ -915,7 +915,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyHandleRaisedEvent(Actor actor, Event e)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e.GetType().FullName);
+            this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
         }
 
         /// <summary>
@@ -933,7 +933,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: true);
+            this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
             op.OnReceivedEvent();
         }
@@ -945,7 +945,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.LogReceiveEvent(actor.Id, stateName, e.GetType().FullName, wasBlocked: false);
+            this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(actor);
         }
@@ -1064,7 +1064,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             string monitorState = monitor.CurrentStateName;
             this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
-                monitorState, eventInfo.EventName);
+                monitorState, e);
         }
 
         /// <summary>

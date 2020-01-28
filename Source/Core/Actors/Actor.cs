@@ -834,7 +834,10 @@ namespace Microsoft.Coyote.Actors
 
             this.Runtime.LogWriter.LogStopTimer(info);
             this.Timers.Remove(info);
-            timer.Dispose();
+            using (timer)
+            {
+                // sometimes timer can be null.
+            }
         }
 
         /// <summary>

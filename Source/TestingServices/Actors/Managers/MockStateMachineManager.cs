@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e.GetType().FullName);
+            this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e);
 
         /// <summary>
         /// Notifies the state machine that an event has been raised.

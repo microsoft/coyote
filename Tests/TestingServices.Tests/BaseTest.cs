@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
@@ -37,14 +38,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             configuration = configuration ?? GetConfiguration();
 
-            ILogger logger;
+            TextWriter logger;
             if (configuration.IsVerbose)
             {
                 logger = new Common.TestOutputLogger(this.TestOutput, true);
             }
             else
             {
-                logger = new NulLogger();
+                logger = TextWriter.Null;
             }
 
             BugFindingEngine engine = null;
@@ -122,14 +123,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
             configuration = configuration ?? GetConfiguration();
 
-            ILogger logger;
+            TextWriter logger;
             if (configuration.IsVerbose)
             {
                 logger = new Common.TestOutputLogger(this.TestOutput, true);
             }
             else
             {
-                logger = new NulLogger();
+                logger = TextWriter.Null;
             }
 
             try
@@ -195,14 +196,14 @@ namespace Microsoft.Coyote.TestingServices.Tests
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            ILogger logger;
+            TextWriter logger;
             if (configuration.IsVerbose)
             {
                 logger = new Common.TestOutputLogger(this.TestOutput, true);
             }
             else
             {
-                logger = new NulLogger();
+                logger = TextWriter.Null;
             }
 
             try

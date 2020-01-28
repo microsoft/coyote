@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Microsoft.Coyote.IO;
@@ -22,7 +23,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <summary>
         /// The installed logger.
         /// </summary>
-        private readonly IO.ILogger Logger;
+        private readonly TextWriter Logger;
 
         /// <summary>
         /// The input cache.
@@ -37,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="InteractiveStrategy"/> class.
         /// </summary>
-        public InteractiveStrategy(Configuration configuration, IO.ILogger logger)
+        public InteractiveStrategy(Configuration configuration, TextWriter logger)
         {
             this.Logger = logger ?? new ConsoleLogger();
             this.Configuration = configuration;

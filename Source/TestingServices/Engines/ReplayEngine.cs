@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -132,7 +133,7 @@ namespace Microsoft.Coyote.TestingServices
                         runtimeLogger = new InMemoryLogger();
                         runtime.SetLogger(runtimeLogger);
 
-                        var writer = new LogWriter(new NulLogger());
+                        TextWriter writer = TextWriter.Null;
                         Console.SetOut(writer);
                         Console.SetError(writer);
                     }

@@ -116,6 +116,11 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append("--graph ");
             }
 
+            if (configuration.IsXmlLogEnabled)
+            {
+                arguments.Append("--xml-trace ");
+            }
+
             if (!string.IsNullOrEmpty(configuration.CustomActorRuntimeLogType))
             {
                 arguments.Append($"--actor-runtime-log {configuration.CustomActorRuntimeLogType} ");

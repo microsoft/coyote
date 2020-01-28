@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
@@ -24,14 +25,14 @@ namespace Microsoft.Coyote.Core.Tests
         {
             configuration = configuration ?? GetConfiguration();
 
-            ILogger logger;
+            TextWriter logger;
             if (configuration.IsVerbose)
             {
                 logger = new TestOutputLogger(this.TestOutput, true);
             }
             else
             {
-                logger = new NulLogger();
+                logger = TextWriter.Null;
             }
 
             try
@@ -54,14 +55,14 @@ namespace Microsoft.Coyote.Core.Tests
         {
             configuration = configuration ?? GetConfiguration();
 
-            ILogger logger;
+            TextWriter logger;
             if (configuration.IsVerbose)
             {
                 logger = new TestOutputLogger(this.TestOutput, true);
             }
             else
             {
-                logger = new NulLogger();
+                logger = TextWriter.Null;
             }
 
             try

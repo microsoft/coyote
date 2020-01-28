@@ -11,9 +11,10 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using System.Xml;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Tracing.Schedule;
@@ -37,9 +38,15 @@ namespace Microsoft.Coyote.TestingServices
         internal string ReproducableTrace { get; private set; }
 
         /// <summary>
-        /// A graph of the machines, states and events.
+        /// A graph of the machines, states and events of a single test iteration.
         /// </summary>
         internal Graph Graph { get; private set; }
+
+        /// <summary>
+        /// Contains a single iteration of XML log output in the case where the IsXmlLogEnabled
+        /// configuration is specified.
+        /// </summary>
+        private StringBuilder XmlLog;
 
         /// <summary>
         /// Creates a new bug-finding engine.
@@ -241,12 +248,18 @@ namespace Microsoft.Coyote.TestingServices
                     runtimeLogger = new InMemoryLogger();
                     runtime.SetLogger(runtimeLogger);
 
-                    var writer = new LogWriter(new NulLogger());
+                    var writer = TextWriter.Null;
                     Console.SetOut(writer);
                     Console.SetError(writer);
                 }
 
                 this.InitializeCustomLogging(runtime);
+
+                if (this.Configuration.IsXmlLogEnabled)
+                {
+                    this.XmlLog = new StringBuilder();
+                    runtime.RegisterLog(new ActorRuntimeLogXmlFormatter(XmlWriter.Create(this.XmlLog, new XmlWriterSettings() { Indent = true, IndentChars = "  ", OmitXmlDeclaration = true })));
+                }
 
                 // Runs the test and waits for it to terminate.
                 runtime.RunTest(this.TestMethod, this.TestName);
@@ -276,6 +289,8 @@ namespace Microsoft.Coyote.TestingServices
                 {
                     this.ErrorReporter.WriteErrorLine(runtime.Scheduler.BugReport);
                 }
+
+                runtime.LogWriter.LogCompletion();
 
                 this.GatherIterationStatistics(runtime);
 
@@ -356,6 +371,14 @@ namespace Microsoft.Coyote.TestingServices
                     File.WriteAllText(readableTracePath, this.ReadableTrace);
                     yield return readableTracePath;
                 }
+            }
+
+            if (this.Configuration.IsXmlLogEnabled)
+            {
+                string xmlPath = directory + file + "_" + index + ".trace.xml";
+                this.Logger.WriteLine($"..... Writing {xmlPath}");
+                File.WriteAllText(xmlPath, this.XmlLog.ToString());
+                yield return xmlPath;
             }
 
             if (this.Graph != null)

@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text;
+using System.Xml;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.Tests.Common.Runtime;
 using Xunit;
 using Xunit.Abstractions;
@@ -66,9 +69,46 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
         [Fact(Timeout = 5000)]
         public void TestCustomActorRuntimeLogFormatter()
         {
+            var logger = new CustomActorRuntimeLog();
             Action<IActorRuntime> test = r =>
             {
-                r.SetLogFormatter(new CustomActorRuntimeLogFormatter());
+                r.RegisterLog(logger);
+                r.CreateActor(typeof(M));
+            };
+
+            BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
+
+            try
+            {
+                engine.Run();
+
+                var numErrors = engine.TestReport.NumOfFoundBugs;
+                Assert.True(numErrors == 1, GetBugReport(engine));
+                Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
+                Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
+
+                string expected = @"CreateActor
+StateTransition
+CreateActor
+StateTransition
+";
+
+                string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
+                Assert.Equal(expected, actual);
+            }
+            catch (Exception ex)
+            {
+                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestCustomActorRuntimeLogTextFormatter()
+        {
+            var logger = new CustomActorRuntimeLogSubclass();
+            Action<IActorRuntime> test = r =>
+            {
+                r.RegisterLog(logger);
                 r.CreateActor(typeof(M));
             };
 
@@ -102,6 +142,54 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
 <StrategyLog> Found 100.00% buggy schedules.";
 
                 string actual = RemoveNonDeterministicValuesFromReport(engine.ReadableTrace.ToString());
+                Assert.Equal(expected, actual);
+            }
+            catch (Exception ex)
+            {
+                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestActorRuntimeXmlLogFormatter()
+        {
+            StringBuilder builder = new StringBuilder();
+            var logger = new ActorRuntimeLogXmlFormatter(XmlWriter.Create(builder, new XmlWriterSettings() { Indent = true, IndentChars = "  " }));
+            Action<IActorRuntime> test = r =>
+            {
+                r.RegisterLog(logger);
+                r.CreateActor(typeof(M));
+            };
+
+            BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
+
+            try
+            {
+                engine.Run();
+
+                var numErrors = engine.TestReport.NumOfFoundBugs;
+                Assert.True(numErrors == 1, GetBugReport(engine));
+
+                string expected = @"<?xml version='1.0' encoding='utf-16'?>
+<Log>
+  <CreateActor id='M()' creator='external' />
+  <State id='M()' state='Init' isEntry='True' />
+  <Action id='M()' state='Init' action='InitOnEntry' />
+  <CreateActor id='N()' creator='M()' />
+  <Send target='N()' sender='M()' senderState='Init' event='E' isTargetHalted='False' />
+  <EnqueueEvent id='N()' event='E' />
+  <State id='N()' state='Init' isEntry='True' />
+  <DequeueEvent id='N()' state='Init' event='E' />
+  <Action id='N()' state='Init' action='Act' />
+  <Send target='M()' sender='N()' senderState='Init' event='E' isTargetHalted='False' />
+  <EnqueueEvent id='M()' event='E' />
+  <DequeueEvent id='M()' state='Init' event='E' />
+  <Action id='M()' state='Init' action='Act' />
+  <AssertionFailure>&lt;ErrorLog&gt; Reached test assertion.</AssertionFailure>
+  <Strategy strategy='DFS'>DFS</Strategy>
+</Log>";
+
+                string actual = RemoveNonDeterministicValuesFromReport(builder.ToString()).Replace("\"", "'");
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)

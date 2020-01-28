@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.TestingServices.Coverage;
@@ -115,7 +117,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
         [Fact(Timeout = 5000)]
         public async Task TestCustomLogger()
         {
-            CustomLogger logger = new CustomLogger(true);
+            CustomLogger logger = new CustomLogger();
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
             var runtime = ActorRuntimeFactory.Create(config);
@@ -155,7 +157,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
         [Fact(Timeout = 5000)]
         public async Task TestGraphLogger()
         {
-            CustomLogger logger = new CustomLogger(true);
+            CustomLogger logger = new CustomLogger();
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
             var graphBuilder = new ActorRuntimeLogGraphBuilder();
@@ -197,7 +199,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
         [Fact(Timeout = 5000)]
         public async Task TestCustomLoggerNoVerbosity()
         {
-            CustomLogger logger = new CustomLogger(false);
+            var logger = TextWriter.Null;
 
             var runtime = ActorRuntimeFactory.Create();
             runtime.SetLogger(logger);
@@ -207,31 +209,34 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
 
             await WaitAsync(tcs.Task);
 
-            Assert.Equal(string.Empty, logger.ToString());
-
-            logger.Dispose();
+            Assert.Equal("System.IO.TextWriter+NullTextWriter", logger.ToString());
         }
 
         [Fact(Timeout = 5000)]
-        public void TestNullCustomLoggerFail()
+        public async Task TestNullCustomLogger()
         {
-            this.Run(r =>
-            {
-                Assert.Throws<InvalidOperationException>(() => r.SetLogger(null));
-            });
+            var runtime = ActorRuntimeFactory.Create();
+            runtime.SetLogger(null);
+
+            var tcs = new TaskCompletionSource<bool>();
+            runtime.CreateActor(typeof(M), new SetupEvent(tcs));
+
+            await WaitAsync(tcs.Task);
+
+            Assert.Equal("System.IO.TextWriter+NullTextWriter", runtime.Logger.ToString());
         }
 
         [Fact(Timeout = 5000)]
         public async Task TestCustomActorRuntimeLogFormatter()
         {
-            CustomLogger logger = new CustomLogger(true);
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             config.EnableMonitorsInProduction = true;
 
             var runtime = ActorRuntimeFactory.Create(config);
             runtime.RegisterMonitor(typeof(S));
-            runtime.SetLogger(logger);
-            runtime.SetLogFormatter(new CustomActorRuntimeLogFormatter());
+            runtime.SetLogger(null);
+            var logger = new CustomActorRuntimeLog();
+            runtime.RegisterLog(logger);
 
             var tcs = new TaskCompletionSource<bool>();
             runtime.CreateActor(typeof(M), new SetupEvent(tcs));
@@ -239,29 +244,16 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             await WaitAsync(tcs.Task);
             await Task.Delay(200);
 
-            string expected = @"<CreateLog>.
-<StateLog>.
-<ActionLog> 'M()' invoked action 'InitOnEntry' in state 'Init'.
-<CreateLog>.
-<StateLog>.
-<ActionLog> 'N()' invoked action 'InitOnEntry' in state 'Init'.
-<DequeueLog> 'N()' dequeued event 'E' in state 'Init'.
-<GotoLog> 'N()' is transitioning from state 'Init' to state 'N.Act'.
-<StateLog>.
-<StateLog>.
-<ActionLog> 'N()' invoked action 'ActOnEntry' in state 'Act'.
-<MonitorLog> Monitor 'S' with id 'S()' is processing event 'E' in state 'Init'.
-<MonitorLog> Monitor 'S' with id 'S()' executed action 'Init[]' in state 'OnE'.
-<MonitorLog> Monitor 'S' with id 'S()' exits 'hot' state 'Init[]'.
-<MonitorLog> Monitor 'S' with id 'S()' enters 'cold' state 'Done[]'.
-<DequeueLog> 'M()' dequeued event 'E' in state 'Init'.
-<ActionLog> 'M()' invoked action 'Act' in state 'Init'.
+            string expected = @"CreateActor
+StateTransition
+CreateActor
+StateTransition
+StateTransition
+StateTransition
 ";
 
             string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
             Assert.Equal(expected, actual);
-
-            logger.Dispose();
         }
     }
 }

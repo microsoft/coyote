@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -73,10 +74,10 @@ namespace Microsoft.Coyote.Runtime
         protected internal LogWriter LogWriter { get; private set; }
 
         /// <summary>
-        /// Used to log messages. Use <see cref="SetLogger"/>
+        /// Used to log text messages. Use <see cref="SetLogger"/>
         /// to replace the logger with a custom one.
         /// </summary>
-        public ILogger Logger => this.LogWriter.Logger;
+        public TextWriter Logger => this.LogWriter.Logger;
 
         /// <summary>
         /// Callback that is fired when the Coyote program throws an exception.
@@ -559,16 +560,9 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
+        /// Use this method to override the default <see cref="TextWriter"/> for logging messages.
         /// </summary>
-        public ILogger SetLogger(ILogger logger) => this.LogWriter.SetLogger(logger);
-
-        /// <summary>
-        /// Use this method to override the default <see cref="IActorRuntimeLogFormatter"/>
-        /// for formatting log messages.
-        /// </summary>
-        public IActorRuntimeLogFormatter SetLogFormatter(IActorRuntimeLogFormatter formatter) =>
-            this.LogWriter.SetLogFormatter(formatter);
+        public TextWriter SetLogger(TextWriter logger) => this.LogWriter.SetLogger(logger);
 
         /// <summary>
         /// Use this method to register an <see cref="IActorRuntimeLog"/>.

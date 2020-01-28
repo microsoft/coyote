@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -95,7 +96,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// The logger installed to the runtime.
         /// </summary>
-        protected ILogger Logger => this.Runtime.Logger;
+        protected TextWriter Logger => this.Runtime.Logger;
 
         /// <summary>
         /// Gets the current state.

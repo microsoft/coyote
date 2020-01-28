@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -116,7 +117,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The installed runtime logger.
         /// </summary>
-        protected ILogger Logger => this.Runtime.Logger;
+        protected TextWriter Logger => this.Runtime.Logger;
 
         /// <summary>
         /// User-defined hashed state of the actor. Override to improve the

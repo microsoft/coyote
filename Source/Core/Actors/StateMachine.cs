@@ -140,8 +140,8 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The raise event transition.</returns>
         protected Transition RaiseEvent(Event e)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked RaiseEvent while halting.", this.Id);
-            this.Assert(e != null, "'{0}' is raising a null event.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked RaiseEvent while halting.", this.Id);
+            this.Assert(e != null, "{0} is raising a null event.", this.Id);
             return new Transition(Transition.Type.RaiseEvent, default, e);
         }
 
@@ -165,9 +165,9 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The goto state transition.</returns>
         protected Transition GotoState(Type state)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked GotoState while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked GotoState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
-                "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
+                "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
             return new Transition(Transition.Type.GotoState, state, default);
         }
 
@@ -189,9 +189,9 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The push state transition.</returns>
         protected Transition PushState(Type state)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked PushState while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PushState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
-                "'{0}' is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
+                "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
             return new Transition(Transition.Type.PushState, state, default);
         }
 
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The pop state transition.</returns>
         protected Transition PopState()
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked PopState while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PopState while halting.", this.Id);
             return new Transition(Transition.Type.PopState, null, default);
         }
 
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The halt transition.</returns>
         protected new Transition Halt()
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked Halt while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
             return new Transition(Transition.Type.Halt, null, default);
         }
 
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Actors
                         // If the event cannot be handled then report an error, else halt gracefully.
                         var ex = new UnhandledEventException(e, currentStateName, "Unhandled Event");
                         bool isHalting = this.OnUnhandledEventExceptionHandler(ex, e);
-                        this.Assert(isHalting, "'{0}' received event '{1}' that cannot be handled.",
+                        this.Assert(isHalting, "{0} received event '{1}' that cannot be handled.",
                             this.Id, e.GetType().FullName);
                     }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Coyote.Actors
                 Transition transition = await this.InvokeActionAsync(exitAction, e);
                 this.Assert(transition.TypeValue is Transition.Type.Default ||
                     transition.TypeValue is Transition.Type.Halt,
-                    "'{0}' has performed a '{1}' transition from an OnExit action.",
+                    "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
                 await this.ApplyEventHandlerTransitionAsync(transition, e);
             }
@@ -444,7 +444,7 @@ namespace Microsoft.Coyote.Actors
                 Transition transition = await this.InvokeActionAsync(eventHandlerExitAction, e);
                 this.Assert(transition.TypeValue is Transition.Type.Default ||
                     transition.TypeValue is Transition.Type.Halt,
-                    "'{0}' has performed a '{1}' transition from an OnExit action.",
+                    "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
                 await this.ApplyEventHandlerTransitionAsync(transition, e);
             }
@@ -478,7 +478,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     this.DoStatePop();
                     this.Runtime.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
-                    this.Assert(this.CurrentState != null, "'{0}' popped its state with no matching push state.", this.Id);
+                    this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
                 }
             }
             else if (transition.TypeValue is Transition.Type.Halt)
@@ -816,7 +816,7 @@ namespace Microsoft.Coyote.Actors
                         }
                         catch (InvalidOperationException ex)
                         {
-                            this.Assert(false, "'{0}' {1} in state '{2}'.", this.Id, ex.Message, state);
+                            this.Assert(false, "{0} {1} in state '{2}'.", this.Id, ex.Message, state);
                         }
 
                         StateInstanceCache[stateMachineType].Add(state);
@@ -892,8 +892,8 @@ namespace Microsoft.Coyote.Actors
             }
 
             var initialStates = StateInstanceCache[stateMachineType].Where(state => state.IsStart).ToList();
-            this.Assert(initialStates.Count != 0, "'{0}' must declare a start state.", this.Id);
-            this.Assert(initialStates.Count is 1, "'{0}' can not declare more than one start states.", this.Id);
+            this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.Id);
+            this.Assert(initialStates.Count is 1, "{0} can not declare more than one start states.", this.Id);
 
             this.DoStatePush(initialStates[0]);
             this.AssertStateValidity();
@@ -944,7 +944,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal HashSet<string> GetAllStates()
         {
-            this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "'{0}' hasn't populated its states yet.", this.Id);
+            this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Id);
 
             var allStates = new HashSet<string>();
             foreach (var state in StateInstanceCache[this.GetType()])
@@ -960,7 +960,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal HashSet<Tuple<string, string>> GetAllStateEventPairs()
         {
-            this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "'{0}' hasn't populated its states yet.", this.Id);
+            this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Id);
 
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateInstanceCache[this.GetType()])
@@ -989,8 +989,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void AssertStateValidity()
         {
-            this.Assert(StateTypeCache[this.GetType()].Count > 0, "'{0}' must have one or more states.", this.Id);
-            this.Assert(this.StateStack.Peek() != null, "'{0}' must not have a null current state.", this.Id);
+            this.Assert(StateTypeCache[this.GetType()].Count > 0, "{0} must have one or more states.", this.Id);
+            this.Assert(this.StateStack.Peek() != null, "{0} must not have a null current state.", this.Id);
         }
 
         /// <summary>
@@ -1039,8 +1039,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in '{this.Id}', state '{state}', action '{actionName}', " +
-                $"'{ex.Source}':\n" +
+                $"in {this.Id} (state '{state}', action '{actionName}', '{ex.Source}'):\n" +
                 $"   {ex.Message}\n" +
                 $"The stack trace is:\n{ex.StackTrace}");
         }

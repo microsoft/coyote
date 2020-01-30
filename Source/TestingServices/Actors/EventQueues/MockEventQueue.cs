@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
@@ -103,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 var eventCount = this.Queue.Count(val => val.e.GetType().Equals(e.GetType()));
                 this.ActorManager.Assert(eventCount <= info.Assert,
-                    "There are more than {0} instances of '{1}' in the input queue of '{2}'.",
+                    "There are more than {0} instances of '{1}' in the input queue of {2}.",
                     info.Assert, info.EventName, this.Actor.Id);
             }
 

@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(M));
             },
             configuration: configuration,
-            expectedError: "There are more than 1 instances of 'E1' in the input queue of 'N()'.",
+            expectedError: "There are more than 1 instances of 'E1' in the input queue of N().",
             replay: true);
         }
     }

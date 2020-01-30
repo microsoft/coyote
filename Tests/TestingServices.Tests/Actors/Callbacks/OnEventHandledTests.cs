@@ -376,7 +376,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.SendEvent(m, UnitEvent.Instance);
             },
             configuration: GetConfiguration().WithNumberOfIterations(100),
-            expectedError: "Monitor 'Spec3' detected liveness bug in hot state 'S1' at the end of program execution.",
+            expectedError: "Spec3 detected liveness bug in hot state 'S1' at the end of program execution.",
             replay: true);
         }
 
@@ -415,7 +415,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.SendEvent(m, UnitEvent.Instance);
             },
             configuration: GetConfiguration().WithNumberOfIterations(100),
-            expectedError: "Monitor 'Spec3' detected liveness bug in hot state 'S1' at the end of program execution.",
+            expectedError: "Spec3 detected liveness bug in hot state 'S1' at the end of program execution.",
             replay: true);
         }
 

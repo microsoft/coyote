@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         protected internal static CoyoteRuntime Current => IsExecutionControlled ?
             (AsyncLocalInstance.Value ?? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                "Uncontrolled task with id '{0}' tried to access the runtime. Please make sure to avoid using concurrency " +
+                "Uncontrolled task '{0}' tried to access the runtime. Please make sure to avoid using concurrency " +
                 "APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you " +
                 "are using external libraries that are executing concurrently, you will need to mock them during testing.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"))) :

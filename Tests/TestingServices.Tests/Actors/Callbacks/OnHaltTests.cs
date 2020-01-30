@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(A3));
             },
-            expectedError: "'A3()' invoked ReceiveEventAsync while halting.",
+            expectedError: "A3() invoked ReceiveEventAsync while halting.",
             replay: true);
         }
 
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M3));
             },
-            expectedError: "'M3()' invoked ReceiveEventAsync while halting.",
+            expectedError: "M3() invoked ReceiveEventAsync while halting.",
             replay: true);
         }
 

@@ -367,7 +367,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             // Increments the temperature of each monitor.
             // foreach (var monitor in HotMonitors)
             // {
-            //    string message = IO.Utilities.Format("Monitor '{0}' detected infinite execution that " +
+            //    string message = IO.Utilities.Format("{0} detected infinite execution that " +
             //        "violates a liveness property.", monitor.GetType().Name);
             //    Runtime.Scheduler.NotifyAssertionFailure(message, false);
             // }
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
                 // foreach (var monitor in HotMonitors)
                 // {
-                //    string message = IO.Utilities.Format("Monitor '{0}' detected infinite execution that " +
+                //    string message = IO.Utilities.Format("{0} detected infinite execution that " +
                 //        "violates a liveness property.", monitor.GetType().Name);
                 //    Runtime.Scheduler.NotifyAssertionFailure(message, false);
                 // }

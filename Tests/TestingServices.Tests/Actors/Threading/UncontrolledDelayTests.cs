@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(A1));
             },
-            expectedError: "'' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
+            expectedError: "Task '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
                 "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you " +
                 "are using external libraries that are executing concurrently, you will need to mock them during testing.",
             replay: true);
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M1));
             },
-            expectedError: "'' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
+            expectedError: "Task '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to " +
                 "avoid using concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you " +
                 "are using external libraries that are executing concurrently, you will need to mock them during testing.",
             replay: true);
@@ -90,10 +90,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             expectedErrors: new string[]
             {
-                "'' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                "Task '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
                 "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task with id '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
+                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
                 "such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
             },
@@ -126,10 +126,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             expectedErrors: new string[]
             {
-                "'' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                "Task '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
                 "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task with id '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
+                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
                 "such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
             },
@@ -165,10 +165,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             expectedErrors: new string[]
             {
-                "'' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                "Task '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
                 "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task with id '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
+                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
                 "such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
             },
@@ -210,10 +210,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             expectedErrors: new string[]
             {
-                "'' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                "Task '' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
                 "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task with id '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
+                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
                 "such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you are " +
                 "using external libraries that are executing concurrently, you will need to mock them during testing.",
             },

@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked ReceiveEventAsync while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(eventType, predicate);
         }
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked ReceiveEventAsync while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(eventTypes);
         }
@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Actors
         /// <returns>The received event.</returns>
         protected internal Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked ReceiveEventAsync while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(events);
         }
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="ignore">True to ignore events of the specified type, else false.</param>
         protected void IgnoreEvent(Type eventType, bool ignore = true)
         {
-            this.Assert(eventType != null, "'{0}' is ignoring a null event type.", this.Id);
+            this.Assert(eventType != null, "{0} is ignoring a null event type.", this.Id);
 
             if (ignore)
             {
@@ -278,7 +278,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="defer">True to defer events of the specified type, else false.</param>
         protected void DeferEvent(Type eventType, bool defer = true)
         {
-            this.Assert(eventType != null, "'{0}' is deferring a null event type.", this.Id);
+            this.Assert(eventType != null, "{0} is deferring a null event type.", this.Id);
 
             if (defer)
             {
@@ -302,7 +302,7 @@ namespace Microsoft.Coyote.Actors
         protected TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
         {
             // The specified due time and period must be valid.
-            this.Assert(startDelay.TotalMilliseconds >= 0, "'{0}' registered a timer with a negative due time.", this.Id);
+            this.Assert(startDelay.TotalMilliseconds >= 0, "{0} registered a timer with a negative due time.", this.Id);
             return this.RegisterTimer(startDelay, Timeout.InfiniteTimeSpan, payload);
         }
 
@@ -319,8 +319,8 @@ namespace Microsoft.Coyote.Actors
         protected TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, object payload = null)
         {
             // The specified due time and period must be valid.
-            this.Assert(startDelay.TotalMilliseconds >= 0, "'{0}' registered a periodic timer with a negative due time.", this.Id);
-            this.Assert(period.TotalMilliseconds >= 0, "'{0}' registered a periodic timer with a negative period.", this.Id);
+            this.Assert(startDelay.TotalMilliseconds >= 0, "{0} registered a periodic timer with a negative due time.", this.Id);
+            this.Assert(period.TotalMilliseconds >= 0, "{0} registered a periodic timer with a negative period.", this.Id);
             return this.RegisterTimer(startDelay, period, payload);
         }
 
@@ -330,7 +330,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="info">Handle that contains information about the timer.</param>
         protected void StopTimer(TimerInfo info)
         {
-            this.Assert(info.OwnerId == this.Id, "'{0}' is not allowed to dispose timer '{1}', which is owned by '{2}'.",
+            this.Assert(info.OwnerId == this.Id, "{0} is not allowed to dispose timer '{1}', which is owned by {2}.",
                 this.Id, info, info.OwnerId);
             this.UnregisterTimer(info);
         }
@@ -392,7 +392,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="e">The event to send.</param>
         protected void Monitor(Type type, Event e)
         {
-            this.Assert(e != null, "'{0}' is sending a null event.", this.Id);
+            this.Assert(e != null, "{0} is sending a null event.", this.Id);
             this.Runtime.Monitor(type, this, e);
         }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         protected void Halt()
         {
-            this.Assert(this.CurrentStatus is Status.Active, "'{0}' invoked Halt while halting.", this.Id);
+            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
             this.CurrentStatus = Status.Halting;
         }
 
@@ -594,7 +594,7 @@ namespace Microsoft.Coyote.Actors
                     // If the event cannot be handled then report an error, else halt gracefully.
                     var ex = new UnhandledEventException(e, default, "Unhandled Event");
                     bool isHalting = this.OnUnhandledEventExceptionHandler(ex, e);
-                    this.Assert(isHalting, "'{0}' received event '{1}' that cannot be handled.",
+                    this.Assert(isHalting, "{0} received event '{1}' that cannot be handled.",
                         this.Id, e.GetType().FullName);
                 }
             }
@@ -723,7 +723,7 @@ namespace Microsoft.Coyote.Actors
             if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
             {
                 this.CurrentStatus = Status.Halted;
-                Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from '{this.Id}'.");
+                Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");
             }
             else
             {
@@ -859,7 +859,7 @@ namespace Microsoft.Coyote.Actors
                 foreach (var attr in doAttributes)
                 {
                     this.Assert(!handledEvents.Contains(attr.Event),
-                        "'{0}' declared multiple handlers for event '{1}'.",
+                        "{0} declared multiple handlers for event '{1}'.",
                         this.Id, attr.Event);
                     actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                     handledEvents.Add(attr.Event);
@@ -974,8 +974,7 @@ namespace Microsoft.Coyote.Actors
         private protected virtual void ReportUnhandledException(Exception ex, string actionName)
         {
             this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in '{this.Id}', action '{actionName}', " +
-                $"'{ex.Source}':\n" +
+                $"in {this.Id} (action '{actionName}', '{ex.Source}'):\n" +
                 $"   {ex.Message}\n" +
                 $"The stack trace is:\n{ex.StackTrace}");
         }

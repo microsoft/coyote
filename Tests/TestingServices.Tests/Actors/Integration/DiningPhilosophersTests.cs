@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(Environment));
             },
             configuration: configuration,
-            expectedError: "Monitor 'LivenessMonitor' detected infinite execution that violates a liveness property.",
+            expectedError: "LivenessMonitor detected infinite execution that violates a liveness property.",
             replay: true);
         }
     }

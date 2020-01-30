@@ -129,23 +129,23 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             await WaitAsync(tcs.Task);
             await Task.Delay(200);
 
-            string expected = @"<CreateLog> 'M()' was created by the runtime.
-<StateLog> 'M()' enters state 'Init'.
-<ActionLog> 'M()' invoked action 'InitOnEntry' in state 'Init'.
-<CreateLog> 'N()' was created by 'M()'.
-<StateLog> 'N()' enters state 'Init'.
-<ActionLog> 'N()' invoked action 'InitOnEntry' in state 'Init'.
-<SendLog> 'M()' in state 'Init' sent event 'E' to 'N()'.
-<EnqueueLog> 'N()' enqueued event 'E'.
-<DequeueLog> 'N()' dequeued event 'E' in state 'Init'.
-<GotoLog> 'N()' is transitioning from state 'Init' to state 'N.Act'.
-<StateLog> 'N()' exits state 'Init'.
-<StateLog> 'N()' enters state 'Act'.
-<ActionLog> 'N()' invoked action 'ActOnEntry' in state 'Act'.
-<SendLog> 'N()' in state 'Act' sent event 'E' to 'M()'.
-<EnqueueLog> 'M()' enqueued event 'E'.
-<DequeueLog> 'M()' dequeued event 'E' in state 'Init'.
-<ActionLog> 'M()' invoked action 'Act' in state 'Init'.
+            string expected = @"<CreateLog> M() was created by the runtime.
+<StateLog> M() enters state 'Init'.
+<ActionLog> M() invoked action 'InitOnEntry' in state 'Init'.
+<CreateLog> N() was created by M().
+<StateLog> N() enters state 'Init'.
+<ActionLog> N() invoked action 'InitOnEntry' in state 'Init'.
+<SendLog> M() in state 'Init' sent event 'E' to N().
+<EnqueueLog> N() enqueued event 'E'.
+<DequeueLog> N() dequeued event 'E' in state 'Init'.
+<GotoLog> N() is transitioning from state 'Init' to state 'N.Act'.
+<StateLog> N() exits state 'Init'.
+<StateLog> N() enters state 'Act'.
+<ActionLog> N() invoked action 'ActOnEntry' in state 'Act'.
+<SendLog> N() in state 'Act' sent event 'E' to M().
+<EnqueueLog> M() enqueued event 'E'.
+<DequeueLog> M() dequeued event 'E' in state 'Init'.
+<ActionLog> M() invoked action 'Act' in state 'Init'.
 ";
 
             string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());

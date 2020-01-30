@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(ClientActor));
             },
             configuration: configuration,
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state " +
+            expectedError: "LivenessMonitor detected liveness bug in hot state " +
                 "'NoTimeoutReceived' at the end of program execution.",
             replay: true);
         }
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(ClientStateMachine));
             },
             configuration: configuration,
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state " +
+            expectedError: "LivenessMonitor detected liveness bug in hot state " +
                 "'NoTimeoutReceived' at the end of program execution.",
             replay: true);
         }

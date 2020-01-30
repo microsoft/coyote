@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 await WriteAsync();
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
 
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 await WriteWithDelayAsync();
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
 
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 });
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
 
@@ -193,7 +193,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 });
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
 
@@ -209,7 +209,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 });
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
 
@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 });
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
-            expectedError: "Monitor 'LivenessMonitor' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
     }

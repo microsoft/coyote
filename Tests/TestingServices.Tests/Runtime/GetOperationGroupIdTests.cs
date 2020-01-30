@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
                 r.CreateActor(typeof(M3));
             },
-            expectedError: "Trying to access the operation group id of 'M4()', which is not the currently executing actor.",
+            expectedError: "Trying to access the operation group id of M4(), which is not the currently executing actor.",
             replay: true);
         }
     }

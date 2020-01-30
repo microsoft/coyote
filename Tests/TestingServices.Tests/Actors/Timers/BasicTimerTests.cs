@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(M4));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
-            expectedError: "'M4()' registered a timer with a negative due time.",
+            expectedError: "M4() registered a timer with a negative due time.",
             replay: true);
         }
 
@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(M5));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
-            expectedError: "'M5()' registered a periodic timer with a negative period.",
+            expectedError: "M5() registered a periodic timer with a negative period.",
             replay: true);
         }
 
@@ -318,7 +318,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(M6));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
-            expectedError: "'M7()' is not allowed to dispose timer '', which is owned by 'M6()'.",
+            expectedError: "M7() is not allowed to dispose timer '', which is owned by M6().",
             replay: true);
         }
 

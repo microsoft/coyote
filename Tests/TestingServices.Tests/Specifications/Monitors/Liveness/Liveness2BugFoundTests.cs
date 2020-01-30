@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 r.CreateActor(typeof(EventHandler));
             },
             configuration: configuration,
-            expectedError: "Monitor 'WatchDog' detected liveness bug in hot state " +
+            expectedError: "WatchDog detected liveness bug in hot state " +
                 "'CannotGetUserInput' at the end of program execution.",
             replay: true);
         }

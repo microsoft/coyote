@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M4a));
             },
-            expectedError: "'M4a()' is trying to transition to non-existing state 'Done'.",
+            expectedError: "M4a() is trying to transition to non-existing state 'Done'.",
             replay: true);
         }
 
@@ -242,7 +242,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestPushStateTransitionOnExit()
         {
-            var expectedError = "'M6()' has performed a 'PushState' transition from an OnExit action.";
+            var expectedError = "M6() has performed a 'PushState' transition from an OnExit action.";
             this.TestWithError(r =>
             {
                 r.CreateActor(typeof(M6));

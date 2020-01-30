@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M2a));
             },
-            expectedError: "'M2a()' is trying to transition to non-existing state 'Done'.",
+            expectedError: "M2a() is trying to transition to non-existing state 'Done'.",
             replay: true);
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestGotoStateTransitionOnExit()
         {
-            var expectedError = "'M4()' has performed a 'GotoState' transition from an OnExit action.";
+            var expectedError = "M4() has performed a 'GotoState' transition from an OnExit action.";
             this.TestWithError(r =>
             {
                 r.CreateActor(typeof(M4));

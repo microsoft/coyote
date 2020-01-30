@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             var callerOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
             this.Assert(callerOp != null && currentActorId == callerOp.Actor.Id,
-                "Trying to access the operation group id of '{0}', which is not the currently executing actor.",
+                "Trying to access the operation group id of {0}, which is not the currently executing actor.",
                 currentActorId);
             return callerOp.Actor.OperationGroupId;
         }
@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation {op.Name} on task '{Task.CurrentId}'.");
                     op.OnCompleted();
 
                     // Task has completed, schedule the next enabled operation.
@@ -321,7 +321,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             this.AssertExpectedCallerActor(creator, "CreateActorAndExecuteAsync");
             this.Assert(creator != null, "Only an actor can call 'CreateActorAndExecuteAsync': avoid calling " +
-                "it directly from the 'Test' method; instead call it through a 'harness' actor.");
+                "it directly from the test method; instead call it through a test driver actor.");
 
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
             this.RunActorEventHandler(actor, initialEvent, true, creator);
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             this.Assert(type.IsSubclassOf(typeof(Actor)), "Type '{0}' is not an actor.", type.FullName);
 
-            // Using ulong.MaxValue because a 'Create' operation cannot specify
+            // Using ulong.MaxValue because a Create operation cannot specify
             // the id of its target, because the id does not exist yet.
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(creator);
@@ -398,8 +398,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (sender != null)
             {
-                this.Assert(targetId != null, "'{0}' is sending to a null actor.", sender.Id);
-                this.Assert(e != null, "'{0}' is sending a null event.", sender.Id);
+                this.Assert(targetId != null, "{0} is sending to a null actor.", sender.Id);
+                this.Assert(e != null, "{0} is sending a null event.", sender.Id);
             }
             else
             {
@@ -424,9 +424,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             Guid opGroupId, SendOptions options)
         {
             this.Assert(sender is StateMachine, "Only an actor can call 'SendEventAndExecuteAsync': avoid " +
-                "calling it directly from the 'Test' method; instead call it through a 'harness' actor.");
-            this.Assert(targetId != null, "'{0}' is sending to a null actor.", sender.Id);
-            this.Assert(e != null, "'{0}' is sending a null event.", sender.Id);
+                "calling it directly from the test method; instead call it through a test driver actor.");
+            this.Assert(targetId != null, "{0} is sending to a null actor.", sender.Id);
+            this.Assert(e != null, "{0} is sending a null event.", sender.Id);
             this.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
 
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, options, out Actor target);
@@ -439,8 +439,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return true;
             }
 
-            // 'EnqueueStatus.EventHandlerNotRunning' is not returned by 'EnqueueEvent'
-            // (even when the actor was previously inactive) when the event 'e' requires
+            // EnqueueStatus.EventHandlerNotRunning is not returned by EnqueueEvent
+            // (even when the actor was previously inactive) when the event e requires
             // no action by the actor (i.e., it implicitly handles the event).
             return enqueueStatus is EnqueueStatus.Dropped || enqueueStatus is EnqueueStatus.NextEventUnavailable;
         }
@@ -473,7 +473,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
                     e, opGroupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
-                    "A must-handle event '{0}' was sent to '{1}' which has halted.", e.GetType().FullName, targetId);
+                    "A must-handle event '{0}' was sent to {1} which has halted.", e.GetType().FullName, targetId);
                 this.TryHandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
@@ -561,7 +561,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         ResetProgramCounter(actor);
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{actor.Id}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation {actor.Id} on task '{Task.CurrentId}'.");
                     op.OnCompleted();
 
                     // The actor is inactive or halted, schedule the next enabled operation.
@@ -606,7 +606,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 // Report the unhandled exception.
                 string message = string.Format(CultureInfo.InvariantCulture,
-                    $"Exception '{ex.GetType()}' was thrown in operation '{op.Name}', " +
+                    $"Exception '{ex.GetType()}' was thrown in operation {op.Name}, " +
                     $"'{ex.Source}':\n" +
                     $"   {ex.Message}\n" +
                     $"The stack trace is:\n{ex.StackTrace}");
@@ -749,7 +749,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 return;
             }
 
-            this.Assert(op.Actor.Equals(caller), "'{0}' invoked {1} on behalf of '{2}'.",
+            this.Assert(op.Actor.Equals(caller), "{0} invoked {1} on behalf of {2}.",
                 op.Actor.Id, calledAPI, caller.Id);
         }
 
@@ -771,7 +771,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 if (monitor.IsInHotState(out string stateName))
                 {
                     string message = string.Format(CultureInfo.InvariantCulture,
-                        "Monitor '{0}' detected liveness bug in hot state '{1}' at the end of program execution.",
+                        "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
                         monitor.GetType().FullName, stateName);
                     this.Scheduler.NotifyAssertionFailure(message, killTasks: false, cancelExecution: false);
                 }
@@ -955,9 +955,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyWaitTask(Actor actor, Task task)
         {
-            this.Assert(task != null, "'{0}' is waiting for a null task to complete.", actor.Id);
+            this.Assert(task != null, "{0} is waiting for a null task to complete.", actor.Id);
             this.Assert(task.IsCompleted || task.IsCanceled || task.IsFaulted,
-                "'{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                "Task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
                 "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are using " +
                 "external libraries that are executing concurrently, you will need to mock them during testing.",
                 Task.CurrentId);

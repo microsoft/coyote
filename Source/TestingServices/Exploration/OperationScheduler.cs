@@ -192,14 +192,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                     if (!this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
                     {
                         this.ControlledTaskMap.TryAdd(Task.CurrentId.Value, current);
-                        IO.Debug.WriteLine($"<ScheduleDebug> Operation '{current.Id}' is associated with task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is associated with task '{1}'.", current.Id, Task.CurrentId);
                     }
 
                     while (!current.IsActive)
                     {
-                        IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the operation of '{current.Name}' on task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", current.Name, Task.CurrentId);
                         System.Threading.Monitor.Wait(current);
-                        IO.Debug.WriteLine($"<ScheduleDebug> Waking up the operation of '{current.Name}' on task '{Task.CurrentId}'.");
+                        IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", current.Name, Task.CurrentId);
                     }
 
                     if (current.Status != AsyncOperationStatus.Enabled)

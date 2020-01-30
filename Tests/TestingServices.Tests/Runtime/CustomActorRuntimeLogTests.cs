@@ -126,13 +126,13 @@ StateTransition
                 string expected = @"<TestLog> Running test.
 <CreateLog>.
 <StateLog>.
-<ActionLog> 'M()' invoked action 'InitOnEntry' in state 'Init'.
+<ActionLog> M() invoked action 'InitOnEntry' in state 'Init'.
 <CreateLog>.
 <StateLog>.
-<DequeueLog> 'N()' dequeued event 'E' in state 'Init'.
-<ActionLog> 'N()' invoked action 'Act' in state 'Init'.
-<DequeueLog> 'M()' dequeued event 'E' in state 'Init'.
-<ActionLog> 'M()' invoked action 'Act' in state 'Init'.
+<DequeueLog> N() dequeued event 'E' in state 'Init'.
+<ActionLog> N() invoked action 'Act' in state 'Init'.
+<DequeueLog> M() dequeued event 'E' in state 'Init'.
+<ActionLog> M() invoked action 'Act' in state 'Init'.
 <ErrorLog> Reached test assertion.
 <StrategyLog> Found bug using 'DFS' strategy.
 <StrategyLog> Testing statistics:

@@ -874,7 +874,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(Environment));
             },
             configuration: configuration,
-            expectedError: "Monitor 'LivenessMonitor' detected potential liveness bug in hot state 'Repairing'.",
+            expectedError: "LivenessMonitor detected potential liveness bug in hot state 'Repairing'.",
             replay: true);
         }
 
@@ -896,7 +896,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(Environment));
             },
             configuration: configuration,
-            expectedError: "Monitor 'LivenessMonitor' detected infinite execution that violates a liveness property.",
+            expectedError: "LivenessMonitor detected infinite execution that violates a liveness property.",
             replay: true);
         }
     }

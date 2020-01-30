@@ -334,7 +334,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 this.Assert(callerOp != null,
-                    "Uncontrolled task with id '{0}' invoked a yield operation.",
+                    "Uncontrolled task '{0}' invoked a yield operation.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
                 IO.Debug.WriteLine("<ControlledTask> '{0}' is executing a yield operation.", callerOp.Id);
                 this.ScheduleAction(continuation, null, default);
@@ -354,7 +354,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-all operation.",
+                "Uncontrolled task '{0}' invoked a when-all operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
             callerOp.OnWaitTasks(tasks, waitAll: true);
 
@@ -391,7 +391,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-all operation.",
+                "Uncontrolled task '{0}' invoked a when-all operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
             callerOp.OnWaitTasks(tasks, waitAll: true);
 
@@ -415,7 +415,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-any operation.",
+                "Uncontrolled task '{0}' invoked a when-any operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
@@ -441,7 +441,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a when-any operation.",
+                "Uncontrolled task '{0}' invoked a when-any operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
@@ -467,7 +467,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a wait-all operation.",
+                "Uncontrolled task '{0}' invoked a wait-all operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
             callerOp.OnWaitTasks(tasks, waitAll: true);
 
@@ -485,7 +485,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.Assert(callerOp != null,
-                "Uncontrolled task with id '{0}' invoked a wait-any operation.",
+                "Uncontrolled task '{0}' invoked a wait-any operation.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
             callerOp.OnWaitTasks(tasks, waitAll: false);
 

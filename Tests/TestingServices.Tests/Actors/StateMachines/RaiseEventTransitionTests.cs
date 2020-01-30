@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestRaiseEventTransitionOnExit()
         {
-            var expectedError = "'M2()' has performed a 'RaiseEvent' transition from an OnExit action.";
+            var expectedError = "M2() has performed a 'RaiseEvent' transition from an OnExit action.";
             this.TestWithError(r =>
             {
                 r.CreateActor(typeof(M2));

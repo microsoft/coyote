@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 r.CreateActor(typeof(EventHandler));
             },
             configuration: configuration,
-            expectedError: "Monitor 'LivenessMonitor' detected potential liveness bug in hot state 'CannotGetUserInput'.",
+            expectedError: "LivenessMonitor detected potential liveness bug in hot state 'CannotGetUserInput'.",
             replay: true);
         }
     }

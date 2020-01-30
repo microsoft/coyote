@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(A1));
             },
-            expectedError: "'A1()' declared multiple handlers for event 'Actors.UnitEvent'.");
+            expectedError: "A1() declared multiple handlers for event 'Actors.UnitEvent'.");
         }
 
         private class M1 : StateMachine
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M1));
             },
-            expectedError: "'M1()' declared multiple handlers for event 'Actors.UnitEvent' in state 'M1+Init'.");
+            expectedError: "M1() declared multiple handlers for event 'Actors.UnitEvent' in state 'M1+Init'.");
         }
 
         private class M2 : StateMachine
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M2));
             },
-            expectedError: "'M2()' declared multiple handlers for event 'Actors.UnitEvent' in state 'M2+Init'.");
+            expectedError: "M2() declared multiple handlers for event 'Actors.UnitEvent' in state 'M2+Init'.");
         }
 
         private class M3 : StateMachine
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M3));
             },
-            expectedError: "'M3()' declared multiple handlers for event 'Actors.UnitEvent' in state 'M3+Init'.");
+            expectedError: "M3() declared multiple handlers for event 'Actors.UnitEvent' in state 'M3+Init'.");
         }
 
         private class M4 : StateMachine
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M4));
             },
-            expectedError: "'M4()' inherited multiple handlers for event 'Actors.UnitEvent' from state 'M4+BaseState' in state 'M4+Init'.");
+            expectedError: "M4() inherited multiple handlers for event 'Actors.UnitEvent' from state 'M4+BaseState' in state 'M4+Init'.");
         }
 
         private class M5 : StateMachine
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M5));
             },
-            expectedError: "'M5()' inherited multiple handlers for event 'Actors.UnitEvent' from state 'M5+BaseState' in state 'M5+Init'.");
+            expectedError: "M5() inherited multiple handlers for event 'Actors.UnitEvent' from state 'M5+BaseState' in state 'M5+Init'.");
         }
 
         private class M6 : StateMachine
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M6));
             },
-            expectedError: "'M6()' inherited multiple handlers for event 'Actors.UnitEvent' from state 'M6+BaseState' in state 'M6+Init'.");
+            expectedError: "M6() inherited multiple handlers for event 'Actors.UnitEvent' from state 'M6+BaseState' in state 'M6+Init'.");
         }
 
         private class M7 : StateMachine
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M7));
             },
-            expectedError: "'M7()' declared multiple handlers for event 'Actors.UnitEvent' in state 'M7+Init'.");
+            expectedError: "M7() declared multiple handlers for event 'Actors.UnitEvent' in state 'M7+Init'.");
         }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 
@@ -119,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnDropEvent(Event e, Guid opGroupId, EventInfo eventInfo)
         {
-            this.Runtime.Assert(!eventInfo.MustHandle, "'{0}' halted before dequeueing must-handle event '{1}'.",
+            this.Runtime.Assert(!eventInfo.MustHandle, "{0} halted before dequeueing must-handle event '{1}'.",
                 this.Instance.Id, e.GetType().FullName);
             this.Runtime.TryHandleDroppedEvent(e, this.Instance.Id);
         }

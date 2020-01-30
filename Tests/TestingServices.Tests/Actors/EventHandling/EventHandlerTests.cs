@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M3));
             },
-            expectedError: "'M3()' received event 'E1' that cannot be handled.",
+            expectedError: "M3() received event 'E1' that cannot be handled.",
             replay: true);
         }
 
@@ -358,7 +358,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M6));
             },
-            expectedError: "There are more than 1 instances of 'Actors.UnitEvent' in the input queue of 'M6()'.",
+            expectedError: "There are more than 1 instances of 'Actors.UnitEvent' in the input queue of M6().",
             replay: true);
         }
 
@@ -773,7 +773,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M14));
             },
-            expectedError: "There are more than 1 instances of 'Actors.UnitEvent' in the input queue of 'M14()'.",
+            expectedError: "There are more than 1 instances of 'Actors.UnitEvent' in the input queue of M14().",
             replay: true);
         }
 

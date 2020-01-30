@@ -340,7 +340,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
                 r.RegisterMonitor(typeof(M2));
             },
-            expectedError: "Monitor 'M2' can not declare more than one start states.");
+            expectedError: "M2 can not declare more than one start states.");
         }
 
         [Fact(Timeout = 5000)]

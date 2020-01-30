@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Actors
                 if (!this.ActorManager.IsDefaultHandlerAvailable())
                 {
                     // There is no default event handler installed, so do not return an event.
-                    // Setting 'IsEventHandlerRunning' must happen inside the lock as it needs
+                    // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.ActorManager.IsEventHandlerRunning = false;
                     return (DequeueStatus.NotAvailable, null, Guid.Empty, null);
@@ -242,8 +242,8 @@ namespace Microsoft.Coyote.Actors
 
             if (receivedEvent == default)
             {
-                // Note that 'EventWaitTypes' is racy, so should not be accessed outside
-                // the lock, this is why we access 'eventWaitTypes' instead.
+                // Note that EventWaitTypes is racy, so should not be accessed outside
+                // the lock, this is why we access eventWaitTypes instead.
                 this.ActorManager.OnWaitEvent(eventWaitTypes.Keys);
                 return this.ReceiveCompletionSource.Task;
             }

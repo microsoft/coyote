@@ -521,7 +521,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
             {
                 r.CreateActor(typeof(M7A));
             },
-            expectedError: "'M7B()' received event 'E1' that cannot be handled.",
+            expectedError: "M7B() received event 'E1' that cannot be handled.",
             replay: true);
         }
 

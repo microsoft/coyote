@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
-            expectedError: "'A2()' halted before dequeueing must-handle event 'MustHandleEvent'.",
+            expectedError: "A2() halted before dequeueing must-handle event 'MustHandleEvent'.",
             replay: true);
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
-            expectedError: "'M2()' halted before dequeueing must-handle event 'MustHandleEvent'.",
+            expectedError: "M2() halted before dequeueing must-handle event 'MustHandleEvent'.",
             replay: true);
         }
 
@@ -132,8 +132,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             configuration: Configuration.Create().WithNumberOfIterations(500),
             expectedErrors: new string[]
                 {
-                    "A must-handle event 'MustHandleEvent' was sent to 'A3()' which has halted.",
-                    "'A3()' halted before dequeueing must-handle event 'MustHandleEvent'."
+                    "A must-handle event 'MustHandleEvent' was sent to A3() which has halted.",
+                    "A3() halted before dequeueing must-handle event 'MustHandleEvent'."
                 },
             replay: true);
         }
@@ -161,8 +161,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             configuration: Configuration.Create().WithNumberOfIterations(500),
             expectedErrors: new string[]
                 {
-                    "A must-handle event 'MustHandleEvent' was sent to 'M3()' which has halted.",
-                    "'M3()' halted before dequeueing must-handle event 'MustHandleEvent'."
+                    "A must-handle event 'MustHandleEvent' was sent to M3() which has halted.",
+                    "M3() halted before dequeueing must-handle event 'MustHandleEvent'."
                 },
             replay: true);
         }
@@ -188,8 +188,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             configuration: Configuration.Create().WithNumberOfIterations(500),
             expectedErrors: new string[]
                 {
-                    "A must-handle event 'MustHandleEvent' was sent to 'A4()' which has halted.",
-                    "'A4()' halted before dequeueing must-handle event 'MustHandleEvent'."
+                    "A must-handle event 'MustHandleEvent' was sent to A4() which has halted.",
+                    "A4() halted before dequeueing must-handle event 'MustHandleEvent'."
                 },
             replay: true);
         }
@@ -220,8 +220,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             configuration: Configuration.Create().WithNumberOfIterations(500),
             expectedErrors: new string[]
                 {
-                    "A must-handle event 'MustHandleEvent' was sent to 'M4()' which has halted.",
-                    "'M4()' halted before dequeueing must-handle event 'MustHandleEvent'."
+                    "A must-handle event 'MustHandleEvent' was sent to M4() which has halted.",
+                    "M4() halted before dequeueing must-handle event 'MustHandleEvent'."
                 },
             replay: true);
         }
@@ -251,7 +251,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.SendEvent(m, new MoveEvent());
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
-            expectedError: "'M5()' halted before dequeueing must-handle event 'MustHandleEvent'.",
+            expectedError: "M5() halted before dequeueing must-handle event 'MustHandleEvent'.",
             replay: true);
         }
     }

@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 r.CreateActor(typeof(EventHandler), new SetupEvent(false));
             },
             configuration: configuration,
-            expectedError: "Monitor 'WatchDog' detected infinite execution that violates a liveness property.",
+            expectedError: "WatchDog detected infinite execution that violates a liveness property.",
             replay: true);
         }
     }

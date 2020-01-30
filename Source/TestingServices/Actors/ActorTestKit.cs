@@ -60,8 +60,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <returns>Task that represents the asynchronous operation.</returns>
         public Task StartActorAsync(Event initialEvent = null)
         {
-            this.Runtime.Assert(!this.IsRunning,
-                string.Format("'{0}' is already running.", this.ActorInstance.Id));
+            this.Runtime.Assert(!this.IsRunning, string.Format("{0} is already running.", this.ActorInstance.Id));
             this.IsRunning = true;
             return this.Runtime.StartAsync(initialEvent);
         }
@@ -75,8 +74,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <returns>Task that represents the asynchronous operation.</returns>
         public Task SendEventAsync(Event e)
         {
-            this.Runtime.Assert(this.IsRunning,
-                string.Format("'{0}' is not running.", this.ActorInstance.Id));
+            this.Runtime.Assert(this.IsRunning, string.Format("{0} is not running.", this.ActorInstance.Id));
             return this.Runtime.SendEventAndExecuteAsync(this.Runtime.Instance.Id, e, null, Guid.Empty, null);
         }
 
@@ -156,11 +154,10 @@ namespace Microsoft.Coyote.TestingServices
                     Type.DefaultBinder, parameterTypes, null);
             }
 
-            this.Runtime.Assert(method != null,
-                string.Format("Unable to invoke method '{0}' in '{1}'.",
+            this.Runtime.Assert(method != null, string.Format("Unable to invoke method '{0}' of {1}.",
                 methodName, this.ActorInstance.Id));
             this.Runtime.Assert(method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) is null != isAsync,
-                string.Format("Must invoke {0}method '{1}' of '{2}' using '{3}'.",
+                string.Format("Must invoke {0}method '{1}' of {2} using '{3}'.",
                 isAsync ? string.Empty : "async ", methodName, this.ActorInstance.Id, isAsync ? "Invoke" : "InvokeAsync"));
 
             return method;
@@ -230,7 +227,7 @@ namespace Microsoft.Coyote.TestingServices
             bool predicate = currentState.FullName.Equals(stateName) ||
                 currentState.FullName.Equals(
                     currentState.DeclaringType.FullName + "+" + stateName);
-            this.Runtime.Assert(predicate, string.Format("'{0}' is in state '{1}', not in '{2}'.",
+            this.Runtime.Assert(predicate, string.Format("{0} is in state '{1}', not in '{2}'.",
                 this.ActorInstance.Id, currentState.FullName, stateName));
         }
 
@@ -240,7 +237,7 @@ namespace Microsoft.Coyote.TestingServices
         public void AssertIsWaitingToReceiveEvent(bool isWaiting)
         {
             this.Runtime.Assert(this.Runtime.IsActorWaitingToReceiveEvent == isWaiting,
-                "'{0}' is {1}waiting to receive an event.",
+                "{0} is {1}waiting to receive an event.",
                 this.ActorInstance.Id, this.Runtime.IsActorWaitingToReceiveEvent ? string.Empty : "not ");
         }
 
@@ -251,7 +248,7 @@ namespace Microsoft.Coyote.TestingServices
         public void AssertInboxSize(int numEvents)
         {
             this.Runtime.Assert(this.Runtime.ActorInbox.Size == numEvents,
-                "'{0}' contains '{1}' events in its inbox.",
+                "{0} contains '{1}' events in its inbox.",
                 this.ActorInstance.Id, this.Runtime.ActorInbox.Size);
         }
     }

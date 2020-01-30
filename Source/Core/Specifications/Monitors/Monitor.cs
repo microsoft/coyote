@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.Specifications
         /// <returns>The raise event transition.</returns>
         protected Transition RaiseEvent(Event e)
         {
-            this.Assert(e != null, "Monitor '{0}' is raising a null event.", this.GetType().Name);
+            this.Assert(e != null, "{0} is raising a null event.", this.GetType().Name);
             return new Transition(Transition.Type.Raise, default, e);
         }
 
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.Specifications
         {
             // If the state is not a state of the monitor, then report an error and exit.
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
-                "Monitor '{0}' is trying to transition to non-existing state '{1}'.", this.GetType().Name, state.Name);
+                "{0} is trying to transition to non-existing state '{1}'.", this.GetType().Name, state.Name);
             return new Transition(Transition.Type.Goto, state, default);
         }
 
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.Specifications
                 if (this.ActiveState is null)
                 {
                     // If the event cannot be handled, then report an error and exit.
-                    this.Assert(false, "Monitor '{0}' received event '{1}' that cannot be handled.",
+                    this.Assert(false, "{0} received event '{1}' that cannot be handled.",
                         this.GetType().Name, e.GetType().FullName);
                 }
 
@@ -368,7 +368,7 @@ namespace Microsoft.Coyote.Specifications
             {
                 Transition transition = this.ExecuteAction(exitAction, e);
                 this.Assert(transition.TypeValue is Transition.Type.None,
-                    "Monitor '{0}' has performed a '{1}' transition from an OnExit action.",
+                    "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
             }
@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.Specifications
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
                 Transition transition = this.ExecuteAction(eventHandlerExitAction, e);
                 this.Assert(transition.TypeValue is Transition.Type.None,
-                    "Monitor '{0}' has performed a '{1}' transition from an OnExit action.",
+                    "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
             }
@@ -520,7 +520,7 @@ namespace Microsoft.Coyote.Specifications
                 this.Runtime.Assert(
                     this.LivenessTemperature <= this.Runtime.
                     Configuration.LivenessTemperatureThreshold,
-                    "Monitor '{0}' detected potential liveness bug in hot state '{1}'.",
+                    "{0} detected potential liveness bug in hot state '{1}'.",
                     this.GetType().Name, this.CurrentStateName);
             }
         }
@@ -536,7 +536,7 @@ namespace Microsoft.Coyote.Specifications
             {
                 this.Runtime.Assert(
                     livenessTemperature <= this.Runtime.Configuration.LivenessTemperatureThreshold,
-                    $"Monitor '{this.GetType().Name}' detected infinite execution that violates a liveness property.");
+                    $"{this.GetType().Name} detected infinite execution that violates a liveness property.");
             }
         }
 
@@ -677,7 +677,7 @@ namespace Microsoft.Coyote.Specifications
                         (state.IsCold && !state.IsHot) ||
                         (!state.IsCold && state.IsHot) ||
                         (!state.IsCold && !state.IsHot),
-                        "State '{0}' of monitor '{1}' cannot be both cold and hot.", type.FullName, this.GetType().Name);
+                        "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.GetType().Name);
 
                     StateMap[monitorType].Add(state);
                 }
@@ -734,8 +734,8 @@ namespace Microsoft.Coyote.Specifications
             }
 
             var initialStates = StateMap[monitorType].Where(state => state.IsStart).ToList();
-            this.Assert(initialStates.Count != 0, "Monitor '{0}' must declare a start state.", this.GetType().Name);
-            this.Assert(initialStates.Count == 1, "Monitor '{0}' can not declare more than one start states.", this.GetType().Name);
+            this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.GetType().Name);
+            this.Assert(initialStates.Count == 1, "{0} can not declare more than one start states.", this.GetType().Name);
 
             this.ConfigureStateTransitions(initialStates.Single());
             this.ActiveState = initialStates.Single();
@@ -806,17 +806,17 @@ namespace Microsoft.Coyote.Specifications
             }
             while (action is null && monitorType != typeof(Monitor));
 
-            this.Assert(action != null, "Cannot detect action declaration '{0}' in monitor '{1}'.",
+            this.Assert(action != null, "Cannot detect action declaration '{0}' in {1}.",
                 actionName, this.GetType().Name);
 
             ParameterInfo[] parameters = action.GetParameters();
             this.Assert(parameters.Length is 0 ||
                 (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
-                "Action '{0}' in monitor '{1}' must either accept no parameters or a single parameter of type 'Event'.",
+                "Action '{0}' in {1} must either accept no parameters or a single parameter of type 'Event'.",
                 action.Name, this.GetType().Name);
 
             this.Assert(action.ReturnType == typeof(void) || action.ReturnType == typeof(Transition),
-                "Action '{0}' in '{1}' must have 'void' or 'Transition' return type.",
+                "Action '{0}' in {1} must have 'void' or 'Transition' return type.",
                 action.Name, this.GetType().Name);
 
             return action;
@@ -827,8 +827,8 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         private void AssertStateValidity()
         {
-            this.Assert(StateTypeMap[this.GetType()].Count > 0, "Monitor '{0}' must have one or more states.", this.GetType().Name);
-            this.Assert(this.ActiveState != null, "Monitor '{0}' must not have a null current state.", this.GetType().Name);
+            this.Assert(StateTypeMap[this.GetType()].Count > 0, "{0} must have one or more states.", this.GetType().Name);
+            this.Assert(this.ActiveState != null, "{0} must not have a null current state.", this.GetType().Name);
         }
 
         /// <summary>
@@ -839,8 +839,7 @@ namespace Microsoft.Coyote.Specifications
         {
             var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
             this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in monitor '{this.GetType().Name}', state '{state}', action '{actionName}', " +
-                $"'{ex.Source}':\n" +
+                $"in {this.GetType().Name} (state '{state}', action '{actionName}', '{ex.Source}'):\n" +
                 $"   {ex.Message}\n" +
                 $"The stack trace is:\n{ex.StackTrace}");
         }
@@ -850,7 +849,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal HashSet<string> GetAllStates()
         {
-            this.Assert(StateMap.ContainsKey(this.GetType()), "Monitor '{0}' hasn't populated its states yet.", this.GetType().Name);
+            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().Name);
 
             var allStates = new HashSet<string>();
             foreach (var state in StateMap[this.GetType()])
@@ -866,7 +865,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal HashSet<Tuple<string, string>> GetAllStateEventPairs()
         {
-            this.Assert(StateMap.ContainsKey(this.GetType()), "Monitor '{0}' hasn't populated its states yet.", this.GetType().Name);
+            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().Name);
 
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateMap[this.GetType()])

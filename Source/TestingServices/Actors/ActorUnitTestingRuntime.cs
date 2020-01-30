@@ -194,9 +194,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
             this.Assert(sender is null || this.Instance.Id.Equals(sender.Id),
-                string.Format("Only '{0}' can send an event during this test.", this.Instance.Id.ToString()));
-            this.Assert(targetId != null, string.Format("'{0}' is sending to a null actor.", this.Instance.Id.ToString()));
-            this.Assert(e != null, string.Format("'{0}' is sending a null event.", this.Instance.Id.ToString()));
+                string.Format("Only {0} can send an event during this test.", this.Instance.Id.ToString()));
+            this.Assert(targetId != null, string.Format("{0} is sending to a null actor.", this.Instance.Id.ToString()));
+            this.Assert(e != null, string.Format("{0} is sending a null event.", this.Instance.Id.ToString()));
 
             // The operation group id of this operation is set using the following precedence:
             // (1) To the specified send operation group id, if it is non-empty.

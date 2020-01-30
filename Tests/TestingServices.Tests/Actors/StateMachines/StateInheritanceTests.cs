@@ -551,7 +551,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M2));
             },
-            expectedError: "'M2()' can not declare more than one start states.");
+            expectedError: "M2() can not declare more than one start states.");
         }
 
         [Fact(Timeout = 5000)]

@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M1));
             },
-            expectedError: "'M1()' popped its state with no matching push state.",
+            expectedError: "M1() popped its state with no matching push state.",
             replay: true);
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestPopStateTransitionOnExit()
         {
-            var expectedError = "'M2()' has performed a 'PopState' transition from an OnExit action.";
+            var expectedError = "M2() has performed a 'PopState' transition from an OnExit action.";
             this.TestWithError(r =>
             {
                 r.CreateActor(typeof(M2));

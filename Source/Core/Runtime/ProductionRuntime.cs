@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Runtime
             if (targetId is null)
             {
                 string message = sender != null ?
-                    string.Format("'{0}' is sending to a null actor.", sender.Id.ToString()) :
+                    string.Format("{0} is sending to a null actor.", sender.Id.ToString()) :
                     "Cannot send to a null actor.";
                 this.Assert(false, message);
             }
@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.Runtime
             if (e is null)
             {
                 string message = sender != null ?
-                    string.Format("'{0}' is sending a null event.", sender.Id.ToString()) :
+                    string.Format("{0} is sending a null event.", sender.Id.ToString()) :
                     "Cannot send a null event.";
                 this.Assert(false, message);
             }

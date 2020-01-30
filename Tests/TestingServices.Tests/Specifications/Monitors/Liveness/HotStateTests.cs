@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 r.CreateActor(typeof(Master));
             },
             configuration: configuration,
-            expectedError: "Monitor 'M' detected liveness bug in hot state 'Init' at the end of program execution.",
+            expectedError: "M detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
     }

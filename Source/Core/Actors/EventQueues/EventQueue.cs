@@ -46,14 +46,10 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private bool IsClosed;
 
-        /// <summary>
-        /// The size of the queue.
-        /// </summary>
+        /// <inheritdoc/>
         public int Size => this.Queue.Count;
 
-        /// <summary>
-        /// Checks if an event has been raised.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsEventRaised => this.RaisedEvent != default;
 
         /// <summary>
@@ -67,9 +63,7 @@ namespace Microsoft.Coyote.Actors
             this.IsClosed = false;
         }
 
-        /// <summary>
-        /// Enqueues the specified event and its optional metadata.
-        /// </summary>
+        /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, Guid opGroupId, EventInfo info)
         {
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
@@ -112,9 +106,7 @@ namespace Microsoft.Coyote.Actors
             return enqueueStatus;
         }
 
-        /// <summary>
-        /// Dequeues the next event, if there is one available.
-        /// </summary>
+        /// <inheritdoc/>
         public (DequeueStatus status, Event e, Guid opGroupId, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
@@ -178,18 +170,14 @@ namespace Microsoft.Coyote.Actors
             return (DequeueStatus.Default, DefaultEvent.Instance, Guid.Empty, null);
         }
 
-        /// <summary>
-        /// Enqueues the specified raised event.
-        /// </summary>
+        /// <inheritdoc/>
         public void RaiseEvent(Event e, Guid opGroupId)
         {
             this.RaisedEvent = (e, opGroupId);
             this.ActorManager.OnRaiseEvent(e, opGroupId, null);
         }
 
-        /// <summary>
-        /// Waits to receive an event of the specified type that satisfies an optional predicate.
-        /// </summary>
+        //// <inheritdoc/>
         public Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>
@@ -200,9 +188,7 @@ namespace Microsoft.Coyote.Actors
             return this.ReceiveEventAsync(eventWaitTypes);
         }
 
-        /// <summary>
-        /// Waits to receive an event of the specified types.
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
@@ -214,9 +200,7 @@ namespace Microsoft.Coyote.Actors
             return this.ReceiveEventAsync(eventWaitTypes);
         }
 
-        /// <summary>
-        /// Waits to receive an event of the specified types that satisfy the specified predicates.
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
@@ -228,9 +212,7 @@ namespace Microsoft.Coyote.Actors
             return this.ReceiveEventAsync(eventWaitTypes);
         }
 
-        /// <summary>
-        /// Waits for an event to be enqueued based on the conditions defined in the event wait types.
-        /// </summary>
+        /// <inheritdoc/>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
             (Event e, Guid opGroupId) receivedEvent = default;
@@ -270,14 +252,10 @@ namespace Microsoft.Coyote.Actors
             return Task.FromResult(receivedEvent.e);
         }
 
-        /// <summary>
-        /// Returns the cached state of the queue.
-        /// </summary>
+        //// <inheritdoc/>
         public int GetCachedState() => 0;
 
-        /// <summary>
-        /// Closes the queue, which stops any further event enqueues.
-        /// </summary>
+        /// <inheritdoc/>
         public void Close()
         {
             lock (this.Queue)

@@ -73,9 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.ErrorText = string.Empty;
         }
 
-        /// <summary>
-        /// Returns the next asynchronous operation to schedule.
-        /// </summary>
+        /// <inheritdoc/>
         public bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
             if (this.IsReplaying)
@@ -135,9 +133,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return this.SuffixStrategy.GetNext(out next, ops, current);
         }
 
-        /// <summary>
-        /// Returns the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public bool GetNextBooleanChoice(int maxValue, out bool next)
         {
             if (this.IsReplaying)
@@ -192,9 +188,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return this.SuffixStrategy.GetNextBooleanChoice(maxValue, out next);
         }
 
-        /// <summary>
-        /// Returns the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public bool GetNextIntegerChoice(int maxValue, out int next)
         {
             if (this.IsReplaying)
@@ -249,35 +243,25 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return this.SuffixStrategy.GetNextIntegerChoice(maxValue, out next);
         }
 
-        /// <summary>
-        /// Forces the next asynchronous operation to be scheduled.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Forces the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextBooleanChoice(int maxValue, bool next)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Forces the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextIntegerChoice(int maxValue, int next)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
+        /// <inheritdoc/>
         public bool PrepareForNextIteration()
         {
             this.ScheduledSteps = 0;
@@ -291,19 +275,14 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             }
         }
 
-        /// <summary>
-        /// Resets the scheduling strategy. This is typically invoked by
-        /// parent strategies to reset child strategies.
-        /// </summary>
+        /// <inheritdoc/>
         public void Reset()
         {
             this.ScheduledSteps = 0;
             this.SuffixStrategy?.Reset();
         }
 
-        /// <summary>
-        /// Returns the scheduled steps.
-        /// </summary>
+        /// <inheritdoc/>
         public int GetScheduledSteps()
         {
             if (this.SuffixStrategy != null)
@@ -316,10 +295,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             }
         }
 
-        /// <summary>
-        /// True if the scheduling strategy has reached the depth
-        /// bound for the given scheduling iteration.
-        /// </summary>
+        /// <inheritdoc/>
         public bool HasReachedMaxSchedulingSteps()
         {
             if (this.SuffixStrategy != null)
@@ -332,9 +308,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             }
         }
 
-        /// <summary>
-        /// Checks if this is a fair scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsFair()
         {
             if (this.SuffixStrategy != null)
@@ -347,9 +321,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             }
         }
 
-        /// <summary>
-        /// Returns a textual description of the scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public string GetDescription()
         {
             if (this.SuffixStrategy != null)

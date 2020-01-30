@@ -46,9 +46,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.ExploredSteps = 0;
         }
 
-        /// <summary>
-        /// Returns the next asynchronous operation to schedule.
-        /// </summary>
+        /// <inheritdoc/>
         public bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
             next = null;
@@ -152,9 +150,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Returns the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public bool GetNextBooleanChoice(int maxValue, out bool next)
         {
             next = false;
@@ -223,9 +219,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Returns the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public bool GetNextIntegerChoice(int maxValue, out int next)
         {
             next = 0;
@@ -299,23 +293,17 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Forces the next asynchronous operation to be scheduled.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
         }
 
-        /// <summary>
-        /// Forces the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextBooleanChoice(int maxValue, bool next)
         {
         }
 
-        /// <summary>
-        /// Forces the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextIntegerChoice(int maxValue, int next)
         {
         }
@@ -331,28 +319,20 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Resets the scheduling strategy. This is typically invoked by
-        /// parent strategies to reset child strategies.
-        /// </summary>
+        /// <inheritdoc/>
         public void Reset()
         {
             this.InputCache.Clear();
             this.ExploredSteps = 0;
         }
 
-        /// <summary>
-        /// Returns the scheduled steps.
-        /// </summary>
+        /// <inheritdoc/>
         public int GetScheduledSteps()
         {
             return this.ExploredSteps;
         }
 
-        /// <summary>
-        /// True if the scheduling strategy has reached the max
-        /// scheduling steps for the given scheduling iteration.
-        /// </summary>
+        /// <inheritdoc/>
         public bool HasReachedMaxSchedulingSteps()
         {
             var bound = this.IsFair() ? this.Configuration.MaxFairSchedulingSteps :
@@ -366,14 +346,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return this.ExploredSteps >= bound;
         }
 
-        /// <summary>
-        /// Checks if this is a fair scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsFair() => false;
 
-        /// <summary>
-        /// Returns a textual description of the scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public string GetDescription() => string.Empty;
 
         /// <summary>

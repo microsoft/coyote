@@ -11,9 +11,7 @@ namespace Microsoft.Coyote.Actors.Timers
     /// </summary>
     internal sealed class ActorTimer : IActorTimer
     {
-        /// <summary>
-        /// Stores information about this timer.
-        /// </summary>
+        /// <inheritdoc/>
         public TimerInfo Info { get; private set; }
 
         /// <summary>

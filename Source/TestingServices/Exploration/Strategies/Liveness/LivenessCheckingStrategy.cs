@@ -40,92 +40,64 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.SchedulingStrategy = strategy;
         }
 
-        /// <summary>
-        /// Returns the next asynchronous operation to schedule.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current);
 
-        /// <summary>
-        /// Returns the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract bool GetNextBooleanChoice(int maxValue, out bool next);
 
-        /// <summary>
-        /// Returns the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract bool GetNextIntegerChoice(int maxValue, out int next);
 
-        /// <summary>
-        /// Forces the next asynchronous operation to be scheduled.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Forces the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextBooleanChoice(int maxValue, bool next)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Forces the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextIntegerChoice(int maxValue, int next)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool PrepareForNextIteration()
         {
             return this.SchedulingStrategy.PrepareForNextIteration();
         }
 
-        /// <summary>
-        /// Resets the scheduling strategy. This is typically invoked by
-        /// parent strategies to reset child strategies.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual void Reset()
         {
             this.SchedulingStrategy.Reset();
         }
 
-        /// <summary>
-        /// Returns the scheduled steps.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual int GetScheduledSteps()
         {
             return this.SchedulingStrategy.GetScheduledSteps();
         }
 
-        /// <summary>
-        /// True if the scheduling strategy has reached the max
-        /// scheduling steps for the given scheduling iteration.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool HasReachedMaxSchedulingSteps()
         {
             return this.SchedulingStrategy.HasReachedMaxSchedulingSteps();
         }
 
-        /// <summary>
-        /// Checks if this is a fair scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool IsFair()
         {
             return this.SchedulingStrategy.IsFair();
         }
 
-        /// <summary>
-        /// Returns a textual description of the scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual string GetDescription()
         {
             return this.SchedulingStrategy.GetDescription();

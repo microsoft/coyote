@@ -17,20 +17,13 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         internal readonly OperationScheduler Scheduler;
 
-        /// <summary>
-        /// The unique id of the operation.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract ulong Id { get; }
 
-        /// <summary>
-        /// The unique name of the operation.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string Name { get; }
 
-        /// <summary>
-        /// The status of the operation. An operation can be scheduled only
-        /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
-        /// </summary>
+        /// <inheritdoc/>
         public AsyncOperationStatus Status { get; internal set; }
 
         /// <summary>

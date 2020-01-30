@@ -188,13 +188,6 @@ namespace Microsoft.Coyote
         public int PrioritySwitchBound;
 
         /// <summary>
-        /// Delay bound. By default it is 2.
-        /// Used by delay-bounding schedulers.
-        /// </summary>
-        [DataMember]
-        public int DelayBound;
-
-        /// <summary>
         /// Coin-flip bound. By default it is 2.
         /// </summary>
         [DataMember]
@@ -225,13 +218,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public int LivenessTemperatureThreshold;
-
-        /// <summary>
-        /// Enables cycle-detection using state-caching
-        /// for liveness checking.
-        /// </summary>
-        [DataMember]
-        public bool EnableCycleDetection;
 
         /// <summary>
         /// If this option is enabled, then the user-defined state-hashing methods
@@ -372,14 +358,12 @@ namespace Microsoft.Coyote
             this.TestingProcessId = 0;
             this.ConsiderDepthBoundHitAsBug = false;
             this.PrioritySwitchBound = 0;
-            this.DelayBound = 0;
             this.CoinFlipBound = 0;
             this.TimeoutDelay = 1;
             this.SafetyPrefixBound = 0;
 
             this.EnableLivenessChecking = true;
             this.LivenessTemperatureThreshold = 0;
-            this.EnableCycleDetection = false;
             this.EnableUserDefinedStateHashing = false;
             this.EnableMonitorsInProduction = false;
             this.AttachDebugger = false;

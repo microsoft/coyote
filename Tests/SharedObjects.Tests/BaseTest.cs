@@ -88,15 +88,12 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 CheckErrors(bfEngine, numExpectedErrors, expectedOutputs);
 
-                if (!configuration.EnableCycleDetection)
-                {
-                    var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
-                    rEngine.SetLogger(logger);
-                    rEngine.Run();
+                var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
+                rEngine.SetLogger(logger);
+                rEngine.Run();
 
-                    Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
-                    CheckErrors(rEngine, numExpectedErrors, expectedOutputs);
-                }
+                Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
+                CheckErrors(rEngine, numExpectedErrors, expectedOutputs);
             }
             catch (Exception ex)
             {
@@ -150,15 +147,12 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 CheckErrors(bfEngine, exceptionType);
 
-                if (!configuration.EnableCycleDetection)
-                {
-                    var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
-                    rEngine.SetLogger(logger);
-                    rEngine.Run();
+                var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
+                rEngine.SetLogger(logger);
+                rEngine.Run();
 
-                    Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
-                    CheckErrors(rEngine, exceptionType);
-                }
+                Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
+                CheckErrors(rEngine, exceptionType);
             }
             catch (Exception ex)
             {

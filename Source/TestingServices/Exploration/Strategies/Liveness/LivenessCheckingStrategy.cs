@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public abstract bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current);
+        public abstract bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current);
 
         /// <inheritdoc/>
         public abstract bool GetNextBooleanChoice(int maxValue, out bool next);

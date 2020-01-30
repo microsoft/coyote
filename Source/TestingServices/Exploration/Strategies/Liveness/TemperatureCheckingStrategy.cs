@@ -23,27 +23,21 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         {
         }
 
-        /// <summary>
-        /// Returns the next asynchronous operation to schedule.
-        /// </summary>
-        public override bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
+        /// <inheritdoc/>
+        public override bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
         {
             this.CheckLivenessTemperature();
             return this.SchedulingStrategy.GetNext(out next, ops, current);
         }
 
-        /// <summary>
-        /// Returns the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool GetNextBooleanChoice(int maxValue, out bool next)
         {
             this.CheckLivenessTemperature();
             return this.SchedulingStrategy.GetNextBooleanChoice(maxValue, out next);
         }
 
-        /// <summary>
-        /// Returns the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool GetNextIntegerChoice(int maxValue, out int next)
         {
             this.CheckLivenessTemperature();

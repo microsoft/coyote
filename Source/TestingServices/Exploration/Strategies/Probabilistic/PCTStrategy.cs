@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
+        public bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
         {
             next = null;
             return this.GetNextHelper(ref next, ops, current);
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <summary>
         /// Returns or forces the next asynchronous operation to schedule.
         /// </summary>
-        private bool GetNextHelper(ref IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
+        private bool GetNextHelper(ref IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
         {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOperations.Count == 0)

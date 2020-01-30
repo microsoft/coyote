@@ -52,11 +52,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal CoverageInfo CoverageInfo;
 
         /// <summary>
-        /// The program state cache.
-        /// </summary>
-        internal StateCache StateCache;
-
-        /// <summary>
         /// List of monitors in the program.
         /// </summary>
         private readonly List<Monitor> Monitors;
@@ -83,15 +78,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.RootTaskId = Task.CurrentId;
             this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
 
-            this.StateCache = new StateCache(this);
             this.CoverageInfo = new CoverageInfo();
 
             var scheduleTrace = new ScheduleTrace();
-            if (configuration.EnableLivenessChecking && configuration.EnableCycleDetection)
-            {
-                strategy = new CycleDetectionStrategy(configuration, this.StateCache, scheduleTrace, this.Monitors, strategy);
-            }
-            else if (configuration.EnableLivenessChecking)
+            if (configuration.EnableLivenessChecking)
             {
                 strategy = new TemperatureCheckingStrategy(configuration, this.Monitors, strategy);
             }
@@ -804,29 +794,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Returns a fair nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        internal override bool GetFairNondeterministicBooleanChoice(Actor caller, string uniqueId)
-        {
-            caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
-            this.AssertExpectedCallerActor(caller, "FairRandom");
-
-            if (caller is StateMachine callerStateMachine)
-            {
-                (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
-            }
-            else if (caller is Actor callerActor)
-            {
-                (callerActor.Manager as MockActorManager).ProgramCounter++;
-            }
-
-            var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(2, uniqueId);
-            this.LogWriter.LogRandom(caller?.Id, choice);
-            return choice;
-        }
-
-        /// <summary>
         /// Returns a nondeterministic integer, that can be
         /// controlled during analysis or testing.
         /// </summary>
@@ -1165,10 +1132,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Returns the fingerprint of the current program state.
         /// </summary>
         [DebuggerStepThrough]
-        internal Fingerprint GetProgramState()
+        internal int GetProgramState()
         {
-            Fingerprint fingerprint = null;
-
             unchecked
             {
                 int hash = 19;
@@ -1186,10 +1151,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     hash = (hash * 31) + monitor.GetCachedState();
                 }
 
-                fingerprint = new Fingerprint(hash);
+                return hash;
             }
-
-            return fingerprint;
         }
 
         /// <summary>

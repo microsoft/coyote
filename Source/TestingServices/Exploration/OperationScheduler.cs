@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Map from unique ids to asynchronous operations.
         /// </summary>
-        private readonly ConcurrentDictionary<ulong, AsyncOperation> OperationMap;
+        private readonly ConcurrentDictionary<ulong, IAsyncOperation> OperationMap;
 
         /// <summary>
         /// Map from ids of tasks that are controlled by the runtime to operations.
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.Configuration = configuration;
             this.Runtime = runtime;
             this.Strategy = strategy;
-            this.OperationMap = new ConcurrentDictionary<ulong, AsyncOperation>();
+            this.OperationMap = new ConcurrentDictionary<ulong, IAsyncOperation>();
             this.ControlledTaskMap = new ConcurrentDictionary<int, AsyncOperation>();
             this.ScheduleTrace = trace;
             this.CompletionSource = new TaskCompletionSource<bool>();
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             this.CheckIfSchedulingStepsBoundIsReached();
 
             // Get and order the operations by their id.
-            var ops = this.OperationMap.Values.OrderBy(op => op.Id).Select(op => op as IAsyncOperation).ToList();
+            var ops = this.OperationMap.Values.OrderBy(op => op.Id);
 
             // Try enable any operation that is currently waiting, but has its dependencies already satisfied.
             foreach (var op in ops)
@@ -358,7 +358,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         internal TAsyncOperation GetOperationWithId<TAsyncOperation>(ulong id)
             where TAsyncOperation : IAsyncOperation
         {
-            if (this.OperationMap.TryGetValue(id, out AsyncOperation op) &&
+            if (this.OperationMap.TryGetValue(id, out IAsyncOperation op) &&
                 op is TAsyncOperation expected)
             {
                 return expected;
@@ -388,7 +388,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Returns all registered operations.
         /// </summary>
-        internal IEnumerable<AsyncOperation> GetRegisteredOperations() => this.OperationMap.Values.ToList();
+        /// <remarks>
+        /// This operation is thread safe because the systematic testing
+        /// runtime serializes the execution.
+        /// </remarks>
+        internal IEnumerable<IAsyncOperation> GetRegisteredOperations() => this.OperationMap.Values;
 
         /// <summary>
         /// Returns the enabled operation ids.
@@ -651,8 +655,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// </summary>
         private void KillRemainingOperations()
         {
-            foreach (var op in this.OperationMap.Values)
+            foreach (var operation in this.OperationMap.Values)
             {
+                // This casting is always safe.
+                var op = operation as AsyncOperation;
                 op.IsActive = true;
                 op.Status = AsyncOperationStatus.Canceled;
 

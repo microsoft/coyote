@@ -74,13 +74,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             hiddenGroup.AddArgument("depth-bound-bug", null, "Consider depth bound hit as a bug", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int));
             hiddenGroup.AddArgument("liveness-temperature-threshold", null, "Liveness temperature threshold", typeof(int));
-            hiddenGroup.AddArgument("cycle-detection", null, "Enable cycle detection", typeof(bool));
             hiddenGroup.AddArgument("custom-state-hashing", null, "Enable custom state hashing", typeof(bool));
             hiddenGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given number of coin flips on each for each new schedule.", typeof(uint));
             hiddenGroup.AddArgument("sch-dfs", null, "Choose the DFS scheduling strategy", typeof(bool));
-            hiddenGroup.AddArgument("sch-iddfs", null, "Choose the IDDFS scheduling strategy", typeof(bool));
-            hiddenGroup.AddArgument("sch-db", null, "Choose the delay bound scheduling strategy with given maximum number of delays", typeof(uint));
-            hiddenGroup.AddArgument("sch-rdb", null, "Choose the random delay bound scheduling strategy with given maximum number of delays", typeof(uint));
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
         }
 
@@ -126,17 +122,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "sch-dfs":
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.DFS;
-                    break;
-                case "sch-iddfs":
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.IDDFS;
-                    break;
-                case "sch-db":
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.DelayBounding;
-                    this.Configuration.DelayBound = (int)(uint)option.Value;
-                    break;
-                case "sch-rdb":
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.RandomDelayBounding;
-                    this.Configuration.DelayBound = (int)(uint)option.Value;
                     break;
                 case "schedule":
                     {
@@ -290,9 +275,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "liveness-temperature-threshold":
                     this.Configuration.LivenessTemperatureThreshold = (int)option.Value;
                     break;
-                case "cycle-detection":
-                    this.Configuration.EnableCycleDetection = true;
-                    break;
                 case "custom-state-hashing":
                     this.Configuration.EnableUserDefinedStateHashing = true;
                     break;
@@ -319,10 +301,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.ProbabilisticRandom &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.PCT &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.FairPCT &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.DFS &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.IDDFS &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.DelayBounding &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.RandomDelayBounding)
+                this.Configuration.SchedulingStrategy != SchedulingStrategy.DFS)
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
             }
@@ -347,24 +326,18 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     "'--max-steps bound', where bound > 0.");
             }
 
+            if (this.Configuration.LivenessTemperatureThreshold == 0 &&
+                this.Configuration.MaxFairSchedulingSteps > 0)
+            {
+                this.Configuration.LivenessTemperatureThreshold = this.Configuration.MaxFairSchedulingSteps / 2;
+            }
+
 #if NETCOREAPP2_1
             if (this.Configuration.ReportCodeCoverage || this.Configuration.ReportActivityCoverage)
             {
                 Error.ReportAndExit("We do not yet support coverage reports when using the .NET Core runtime.");
             }
 #endif
-            if (this.Configuration.LivenessTemperatureThreshold == 0)
-            {
-                if (this.Configuration.EnableCycleDetection)
-                {
-                    this.Configuration.LivenessTemperatureThreshold = 100;
-                }
-                else if (this.Configuration.MaxFairSchedulingSteps > 0)
-                {
-                    this.Configuration.LivenessTemperatureThreshold =
-                        this.Configuration.MaxFairSchedulingSteps / 2;
-                }
-            }
         }
     }
 }

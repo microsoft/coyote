@@ -57,25 +57,6 @@ namespace Microsoft.Coyote.Runtime.Exploration
         /// Depth-first search scheduling.
         /// </summary>
         [EnumMember(Value = "DFS")]
-        DFS,
-
-        /// <summary>
-        /// Depth-first search scheduling with
-        /// iterative deepening.
-        /// </summary>
-        [EnumMember(Value = "IDDFS")]
-        IDDFS,
-
-        /// <summary>
-        /// Delay-bounding scheduling.
-        /// </summary>
-        [EnumMember(Value = "DelayBounding")]
-        DelayBounding,
-
-        /// <summary>
-        /// Random delay-bounding scheduling.
-        /// </summary>
-        [EnumMember(Value = "RandomDelayBounding")]
-        RandomDelayBounding
+        DFS
     }
 }

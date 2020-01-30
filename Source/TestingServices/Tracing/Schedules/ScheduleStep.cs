@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.TestingServices.StateCaching;
-
 namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
 {
     /// <summary>
@@ -53,11 +51,6 @@ namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
         /// Next schedule step.
         /// </summary>
         internal ScheduleStep Next;
-
-        /// <summary>
-        /// Snapshot of the program state in this schedule step.
-        /// </summary>
-        internal State State;
 
         /// <summary>
         /// Creates a schedule step.

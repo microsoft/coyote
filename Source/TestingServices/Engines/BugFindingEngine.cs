@@ -117,8 +117,7 @@ namespace Microsoft.Coyote.TestingServices
             if (this.Configuration.SchedulingStrategy == SchedulingStrategy.Random ||
                 this.Configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom ||
                 this.Configuration.SchedulingStrategy == SchedulingStrategy.PCT ||
-                this.Configuration.SchedulingStrategy == SchedulingStrategy.FairPCT ||
-                this.Configuration.SchedulingStrategy == SchedulingStrategy.RandomDelayBounding)
+                this.Configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
             {
                 options = $" (seed:{this.Configuration.RandomSchedulingSeed})";
             }
@@ -436,14 +435,7 @@ namespace Microsoft.Coyote.TestingServices
                 stringBuilder.Append("--fair-scheduling").Append(Environment.NewLine);
             }
 
-            if (this.Configuration.EnableCycleDetection)
-            {
-                stringBuilder.Append("--cycle-detection").Append(Environment.NewLine);
-                stringBuilder.Append("--liveness-temperature-threshold:" +
-                    this.Configuration.LivenessTemperatureThreshold).
-                    Append(Environment.NewLine);
-            }
-            else
+            if (this.Configuration.EnableLivenessChecking)
             {
                 stringBuilder.Append("--liveness-temperature-threshold:" +
                     this.Configuration.LivenessTemperatureThreshold).

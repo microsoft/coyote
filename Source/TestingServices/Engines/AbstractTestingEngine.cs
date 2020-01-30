@@ -270,20 +270,6 @@ namespace Microsoft.Coyote.TestingServices
             {
                 this.Strategy = new DFSStrategy(configuration.MaxUnfairSchedulingSteps);
             }
-            else if (configuration.SchedulingStrategy == SchedulingStrategy.IDDFS)
-            {
-                this.Strategy = new IterativeDeepeningDFSStrategy(configuration.MaxUnfairSchedulingSteps);
-            }
-            else if (configuration.SchedulingStrategy == SchedulingStrategy.DelayBounding)
-            {
-                this.Strategy = new ExhaustiveDelayBoundingStrategy(configuration.MaxUnfairSchedulingSteps,
-                    configuration.DelayBound, this.RandomNumberGenerator);
-            }
-            else if (configuration.SchedulingStrategy == SchedulingStrategy.RandomDelayBounding)
-            {
-                this.Strategy = new RandomDelayBoundingStrategy(configuration.MaxUnfairSchedulingSteps,
-                    configuration.DelayBound, this.RandomNumberGenerator);
-            }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
             {
                 Error.ReportAndExit("Portfolio testing strategy is only " +
@@ -680,10 +666,6 @@ namespace Microsoft.Coyote.TestingServices
                 if (line.Equals("--fair-scheduling"))
                 {
                     isFair = true;
-                }
-                else if (line.Equals("--cycle-detection"))
-                {
-                    this.Configuration.EnableCycleDetection = true;
                 }
                 else if (line.StartsWith("--liveness-temperature-threshold:"))
                 {

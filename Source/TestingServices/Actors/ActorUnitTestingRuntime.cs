@@ -366,15 +366,6 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Returns a fair nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        internal override bool GetFairNondeterministicBooleanChoice(Actor caller, string uniqueId)
-        {
-            return this.GetNondeterministicBooleanChoice(caller, 2);
-        }
-
-        /// <summary>
         /// Returns a nondeterministic integer choice, that can be
         /// controlled during analysis or testing.
         /// </summary>

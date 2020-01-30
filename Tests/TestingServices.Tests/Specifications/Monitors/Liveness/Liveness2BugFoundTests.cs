@@ -90,7 +90,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
         public void TestLiveness2BugFound()
         {
             var configuration = GetConfiguration();
-            configuration.EnableCycleDetection = true;
             configuration.SchedulingStrategy = SchedulingStrategy.DFS;
 
             this.TestWithError(r =>
@@ -99,8 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 r.CreateActor(typeof(EventHandler));
             },
             configuration: configuration,
-            expectedError: "WatchDog detected liveness bug in hot state " +
-                "'CannotGetUserInput' at the end of program execution.",
+            expectedError: "WatchDog detected liveness bug in hot state 'CannotGetUserInput' at the end of program execution.",
             replay: true);
         }
     }

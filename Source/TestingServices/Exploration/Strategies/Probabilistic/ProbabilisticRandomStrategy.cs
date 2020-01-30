@@ -37,10 +37,8 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.NumberOfCoinFlips = numberOfCoinFlips;
         }
 
-        /// <summary>
-        /// Returns the next asynchronous operation to schedule.
-        /// </summary>
-        public override bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
+        /// <inheritdoc/>
+        public override bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
         {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOperations.Count == 0)
@@ -66,9 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Returns a textual description of the scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public override string GetDescription() =>
             $"ProbabilisticRandom[seed '{this.RandomNumberGenerator.Seed}', coin flips '{this.NumberOfCoinFlips}']";
 

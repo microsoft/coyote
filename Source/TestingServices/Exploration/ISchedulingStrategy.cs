@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <param name="ops">List of operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current);
+        bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current);
 
         /// <summary>
         /// Returns the next boolean choice.

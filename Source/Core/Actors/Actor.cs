@@ -355,20 +355,6 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.GetNondeterministicBooleanChoice(this, maxValue);
 
         /// <summary>
-        /// Returns a fair nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool FairRandom(
-            [CallerMemberName] string callerMemberName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            var havocId = this.FormatFairRandom(callerMemberName, callerFilePath, callerLineNumber);
-            return this.Runtime.GetFairNondeterministicBooleanChoice(this, havocId);
-        }
-
-        /// <summary>
         /// Returns a nondeterministic integer, that can be controlled during
         /// analysis or testing. The value is used to generate an integer in
         /// the range [0..maxValue).

@@ -63,9 +63,11 @@ namespace Microsoft.Coyote.TestingServices.Timers
             // Try to send the next timeout event.
             bool isTimeoutSent = false;
             int delay = (int)this.Delay > 0 ? (int)this.Delay : 1;
-            if ((this.RandomInteger(delay) == 0) && this.FairRandom())
+
+            // TODO: do we need some normalization of delay here ... ?
+            if ((this.RandomInteger(delay) == 0) && this.Random())
             {
-                // The probability of sending a timeout event is atmost 1/N.
+                // The probability of sending a timeout event is at most 1/N.
                 this.SendEvent(this.Owner.Id, this.TimeoutEvent);
                 isTimeoutSent = true;
             }

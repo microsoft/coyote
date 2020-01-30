@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 CheckErrors(bfEngine, expectedErrors);
 
-                if (replay && !configuration.EnableCycleDetection)
+                if (replay)
                 {
                     var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
                     rEngine.SetLogger(logger);
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
                 CheckErrors(bfEngine, exceptionType);
 
-                if (replay && !configuration.EnableCycleDetection)
+                if (replay)
                 {
                     var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
                     rEngine.SetLogger(logger);

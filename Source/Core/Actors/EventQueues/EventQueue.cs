@@ -212,7 +212,9 @@ namespace Microsoft.Coyote.Actors
             return this.ReceiveEventAsync(eventWaitTypes);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Waits for an event to be enqueued based on the conditions defined in the event wait types.
+        /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
             (Event e, Guid opGroupId) receivedEvent = default;
@@ -282,9 +284,7 @@ namespace Microsoft.Coyote.Actors
             this.Queue.Clear();
         }
 
-        /// <summary>
-        /// Disposes the queue resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             this.Dispose(true);

@@ -126,11 +126,6 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append($"--actor-runtime-log {configuration.CustomActorRuntimeLogType} ");
             }
 
-            if (configuration.EnableCycleDetection)
-            {
-                arguments.Append("--cycle-detection ");
-            }
-
             if (configuration.OutputFilePath.Length > 0)
             {
                 arguments.Append($"--outdir {configuration.OutputFilePath} ");

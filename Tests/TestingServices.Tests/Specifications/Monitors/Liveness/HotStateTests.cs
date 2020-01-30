@@ -173,7 +173,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
         public void TestHotStateMonitor()
         {
             var configuration = GetConfiguration();
-            configuration.EnableCycleDetection = true;
             configuration.SchedulingStrategy = SchedulingStrategy.DFS;
 
             this.TestWithError(r =>

@@ -76,9 +76,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.IsClosed = false;
         }
 
-        /// <summary>
-        /// Enqueues the specified event and its optional metadata.
-        /// </summary>
+        /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, Guid opGroupId, EventInfo info)
         {
             if (this.IsClosed)
@@ -122,9 +120,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return EnqueueStatus.EventHandlerRunning;
         }
 
-        /// <summary>
-        /// Dequeues the next event, if there is one available.
-        /// </summary>
+        /// <inheritdoc/>
         public (DequeueStatus status, Event e, Guid opGroupId, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
@@ -219,9 +215,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return nextAvailableEvent;
         }
 
-        /// <summary>
-        /// Enqueues the specified raised event.
-        /// </summary>
+        /// <inheritdoc/>
         public void RaiseEvent(Event e, Guid opGroupId)
         {
             string stateName = this.Actor is StateMachine stateMachine ?
@@ -232,9 +226,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.ActorManager.OnRaiseEvent(e, opGroupId, info);
         }
 
-        /// <summary>
-        /// Waits to receive an event of the specified type that satisfies an optional predicate.
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>
@@ -245,9 +237,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return this.ReceiveEventAsync(eventWaitTypes);
         }
 
-        /// <summary>
-        /// Waits to receive an event of the specified types.
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
@@ -259,9 +249,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return this.ReceiveEventAsync(eventWaitTypes);
         }
 
-        /// <summary>
-        /// Waits to receive an event of the specified types that satisfy the specified predicates.
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
             var eventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
@@ -308,9 +296,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return Task.FromResult(receivedEvent.e);
         }
 
-        /// <summary>
-        /// Returns the cached state of the queue.
-        /// </summary>
+        /// <inheritdoc/>
         public int GetCachedState()
         {
             unchecked
@@ -330,9 +316,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
         }
 
-        /// <summary>
-        /// Closes the queue, which stops any further event enqueues.
-        /// </summary>
+        /// <inheritdoc/>
         public void Close()
         {
             this.IsClosed = true;
@@ -356,9 +340,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Queue.Clear();
         }
 
-        /// <summary>
-        /// Disposes the queue resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             this.Dispose(true);

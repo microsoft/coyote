@@ -175,19 +175,6 @@ namespace Microsoft.Coyote.Runtime
         bool Random();
 
         /// <summary>
-        /// Returns a fair nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        /// <param name="callerMemberName">CallerMemberName</param>
-        /// <param name="callerFilePath">CallerFilePath</param>
-        /// <param name="callerLineNumber">CallerLineNumber</param>
-        /// <returns>The controlled nondeterministic choice.</returns>
-        bool FairRandom(
-            [CallerMemberName] string callerMemberName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerLineNumber] int callerLineNumber = 0);
-
-        /// <summary>
         /// Returns a nondeterministic boolean choice, that can be controlled
         /// during analysis or testing. The value is used to generate a number
         /// in the range [0..maxValue), where 0 triggers true.

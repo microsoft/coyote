@@ -877,27 +877,5 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             expectedError: "LivenessMonitor detected potential liveness bug in hot state 'Repairing'.",
             replay: true);
         }
-
-        [Theory(Timeout = 10000)]
-        [InlineData(855)]
-        public void TestReplicatingStorageLivenessBugWithCycleReplay(int seed)
-        {
-            var configuration = GetConfiguration();
-            configuration.EnableCycleDetection = true;
-            configuration.MaxUnfairSchedulingSteps = 100;
-            configuration.MaxFairSchedulingSteps = 1000;
-            configuration.LivenessTemperatureThreshold = 500;
-            configuration.RandomSchedulingSeed = seed;
-            configuration.SchedulingIterations = 1;
-
-            this.TestWithError(r =>
-            {
-                r.RegisterMonitor(typeof(LivenessMonitor));
-                r.CreateActor(typeof(Environment));
-            },
-            configuration: configuration,
-            expectedError: "LivenessMonitor detected infinite execution that violates a liveness property.",
-            replay: true);
-        }
     }
 }

@@ -38,9 +38,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Scheduler = scheduler;
         }
 
-        /// <summary>
-        /// Schedules the specified action to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask ScheduleAction(Action action, Task predecessor, CancellationToken cancellationToken)
         {
@@ -93,9 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return new ControlledTask(this, task);
         }
 
-        /// <summary>
-        /// Schedules the specified function to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask ScheduleFunction(Func<ControlledTask> function, Task predecessor, CancellationToken cancellationToken)
         {
@@ -152,9 +148,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return new ControlledTask(this, innerTask);
         }
 
-        /// <summary>
-        /// Schedules the specified function to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask<TResult> ScheduleFunction<TResult>(Func<ControlledTask<TResult>> function, Task predecessor,
             CancellationToken cancellationToken)
@@ -212,9 +206,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return new ControlledTask<TResult>(this, innerTask);
         }
 
-        /// <summary>
-        /// Schedules the specified delegate to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask<TResult> ScheduleDelegate<TResult>(Delegate work, Task predecessor, CancellationToken cancellationToken)
         {
@@ -287,9 +279,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return new ControlledTask<TResult>(this, task);
         }
 
-        /// <summary>
-        /// Schedules the specified delay to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
@@ -304,9 +294,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return this.ScheduleAction(() => { }, null, cancellationToken);
         }
 
-        /// <summary>
-        /// Schedules the specified task awaiter continuation to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public void ScheduleTaskAwaiterContinuation(Task task, Action continuation)
         {
@@ -338,9 +326,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
         }
 
-        /// <summary>
-        /// Schedules the specified yield awaiter continuation to be executed asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public void ScheduleYieldAwaiterContinuation(Action continuation)
         {
@@ -359,10 +345,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
         }
 
-        /// <summary>
-        /// Creates a controlled task that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask WhenAllTasksCompleteAsync(IEnumerable<ControlledTask> tasks)
         {
@@ -399,10 +382,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
         }
 
-        /// <summary>
-        /// Creates a controlled task that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
@@ -426,10 +406,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return ControlledTask.FromResult(result);
         }
 
-        /// <summary>
-        /// Creates a controlled task that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask<ControlledTask> WhenAnyTaskCompletesAsync(IEnumerable<ControlledTask> tasks)
         {
@@ -455,10 +432,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return ControlledTask.FromResult(result);
         }
 
-        /// <summary>
-        /// Creates a controlled task that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public ControlledTask<ControlledTask<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
@@ -484,10 +458,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return ControlledTask.FromResult(result);
         }
 
-        /// <summary>
-        /// Waits for all of the provided controlled task objects to complete execution within
-        /// a specified number of milliseconds or until a cancellation token is cancelled.
-        /// </summary>
+        /// <inheritdoc/>
         public bool WaitAllTasksComplete(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
@@ -504,10 +475,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return true;
         }
 
-        /// <summary>
-        /// Waits for any of the provided controlled task objects to complete execution within
-        /// a specified number of milliseconds or until a cancellation token is cancelled.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public int WaitAnyTaskCompletes(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
         {
@@ -535,10 +503,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return result;
         }
 
-        /// <summary>
-        /// Waits for the task to complete execution. The wait terminates if a timeout interval
-        /// elapses or a cancellation token is canceled before the task completes.
-        /// </summary>
+        /// <inheritdoc/>
         public bool WaitTaskCompletes(ControlledTask task, int millisecondsTimeout, CancellationToken cancellationToken)
         {
             // TODO: return immediately if completed without errors.
@@ -550,9 +515,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return true;
         }
 
-        /// <summary>
-        /// Waits for the task to complete execution and returns the result.
-        /// </summary>
+        /// <inheritdoc/>
         public TResult WaitTaskCompletes<TResult>(ControlledTask<TResult> task)
         {
             // TODO: return immediately if completed without errors.
@@ -563,9 +526,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return task.AwaiterTask.Result;
         }
 
-        /// <summary>
-        /// Callback invoked when the <see cref="AsyncControlledTaskMethodBuilder.Start"/> is called.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerHidden]
         public void OnAsyncControlledTaskMethodBuilderStart(Type stateMachineType)
         {
@@ -580,9 +541,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
         }
 
-        /// <summary>
-        /// Callback invoked when the <see cref="AsyncControlledTaskMethodBuilder.Task"/> is accessed.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerHidden]
         public void OnAsyncControlledTaskMethodBuilderTask()
         {
@@ -594,10 +553,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Scheduler.CheckNoExternalConcurrencyUsed();
         }
 
-        /// <summary>
-        /// Callback invoked when the <see cref="AsyncControlledTaskMethodBuilder.AwaitOnCompleted"/>
-        /// or <see cref="AsyncControlledTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerHidden]
         public void OnAsyncControlledTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType)
         {
@@ -613,9 +569,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             callerOp.SetExecutingAsyncControlledTaskStateMachineType(stateMachineType);
         }
 
-        /// <summary>
-        /// Callback invoked when the currently executing task operation gets a controlled awaiter.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerHidden]
         public void OnGetControlledAwaiter()
         {
@@ -623,18 +577,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             callerOp.OnGetControlledAwaiter();
         }
 
-        /// <summary>
-        /// Callback invoked when the <see cref="ControlledYieldAwaitable.ControlledYieldAwaiter.GetResult"/> is called.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public void OnControlledYieldAwaiterGetResult()
         {
             this.Scheduler.ScheduleNextEnabledOperation();
         }
 
-        /// <summary>
-        /// Callback invoked when the executing operation is waiting for the specified task to complete.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public void OnWaitTask(Task task)
         {

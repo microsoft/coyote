@@ -47,9 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.ScheduledSteps = 0;
         }
 
-        /// <summary>
-        /// Returns the next asynchronous operation to schedule.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool GetNext(out IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
@@ -67,9 +65,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Returns the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool GetNextBooleanChoice(int maxValue, out bool next)
         {
             next = false;
@@ -83,9 +79,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Returns the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool GetNextIntegerChoice(int maxValue, out int next)
         {
             next = this.RandomNumberGenerator.Next(maxValue);
@@ -93,59 +87,41 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <summary>
-        /// Forces the next asynchronous operation to be scheduled.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
         {
             this.ScheduledSteps++;
         }
 
-        /// <summary>
-        /// Forces the next boolean choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextBooleanChoice(int maxValue, bool next)
         {
             this.ScheduledSteps++;
         }
 
-        /// <summary>
-        /// Forces the next integer choice.
-        /// </summary>
+        /// <inheritdoc/>
         public void ForceNextIntegerChoice(int maxValue, int next)
         {
             this.ScheduledSteps++;
         }
 
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool PrepareForNextIteration()
         {
             this.ScheduledSteps = 0;
             return true;
         }
 
-        /// <summary>
-        /// Resets the scheduling strategy. This is typically invoked by
-        /// parent strategies to reset child strategies.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual void Reset()
         {
             this.ScheduledSteps = 0;
         }
 
-        /// <summary>
-        /// Returns the scheduled steps.
-        /// </summary>
+        /// <inheritdoc/>
         public int GetScheduledSteps() => this.ScheduledSteps;
 
-        /// <summary>
-        /// True if the scheduling strategy has reached the depth
-        /// bound for the given scheduling iteration.
-        /// </summary>
+        /// <inheritdoc/>
         public bool HasReachedMaxSchedulingSteps()
         {
             if (this.MaxScheduledSteps == 0)
@@ -156,14 +132,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return this.ScheduledSteps >= this.MaxScheduledSteps;
         }
 
-        /// <summary>
-        /// Checks if this is a fair scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsFair() => true;
 
-        /// <summary>
-        /// Returns a textual description of the scheduling strategy.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual string GetDescription() => $"Random[seed '{this.RandomNumberGenerator.Seed}']";
     }
 }

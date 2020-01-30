@@ -24,14 +24,10 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         private readonly Actor Instance;
 
-        /// <summary>
-        /// True if the event handler of the actor is running, else false.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsEventHandlerRunning { get; set; }
 
-        /// <summary>
-        /// Id used to identify subsequent operations performed by the actor.
-        /// </summary>
+        /// <inheritdoc/>
         public Guid OperationGroupId { get; set; }
 
         /// <summary>
@@ -64,9 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.IsInsideOnExit = false;
         }
 
-        /// <summary>
-        /// Returns the cached state of the actor.
-        /// </summary>
+        /// <inheritdoc/>
         public int GetCachedState()
         {
             unchecked
@@ -78,50 +72,36 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
         }
 
-        /// <summary>
-        /// Checks if the specified event is ignored in the current state.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEventIgnored(Event e, Guid opGroupId, EventInfo eventInfo) =>
             this.Instance.IsEventIgnored(e);
 
-        /// <summary>
-        /// Checks if the specified event is deferred in the current state.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) =>
             this.Instance.IsEventDeferred(e);
 
-        /// <summary>
-        /// Checks if a default handler is installed in the current state.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDefaultHandlerAvailable() => this.Instance.IsDefaultHandlerAvailable;
 
-        /// <summary>
-        /// Notifies the actor that an event has been enqueued.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e);
 
-        /// <summary>
-        /// Notifies the actor that an event has been raised.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnRaiseEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogRaiseEvent(this.Instance.Id, default, e);
 
-        /// <summary>
-        /// Notifies the actor that it is waiting to receive an event of one of the specified types.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnWaitEvent(IEnumerable<Type> eventTypes) =>
             this.Runtime.NotifyWaitEvent(this.Instance, eventTypes);
 
-        /// <summary>
-        /// Notifies the actor that an event it was waiting to receive has been enqueued.
-        /// </summary>
+        /// <inheritdoc/>
         public void OnReceiveEvent(Event e, Guid opGroupId, EventInfo eventInfo)
         {
             if (opGroupId != Guid.Empty)
@@ -133,10 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Runtime.NotifyReceivedEvent(this.Instance, e, eventInfo);
         }
 
-        /// <summary>
-        /// Notifies the actor that an event it was waiting to receive was already in the
-        /// event queue when the actor invoked the receive statement.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnReceiveEventWithoutWaiting(Event e, Guid opGroupId, EventInfo eventInfo)
         {
@@ -149,9 +126,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Runtime.NotifyReceivedEventWithoutWaiting(this.Instance, e, eventInfo);
         }
 
-        /// <summary>
-        /// Notifies the actor that an event has been dropped.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnDropEvent(Event e, Guid opGroupId, EventInfo eventInfo)
         {
@@ -160,28 +135,20 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Runtime.TryHandleDroppedEvent(e, this.Instance.Id);
         }
 
-        /// <summary>
-        /// Asserts if the specified condition holds.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Assert(bool predicate, string s, object arg0) => this.Runtime.Assert(predicate, s, arg0);
 
-        /// <summary>
-        /// Asserts if the specified condition holds.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Assert(bool predicate, string s, object arg0, object arg1) => this.Runtime.Assert(predicate, s, arg0, arg1);
 
-        /// <summary>
-        /// Asserts if the specified condition holds.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             this.Runtime.Assert(predicate, s, arg0, arg1, arg2);
 
-        /// <summary>
-        /// Asserts if the specified condition holds.
-        /// </summary>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Assert(bool predicate, string s, params object[] args) => this.Runtime.Assert(predicate, s, args);
     }

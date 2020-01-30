@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation {op.Name} on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
 
                     // Task has completed, schedule the next enabled operation.
@@ -561,7 +561,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                         ResetProgramCounter(actor);
                     }
 
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation {actor.Id} on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", actor.Id, Task.CurrentId);
                     op.OnCompleted();
 
                     // The actor is inactive or halted, schedule the next enabled operation.
@@ -596,11 +596,13 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
             if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
             {
-                IO.Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from operation '{op.Name}'.");
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
+                    innerException.GetType().Name, op.Name);
             }
             else if (innerException is ObjectDisposedException)
             {
-                IO.Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from operation '{op.Name}' with reason '{ex.Message}'.");
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
+                    innerException.GetType().Name, op.Name, ex.Message);
             }
             else
             {

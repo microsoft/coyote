@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 // If the task does not correspond to an actor operation, then associate
                 // it with the currently executing actor operation and schedule it.
                 this.ControlledTaskMap.TryAdd(task.Id, op);
-                IO.Debug.WriteLine($"<ScheduleDebug> Operation '{op.Id}' is associated with task '{task.Id}'.");
+                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is associated with task '{1}'.", op.Id, task.Id);
             }
 
             this.Execute(task);

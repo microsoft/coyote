@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 finally
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
             });
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
             task.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
 
-            IO.Debug.WriteLine($"<CreateLog> Operation '{op.Name}' was created to execute task '{task.Id}'.");
+            IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 finally
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
             });
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
             innerTask.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
 
-            IO.Debug.WriteLine($"<CreateLog> Operation '{op.Name}' was created to execute task '{task.Id}'.");
+            IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 finally
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
             });
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
             innerTask.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
 
-            IO.Debug.WriteLine($"<CreateLog> Operation '{op.Name}' was created to execute task '{task.Id}'.");
+            IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 finally
                 {
-                    IO.Debug.WriteLine($"<ScheduleDebug> Completed operation '{op.Name}' on task '{Task.CurrentId}'.");
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
             });
@@ -270,7 +270,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
             task.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
 
-            IO.Debug.WriteLine($"<CreateLog> Operation '{op.Name}' was created to execute task '{task.Id}'.");
+            IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);

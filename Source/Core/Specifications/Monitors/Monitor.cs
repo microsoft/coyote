@@ -10,7 +10,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
 using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
@@ -137,14 +136,10 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Returns a nullable boolean indicating liveness temperature: true for hot, false for cold, else null.
+        /// User-defined hashed state of the monitor. Override to improve the
+        /// accuracy of stateful techniques during testing.
         /// </summary>
-        internal bool? GetHotState()
-        {
-            return this.IsInHotState() ? true :
-                this.IsInColdState() ? (bool?)false :
-                null;
-        }
+        protected virtual int HashedState => 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Monitor"/> class.
@@ -571,17 +566,19 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Returns the hashed state of this monitor.
+        /// Returns a nullable boolean indicating liveness temperature: true for hot, false for cold, else null.
         /// </summary>
-        protected virtual int GetHashedState()
+        internal bool? GetHotState()
         {
-            return 0;
+            return this.IsInHotState() ? true :
+                this.IsInColdState() ? (bool?)false :
+                null;
         }
 
         /// <summary>
-        /// Returns the cached state of this monitor.
+        /// Returns the hashed state of this monitor.
         /// </summary>
-        internal int GetCachedState()
+        internal int GetHashedState()
         {
             unchecked
             {
@@ -591,7 +588,7 @@ namespace Microsoft.Coyote.Specifications
                 hash = (hash * 31) + this.CurrentState.GetHashCode();
 
                 // Adds the user-defined hashed state.
-                hash = (hash * 31) + this.GetHashedState();
+                hash = (hash * 31) + this.HashedState;
 
                 return hash;
             }

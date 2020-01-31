@@ -366,7 +366,7 @@ namespace Microsoft.Coyote.Runtime
         internal override void TryCreateMonitor(Type type)
         {
             // Check if monitors are enabled in production.
-            if (!this.Configuration.EnableMonitorsInProduction)
+            if (!this.Configuration.IsMonitoringEnabledInInProduction)
             {
                 return;
             }
@@ -404,7 +404,7 @@ namespace Microsoft.Coyote.Runtime
         internal override void Monitor(Type type, Actor sender, Event e)
         {
             // Check if monitors are enabled in production.
-            if (!this.Configuration.EnableMonitorsInProduction)
+            if (!this.Configuration.IsMonitoringEnabledInInProduction)
             {
                 return;
             }

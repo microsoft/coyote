@@ -15,9 +15,8 @@ using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
-using Microsoft.Coyote.TestingServices.StateCaching;
 using Microsoft.Coyote.TestingServices.Timers;
-using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.TestingServices.Tracing;
 using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
@@ -81,7 +80,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.CoverageInfo = new CoverageInfo();
 
             var scheduleTrace = new ScheduleTrace();
-            if (configuration.EnableLivenessChecking)
+            if (configuration.IsLivenessCheckingEnabled)
             {
                 strategy = new TemperatureCheckingStrategy(configuration, this.Monitors, strategy);
             }
@@ -1129,7 +1128,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <summary>
-        /// Returns the fingerprint of the current program state.
+        /// Returns the current hashed state of the execution using the specified
+        /// level of abstraction. The hash is updated in each execution step.
         /// </summary>
         [DebuggerStepThrough]
         internal int GetProgramState()
@@ -1140,15 +1140,15 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
                 foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
                 {
-                    if (operation is ActorOperation actorOperation && !actorOperation.Actor.IsHalted)
+                    if (operation is ActorOperation actorOperation)
                     {
-                        hash = (hash * 31) + actorOperation.Actor.GetCachedState();
+                        hash *= 31 + actorOperation.Actor.GetHashedState();
                     }
                 }
 
                 foreach (var monitor in this.Monitors)
                 {
-                    hash = (hash * 31) + monitor.GetCachedState();
+                    hash = (hash * 397) + monitor.GetHashedState();
                 }
 
                 return hash;

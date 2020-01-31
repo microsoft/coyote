@@ -17,7 +17,7 @@ using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
-using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.TestingServices.Tracing;
 
 namespace Microsoft.Coyote.TestingServices
 {
@@ -115,9 +115,9 @@ namespace Microsoft.Coyote.TestingServices
         {
             string options = string.Empty;
             if (this.Configuration.SchedulingStrategy == SchedulingStrategy.Random ||
-                this.Configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom ||
                 this.Configuration.SchedulingStrategy == SchedulingStrategy.PCT ||
-                this.Configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
+                this.Configuration.SchedulingStrategy == SchedulingStrategy.FairPCT ||
+                this.Configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
             {
                 options = $" (seed:{this.Configuration.RandomSchedulingSeed})";
             }
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.TestingServices
                 stringBuilder.Append("--fair-scheduling").Append(Environment.NewLine);
             }
 
-            if (this.Configuration.EnableLivenessChecking)
+            if (this.Configuration.IsLivenessCheckingEnabled)
             {
                 stringBuilder.Append("--liveness-temperature-threshold:" +
                     this.Configuration.LivenessTemperatureThreshold).

@@ -24,24 +24,24 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public override bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public override bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             this.CheckLivenessTemperature();
-            return this.SchedulingStrategy.GetNext(out next, ops, current);
+            return this.SchedulingStrategy.GetNextOperation(current, ops, out next);
         }
 
         /// <inheritdoc/>
-        public override bool GetNextBooleanChoice(int maxValue, out bool next)
+        public override bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             this.CheckLivenessTemperature();
-            return this.SchedulingStrategy.GetNextBooleanChoice(maxValue, out next);
+            return this.SchedulingStrategy.GetNextBooleanChoice(current, maxValue, out next);
         }
 
         /// <inheritdoc/>
-        public override bool GetNextIntegerChoice(int maxValue, out int next)
+        public override bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
             this.CheckLivenessTemperature();
-            return this.SchedulingStrategy.GetNextIntegerChoice(maxValue, out next);
+            return this.SchedulingStrategy.GetNextIntegerChoice(current, maxValue, out next);
         }
 
         /// <summary>

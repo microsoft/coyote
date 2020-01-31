@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.TestingServices.Coverage;
@@ -230,7 +228,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
         public async Task TestCustomActorRuntimeLogFormatter()
         {
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            config.EnableMonitorsInProduction = true;
+            config.IsMonitoringEnabledInInProduction = true;
 
             var runtime = ActorRuntimeFactory.Create(config);
             runtime.RegisterMonitor(typeof(S));

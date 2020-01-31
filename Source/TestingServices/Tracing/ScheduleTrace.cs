@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
+namespace Microsoft.Coyote.TestingServices.Tracing
 {
     /// <summary>
     /// Class implementing a program schedule trace. A trace is a series

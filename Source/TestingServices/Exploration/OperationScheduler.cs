@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
-using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.TestingServices.Tracing;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling
 {
@@ -139,6 +139,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             // Checks if the scheduling steps bound has been reached.
             this.CheckIfSchedulingStepsBoundIsReached();
 
+            if (this.Configuration.IsProgramStateHashingEnabled)
+            {
+                // Update the current operation with the hashed program state.
+                current.HashedProgramState = this.Runtime.GetProgramState();
+            }
+
             // Get and order the operations by their id.
             var ops = this.OperationMap.Values.OrderBy(op => op.Id);
 
@@ -152,7 +158,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 }
             }
 
-            if (!this.Strategy.GetNext(out IAsyncOperation next, ops, current))
+            if (!this.Strategy.GetNextOperation(current, ops, out IAsyncOperation next))
             {
                 // Checks if the program has deadlocked.
                 this.CheckIfProgramHasDeadlocked(ops.Select(op => op as AsyncOperation));
@@ -227,7 +233,13 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             // Checks if the scheduling steps bound has been reached.
             this.CheckIfSchedulingStepsBoundIsReached();
 
-            if (!this.Strategy.GetNextBooleanChoice(maxValue, out bool choice))
+            if (this.Configuration.IsProgramStateHashingEnabled)
+            {
+                // Update the current operation with the hashed program state.
+                this.ScheduledOperation.HashedProgramState = this.Runtime.GetProgramState();
+            }
+
+            if (!this.Strategy.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                 this.Stop();
@@ -263,7 +275,13 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
             // Checks if the scheduling steps bound has been reached.
             this.CheckIfSchedulingStepsBoundIsReached();
 
-            if (!this.Strategy.GetNextIntegerChoice(maxValue, out int choice))
+            if (this.Configuration.IsProgramStateHashingEnabled)
+            {
+                // Update the current operation with the hashed program state.
+                this.ScheduledOperation.HashedProgramState = this.Runtime.GetProgramState();
+            }
+
+            if (!this.Strategy.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
             {
                 IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                 this.Stop();

@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
     /// <summary>
     /// A simple (but effective) randomized scheduling strategy.
     /// </summary>
-    public class RandomStrategy : ISchedulingStrategy
+    internal class RandomStrategy : ISchedulingStrategy
     {
         /// <summary>
         /// Random number generator.
@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public virtual bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOperations.Count == 0)
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextBooleanChoice(int maxValue, out bool next)
+        public virtual bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             next = false;
             if (this.RandomNumberGenerator.Next(maxValue) == 0)
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextIntegerChoice(int maxValue, out int next)
+        public virtual bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomNumberGenerator.Next(maxValue);
             this.ScheduledSteps++;
@@ -88,34 +88,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-            this.ScheduledSteps++;
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
-        {
-            this.ScheduledSteps++;
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
-        {
-            this.ScheduledSteps++;
-        }
-
-        /// <inheritdoc/>
         public virtual bool PrepareForNextIteration()
         {
             this.ScheduledSteps = 0;
             return true;
-        }
-
-        /// <inheritdoc/>
-        public virtual void Reset()
-        {
-            this.ScheduledSteps = 0;
         }
 
         /// <inheritdoc/>
@@ -137,5 +113,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
         /// <inheritdoc/>
         public virtual string GetDescription() => $"Random[seed '{this.RandomNumberGenerator.Seed}']";
+
+        /// <inheritdoc/>
+        public virtual void Reset()
+        {
+            this.ScheduledSteps = 0;
+        }
     }
 }

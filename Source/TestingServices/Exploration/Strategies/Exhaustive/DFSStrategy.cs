@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
     /// <summary>
     /// A depth-first search scheduling strategy.
     /// </summary>
-    public class DFSStrategy : ISchedulingStrategy
+    internal class DFSStrategy : ISchedulingStrategy
     {
         /// <summary>
         /// The maximum number of steps to schedule.
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOperations.Count == 0)
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(int maxValue, out bool next)
+        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             NondetBooleanChoice nextChoice = null;
             List<NondetBooleanChoice> ncs = null;
@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(int maxValue, out int next)
+        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
             NondetIntegerChoice nextChoice = null;
             List<NondetIntegerChoice> ncs = null;
@@ -201,24 +201,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             this.ScheduledSteps++;
 
             return true;
-        }
-
-        /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-            this.ScheduledSteps++;
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
-        {
-            this.ScheduledSteps++;
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
-        {
-            this.ScheduledSteps++;
         }
 
         /// <inheritdoc/>
@@ -302,17 +284,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public void Reset()
-        {
-            this.ScheduleStack.Clear();
-            this.BoolNondetStack.Clear();
-            this.IntNondetStack.Clear();
-            this.SchIndex = 0;
-            this.NondetIndex = 0;
-            this.ScheduledSteps = 0;
-        }
-
-        /// <inheritdoc/>
         public int GetScheduledSteps() => this.ScheduledSteps;
 
         /// <inheritdoc/>
@@ -377,6 +348,17 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             }
 
             Debug.WriteLine("*******************");
+        }
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            this.ScheduleStack.Clear();
+            this.BoolNondetStack.Clear();
+            this.IntNondetStack.Clear();
+            this.SchIndex = 0;
+            this.NondetIndex = 0;
+            this.ScheduledSteps = 0;
         }
 
         /// <summary>

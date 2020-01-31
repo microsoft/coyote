@@ -771,9 +771,9 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Returns the cached state of this actor.
+        /// Returns the hashed state of this actor.
         /// </summary>
-        internal virtual int GetCachedState()
+        internal virtual int GetHashedState()
         {
             unchecked
             {
@@ -783,14 +783,10 @@ namespace Microsoft.Coyote.Actors
                 hash = (hash * 31) + this.IsHalted.GetHashCode();
 
                 hash = (hash * 31) + this.Manager.GetCachedState();
-
                 hash = (hash * 31) + this.Inbox.GetCachedState();
 
-                if (this.Runtime.Configuration.EnableUserDefinedStateHashing)
-                {
-                    // Adds the user-defined hashed state.
-                    hash = (hash * 31) + this.HashedState;
-                }
+                // Adds the user-defined hashed state.
+                hash = (hash * 31) + this.HashedState;
 
                 return hash;
             }

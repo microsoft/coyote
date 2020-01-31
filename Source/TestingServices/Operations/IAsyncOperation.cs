@@ -6,7 +6,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     /// <summary>
     /// Interface of an asynchronous operation that can be controlled during testing.
     /// </summary>
-    public interface IAsyncOperation
+    internal interface IAsyncOperation
     {
         /// <summary>
         /// The unique id of the operation.
@@ -23,5 +23,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
         /// </summary>
         AsyncOperationStatus Status { get; }
+
+        /// <summary>
+        /// A value that represents the hashed program state when
+        /// this operation last executed.
+        /// </summary>
+        int HashedProgramState { get; }
     }
 }

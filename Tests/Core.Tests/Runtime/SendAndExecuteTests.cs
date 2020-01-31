@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
         public async Task TestMachineHaltsOnSendExec()
         {
             var config = GetConfiguration();
-            config.EnableMonitorsInProduction = true;
+            config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {
                 var failed = false;

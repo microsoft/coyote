@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
     /// This strategy combines two given strategies, using them to schedule
     /// the prefix and suffix of an execution.
     /// </summary>
-    public sealed class ComboStrategy : ISchedulingStrategy
+    internal sealed class ComboStrategy : ISchedulingStrategy
     {
         /// <summary>
         /// The prefix strategy.
@@ -31,80 +31,41 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
-                return this.SuffixStrategy.GetNext(out next, ops, current);
+                return this.SuffixStrategy.GetNextOperation(current, ops, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNext(out next, ops, current);
+                return this.PrefixStrategy.GetNextOperation(current, ops, out next);
             }
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(int maxValue, out bool next)
+        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
-                return this.SuffixStrategy.GetNextBooleanChoice(maxValue, out next);
+                return this.SuffixStrategy.GetNextBooleanChoice(current, maxValue, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextBooleanChoice(maxValue, out next);
+                return this.PrefixStrategy.GetNextBooleanChoice(current, maxValue, out next);
             }
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(int maxValue, out int next)
+        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
-                return this.SuffixStrategy.GetNextIntegerChoice(maxValue, out next);
+                return this.SuffixStrategy.GetNextIntegerChoice(current, maxValue, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextIntegerChoice(maxValue, out next);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
-            {
-                this.SuffixStrategy.ForceNext(next, ops, current);
-            }
-            else
-            {
-                this.PrefixStrategy.ForceNext(next, ops, current);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
-        {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
-            {
-                this.SuffixStrategy.ForceNextBooleanChoice(maxValue, next);
-            }
-            else
-            {
-                this.PrefixStrategy.ForceNextBooleanChoice(maxValue, next);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
-        {
-            if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
-            {
-                this.SuffixStrategy.ForceNextIntegerChoice(maxValue, next);
-            }
-            else
-            {
-                this.PrefixStrategy.ForceNextIntegerChoice(maxValue, next);
+                return this.PrefixStrategy.GetNextIntegerChoice(current, maxValue, out next);
             }
         }
 
@@ -114,13 +75,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             bool doNext = this.PrefixStrategy.PrepareForNextIteration();
             doNext |= this.SuffixStrategy.PrepareForNextIteration();
             return doNext;
-        }
-
-        /// <inheritdoc/>
-        public void Reset()
-        {
-            this.PrefixStrategy.Reset();
-            this.SuffixStrategy.Reset();
         }
 
         /// <inheritdoc/>
@@ -145,5 +99,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <inheritdoc/>
         public string GetDescription() =>
             string.Format("Combo[{0},{1}]", this.PrefixStrategy.GetDescription(), this.SuffixStrategy.GetDescription());
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            this.PrefixStrategy.Reset();
+            this.SuffixStrategy.Reset();
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.TestingServices.Tracing.Schedule
+namespace Microsoft.Coyote.TestingServices.Tracing
 {
     /// <summary>
     /// Class implementing a program schedule step.

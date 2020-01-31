@@ -719,9 +719,9 @@ namespace Microsoft.Coyote.Actors
             this.PushTransitions.ContainsKey(typeof(DefaultEvent));
 
         /// <summary>
-        /// Returns the cached state of this state machine.
+        /// Returns the hashed state of this state machine.
         /// </summary>
-        internal override int GetCachedState()
+        internal override int GetHashedState()
         {
             unchecked
             {
@@ -739,11 +739,8 @@ namespace Microsoft.Coyote.Actors
 
                 hash = (hash * 31) + this.Inbox.GetCachedState();
 
-                if (this.Runtime.Configuration.EnableUserDefinedStateHashing)
-                {
-                    // Adds the user-defined hashed state.
-                    hash = (hash * 31) + this.HashedState;
-                }
+                // Adds the user-defined hashed state.
+                hash = (hash * 31) + this.HashedState;
 
                 return hash;
             }

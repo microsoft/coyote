@@ -4,18 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 {
     /// <summary>
     /// A priority-based probabilistic scheduling strategy.
-    ///
+    /// </summary>
+    /// <remarks>
     /// This strategy is described in the following paper:
     /// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/asplos277-pct.pdf
-    /// </summary>
-    public sealed class PCTStrategy : ISchedulingStrategy
+    /// </remarks>
+    internal sealed class PCTStrategy : ISchedulingStrategy
     {
         /// <summary>
         /// Random number generator.
@@ -77,45 +77,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             next = null;
-            return this.GetNextHelper(ref next, ops, current);
-        }
-
-        /// <inheritdoc/>
-        public bool GetNextBooleanChoice(int maxValue, out bool next)
-        {
-            next = false;
-            if (this.RandomNumberGenerator.Next(maxValue) == 0)
-            {
-                next = true;
-            }
-
-            this.ScheduledSteps++;
-
-            return true;
-        }
-
-        /// <inheritdoc/>
-        public bool GetNextIntegerChoice(int maxValue, out int next)
-        {
-            next = this.RandomNumberGenerator.Next(maxValue);
-            this.ScheduledSteps++;
-            return true;
-        }
-
-        /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-            this.GetNextHelper(ref next, ops, current);
-        }
-
-        /// <summary>
-        /// Returns or forces the next asynchronous operation to schedule.
-        /// </summary>
-        private bool GetNextHelper(ref IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
-        {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOperations.Count == 0)
             {
@@ -134,15 +98,25 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
+        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
+            next = false;
+            if (this.RandomNumberGenerator.Next(maxValue) == 0)
+            {
+                next = true;
+            }
+
             this.ScheduledSteps++;
+
+            return true;
         }
 
         /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
+        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
+            next = this.RandomNumberGenerator.Next(maxValue);
             this.ScheduledSteps++;
+            return true;
         }
 
         /// <inheritdoc/>
@@ -166,15 +140,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             }
 
             return true;
-        }
-
-        /// <inheritdoc/>
-        public void Reset()
-        {
-            this.ScheduleLength = 0;
-            this.ScheduledSteps = 0;
-            this.PrioritizedOperations.Clear();
-            this.PriorityChangePoints.Clear();
         }
 
         /// <inheritdoc/>
@@ -316,6 +281,15 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
             this.PriorityChangePoints.Add(newPriorityChangePoint);
             Debug.WriteLine($"<PCTLog> Moving priority change to '{newPriorityChangePoint}'.");
+        }
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            this.ScheduleLength = 0;
+            this.ScheduledSteps = 0;
+            this.PrioritizedOperations.Clear();
+            this.PriorityChangePoints.Clear();
         }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Text;
-using Microsoft.Coyote.IO;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Tests.Common

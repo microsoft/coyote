@@ -12,6 +12,9 @@ namespace Microsoft.Coyote.Runtime
     /// Interface that allows an external module to track what
     /// is happening in the <see cref="IActorRuntime"/>.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+    /// </remarks>
     public interface IActorRuntimeLog
     {
         /// <summary>

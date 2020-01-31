@@ -12,6 +12,7 @@ namespace Microsoft.Coyote.Threading.Tasks
     /// This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct ConfiguredControlledTaskAwaitable
     {
         /// <summary>
@@ -129,6 +130,7 @@ namespace Microsoft.Coyote.Threading.Tasks
     /// This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public struct ConfiguredControlledTaskAwaitable<TResult>
     {
         /// <summary>

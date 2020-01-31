@@ -12,6 +12,7 @@ namespace Microsoft.Coyote.Threading.Tasks
     /// Implements a <see cref="ControlledTask"/> awaiter. This type is intended for compiler use only.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public readonly struct ControlledTaskAwaiter : ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access
@@ -96,6 +97,7 @@ namespace Microsoft.Coyote.Threading.Tasks
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public readonly struct ControlledTaskAwaiter<TResult> : ICriticalNotifyCompletion, INotifyCompletion
     {
         // WARNING: The layout must remain the same, as the struct is used to access

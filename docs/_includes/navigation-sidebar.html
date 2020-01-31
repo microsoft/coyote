@@ -27,7 +27,7 @@
                             {% assign expanded = true %}
                         {% endif %}
                        {% endfor %}
-                       >{{ item.title }}</a>
+                       >{{ item.title | escape }}</a>
                 </h4>
             </div>
             <div
@@ -40,7 +40,7 @@
                         {% for entry in item.subfolderitems %}
                         {% assign page_prefix = page.url | truncate: entry.link.size, "" %}
                         {% assign three_level = false %}
-                        {% if entry.tertiaryitems  %}
+                        {% if entry.subfolderitems  %}
                             {% assign three_level = true %}
                         {% endif %}
                         <li class="pt-5 pb-5">
@@ -50,14 +50,14 @@
                             {% if three_level == false %}
                                {% if page_prefix == entry.link %}class="active" {% endif %}
                             {% endif %}
-                            >{{ entry.name }}</a>
+                            >{{ entry.name | escape }}</a>
                             {% if three_level %}
                             <ul class="learn-tertiary">
-                               {% for item in entry.tertiaryitems %}
+                               {% for item in entry.subfolderitems %}
                                 <li class="pt-6 pb-6">
                                     <a href="{{ item.link  | relative_url }}"
                                     {% if page.url == item.link %} class="active"{% endif %}
-                                    >{{ item.name }}</a></li>
+                                    >{{ item.name | escape }}</a></li>
                                {% endfor %}
                             </ul>
                             {% endif %}

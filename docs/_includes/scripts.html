@@ -32,6 +32,20 @@
     gtag('js', new Date());
 
     gtag('config', 'UA-149429280-1');
+
+    $(document).ready(function() {
+        $('h1,h2,h3,h4,h5,h6').filter('[id]').each(function () {
+            $(this).html('<a class="a-unstyled" href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+        });
+
+        $('table').each(function() {
+            $(this).addClass("table");
+            $(this).addClass("table-bordered");
+            $(this).addClass("table-striped");
+            $(this).addClass("table-condensed");
+        });
+
+    });
     </script>
 
 

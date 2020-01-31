@@ -1140,6 +1140,19 @@ a:active {
     text-decoration: underline;
 }
 
+/* used to hide links on headings which are there so reader can learn the anchors */
+.a-unstyled {
+    &,
+    &:link,
+    &:visited,
+    &:hover,
+    &:active,
+    &:active:hover {
+      color: inherit;
+      text-decoration: none;
+    }
+}
+
 h1,
 h2,
 h3,

@@ -1,4 +1,4 @@
-#Learn Coyote sidebar navigation
+# Learn Coyote sidebar navigation
 learn-toc:
 - title: Overview
   subfolderitems:
@@ -29,12 +29,12 @@ learn-toc:
   subfolderitems:
     - name: Asynchronous Tasks
       link: /learn/programming-models/async/overview
-      tertiaryitems:
+      subfolderitems:
         - name: Overview
           link: /learn/programming-models/async/overview
     - name: Asynchronous Actors
       link: /learn/programming-models/actors/overview
-      tertiaryitems:
+      subfolderitems:
         - name: Overview
           link: /learn/programming-models/actors/overview
         - name: State Machines
@@ -85,6 +85,784 @@ learn-toc:
       link: /learn/advanced/logging
     - name: Sharing objects
       link: /learn/advanced/object-sharing
+- title: API documentation
+  subfolderitems:
+    - name: Microsoft.Coyote
+      link: /learn/ref/MicrosoftCoyoteNamespace
+      subfolderitems:
+      - name: Configuration
+        link: /learn/ref/Microsoft.Coyote/ConfigurationType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote/Configuration/Create
+        - name: WithVerbosityEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithVerbosityEnabled
+        - name: WithStrategy
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithStrategy
+        - name: WithNumberOfIterations
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithNumberOfIterations
+        - name: WithMaxSteps
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSteps
+        - name: Configuration
+          link: /learn/ref/Microsoft.Coyote/Configuration/Configuration
+        - name: MaxSchedulingSteps
+          link: /learn/ref/Microsoft.Coyote/Configuration/MaxSchedulingSteps
+        - name: IsXmlLogEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsXmlLogEnabled
+        - name: OutputFilePath
+          link: /learn/ref/Microsoft.Coyote/Configuration/OutputFilePath
+        - name: Timeout
+          link: /learn/ref/Microsoft.Coyote/Configuration/Timeout
+        - name: RuntimeGeneration
+          link: /learn/ref/Microsoft.Coyote/Configuration/RuntimeGeneration
+        - name: AssemblyToBeAnalyzed
+          link: /learn/ref/Microsoft.Coyote/Configuration/AssemblyToBeAnalyzed
+        - name: TestingRuntimeAssembly
+          link: /learn/ref/Microsoft.Coyote/Configuration/TestingRuntimeAssembly
+        - name: TestMethodName
+          link: /learn/ref/Microsoft.Coyote/Configuration/TestMethodName
+        - name: SchedulingStrategy
+          link: /learn/ref/Microsoft.Coyote/Configuration/SchedulingStrategy
+        - name: SchedulingIterations
+          link: /learn/ref/Microsoft.Coyote/Configuration/SchedulingIterations
+        - name: RandomSchedulingSeed
+          link: /learn/ref/Microsoft.Coyote/Configuration/RandomSchedulingSeed
+        - name: IncrementalSchedulingSeed
+          link: /learn/ref/Microsoft.Coyote/Configuration/IncrementalSchedulingSeed
+        - name: PerformFullExploration
+          link: /learn/ref/Microsoft.Coyote/Configuration/PerformFullExploration
+        - name: MaxFairSchedulingSteps
+          link: /learn/ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps
+        - name: MaxUnfairSchedulingSteps
+          link: /learn/ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
+        - name: ToolCommand
+          link: /learn/ref/Microsoft.Coyote/Configuration/ToolCommand
+        - name: UserExplicitlySetMaxFairSchedulingSteps
+          link: /learn/ref/Microsoft.Coyote/Configuration/UserExplicitlySetMaxFairSchedulingSteps
+        - name: ParallelBugFindingTasks
+          link: /learn/ref/Microsoft.Coyote/Configuration/ParallelBugFindingTasks
+        - name: ParallelDebug
+          link: /learn/ref/Microsoft.Coyote/Configuration/ParallelDebug
+        - name: TestingSchedulerIpAddress
+          link: /learn/ref/Microsoft.Coyote/Configuration/TestingSchedulerIpAddress
+        - name: WaitForTestingProcesses
+          link: /learn/ref/Microsoft.Coyote/Configuration/WaitForTestingProcesses
+        - name: RunAsParallelBugFindingTask
+          link: /learn/ref/Microsoft.Coyote/Configuration/RunAsParallelBugFindingTask
+        - name: TestingSchedulerEndPoint
+          link: /learn/ref/Microsoft.Coyote/Configuration/TestingSchedulerEndPoint
+        - name: TestingProcessId
+          link: /learn/ref/Microsoft.Coyote/Configuration/TestingProcessId
+        - name: ConsiderDepthBoundHitAsBug
+          link: /learn/ref/Microsoft.Coyote/Configuration/ConsiderDepthBoundHitAsBug
+        - name: PrioritySwitchBound
+          link: /learn/ref/Microsoft.Coyote/Configuration/PrioritySwitchBound
+        - name: DelayBound
+          link: /learn/ref/Microsoft.Coyote/Configuration/DelayBound
+        - name: CoinFlipBound
+          link: /learn/ref/Microsoft.Coyote/Configuration/CoinFlipBound
+        - name: TimeoutDelay
+          link: /learn/ref/Microsoft.Coyote/Configuration/TimeoutDelay
+        - name: SafetyPrefixBound
+          link: /learn/ref/Microsoft.Coyote/Configuration/SafetyPrefixBound
+        - name: EnableLivenessChecking
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableLivenessChecking
+        - name: LivenessTemperatureThreshold
+          link: /learn/ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
+        - name: EnableCycleDetection
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableCycleDetection
+        - name: EnableUserDefinedStateHashing
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableUserDefinedStateHashing
+        - name: EnableMonitorsInProduction
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableMonitorsInProduction
+        - name: AttachDebugger
+          link: /learn/ref/Microsoft.Coyote/Configuration/AttachDebugger
+        - name: ScheduleFile
+          link: /learn/ref/Microsoft.Coyote/Configuration/ScheduleFile
+        - name: ReportCodeCoverage
+          link: /learn/ref/Microsoft.Coyote/Configuration/ReportCodeCoverage
+        - name: ReportActivityCoverage
+          link: /learn/ref/Microsoft.Coyote/Configuration/ReportActivityCoverage
+        - name: DebugActivityCoverage
+          link: /learn/ref/Microsoft.Coyote/Configuration/DebugActivityCoverage
+        - name: AdditionalCodeCoverageAssemblies
+          link: /learn/ref/Microsoft.Coyote/Configuration/AdditionalCodeCoverageAssemblies
+        - name: IsVerbose
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsVerbose
+        - name: IsDgmlGraphEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled
+        - name: IsDgmlBugGraph
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsDgmlBugGraph
+        - name: CustomActorRuntimeLogType
+          link: /learn/ref/Microsoft.Coyote/Configuration/CustomActorRuntimeLogType
+        - name: EnableDebugging
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableDebugging
+        - name: EnableProfiling
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableProfiling
+        - name: EnableColoredConsoleOutput
+          link: /learn/ref/Microsoft.Coyote/Configuration/EnableColoredConsoleOutput
+      - name: Event
+        link: /learn/ref/Microsoft.Coyote/EventType
+        subfolderitems:
+        - name: Event
+          link: /learn/ref/Microsoft.Coyote/Event/Event
+      - name: RandomValueGenerator
+        link: /learn/ref/Microsoft.Coyote/RandomValueGeneratorType
+        subfolderitems:
+        - name: GetNextBoolean
+          link: /learn/ref/Microsoft.Coyote/RandomValueGenerator/GetNextBoolean
+        - name: GetNextInteger
+          link: /learn/ref/Microsoft.Coyote/RandomValueGenerator/GetNextInteger
+    - name: Microsoft.Coyote.Actors
+      link: /learn/ref/MicrosoftCoyoteActorsNamespace
+      subfolderitems:
+      - name: Actor
+        link: /learn/ref/Microsoft.Coyote.Actors/ActorType
+        subfolderitems:
+        - name: CreateActor
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/CreateActor
+        - name: SendEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/SendEvent
+        - name: ReceiveEventAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/ReceiveEventAsync
+        - name: IgnoreEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/IgnoreEvent
+        - name: DeferEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/DeferEvent
+        - name: StartTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/StartTimer
+        - name: StartPeriodicTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/StartPeriodicTimer
+        - name: StopTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/StopTimer
+        - name: Random
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Random
+        - name: FairRandom
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/FairRandom
+        - name: RandomInteger
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/RandomInteger
+        - name: Monitor
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Monitor
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Assert
+        - name: Halt
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Halt
+        - name: OnInitializeAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync
+        - name: OnEventDequeuedAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventDequeuedAsync
+        - name: OnEventHandledAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventHandledAsync
+        - name: OnEventUnhandledAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventUnhandledAsync
+        - name: OnExceptionHandledAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnExceptionHandledAsync
+        - name: OnHaltAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnHaltAsync
+        - name: OnException
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnException
+        - name: Equals
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Equals
+        - name: GetHashCode
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/GetHashCode
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/ToString
+        - name: Actor
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Actor
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Id
+        - name: OperationGroupId
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OperationGroupId
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Logger
+        - name: HashedState
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/HashedState
+      - name: ActorId
+        link: /learn/ref/Microsoft.Coyote.Actors/ActorIdType
+        subfolderitems:
+        - name: Equals
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Equals
+        - name: GetHashCode
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/GetHashCode
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/ToString
+        - name: CompareTo
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/CompareTo
+        - name: Runtime
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Runtime
+        - name: IsNameUsedForHashing
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/IsNameUsedForHashing
+        - name: Value
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Value
+        - name: NameValue
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/NameValue
+        - name: Type
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Type
+        - name: Name
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Name
+        - name: Generation
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Generation
+        - name: Endpoint
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Endpoint
+      - name: DefaultEvent
+        link: /learn/ref/Microsoft.Coyote.Actors/DefaultEventType
+        subfolderitems:
+        - name: Instance
+          link: /learn/ref/Microsoft.Coyote.Actors/DefaultEvent/Instance
+      - name: HaltEvent
+        link: /learn/ref/Microsoft.Coyote.Actors/HaltEventType
+        subfolderitems:
+        - name: Instance
+          link: /learn/ref/Microsoft.Coyote.Actors/HaltEvent/Instance
+      - name: WildCardEvent
+        link: /learn/ref/Microsoft.Coyote.Actors/WildCardEventType
+        subfolderitems:
+        - name: WildCardEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent
+      - name: OnExceptionOutcome
+        link: /learn/ref/Microsoft.Coyote.Actors/OnExceptionOutcomeType
+      - name: UnhandledEventException
+        link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventExceptionType
+        subfolderitems:
+        - name: UnhandledEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent
+        - name: CurrentStateName
+          link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName
+      - name: SendOptions
+        link: /learn/ref/Microsoft.Coyote.Actors/SendOptionsType
+        subfolderitems:
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.Actors/SendOptions/ToString
+        - name: SendOptions
+          link: /learn/ref/Microsoft.Coyote.Actors/SendOptions/SendOptions
+        - name: Default
+          link: /learn/ref/Microsoft.Coyote.Actors/SendOptions/Default
+        - name: MustHandle
+          link: /learn/ref/Microsoft.Coyote.Actors/SendOptions/MustHandle
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Actors/SendOptions/Assert
+        - name: HashedState
+          link: /learn/ref/Microsoft.Coyote.Actors/SendOptions/HashedState
+      - name: StateMachine
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineType
+        subfolderitems:
+        - name: RaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent
+        - name: GotoState
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/GotoState
+        - name: PushState
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/PushState
+        - name: PopState
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/PopState
+        - name: Halt
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/Halt
+        - name: OnEventHandledAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync
+        - name: StateMachine
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/StateMachine
+        - name: CurrentState
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/CurrentState
+      - name: Actor.OnEventDoActionAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/ActorOnEventDoActionAttributeType
+        subfolderitems:
+        - name: OnEventDoActionAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute/OnEventDoActionAttribute
+      - name: StateMachine.Transition
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineTransitionType
+        subfolderitems:
+        - name: TypeValue
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.Transition/TypeValue
+        - name: None
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.Transition/None
+      - name: StateMachine.State
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateType
+        subfolderitems:
+        - name: State
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State/State
+      - name: StateMachine.StateGroup
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateGroupType
+        subfolderitems:
+        - name: StateGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.StateGroup/StateGroup
+      - name: StateMachine.Transition.Type
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineTransitionTypeType
+      - name: StateMachine.State.StartAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateStartAttributeType
+        subfolderitems:
+        - name: StartAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.StartAttribute/StartAttribute
+      - name: StateMachine.State.OnEntryAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateOnEntryAttributeType
+        subfolderitems:
+        - name: OnEntryAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.OnEntryAttribute/OnEntryAttribute
+      - name: StateMachine.State.OnExitAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateOnExitAttributeType
+        subfolderitems:
+        - name: OnExitAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.OnExitAttribute/OnExitAttribute
+      - name: StateMachine.State.OnEventGotoStateAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateOnEventGotoStateAttributeType
+        subfolderitems:
+        - name: OnEventGotoStateAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute
+      - name: StateMachine.State.OnEventPushStateAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateOnEventPushStateAttributeType
+        subfolderitems:
+        - name: OnEventPushStateAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventPushStateAttribute/OnEventPushStateAttribute
+      - name: StateMachine.State.OnEventDoActionAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateOnEventDoActionAttributeType
+        subfolderitems:
+        - name: OnEventDoActionAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.OnEventDoActionAttribute/OnEventDoActionAttribute
+      - name: StateMachine.State.DeferEventsAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateDeferEventsAttributeType
+        subfolderitems:
+        - name: DeferEventsAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.DeferEventsAttribute/DeferEventsAttribute
+      - name: StateMachine.State.IgnoreEventsAttribute
+        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateIgnoreEventsAttributeType
+        subfolderitems:
+        - name: IgnoreEventsAttribute
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute
+    - name: Microsoft.Coyote.Actors.Timers
+      link: /learn/ref/MicrosoftCoyoteActorsTimersNamespace
+      subfolderitems:
+      - name: TimerElapsedEvent
+        link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEventType
+        subfolderitems:
+        - name: Info
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info
+      - name: TimerInfo
+        link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfoType
+        subfolderitems:
+        - name: Equals
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Equals
+        - name: GetHashCode
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/GetHashCode
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/ToString
+        - name: OwnerId
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/OwnerId
+        - name: DueTime
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime
+        - name: Period
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
+        - name: Payload
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Payload
+    - name: Microsoft.Coyote.IO
+      link: /learn/ref/MicrosoftCoyoteIONamespace
+      subfolderitems:
+      - name: ConsoleLogger
+        link: /learn/ref/Microsoft.Coyote.IO/ConsoleLoggerType
+        subfolderitems:
+        - name: Write
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/Write
+        - name: WriteLine
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteLine
+        - name: ConsoleLogger
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/ConsoleLogger
+        - name: Encoding
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/Encoding
+      - name: InMemoryLogger
+        link: /learn/ref/Microsoft.Coyote.IO/InMemoryLoggerType
+        subfolderitems:
+        - name: Write
+          link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/Write
+        - name: WriteLine
+          link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/WriteLine
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/ToString
+        - name: InMemoryLogger
+          link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger
+        - name: Encoding
+          link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding
+    - name: Microsoft.Coyote.Runtime
+      link: /learn/ref/MicrosoftCoyoteRuntimeNamespace
+      subfolderitems:
+      - name: ActorRuntimeFactory
+        link: /learn/ref/Microsoft.Coyote.Runtime/ActorRuntimeFactoryType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Runtime/ActorRuntimeFactory/Create
+      - name: ExecutionCanceledException
+        link: /learn/ref/Microsoft.Coyote.Runtime/ExecutionCanceledExceptionType
+      - name: OnEventDroppedHandler
+        link: /learn/ref/Microsoft.Coyote.Runtime/OnEventDroppedHandlerType
+      - name: OnFailureHandler
+        link: /learn/ref/Microsoft.Coyote.Runtime/OnFailureHandlerType
+      - name: RuntimeException
+        link: /learn/ref/Microsoft.Coyote.Runtime/RuntimeExceptionType
+        subfolderitems:
+        - name: RuntimeException
+          link: /learn/ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException
+      - name: IActorRuntime
+        link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeType
+        subfolderitems:
+        - name: CreateActorId
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActorId
+        - name: CreateActorIdFromName
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActorIdFromName
+        - name: CreateActor
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActor
+        - name: CreateActorAndExecuteAsync
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActorAndExecuteAsync
+        - name: SendEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/SendEvent
+        - name: SendEventAndExecuteAsync
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/SendEventAndExecuteAsync
+        - name: RegisterMonitor
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RegisterMonitor
+        - name: InvokeMonitor
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/InvokeMonitor
+        - name: Random
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Random
+        - name: FairRandom
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/FairRandom
+        - name: RandomInteger
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RandomInteger
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Assert
+        - name: GetCurrentOperationGroupId
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/GetCurrentOperationGroupId
+        - name: SetLogger
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/SetLogger
+        - name: RegisterLog
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RegisterLog
+        - name: RemoveLog
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RemoveLog
+        - name: Stop
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Stop
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Logger
+        - name: OnFailure
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/OnFailure
+        - name: OnEventDropped
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/OnEventDropped
+      - name: IActorRuntimeLog
+        link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLogType
+        subfolderitems:
+        - name: OnCreateActor
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCreateActor
+        - name: OnExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnExecuteAction
+        - name: OnSendEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnSendEvent
+        - name: OnRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnRaiseEvent
+        - name: OnEnqueueEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnEnqueueEvent
+        - name: OnDequeueEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnDequeueEvent
+        - name: OnReceiveEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnReceiveEvent
+        - name: OnWaitEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnWaitEvent
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnRandom
+        - name: OnStateTransition
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStateTransition
+        - name: OnGotoState
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnGotoState
+        - name: OnPushState
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnPushState
+        - name: OnPopState
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnPopState
+        - name: OnDefaultEventHandler
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnDefaultEventHandler
+        - name: OnHalt
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnHalt
+        - name: OnHandleRaisedEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnHandleRaisedEvent
+        - name: OnPopUnhandledEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnPopUnhandledEvent
+        - name: OnExceptionThrown
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnExceptionThrown
+        - name: OnExceptionHandled
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnExceptionHandled
+        - name: OnCreateTimer
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCreateTimer
+        - name: OnStopTimer
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStopTimer
+        - name: OnCreateMonitor
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCreateMonitor
+        - name: OnMonitorExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorStateTransition
+        - name: OnAssertionFailure
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnAssertionFailure
+        - name: OnStrategyDescription
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStrategyDescription
+        - name: OnCompleted
+          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCompleted
+    - name: Microsoft.Coyote.Runtime.Exploration
+      link: /learn/ref/MicrosoftCoyoteRuntimeExplorationNamespace
+      subfolderitems:
+      - name: SchedulingStrategy
+        link: /learn/ref/Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType
+    - name: Microsoft.Coyote.Runtime.Logging
+      link: /learn/ref/MicrosoftCoyoteRuntimeLoggingNamespace
+      subfolderitems:
+      - name: ActorRuntimeLogTextFormatter
+        link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatterType
+        subfolderitems:
+        - name: OnAssertionFailure
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnAssertionFailure
+        - name: OnCreateActor
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCreateActor
+        - name: OnCreateMonitor
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCreateMonitor
+        - name: OnCreateTimer
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCreateTimer
+        - name: OnDefaultEventHandler
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnDefaultEventHandler
+        - name: OnDequeueEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnDequeueEvent
+        - name: OnEnqueueEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnEnqueueEvent
+        - name: OnExceptionHandled
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnExceptionHandled
+        - name: OnExceptionThrown
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnExceptionThrown
+        - name: OnExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnExecuteAction
+        - name: OnGotoState
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnGotoState
+        - name: OnHalt
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnHalt
+        - name: OnHandleRaisedEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
+        - name: OnMonitorExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorStateTransition
+        - name: OnPopState
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnPopState
+        - name: OnPopUnhandledEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnPopUnhandledEvent
+        - name: OnPushState
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnPushState
+        - name: OnRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnRaiseEvent
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnRandom
+        - name: OnReceiveEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnReceiveEvent
+        - name: OnSendEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnSendEvent
+        - name: OnStateTransition
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnStateTransition
+        - name: OnStopTimer
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnStopTimer
+        - name: OnStrategyDescription
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnStrategyDescription
+        - name: OnWaitEvent
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnWaitEvent
+        - name: OnCompleted
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCompleted
+        - name: ActorRuntimeLogTextFormatter
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/Logger
+    - name: Microsoft.Coyote.Specifications
+      link: /learn/ref/MicrosoftCoyoteSpecificationsNamespace
+      subfolderitems:
+      - name: Monitor
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorType
+        subfolderitems:
+        - name: RaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/RaiseEvent
+        - name: GotoState
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/GotoState
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Assert
+        - name: GetHashedState
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/GetHashedState
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/ToString
+        - name: Monitor
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Monitor
+        - name: Name
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Name
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Logger
+        - name: CurrentState
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/CurrentState
+      - name: Specification
+        link: /learn/ref/Microsoft.Coyote.Specifications/SpecificationType
+        subfolderitems:
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Specifications/Specification/Assert
+        - name: RegisterMonitor
+          link: /learn/ref/Microsoft.Coyote.Specifications/Specification/RegisterMonitor
+        - name: Monitor
+          link: /learn/ref/Microsoft.Coyote.Specifications/Specification/Monitor
+      - name: Monitor.Transition
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorTransitionType
+        subfolderitems:
+        - name: TypeValue
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.Transition/TypeValue
+        - name: None
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.Transition/None
+      - name: Monitor.State
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateType
+        subfolderitems:
+        - name: State
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State/State
+      - name: Monitor.StateGroup
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateGroupType
+        subfolderitems:
+        - name: StateGroup
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.StateGroup/StateGroup
+      - name: Monitor.Transition.Type
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorTransitionTypeType
+      - name: Monitor.State.StartAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateStartAttributeType
+        subfolderitems:
+        - name: StartAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.StartAttribute/StartAttribute
+      - name: Monitor.State.OnEntryAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateOnEntryAttributeType
+        subfolderitems:
+        - name: OnEntryAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.OnEntryAttribute/OnEntryAttribute
+      - name: Monitor.State.OnExitAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateOnExitAttributeType
+        subfolderitems:
+        - name: OnExitAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.OnExitAttribute/OnExitAttribute
+      - name: Monitor.State.OnEventGotoStateAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateOnEventGotoStateAttributeType
+        subfolderitems:
+        - name: OnEventGotoStateAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.OnEventGotoStateAttribute/OnEventGotoStateAttribute
+      - name: Monitor.State.OnEventDoActionAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateOnEventDoActionAttributeType
+        subfolderitems:
+        - name: OnEventDoActionAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.OnEventDoActionAttribute/OnEventDoActionAttribute
+      - name: Monitor.State.IgnoreEventsAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateIgnoreEventsAttributeType
+        subfolderitems:
+        - name: IgnoreEventsAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.IgnoreEventsAttribute/IgnoreEventsAttribute
+      - name: Monitor.State.ColdAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateColdAttributeType
+        subfolderitems:
+        - name: ColdAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.ColdAttribute/ColdAttribute
+      - name: Monitor.State.HotAttribute
+        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateHotAttributeType
+        subfolderitems:
+        - name: HotAttribute
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
+    - name: Microsoft.Coyote.TestingServices
+      link: /learn/ref/MicrosoftCoyoteTestingServicesNamespace
+      subfolderitems:
+      - name: TestAttribute
+        link: /learn/ref/Microsoft.Coyote.TestingServices/TestAttributeType
+        subfolderitems:
+        - name: TestAttribute
+          link: /learn/ref/Microsoft.Coyote.TestingServices/TestAttribute/TestAttribute
+      - name: TestInitAttribute
+        link: /learn/ref/Microsoft.Coyote.TestingServices/TestInitAttributeType
+        subfolderitems:
+        - name: TestInitAttribute
+          link: /learn/ref/Microsoft.Coyote.TestingServices/TestInitAttribute/TestInitAttribute
+      - name: TestDisposeAttribute
+        link: /learn/ref/Microsoft.Coyote.TestingServices/TestDisposeAttributeType
+        subfolderitems:
+        - name: TestDisposeAttribute
+          link: /learn/ref/Microsoft.Coyote.TestingServices/TestDisposeAttribute/TestDisposeAttribute
+      - name: TestIterationDisposeAttribute
+        link: /learn/ref/Microsoft.Coyote.TestingServices/TestIterationDisposeAttributeType
+        subfolderitems:
+        - name: TestIterationDisposeAttribute
+          link: /learn/ref/Microsoft.Coyote.TestingServices/TestIterationDisposeAttribute/TestIterationDisposeAttribute
+    - name: Microsoft.Coyote.Threading.Tasks
+      link: /learn/ref/MicrosoftCoyoteThreadingTasksNamespace
+      subfolderitems:
+      - name: ControlledTask
+        link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTaskType
+        subfolderitems:
+        - name: FromResult
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/FromResult
+        - name: FromCanceled
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/FromCanceled
+        - name: FromException
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/FromException
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Run
+        - name: Delay
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Delay
+        - name: WhenAll
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAll
+        - name: WhenAny
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAny
+        - name: WhenAnyTaskCompletesAsync
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAnyTaskCompletesAsync
+        - name: WhenAnyTaskCompletesInProductionAsync
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAnyTaskCompletesInProductionAsync
+        - name: WaitAll
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WaitAll
+        - name: WaitAny
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WaitAny
+        - name: Yield
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Yield
+        - name: Wait
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Wait
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/GetAwaiter
+        - name: ConfigureAwait
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/ConfigureAwait
+        - name: ExploreContextSwitch
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/ExploreContextSwitch
+        - name: ToTask
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/ToTask
+        - name: Dispose
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Dispose
+        - name: CompletedTask
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/CompletedTask
+        - name: CurrentId
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/CurrentId
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Id
+        - name: IsCompleted
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/IsCompleted
+        - name: IsCanceled
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/IsCanceled
+        - name: IsFaulted
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/IsFaulted
+        - name: Exception
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Exception
+        - name: Status
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Status
+      - name: ControlledTask<TResult>
+        link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1Type
+        subfolderitems:
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1/GetAwaiter
+        - name: ConfigureAwait
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1/ConfigureAwait
+        - name: Result
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1/Result
+      - name: TaskExtensions
+        link: /learn/ref/Microsoft.Coyote.Threading.Tasks/TaskExtensionsType
+        subfolderitems:
+        - name: ToControlledTask
+          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/TaskExtensions/ToControlledTask
+
+
 - title: Resources
   subfolderitems:
     - name: Publications

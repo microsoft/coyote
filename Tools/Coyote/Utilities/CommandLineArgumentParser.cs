@@ -184,7 +184,7 @@ namespace Microsoft.Coyote.Utilities
                 }
             }
 
-            object result = null;
+            object result;
             if (type == null || type == typeof(string))
             {
                 result = value;
@@ -486,12 +486,12 @@ namespace Microsoft.Coyote.Utilities
         /// <returns>The new option or throws <see cref="DuplicateNameException"/>.</returns>
         public CommandLineArgument AddPositionalArgument(string name, string description = null, Type dataType = null)
         {
-            if (this.Arguments.TryGetValue(name, out CommandLineArgument argument))
+            if (this.Arguments.ContainsKey(name))
             {
                 throw new DuplicateNameException(string.Format("Argument {0} already defined", name));
             }
 
-            argument = new CommandLineArgument()
+            CommandLineArgument argument = new CommandLineArgument()
             {
                 LongName = name,
                 DataType = dataType,

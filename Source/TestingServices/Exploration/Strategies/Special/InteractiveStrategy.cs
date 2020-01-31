@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             next = null;
 
@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(int maxValue, out bool next)
+        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             next = false;
             this.ExploredSteps++;
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(int maxValue, out int next)
+        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
             next = 0;
             this.ExploredSteps++;
@@ -293,21 +293,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             return true;
         }
 
-        /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
-        {
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
-        {
-        }
-
         /// <summary>
         /// Prepares for the next scheduling iteration. This is invoked
         /// at the end of a scheduling iteration. It must return false
@@ -317,13 +302,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         {
             this.ExploredSteps = 0;
             return true;
-        }
-
-        /// <inheritdoc/>
-        public void Reset()
-        {
-            this.InputCache.Clear();
-            this.ExploredSteps = 0;
         }
 
         /// <inheritdoc/>
@@ -435,6 +413,13 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             {
                 this.InputCache.Clear();
             }
+        }
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            this.InputCache.Clear();
+            this.ExploredSteps = 0;
         }
     }
 }

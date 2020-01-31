@@ -36,12 +36,6 @@ namespace Microsoft.Coyote.Runtime.Exploration
         Random,
 
         /// <summary>
-        /// Probabilistic random-walk scheduling.
-        /// </summary>
-        [EnumMember(Value = "ProbabilisticRandom")]
-        ProbabilisticRandom,
-
-        /// <summary>
         /// Prioritized scheduling.
         /// </summary>
         [EnumMember(Value = "PCT")]
@@ -52,6 +46,12 @@ namespace Microsoft.Coyote.Runtime.Exploration
         /// </summary>
         [EnumMember(Value = "FairPCT")]
         FairPCT,
+
+        /// <summary>
+        /// Probabilistic random-walk scheduling.
+        /// </summary>
+        [EnumMember(Value = "ProbabilisticRandom")]
+        ProbabilisticRandom,
 
         /// <summary>
         /// Depth-first search scheduling.

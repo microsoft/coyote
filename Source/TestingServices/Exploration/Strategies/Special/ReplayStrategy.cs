@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.TestingServices.Tracing;
 
 namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 {
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current)
+        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
         {
             if (this.IsReplaying)
             {
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                     else
                     {
                         this.IsReplaying = false;
-                        return this.SuffixStrategy.GetNext(out next, ops, current);
+                        return this.SuffixStrategy.GetNextOperation(current, ops, out next);
                     }
                 }
 
@@ -130,11 +130,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 return true;
             }
 
-            return this.SuffixStrategy.GetNext(out next, ops, current);
+            return this.SuffixStrategy.GetNextOperation(current, ops, out next);
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(int maxValue, out bool next)
+        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             if (this.IsReplaying)
             {
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                     else
                     {
                         this.IsReplaying = false;
-                        return this.SuffixStrategy.GetNextBooleanChoice(maxValue, out next);
+                        return this.SuffixStrategy.GetNextBooleanChoice(current, maxValue, out next);
                     }
                 }
 
@@ -185,11 +185,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 return true;
             }
 
-            return this.SuffixStrategy.GetNextBooleanChoice(maxValue, out next);
+            return this.SuffixStrategy.GetNextBooleanChoice(current, maxValue, out next);
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(int maxValue, out int next)
+        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
             if (this.IsReplaying)
             {
@@ -231,7 +231,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                     else
                     {
                         this.IsReplaying = false;
-                        return this.SuffixStrategy.GetNextIntegerChoice(maxValue, out next);
+                        return this.SuffixStrategy.GetNextIntegerChoice(current, maxValue, out next);
                     }
                 }
 
@@ -240,25 +240,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 return true;
             }
 
-            return this.SuffixStrategy.GetNextIntegerChoice(maxValue, out next);
-        }
-
-        /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
-        {
-            throw new NotImplementedException();
+            return this.SuffixStrategy.GetNextIntegerChoice(current, maxValue, out next);
         }
 
         /// <inheritdoc/>
@@ -273,13 +255,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             {
                 return false;
             }
-        }
-
-        /// <inheritdoc/>
-        public void Reset()
-        {
-            this.ScheduledSteps = 0;
-            this.SuffixStrategy?.Reset();
         }
 
         /// <inheritdoc/>
@@ -332,6 +307,13 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             {
                 return "Replay";
             }
+        }
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            this.ScheduledSteps = 0;
+            this.SuffixStrategy?.Reset();
         }
     }
 }

@@ -27,6 +27,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         public AsyncOperationStatus Status { get; internal set; }
 
         /// <summary>
+        /// A value that represents the hashed program state when
+        /// this operation last executed.
+        /// </summary>
+        public int HashedProgramState { get; internal set; }
+
+        /// <summary>
         /// Is the source of the operation active.
         /// </summary>
         internal bool IsActive; // TODO: figure out if this can be replaced by status.

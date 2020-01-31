@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.IO;
 using System.Text;
-using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Tests.Common.IO
 {

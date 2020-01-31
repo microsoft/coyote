@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
@@ -41,42 +40,18 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         }
 
         /// <inheritdoc/>
-        public abstract bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current);
+        public abstract bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next);
 
         /// <inheritdoc/>
-        public abstract bool GetNextBooleanChoice(int maxValue, out bool next);
+        public abstract bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next);
 
         /// <inheritdoc/>
-        public abstract bool GetNextIntegerChoice(int maxValue, out int next);
-
-        /// <inheritdoc/>
-        public void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextBooleanChoice(int maxValue, bool next)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void ForceNextIntegerChoice(int maxValue, int next)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next);
 
         /// <inheritdoc/>
         public virtual bool PrepareForNextIteration()
         {
             return this.SchedulingStrategy.PrepareForNextIteration();
-        }
-
-        /// <inheritdoc/>
-        public virtual void Reset()
-        {
-            this.SchedulingStrategy.Reset();
         }
 
         /// <inheritdoc/>
@@ -101,6 +76,12 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         public virtual string GetDescription()
         {
             return this.SchedulingStrategy.GetDescription();
+        }
+
+        /// <inheritdoc/>
+        public virtual void Reset()
+        {
+            this.SchedulingStrategy.Reset();
         }
     }
 }

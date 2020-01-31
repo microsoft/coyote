@@ -57,18 +57,18 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Returns a non-negative random number.
         /// </summary>
-        public int Next()
-        {
-            return this.Random.Next();
-        }
+        public int Next() => this.Random.Next();
 
         /// <summary>
         /// Returns a non-negative random number less than the specified max value.
         /// </summary>
         /// <param name="maxValue">Exclusive upper bound.</param>
-        public int Next(int maxValue)
-        {
-            return this.Random.Next(maxValue);
-        }
+        public int Next(int maxValue) => this.Random.Next(maxValue);
+
+        /// <summary>
+        /// Returns a random floating-point number that is greater
+        /// than or equal to 0.0, and less than 1.0.
+        /// </summary>
+        public double NextDouble() => this.Random.NextDouble();
     }
 }

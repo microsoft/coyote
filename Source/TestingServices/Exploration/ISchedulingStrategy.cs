@@ -8,54 +8,34 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
     /// <summary>
     /// Interface of an exploration strategy used during controlled testing.
     /// </summary>
-    public interface ISchedulingStrategy
+    internal interface ISchedulingStrategy
     {
         /// <summary>
-        /// Forces the next asynchronous operation to be scheduled.
+        /// Returns the next asynchronous operation to schedule.
         /// </summary>
-        /// <param name="next">The next operation to schedule.</param>
-        /// <param name="ops">List of operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
+        /// <param name="ops">List of operations that can be scheduled.</param>
+        /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNext(out IAsyncOperation next, IEnumerable<IAsyncOperation> ops, IAsyncOperation current);
+        bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next);
 
         /// <summary>
         /// Returns the next boolean choice.
         /// </summary>
+        /// <param name="current">The currently scheduled operation.</param>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNextBooleanChoice(int maxValue, out bool next);
+        bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next);
 
         /// <summary>
         /// Returns the next integer choice.
         /// </summary>
+        /// <param name="current">The currently scheduled operation.</param>
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNextIntegerChoice(int maxValue, out int next);
-
-        /// <summary>
-        /// Forces the next asynchronous operation to be scheduled.
-        /// </summary>
-        /// <param name="next">The next operation to schedule.</param>
-        /// <param name="ops">List of operations that can be scheduled.</param>
-        /// <param name="current">The currently scheduled operation.</param>
-        void ForceNext(IAsyncOperation next, List<IAsyncOperation> ops, IAsyncOperation current);
-
-        /// <summary>
-        /// Forces the next boolean choice.
-        /// </summary>
-        /// <param name="maxValue">The max value.</param>
-        /// <param name="next">The next boolean choice.</param>
-        void ForceNextBooleanChoice(int maxValue, bool next);
-
-        /// <summary>
-        /// Forces the next integer choice.
-        /// </summary>
-        /// <param name="maxValue">The max value.</param>
-        /// <param name="next">The next integer choice.</param>
-        void ForceNextIntegerChoice(int maxValue, int next);
+        bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next);
 
         /// <summary>
         /// Prepares for the next scheduling iteration. This is invoked
@@ -64,12 +44,6 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// </summary>
         /// <returns>True to start the next iteration.</returns>
         bool PrepareForNextIteration();
-
-        /// <summary>
-        /// Resets the scheduling strategy. This is typically invoked by
-        /// parent strategies to reset child strategies.
-        /// </summary>
-        void Reset();
 
         /// <summary>
         /// Returns the scheduled steps.
@@ -91,5 +65,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// Returns a textual description of the scheduling strategy.
         /// </summary>
         string GetDescription();
+
+        /// <summary>
+        /// Resets the scheduling strategy. This is typically invoked by
+        /// parent strategies to reset child strategies.
+        /// </summary>
+        void Reset();
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;

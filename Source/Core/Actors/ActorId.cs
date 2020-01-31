@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
-using System.Threading;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors

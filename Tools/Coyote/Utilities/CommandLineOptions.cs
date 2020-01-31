@@ -74,7 +74,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             hiddenGroup.AddArgument("depth-bound-bug", null, "Consider depth bound hit as a bug", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int));
             hiddenGroup.AddArgument("liveness-temperature-threshold", null, "Liveness temperature threshold", typeof(int));
-            hiddenGroup.AddArgument("custom-state-hashing", null, "Enable custom state hashing", typeof(bool));
+            hiddenGroup.AddArgument("enable-program-state-hashing", null, "Enable program state hashing", typeof(bool));
             hiddenGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given number of coin flips on each for each new schedule.", typeof(uint));
             hiddenGroup.AddArgument("sch-dfs", null, "Choose the DFS scheduling strategy", typeof(bool));
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
@@ -105,13 +105,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-random":
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.Random;
                     break;
-                case "sch-portfolio":
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.Portfolio;
-                    break;
-                case "sch-probabilistic":
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.ProbabilisticRandom;
-                    this.Configuration.CoinFlipBound = (int)(uint)option.Value;
-                    break;
                 case "sch-pct":
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.PCT;
                     this.Configuration.PrioritySwitchBound = (int)(uint)option.Value;
@@ -120,8 +113,15 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.FairPCT;
                     this.Configuration.PrioritySwitchBound = (int)(uint)option.Value;
                     break;
+                case "sch-probabilistic":
+                    this.Configuration.SchedulingStrategy = SchedulingStrategy.ProbabilisticRandom;
+                    this.Configuration.CoinFlipBound = (int)(uint)option.Value;
+                    break;
                 case "sch-dfs":
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.DFS;
+                    break;
+                case "sch-portfolio":
+                    this.Configuration.SchedulingStrategy = SchedulingStrategy.Portfolio;
                     break;
                 case "schedule":
                     {
@@ -275,8 +275,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "liveness-temperature-threshold":
                     this.Configuration.LivenessTemperatureThreshold = (int)option.Value;
                     break;
-                case "custom-state-hashing":
-                    this.Configuration.EnableUserDefinedStateHashing = true;
+                case "enable-program-state-hashing":
+                    this.Configuration.IsProgramStateHashingEnabled = true;
                     break;
                 default:
                     base.HandledParsedArgument(option);
@@ -298,9 +298,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             if (this.Configuration.SchedulingStrategy != SchedulingStrategy.Interactive &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.Portfolio &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.Random &&
-                this.Configuration.SchedulingStrategy != SchedulingStrategy.ProbabilisticRandom &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.PCT &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.FairPCT &&
+                this.Configuration.SchedulingStrategy != SchedulingStrategy.ProbabilisticRandom &&
                 this.Configuration.SchedulingStrategy != SchedulingStrategy.DFS)
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");

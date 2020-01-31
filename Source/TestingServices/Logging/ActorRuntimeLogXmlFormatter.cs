@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Xml;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.Runtime.Logging

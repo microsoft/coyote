@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Core.Tests.Actors

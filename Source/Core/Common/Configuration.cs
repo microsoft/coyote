@@ -207,10 +207,10 @@ namespace Microsoft.Coyote
         public int SafetyPrefixBound;
 
         /// <summary>
-        /// Enables liveness checking during bug-finding.
+        /// If this option is enabled, liveness checking is enabled during bug-finding.
         /// </summary>
         [DataMember]
-        public bool EnableLivenessChecking;
+        public bool IsLivenessCheckingEnabled;
 
         /// <summary>
         /// The liveness temperature threshold. If it is 0
@@ -220,17 +220,16 @@ namespace Microsoft.Coyote
         public int LivenessTemperatureThreshold;
 
         /// <summary>
-        /// If this option is enabled, then the user-defined state-hashing methods
-        /// are used to improve the accurracy of state-caching for liveness checking.
+        /// If this option is enabled, the tester is hashing the program state.
         /// </summary>
         [DataMember]
-        public bool EnableUserDefinedStateHashing;
+        public bool IsProgramStateHashingEnabled;
 
         /// <summary>
-        /// Enables (safety) monitors in the production runtime.
+        /// If this option is enabled, (safety) monitors are used in the production runtime.
         /// </summary>
         [DataMember]
-        public bool EnableMonitorsInProduction;
+        public bool IsMonitoringEnabledInInProduction;
 
         /// <summary>
         /// Attaches the debugger during trace replay.
@@ -362,10 +361,10 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 1;
             this.SafetyPrefixBound = 0;
 
-            this.EnableLivenessChecking = true;
+            this.IsLivenessCheckingEnabled = true;
             this.LivenessTemperatureThreshold = 0;
-            this.EnableUserDefinedStateHashing = false;
-            this.EnableMonitorsInProduction = false;
+            this.IsProgramStateHashingEnabled = false;
+            this.IsMonitoringEnabledInInProduction = false;
             this.AttachDebugger = false;
 
             this.ScheduleFile = string.Empty;

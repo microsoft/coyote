@@ -13,16 +13,14 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
-using Microsoft.Coyote.TestingServices.Tracing.Schedule;
+using Microsoft.Coyote.TestingServices.Tracing;
 using Microsoft.Coyote.Threading.Tasks;
 using Microsoft.Coyote.Utilities;
 
@@ -231,10 +229,10 @@ namespace Microsoft.Coyote.TestingServices
 
             if (configuration.SchedulingStrategy == SchedulingStrategy.Interactive)
             {
-                this.Strategy = new InteractiveStrategy(configuration, this.Logger);
                 configuration.SchedulingIterations = 1;
                 configuration.PerformFullExploration = false;
                 configuration.IsVerbose = true;
+                this.Strategy = new InteractiveStrategy(configuration, this.Logger);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.Replay)
             {
@@ -245,13 +243,6 @@ namespace Microsoft.Coyote.TestingServices
             else if (configuration.SchedulingStrategy == SchedulingStrategy.Random)
             {
                 this.Strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
-            }
-            else if (configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
-            {
-                this.Strategy = new ProbabilisticRandomStrategy(
-                    configuration.MaxFairSchedulingSteps,
-                    configuration.CoinFlipBound,
-                    this.RandomNumberGenerator);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.PCT)
             {
@@ -265,6 +256,13 @@ namespace Microsoft.Coyote.TestingServices
                 var prefixStrategy = new PCTStrategy(prefixLength, configuration.PrioritySwitchBound, this.RandomNumberGenerator);
                 var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
                 this.Strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
+            }
+            else if (configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
+            {
+                this.Strategy = new ProbabilisticRandomStrategy(
+                    configuration.MaxFairSchedulingSteps,
+                    configuration.CoinFlipBound,
+                    this.RandomNumberGenerator);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.DFS)
             {

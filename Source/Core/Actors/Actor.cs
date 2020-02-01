@@ -21,6 +21,9 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// Type that implements an actor. Inherit from this class to declare a custom actor.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/programming-models/actors/overview">Actors Overview</see> for more information.
+    /// </remarks>
     public abstract class Actor
     {
         /// <summary>
@@ -117,6 +120,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The installed runtime logger.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// </remarks>
         protected TextWriter Logger => this.Runtime.Logger;
 
         /// <summary>

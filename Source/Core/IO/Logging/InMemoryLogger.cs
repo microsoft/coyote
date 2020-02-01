@@ -11,6 +11,9 @@ namespace Microsoft.Coyote.IO
     /// Thread safe logger that writes text to an in-memory buffer.
     /// The buffered text can be extracted using the ToString() method.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+    /// </remarks>
     public sealed class InMemoryLogger : TextWriter
     {
         /// <summary>

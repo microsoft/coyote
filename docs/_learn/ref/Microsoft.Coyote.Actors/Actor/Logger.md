@@ -12,6 +12,10 @@ The installed runtime logger.
 protected TextWriter Logger { get; }
 ```
 
+## Remarks
+
+See [Logging](/coyote/learn/advanced/logging) for more information.
+
 ## See Also
 
 * class [Actor](../ActorType)

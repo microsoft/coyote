@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnExecuteAction method
 
+Invoked when the specified actor executes an action.
+
 ```csharp
 public virtual void OnExecuteAction(ActorId id, string stateName, string actionName)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor executing the action. |
+| stateName | The state name, if the actor is a state machine and a state exists, else null. |
+| actionName | The name of the action being executed. |
 
 ## See Also
 

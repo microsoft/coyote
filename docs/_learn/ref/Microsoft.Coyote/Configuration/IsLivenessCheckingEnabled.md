@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: DelayBound
-permalink: /learn/ref/Microsoft.Coyote/Configuration/DelayBound
+title: IsLivenessCheckingEnabled
+permalink: /learn/ref/Microsoft.Coyote/Configuration/IsLivenessCheckingEnabled
 ---
-# Configuration.DelayBound field
+# Configuration.IsLivenessCheckingEnabled field
 
-Delay bound. By default it is 2. Used by delay-bounding schedulers.
+If this option is enabled, liveness checking is enabled during bug-finding.
 
 ```csharp
-public int DelayBound;
+public bool IsLivenessCheckingEnabled;
 ```
 
 ## See Also

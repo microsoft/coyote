@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnGotoState method
 
+Invoked when the specified state machine performs a goto transition to the specified state.
+
 ```csharp
 public virtual void OnGotoState(ActorId id, string currStateName, string newStateName)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor. |
+| currStateName | The name of the current state. |
+| newStateName | The target state of the transition. |
 
 ## See Also
 

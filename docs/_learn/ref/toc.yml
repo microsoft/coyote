@@ -72,24 +72,20 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/ConsiderDepthBoundHitAsBug
         - name: PrioritySwitchBound
           link: /learn/ref/Microsoft.Coyote/Configuration/PrioritySwitchBound
-        - name: DelayBound
-          link: /learn/ref/Microsoft.Coyote/Configuration/DelayBound
         - name: CoinFlipBound
           link: /learn/ref/Microsoft.Coyote/Configuration/CoinFlipBound
         - name: TimeoutDelay
           link: /learn/ref/Microsoft.Coyote/Configuration/TimeoutDelay
         - name: SafetyPrefixBound
           link: /learn/ref/Microsoft.Coyote/Configuration/SafetyPrefixBound
-        - name: EnableLivenessChecking
-          link: /learn/ref/Microsoft.Coyote/Configuration/EnableLivenessChecking
+        - name: IsLivenessCheckingEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsLivenessCheckingEnabled
         - name: LivenessTemperatureThreshold
           link: /learn/ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
-        - name: EnableCycleDetection
-          link: /learn/ref/Microsoft.Coyote/Configuration/EnableCycleDetection
-        - name: EnableUserDefinedStateHashing
-          link: /learn/ref/Microsoft.Coyote/Configuration/EnableUserDefinedStateHashing
-        - name: EnableMonitorsInProduction
-          link: /learn/ref/Microsoft.Coyote/Configuration/EnableMonitorsInProduction
+        - name: IsProgramStateHashingEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsProgramStateHashingEnabled
+        - name: IsMonitoringEnabledInInProduction
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsMonitoringEnabledInInProduction
         - name: AttachDebugger
           link: /learn/ref/Microsoft.Coyote/Configuration/AttachDebugger
         - name: ScheduleFile
@@ -152,8 +148,6 @@
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/StopTimer
         - name: Random
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Random
-        - name: FairRandom
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/FairRandom
         - name: RandomInteger
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/RandomInteger
         - name: Monitor
@@ -433,8 +427,6 @@
           link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/InvokeMonitor
         - name: Random
           link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Random
-        - name: FairRandom
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/FairRandom
         - name: RandomInteger
           link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RandomInteger
         - name: Assert
@@ -601,8 +593,6 @@
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/GotoState
         - name: Assert
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Assert
-        - name: GetHashedState
-          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/GetHashedState
         - name: ToString
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/ToString
         - name: Monitor
@@ -613,6 +603,8 @@
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Logger
         - name: CurrentState
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/CurrentState
+        - name: HashedState
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/HashedState
       - name: Specification
         link: /learn/ref/Microsoft.Coyote.Specifications/SpecificationType
         subfolderitems:

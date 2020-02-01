@@ -6,10 +6,21 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnMonitorProcessEvent method
 
+Invoked when the specified monitor is about to process an event.
+
 ```csharp
 public virtual void OnMonitorProcessEvent(ActorId senderId, string senderStateName, 
     string monitorTypeName, ActorId id, string stateName, Event e)
 ```
+
+| parameter | description |
+| --- | --- |
+| senderId | The sender of the event. |
+| senderStateName | The name of the state the sender is in. |
+| monitorTypeName | Name of type of the monitor that will process the event. |
+| id | The id of the monitor that will process the event. |
+| stateName | The name of the state in which the event is being raised. |
+| e | The event being processed. |
 
 ## See Also
 

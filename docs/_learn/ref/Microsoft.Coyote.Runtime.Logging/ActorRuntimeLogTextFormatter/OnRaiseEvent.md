@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnRaiseEvent method
 
+Invoked when the specified state machine raises an event.
+
 ```csharp
 public virtual void OnRaiseEvent(ActorId id, string stateName, Event e)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor raising the event. |
+| stateName | The name of the current state. |
+| e | The event being raised. |
 
 ## See Also
 

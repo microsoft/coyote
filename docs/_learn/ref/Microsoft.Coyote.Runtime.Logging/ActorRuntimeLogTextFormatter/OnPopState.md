@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnPopState method
 
+Invoked when the specified state machine has popped its current state.
+
 ```csharp
 public virtual void OnPopState(ActorId id, string currStateName, string restoredStateName)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that the pop executed in. |
+| currStateName | The name of the current state. |
+| restoredStateName | The name of the state being re-entered, if any. |
 
 ## See Also
 

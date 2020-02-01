@@ -20,13 +20,10 @@ public enum SchedulingStrategy
 | Replay | `1` | Replay scheduling. |
 | Portfolio | `2` | Portfolio scheduling. |
 | Random | `3` | Random scheduling. |
-| ProbabilisticRandom | `4` | Probabilistic random-walk scheduling. |
-| PCT | `5` | Prioritized scheduling. |
-| FairPCT | `6` | Prioritized scheduling with Random tail. |
+| PCT | `4` | Prioritized scheduling. |
+| FairPCT | `5` | Prioritized scheduling with Random tail. |
+| ProbabilisticRandom | `6` | Probabilistic random-walk scheduling. |
 | DFS | `7` | Depth-first search scheduling. |
-| IDDFS | `8` | Depth-first search scheduling with iterative deepening. |
-| DelayBounding | `9` | Delay-bounding scheduling. |
-| RandomDelayBounding | `10` | Random delay-bounding scheduling. |
 
 ## See Also
 

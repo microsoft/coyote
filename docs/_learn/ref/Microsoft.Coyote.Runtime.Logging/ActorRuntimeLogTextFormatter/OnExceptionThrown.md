@@ -6,9 +6,18 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnExceptionThrown method
 
+Invoked when the specified actor throws an exception.
+
 ```csharp
 public virtual void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that threw the exception. |
+| stateName | The state name, if the actor is a state machine and a state exists, else null. |
+| actionName | The name of the action being executed. |
+| ex | The exception. |
 
 ## See Also
 

@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnCreateActor method
 
+Invoked when the specified actor has been created.
+
 ```csharp
 public virtual void OnCreateActor(ActorId id, ActorId creator)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that has been created. |
+| creator | The id of the creator, or null. |
 
 ## See Also
 

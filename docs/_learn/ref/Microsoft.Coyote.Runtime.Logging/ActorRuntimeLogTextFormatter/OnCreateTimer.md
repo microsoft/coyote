@@ -6,9 +6,15 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnCreateTimer method
 
+Invoked when the specified actor timer has been created.
+
 ```csharp
 public virtual void OnCreateTimer(TimerInfo info)
 ```
+
+| parameter | description |
+| --- | --- |
+| info | Handle that contains information about the timer. |
 
 ## See Also
 

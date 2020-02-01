@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnRandom method
 
+Invoked when the specified random result has been obtained.
+
 ```csharp
 public virtual void OnRandom(ActorId id, object result)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the source actor, if any; otherwise, the runtime itself was the source. |
+| result | The random result (may be bool or int). |
 
 ## See Also
 

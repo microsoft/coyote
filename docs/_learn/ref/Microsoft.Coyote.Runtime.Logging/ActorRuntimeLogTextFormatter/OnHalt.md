@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnHalt method
 
+Invoked when the specified actor has been halted.
+
 ```csharp
 public virtual void OnHalt(ActorId id, int inboxSize)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that has been halted. |
+| inboxSize | Approximate size of the inbox. |
 
 ## See Also
 

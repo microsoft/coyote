@@ -20,6 +20,9 @@ namespace Microsoft.Coyote.Actors
     /// Type that implements a state machine actor. Inherit from this class to declare
     /// a custom actor with states, state transitions and event handlers.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/programming-models/actors/state-machines">State Machines</see> for more information.
+    /// </remarks>
     public abstract class StateMachine : Actor
     {
         /// <summary>

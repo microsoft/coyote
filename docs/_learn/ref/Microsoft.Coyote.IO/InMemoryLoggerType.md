@@ -22,6 +22,10 @@ public sealed class InMemoryLogger : TextWriter
 | override [Write](InMemoryLogger/Write)(…) | Writes the specified Unicode character value to the standard output stream. (2 methods) |
 | override [WriteLine](InMemoryLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. |
 
+## Remarks
+
+See [Logging](/coyote/learn/advanced/logging) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.IO](../MicrosoftCoyoteIONamespace)

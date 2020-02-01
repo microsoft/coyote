@@ -20,6 +20,10 @@ public static class Specification
 | static [Monitor&lt;T&gt;](Specification/Monitor)(…) | Invokes the specified monitor with the given event. |
 | static [RegisterMonitor&lt;T&gt;](Specification/RegisterMonitor)() | Registers a new safety or liveness monitor. |
 
+## Remarks
+
+See [Specifications Overview](/coyote/learn/specifications/overview) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Specifications](../MicrosoftCoyoteSpecificationsNamespace)

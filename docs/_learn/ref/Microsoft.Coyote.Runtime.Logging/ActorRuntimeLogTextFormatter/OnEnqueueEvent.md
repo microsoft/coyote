@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnEnqueueEvent method
 
+Invoked when the specified event is about to be enqueued to an actor.
+
 ```csharp
 public virtual void OnEnqueueEvent(ActorId id, Event e)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that the event is being enqueued to. |
+| e | The event being enqueued. |
 
 ## See Also
 

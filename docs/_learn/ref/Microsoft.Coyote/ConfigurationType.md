@@ -26,17 +26,15 @@ public class Configuration
 | [ConsiderDepthBoundHitAsBug](Configuration/ConsiderDepthBoundHitAsBug) | If true, then the Coyote tester will consider an execution that hits the depth bound as buggy. |
 | [CustomActorRuntimeLogType](Configuration/CustomActorRuntimeLogType) | If specified, requests a custom runtime log to be used instead of the default. This is the AssemblyQualifiedName of the type to load. |
 | [DebugActivityCoverage](Configuration/DebugActivityCoverage) | Enables activity coverage debugging. |
-| [DelayBound](Configuration/DelayBound) | Delay bound. By default it is 2. Used by delay-bounding schedulers. |
 | [EnableColoredConsoleOutput](Configuration/EnableColoredConsoleOutput) | Enables colored console output. |
-| [EnableCycleDetection](Configuration/EnableCycleDetection) | Enables cycle-detection using state-caching for liveness checking. |
 | [EnableDebugging](Configuration/EnableDebugging) | Enables debugging. |
-| [EnableLivenessChecking](Configuration/EnableLivenessChecking) | Enables liveness checking during bug-finding. |
-| [EnableMonitorsInProduction](Configuration/EnableMonitorsInProduction) | Enables (safety) monitors in the production runtime. |
 | [EnableProfiling](Configuration/EnableProfiling) | Enables profiling. |
-| [EnableUserDefinedStateHashing](Configuration/EnableUserDefinedStateHashing) | If this option is enabled, then the user-defined state-hashing methods are used to improve the accurracy of state-caching for liveness checking. |
 | [IncrementalSchedulingSeed](Configuration/IncrementalSchedulingSeed) | If true, the seed will increment in each testing iteration. |
 | [IsDgmlBugGraph](Configuration/IsDgmlBugGraph) | Is DGML graph showing all test iterations or just one "bug" iteration. False means all, and True means only the iteration containing a bug. |
 | [IsDgmlGraphEnabled](Configuration/IsDgmlGraphEnabled) | If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found. This is different from a coverage activity graph, as it will also show actor instances. |
+| [IsLivenessCheckingEnabled](Configuration/IsLivenessCheckingEnabled) | If this option is enabled, liveness checking is enabled during bug-finding. |
+| [IsMonitoringEnabledInInProduction](Configuration/IsMonitoringEnabledInInProduction) | If this option is enabled, (safety) monitors are used in the production runtime. |
+| [IsProgramStateHashingEnabled](Configuration/IsProgramStateHashingEnabled) | If this option is enabled, the tester is hashing the program state. |
 | [IsVerbose](Configuration/IsVerbose) | If true, then messages are logged. |
 | [LivenessTemperatureThreshold](Configuration/LivenessTemperatureThreshold) | The liveness temperature threshold. If it is 0 then it is disabled. |
 | [MaxFairSchedulingSteps](Configuration/MaxFairSchedulingSteps) | The maximum scheduling steps to explore for fair schedulers. By default there is no bound. |

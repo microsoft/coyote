@@ -25,6 +25,10 @@ public class TimerInfo : IEquatable<TimerInfo>
 | override [GetHashCode](TimerInfo/GetHashCode)() | Returns the hash code for this instance. |
 | override [ToString](TimerInfo/ToString)() | Returns a string that represents the current instance. |
 
+## Remarks
+
+See [Using Timers](/coyote/learn/programming-models/actors/timers) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Actors.Timers](../MicrosoftCoyoteActorsTimersNamespace)

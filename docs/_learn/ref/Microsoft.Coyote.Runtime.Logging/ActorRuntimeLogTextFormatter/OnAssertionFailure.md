@@ -6,9 +6,15 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnAssertionFailure method
 
+Invoked when the specified assertion failure has occurred.
+
 ```csharp
 public virtual void OnAssertionFailure(string error)
 ```
+
+| parameter | description |
+| --- | --- |
+| error | The text of the error. |
 
 ## See Also
 

@@ -12,6 +12,10 @@ Used to log messages. Use [`SetLogger`](SetLogger) to replace the logger with a 
 public TextWriter Logger { get; }
 ```
 
+## Remarks
+
+See [Logging](/coyote/learn/advanced/logging) for more information.
+
 ## See Also
 
 * interface [IActorRuntime](../IActorRuntimeType)

@@ -66,6 +66,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <summary>
         /// Get or set the underlying logging object.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// </remarks>
         public TextWriter Logger { get; set; }
 
         /// <summary>

@@ -17,6 +17,9 @@ namespace Microsoft.Coyote.Runtime
         /// Used to log messages. Use <see cref="SetLogger"/>
         /// to replace the logger with a custom one.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// </remarks>
         TextWriter Logger { get; }
 
         /// <summary>

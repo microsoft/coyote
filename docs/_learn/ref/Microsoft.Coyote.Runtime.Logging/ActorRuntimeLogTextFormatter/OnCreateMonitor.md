@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnCreateMonitor method
 
+Invoked when the specified monitor has been created.
+
 ```csharp
 public virtual void OnCreateMonitor(string monitorTypeName, ActorId id)
 ```
+
+| parameter | description |
+| --- | --- |
+| monitorTypeName | The name of the type of the monitor that has been created. |
+| id | The id of the monitor that has been created. |
 
 ## See Also
 

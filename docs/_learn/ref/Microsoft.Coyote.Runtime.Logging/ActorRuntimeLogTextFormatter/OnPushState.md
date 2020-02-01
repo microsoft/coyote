@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnPushState method
 
+Invoked when the specified state machine is being pushed to a state.
+
 ```csharp
 public virtual void OnPushState(ActorId id, string currStateName, string newStateName)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor being pushed to the state. |
+| currStateName | The name of the current state. |
+| newStateName | The target state of the transition. |
 
 ## See Also
 

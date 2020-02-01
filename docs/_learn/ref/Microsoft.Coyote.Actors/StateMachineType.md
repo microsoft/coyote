@@ -35,6 +35,10 @@ public abstract class StateMachine : Actor
 | [PushState&lt;S&gt;](StateMachine/PushState)() | Creates a transition that pushes the specified [`State`](StateMachineStateType) to the state stack at the end of the current action. |
 | [RaiseEvent](StateMachine/RaiseEvent)(…) | Creates a transition that raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
 
+## Remarks
+
+See [State Machines](/coyote/learn/programming-models/actors/state-machines) for more information.
+
 ## See Also
 
 * class [Actor](ActorType)

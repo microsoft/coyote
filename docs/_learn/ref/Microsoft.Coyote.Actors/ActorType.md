@@ -32,7 +32,6 @@ public abstract class Actor
 | [Assert](Actor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [CreateActor](Actor/CreateActor)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This [`Event`](../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled. (3 methods) |
 | [DeferEvent](Actor/DeferEvent)(…) | Sets the actor to defer all events of the the specified type. This can be reverted by setting the *defer* parameter to false. |
-| [FairRandom](Actor/FairRandom)(…) | Returns a fair nondeterministic boolean choice, that can be controlled during analysis or testing. |
 | [Halt](Actor/Halt)() | Halts the actor at the end of the current action. |
 | [IgnoreEvent](Actor/IgnoreEvent)(…) | Sets the actor to ignore all events of the the specified type. This can be reverted by setting the *ignore* parameter to false. |
 | [Monitor](Actor/Monitor)(…) | Invokes the specified monitor with the specified event. |
@@ -53,6 +52,10 @@ public abstract class Actor
 | [StartTimer](Actor/StartTimer)(…) | Starts a timer that sends a [`TimerElapsedEvent`](../Microsoft.Coyote.Actors.Timers/TimerElapsedEventType) to this actor after the specified due time. The timer accepts an optional payload to be used during timeout. The timer is automatically disposed after it timeouts. To manually stop and dispose the timer, invoke the [`StopTimer`](Actor/StopTimer) method. |
 | [StopTimer](Actor/StopTimer)(…) | Stops and disposes the specified timer. |
 | class [OnEventDoActionAttribute](ActorOnEventDoActionAttributeType) | Attribute for declaring which action should be invoked to handle a dequeued event of the specified type. |
+
+## Remarks
+
+See [Actors Overview](/coyote/learn/programming-models/actors/overview) for more information.
 
 ## See Also
 

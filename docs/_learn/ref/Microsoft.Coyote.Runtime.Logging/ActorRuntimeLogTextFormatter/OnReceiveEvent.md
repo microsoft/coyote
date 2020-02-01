@@ -6,9 +6,18 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnReceiveEvent method
 
+Invoked when the specified event is received by an actor.
+
 ```csharp
 public virtual void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that received the event. |
+| stateName | The state name, if the actor is a state machine and a state exists, else null. |
+| e | The the event being received. |
+| wasBlocked | The actor was waiting for one or more specific events, and *e* was one of them |
 
 ## See Also
 

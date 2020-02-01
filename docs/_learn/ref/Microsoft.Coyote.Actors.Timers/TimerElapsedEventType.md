@@ -18,6 +18,10 @@ public class TimerElapsedEvent : Event
 | --- | --- |
 | readonly [Info](TimerElapsedEvent/Info) | Stores information about the timer. |
 
+## Remarks
+
+See [Using Timers](/coyote/learn/programming-models/actors/timers) for more information.
+
 ## See Also
 
 * class [Event](../Microsoft.Coyote/EventType)

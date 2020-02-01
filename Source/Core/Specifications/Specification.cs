@@ -10,6 +10,9 @@ namespace Microsoft.Coyote.Specifications
     /// Provides static methods that are useful for writing specifications
     /// and interacting with the systematic testing engine.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/specifications/overview">Specifications Overview</see> for more information.
+    /// </remarks>
     public static class Specification
     {
         /// <summary>

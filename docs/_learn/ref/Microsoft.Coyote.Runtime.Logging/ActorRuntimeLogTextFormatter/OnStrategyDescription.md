@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnStrategyDescription method
 
+Invoked to describe the specified scheduling strategy.
+
 ```csharp
 public virtual void OnStrategyDescription(SchedulingStrategy strategy, string description)
 ```
+
+| parameter | description |
+| --- | --- |
+| strategy | The scheduling strategy that was used. |
+| description | More information about the scheduling strategy. |
 
 ## See Also
 

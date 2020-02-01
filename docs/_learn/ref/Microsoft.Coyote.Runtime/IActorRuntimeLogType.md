@@ -46,6 +46,10 @@ public interface IActorRuntimeLog
 | [OnStrategyDescription](IActorRuntimeLog/OnStrategyDescription)(…) | Invoked to describe the specified scheduling strategy. |
 | [OnWaitEvent](IActorRuntimeLog/OnWaitEvent)(…) | Invoked when the specified actor waits to receive an event of a specified type. (2 methods) |
 
+## Remarks
+
+See [Logging](/coyote/learn/advanced/logging) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Runtime](../MicrosoftCoyoteRuntimeNamespace)

@@ -87,6 +87,9 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// The installed logger.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// </remarks>
         protected TextWriter Logger;
 
         /// <summary>

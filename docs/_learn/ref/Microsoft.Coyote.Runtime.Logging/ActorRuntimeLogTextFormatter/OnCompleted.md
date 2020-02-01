@@ -6,6 +6,8 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnCompleted method
 
+Invoked when a log is complete (and is about to be closed).
+
 ```csharp
 public virtual void OnCompleted()
 ```

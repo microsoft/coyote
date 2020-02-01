@@ -6,10 +6,19 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnMonitorRaiseEvent method
 
+Invoked when the specified monitor raised an event.
+
 ```csharp
 public virtual void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, 
     Event e)
 ```
+
+| parameter | description |
+| --- | --- |
+| monitorTypeName | Name of type of the monitor raising the event. |
+| id | The id of the monitor raising the event. |
+| stateName | The name of the state in which the event is being raised. |
+| e | The event being raised. |
 
 ## See Also
 

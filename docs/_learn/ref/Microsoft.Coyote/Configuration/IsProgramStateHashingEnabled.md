@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: EnableLivenessChecking
-permalink: /learn/ref/Microsoft.Coyote/Configuration/EnableLivenessChecking
+title: IsProgramStateHashingEnabled
+permalink: /learn/ref/Microsoft.Coyote/Configuration/IsProgramStateHashingEnabled
 ---
-# Configuration.EnableLivenessChecking field
+# Configuration.IsProgramStateHashingEnabled field
 
-Enables liveness checking during bug-finding.
+If this option is enabled, the tester is hashing the program state.
 
 ```csharp
-public bool EnableLivenessChecking;
+public bool IsProgramStateHashingEnabled;
 ```
 
 ## See Also

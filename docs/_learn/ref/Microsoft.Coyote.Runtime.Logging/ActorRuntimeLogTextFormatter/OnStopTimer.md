@@ -6,9 +6,15 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnStopTimer method
 
+Invoked when the specified actor timer has been stopped.
+
 ```csharp
 public virtual void OnStopTimer(TimerInfo info)
 ```
+
+| parameter | description |
+| --- | --- |
+| info | Handle that contains information about the timer. |
 
 ## See Also
 

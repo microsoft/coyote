@@ -21,6 +21,10 @@ public sealed class ConsoleLogger : TextWriter
 | override [Write](ConsoleLogger/Write)(…) | Writes the specified Unicode character value to the standard output stream. (2 methods) |
 | override [WriteLine](ConsoleLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. |
 
+## Remarks
+
+See [Logging](/coyote/learn/advanced/logging) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.IO](../MicrosoftCoyoteIONamespace)

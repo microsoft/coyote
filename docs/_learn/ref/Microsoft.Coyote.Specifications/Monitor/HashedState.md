@@ -1,20 +1,16 @@
 ---
 layout: reference
 section: learn
-title: Logger
-permalink: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Logger
+title: HashedState
+permalink: /learn/ref/Microsoft.Coyote.Specifications/Monitor/HashedState
 ---
-# Monitor.Logger property
+# Monitor.HashedState property
 
-The logger installed to the runtime.
+User-defined hashed state of the monitor. Override to improve the accuracy of stateful techniques during testing.
 
 ```csharp
-protected TextWriter Logger { get; }
+protected virtual int HashedState { get; }
 ```
-
-## Remarks
-
-See [Logging](/coyote/learn/advanced/logging) for more information.
 
 ## See Also
 

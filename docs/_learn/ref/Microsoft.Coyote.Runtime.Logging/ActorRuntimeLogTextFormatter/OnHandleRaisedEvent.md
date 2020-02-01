@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnHandleRaisedEvent method
 
+Invoked when the specified actor handled a raised event.
+
 ```csharp
 public virtual void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor handling the event. |
+| stateName | The state name, if the actor is a state machine and a state exists, else null. |
+| e | The event being handled. |
 
 ## See Also
 

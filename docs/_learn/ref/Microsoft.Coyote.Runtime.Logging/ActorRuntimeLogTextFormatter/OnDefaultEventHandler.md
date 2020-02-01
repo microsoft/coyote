@@ -6,9 +6,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnDefaultEventHandler method
 
+Invoked when the specified actor is idle (there is nothing to dequeue) and the default event handler is about to be executed.
+
 ```csharp
 public virtual void OnDefaultEventHandler(ActorId id, string stateName)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that the state will execute in. |
+| stateName | The state name, if the actor is a state machine and a state exists, else null. |
 
 ## See Also
 

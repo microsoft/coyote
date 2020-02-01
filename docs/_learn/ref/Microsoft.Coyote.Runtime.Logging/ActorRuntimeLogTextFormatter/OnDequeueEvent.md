@@ -6,9 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 ---
 # ActorRuntimeLogTextFormatter.OnDequeueEvent method
 
+Invoked when the specified event is dequeued by an actor.
+
 ```csharp
 public virtual void OnDequeueEvent(ActorId id, string stateName, Event e)
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id of the actor that the event is being dequeued by. |
+| stateName | The state name, if the actor is a state machine and a state exists, else null. |
+| e | The event being dequeued. |
 
 ## See Also
 

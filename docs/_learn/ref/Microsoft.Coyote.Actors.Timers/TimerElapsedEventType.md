@@ -20,7 +20,7 @@ public class TimerElapsedEvent : Event
 
 ## Remarks
 
-See [Using Timers](/coyote/learn/programming-models/actors/timers) for more information.
+See [Using timers in actors](/coyote/learn/programming-models/actors/timers) for more information.
 
 ## See Also
 

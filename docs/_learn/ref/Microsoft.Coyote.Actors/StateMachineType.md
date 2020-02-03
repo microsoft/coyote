@@ -37,7 +37,7 @@ public abstract class StateMachine : Actor
 
 ## Remarks
 
-See [State Machines](/coyote/learn/programming-models/actors/state-machines) for more information.
+See [State machines](/coyote/learn/programming-models/actors/state-machines) for more information.
 
 ## See Also
 

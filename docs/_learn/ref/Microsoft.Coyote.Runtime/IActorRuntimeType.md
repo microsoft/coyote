@@ -38,6 +38,10 @@ public interface IActorRuntime : IDisposable
 | [SetLogger](IActorRuntime/SetLogger)(…) | Use this method to override the default TextWriter for logging messages. |
 | [Stop](IActorRuntime/Stop)() | Terminates the runtime and notifies each active actor to halt execution. |
 
+## Remarks
+
+See [Programming model: asynchronous actors](/coyote/learn/programming-models/actors/overview) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Runtime](../MicrosoftCoyoteRuntimeNamespace)

@@ -11,6 +11,9 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Interface that exposes runtime methods for creating and executing actors.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/programming-models/actors/overview">Programming model: asynchronous actors</see> for more information.
+    /// </remarks>
     public interface IActorRuntime : IDisposable
     {
         /// <summary>

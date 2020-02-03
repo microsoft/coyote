@@ -55,7 +55,7 @@ public abstract class Actor
 
 ## Remarks
 
-See [Actors Overview](/coyote/learn/programming-models/actors/overview) for more information.
+See [Programming model: asynchronous actors](/coyote/learn/programming-models/actors/overview) for more information.
 
 ## See Also
 

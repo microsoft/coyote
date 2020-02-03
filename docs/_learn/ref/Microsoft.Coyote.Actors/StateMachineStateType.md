@@ -26,6 +26,10 @@ public abstract class State
 | class [OnExitAttribute](StateMachineStateOnExitAttributeType) | Attribute for declaring what action to perform when exiting a state. |
 | class [StartAttribute](StateMachineStateStartAttributeType) | Attribute for declaring the state that a state machine transitions upon creation. |
 
+## Remarks
+
+See [State machines](/coyote/learn/programming-models/actors/state-machines) for more information.
+
 ## See Also
 
 * class [StateMachine](StateMachineType)

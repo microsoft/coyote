@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Actors
     /// Type that implements an actor. Inherit from this class to declare a custom actor.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/learn/programming-models/actors/overview">Actors Overview</see> for more information.
+    /// See <see href="/coyote/learn/programming-models/actors/overview">Programming model: asynchronous actors</see> for more information.
     /// </remarks>
     public abstract class Actor
     {
@@ -302,6 +302,9 @@ namespace Microsoft.Coyote.Actors
         /// The timer is automatically disposed after it timeouts. To manually stop and dispose
         /// the timer, invoke the <see cref="StopTimer"/> method.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/programming-models/actors/timers">Using timers in actors</see> for more information.
+        /// </remarks>
         /// <param name="startDelay">The amount of time to wait before sending the timeout event.</param>
         /// <param name="payload">Optional payload of the timeout event.</param>
         /// <returns>Handle that contains information about the timer.</returns>
@@ -318,6 +321,9 @@ namespace Microsoft.Coyote.Actors
         /// an optional payload to be used during timeout. The timer can be stopped by invoking the
         /// <see cref="StopTimer"/> method.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/programming-models/actors/timers">Using timers in actors</see> for more information.
+        /// </remarks>
         /// <param name="startDelay">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
         /// <param name="payload">Optional payload of the timeout event.</param>
@@ -333,6 +339,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Stops and disposes the specified timer.
         /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/programming-models/actors/timers">Using timers in actors</see> for more information.
+        /// </remarks>
         /// <param name="info">Handle that contains information about the timer.</param>
         protected void StopTimer(TimerInfo info)
         {

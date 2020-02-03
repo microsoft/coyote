@@ -9,13 +9,27 @@ if (-Not (Test-Path -Path "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll"))
     throw "please build coyote project first"
 }
 
+$xmldoc = "$PSScriptRoot\XmlDocMarkdown\XmlDocMarkdown"
 $target = "$CoyoteRoot\docs\_learn\ref"
 
-Write-Host "processing inherit docs under $CoyoteRoot\bin"
+$inheritdoc = Get-Command InheritDoc -ErrorAction SilentlyContinue
+if ($inheritdoc -eq $null)
+{
+    Write-Host "installing InheritDocTool from nuget ..."
+    dotnet tool install -g InheritDocTool --version 2.5.1
+}
+
+Write-Host "processing inherit docs under $CoyoteRoot\bin ..."
 InheritDoc --base $CoyoteRoot\bin\net46 -o
 
+# Completely clean the ref folder so we start fresh
+if (Test-Path -Path $target)
+{
+    Remove-Item -Recurse -Force $target
+}
+
 Write-Host "Generating new markdown under $target"
-XmlDocMarkdown --namespace Microsoft.Coyote "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --clean
+& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref
 $toc = "$CoyoteRoot\docs\_data\sidebar-learn.yml"
 
 Write-Host "Merging $toc..."
@@ -65,6 +79,6 @@ if (-Not $found)
 }
 else
 {
-    Write-Host "Generating new $toc..."
+    Write-Host "Saving updated $toc  ..."
     Set-Content -Path "$toc" -Value $merged
 }

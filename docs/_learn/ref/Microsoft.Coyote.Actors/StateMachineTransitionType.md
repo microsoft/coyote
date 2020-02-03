@@ -20,6 +20,10 @@ public struct Transition
 | readonly [TypeValue](StateMachine.Transition/TypeValue) | The type of the transition. |
 | enum [Type](StateMachineTransitionTypeType) | Defines the type of a [`StateMachine`](StateMachineType) transition. |
 
+## Remarks
+
+See [State machines](/coyote/learn/programming-models/actors/state-machines) for more information.
+
 ## See Also
 
 * class [StateMachine](StateMachineType)

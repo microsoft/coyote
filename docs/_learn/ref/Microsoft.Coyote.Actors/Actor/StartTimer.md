@@ -21,6 +21,10 @@ protected TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
 
 Handle that contains information about the timer.
 
+## Remarks
+
+See [Using timers in actors](/coyote/learn/programming-models/actors/timers) for more information.
+
 ## See Also
 
 * class [TimerInfo](../../Microsoft.Coyote.Actors.Timers/TimerInfoType)

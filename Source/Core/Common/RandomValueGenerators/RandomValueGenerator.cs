@@ -3,12 +3,12 @@
 
 using System;
 
-namespace Microsoft.Coyote.TestingServices.Scheduling
+namespace Microsoft.Coyote
 {
     /// <summary>
-    /// Default random number generator that uses the <see cref="System.Random"/> generator.
+    /// Basic random value generator that uses the <see cref="System.Random"/> generator.
     /// </summary>
-    public class DefaultRandomNumberGenerator : IRandomNumberGenerator
+    internal class RandomValueGenerator : IRandomValueGenerator
     {
         /// <summary>
         /// Device for generating random numbers.
@@ -18,40 +18,29 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// The seed currently used by the generator.
         /// </summary>
-        private int RandomSeed;
+        private uint RandomSeed;
 
         /// <summary>
         /// The seed currently used by the generator.
         /// </summary>
-        public int Seed
+        public uint Seed
         {
             get => this.RandomSeed;
 
             set
             {
                 this.RandomSeed = value;
-                this.Random = new Random(this.RandomSeed);
+                this.Random = new Random((int)this.RandomSeed);
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultRandomNumberGenerator"/> class.
-        /// It uses a time-dependent seed.
+        /// Initializes a new instance of the <see cref="RandomValueGenerator"/> class.
         /// </summary>
-        public DefaultRandomNumberGenerator()
+        internal RandomValueGenerator(Configuration configuration)
         {
-            this.RandomSeed = DateTime.Now.Millisecond;
-            this.Random = new Random(this.RandomSeed);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultRandomNumberGenerator"/> class.
-        /// It uses the specified seed.
-        /// </summary>
-        public DefaultRandomNumberGenerator(int seed)
-        {
-            this.RandomSeed = seed;
-            this.Random = new Random(seed);
+            this.RandomSeed = configuration.RandomValueGeneratorSeed ?? (uint)Guid.NewGuid().GetHashCode();
+            this.Random = new Random((int)this.RandomSeed);
         }
 
         /// <summary>

@@ -13,9 +13,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
     internal class RandomStrategy : ISchedulingStrategy
     {
         /// <summary>
-        /// Random number generator.
+        /// Random value generator.
         /// </summary>
-        protected IRandomNumberGenerator RandomNumberGenerator;
+        protected IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
         /// The maximum number of steps to schedule.
@@ -29,20 +29,10 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
-        /// It uses the default random number generator (seed is based on current time).
         /// </summary>
-        public RandomStrategy(int maxSteps)
-            : this(maxSteps, new DefaultRandomNumberGenerator(DateTime.Now.Millisecond))
+        public RandomStrategy(int maxSteps, IRandomValueGenerator random)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RandomStrategy"/> class.
-        /// It uses the specified random number generator.
-        /// </summary>
-        public RandomStrategy(int maxSteps, IRandomNumberGenerator random)
-        {
-            this.RandomNumberGenerator = random;
+            this.RandomValueGenerator = random;
             this.MaxScheduledSteps = maxSteps;
             this.ScheduledSteps = 0;
         }
@@ -57,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 return false;
             }
 
-            int idx = this.RandomNumberGenerator.Next(enabledOperations.Count);
+            int idx = this.RandomValueGenerator.Next(enabledOperations.Count);
             next = enabledOperations[idx];
 
             this.ScheduledSteps++;
@@ -69,7 +59,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         public virtual bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            if (this.RandomNumberGenerator.Next(maxValue) == 0)
+            if (this.RandomValueGenerator.Next(maxValue) == 0)
             {
                 next = true;
             }
@@ -82,7 +72,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <inheritdoc/>
         public virtual bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
-            next = this.RandomNumberGenerator.Next(maxValue);
+            next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;
             return true;
         }
@@ -112,7 +102,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         public bool IsFair() => true;
 
         /// <inheritdoc/>
-        public virtual string GetDescription() => $"Random[seed '{this.RandomNumberGenerator.Seed}']";
+        public virtual string GetDescription() => $"Random[seed '{this.RandomValueGenerator.Seed}']";
 
         /// <inheritdoc/>
         public virtual void Reset()

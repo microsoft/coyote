@@ -150,7 +150,12 @@ namespace Microsoft.Coyote.TestingServices
                 TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
             }
 
-            configuration.RandomSchedulingSeed = (int)(configuration.RandomSchedulingSeed + (673 * configuration.TestingProcessId));
+            if (configuration.RandomValueGeneratorSeed.HasValue)
+            {
+                configuration.RandomValueGeneratorSeed = configuration.RandomValueGeneratorSeed.Value +
+                    (673 * configuration.TestingProcessId);
+            }
+
             configuration.EnableColoredConsoleOutput = true;
 
             this.Configuration = configuration;

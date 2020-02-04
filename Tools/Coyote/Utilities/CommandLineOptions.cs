@@ -54,7 +54,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
             var advancedGroup = this.Parser.GetOrCreateGroup("advancedGroup", "Advanced options");
             advancedGroup.AddArgument("explore", null, "Keep testing until the bound (e.g. iteration or time) is reached", typeof(bool));
-            advancedGroup.AddArgument("sch-seed", null, "Specify the random seed for the tester", typeof(int));
+            advancedGroup.AddArgument("seed", null, "Specify the random value generator seed", typeof(uint));
             advancedGroup.AddArgument("wait-for-testing-processes", null, "Wait for testing processes to start (default is to launch them)", typeof(bool));
             advancedGroup.AddArgument("testing-scheduler-ipaddress", null, "Specify server ip address and optional port (default: 127.0.0.1:0))", typeof(string));
             advancedGroup.AddArgument("testing-scheduler-endpoint", null, "Specify a name for the server (default: CoyoteTestScheduler)", typeof(string));
@@ -99,8 +99,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "method":
                     this.Configuration.TestMethodName = (string)option.Value;
                     break;
-                case "interactive":
-                    this.Configuration.SchedulingStrategy = SchedulingStrategy.Interactive;
+                case "seed":
+                    this.Configuration.RandomValueGeneratorSeed = (uint)option.Value;
                     break;
                 case "sch-random":
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.Random;
@@ -122,6 +122,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "sch-portfolio":
                     this.Configuration.SchedulingStrategy = SchedulingStrategy.Portfolio;
+                    break;
+                case "interactive":
+                    this.Configuration.SchedulingStrategy = SchedulingStrategy.Interactive;
                     break;
                 case "schedule":
                     {
@@ -237,9 +240,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "timeout-delay":
                     this.Configuration.TimeoutDelay = (uint)option.Value;
-                    break;
-                case "sch-seed":
-                    this.Configuration.RandomSchedulingSeed = (int)option.Value;
                     break;
                 case "max-steps":
                     {

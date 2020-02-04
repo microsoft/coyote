@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices.Runtime;

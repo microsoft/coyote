@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default executing runtime.
         /// </summary>
-        private static readonly CoyoteRuntime Default = new ProductionRuntime(Configuration.Create());
+        private static readonly CoyoteRuntime Default = ActorRuntimeFactory.CreateProductionRuntime(default);
 
         /// <summary>
         /// The currently executing runtime.

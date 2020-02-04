@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
         public void MeasureCreationThroughput()
         {
             var configuration = Configuration.Create();
-            var runtime = new ProductionRuntime(configuration);
+            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
 
             var tcs = new TaskCompletionSource<bool>();
             var e = new SetupEvent(tcs, this.NumMachines, this.DoHalt);

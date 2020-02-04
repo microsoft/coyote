@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.TestingServices
                 this.Configuration.SchedulingStrategy == SchedulingStrategy.FairPCT ||
                 this.Configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
             {
-                options = $" (seed:{this.Configuration.RandomSchedulingSeed})";
+                options = $" (seed:{this.RandomValueGenerator.Seed})";
             }
 
             this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} is " +
@@ -156,11 +156,11 @@ namespace Microsoft.Coyote.TestingServices
                             break;
                         }
 
-                        if (this.RandomNumberGenerator != null && this.Configuration.IncrementalSchedulingSeed)
+                        if (this.RandomValueGenerator != null && this.Configuration.IncrementalSchedulingSeed)
                         {
                             // Increments the seed in the random number generator (if one is used), to
                             // capture the seed used by the scheduling strategy in the next iteration.
-                            this.RandomNumberGenerator.Seed += 1;
+                            this.RandomValueGenerator.Seed += 1;
                         }
 
                         // Increases iterations if there is a specified timeout

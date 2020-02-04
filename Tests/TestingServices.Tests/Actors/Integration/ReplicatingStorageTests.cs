@@ -859,13 +859,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         [Theory(Timeout = 10000)]
         [InlineData(315)]
-        public void TestReplicatingStorageLivenessBug(int seed)
+        public void TestReplicatingStorageLivenessBug(uint seed)
         {
             var configuration = GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 200;
             configuration.MaxFairSchedulingSteps = 2000;
             configuration.LivenessTemperatureThreshold = 1000;
-            configuration.RandomSchedulingSeed = seed;
+            configuration.RandomValueGeneratorSeed = seed;
             configuration.SchedulingIterations = 1;
 
             this.TestWithError(r =>

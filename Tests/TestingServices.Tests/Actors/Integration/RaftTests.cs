@@ -1234,13 +1234,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         [Theory(Timeout = 10000)]
         [InlineData(79)]
-        public void TestMultipleLeadersInRaftProtocol(int seed)
+        public void TestMultipleLeadersInRaftProtocol(uint seed)
         {
             var configuration = GetConfiguration();
             configuration.MaxUnfairSchedulingSteps = 100;
             configuration.MaxFairSchedulingSteps = 1000;
             configuration.LivenessTemperatureThreshold = 500;
-            configuration.RandomSchedulingSeed = seed;
+            configuration.RandomValueGeneratorSeed = seed;
             configuration.SchedulingIterations = 1;
 
             this.TestWithError(r =>

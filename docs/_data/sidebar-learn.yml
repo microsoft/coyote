@@ -24,7 +24,15 @@ learn-toc:
       link: /learn/core/non-determinism
     - name: Systematic testing
       link: /learn/core/systematic-testing
-- title: Programming
+    - name: Specifications
+      link: /learn/specifications/overview
+    - name: Effective liveness checking
+      link: /learn/specifications/liveness-checking
+    - name: Logging
+      link: /learn/advanced/logging
+    - name: Sharing objects
+      link: /learn/advanced/object-sharing
+- title: Programming Models
   link: /learn/programming-models
   subfolderitems:
     - name: Asynchronous Tasks
@@ -53,12 +61,6 @@ learn-toc:
           link: /learn/programming-models/actors/unit-testing
         - name: State Machine Demo
           link: /learn/programming-models/actors/state-machine-demo
-- title: Specifications
-  subfolderitems:
-    - name: Overview
-      link: /learn/specifications/overview
-    - name: Effective liveness checking
-      link: /learn/specifications/liveness-checking
 - title: Tutorials and Samples
   subfolderitems:
     - name: Hello World Tasks
@@ -79,12 +81,6 @@ learn-toc:
       link: /learn/tools/coverage
     - name: Distributed testing
       link: /learn/tools/distributed-testing
-- title: Advanced topics
-  subfolderitems:
-    - name: Logging
-      link: /learn/advanced/logging
-    - name: Sharing objects
-      link: /learn/advanced/object-sharing
 - title: API documentation
   subfolderitems:
     - name: Microsoft.Coyote

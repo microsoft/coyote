@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             var tcs = new TaskCompletionSource<bool>();
             var configuration = Configuration.Create();
-            var runtime = new ProductionRuntime(configuration);
+            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
             var a = runtime.CreateActor(typeof(A), null, new A.SetupEvent(tcs));
             runtime.SendEvent(a, new A.E3());
             runtime.SendEvent(a, new E1());

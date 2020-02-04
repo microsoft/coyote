@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
         public void IterationSetup()
         {
             var configuration = Configuration.Create();
-            this.Runtime = new ProductionRuntime(configuration);
+            this.Runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
             this.ExperimentAwaiter = new TaskCompletionSource<bool>();
 
             var consumer = this.Runtime.CreateActor(typeof(Consumer), null,

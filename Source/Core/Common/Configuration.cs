@@ -67,10 +67,11 @@ namespace Microsoft.Coyote
         public int SchedulingIterations;
 
         /// <summary>
-        /// Seed for random scheduling strategies.
+        /// Custom seed to be used by the random value generator. By default,
+        /// this value is null indicating that no seed has been set.
         /// </summary>
         [DataMember]
-        public int RandomSchedulingSeed;
+        public uint? RandomValueGeneratorSeed;
 
         /// <summary>
         /// If true, the seed will increment in each
@@ -278,24 +279,24 @@ namespace Microsoft.Coyote
         public bool IsVerbose;
 
         /// <summary>
+        /// Is DGML graph showing all test iterations or just one "bug" iteration.
+        /// False means all, and True means only the iteration containing a bug.
+        /// </summary>
+        [DataMember]
+        public bool IsDgmlBugGraph;
+
+        /// <summary>
         /// If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found.
         /// This is different from a coverage activity graph, as it will also show actor instances.
         /// </summary>
         [DataMember]
-        public bool IsDgmlGraphEnabled;
+        public bool IsDgmlGraphEnabled { get; internal set; }
 
         /// <summary>
         /// Produce an XML formatted runtime log file.
         /// </summary>
         [DataMember]
         public bool IsXmlLogEnabled { get; internal set; }
-
-        /// <summary>
-        /// Is DGML graph showing all test iterations or just one "bug" iteration.
-        /// False means all, and True means only the iteration containing a bug.
-        /// </summary>
-        [DataMember]
-        public bool IsDgmlBugGraph;
 
         /// <summary>
         /// If specified, requests a custom runtime log to be used instead of the default.
@@ -342,9 +343,8 @@ namespace Microsoft.Coyote
 
             this.SchedulingStrategy = SchedulingStrategy.Random;
             this.SchedulingIterations = 1;
-            this.RandomSchedulingSeed = DateTime.Now.Millisecond;
+            this.RandomValueGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
-
             this.PerformFullExploration = false;
             this.MaxFairSchedulingSteps = 0;
             this.MaxUnfairSchedulingSteps = 0;

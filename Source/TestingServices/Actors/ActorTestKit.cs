@@ -38,8 +38,13 @@ namespace Microsoft.Coyote.TestingServices
         /// <param name="configuration">The runtime configuration to use.</param>
         public ActorTestKit(Configuration configuration)
         {
-            configuration = configuration ?? Configuration.Create();
-            this.Runtime = new ActorUnitTestingRuntime(typeof(T), configuration);
+            if (configuration is null)
+            {
+                configuration = Configuration.Create();
+            }
+
+            var valueGenerator = new RandomValueGenerator(configuration);
+            this.Runtime = new ActorUnitTestingRuntime(configuration, typeof(T), valueGenerator);
             this.ActorInstance = this.Runtime.Instance as T;
             this.IsRunning = false;
             this.Runtime.OnFailure += ex =>

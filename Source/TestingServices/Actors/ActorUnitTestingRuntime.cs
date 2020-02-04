@@ -36,6 +36,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         private TaskCompletionSource<bool> QuiescenceCompletionSource;
 
         /// <summary>
+        /// Responsible for generating random values.
+        /// </summary>
+        private readonly IRandomValueGenerator ValueGenerator;
+
+        /// <summary>
         /// True if the actor is waiting to receive and event, else false.
         /// </summary>
         internal bool IsActorWaitingToReceiveEvent { get; private set; }
@@ -43,13 +48,15 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorUnitTestingRuntime"/> class.
         /// </summary>
-        internal ActorUnitTestingRuntime(Type actorType, Configuration configuration)
+        internal ActorUnitTestingRuntime(Configuration configuration, Type actorType, IRandomValueGenerator valueGenerator)
             : base(configuration)
         {
             if (!actorType.IsSubclassOf(typeof(Actor)))
             {
                 this.Assert(false, "Type '{0}' is not an actor.", actorType.FullName);
             }
+
+            this.ValueGenerator = valueGenerator;
 
             var id = new ActorId(actorType, null, this);
             this.Instance = ActorFactory.Create(actorType);
@@ -352,16 +359,13 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override bool GetNondeterministicBooleanChoice(Actor caller, int maxValue)
         {
-            Random random = new Random(DateTime.Now.Millisecond);
-
             bool result = false;
-            if (random.Next(maxValue) == 0)
+            if (this.ValueGenerator.Next(maxValue) == 0)
             {
                 result = true;
             }
 
             this.LogWriter.LogRandom(caller?.Id, result);
-
             return result;
         }
 
@@ -371,11 +375,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override int GetNondeterministicIntegerChoice(Actor caller, int maxValue)
         {
-            Random random = new Random(DateTime.Now.Millisecond);
-            var result = random.Next(maxValue);
-
+            var result = this.ValueGenerator.Next(maxValue);
             this.LogWriter.LogRandom(caller?.Id, result);
-
             return result;
         }
 

@@ -98,9 +98,9 @@ namespace Microsoft.Coyote.TestingServices
         protected ISchedulingStrategy Strategy;
 
         /// <summary>
-        /// Random number generator used by the scheduling strategies.
+        /// Random value generator used by the scheduling strategies.
         /// </summary>
-        protected IRandomNumberGenerator RandomNumberGenerator;
+        protected IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
         /// The error reporter.
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.TestingServices
             this.PerIterationCallbacks = new HashSet<Action<int>>();
 
             // Initializes scheduling strategy specific components.
-            this.RandomNumberGenerator = new DefaultRandomNumberGenerator(configuration.RandomSchedulingSeed);
+            this.RandomValueGenerator = new RandomValueGenerator(configuration);
 
             this.TestReport = new TestReport(configuration);
             this.CancellationTokenSource = new CancellationTokenSource();
@@ -245,19 +245,19 @@ namespace Microsoft.Coyote.TestingServices
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.Random)
             {
-                this.Strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
+                this.Strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.PCT)
             {
                 this.Strategy = new PCTStrategy(configuration.MaxUnfairSchedulingSteps, configuration.PrioritySwitchBound,
-                    this.RandomNumberGenerator);
+                    this.RandomValueGenerator);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
             {
                 var prefixLength = configuration.SafetyPrefixBound == 0 ?
                     configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
-                var prefixStrategy = new PCTStrategy(prefixLength, configuration.PrioritySwitchBound, this.RandomNumberGenerator);
-                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomNumberGenerator);
+                var prefixStrategy = new PCTStrategy(prefixLength, configuration.PrioritySwitchBound, this.RandomValueGenerator);
+                var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);
                 this.Strategy = new ComboStrategy(prefixStrategy, suffixStrategy);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.TestingServices
                 this.Strategy = new ProbabilisticRandomStrategy(
                     configuration.MaxFairSchedulingSteps,
                     configuration.CoinFlipBound,
-                    this.RandomNumberGenerator);
+                    this.RandomValueGenerator);
             }
             else if (configuration.SchedulingStrategy == SchedulingStrategy.DFS)
             {

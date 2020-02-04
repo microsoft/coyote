@@ -19,19 +19,8 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
-        /// It uses the default random number generator (seed is based on current time).
         /// </summary>
-        public ProbabilisticRandomStrategy(int maxSteps, int numberOfCoinFlips)
-            : base(maxSteps)
-        {
-            this.NumberOfCoinFlips = numberOfCoinFlips;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProbabilisticRandomStrategy"/> class.
-        /// It uses the specified random number generator.
-        /// </summary>
-        public ProbabilisticRandomStrategy(int maxSteps, int numberOfCoinFlips, IRandomNumberGenerator random)
+        public ProbabilisticRandomStrategy(int maxSteps, int numberOfCoinFlips, IRandomValueGenerator random)
             : base(maxSteps, random)
         {
             this.NumberOfCoinFlips = numberOfCoinFlips;
@@ -58,7 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 }
             }
 
-            int idx = this.RandomNumberGenerator.Next(enabledOperations.Count);
+            int idx = this.RandomValueGenerator.Next(enabledOperations.Count);
             next = enabledOperations[idx];
 
             return true;
@@ -66,7 +55,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
         /// <inheritdoc/>
         public override string GetDescription() =>
-            $"ProbabilisticRandom[seed '{this.RandomNumberGenerator.Seed}', coin flips '{this.NumberOfCoinFlips}']";
+            $"ProbabilisticRandom[seed '{this.RandomValueGenerator.Seed}', coin flips '{this.NumberOfCoinFlips}']";
 
         /// <summary>
         /// Flip the coin a specified number of times.
@@ -75,7 +64,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         {
             for (int idx = 0; idx < this.NumberOfCoinFlips; idx++)
             {
-                if (this.RandomNumberGenerator.Next(2) == 1)
+                if (this.RandomValueGenerator.Next(2) == 1)
                 {
                     return false;
                 }

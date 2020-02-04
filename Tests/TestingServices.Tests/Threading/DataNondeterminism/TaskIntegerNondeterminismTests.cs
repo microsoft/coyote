@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
                 async ControlledTask WriteAsync()
                 {
                     await ControlledTask.CompletedTask;
-                    if (RandomValueGenerator.GetNextInteger(5) == 0)
+                    if (ControlledRandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
                 async ControlledTask WriteWithDelayAsync()
                 {
                     await ControlledTask.Delay(1);
-                    if (RandomValueGenerator.GetNextInteger(5) == 0)
+                    if (ControlledRandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
                 SharedEntry entry = new SharedEntry();
                 await ControlledTask.Run(() =>
                 {
-                    if (RandomValueGenerator.GetNextInteger(5) == 0)
+                    if (ControlledRandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
                 await ControlledTask.Run(async () =>
                 {
                     await ControlledTask.CompletedTask;
-                    if (RandomValueGenerator.GetNextInteger(5) == 0)
+                    if (ControlledRandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
                 await ControlledTask.Run(async () =>
                 {
                     await ControlledTask.Delay(1);
-                    if (RandomValueGenerator.GetNextInteger(5) == 0)
+                    if (ControlledRandomValueGenerator.GetNextInteger(5) == 0)
                     {
                         entry.Value = 3;
                     }
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Threading
                     await ControlledTask.Run(async () =>
                     {
                         await ControlledTask.CompletedTask;
-                        if (RandomValueGenerator.GetNextInteger(5) == 0)
+                        if (ControlledRandomValueGenerator.GetNextInteger(5) == 0)
                         {
                             entry.Value = 3;
                         }

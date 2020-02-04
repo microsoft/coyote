@@ -31,17 +31,17 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Responsible for generating random values.
         /// </summary>
-        private readonly Random ValueGenerator;
+        private readonly IRandomValueGenerator ValueGenerator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductionRuntime"/> class.
         /// </summary>
-        internal ProductionRuntime(Configuration configuration)
+        internal ProductionRuntime(Configuration configuration, IRandomValueGenerator valueGenerator)
             : base(configuration)
         {
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
             this.Monitors = new List<Monitor>();
-            this.ValueGenerator = new Random(DateTime.Now.Millisecond);
+            this.ValueGenerator = valueGenerator;
         }
 
         /// <summary>

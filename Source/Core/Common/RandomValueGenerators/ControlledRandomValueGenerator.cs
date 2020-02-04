@@ -7,11 +7,15 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote
 {
     /// <summary>
-    /// Provides static methods for generating random boolean or integer values.
-    /// During testing, the random value generator is controlled by the tester,
-    /// allowing the choices to be systematically explored.
+    /// Provides static methods for generating random values. During testing,
+    /// the random value generator is controlled by the tester, allowing the
+    /// choices to be systematically explored.
     /// </summary>
-    public static class RandomValueGenerator
+    /// <remarks>
+    /// See <see href="/coyote/learn/core/non-determinism" >Program non-determinism</see>
+    /// for more information.
+    /// </remarks>
+    public static class ControlledRandomValueGenerator
     {
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be controlled during testing.

@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.TestingServices.Scheduling
+namespace Microsoft.Coyote
 {
     /// <summary>
-    /// Interface for random number generators.
+    /// Interface for random value generators.
     /// </summary>
-    public interface IRandomNumberGenerator
+    internal interface IRandomValueGenerator
     {
         /// <summary>
         /// The seed currently used by the generator.
         /// </summary>
-        int Seed { get; set; }
+        uint Seed { get; set; }
 
         /// <summary>
         /// Returns a non-negative random number.

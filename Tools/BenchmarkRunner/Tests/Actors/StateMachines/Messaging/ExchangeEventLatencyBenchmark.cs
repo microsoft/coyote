@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             var tcs = new TaskCompletionSource<bool>();
 
             var configuration = Configuration.Create();
-            var runtime = new ProductionRuntime(configuration);
+            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
             runtime.CreateActor(typeof(M1), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
 
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             var tcs = new TaskCompletionSource<bool>();
 
             var configuration = Configuration.Create();
-            var runtime = new ProductionRuntime(configuration);
+            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
             runtime.CreateActor(typeof(M3), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
 

@@ -89,7 +89,10 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ".ToLower());
             }
 
-            arguments.Append($"--sch-seed {configuration.RandomSchedulingSeed} ");
+            if (configuration.RandomValueGeneratorSeed.HasValue)
+            {
+                arguments.Append($"--seed {configuration.RandomValueGeneratorSeed.Value} ");
+            }
 
             if (configuration.PerformFullExploration)
             {

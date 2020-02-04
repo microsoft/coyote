@@ -1520,13 +1520,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
         [Theory(Timeout = 10000)]
         [InlineData(46)]
-        public void TestSequenceNotSortedInChainReplicationProtocol(int seed)
+        public void TestSequenceNotSortedInChainReplicationProtocol(uint seed)
         {
             var configuration = GetConfiguration();
             configuration.SchedulingStrategy = SchedulingStrategy.FairPCT;
             configuration.PrioritySwitchBound = 1;
             configuration.MaxSchedulingSteps = 100;
-            configuration.RandomSchedulingSeed = seed;
+            configuration.RandomValueGeneratorSeed = seed;
             configuration.SchedulingIterations = 1;
 
             this.TestWithError(r =>

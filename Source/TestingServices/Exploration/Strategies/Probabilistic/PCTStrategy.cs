@@ -18,9 +18,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
     internal sealed class PCTStrategy : ISchedulingStrategy
     {
         /// <summary>
-        /// Random number generator.
+        /// Random value generator.
         /// </summary>
-        private readonly IRandomNumberGenerator RandomNumberGenerator;
+        private readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
         /// The maximum number of steps to schedule.
@@ -53,21 +53,11 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         private readonly SortedSet<int> PriorityChangePoints;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PCTStrategy"/> class. It uses
-        /// the default random number generator (seed is based on current time).
-        /// </summary>
-        public PCTStrategy(int maxSteps, int maxPrioritySwitchPoints)
-            : this(maxSteps, maxPrioritySwitchPoints, new DefaultRandomNumberGenerator(DateTime.Now.Millisecond))
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PCTStrategy"/> class.
-        /// It uses the specified random number generator.
         /// </summary>
-        public PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomNumberGenerator random)
+        public PCTStrategy(int maxSteps, int maxPrioritySwitchPoints, IRandomValueGenerator random)
         {
-            this.RandomNumberGenerator = random;
+            this.RandomValueGenerator = random;
             this.MaxScheduledSteps = maxSteps;
             this.ScheduledSteps = 0;
             this.ScheduleLength = 0;
@@ -101,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            if (this.RandomNumberGenerator.Next(maxValue) == 0)
+            if (this.RandomValueGenerator.Next(maxValue) == 0)
             {
                 next = true;
             }
@@ -114,7 +104,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <inheritdoc/>
         public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
         {
-            next = this.RandomNumberGenerator.Next(maxValue);
+            next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;
             return true;
         }
@@ -176,7 +166,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
                 idx++;
             }
 
-            text += "], seed '" + this.RandomNumberGenerator.Seed + "']";
+            text += "], seed '" + this.RandomValueGenerator.Seed + "']";
             return text;
         }
 
@@ -192,7 +182,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
 
             foreach (var op in ops.Where(op => !this.PrioritizedOperations.Contains(op)))
             {
-                var mIndex = this.RandomNumberGenerator.Next(this.PrioritizedOperations.Count) + 1;
+                var mIndex = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
                 this.PrioritizedOperations.Insert(mIndex, op);
                 Debug.WriteLine($"<PCTLog> Detected new operation from '{op.Name}' at index '{mIndex}'.");
             }
@@ -256,7 +246,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
             var result = new List<int>(list);
             for (int idx = result.Count - 1; idx >= 1; idx--)
             {
-                int point = this.RandomNumberGenerator.Next(this.ScheduleLength);
+                int point = this.RandomValueGenerator.Next(this.ScheduleLength);
                 int temp = result[idx];
                 result[idx] = result[point];
                 result[point] = temp;

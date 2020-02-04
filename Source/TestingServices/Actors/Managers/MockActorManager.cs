@@ -74,13 +74,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventIgnored(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Instance.IsEventIgnored(e);
+        public bool IsEventIgnored(Event e, Guid opGroupId, EventInfo eventInfo) => this.Instance.IsEventIgnored(e);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) =>
-            this.Instance.IsEventDeferred(e);
+        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) => false;
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

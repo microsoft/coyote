@@ -23,27 +23,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
-        private class A1 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.IgnoreEvent(typeof(MustHandleEvent));
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMustHandleEventNotTriggeredInActor()
-        {
-            this.Test(r =>
-            {
-                var m = r.CreateActor(typeof(A1));
-                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, HaltEvent.Instance);
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(100));
-        }
-
         private class M1 : StateMachine
         {
             [Start]
@@ -63,29 +42,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.SendEvent(m, HaltEvent.Instance);
             },
             configuration: Configuration.Create().WithNumberOfIterations(100));
-        }
-
-        private class A2 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.DeferEvent(typeof(MustHandleEvent));
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMustHandleDeferredEventInActor()
-        {
-            this.TestWithError(r =>
-            {
-                var m = r.CreateActor(typeof(A2));
-                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-                r.SendEvent(m, HaltEvent.Instance);
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(1),
-            expectedError: "A2() halted before dequeueing must-handle event 'MustHandleEvent'.",
-            replay: true);
         }
 
         private class M2 : StateMachine
@@ -108,33 +64,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             configuration: Configuration.Create().WithNumberOfIterations(1),
             expectedError: "M2() halted before dequeueing must-handle event 'MustHandleEvent'.",
-            replay: true);
-        }
-
-        private class A3 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.DeferEvent(typeof(MustHandleEvent));
-                this.SendEvent(this.Id, HaltEvent.Instance);
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMustHandleEventAfterHaltInActor()
-        {
-            this.TestWithError(r =>
-            {
-                var m = r.CreateActor(typeof(A3));
-                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(500),
-            expectedErrors: new string[]
-                {
-                    "A must-handle event 'MustHandleEvent' was sent to A3() which has halted.",
-                    "A3() halted before dequeueing must-handle event 'MustHandleEvent'."
-                },
             replay: true);
         }
 
@@ -163,33 +92,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 {
                     "A must-handle event 'MustHandleEvent' was sent to M3() which has halted.",
                     "M3() halted before dequeueing must-handle event 'MustHandleEvent'."
-                },
-            replay: true);
-        }
-
-        private class A4 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.DeferEvent(typeof(MustHandleEvent));
-                this.SendEvent(this.Id, HaltEvent.Instance);
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMustHandleEventAfterSendingHaltInActor()
-        {
-            this.TestWithError(r =>
-            {
-                var m = r.CreateActor(typeof(A4));
-                r.SendEvent(m, new MustHandleEvent(), options: new SendOptions(mustHandle: true));
-            },
-            configuration: Configuration.Create().WithNumberOfIterations(500),
-            expectedErrors: new string[]
-                {
-                    "A must-handle event 'MustHandleEvent' was sent to A4() which has halted.",
-                    "A4() halted before dequeueing must-handle event 'MustHandleEvent'."
                 },
             replay: true);
         }

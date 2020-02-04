@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) => this.Instance.IsEventDeferred(e);
+        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) => false;
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

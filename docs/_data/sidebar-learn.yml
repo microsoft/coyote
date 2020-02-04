@@ -30,8 +30,6 @@ learn-toc:
       link: /learn/specifications/liveness-checking
     - name: Logging
       link: /learn/advanced/logging
-    - name: Sharing objects
-      link: /learn/advanced/object-sharing
 - title: Programming Models
   link: /learn/programming-models
   subfolderitems:
@@ -59,6 +57,8 @@ learn-toc:
           link: /learn/programming-models/actors/uncaught-exceptions
         - name: Unit-testing in isolation
           link: /learn/programming-models/actors/unit-testing
+        - name: Sharing objects
+          link: /learn/advanced/object-sharing
         - name: State Machine Demo
           link: /learn/programming-models/actors/state-machine-demo
 - title: Tutorials and Samples

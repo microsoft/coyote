@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tests.Common.Actors;
@@ -24,17 +25,27 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
-        [OnEventDoAction(typeof(UnitEvent), nameof(Foo))]
+        [OnEventDoAction(typeof(WildCardEvent), nameof(Foo))]
         private class Aa : Actor
         {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.DeferEvent(typeof(WildCardEvent));
-                return Task.CompletedTask;
-            }
+            private Type PrevHandledEventType;
 
-            private void Foo()
+            private void Foo(Event e)
             {
+                if (e is E2)
+                {
+                    this.Assert(this.PrevHandledEventType is null);
+                }
+                else if (e is UnitEvent)
+                {
+                    this.Assert(this.PrevHandledEventType == typeof(E2));
+                }
+                else if (e is E1)
+                {
+                    this.Assert(this.PrevHandledEventType == typeof(UnitEvent));
+                }
+
+                this.PrevHandledEventType = e.GetType();
             }
         }
 

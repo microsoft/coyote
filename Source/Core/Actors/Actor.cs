@@ -70,16 +70,6 @@ namespace Microsoft.Coyote.Actors
         private readonly Dictionary<Type, CachedDelegate> ActionMap;
 
         /// <summary>
-        /// Set of currently ignored event types.
-        /// </summary>
-        private readonly HashSet<Type> IgnoredEvents;
-
-        /// <summary>
-        /// Set of currently deferred event types.
-        /// </summary>
-        private readonly HashSet<Type> DeferredEvents;
-
-        /// <summary>
         /// Map that contains the active timers.
         /// </summary>
         private protected readonly Dictionary<TimerInfo, IActorTimer> Timers;
@@ -137,8 +127,6 @@ namespace Microsoft.Coyote.Actors
         protected Actor()
         {
             this.ActionMap = new Dictionary<Type, CachedDelegate>();
-            this.IgnoredEvents = new HashSet<Type>();
-            this.DeferredEvents = new HashSet<Type>();
             this.Timers = new Dictionary<TimerInfo, IActorTimer>();
             this.CurrentStatus = Status.Active;
             this.IsDefaultHandlerAvailable = false;
@@ -254,46 +242,6 @@ namespace Microsoft.Coyote.Actors
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
             this.Runtime.NotifyReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(events);
-        }
-
-        /// <summary>
-        /// Sets the actor to ignore all events of the the specified type. This can be reverted
-        /// by setting the <paramref name="ignore"/> parameter to false.
-        /// </summary>
-        /// <param name="eventType">The event type to ignore.</param>
-        /// <param name="ignore">True to ignore events of the specified type, else false.</param>
-        protected void IgnoreEvent(Type eventType, bool ignore = true)
-        {
-            this.Assert(eventType != null, "{0} is ignoring a null event type.", this.Id);
-
-            if (ignore)
-            {
-                this.IgnoredEvents.Add(eventType);
-            }
-            else
-            {
-                this.IgnoredEvents.Remove(eventType);
-            }
-        }
-
-        /// <summary>
-        /// Sets the actor to defer all events of the the specified type. This can be reverted
-        /// by setting the <paramref name="defer"/> parameter to false.
-        /// </summary>
-        /// <param name="eventType">The event type to defer.</param>
-        /// <param name="defer">True to defer events of the specified type, else false.</param>
-        protected void DeferEvent(Type eventType, bool defer = true)
-        {
-            this.Assert(eventType != null, "{0} is deferring a null event type.", this.Id);
-
-            if (defer)
-            {
-                this.DeferredEvents.Add(eventType);
-            }
-            else
-            {
-                this.DeferredEvents.Remove(eventType);
-            }
         }
 
         /// <summary>
@@ -743,42 +691,6 @@ namespace Microsoft.Coyote.Actors
             if (e is TimerElapsedEvent timeoutEvent && !this.Timers.ContainsKey(timeoutEvent.Info))
             {
                 // The timer that created this timeout event is not active.
-                return true;
-            }
-
-            Type eventType = e.GetType();
-            if (this.IgnoredEvents.Contains(eventType))
-            {
-                return true;
-            }
-            else if (this.ActionMap.ContainsKey(eventType))
-            {
-                return false;
-            }
-            else if (this.IgnoredEvents.Contains(typeof(WildCardEvent)))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Checks if the specified event is deferred.
-        /// </summary>
-        internal bool IsEventDeferred(Event e)
-        {
-            Type eventType = e.GetType();
-            if (this.DeferredEvents.Contains(eventType))
-            {
-                return true;
-            }
-            else if (this.ActionMap.ContainsKey(eventType))
-            {
-                return false;
-            }
-            else if (this.DeferredEvents.Contains(typeof(WildCardEvent)))
-            {
                 return true;
             }
 

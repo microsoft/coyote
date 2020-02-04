@@ -16,14 +16,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
+        [OnEventDoAction(typeof(UnitEvent), nameof(IgnoreUnitEvent))]
         private class A1 : Actor
         {
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
-                this.IgnoreEvent(typeof(UnitEvent));
                 this.SendEvent(this.Id, UnitEvent.Instance);
                 await Task.Delay(10);
                 this.SendEvent(this.Id, UnitEvent.Instance);
+            }
+
+            private void IgnoreUnitEvent()
+            {
             }
         }
 
@@ -70,14 +74,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             replay: true);
         }
 
+        [OnEventDoAction(typeof(UnitEvent), nameof(IgnoreUnitEvent))]
         private class A2 : Actor
         {
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
-                this.IgnoreEvent(typeof(UnitEvent));
                 this.SendEvent(this.Id, UnitEvent.Instance);
                 await Task.Delay(10).ConfigureAwait(false);
                 this.SendEvent(this.Id, UnitEvent.Instance);
+            }
+
+            private void IgnoreUnitEvent()
+            {
             }
         }
 

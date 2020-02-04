@@ -137,6 +137,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             configuration: GetConfiguration().WithNumberOfIterations(100));
         }
 
+        [OnEventDoAction(typeof(Pong), nameof(IgnorePongEvent))]
         private class ServerActor2 : Actor
         {
             private ActorId Client;
@@ -146,13 +147,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Client = this.CreateActor(typeof(ClientActor));
                 this.SendEvent(this.Client, new SetupEvent(this.Id));
                 this.SendPing();
-                this.IgnoreEvent(typeof(Pong));
                 return Task.CompletedTask;
             }
 
             private void SendPing()
             {
                 this.SendEvent(this.Client, new Ping());
+            }
+
+            private void IgnorePongEvent()
+            {
             }
         }
 

@@ -57,38 +57,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
         }
 
-        [OnEventDoAction(typeof(E1), nameof(Foo))]
-        [OnEventDoAction(typeof(E2), nameof(Bar))]
-        private class A1 : Actor
-        {
-            protected override Task OnInitializeAsync(Event initialEvent)
-            {
-                this.IgnoreEvent(typeof(UnitEvent));
-                return Task.CompletedTask;
-            }
-
-            private void Foo()
-            {
-                this.SendEvent(this.Id, UnitEvent.Instance);
-            }
-
-            private void Bar(Event e)
-            {
-                this.SendEvent((e as E2).Id, new E2(this.Id));
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestIgnoreSentEventHandledInActor()
-        {
-            this.Test(r =>
-            {
-                var id = r.CreateActor(typeof(A1));
-                r.CreateActor(typeof(Harness), new SetupEvent(id));
-            },
-            configuration: GetConfiguration().WithNumberOfIterations(5));
-        }
-
         private class M1 : StateMachine
         {
             [Start]

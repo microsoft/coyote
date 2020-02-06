@@ -10,7 +10,7 @@ template: basic
 
 
 <div>
-<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install package</a> <a href="http://github/com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Build from source</a>
+<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install package</a> <a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Build from source</a>
 <br/>
 <br/>
 </div>

@@ -23,9 +23,12 @@ article:
   - title: Vision
     feature-img: /assets/images/vision.jpg
     content: |
-        <p>With Coyote, we envision a future where developers can focus on coding only. Through rapid design-implement-test cycles, Coyote empowers developers with a quantum leap in productivity. The technology provides programming frameworks that reduce the gap between design and implementation and offers unmatched testing capabilities for weeding out bugs early.</p>
+        <p>With Coyote, we envision a future where developing software with any form of concurrency is as natural as developing sequential code. We want to demystify concurrency issues, be it with design or testing or debugging, be it single-box systems or large distributed systems. No more <a href="https://en.wikipedia.org/wiki/Heisenbug">Heisenbugs</a>!</p>
+        
+        <p>Through rapid design-implement-test cycles, Coyote empowers developers with a quantum leap in productivity. The technology provides programming frameworks that reduce the gap between design and implementation and offers unmatched testing capabilities for weeding out bugs early.</p>
 
-        <p>Our goal is to help developers reimagine the way we design and implement asynchronous or distributed systems.</p>
+        <p>Coyote has been inspired by years of research at MSR, studying concurrency issues in software. MSR has been a leader in this space for more than a decade with several examples of pioneering research. We've learned from that experience, we build on it and put it forth in a form that can be readily consumed by developers. </p>
 
-        <p>[TODO -- talk about MSR and how we build on years of experience in testing and formal methods and software engineering]</p>
+        <p>Our goal is to help developers reimagine the way we design and implement distributed services.</p>
+
 ---

@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Utilities
     /// <summary>
     /// Specifies a dependency between arguments.
     /// </summary>
-    public class CommandLineArgumentDependency
+    internal class CommandLineArgumentDependency
     {
         /// <summary>
         /// Name of an argument.
@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Utilities
     /// <summary>
     /// A single command line argument.
     /// </summary>
-    public class CommandLineArgument
+    internal class CommandLineArgument
     {
         /// <summary>
         /// The long name referenced using two dashes (e.g. "--max-steps").
@@ -334,7 +334,7 @@ namespace Microsoft.Coyote.Utilities
     /// <summary>
     /// Provides a way of grouping command line arguments in the help text.
     /// </summary>
-    public class CommandLineGroup
+    internal class CommandLineGroup
     {
         private readonly CommandLineArgumentParser Parser;
         private readonly List<string> LongNames;
@@ -413,7 +413,7 @@ namespace Microsoft.Coyote.Utilities
     /// <summary>
     /// A handy command line argument parser.
     /// </summary>
-    public class CommandLineArgumentParser
+    internal class CommandLineArgumentParser
     {
         private readonly string AppName;
         private readonly string AppDescription;

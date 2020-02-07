@@ -46,12 +46,6 @@ namespace Microsoft.Coyote
             }
         }
 
-        private static void ReplayTest()
-        {
-            // Creates and starts a replaying process.
-            ReplayingProcess.Create(Configuration).Start();
-        }
-
         private static void RunTest()
         {
             if (Configuration.RunAsParallelBugFindingTask)
@@ -95,6 +89,12 @@ namespace Microsoft.Coyote
             TestingProcessScheduler.Create(Configuration).Run();
 
             Console.WriteLine(". Done");
+        }
+
+        private static void ReplayTest()
+        {
+            // Creates and starts a replaying process.
+            ReplayingProcess.Create(Configuration).Start();
         }
 
         /// <summary>

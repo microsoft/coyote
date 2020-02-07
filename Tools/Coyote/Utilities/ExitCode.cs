@@ -6,7 +6,7 @@ namespace Microsoft.Coyote.TestingServices
     /// <summary>
     /// The exit code returned by the tester.
     /// </summary>
-    public enum ExitCode
+    internal enum ExitCode
     {
         /// <summary>
         /// Indicates that no bugs were found.

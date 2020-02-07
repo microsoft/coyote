@@ -266,13 +266,6 @@ namespace Microsoft.Coyote
         public bool DebugActivityCoverage;
 
         /// <summary>
-        /// Additional assembly specifications to instrument for code coverage, besides those in the
-        /// dependency graph between <see cref="AssemblyToBeAnalyzed"/> and the Microsoft.Coyote DLLs.
-        /// Key is filename, value is whether it is a list file (true) or a single file (false).
-        /// </summary>
-        public Dictionary<string, bool> AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
-
-        /// <summary>
         /// If true, then messages are logged.
         /// </summary>
         [DataMember]
@@ -316,6 +309,13 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public bool EnableProfiling;
+
+        /// <summary>
+        /// Additional assembly specifications to instrument for code coverage, besides those in the
+        /// dependency graph between <see cref="AssemblyToBeAnalyzed"/> and the Microsoft.Coyote DLLs.
+        /// Key is filename, value is whether it is a list file (true) or a single file (false).
+        /// </summary>
+        internal Dictionary<string, bool> AdditionalCodeCoverageAssemblies;
 
         /// <summary>
         /// Enables colored console output.
@@ -377,6 +377,8 @@ namespace Microsoft.Coyote
             this.IsVerbose = false;
             this.EnableDebugging = false;
             this.EnableProfiling = false;
+
+            this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
             this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = true;

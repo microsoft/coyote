@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.TestingServices
     /// <summary>
     /// The Coyote testing reporter.
     /// </summary>
-    internal sealed class Reporter
+    internal static class Reporter
     {
         /// <summary>
         /// Emits the testing coverage report.

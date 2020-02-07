@@ -14,30 +14,25 @@ namespace Microsoft.Coyote
     internal class Program
     {
         /// <summary>
-        /// Input coverage info.
-        /// </summary>
-        private static List<CoverageInfo> InputFiles;
-
-        /// <summary>
         /// Output file prefix.
         /// </summary>
         private static string OutputFilePrefix;
 
         private static void Main(string[] args)
         {
-            if (!ParseArgs(args))
+            if (!TryParseArgs(args, out List<CoverageInfo> inputFiles))
             {
                 return;
             }
 
-            if (InputFiles.Count == 0)
+            if (inputFiles.Count == 0)
             {
                 Console.WriteLine("Error: No input files provided");
                 return;
             }
 
             var cinfo = new CoverageInfo();
-            foreach (var other in InputFiles)
+            foreach (var other in inputFiles)
             {
                 cinfo.Merge(other);
             }
@@ -64,9 +59,9 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Parses the arguments.
         /// </summary>
-        private static bool ParseArgs(string[] args)
+        private static bool TryParseArgs(string[] args, out List<CoverageInfo> inputFiles)
         {
-            InputFiles = new List<CoverageInfo>();
+            inputFiles = new List<CoverageInfo>();
             OutputFilePrefix = "merged";
 
             if (args.Length == 0)
@@ -106,6 +101,7 @@ namespace Microsoft.Coyote
                     try
                     {
                         CoverageInfo info = CoverageInfo.Load(arg);
+                        inputFiles.Add(info);
                     }
                     catch (Exception e)
                     {

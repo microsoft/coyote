@@ -2,21 +2,20 @@
 layout: default
 ---
 
-<section class="reference section-main">
-    <div class="container-fluid ">
-        <div class="row display-flex">
-            <div class="col-sm-3 p-0 navmenu-fixed-left-wrapper">
-                {% include navigation-sidebar.html %}
-            </div>
-            <div class="col-sm-9 pt-80 pb-80 reference-content">
-                <div class="row">
-                    <div class="col-md-10 ">
-                        <article class="ml-20">
-                        {{content}}
-                        </article>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<div class="container-fluid ">
+  <div class="row display-flex">
+    <div class="col-sm-3 p-0 navmenu-fixed-left-wrapper">
+      {% include navigation-sidebar.html %}
     </div>
-</section>
+    <div class="col-sm-9 pt-80 pb-80 reference-content">
+      <div class="row">
+        <div class="col-md-10 ">
+          <article class="ml-20">
+            {{content}}
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

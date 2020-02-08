@@ -7,12 +7,14 @@ permalink: /case-studies/azure-batch-service
 
 # Azure Batch Service
 
+![icon](../assets/images/Azure-Batch.png)
+
 ## Background
 
 [Azure Batch Service](https://azure.microsoft.com/en-us/services/batch/) is a cloud-scale
 job-scheduling service. Users can submit a parallel job consisting of multiple tasks with a given set
 of dependencies and Azure Batch Service will execute them on Azure, in dependency order, exploiting as much
-parallelism as possible between independent tasks. Batch is a popular service, managing over hundreds 
+parallelism as possible between independent tasks. Batch is a popular service, managing over hundreds
 of thousands of VMs on Azure.
 
 Integrating scheduling with virtual machine (VM) management, Azure Batch Service supports
@@ -26,9 +28,9 @@ The Batch team wanted to invest in a new microservices-based architecture that w
 scale to meet the demands of the service. The complex responsive design demanded that each
 microservice be able to:
 
-- Process requests asynchronously as they arrived. 
-- Support cancellation of an in-flight request, enabling quick turnaround for auto-scaling. 
-- Be resilient to failures of VMs hosting the service. 
+- Process requests asynchronously as they arrived.
+- Support cancellation of an in-flight request, enabling quick turnaround for auto-scaling.
+- Be resilient to failures of VMs hosting the service.
 
 ## Solution
 

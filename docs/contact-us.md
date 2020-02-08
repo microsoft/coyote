@@ -1,9 +1,10 @@
 ---
 layout: page
-template: basic
+template: feature-img
 title: Contact Us
-permalink: /contact-us/
+permalink: /contact-us
 section: contact-us
+feature-img: /assets/images/contact.jpg
 ---
 
 Have questions or comments? Want to contribute? Send us an email. We want to hear from you!

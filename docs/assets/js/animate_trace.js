@@ -13,7 +13,7 @@ var currentStates = new Array();
 const linkSeparator = "-\u003E";
 const comet_color = "#409050";
 const selected_node_color = "lightgreen";
-const comet_speed = 16; // 16 ms per step
+const comet_speed = 5; // 5 ms per step
 const svgNS = "http://www.w3.org/2000/svg";
 
 // todo: integrate wormify: http://owl3d.com/svg/vsw/articles/vsw_article.html

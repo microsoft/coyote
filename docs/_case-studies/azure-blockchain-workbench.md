@@ -7,6 +7,8 @@ permalink: /case-studies/azure-blockchain-workbench
 
 # Azure Blockchain Workbench
 
+![icon](../assets/images/Blockchain.png)
+
 ## Background
 
 [Azure Blockchain Workbench](https://azure.microsoft.com/en-in/features/blockchain-workbench/)

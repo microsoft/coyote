@@ -1,0 +1,29 @@
+<div class="container-fluid container-grid mb-100">
+  {% for item in include.content.row-1 %}
+  <div class="row display-flex">
+    <div class="col-md-6 no-gutters pr-20" id="{{ item.id }}">
+      <img src="{{ item.img }}" class="shadow-drop-2-bottom img-responsive" alt="{{ item.title }}">
+    </div>
+    <div class="col-md-6">
+      <article class="flex-article">
+        {{ item.content }}
+      </article>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="row display-flex">
+    {% for item in include.content.row-2 %}
+    <div class="col-md-6 no-gutters hidden-md hidden-lg pr-20" id="{{ item.id }}">
+      <img src="{{ item.img }}" class="shadow-drop-2-bottom img-responsive" alt="{{ item.title }}">
+    </div>
+    <div class="col-md-6">
+      <article class="flex-article">
+        {{ item.content }}
+      </article>
+    </div>
+    <div class="col-md-6 no-gutters pl-20  hidden-xs hidden-sm" id="{{ item.id2 }}">
+      <img src="{{ item.img }}" class="shadow-drop-2-bottom img-responsive" alt="{{ item.title }}">
+    </div>
+    {% endfor %}
+  </div>
+</div>

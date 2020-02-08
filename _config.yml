@@ -61,7 +61,7 @@ rdiscount:
 redcarpet:
   extensions: []
 
-kramdown:  
+kramdown:
   # Enable GitHub Flavored Markdown (fenced code blocks)
   input:          GFM
   auto_ids:       true

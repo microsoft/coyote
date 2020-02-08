@@ -254,13 +254,13 @@ namespace Microsoft.Coyote.Actors
         /// See <see href="/coyote/learn/programming-models/actors/timers">Using timers in actors</see> for more information.
         /// </remarks>
         /// <param name="startDelay">The amount of time to wait before sending the timeout event.</param>
-        /// <param name="payload">Optional payload of the timeout event.</param>
+        /// <param name="customEvent">Optional custom event to raise instead of the default TimerElapsedEvent.</param>
         /// <returns>Handle that contains information about the timer.</returns>
-        protected TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
+        protected TimerInfo StartTimer(TimeSpan startDelay, TimerElapsedEvent customEvent = null)
         {
             // The specified due time and period must be valid.
             this.Assert(startDelay.TotalMilliseconds >= 0, "{0} registered a timer with a negative due time.", this.Id);
-            return this.RegisterTimer(startDelay, Timeout.InfiniteTimeSpan, payload);
+            return this.RegisterTimer(startDelay, Timeout.InfiniteTimeSpan, customEvent);
         }
 
         /// <summary>
@@ -274,14 +274,14 @@ namespace Microsoft.Coyote.Actors
         /// </remarks>
         /// <param name="startDelay">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
-        /// <param name="payload">Optional payload of the timeout event.</param>
+        /// <param name="customEvent">Optional custom event to raise instead of the default TimerElapsedEvent.</param>
         /// <returns>Handle that contains information about the timer.</returns>
-        protected TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, object payload = null)
+        protected TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, TimerElapsedEvent customEvent = null)
         {
             // The specified due time and period must be valid.
             this.Assert(startDelay.TotalMilliseconds >= 0, "{0} registered a periodic timer with a negative due time.", this.Id);
             this.Assert(period.TotalMilliseconds >= 0, "{0} registered a periodic timer with a negative period.", this.Id);
-            return this.RegisterTimer(startDelay, period, payload);
+            return this.RegisterTimer(startDelay, period, customEvent);
         }
 
         /// <summary>
@@ -722,9 +722,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Registers a new timer using the specified configuration.
         /// </summary>
-        private protected TimerInfo RegisterTimer(TimeSpan dueTime, TimeSpan period, object payload)
+        private protected TimerInfo RegisterTimer(TimeSpan dueTime, TimeSpan period, TimerElapsedEvent customEvent)
         {
-            var info = new TimerInfo(this.Id, dueTime, period, payload);
+            var info = new TimerInfo(this.Id, dueTime, period, customEvent);
             var timer = this.Runtime.CreateActorTimer(info, this);
             this.Runtime.LogWriter.LogCreateTimer(info);
             this.Timers.Add(info, timer);

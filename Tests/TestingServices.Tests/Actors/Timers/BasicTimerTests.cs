@@ -17,14 +17,20 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
         }
 
+        internal class TimerCountEvent : Event
+        {
+            public int Count;
+        }
+
         [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
         private class A1 : Actor
         {
-            private int Count;
+            private TimerCountEvent Config;
 
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.Count = 0;
+                this.Config = (TimerCountEvent)initialEvent;
+                this.Config.Count = 0;
 
                 // Start a regular timer.
                 this.StartTimer(TimeSpan.FromMilliseconds(10));
@@ -33,24 +39,26 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void HandleTimeout()
             {
-                this.Count++;
-                this.Assert(this.Count == 1);
+                this.Config.Count++;
+                this.Assert(this.Config.Count == 1);
             }
         }
 
         [Fact(Timeout = 10000)]
         public void TestBasicTimerOperationInActor()
         {
+            var config = new TimerCountEvent();
             this.Test(r =>
             {
-                r.CreateActor(typeof(A1));
+                r.CreateActor(typeof(A1), config);
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
         }
 
         private class M1 : StateMachine
         {
-            private int Count;
+            private TimerCountEvent Config;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -59,9 +67,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Count = 0;
+                this.Config = (TimerCountEvent)e;
+                this.Config.Count = 0;
 
                 // Start a regular timer.
                 this.StartTimer(TimeSpan.FromMilliseconds(10));
@@ -69,30 +78,33 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void HandleTimeout()
             {
-                this.Count++;
-                this.Assert(this.Count == 1);
+                this.Config.Count++;
+                this.Assert(this.Config.Count == 1);
             }
         }
 
         [Fact(Timeout = 10000)]
         public void TestBasicTimerOperationInStateMachine()
         {
+            var config = new TimerCountEvent();
             this.Test(r =>
             {
-                r.CreateActor(typeof(M1));
+                r.CreateActor(typeof(M1), config);
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
         }
 
         [OnEventDoAction(typeof(TimerElapsedEvent), nameof(HandleTimeout))]
         private class A2 : Actor
         {
             private TimerInfo Timer;
-            private int Count;
+            private TimerCountEvent Config;
 
             protected override Task OnInitializeAsync(Event initialEvent)
             {
-                this.Count = 0;
+                this.Config = (TimerCountEvent)initialEvent;
+                this.Config.Count = 0;
 
                 // Start a periodic timer.
                 this.Timer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10));
@@ -101,10 +113,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void HandleTimeout()
             {
-                this.Count++;
-                this.Assert(this.Count <= 10);
+                this.Config.Count++;
+                this.Assert(this.Config.Count <= 10);
 
-                if (this.Count == 10)
+                if (this.Config.Count == 10)
                 {
                     this.StopTimer(this.Timer);
                 }
@@ -114,17 +126,19 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 10000)]
         public void TestBasicPeriodicTimerOperationInActor()
         {
+            var config = new TimerCountEvent();
             this.Test(r =>
             {
-                r.CreateActor(typeof(A2));
+                r.CreateActor(typeof(A2), config);
             },
             configuration: Configuration.Create().WithNumberOfIterations(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
         }
 
         private class M2 : StateMachine
         {
             private TimerInfo Timer;
-            private int Count;
+            private TimerCountEvent Config;
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -133,9 +147,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private void InitOnEntry()
+            private void InitOnEntry(Event e)
             {
-                this.Count = 0;
+                this.Config = (TimerCountEvent)e;
+                this.Config.Count = 0;
 
                 // Start a periodic timer.
                 this.Timer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10));
@@ -143,10 +158,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void HandleTimeout()
             {
-                this.Count++;
-                this.Assert(this.Count <= 10);
+                this.Config.Count++;
+                this.Assert(this.Config.Count <= 10);
 
-                if (this.Count == 10)
+                if (this.Config.Count == 10)
                 {
                     this.StopTimer(this.Timer);
                 }
@@ -156,17 +171,20 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 10000)]
         public void TestBasicPeriodicTimerOperationInStateMachine()
         {
+            var config = new TimerCountEvent();
             this.Test(r =>
             {
-                r.CreateActor(typeof(M2));
+                r.CreateActor(typeof(M2), config);
             },
             configuration: Configuration.Create().WithNumberOfIterations(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
         }
 
         private class M3 : StateMachine
         {
             private TimerInfo PingTimer;
             private TimerInfo PongTimer;
+            private TimerCountEvent Config;
 
             /// <summary>
             /// Start the PingTimer and start handling the timeout events from it.
@@ -189,8 +207,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition DoPing()
+            private Transition DoPing(Event e)
             {
+                this.Config = (TimerCountEvent)e;
+                this.Config.Count = 0;
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
                 this.StopTimer(this.PingTimer);
                 return this.GotoState<Pong>();
@@ -203,6 +223,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
             private void HandleTimeout(Event e)
             {
+                this.Config.Count++;
                 var timeout = e as TimerElapsedEvent;
                 this.Assert(timeout.Info == this.PongTimer);
             }
@@ -211,11 +232,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         [Fact(Timeout = 10000)]
         public void TestDropTimeoutsAfterTimerDisposal()
         {
+            var config = new TimerCountEvent();
             this.Test(r =>
             {
-                r.CreateActor(typeof(M3));
+                r.CreateActor(typeof(M3), config);
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
         }
 
         private class M4 : StateMachine
@@ -355,6 +378,92 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 r.CreateActor(typeof(M8));
             },
             configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+        }
+
+        private class T6 : StateMachine
+        {
+            private ConfigEvent Config;
+
+            internal class MyTimeoutEvent : TimerElapsedEvent
+            {
+            }
+
+            internal enum TestType
+            {
+                CustomTimer,
+                CustomPeriodicTimer
+            }
+
+            internal class ConfigEvent : Event
+            {
+                public TestType Test;
+                public int Count;
+            }
+
+            [Start]
+            [OnEntry(nameof(Initialize))]
+            [OnEventDoAction(typeof(MyTimeoutEvent), nameof(OnMyTimeout))]
+            [OnEventDoAction(typeof(TimerElapsedEvent), nameof(OnMyTimeout))]
+            private class Init : State
+            {
+            }
+
+            private Transition Initialize(Event e)
+            {
+                var ce = e as ConfigEvent;
+                this.Config = ce;
+                this.Config.Count = 0;
+                switch (ce.Test)
+                {
+                    case TestType.CustomTimer:
+                        this.StartTimer(TimeSpan.FromMilliseconds(1), customEvent: new MyTimeoutEvent());
+                        break;
+                    case TestType.CustomPeriodicTimer:
+                        this.StartPeriodicTimer(TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1), customEvent: new MyTimeoutEvent());
+                        break;
+                    default:
+                        break;
+                }
+
+                return default;
+            }
+
+            private void OnMyTimeout(Event e)
+            {
+                if (e is MyTimeoutEvent)
+                {
+                    this.Config.Count++;
+                    this.Assert(this.Config.Count == 1 || this.Config.Test == TestType.CustomPeriodicTimer);
+                }
+                else
+                {
+                    this.Assert(false, "Unexpected event type {0}", e.GetType().FullName);
+                }
+            }
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestCustomTimerEvent()
+        {
+            var config = new T6.ConfigEvent { Test = T6.TestType.CustomTimer };
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(T6), config);
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
+        }
+
+        [Fact(Timeout = 10000)]
+        public void TestCustomPeriodicTimerEvent()
+        {
+            var config = new T6.ConfigEvent { Test = T6.TestType.CustomPeriodicTimer };
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(T6), config);
+            },
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            Assert.True(config.Count > 0, "Timer never fired?");
         }
     }
 }

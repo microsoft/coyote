@@ -39,7 +39,15 @@ namespace Microsoft.Coyote.Actors.Timers
             this.Info = info;
             this.Owner = owner;
 
-            this.TimeoutEvent = new TimerElapsedEvent(this.Info);
+            this.TimeoutEvent = this.Info.CustomEvent;
+            if (this.TimeoutEvent is null)
+            {
+                this.TimeoutEvent = new TimerElapsedEvent(this.Info);
+            }
+            else
+            {
+                this.TimeoutEvent.Info = this.Info;
+            }
 
             // To avoid a race condition between assigning the field of the timer
             // and HandleTimeout accessing the field before the assignment happens,

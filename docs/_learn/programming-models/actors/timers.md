@@ -19,31 +19,31 @@ To make use of timers, you must include the `Microsoft.Coyote.Actors.Timers` nam
 You can start a non-periodic timer using the function `StartTimer`.
 
 ```c#
-TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
+TimerInfo StartTimer(TimeSpan startDelay, Event customEvent = null)
 ```
 
 `StartTimer` takes as argument:
 1. `TimeSpan startDelay`, which is the amount of time to wait before sending the timeout event.
-2. `object payload`, which is an optional payload of the timeout event that will be passed through in the `TimerElapsedEvent` event.
+3. `Event customEvent`, optional custom event to raise instead of the default TimerElapsedEvent.
 
 `StartTimer` returns `TimerInfo`, which contains information about the created non-periodic timer. The
 non-periodic timer is automatically disposed after it timeouts. You can also pass the `TimerInfo` to
 the `StopTimer` method to manually stop and dispose the timer. The timer sends events of type
 `TimerElapsedEvent` back to the inbox of the actor which created it. The `TimerElapsedEvent` contains
-as payload, the same `TimerInfo` returned during the timer creation (and the `Payload` is a public
-field within the `TimerInfo`). If you create multiple timers, then the `TimerInfo` object can be used
+as payload, the same `TimerInfo` returned during the timer creation.
+If you create multiple timers, then the `TimerInfo` object can be used
 to distinguish the sources of the different `TimerElapsedEvent` events.
 
 You can start a periodic timer using the function `StartPeriodicTimer`.
 
 ```c#
-TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, object payload = null)
+TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, Event customEvent = null)
 ```
 
 `StartPeriodicTimer` takes as argument:
 1. `TimeSpan startDelay`, which is the amount of time to wait before sending the first timeout event.
 2. `TimeSpan period`, which is the time interval between timeout events.
-3. `object payload`, which is an optional payload of the timeout event.
+4. `Event customEvent`, optional custom event to raise instead of hte default TimerElapsedEvent.
 
 Periodic timers work similarly to normal timers, however you need to manually stop a periodic timer
 using the `StopTimer` method if you want it to stop sending `TimerElapsedEvent` events.
@@ -66,65 +66,73 @@ To kick things off the initialization method starts a non-periodic timer:
 ```c#
    protected override Task OnInitializeAsync(Event initialEvent)
    {
-      this.WriteMessage("<Client> Starting a non-periodic timer named 'Foo'");
-      this.StartTimer(TimeSpan.FromSeconds(1), "Foo");
+      Console.WriteLine("<Client> Starting a non-periodic timer");
+      this.StartTimer(TimeSpan.FromSeconds(1));
       return base.OnInitializeAsync(initialEvent);
    }
 ```
 
-Notice here we pass a simple string label as the `payload` for the timer.  The `HandleTimeout` method then receives this initial
-timeout and starts and stops a periodic timer as follows:
+The `HandleTimeout` method then receives this timeout and starts a periodic timer as follows:
 
 ```c#
-   private void HandleTimeout(Event e)
-   {
-      TimerElapsedEvent te = (TimerElapsedEvent)e;
-      string label = te.Info.Payload.ToString();
-      this.WriteMessage("<Client> Handling timeout from timer '{0}'", label);
+    private void HandleTimeout(Event e)
+    {
+        TimerElapsedEvent te = (TimerElapsedEvent)e;
 
-      if (this.Count == 0)
-      {
-            this.WriteMessage("<Client> Starting a period timer named 'Bar'");
-            this.PeriodicTimer = this.StartPeriodicTimer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), "Bar");
-      }
+        this.WriteMessage("<Client> Handling timeout from timer");
 
-      this.Count++;
-      if (this.Count == 3)
-      {
-            this.WriteMessage("<Client> Stopping the periodic timer");
-            this.StopTimer(this.PeriodicTimer);
-      }
-   }
+        this.WriteMessage("<Client> Starting a period timer");
+        this.PeriodicTimer = this.StartPeriodicTimer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), new CustomTimerEvent());
+    }
 ```
-Notice how you can extract the payload from the `Event` by casting to `TimerElapsedEvent`.
 
-The sample code turns on verbose logging so we can also see what is going on inside the Coyote runtime regarding timers,
-so the verbose output of this program is as follows:
+In this case we use a `CustomTimerEvent` instead of the default `TimerElapsedEvent`, this custom event is defined as follows:
+
+```c#
+    internal class CustomTimerEvent : TimerElapsedEvent
+    {
+        /// <summary>
+        /// Count of timeout events processed.
+        /// </summary>
+        internal int Count;
+    }
+```
+
+This custom event makes it possible to route the period timeouts to a different handler using this on the actor class:
+
+```c#
+    [OnEventDoAction(typeof(CustomTimerEvent), nameof(HandlePeriodicTimeout))]
+```
+
+In the HandlePeriodicTimeout method we count the number of timeouts and stop when we reach 3:
+
+```c#
+    private void HandlePeriodicTimeout(Event e)
+    {
+        this.WriteMessage("<Client> Handling timeout from periodic timer");
+        if (e is CustomTimerEvent ce)
+        {
+            ce.Count++;
+            if (ce.Count == 3)
+            {
+                this.WriteMessage("<Client> Stopping the periodic timer");
+                this.StopTimer(this.PeriodicTimer);
+            }
+        }
+    }
+```
+
+Notice how we can cast the `Event` into our custom `CustomTimerEvent`, and we get the same instance of `CustomTimerEvent`
+on each period call, so this way the `CustomTimerEvent` can contain useful state, in this case the `Count`.
+
+The output of this program is as follows:
 
 ```xml
-<CreateLog> 'Client(0)' was created by the runtime.
-<Client> Starting a non-periodic timer named 'Foo'
-<TimerLog> Timer 'a5f60f9f-ebf2-436b-a7fe-71ba0e62e989' (due-time:1000ms) was created by 'Client(0)'.
-<SendLog> The runtime sent event 'TimerElapsedEvent' to 'Client(0)'.
-<EnqueueLog> 'Client(0)' enqueued event 'TimerElapsedEvent'.
-<DequeueLog> 'Client(0)' dequeued event 'TimerElapsedEvent' in state ''.
-<TimerLog> Timer 'a5f60f9f-ebf2-436b-a7fe-71ba0e62e989' was stopped and disposed by 'Client(0)'.
-<ActionLog> 'Client(0)' invoked action 'HandleTimeout' in state ''.
-<Client> Handling timeout from timer 'Foo'
-<Client> Starting a period timer named 'Bar'
-<TimerLog> Timer '8a3b78f3-b376-409f-9815-6e71f5ae365e' (due-time:1000ms; period :1000ms) was created by 'Client(0)'.
-<SendLog> The runtime sent event 'TimerElapsedEvent' to 'Client(0)'.
-<EnqueueLog> 'Client(0)' enqueued event 'TimerElapsedEvent'.
-<DequeueLog> 'Client(0)' dequeued event 'TimerElapsedEvent' in state ''.
-<ActionLog> 'Client(0)' invoked action 'HandleTimeout' in state ''.
-<Client> Handling timeout from timer 'Bar'
-<SendLog> The runtime sent event 'TimerElapsedEvent' to 'Client(0)'.
-<EnqueueLog> 'Client(0)' enqueued event 'TimerElapsedEvent'.
-<DequeueLog> 'Client(0)' dequeued event 'TimerElapsedEvent' in state ''.
-<ActionLog> 'Client(0)' invoked action 'HandleTimeout' in state ''.
-<Client> Handling timeout from timer 'Bar'
+<Client> Starting a non-periodic timer
+<Client> Handling timeout from timer
+<Client> Starting a period timer
+<Client> Handling timeout from periodic timer
+<Client> Handling timeout from periodic timer
+<Client> Handling timeout from periodic timer
 <Client> Stopping the periodic timer
-<TimerLog> Timer '8a3b78f3-b376-409f-9815-6e71f5ae365e' was stopped and disposed by 'Client(0)'.
 ```
-
-Notice all our `<Client>` messages show the `Foo` event and the three `Bar` timer events were handled as expected.

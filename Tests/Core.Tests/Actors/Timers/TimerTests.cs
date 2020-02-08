@@ -293,5 +293,104 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 Assert.True(result);
             });
         }
+
+        private class T6 : StateMachine
+        {
+            private ConfigEvent Config;
+
+            internal class MyTimeoutEvent : TimerElapsedEvent
+            {
+            }
+
+            internal enum TestType
+            {
+                CustomTimer,
+                CustomPeriodicTimer
+            }
+
+            internal class ConfigEvent : Event
+            {
+                public TestType Test;
+                public TaskCompletionSource<bool> Tcs;
+            }
+
+            [Start]
+            [OnEntry(nameof(Initialize))]
+            [OnEventDoAction(typeof(MyTimeoutEvent), nameof(OnMyTimeout))]
+            [OnEventDoAction(typeof(TimerElapsedEvent), nameof(OnMyTimeout))]
+            private class Init : State
+            {
+            }
+
+            private Transition Initialize(Event e)
+            {
+                var ce = e as ConfigEvent;
+                this.Config = ce;
+                bool expectError = false;
+                try
+                {
+                    switch (ce.Test)
+                    {
+                        case TestType.CustomTimer:
+                            this.StartTimer(TimeSpan.FromMilliseconds(1), customEvent: new MyTimeoutEvent());
+                            break;
+                        case TestType.CustomPeriodicTimer:
+                            this.StartPeriodicTimer(TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1), customEvent: new MyTimeoutEvent());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch (AssertionFailureException ex)
+                {
+                    this.Logger.WriteLine(ex.Message);
+                    ce.Tcs.SetResult(expectError == true);
+                    return this.Halt();
+                }
+
+                return default;
+            }
+
+            private Transition OnMyTimeout(Event e)
+            {
+                if (e is MyTimeoutEvent)
+                {
+                    this.Config.Tcs.SetResult(true);
+                }
+                else
+                {
+                    this.Logger.WriteLine("Unexpected event type {0}", e.GetType().FullName);
+                    this.Config.Tcs.SetResult(false);
+                }
+
+                return this.Halt();
+            }
+        }
+
+        [Fact(Timeout = 10000)]
+        public async Task TestCustomTimerEventInStateMachine()
+        {
+            await this.RunAsync(async r =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                r.CreateActor(typeof(T6), new T6.ConfigEvent { Tcs = tcs, Test = T6.TestType.CustomTimer });
+
+                var result = await GetResultAsync(tcs.Task);
+                Assert.True(result);
+            });
+        }
+
+        [Fact(Timeout = 10000)]
+        public async Task TestCustomPeriodicTimerEventInStateMachine()
+        {
+            await this.RunAsync(async r =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                r.CreateActor(typeof(T6), new T6.ConfigEvent { Tcs = tcs, Test = T6.TestType.CustomPeriodicTimer });
+
+                var result = await GetResultAsync(tcs.Task);
+                Assert.True(result);
+            });
+        }
     }
 }

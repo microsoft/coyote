@@ -22,6 +22,8 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/Configuration
         - name: MaxSchedulingSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/MaxSchedulingSteps
+        - name: IsDgmlGraphEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled
         - name: IsXmlLogEnabled
           link: /learn/ref/Microsoft.Coyote/Configuration/IsXmlLogEnabled
         - name: OutputFilePath
@@ -40,8 +42,8 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/SchedulingStrategy
         - name: SchedulingIterations
           link: /learn/ref/Microsoft.Coyote/Configuration/SchedulingIterations
-        - name: RandomSchedulingSeed
-          link: /learn/ref/Microsoft.Coyote/Configuration/RandomSchedulingSeed
+        - name: RandomValueGeneratorSeed
+          link: /learn/ref/Microsoft.Coyote/Configuration/RandomValueGeneratorSeed
         - name: IncrementalSchedulingSeed
           link: /learn/ref/Microsoft.Coyote/Configuration/IncrementalSchedulingSeed
         - name: PerformFullExploration
@@ -100,8 +102,6 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/AdditionalCodeCoverageAssemblies
         - name: IsVerbose
           link: /learn/ref/Microsoft.Coyote/Configuration/IsVerbose
-        - name: IsDgmlGraphEnabled
-          link: /learn/ref/Microsoft.Coyote/Configuration/IsDgmlGraphEnabled
         - name: IsDgmlBugGraph
           link: /learn/ref/Microsoft.Coyote/Configuration/IsDgmlBugGraph
         - name: CustomActorRuntimeLogType
@@ -117,13 +117,13 @@
         subfolderitems:
         - name: Event
           link: /learn/ref/Microsoft.Coyote/Event/Event
-      - name: RandomValueGenerator
-        link: /learn/ref/Microsoft.Coyote/RandomValueGeneratorType
+      - name: ControlledRandomValueGenerator
+        link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGeneratorType
         subfolderitems:
         - name: GetNextBoolean
-          link: /learn/ref/Microsoft.Coyote/RandomValueGenerator/GetNextBoolean
+          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextBoolean
         - name: GetNextInteger
-          link: /learn/ref/Microsoft.Coyote/RandomValueGenerator/GetNextInteger
+          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextInteger
     - name: Microsoft.Coyote.Actors
       link: /learn/ref/MicrosoftCoyoteActorsNamespace
       subfolderitems:
@@ -136,10 +136,6 @@
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/SendEvent
         - name: ReceiveEventAsync
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/ReceiveEventAsync
-        - name: IgnoreEvent
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/IgnoreEvent
-        - name: DeferEvent
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/DeferEvent
         - name: StartTimer
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/StartTimer
         - name: StartPeriodicTimer
@@ -673,6 +669,78 @@
         subfolderitems:
         - name: HotAttribute
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
+    - name: Microsoft.Coyote.Tasks
+      link: /learn/ref/MicrosoftCoyoteTasksNamespace
+      subfolderitems:
+      - name: ControlledTask
+        link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTaskType
+        subfolderitems:
+        - name: FromResult
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/FromResult
+        - name: FromCanceled
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/FromCanceled
+        - name: FromException
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/FromException
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Run
+        - name: Delay
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Delay
+        - name: WhenAll
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAll
+        - name: WhenAny
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAny
+        - name: WhenAnyTaskCompletesAsync
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAnyTaskCompletesAsync
+        - name: WhenAnyTaskCompletesInProductionAsync
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAnyTaskCompletesInProductionAsync
+        - name: WaitAll
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WaitAll
+        - name: WaitAny
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WaitAny
+        - name: Yield
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Yield
+        - name: Wait
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Wait
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/GetAwaiter
+        - name: ConfigureAwait
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/ConfigureAwait
+        - name: ExploreContextSwitch
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/ExploreContextSwitch
+        - name: ToTask
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/ToTask
+        - name: Dispose
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Dispose
+        - name: CompletedTask
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/CompletedTask
+        - name: CurrentId
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/CurrentId
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Id
+        - name: IsCompleted
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/IsCompleted
+        - name: IsCanceled
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/IsCanceled
+        - name: IsFaulted
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/IsFaulted
+        - name: Exception
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Exception
+        - name: Status
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Status
+      - name: ControlledTask<TResult>
+        link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1Type
+        subfolderitems:
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/GetAwaiter
+        - name: ConfigureAwait
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/ConfigureAwait
+        - name: Result
+          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/Result
+      - name: TaskExtensions
+        link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensionsType
+        subfolderitems:
+        - name: ToControlledTask
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensions/ToControlledTask
     - name: Microsoft.Coyote.TestingServices
       link: /learn/ref/MicrosoftCoyoteTestingServicesNamespace
       subfolderitems:
@@ -696,75 +764,3 @@
         subfolderitems:
         - name: TestIterationDisposeAttribute
           link: /learn/ref/Microsoft.Coyote.TestingServices/TestIterationDisposeAttribute/TestIterationDisposeAttribute
-    - name: Microsoft.Coyote.Threading.Tasks
-      link: /learn/ref/MicrosoftCoyoteThreadingTasksNamespace
-      subfolderitems:
-      - name: ControlledTask
-        link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTaskType
-        subfolderitems:
-        - name: FromResult
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/FromResult
-        - name: FromCanceled
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/FromCanceled
-        - name: FromException
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/FromException
-        - name: Run
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Run
-        - name: Delay
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Delay
-        - name: WhenAll
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAll
-        - name: WhenAny
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAny
-        - name: WhenAnyTaskCompletesAsync
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAnyTaskCompletesAsync
-        - name: WhenAnyTaskCompletesInProductionAsync
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WhenAnyTaskCompletesInProductionAsync
-        - name: WaitAll
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WaitAll
-        - name: WaitAny
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/WaitAny
-        - name: Yield
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Yield
-        - name: Wait
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Wait
-        - name: GetAwaiter
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/GetAwaiter
-        - name: ConfigureAwait
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/ConfigureAwait
-        - name: ExploreContextSwitch
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/ExploreContextSwitch
-        - name: ToTask
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/ToTask
-        - name: Dispose
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Dispose
-        - name: CompletedTask
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/CompletedTask
-        - name: CurrentId
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/CurrentId
-        - name: Id
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Id
-        - name: IsCompleted
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/IsCompleted
-        - name: IsCanceled
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/IsCanceled
-        - name: IsFaulted
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/IsFaulted
-        - name: Exception
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Exception
-        - name: Status
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask/Status
-      - name: ControlledTask<TResult>
-        link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1Type
-        subfolderitems:
-        - name: GetAwaiter
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1/GetAwaiter
-        - name: ConfigureAwait
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1/ConfigureAwait
-        - name: Result
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/ControlledTask-1/Result
-      - name: TaskExtensions
-        link: /learn/ref/Microsoft.Coyote.Threading.Tasks/TaskExtensionsType
-        subfolderitems:
-        - name: ToControlledTask
-          link: /learn/ref/Microsoft.Coyote.Threading.Tasks/TaskExtensions/ToControlledTask

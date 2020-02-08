@@ -628,7 +628,7 @@
     <Alias n="16" Id="(@1 @15)" />
     <Alias n="17" Id="Namespace=Microsoft.Coyote.TestingServices" />
     <Alias n="18" Id="(@1 @17)" />
-    <Alias n="19" Id="Namespace=Microsoft.Coyote.Threading.Tasks" />
+    <Alias n="19" Id="Namespace=Microsoft.Coyote.Tasks" />
     <Alias n="20" Id="(@1 @19)" />
     <Alias n="21" Id="(@1 @19 Type=(Name=ControlledTask GenericParameterCount=1))" />
     <Alias n="22" Id="(@1 @5 Type=ActionEventHandlerDeclaration)" />

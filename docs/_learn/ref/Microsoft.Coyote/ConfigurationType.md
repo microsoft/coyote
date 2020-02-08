@@ -17,6 +17,7 @@ public class Configuration
 | name | description |
 | --- | --- |
 | static [Create](Configuration/Create)() | Creates a new configuration with default values. |
+| [IsDgmlGraphEnabled](Configuration/IsDgmlGraphEnabled) { get; } | If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found. This is different from a coverage activity graph, as it will also show actor instances. |
 | [IsXmlLogEnabled](Configuration/IsXmlLogEnabled) { get; } | Produce an XML formatted runtime log file. |
 | [MaxSchedulingSteps](Configuration/MaxSchedulingSteps) { set; } | The maximum scheduling steps to explore for both fair and unfair schedulers. By default there is no bound. |
 | [AdditionalCodeCoverageAssemblies](Configuration/AdditionalCodeCoverageAssemblies) | Additional assembly specifications to instrument for code coverage, besides those in the dependency graph between [`AssemblyToBeAnalyzed`](Configuration/AssemblyToBeAnalyzed) and the Microsoft.Coyote DLLs. Key is filename, value is whether it is a list file (true) or a single file (false). |
@@ -31,7 +32,6 @@ public class Configuration
 | [EnableProfiling](Configuration/EnableProfiling) | Enables profiling. |
 | [IncrementalSchedulingSeed](Configuration/IncrementalSchedulingSeed) | If true, the seed will increment in each testing iteration. |
 | [IsDgmlBugGraph](Configuration/IsDgmlBugGraph) | Is DGML graph showing all test iterations or just one "bug" iteration. False means all, and True means only the iteration containing a bug. |
-| [IsDgmlGraphEnabled](Configuration/IsDgmlGraphEnabled) | If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found. This is different from a coverage activity graph, as it will also show actor instances. |
 | [IsLivenessCheckingEnabled](Configuration/IsLivenessCheckingEnabled) | If this option is enabled, liveness checking is enabled during bug-finding. |
 | [IsMonitoringEnabledInInProduction](Configuration/IsMonitoringEnabledInInProduction) | If this option is enabled, (safety) monitors are used in the production runtime. |
 | [IsProgramStateHashingEnabled](Configuration/IsProgramStateHashingEnabled) | If this option is enabled, the tester is hashing the program state. |
@@ -44,7 +44,7 @@ public class Configuration
 | [ParallelDebug](Configuration/ParallelDebug) | Put a debug prompt at the beginning of each child TestProcess. |
 | [PerformFullExploration](Configuration/PerformFullExploration) | If true, the Coyote tester performs a full exploration, and does not stop when it finds a bug. |
 | [PrioritySwitchBound](Configuration/PrioritySwitchBound) | The priority switch bound. By default it is 2. Used by priority-based schedulers. |
-| [RandomSchedulingSeed](Configuration/RandomSchedulingSeed) | Seed for random scheduling strategies. |
+| [RandomValueGeneratorSeed](Configuration/RandomValueGeneratorSeed) | Custom seed to be used by the random value generator. By default, this value is null indicating that no seed has been set. |
 | [ReportActivityCoverage](Configuration/ReportActivityCoverage) | Enables activity coverage reporting of a Coyote program. |
 | [ReportCodeCoverage](Configuration/ReportCodeCoverage) | Enables code coverage reporting of a Coyote program. |
 | [RunAsParallelBugFindingTask](Configuration/RunAsParallelBugFindingTask) | Runs this process as a parallel bug-finding task. |

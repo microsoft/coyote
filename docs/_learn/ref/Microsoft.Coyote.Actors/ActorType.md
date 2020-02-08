@@ -31,9 +31,7 @@ public abstract class Actor
 | virtual [OperationGroupId](Actor/OperationGroupId) { get; set; } | Id used to identify subsequent operations performed by this actor. This value is initially either Empty or the Guid specified upon creation. This value is automatically set to the operation group id of the last dequeue or receive operation, if it is not Empty. This value can also be manually set using the property. |
 | [Assert](Actor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [CreateActor](Actor/CreateActor)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This [`Event`](../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled. (3 methods) |
-| [DeferEvent](Actor/DeferEvent)(…) | Sets the actor to defer all events of the the specified type. This can be reverted by setting the *defer* parameter to false. |
 | [Halt](Actor/Halt)() | Halts the actor at the end of the current action. |
-| [IgnoreEvent](Actor/IgnoreEvent)(…) | Sets the actor to ignore all events of the the specified type. This can be reverted by setting the *ignore* parameter to false. |
 | [Monitor](Actor/Monitor)(…) | Invokes the specified monitor with the specified event. |
 | [Monitor&lt;T&gt;](Actor/Monitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
 | virtual [OnEventDequeuedAsync](Actor/OnEventDequeuedAsync)(…) | Asynchronous callback that is invoked when the actor successfully dequeues an event from its inbox. This method is not called when the dequeue happens via a receive statement. |

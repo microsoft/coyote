@@ -14,7 +14,14 @@ namespace Microsoft.Coyote.Actors.Timers
         /// <summary>
         /// Stores information about the timer.
         /// </summary>
-        public readonly TimerInfo Info;
+        public TimerInfo Info { get; internal set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimerElapsedEvent"/> class.
+        /// </summary>
+        public TimerElapsedEvent()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TimerElapsedEvent"/> class.

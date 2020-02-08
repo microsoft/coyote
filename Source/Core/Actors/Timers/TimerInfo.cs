@@ -34,9 +34,9 @@ namespace Microsoft.Coyote.Actors.Timers
         public readonly TimeSpan Period;
 
         /// <summary>
-        /// The optional payload of the timer. This is null if there is no payload.
+        /// The optional custom event to raise instead of the default TimerElapsedEvent.
         /// </summary>
-        public readonly object Payload;
+        public readonly TimerElapsedEvent CustomEvent;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TimerInfo"/> class.
@@ -44,14 +44,14 @@ namespace Microsoft.Coyote.Actors.Timers
         /// <param name="ownerId">The id of the actor that owns this timer.</param>
         /// <param name="dueTime">The amount of time to wait before sending the first timeout event.</param>
         /// <param name="period">The time interval between timeout events.</param>
-        /// <param name="payload">Optional payload of the timeout event.</param>
-        internal TimerInfo(ActorId ownerId, TimeSpan dueTime, TimeSpan period, object payload)
+        /// <param name="customEvent">Optional custom event to raise instead of a default TimerElapsedEvent.</param>
+        internal TimerInfo(ActorId ownerId, TimeSpan dueTime, TimeSpan period, TimerElapsedEvent customEvent)
         {
             this.Id = Guid.NewGuid();
             this.OwnerId = ownerId;
             this.DueTime = dueTime;
             this.Period = period;
-            this.Payload = payload;
+            this.CustomEvent = customEvent;
         }
 
         /// <summary>

@@ -52,7 +52,15 @@ namespace Microsoft.Coyote.TestingServices.Timers
             this.TimerInfo = (e as TimerSetupEvent).Info;
             this.Owner = (e as TimerSetupEvent).Owner;
             this.Delay = (e as TimerSetupEvent).Delay;
-            this.TimeoutEvent = new TimerElapsedEvent(this.TimerInfo);
+            this.TimeoutEvent = this.TimerInfo.CustomEvent;
+            if (this.TimeoutEvent is null)
+            {
+                this.TimeoutEvent = new TimerElapsedEvent(this.TimerInfo);
+            }
+            else
+            {
+                this.TimeoutEvent.Info = this.TimerInfo;
+            }
         }
 
         /// <summary>

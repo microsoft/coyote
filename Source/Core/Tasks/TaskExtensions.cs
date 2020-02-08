@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Threading.Tasks
+namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
     /// Extension methods for <see cref="Task"/> and <see cref="Task{TResult}"/> objects.

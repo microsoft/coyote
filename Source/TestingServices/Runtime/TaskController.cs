@@ -9,8 +9,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.TestingServices.Scheduling;
-using Microsoft.Coyote.Threading.Tasks;
 
 namespace Microsoft.Coyote.TestingServices.Runtime
 {

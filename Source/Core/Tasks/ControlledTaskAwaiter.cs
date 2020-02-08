@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Threading.Tasks
+namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
     /// Implements a <see cref="ControlledTask"/> awaiter. This type is intended for compiler use only.

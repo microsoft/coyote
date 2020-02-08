@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Threading.Tasks
+namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
     /// Represents an asynchronous operation. Each <see cref="ControlledTask"/> is a thin wrapper

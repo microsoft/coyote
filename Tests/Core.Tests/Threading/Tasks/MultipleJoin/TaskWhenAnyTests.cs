@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Threading;
-using Microsoft.Coyote.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 

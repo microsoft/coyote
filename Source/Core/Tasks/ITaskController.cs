@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Threading.Tasks
+namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
     /// Interface exposing methods for controlling the execution of tasks during systematic testing.

@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.Coyote.Threading.Tasks
+namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
     /// Implements an awaitable that asynchronously yields back to the current context when awaited.

@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading;
-using Microsoft.Coyote.Threading.Tasks;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 

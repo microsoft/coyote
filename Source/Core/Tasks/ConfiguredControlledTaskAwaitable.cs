@@ -5,7 +5,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Threading.Tasks
+namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
     /// Provides an awaitable object that is the outcome of invoking <see cref="ControlledTask.ConfigureAwait"/>.

@@ -16,9 +16,9 @@ public class TimerInfo : IEquatable<TimerInfo>
 
 | name | description |
 | --- | --- |
+| readonly [CustomEvent](TimerInfo/CustomEvent) | The optional custom event to raise instead of the default TimerElapsedEvent. |
 | readonly [DueTime](TimerInfo/DueTime) | The amount of time to wait before sending the first timeout event. |
 | readonly [OwnerId](TimerInfo/OwnerId) | The id of the actor that owns the timer. |
-| readonly [Payload](TimerInfo/Payload) | The optional payload of the timer. This is null if there is no payload. |
 | readonly [Period](TimerInfo/Period) | The time interval between timeout events. |
 | override [Equals](TimerInfo/Equals)(…) | Determines whether the specified object is equal to the current object. |
 | [Equals](TimerInfo/Equals)(…) | Indicates whether the specified [`TimerInfo`](TimerInfoType) is equal to the current [`TimerInfo`](TimerInfoType). |

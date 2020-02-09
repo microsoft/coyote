@@ -16,7 +16,8 @@ public class TimerElapsedEvent : Event
 
 | name | description |
 | --- | --- |
-| readonly [Info](TimerElapsedEvent/Info) | Stores information about the timer. |
+| [TimerElapsedEvent](TimerElapsedEvent/TimerElapsedEvent)() | Initializes a new instance of the [`TimerElapsedEvent`](TimerElapsedEventType) class. |
+| [Info](TimerElapsedEvent/Info) { get; } | Stores information about the timer. |
 
 ## Remarks
 

@@ -29,7 +29,7 @@ if (Test-Path -Path $target)
 }
 
 Write-Host "Generating new markdown under $target"
-& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref
+& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
 $toc = "$CoyoteRoot\docs\_data\sidebar-learn.yml"
 
 Write-Host "Merging $toc..."

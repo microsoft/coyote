@@ -20,7 +20,6 @@ public class Configuration
 | [IsDgmlGraphEnabled](Configuration/IsDgmlGraphEnabled) { get; } | If specified, requests a DGML graph of the iteration that contains a bug, if a bug is found. This is different from a coverage activity graph, as it will also show actor instances. |
 | [IsXmlLogEnabled](Configuration/IsXmlLogEnabled) { get; } | Produce an XML formatted runtime log file. |
 | [MaxSchedulingSteps](Configuration/MaxSchedulingSteps) { set; } | The maximum scheduling steps to explore for both fair and unfair schedulers. By default there is no bound. |
-| [AdditionalCodeCoverageAssemblies](Configuration/AdditionalCodeCoverageAssemblies) | Additional assembly specifications to instrument for code coverage, besides those in the dependency graph between [`AssemblyToBeAnalyzed`](Configuration/AssemblyToBeAnalyzed) and the Microsoft.Coyote DLLs. Key is filename, value is whether it is a list file (true) or a single file (false). |
 | [AssemblyToBeAnalyzed](Configuration/AssemblyToBeAnalyzed) | The assembly to be analyzed for bugs. |
 | [AttachDebugger](Configuration/AttachDebugger) | Attaches the debugger during trace replay. |
 | [CoinFlipBound](Configuration/CoinFlipBound) | Coin-flip bound. By default it is 2. |

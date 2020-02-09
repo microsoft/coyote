@@ -9,13 +9,13 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/StartTimer
 Starts a timer that sends a [`TimerElapsedEvent`](../../Microsoft.Coyote.Actors.Timers/TimerElapsedEventType) to this actor after the specified due time. The timer accepts an optional payload to be used during timeout. The timer is automatically disposed after it timeouts. To manually stop and dispose the timer, invoke the [`StopTimer`](StopTimer) method.
 
 ```csharp
-protected TimerInfo StartTimer(TimeSpan startDelay, object payload = null)
+protected TimerInfo StartTimer(TimeSpan startDelay, TimerElapsedEvent customEvent = null)
 ```
 
 | parameter | description |
 | --- | --- |
 | startDelay | The amount of time to wait before sending the timeout event. |
-| payload | Optional payload of the timeout event. |
+| customEvent | Optional custom event to raise instead of the default TimerElapsedEvent. |
 
 ## Return Value
 
@@ -28,6 +28,7 @@ See [Using timers in actors](/coyote/learn/programming-models/actors/timers) for
 ## See Also
 
 * class [TimerInfo](../../Microsoft.Coyote.Actors.Timers/TimerInfoType)
+* class [TimerElapsedEvent](../../Microsoft.Coyote.Actors.Timers/TimerElapsedEventType)
 * class [Actor](../ActorType)
 * namespace [Microsoft.Coyote.Actors](../ActorType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly.md)

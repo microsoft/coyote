@@ -1,20 +1,19 @@
 ---
 layout: reference
 section: learn
-title: Info
-permalink: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info
+title: TimerElapsedEvent
+permalink: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/TimerElapsedEvent
 ---
-# TimerElapsedEvent.Info property
+# TimerElapsedEvent constructor
 
-Stores information about the timer.
+Initializes a new instance of the [`TimerElapsedEvent`](../TimerElapsedEventType) class.
 
 ```csharp
-public TimerInfo Info { get; }
+public TimerElapsedEvent()
 ```
 
 ## See Also
 
-* class [TimerInfo](../TimerInfoType)
 * class [TimerElapsedEvent](../TimerElapsedEventType)
 * namespace [Microsoft.Coyote.Actors.Timers](../TimerElapsedEventType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly.md)

@@ -98,8 +98,6 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/ReportActivityCoverage
         - name: DebugActivityCoverage
           link: /learn/ref/Microsoft.Coyote/Configuration/DebugActivityCoverage
-        - name: AdditionalCodeCoverageAssemblies
-          link: /learn/ref/Microsoft.Coyote/Configuration/AdditionalCodeCoverageAssemblies
         - name: IsVerbose
           link: /learn/ref/Microsoft.Coyote/Configuration/IsVerbose
         - name: IsDgmlBugGraph
@@ -337,6 +335,8 @@
       - name: TimerElapsedEvent
         link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEventType
         subfolderitems:
+        - name: TimerElapsedEvent
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/TimerElapsedEvent
         - name: Info
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerElapsedEvent/Info
       - name: TimerInfo
@@ -354,8 +354,8 @@
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/DueTime
         - name: Period
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
-        - name: Payload
-          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Payload
+        - name: CustomEvent
+          link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
     - name: Microsoft.Coyote.IO
       link: /learn/ref/MicrosoftCoyoteIONamespace
       subfolderitems:

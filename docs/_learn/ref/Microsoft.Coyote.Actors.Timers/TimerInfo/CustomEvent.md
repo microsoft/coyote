@@ -1,19 +1,20 @@
 ---
 layout: reference
 section: learn
-title: Payload
-permalink: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Payload
+title: CustomEvent
+permalink: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
 ---
-# TimerInfo.Payload field
+# TimerInfo.CustomEvent field
 
-The optional payload of the timer. This is null if there is no payload.
+The optional custom event to raise instead of the default TimerElapsedEvent.
 
 ```csharp
-public readonly object Payload;
+public readonly TimerElapsedEvent CustomEvent;
 ```
 
 ## See Also
 
+* class [TimerElapsedEvent](../TimerElapsedEventType)
 * class [TimerInfo](../TimerInfoType)
 * namespace [Microsoft.Coyote.Actors.Timers](../TimerInfoType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly.md)

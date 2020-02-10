@@ -1,41 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="287.99239602049522" height="195.52750000000015" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
-  <defs />
-  <rect width="287.99239602049522" height="195.52750000000015" fill="#FFFFFF" />
-  <g transform="translate(-17.5393359700262,20)">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="306.437799695566" height="202.70603318111637" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <image id="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/kpi_red_sym2_large.png" width="24" height="24" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMMSURBVEhLvZVLTxNRFMcP0NLpzJQOUN5SGony8DVJCy40CK50VzamK6OfQPwIfgLxE6CfwBg3GhegkRB0QXlUHlalCLRB0GKBoWWmeO6duWNLn2z4J5M7vXPO/9d755w7cOYa7WrzGLenUqG8SmOkwiAZhxkcx/SZ8oTxDxwO5w8yGlOmqoyRmY/fundfEp2S7FV+e97sJF7pTwuLmHZ1Xx7r7x+AtKb5+yqSEcwLGo91QKZ57/Wb0NF1CZTEX9l7+KcohJn3dF+DxjoX8DY7QtL+vqqUCaGAO66aKTRvJuagaQDpNHRc6AFlDyHJeF7ISXNQNQoQbBxsxNb9t53cC8yLM8D7SGg2IDhquIbWczpES4O7sxshCdmb2s2C5DM/xpxfW1H4shKC6Hbs4cjyxgSJpQBMjiHkbWRxPiCICGluowkE1HH+Iij7CDlKUEgp85XIV2L+nPgSmS/ZhCwtBHjBwTU0tRgr0cDt6dQh2t4gmo+Ua05UYYym2AsfuDss9V7xooFKjQho8+d3aGlsw3t9rpQ5kbkCJnMl4aUAzwtcQ32TsRIVRLt4KnOirEZjwmBSYkMf3r2OYyVR02O6iv/moKolzYlyVsBkrMRutVgGT24LMY9G12FqbnoCzR8bKXlVEGBUy1P5aj9YK/FVZZiTewdnB0U58PgsR0WbMS8gsxQl0ZFjzrbM7WoCJXko+6xqQUgOoFCdY8PB/OIsSIIDLKT4yJbhvLu2UYfY0nkhWYBiTRQMzcBCOPRkLhyS+Wob5xKdxnMV2iUXHBIId5wDMQHFzDOqZZSU8NrWZoC32rh6npQt2TIN2mvqQEklZZ8dsiAUUKY5LUVMpn2yth1DSDXnor2hx7eLtaAcpWQfX2FCWB88snNC2e2Pv2mfTIYX4kvRNRpPDkcCqrfxJMSPf5p+4RhgKBicDn76/LGkOZMJWV2ML29tUPPlnShMbn6Lk3l8vkrizLMIiRIO43KPLB8c7JfsUCbMo2fXjdZOKcPc/KJlHXYMgtezcsyZDMhLvIYzzc9AAP8AreBNQJD1JKQAAAAASUVORK5CYII=" />
+  </defs>
+  <rect width="306.437799695566" height="202.70603318111637" fill="#FFFFFF" />
+  <g transform="translate(-8.31663413249098,20)">
     <g id="CoffeeMachine-&gt;MockSensors">
-      <path d="M 108.21624574475,97.8800091552735 L 151.402558033331,124.805868653025" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 159.039750959352,129.567515869141 L 152.670268693159,120.882488773003 C 152.107987250534,123.674432663985 150.697128816129,125.937304642065 148.437693389944,127.671104707243 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 114.475757583868,98.7414668188838 L 156.11553581994,131.211676668174" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 163.212785318113,136.746028442383 L 157.786664442014,127.442415582963 C 156.93543978649,130.160232298075 155.295631853391,132.263121038274 152.867240642717,133.751081803561 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="CoffeeMachine1-&gt;MockSensors">
-      <path d="M 223.105990664484,97.8800091552735 L 198.686104941799,123.10161835701" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 192.425739987371,129.567515869141 L 202.25543327546,125.165569724297 C 199.644015684337,124.02907983174 197.728194199261,122.17415688228 196.507968820233,119.600800875917 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 231.873705380769,97.8800000000001 L 199.25505700557,130.39245659536" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 192.880728447289,136.746033181116 L 202.78712755016,132.519538556179 C 200.196327610867,131.336801566957 198.313786400273,129.448111623762 197.139503918376,126.853468726595 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="FailoverDriver-&gt;CoffeeMachine">
-      <path d="M 163.171193344646,25.9599957275391 L 111.188754273689,66.3942400061311" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 104.084813361058,71.9200000000001 L 114.433974372368,68.9375737457597 C 112.007385383892,67.4466756968913 110.370123163486,65.3418043153709 109.522187711151,62.6229596011984 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="138.40792047447155" y="60.705771402975415" fill="#A0A0A0">Halt</text>
+      <path d="M 163.400858801253,25.96 L 121.296046273308,59.1680396386094" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 114.22944104405,64.7414668188838 L 124.558303378903,61.689483387138 C 122.121739188904,60.214944117018 120.470353357712,58.1211351602007 119.604145885326,55.4080565166864 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="143.58699191067473" y="57.084376536917596" fill="#A0A0A0">Halt</text>
     </g>
     <g id="FailoverDriver-&gt;CoffeeMachine1">
-      <path d="M 189.931744688907,25.9599957275391 L 220.082088234436,64.8099546429272" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 225.599991370625,71.9200000000001 L 222.629008044669,61.5675482093906 C 221.135428287335,63.9924875116399 219.028748181536,65.6274217742144 216.308967727271,66.4723509971142 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="206.58692654102092" y="41.148774488302166" fill="#A0A0A0">Run</text>
+      <path d="M 191.596239586877,25.96 L 227.121643893871,65.2446678056896" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 233.15819424118,71.9200000000001 L 229.417730386085,61.8200529630731 C 228.110581996731,64.3503640505327 226.13270579101,66.1389715608466 223.484101768921,67.1858754940149 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="210.84234889466492" y="41.250878270109361" fill="#A0A0A0">Run</text>
     </g>
     <g id="CoffeeMachine">
-      <rect x="37.539335970026229" y="71.920000000000073" rx="3" ry="3" width="99.7166666666667" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="47.539335970026229" y="89.870000000000076" fill="#3D3D3D">CoffeeMachine</text>
+      <rect x="28.316634132490975" y="64.741466818883779" rx="3" ry="3" width="128.71666666666667" height="34" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <use x="38.316634132490975" y="69.741466818883779" xlink:href="#pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/kpi_red_sym2_large.png" />
+      <text x="67.316634132490975" y="86.691466818883782" fill="#3D3D3D">CoffeeMachine</text>
     </g>
     <g id="CoffeeMachine1">
-      <rect x="185.8150653238547" y="71.920000000000073" rx="3" ry="3" width="99.716666666666754" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="195.8150653238547" y="89.870000000000076" fill="#3D3D3D">CoffeeMachine</text>
+      <rect x="195.03776716139015" y="71.9200000000001" rx="3" ry="3" width="99.716666666666868" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="205.03776716139015" y="89.8700000000001" fill="#3D3D3D">CoffeeMachine</text>
     </g>
     <g id="FailoverDriver">
-      <rect x="133.715" rx="3" ry="3" width="92.286666666666633" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="133.715" rx="3" ry="3" width="92.2866666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <text x="143.715" y="17.950000000000003" fill="#3D3D3D">FailoverDriver</text>
     </g>
     <g id="MockSensors">
-      <rect x="134.78666666666669" y="129.56750000000011" rx="3" ry="3" width="90.143333333333317" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="144.78666666666669" y="147.5175000000001" fill="#3D3D3D">MockSensors</text>
+      <rect x="134.78666666666697" y="136.74603318111633" rx="3" ry="3" width="90.143333333333317" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="144.78666666666697" y="154.69603318111632" fill="#3D3D3D">MockSensors</text>
     </g>
   </g>
 </svg>

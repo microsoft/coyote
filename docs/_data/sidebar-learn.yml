@@ -71,8 +71,10 @@ learn-toc:
       link: /learn/tutorials/raft-azure
     - name: Azure Mocking Example
       link: /learn/tutorials/raft-mocking
-    - name: Failover Coffee Machine Example
-      link: /learn/tutorials/failover-coffee-machine
+    - name: Failover Coffee Machine Actors
+      link: /learn/tutorials/failover-coffee-machine-actors
+    - name: Failover Coffee Machine Tasks
+      link: /learn/tutorials/failover-coffee-machine-tasks
 - title: Tools
   subfolderitems:
     - name: Testing

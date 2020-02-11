@@ -372,9 +372,6 @@ footer {
     white-space: nowrap;
   }
 
-  p {
-    font-size: 18px;
-  }
 
   a {
     color: $white;
@@ -608,7 +605,6 @@ footer {
   bottom: 0;
   right: 0;
   width: 260px;
-  font-size: 18px;
 
   .btn,
   p {
@@ -623,15 +619,27 @@ footer {
   }
 }
 
+.carousel-caption-content p {
+  @include screen(xl) {
+    font-size: 15px;
+  }
+}
+
 .carousel-caption h1 {
   text-align: right;
-  margin: 130px 80px 0 0;
+  margin: 160px 0 0 0;
   font-size: 67px;
 
   @include screen(xl) {
-    margin: 0 10px 0 0;
-    font-size: 50px;
+    margin: 138px 10px 0 0;
+    font-size: 55px;
   }
+
+  @include screen(lg) {
+    margin: 107px 10px 0 0;
+    font-size: 45px;
+  }
+
 }
 
 //send captions below image
@@ -656,12 +664,14 @@ footer {
     position: static;
     text-align: left;
     font-size: 40px;
+    margin: 0;
   }
 
   .carousel-caption-content {
     position: static;
     width: auto;
     max-width: 100%;
+    font-size: initial;
   }
 }
 
@@ -685,7 +695,7 @@ footer {
   margin-top: 110px;
 
   @include screen(lg) {
-    margin-top: 110px;
+    margin-top: 90px;
   }
 
   @include screen(md) {
@@ -713,10 +723,6 @@ footer {
 
 .reference.section-main {
   margin-top: 0;
-}
-
-.about-us .section-main {
-  margin-top: 90px;
 }
 
 .container-grid img {
@@ -1030,6 +1036,8 @@ a.btn-primary:focus,
 
   .navmenu-fixed-left {
     padding: 120px 20px 0 30px;
+    overflow-y: auto;
+    height: 100vh;
 
     @include screen(md) {
       padding: 80px 20px 20px 30px;
@@ -1078,6 +1086,12 @@ blockquote {
   }
 }
 
+.section-text {
+  @include screen(lg) {
+    margin: 40px auto;
+  }
+}
+
 .section-quote {
   background-color: $light-gray;
   padding-top: 100px;
@@ -1101,7 +1115,6 @@ blockquote {
   footer {
     font-family: $text-font-stack;
     font-style: normal;
-    font-size: 18px;
   }
 }
 
@@ -1351,11 +1364,6 @@ h1 {
 
   h3 blockquote {
     font-size: 25px;
-  }
-
-  p,
-  a {
-    font-size: 18px;
   }
 
   .cta {

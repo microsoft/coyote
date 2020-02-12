@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                Console.Write(format, arg0.ToString());
+                Console.Write(format, arg0?.ToString());
             }
         }
 
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                Console.Write(format, arg0.ToString(), arg1.ToString());
+                Console.Write(format, arg0?.ToString(), arg1?.ToString());
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                Console.Write(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
+                Console.Write(format, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
             }
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                Console.WriteLine(format, arg0.ToString());
+                Console.WriteLine(format, arg0?.ToString());
             }
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                Console.WriteLine(format, arg0.ToString(), arg1.ToString());
+                Console.WriteLine(format, arg0?.ToString(), arg1?.ToString());
             }
         }
 
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.IsVerbose)
             {
-                Console.WriteLine(format, arg0.ToString(), arg1.ToString(), arg2.ToString());
+                Console.WriteLine(format, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
             }
         }
 

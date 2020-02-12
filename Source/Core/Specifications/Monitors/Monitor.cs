@@ -148,6 +148,11 @@ namespace Microsoft.Coyote.Specifications
         protected virtual int HashedState => 0;
 
         /// <summary>
+        /// A pending transition object that has not been returned from ExecuteAction yet.
+        /// </summary>
+        private Transition PendingTransition;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Monitor"/> class.
         /// </summary>
         protected Monitor()
@@ -176,7 +181,8 @@ namespace Microsoft.Coyote.Specifications
         protected Transition RaiseEvent(Event e)
         {
             this.Assert(e != null, "{0} is raising a null event.", this.GetType().Name);
-            return new Transition(Transition.Type.Raise, default, e);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.Raise, default, e);
         }
 
         /// <summary>
@@ -200,7 +206,8 @@ namespace Microsoft.Coyote.Specifications
             // If the state is not a state of the monitor, then report an error and exit.
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.GetType().Name, state.Name);
-            return new Transition(Transition.Type.Goto, state, default);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.Goto, state, default);
         }
 
         /// <summary>
@@ -445,8 +452,13 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         private void ApplyEventHandlerTransition(Transition transition)
         {
-            if (transition.TypeValue is Transition.Type.Raise)
+            if (transition.TypeValue != this.PendingTransition.TypeValue && this.PendingTransition.TypeValue != Transition.Type.None)
             {
+                this.CheckDanglingTransition();
+            }
+            else if (transition.TypeValue is Transition.Type.Raise)
+            {
+                this.PendingTransition = default;
                 var e = transition.Event;
                 var eventOrigin = new EventOriginInfo(this.Id, this.GetType().FullName,
                 NameResolver.GetQualifiedStateName(this.CurrentState));
@@ -456,12 +468,48 @@ namespace Microsoft.Coyote.Specifications
             }
             else if (transition.TypeValue is Transition.Type.Goto)
             {
+                this.PendingTransition = default;
                 var e = new GotoStateEvent(transition.State);
                 var eventOrigin = new EventOriginInfo(this.Id, this.GetType().FullName,
                 NameResolver.GetQualifiedStateName(this.CurrentState));
                 EventInfo raisedEvent = new EventInfo(e, eventOrigin);
                 this.Runtime.NotifyRaisedEvent(this, e, raisedEvent);
                 this.HandleEvent(e);
+            }
+            else
+            {
+                this.PendingTransition = default;
+            }
+        }
+
+        /// <summary>
+        /// Notifies that a Transition was created but not returned to the Monitor.
+        /// </summary>
+        private void CheckDanglingTransition()
+        {
+            var transition = this.PendingTransition;
+            this.PendingTransition = default;
+
+            if (transition.TypeValue != Transition.Type.None)
+            {
+                var currentState = this.CurrentState?.GetTypeInfo().Name;
+                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed", transition.TypeValue, this.GetType().Name, this.CurrentStateName);
+                string suffix = null;
+
+                if (transition.State != null && transition.Event != null)
+                {
+                    suffix = string.Format(", state {0}, event {1}.", transition.State, transition.Event);
+                }
+                else if (transition.State != null)
+                {
+                    suffix = string.Format(", state {0}.", transition.State);
+                }
+                else if (transition.Event != null)
+                {
+                    suffix = string.Format(", event {0}.", transition.Event);
+                }
+
+                this.Assert(false, prefix + suffix);
             }
         }
 

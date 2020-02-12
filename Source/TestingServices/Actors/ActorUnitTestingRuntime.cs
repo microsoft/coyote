@@ -316,7 +316,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (!predicate)
             {
-                throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, arg0.ToString()));
+                throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString()));
             }
         }
 
@@ -327,7 +327,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (!predicate)
             {
-                throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, arg0.ToString(), arg1.ToString()));
+                throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString()));
             }
         }
 
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (!predicate)
             {
-                throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, arg0.ToString(), arg1.ToString(), arg2.ToString()));
+                throw new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString()));
             }
         }
 

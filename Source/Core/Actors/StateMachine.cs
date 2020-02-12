@@ -71,6 +71,11 @@ namespace Microsoft.Coyote.Actors
         internal Dictionary<Type, PushStateTransition> PushTransitions;
 
         /// <summary>
+        /// Newly created Transition that hasn't been returned from InvokeActionAsync yet.
+        /// </summary>
+        private Transition PendingTransition;
+
+        /// <summary>
         /// Gets the <see cref="Type"/> of the current state.
         /// </summary>
         protected internal Type CurrentState
@@ -145,7 +150,8 @@ namespace Microsoft.Coyote.Actors
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked RaiseEvent while halting.", this.Id);
             this.Assert(e != null, "{0} is raising a null event.", this.Id);
-            return new Transition(Transition.Type.RaiseEvent, default, e);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.RaiseEvent, default, e);
         }
 
         /// <summary>
@@ -171,7 +177,8 @@ namespace Microsoft.Coyote.Actors
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked GotoState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
-            return new Transition(Transition.Type.GotoState, state, default);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.GotoState, state, default);
         }
 
         /// <summary>
@@ -195,7 +202,8 @@ namespace Microsoft.Coyote.Actors
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PushState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
-            return new Transition(Transition.Type.PushState, state, default);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.PushState, state, default);
         }
 
         /// <summary>
@@ -206,7 +214,8 @@ namespace Microsoft.Coyote.Actors
         protected Transition PopState()
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PopState while halting.", this.Id);
-            return new Transition(Transition.Type.PopState, null, default);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.PopState, null, default);
         }
 
         /// <summary>
@@ -217,7 +226,8 @@ namespace Microsoft.Coyote.Actors
         protected new Transition Halt()
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
-            return new Transition(Transition.Type.Halt, null, default);
+            this.CheckDanglingTransition();
+            return this.PendingTransition = new Transition(Transition.Type.Halt, null, default);
         }
 
         /// <summary>
@@ -431,7 +441,7 @@ namespace Microsoft.Coyote.Actors
             {
                 this.Runtime.NotifyInvokedOnExitAction(this, exitAction.MethodInfo, e);
                 Transition transition = await this.InvokeActionAsync(exitAction, e);
-                this.Assert(transition.TypeValue is Transition.Type.Default ||
+                this.Assert(transition.TypeValue is Transition.Type.None ||
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
@@ -445,7 +455,7 @@ namespace Microsoft.Coyote.Actors
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
                 this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, e);
                 Transition transition = await this.InvokeActionAsync(eventHandlerExitAction, e);
-                this.Assert(transition.TypeValue is Transition.Type.Default ||
+                this.Assert(transition.TypeValue is Transition.Type.None ||
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
@@ -458,20 +468,28 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task ApplyEventHandlerTransitionAsync(Transition transition, Event e)
         {
-            if (transition.TypeValue is Transition.Type.RaiseEvent)
+            if (transition.TypeValue != this.PendingTransition.TypeValue && this.PendingTransition.TypeValue != Transition.Type.None)
             {
+                this.CheckDanglingTransition();
+            }
+            else if (transition.TypeValue is Transition.Type.RaiseEvent)
+            {
+                this.PendingTransition = default;
                 this.Inbox.RaiseEvent(transition.Event, this.OperationGroupId);
             }
             else if (transition.TypeValue is Transition.Type.GotoState)
             {
+                this.PendingTransition = default;
                 this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.OperationGroupId);
             }
             else if (transition.TypeValue is Transition.Type.PushState)
             {
+                this.PendingTransition = default;
                 this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.OperationGroupId);
             }
             else if (transition.TypeValue is Transition.Type.PopState)
             {
+                this.PendingTransition = default;
                 var prevStateName = this.CurrentStateName;
                 this.Runtime.NotifyPopState(this);
 
@@ -487,7 +505,43 @@ namespace Microsoft.Coyote.Actors
             else if (transition.TypeValue is Transition.Type.Halt)
             {
                 // If it is the halt transition, then change the actor status to halting.
+                this.PendingTransition = default;
                 this.CurrentStatus = Status.Halting;
+            }
+            else
+            {
+                this.PendingTransition = default;
+            }
+        }
+
+        /// <summary>
+        /// Notifies that a Transition was created but not returned to the StateMachine.
+        /// </summary>
+        private void CheckDanglingTransition()
+        {
+            var transition = this.PendingTransition;
+            this.PendingTransition = default;
+
+            if (transition.TypeValue != Transition.Type.None)
+            {
+                var currentState = this.CurrentStateName;
+                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed", transition.TypeValue, this.GetType().Name, this.CurrentStateName);
+                string suffix = null;
+
+                if (transition.State != null && transition.Event != null)
+                {
+                    suffix = string.Format(", state {0}, event {1}.", transition.State, transition.Event);
+                }
+                else if (transition.State != null)
+                {
+                    suffix = string.Format(", state {0}.", transition.State);
+                }
+                else if (transition.Event != null)
+                {
+                    suffix = string.Format(", event {0}.", transition.Event);
+                }
+
+                this.Assert(false, prefix + suffix);
             }
         }
 
@@ -1102,7 +1156,7 @@ namespace Microsoft.Coyote.Actors
                 /// A transition that does not change the <see cref="StateMachine.State"/>.
                 /// This is the value used by <see cref="Transition.None"/>.
                 /// </summary>
-                Default = 0,
+                None = 0,
 
                 /// <summary>
                 /// A transition created by <see cref="StateMachine.RaiseEvent(Event)"/> that raises an <see cref="Event"/> bypassing

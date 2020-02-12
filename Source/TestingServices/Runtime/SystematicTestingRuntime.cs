@@ -682,7 +682,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0.ToString()));
+                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString()));
             }
         }
 
@@ -694,7 +694,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0.ToString(), arg1.ToString()));
+                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString()));
             }
         }
 
@@ -706,7 +706,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0.ToString(), arg1.ToString(), arg2.ToString()));
+                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString()));
             }
         }
 

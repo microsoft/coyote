@@ -74,6 +74,7 @@ p {
   line-height: 30px;
   padding: 15px 0 10px 0;
   transition: 0.2s;
+  text-decoration: none;
 }
 
 .navbar-default .navbar-nav>li>a:active,
@@ -198,6 +199,7 @@ p {
     margin: 0;
     background-color: $brand-color;
     color: $white;
+    text-decoration: none;
 
     &:hover {
       background-color: $brand-color;
@@ -250,6 +252,10 @@ p {
 //sidebar navigation
 .panel-heading {
 
+  a {
+    text-decoration: none;
+  }
+
   // up/down arrows on click
   a::after {
     font-family: 'Glyphicons Halflings';
@@ -268,6 +274,7 @@ p {
   }
 }
 
+.panel-title>a,
 .panel-title>a:focus,
 .panel-title>a:hover {
   text-decoration: none
@@ -295,6 +302,7 @@ p {
   font-size: 14px;
   line-height: 14px;
   position: relative;
+  text-decoration: none;
 }
 
 .navmenu-fixed-left a:hover,
@@ -916,13 +924,13 @@ a.btn-primary {
   color: $white;
   background-color: $brand-color;
   border-color: $brand-color;
+  text-decoration: none;
 }
 
 a.btn-primary:hover {
   color: $white;
   background-color: lighten($brand-color, 10%);
   border-color: lighten($brand-color, 10%);
-
 }
 
 a.btn-primary.active,
@@ -1251,7 +1259,7 @@ footer i {
 
 a {
   color: $inline-link;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 a:hover {

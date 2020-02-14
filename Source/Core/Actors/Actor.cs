@@ -882,10 +882,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private protected virtual void ReportUnhandledException(Exception ex, string actionName)
         {
-            this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in {this.Id} (action '{actionName}', '{ex.Source}'):\n" +
-                $"   {ex.Message}\n" +
-                $"The stack trace is:\n{ex.StackTrace}");
+            this.Runtime.WrapAndThrowException(ex, $"{0} (action '{1}')", this.Id, actionName);
         }
 
         /// <summary>

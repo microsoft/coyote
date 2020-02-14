@@ -73,7 +73,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             advancedGroup.AddArgument("graph-bug", null, "Output a DGML graph of the iteration that found a bug", typeof(bool));
             advancedGroup.AddArgument("graph", null, "Output a DGML graph of all test iterations whether a bug was found or not", typeof(bool));
             advancedGroup.AddArgument("xml-trace", null, "Specify a filename for XML runtime log output to be written to", typeof(bool));
-            advancedGroup.AddArgument("actor-runtime-log", null, "Specify an additional custom logger using fully qualified 'assembly,class' name", typeof(string));
+            advancedGroup.AddArgument("actor-runtime-log", null, "Specify an additional custom logger using fully qualified name: 'fullclass,assembly'", typeof(string));
 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");

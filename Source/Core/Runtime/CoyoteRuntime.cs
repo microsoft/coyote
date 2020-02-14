@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Runtime
         public TextWriter Logger => this.LogWriter.Logger;
 
         /// <summary>
-        /// Callback that is fired when the Coyote program throws an exception.
+        /// Callback that is fired when the Coyote program throws an exception which includes failed assertions.
         /// </summary>
         public event OnFailureHandler OnFailure;
 
@@ -558,8 +558,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         protected internal void RaiseOnFailureEvent(Exception exception)
         {
-            if (this.Configuration.AttachDebugger && exception is ActionExceptionFilterException &&
-                !((exception as ActionExceptionFilterException).InnerException is RuntimeException))
+            if (exception is ExecutionCanceledException ||
+                (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException))
+            {
+                // Internal exception used during testing.
+                return;
+            }
+
+            if (this.Configuration.AttachDebugger)
             {
                 System.Diagnostics.Debugger.Break();
                 this.Configuration.AttachDebugger = false;
@@ -597,9 +603,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal virtual void WrapAndThrowException(Exception exception, string s, params object[] args)
         {
-            throw (exception is AssertionFailureException)
-                ? exception
-                : new AssertionFailureException(string.Format(CultureInfo.InvariantCulture, s, args), exception);
+            string msg = string.Format(CultureInfo.InvariantCulture, s, args);
+            string message = string.Format(CultureInfo.InvariantCulture,
+                "Exception '{0}' was thrown in {1}: {2}\n" +
+                "from location '{3}':\n" +
+                "The stack trace is:\n{4}",
+                exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
+
+            throw new AssertionFailureException(message, exception);
         }
 
         /// <summary>

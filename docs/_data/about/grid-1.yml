@@ -9,14 +9,14 @@ row-1:
     recognizing the ironic absence of tooling for developing concurrent systems.
     </p>
 
-    <p>Despite concurrency being a fundamental paradigm of computer science — all layers of a computer system are concurrent, starting from
-    the hardware to the operating system, to applications, distributed systems, and cloud — not much attention has previously been given to
+    <p>Despite concurrency being a fundamental paradigm of computer science—all layers of a computer system are concurrent, starting from
+    the hardware to the operating system, to applications, distributed systems, and cloud—not much attention has previously been given to
     the problem of testing these systems for correctness. Current practices dictate that unit tests be deterministic, often leading to the
     oblique art of stress testing to weed out bugs.
     </p>
 
     <p>Our initial thinking was to simply build tools focused on testing, but we quickly realized any technique focused only on testing
-    would have severely limited value: Developers want to write elegant, correct, and performant code on the first go — they don’t want to
+    would have severely limited value: Developers want to write elegant, correct, and performant code on the first go—they don’t want to
     be tracing buggy interleavings late into the wee hours.
     </p>
 
@@ -26,7 +26,7 @@ row-1:
     service using Coyote has now expanded to more than ten and growing.
     </p>
 
-    <p>We would love to make you a part of our story — <a href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a> today.</p>
+    <p>We would love to make you a part of our story—<a href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a> today.</p>
 row-2:
 - img: /coyote/assets/images/about-vision-2.jpg
   title: Vision

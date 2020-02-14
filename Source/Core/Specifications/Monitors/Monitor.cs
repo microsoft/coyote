@@ -889,10 +889,8 @@ namespace Microsoft.Coyote.Specifications
         private void ReportUnhandledException(Exception ex, string actionName)
         {
             var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
-            this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in {this.GetType().Name} (state '{state}', action '{actionName}', '{ex.Source}'):\n" +
-                $"   {ex.Message}\n" +
-                $"The stack trace is:\n{ex.StackTrace}");
+            this.Runtime.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')",
+                this.GetType().Name, state, actionName);
         }
 
         /// <summary>

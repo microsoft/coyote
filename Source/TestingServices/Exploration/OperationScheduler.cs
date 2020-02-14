@@ -484,7 +484,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Checks that no task that is not controlled by the runtime is currently executing.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         internal void CheckNoExternalConcurrencyUsed()
         {
             if (!Task.CurrentId.HasValue || !this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
@@ -502,7 +504,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// but there is one or more blocked operations that are waiting to receive an event
         /// or for a task to complete.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         private void CheckIfProgramHasDeadlocked(IEnumerable<AsyncOperation> ops)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
@@ -582,7 +586,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// Checks if the scheduling steps bound has been reached. If yes,
         /// it stops the scheduler and kills all enabled machines.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         private void CheckIfSchedulingStepsBoundIsReached()
         {
             if (this.Strategy.HasReachedMaxSchedulingSteps())
@@ -612,7 +618,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         /// <summary>
         /// Notify that an assertion has failed.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true)
         {
             if (!this.BugFound)
@@ -620,6 +628,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
                 this.BugReport = text;
 
                 this.Runtime.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
+                StackTrace trace = new StackTrace();
+                this.Runtime.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", trace.ToString()));
+                this.Runtime.RaiseOnFailureEvent(new AssertionFailureException(text));
                 this.Runtime.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy, this.Strategy.GetDescription());
 
                 this.BugFound = true;

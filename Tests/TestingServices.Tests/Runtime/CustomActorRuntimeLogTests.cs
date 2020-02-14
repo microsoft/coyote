@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using Microsoft.Coyote.Actors;
@@ -46,6 +47,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 this.SendEvent(n, new E(this.Id));
             }
 
+            [MethodImpl(MethodImplOptions.NoInlining)]
             private void Act()
             {
                 this.Assert(false, "Reached test assertion.");
@@ -134,14 +136,18 @@ StateTransition
 <DequeueLog> M() dequeued event 'E' in state 'Init'.
 <ActionLog> M() invoked action 'Act' in state 'Init'.
 <ErrorLog> Reached test assertion.
+<StackTrace> 
+   at Microsoft.Coyote.TestingServices.Tests.Runtime.CustomActorRuntimeLogTests.M.Act()
 <StrategyLog> Found bug using 'DFS' strategy.
 <StrategyLog> Testing statistics:
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 0 fair and 1 unfair.
-<StrategyLog> Found 100.00% buggy schedules.";
+<StrategyLog> Found 100.00% buggy schedules.
+";
 
                 string actual = RemoveNonDeterministicValuesFromReport(engine.ReadableTrace.ToString());
+                actual = RemoveStackTraceFromReport(actual);
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)
@@ -186,10 +192,15 @@ StateTransition
   <DequeueEvent id='M()' state='Init' event='E' />
   <Action id='M()' state='Init' action='Act' />
   <AssertionFailure>&lt;ErrorLog&gt; Reached test assertion.</AssertionFailure>
+  <AssertionFailure>StackTrace:
+   at Microsoft.Coyote.TestingServices.Tests.Runtime.CustomActorRuntimeLogTests.M.Act()
+  </AssertionFailure>
   <Strategy strategy='DFS'>DFS</Strategy>
-</Log>";
+</Log>
+";
 
                 string actual = RemoveNonDeterministicValuesFromReport(builder.ToString()).Replace("\"", "'");
+                actual = RemoveStackTraceFromXmlReport(actual);
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)

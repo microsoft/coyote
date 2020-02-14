@@ -118,7 +118,9 @@ namespace Microsoft.Coyote.Core.Tests
 
                 r.OnFailure += (exception) =>
                 {
-                    // This test throws an exception that we should receive a filter call for
+                    // The "N" machine throws a InvalidOperationException which we should receive
+                    // here wrapped in ActionExceptionFilterException for the OnFailure callback.
+
                     if (exception is ActionExceptionFilterException)
                     {
                         sawFilterException = true;

@@ -70,9 +70,8 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
-                    Assert.True(false);
+                    // This should not be called because M1a returns OnExceptionOutcome.HandledException
                     failed = true;
-                    tcs.SetResult(true);
                 };
 
                 var e = new E(tcs);
@@ -166,9 +165,8 @@ namespace Microsoft.Coyote.Core.Tests
                 var tcs = new TaskCompletionSource<bool>();
                 r.OnFailure += (ex) =>
                 {
-                    Assert.True(false);
+                    // This should not be called, because M2a returns OnExceptionOutcome.HandledException.
                     failed = true;
-                    tcs.SetResult(true);
                 };
 
                 var e = new E(tcs);

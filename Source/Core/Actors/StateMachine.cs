@@ -1086,16 +1086,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private protected override void ReportUnhandledException(Exception ex, string actionName)
         {
-            string state = "<unknown>";
-            if (this.CurrentState != null)
-            {
-                state = this.CurrentStateName;
-            }
-
-            this.Runtime.WrapAndThrowException(ex, $"Exception '{ex.GetType()}' was thrown " +
-                $"in {this.Id} (state '{state}', action '{actionName}', '{ex.Source}'):\n" +
-                $"   {ex.Message}\n" +
-                $"The stack trace is:\n{ex.StackTrace}");
+            var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
+            this.Runtime.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')", this.Id, state, actionName);
         }
 
         /// <summary>

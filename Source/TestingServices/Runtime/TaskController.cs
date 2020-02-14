@@ -68,8 +68,14 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 }
                 catch (Exception ex)
                 {
-                    // Report the unhandled exception and rethrow it.
-                    this.ReportUnhandledExceptionInOperation(op, ex);
+                    // Report the unhandled exception unless it is our ExecutionCanceledException which is our
+                    // way of terminating async task operations at the end of the test iteration.
+                    if (!(ex is ExecutionCanceledException))
+                    {
+                        this.ReportUnhandledExceptionInOperation(op, ex);
+                    }
+
+                    // and rethrow it
                     throw;
                 }
                 finally

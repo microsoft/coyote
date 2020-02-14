@@ -385,15 +385,21 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
+            if (e is null)
+            {
+                string message = sender != null ?
+                    string.Format("{0} is sending a null event.", sender.Id.ToString()) :
+                    "Cannot send a null event.";
+                this.Assert(false, message);
+            }
+
             if (sender != null)
             {
-                this.Assert(targetId != null, "{0} is sending to a null actor.", sender.Id);
-                this.Assert(e != null, "{0} is sending a null event.", sender.Id);
+                this.Assert(targetId != null, "{0} is sending event {1} to a null actor.", sender.Id, e);
             }
             else
             {
-                this.Assert(targetId != null, "Cannot send to a null actor.");
-                this.Assert(e != null, "Cannot send a null event.");
+                this.Assert(targetId != null, "Cannot send event {1} to a null actor.", e);
             }
 
             this.AssertExpectedCallerActor(sender, "SendEvent");
@@ -414,8 +420,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             this.Assert(sender is StateMachine, "Only an actor can call 'SendEventAndExecuteAsync': avoid " +
                 "calling it directly from the test method; instead call it through a test driver actor.");
-            this.Assert(targetId != null, "{0} is sending to a null actor.", sender.Id);
             this.Assert(e != null, "{0} is sending a null event.", sender.Id);
+            this.Assert(targetId != null, "{0} is sending event {1} to a null actor.", sender.Id, e);
             this.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
 
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, options, out Actor target);
@@ -665,7 +671,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public override void Assert(bool predicate)
         {
             if (!predicate)
@@ -677,48 +685,60 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public override void Assert(bool predicate, string s, object arg0)
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString()));
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
+                this.Scheduler.NotifyAssertionFailure(msg);
             }
         }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public override void Assert(bool predicate, string s, object arg0, object arg1)
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString()));
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
+                this.Scheduler.NotifyAssertionFailure(msg);
             }
         }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public override void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString()));
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
+                this.Scheduler.NotifyAssertionFailure(msg);
             }
         }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public override void Assert(bool predicate, string s, params object[] args)
         {
             if (!predicate)
             {
-                this.Scheduler.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture, s, args));
+                var msg = string.Format(CultureInfo.InvariantCulture, s, args);
+                this.Scheduler.NotifyAssertionFailure(msg);
             }
         }
 
@@ -726,7 +746,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// Asserts that the actor calling an actor method is also
         /// the actor that is currently executing.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         private void AssertExpectedCallerActor(Actor caller, string calledAPI)
         {
             if (caller is null)
@@ -749,7 +771,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// If the program is still running, then this method returns without
         /// performing a check.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         internal void CheckNoMonitorInHotStateAtTermination()
         {
             if (!this.Scheduler.HasFullyExploredSchedule)
@@ -1172,7 +1196,13 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         [DebuggerStepThrough]
         internal override void WrapAndThrowException(Exception exception, string s, params object[] args)
         {
-            string message = string.Format(CultureInfo.InvariantCulture, s, args);
+            string msg = string.Format(CultureInfo.InvariantCulture, s, args);
+            string message = string.Format(CultureInfo.InvariantCulture,
+                "Exception '{0}' was thrown in {1}: {2}\n" +
+                "from location '{3}':\n" +
+                "The stack trace is:\n{4}",
+                exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
+
             this.Scheduler.NotifyAssertionFailure(message);
         }
 

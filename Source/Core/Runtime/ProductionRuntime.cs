@@ -255,19 +255,20 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, out Actor target)
         {
-            if (targetId is null)
-            {
-                string message = sender != null ?
-                    string.Format("{0} is sending to a null actor.", sender.Id.ToString()) :
-                    "Cannot send to a null actor.";
-                this.Assert(false, message);
-            }
-
             if (e is null)
             {
                 string message = sender != null ?
                     string.Format("{0} is sending a null event.", sender.Id.ToString()) :
                     "Cannot send a null event.";
+                this.Assert(false, message);
+            }
+
+            if (targetId is null)
+            {
+                string message = (sender != null) ?
+                    string.Format("{0} is sending event {1} to a null actor.", sender.Id.ToString(), e.ToString())
+                    : string.Format("Cannot send event {0} to a null actor.", e.ToString());
+
                 this.Assert(false, message);
             }
 

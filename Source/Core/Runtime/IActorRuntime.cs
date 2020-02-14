@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.Runtime
         TextWriter Logger { get; }
 
         /// <summary>
-        /// Callback that is fired when the runtime throws an exception.
+        /// Callback that is fired when the runtime throws an exception which includes failed assertions.
         /// </summary>
         event OnFailureHandler OnFailure;
 

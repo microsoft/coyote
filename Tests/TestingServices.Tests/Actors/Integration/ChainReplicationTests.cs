@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.Master = (e as SetupEvent).Master;
                 this.Servers = (e as SetupEvent).Servers;
@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.CheckNodeIdx = 0;
                 this.Failures = 100;
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(StartMonitoringOnEntry))]
@@ -217,11 +217,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition StartMonitoringOnEntry()
+            private void StartMonitoringOnEntry()
             {
                 if (this.Failures < 1)
                 {
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
                 else
                 {
@@ -245,8 +245,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                     this.Failures--;
                 }
-
-                return default;
             }
 
             private void HandlePong()
@@ -373,7 +371,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.Servers = (e as SetupEvent).Servers;
                 this.Clients = (e as SetupEvent).Clients;
@@ -385,7 +383,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Head = this.Servers[0];
                 this.Tail = this.Servers[this.Servers.Count - 1];
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventGotoState(typeof(HeadFailed), typeof(CorrectHeadFailure))]
@@ -396,7 +394,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition CheckWhichNodeFailed(Event e)
+            private void CheckWhichNodeFailed(Event e)
             {
                 this.Assert(this.Servers.Count > 1, "All nodes have failed.");
 
@@ -404,11 +402,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Head.Equals(failedServer))
                 {
-                    return this.RaiseEvent(new HeadFailed());
+                    this.RaiseEvent(new HeadFailed());
                 }
                 else if (this.Tail.Equals(failedServer))
                 {
-                    return this.RaiseEvent(new TailFailed());
+                    this.RaiseEvent(new TailFailed());
                 }
                 else
                 {
@@ -420,7 +418,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                         }
                     }
 
-                    return this.RaiseEvent(new ServerFailed());
+                    this.RaiseEvent(new ServerFailed());
                 }
             }
 
@@ -445,14 +443,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.Head, new BecomeHead(this.Id));
             }
 
-            private Transition UpdateClients()
+            private void UpdateClients()
             {
                 for (int i = 0; i < this.Clients.Count; i++)
                 {
                     this.SendEvent(this.Clients[i], new Client.UpdateHeadTail(this.Head, this.Tail));
                 }
 
-                return this.RaiseEvent(new Done());
+                this.RaiseEvent(new Done());
             }
 
             private void UpdateFailureDetector()
@@ -491,7 +489,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition CorrectServerFailureOnEntry()
+            private void CorrectServerFailureOnEntry()
             {
                 this.Servers.RemoveAt(this.FaultyNodeIndex);
 
@@ -500,7 +498,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Monitor<ServerResponseSeqMonitor>(
                     new ServerResponseSeqMonitor.UpdateServers(this.Servers));
 
-                return this.RaiseEvent(new FixSuccessor());
+                this.RaiseEvent(new FixSuccessor());
             }
 
             private void ProcessFixPredecessor()
@@ -509,19 +507,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.Id, this.Servers[this.FaultyNodeIndex], this.LastAckSent, this.LastUpdateReceivedSucc));
             }
 
-            private Transition SetLastUpdate(Event e)
+            private void SetLastUpdate(Event e)
             {
                 this.LastUpdateReceivedSucc = (e as
                     ChainReplicationServer.NewSuccInfo).LastUpdateReceivedSucc;
                 this.LastAckSent = (e as
                     ChainReplicationServer.NewSuccInfo).LastAckSent;
-                return this.RaiseEvent(new FixPredecessor());
+                this.RaiseEvent(new FixPredecessor());
             }
 
-            private Transition ProcessSuccess()
-            {
-                return this.RaiseEvent(new Done());
-            }
+            private void ProcessSuccess() => this.RaiseEvent(new Done());
         }
 
         private class ChainReplicationServer : StateMachine
@@ -683,11 +678,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.NextSeqId = 0;
             }
 
-            private Transition SetupPredSucc(Event e)
+            private void SetupPredSucc(Event e)
             {
                 this.Predecessor = (e as PredSucc).Predecessor;
                 this.Successor = (e as PredSucc).Successor;
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventGotoState(typeof(Client.Update), typeof(ProcessUpdate), nameof(ProcessUpdateAction))]
@@ -827,7 +822,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ProcessUpdateOnEntry(Event e)
+            private void ProcessUpdateOnEntry(Event e)
             {
                 var client = (e as Client.Update).Client;
                 var key = (e as Client.Update).Key;
@@ -853,7 +848,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 this.SendEvent(this.Successor, new ForwardUpdate(this.Id, this.NextSeqId, client, key, value));
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(ProcessFwdUpdateOnEntry))]
@@ -862,7 +857,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ProcessFwdUpdateOnEntry(Event e)
+            private void ProcessFwdUpdateOnEntry(Event e)
             {
                 var pred = (e as ForwardUpdate).Predecessor;
                 var nextSeqId = (e as ForwardUpdate).NextSeqId;
@@ -911,7 +906,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     }
                 }
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(ProcessBckAckOnEntry))]
@@ -920,7 +915,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ProcessBckAckOnEntry(Event e)
+            private void ProcessBckAckOnEntry(Event e)
             {
                 var nextSeqId = (e as BackwardAck).NextSeqId;
 
@@ -931,7 +926,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendEvent(this.Predecessor, new BackwardAck(nextSeqId));
                 }
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             private void RemoveItemFromSent(int seqId)
@@ -1036,7 +1031,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.HeadNode = (e as SetupEvent).HeadNode;
                 this.TailNode = (e as SetupEvent).TailNode;
@@ -1052,7 +1047,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     { 4 * this.StartIn, 400 }
                 };
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(PumpUpdateRequestsOnEntry))]
@@ -1063,18 +1058,18 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition PumpUpdateRequestsOnEntry()
+            private void PumpUpdateRequestsOnEntry()
             {
                 this.SendEvent(this.HeadNode, new Update(this.Id, this.Next * this.StartIn,
                     this.KeyValueStore[this.Next * this.StartIn]));
 
                 if (this.Next >= 3)
                 {
-                    return this.RaiseEvent(new Done());
+                    this.RaiseEvent(new Done());
                 }
                 else
                 {
-                    return this.RaiseEvent(new Local());
+                    this.RaiseEvent(new Local());
                 }
             }
 
@@ -1085,17 +1080,17 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition PumpQueryRequestsOnEntry()
+            private void PumpQueryRequestsOnEntry()
             {
                 this.SendEvent(this.TailNode, new Query(this.Id, this.Next * this.StartIn));
 
                 if (this.Next >= 3)
                 {
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
                 else
                 {
-                    return this.RaiseEvent(new Local());
+                    this.RaiseEvent(new Local());
                 }
             }
 
@@ -1180,13 +1175,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Setup(Event e)
+            private void Setup(Event e)
             {
                 this.Servers = (e as SetupEvent).Servers;
                 this.History = new Dictionary<ActorId, List<int>>();
                 this.SentHistory = new Dictionary<ActorId, List<int>>();
                 this.TempSeq = new List<int>();
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventDoAction(typeof(HistoryUpdate), nameof(CheckUpdatePropagationInvariant))]
@@ -1466,11 +1461,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Setup(Event e)
+            private void Setup(Event e)
             {
                 this.Servers = (e as SetupEvent).Servers;
                 this.LastUpdateResponse = new Dictionary<int, int>();
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventDoAction(typeof(ResponseToUpdate), nameof(ResponseToUpdateAction))]

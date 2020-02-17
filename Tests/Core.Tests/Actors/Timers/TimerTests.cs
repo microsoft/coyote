@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 this.StartTimer(TimeSpan.FromMilliseconds(10));
             }
 
-            private Transition HandleTimeout()
+            private void HandleTimeout()
             {
                 this.Count++;
                 if (this.Count == 1)
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                     this.Tcs.SetResult(false);
                 }
 
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -114,17 +114,15 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 this.Timer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10));
             }
 
-            private Transition HandleTimeout()
+            private void HandleTimeout()
             {
                 this.Count++;
                 if (this.Count == 10)
                 {
                     this.StopTimer(this.Timer);
                     this.Tcs.SetResult(true);
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
-
-                return Transition.None;
             }
         }
 
@@ -169,13 +167,13 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private async Task<Transition> DoPing(Event e)
+            private async Task DoPing(Event e)
             {
                 this.Tcs = (e as SetupEvent).Tcs;
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
                 await Task.Delay(100);
                 this.StopTimer(this.PingTimer);
-                return this.GotoState<Pong>();
+                this.RaiseGotoStateEvent<Pong>();
             }
 
             private void DoPong()
@@ -183,7 +181,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 this.PongTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(50));
             }
 
-            private Transition HandleTimeout(Event e)
+            private void HandleTimeout(Event e)
             {
                 var timeout = e as TimerElapsedEvent;
                 if (timeout.Info == this.PongTimer)
@@ -195,7 +193,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                     this.Tcs.SetResult(false);
                 }
 
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -220,10 +218,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private Transition Initialize(Event e)
+            private void Initialize(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-
                 try
                 {
                     this.StartTimer(TimeSpan.FromSeconds(-1));
@@ -232,11 +229,12 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 {
                     this.Logger.WriteLine(ex.Message);
                     tcs.SetResult(true);
-                    return this.Halt();
+                    this.RaiseHaltEvent();
+                    return;
                 }
 
                 tcs.SetResult(false);
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -261,10 +259,9 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private Transition Initialize(Event e)
+            private void Initialize(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-
                 try
                 {
                     this.StartPeriodicTimer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(-1));
@@ -273,11 +270,12 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 {
                     this.Logger.WriteLine(ex.Message);
                     tcs.SetResult(true);
-                    return this.Halt();
+                    this.RaiseHaltEvent();
+                    return;
                 }
 
                 tcs.SetResult(false);
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -322,7 +320,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
             {
             }
 
-            private Transition Initialize(Event e)
+            private void Initialize(Event e)
             {
                 var ce = e as ConfigEvent;
                 this.Config = ce;
@@ -345,13 +343,11 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 {
                     this.Logger.WriteLine(ex.Message);
                     ce.Tcs.SetResult(expectError == true);
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
-
-                return default;
             }
 
-            private Transition OnMyTimeout(Event e)
+            private void OnMyTimeout(Event e)
             {
                 if (e is MyTimeoutEvent)
                 {
@@ -363,7 +359,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                     this.Config.Tcs.SetResult(false);
                 }
 
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 

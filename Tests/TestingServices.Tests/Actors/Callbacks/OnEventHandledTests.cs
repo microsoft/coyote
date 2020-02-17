@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Process(Event e)
+            private void Process(Event e)
             {
                 if (this.Counter == 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
                 {
@@ -99,10 +99,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Counter == 4)
                 {
-                    return this.GotoState<S2>();
+                    this.RaiseGotoStateEvent<S2>();
                 }
-
-                return default;
             }
         }
 
@@ -116,9 +114,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Process()
+            private void Process()
             {
-                return this.RaiseEvent(new E2());
+                this.RaiseEvent(new E2());
             }
 
             private void ProcessE3()
@@ -172,7 +170,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Process(Event e)
+            private void Process(Event e)
             {
                 if (this.Counter == 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
                 {
@@ -189,17 +187,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Counter == 2)
                 {
-                    return this.GotoState<S2>();
+                    this.RaiseGotoStateEvent<S2>();
                 }
-
-                return default;
             }
         }
 
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A2 : Actor
         {
-            private void Process() => this.Halt();
+            private void Process() => this.RaiseHaltEvent();
 
             protected override Task OnEventDequeuedAsync(Event e)
             {
@@ -233,9 +229,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Process()
+            private void Process()
             {
-                return this.RaiseEvent(HaltEvent.Instance);
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             protected override Task OnEventDequeuedAsync(Event e)

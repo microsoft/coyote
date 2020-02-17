@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition EntryOnInit()
+            private void EntryOnInit()
             {
                 this.NumberOfServers = 5;
                 this.LeaderTerm = 0;
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 this.Client = this.CreateActor(typeof(Client));
 
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(ConfiguringOnInit))]
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ConfiguringOnInit()
+            private void ConfiguringOnInit()
             {
                 for (int idx = 0; idx < this.NumberOfServers; idx++)
                 {
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 this.SendEvent(this.Client, new Client.ConfigureEvent(this.Id));
 
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private class Availability : StateGroup
@@ -141,10 +141,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private Transition BecomeAvailable(Event e)
+            private void BecomeAvailable(Event e)
             {
                 this.UpdateLeader(e as NotifyLeaderUpdate);
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private void SendClientRequestToLeader(Event e)
@@ -162,14 +162,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.UpdateLeader(e as NotifyLeaderUpdate);
             }
 
-            private Transition ShuttingDown()
+            private void ShuttingDown()
             {
                 for (int idx = 0; idx < this.NumberOfServers; idx++)
                 {
                     this.SendEvent(this.Servers[idx], new Server.ShutDown());
                 }
 
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
 
             private void UpdateLeader(NotifyLeaderUpdate request)
@@ -413,7 +413,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.MatchIndex = new Dictionary<ActorId, int>();
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.ServerId = (e as ConfigureEvent).Id;
                 this.Servers = (e as ConfigureEvent).Servers;
@@ -425,7 +425,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.PeriodicTimer = this.CreateActor(typeof(PeriodicTimer));
                 this.SendEvent(this.PeriodicTimer, new PeriodicTimer.ConfigureEvent(this.Id));
 
-                return this.RaiseEvent(new BecomeFollower());
+                this.RaiseEvent(new BecomeFollower());
             }
 
             [OnEntry(nameof(FollowerOnInit))]
@@ -463,9 +463,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private Transition StartLeaderElection()
+            private void StartLeaderElection()
             {
-                return this.RaiseEvent(new BecomeCandidate());
+                this.RaiseEvent(new BecomeCandidate());
             }
 
             private void VoteAsFollower(Event e)
@@ -559,7 +559,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private Transition VoteAsCandidate(Event e)
+            private void VoteAsCandidate(Event e)
             {
                 var request = e as VoteRequest;
                 if (request.Term > this.CurrentTerm)
@@ -567,28 +567,26 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
                     this.Vote(e as VoteRequest);
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
                     this.Vote(e as VoteRequest);
                 }
-
-                return default;
             }
 
-            private Transition RespondVoteAsCandidate(Event e)
+            private void RespondVoteAsCandidate(Event e)
             {
                 var request = e as VoteResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else if (request.Term != this.CurrentTerm)
                 {
-                    return default;
+                    return;
                 }
 
                 if (request.VoteGranted)
@@ -597,14 +595,12 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     if (this.VotesReceived >= (this.Servers.Length / 2) + 1)
                     {
                         this.VotesReceived = 0;
-                        return this.RaiseEvent(new BecomeLeader());
+                        this.RaiseEvent(new BecomeLeader());
                     }
                 }
-
-                return default;
             }
 
-            private Transition AppendEntriesAsCandidate(Event e)
+            private void AppendEntriesAsCandidate(Event e)
             {
                 var request = e as AppendEntriesRequest;
                 if (request.Term > this.CurrentTerm)
@@ -612,27 +608,23 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
                     this.AppendEntries(e as AppendEntriesRequest);
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
                     this.AppendEntries(e as AppendEntriesRequest);
                 }
-
-                return default;
             }
 
-            private Transition RespondAppendEntriesAsCandidate(Event e)
+            private void RespondAppendEntriesAsCandidate(Event e)
             {
                 var request = e as AppendEntriesResponse;
                 if (request.Term > this.CurrentTerm)
                 {
                     this.CurrentTerm = request.Term;
                     this.VotedFor = null;
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
-
-                return default;
             }
 
             [OnEntry(nameof(LeaderOnInit))]
@@ -719,7 +711,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private Transition VoteAsLeader(Event e)
+            private void VoteAsLeader(Event e)
             {
                 var request = e as VoteRequest;
 
@@ -731,17 +723,15 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.RedirectLastClientRequestToClusterManager();
                     this.Vote(e as VoteRequest);
 
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else
                 {
                     this.Vote(e as VoteRequest);
                 }
-
-                return default;
             }
 
-            private Transition RespondVoteAsLeader(Event e)
+            private void RespondVoteAsLeader(Event e)
             {
                 var request = e as VoteResponse;
                 if (request.Term > this.CurrentTerm)
@@ -750,13 +740,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.VotedFor = null;
 
                     this.RedirectLastClientRequestToClusterManager();
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
-
-                return default;
             }
 
-            private Transition AppendEntriesAsLeader(Event e)
+            private void AppendEntriesAsLeader(Event e)
             {
                 var request = e as AppendEntriesRequest;
                 if (request.Term > this.CurrentTerm)
@@ -767,13 +755,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.RedirectLastClientRequestToClusterManager();
                     this.AppendEntries(e as AppendEntriesRequest);
 
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
-
-                return default;
             }
 
-            private Transition RespondAppendEntriesAsLeader(Event e)
+            private void RespondAppendEntriesAsLeader(Event e)
             {
                 var request = e as AppendEntriesResponse;
                 if (request.Term > this.CurrentTerm)
@@ -782,11 +768,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.VotedFor = null;
 
                     this.RedirectLastClientRequestToClusterManager();
-                    return this.RaiseEvent(new BecomeFollower());
+                    this.RaiseEvent(new BecomeFollower());
                 }
                 else if (request.Term != this.CurrentTerm)
                 {
-                    return default;
+                    return;
                 }
 
                 if (request.Success)
@@ -826,8 +812,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendEvent(request.Server, new AppendEntriesRequest(this.CurrentTerm, this.Id, prevLogIndex,
                         prevLogTerm, logs, this.CommitIndex, request.ReceiverEndpoint));
                 }
-
-                return default;
             }
 
             /// <summary>
@@ -940,11 +924,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 return logTerm;
             }
 
-            private Transition ShuttingDown()
+            private void ShuttingDown()
             {
                 this.SendEvent(this.ElectionTimer, HaltEvent.Instance);
                 this.SendEvent(this.PeriodicTimer, HaltEvent.Instance);
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -1007,10 +991,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Counter = 0;
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Cluster = (e as ConfigureEvent).Cluster;
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(PumpRequestOnEntry))]
@@ -1027,16 +1011,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.Cluster, new Request(this.Id, this.LatestCommand));
             }
 
-            private Transition ProcessResponse()
+            private void ProcessResponse()
             {
                 if (this.Counter == 3)
                 {
                     this.SendEvent(this.Cluster, new ClusterManager.ShutDown());
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
                 else
                 {
-                    return this.RaiseEvent(new LocalEvent());
+                    this.RaiseEvent(new LocalEvent());
                 }
             }
         }
@@ -1097,14 +1081,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.Id, new TickEvent());
             }
 
-            private Transition Tick()
+            private void Tick()
             {
                 if (this.Random())
                 {
                     this.SendEvent(this.Target, new Timeout());
                 }
 
-                return this.RaiseEvent(new CancelTimer());
+                this.RaiseEvent(new CancelTimer());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -1170,14 +1154,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.Id, new TickEvent());
             }
 
-            private Transition Tick()
+            private void Tick()
             {
                 if (this.Random())
                 {
                     this.SendEvent(this.Target, new Timeout());
                 }
 
-                return this.RaiseEvent(new CancelTimer());
+                this.RaiseEvent(new CancelTimer());
             }
 
             [OnEventGotoState(typeof(StartTimerEvent), typeof(Active))]
@@ -1213,10 +1197,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.TermsWithLeader = new HashSet<int>();
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEventDoAction(typeof(NotifyLeaderElected), nameof(ProcessLeaderElected))]

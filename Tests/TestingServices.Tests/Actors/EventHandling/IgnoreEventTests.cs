@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Foo() => this.RaiseEvent(UnitEvent.Instance);
+            private void Foo() => this.RaiseEvent(UnitEvent.Instance);
 
             private void Bar(Event e)
             {

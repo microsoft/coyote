@@ -130,10 +130,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private Transition Terminate(Event e)
+            private void Terminate(Event e)
             {
                 this.SendEvent((e as TerminateReq).Sender, new TerminateResp());
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 

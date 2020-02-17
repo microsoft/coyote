@@ -86,11 +86,11 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
                 this.LargeArray[this.LargeArray.Length - 1] = 1;
             }
 
-            private Transition Act(Event e)
+            private void Act(Event e)
             {
                 var sender = (e as E).Id;
                 this.SendEvent(sender, new E(this.Id));
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 

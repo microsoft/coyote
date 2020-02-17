@@ -25,10 +25,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Assert(this.CurrentState == typeof(Init));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(ActiveOnEntry))]

@@ -41,10 +41,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.CreateActor(typeof(Loop));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(WaitForUserOnEntry))]

@@ -222,7 +222,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private Transition HandleE() => this.Halt();
+            private void HandleE() => this.RaiseHaltEvent();
 
             protected override Task OnHaltAsync(Event e)
             {
@@ -255,11 +255,11 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
                 this.MHalted = true;
             }
 
-            private Transition OnSEReturns()
+            private void OnSEReturns()
             {
                 this.Assert(this.MHalted);
                 this.SEReturned = true;
-                return this.GotoState<Done>();
+                this.RaiseGotoStateEvent<Done>();
             }
         }
 

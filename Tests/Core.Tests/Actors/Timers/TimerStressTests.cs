@@ -46,10 +46,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 this.StartTimer(TimeSpan.FromTicks(1));
             }
 
-            private Transition HandleTimeout()
+            private void HandleTimeout()
             {
                 this.Tcs.SetResult(true);
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -93,16 +93,14 @@ namespace Microsoft.Coyote.Core.Tests.Actors
                 this.StartPeriodicTimer(TimeSpan.FromTicks(1), TimeSpan.FromTicks(1));
             }
 
-            private Transition HandleTimeout()
+            private void HandleTimeout()
             {
                 this.Counter++;
                 if (this.Counter == 10)
                 {
                     this.Tcs.SetResult(true);
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
-
-                return default;
             }
         }
 

@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendPong();
                 }
 
-                this.Halt();
+                this.RaiseHaltEvent();
             }
 
             private void SendPong()
@@ -215,11 +215,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Server = (e as SetupEvent).Id;
                 this.Counter = 0;
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private async Task<Transition> ActiveOnEntry()
+            private async Task ActiveOnEntry()
             {
                 while (this.Counter < 5)
                 {
@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.SendPong();
                 }
 
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
 
             private void SendPong()
@@ -256,11 +256,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Client = this.CreateActor(typeof(ClientStateMachine));
                 this.SendEvent(this.Client, new SetupEvent(this.Id));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -301,11 +301,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Client = this.CreateActor(typeof(ClientStateMachine));
                 this.SendEvent(this.Client, new SetupEvent(this.Id));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(ActiveOnEntry))]

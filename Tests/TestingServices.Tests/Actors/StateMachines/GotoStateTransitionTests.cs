@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
             private class Done : State
             {
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<M2b.Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<M2b.Done>();
 
             private class Done : State
             {
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
             private void ExitInit()
             {
@@ -123,9 +123,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
-            private Transition ExitMethod() => this.GotoState<Done>();
+            private void ExitMethod() => this.RaiseGotoStateEvent<Done>();
 
             private class Done : State
             {

@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Init() => this.PopState();
+            private void Init() => this.RaisePopStateEvent();
         }
 
         [Fact(Timeout = 5000)]
@@ -45,9 +45,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
-            private Transition ExitMethod() => this.PopState();
+            private void ExitMethod() => this.RaisePopStateEvent();
 
             private class Done : State
             {

@@ -38,11 +38,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition SOnEntry()
+            private void SOnEntry()
             {
                 this.N = this.CreateActor(typeof(N));
                 this.SendEvent(this.N, new E(this.Id));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(S2OnEntry))]
@@ -62,10 +62,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition S3OnEntry()
+            private void S3OnEntry()
             {
                 this.Monitor<LivenessMonitor>(new E(this.Id));
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 

@@ -141,93 +141,167 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Creates a transition that raises the specified <see cref="Event"/>
-        /// at the end of the current action.
+        /// Raises the specified <see cref="Event"/> at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <param name="e">The event to raise.</param>
-        /// <returns>The raise event transition.</returns>
-        protected Transition RaiseEvent(Event e)
+        protected void RaiseEvent(Event e)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked RaiseEvent while halting.", this.Id);
             this.Assert(e != null, "{0} is raising a null event.", this.Id);
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.RaiseEvent, default, e);
+            this.PendingTransition = new Transition(Transition.Type.RaiseEvent, default, e);
         }
 
         /// <summary>
-        /// Creates a <see cref="StateMachine.Transition"/> that pops the current <see cref="State"/>
-        /// and pushes the specified <see cref="State"/> to the state stack
-        /// at the end of the current action.
+        /// Raise a special event that performs a goto state operation at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// Goto state pops the current <see cref="State"/> and pushes the specified <see cref="State"/> on the active state stack.
+        /// This is shorthand for the following code:
+        /// <code>
+        /// class Event E { }
+        /// [OnEventGotoState(typeof(E), typeof(S))]
+        /// this.RaiseEvent(new E());
+        /// </code>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <typeparam name="S">Type of the state.</typeparam>
-        /// <returns>The goto state transition.</returns>
-        protected Transition GotoState<S>()
+        protected void RaiseGotoStateEvent<S>()
             where S : State =>
-            this.GotoState(typeof(S));
+            this.RaiseGotoStateEvent(typeof(S));
 
         /// <summary>
-        /// Creates a transition that pops the current <see cref="State"/>
-        /// and pushes the specified <see cref="State"/> to the state stack
-        /// at the end of the current action.
+        /// Raise a special event that performs a goto state operation at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// Goto state pops the current <see cref="State"/> and pushes the specified <see cref="State"/> on the active state stack.
+        /// This is shorthand for the following code:
+        /// <code>
+        /// class Event E { }
+        /// [OnEventGotoState(typeof(E), typeof(S))]
+        /// this.RaiseEvent(new E());
+        /// </code>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <param name="state">Type of the state.</param>
-        /// <returns>The goto state transition.</returns>
-        protected Transition GotoState(Type state)
+        protected void RaiseGotoStateEvent(Type state)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked GotoState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.GotoState, state, default);
+            this.PendingTransition = new Transition(Transition.Type.GotoState, state, default);
         }
 
         /// <summary>
-        /// Creates a transition that pushes the specified <see cref="State"/> to
-        /// the state stack at the end of the current action.
+        /// Raise a special event that performs a push state operation at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// Pushing a state does not pop the current <see cref="State"/>, instead it pushes the specified <see cref="State"/> on the active state stack
+        /// so that you can have multiple active states.  In this case events can be handled by all active states on the stack.
+        /// This is shorthand for the following code:
+        /// <code>
+        /// class Event E { }
+        /// [OnEventPushState(typeof(E), typeof(S))]
+        /// this.RaiseEvent(new E());
+        /// </code>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <typeparam name="S">Type of the state.</typeparam>
-        /// <returns>The push state transition.</returns>
-        protected Transition PushState<S>()
+        protected void RaisePushStateEvent<S>()
             where S : State =>
-            this.PushState(typeof(S));
+            this.RasiePushStateEvent(typeof(S));
 
         /// <summary>
-        /// Creates a transition that pushes the specified <see cref="State"/> to
-        /// the state stack at the end of the current action.
+        /// Raise a special event that performs a push state operation at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// Pushing a state does not pop the current <see cref="State"/>, instead it pushes the specified <see cref="State"/> on the active state stack
+        /// so that you can have multiple active states.  In this case events can be handled by all active states on the stack.
+        /// This is shorthand for the following code:
+        /// <code>
+        /// class Event E { }
+        /// [OnEventPushState(typeof(E), typeof(S))]
+        /// this.RaiseEvent(new E());
+        /// </code>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <param name="state">Type of the state.</param>
-        /// <returns>The push state transition.</returns>
-        protected Transition PushState(Type state)
+        protected void RasiePushStateEvent(Type state)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PushState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.Id, state.Name);
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.PushState, state, default);
+            this.PendingTransition = new Transition(Transition.Type.PushState, state, default);
         }
 
         /// <summary>
-        /// Creates a transition that pops the current <see cref="State"/>
-        /// from the state stack at the end of the current action.
+        /// Raise a special event that performs a pop state operation at the end of the current action.
         /// </summary>
-        /// <returns>The pop state transition.</returns>
-        protected Transition PopState()
+        /// <remarks>
+        /// Popping a state pops the current <see cref="State"/> that was pushed using <see cref='RaisePushStateEvent'/> or an OnEventPushStateAttribute.
+        /// An assert is raised if there are no states left to pop.
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        ///
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
+        protected void RaisePopStateEvent()
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PopState while halting.", this.Id);
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.PopState, null, default);
+            this.PendingTransition = new Transition(Transition.Type.PopState, null, default);
         }
 
         /// <summary>
-        /// Creates a transition that halts the state machine
-        /// at the end of the current action.
+        /// Raises a <see cref='HaltEvent'/> to halt the actor at the end of the current action.
         /// </summary>
-        /// <returns>The halt transition.</returns>
-        protected new Transition Halt()
+        /// <remarks>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        ///
+        /// Only one of the following can be called per action:
+        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
+        protected override void RaiseHaltEvent()
         {
-            this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
+            base.RaiseHaltEvent();
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.Halt, null, default);
+            this.PendingTransition = new Transition(Transition.Type.Halt, null, default);
         }
 
         /// <summary>
@@ -306,8 +380,8 @@ namespace Microsoft.Coyote.Actors
                 {
                     CachedDelegate cachedAction = this.ActionMap[actionEventHandler.Name];
                     this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
-                    Transition transition = await this.InvokeActionAsync(cachedAction, e);
-                    await this.ApplyEventHandlerTransitionAsync(transition, e);
+                    await this.InvokeActionAsync(cachedAction, e);
+                    await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
                 }
                 else
                 {
@@ -328,22 +402,14 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invokes the specified action delegate.
         /// </summary>
-        private async Task<Transition> InvokeActionAsync(CachedDelegate cachedAction, Event e)
+        private async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
         {
             try
             {
                 if (cachedAction.IsAsync)
                 {
                     Task task = null;
-                    if (cachedAction.Handler is Func<Event, Task<Transition>> taskFuncWithEventAndResult)
-                    {
-                        task = taskFuncWithEventAndResult(e);
-                    }
-                    else if (cachedAction.Handler is Func<Task<Transition>> taskFuncWithResult)
-                    {
-                        task = taskFuncWithResult();
-                    }
-                    else if (cachedAction.Handler is Func<Event, Task> taskFuncWithEvent)
+                    if (cachedAction.Handler is Func<Event, Task> taskFuncWithEvent)
                     {
                         task = taskFuncWithEvent(e);
                     }
@@ -353,26 +419,10 @@ namespace Microsoft.Coyote.Actors
                     }
 
                     this.Runtime.NotifyWaitTask(this, task);
+                    await task;
+                }
 
-                    // We have no reliable stack for awaited operations.
-                    if (task is Task<Transition> taskWithResult)
-                    {
-                        return await taskWithResult;
-                    }
-                    else
-                    {
-                        await task;
-                    }
-                }
-                else if (cachedAction.Handler is Func<Event, Transition> funcWithEventAndResult)
-                {
-                    return funcWithEventAndResult(e);
-                }
-                else if (cachedAction.Handler is Func<Transition> funcWithResult)
-                {
-                    return funcWithResult();
-                }
-                else if (cachedAction.Handler is Action<Event> actionWithEvent)
+                if (cachedAction.Handler is Action<Event> actionWithEvent)
                 {
                     actionWithEvent(e);
                 }
@@ -396,8 +446,6 @@ namespace Microsoft.Coyote.Actors
             {
                 await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name);
             }
-
-            return Transition.None;
         }
 
         /// <summary>
@@ -417,8 +465,8 @@ namespace Microsoft.Coyote.Actors
             if (entryAction != null)
             {
                 this.Runtime.NotifyInvokedOnEntryAction(this, entryAction.MethodInfo, e);
-                Transition transition = await this.InvokeActionAsync(entryAction, e);
-                await this.ApplyEventHandlerTransitionAsync(transition, e);
+                await this.InvokeActionAsync(entryAction, e);
+                await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
             }
         }
 
@@ -440,7 +488,8 @@ namespace Microsoft.Coyote.Actors
             if (exitAction != null)
             {
                 this.Runtime.NotifyInvokedOnExitAction(this, exitAction.MethodInfo, e);
-                Transition transition = await this.InvokeActionAsync(exitAction, e);
+                await this.InvokeActionAsync(exitAction, e);
+                Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None ||
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
@@ -454,7 +503,8 @@ namespace Microsoft.Coyote.Actors
             {
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
                 this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, e);
-                Transition transition = await this.InvokeActionAsync(eventHandlerExitAction, e);
+                await this.InvokeActionAsync(eventHandlerExitAction, e);
+                Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None ||
                     transition.TypeValue is Transition.Type.Halt,
                     "{0} has performed a '{1}' transition from an OnExit action.",
@@ -1093,8 +1143,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Defines the <see cref="StateMachine"/> transition that is the
         /// result of executing an event handler.  Transitions are created by using
-        /// <see cref="StateMachine.GotoState{T}"/>, <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.PushState{T}"/> or
-        /// <see cref="StateMachine.PopState"/> and <see cref="StateMachine.Halt"/>.
+        /// <see cref="StateMachine.RaiseGotoStateEvent{T}"/>, <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaisePushStateEvent{T}"/> or
+        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
         /// The Transition is processed by the Coyote runtime when
         /// an event handling method of a StateMachine returns a Transition object.
         /// This means such a method can only do one such Transition per method call.
@@ -1104,7 +1154,7 @@ namespace Microsoft.Coyote.Actors
         /// <remarks>
         /// See <see href="/coyote/learn/programming-models/actors/state-machines">State machines</see> for more information.
         /// </remarks>
-        public readonly struct Transition
+        internal readonly struct Transition
         {
             /// <summary>
             /// The type of the transition.
@@ -1157,26 +1207,26 @@ namespace Microsoft.Coyote.Actors
                 RaiseEvent,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.GotoState{S}"/> that pops the current <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="StateMachine.RaiseGotoStateEvent{S}"/> that pops the current <see cref="StateMachine.State"/>
                 /// and pushes the specified <see cref="StateMachine.State"/> on the
                 /// stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 GotoState,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.PushState{S}"/> that pushes the specified <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="StateMachine.RaisePushStateEvent{S}"/> that pushes the specified <see cref="StateMachine.State"/>
                 /// on the stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 PushState,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.PopState"/> that pops the current <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="StateMachine.RaisePopStateEvent"/> that pops the current <see cref="StateMachine.State"/>
                 /// from the stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 PopState,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.Halt"/> that halts the <see cref="StateMachine"/>.
+                /// A transition created by <see cref="StateMachine.RaiseHaltEvent"/> that halts the <see cref="StateMachine"/>.
                 /// </summary>
                 Halt
             }

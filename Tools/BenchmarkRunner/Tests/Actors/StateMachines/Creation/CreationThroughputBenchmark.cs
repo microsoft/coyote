@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 var numMachines = (e as SetupEvent).NumMachines;
@@ -53,10 +53,8 @@ namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
 
                 if (doHalt)
                 {
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
-
-                return default;
             }
         }
 

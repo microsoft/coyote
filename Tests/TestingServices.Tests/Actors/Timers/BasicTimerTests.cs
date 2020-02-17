@@ -207,13 +207,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition DoPing(Event e)
+            private void DoPing(Event e)
             {
                 this.Config = (TimerCountEvent)e;
                 this.Config.Count = 0;
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
                 this.StopTimer(this.PingTimer);
-                return this.GotoState<Pong>();
+                this.RaiseGotoStateEvent<Pong>();
             }
 
             private void DoPong()
@@ -354,11 +354,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 // Start a regular timer.
                 this.StartTimer(TimeSpan.FromMilliseconds(10));
-                return this.GotoState<Final>();
+                this.RaiseGotoStateEvent<Final>();
             }
 
             [OnEntry(nameof(FinalOnEntry))]
@@ -367,7 +367,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition FinalOnEntry() => this.Halt();
+            private void FinalOnEntry() => this.RaiseHaltEvent();
         }
 
         [Fact(Timeout = 10000)]
@@ -408,7 +408,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Initialize(Event e)
+            private void Initialize(Event e)
             {
                 var ce = e as ConfigEvent;
                 this.Config = ce;
@@ -424,8 +424,6 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     default:
                         break;
                 }
-
-                return default;
             }
 
             private void OnMyTimeout(Event e)

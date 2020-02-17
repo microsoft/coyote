@@ -375,9 +375,9 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.Assert(predicate, s, args);
 
         /// <summary>
-        /// Halts the actor at the end of the current action.
+        /// Raises a <see cref='HaltEvent'/> to halt the actor at the end of the current action.
         /// </summary>
-        protected void Halt()
+        protected virtual void RaiseHaltEvent()
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
             this.CurrentStatus = Status.Halting;

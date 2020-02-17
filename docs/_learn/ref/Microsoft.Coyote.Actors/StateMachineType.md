@@ -18,7 +18,6 @@ public abstract class StateMachine : Actor
 | --- | --- |
 | abstract class [State](StateMachineStateType) | Abstract class representing a state. |
 | abstract class [StateGroup](StateMachineStateGroupType) | Abstract class used for representing a group of related states. |
-| struct [Transition](StateMachineTransitionType) | Defines the [`StateMachine`](StateMachineType) transition that is the result of executing an event handler. Transitions are created by using [`GotoState`](StateMachine/GotoState), [`RaiseEvent`](StateMachine/RaiseEvent), [`PushState`](StateMachine/PushState) or [`PopState`](StateMachine/PopState) and [`Halt`](StateMachine/Halt). The Transition is processed by the Coyote runtime when an event handling method of a StateMachine returns a Transition object. This means such a method can only do one such Transition per method call. If the method wants to do a conditional transition it can return Transition.None to indicate no transition is to be performed. |
 
 ## Protected Members
 
@@ -26,14 +25,14 @@ public abstract class StateMachine : Actor
 | --- | --- |
 | [StateMachine](StateMachine/StateMachine)() | Initializes a new instance of the [`StateMachine`](StateMachineType) class. |
 | [CurrentState](StateMachine/CurrentState) { get; } | Gets the Type of the current state. |
-| [GotoState](StateMachine/GotoState)(…) | Creates a transition that pops the current [`State`](StateMachineStateType) and pushes the specified [`State`](StateMachineStateType) to the state stack at the end of the current action. |
-| [GotoState&lt;S&gt;](StateMachine/GotoState)() | Creates a [`Transition`](StateMachineTransitionType) that pops the current [`State`](StateMachineStateType) and pushes the specified [`State`](StateMachineStateType) to the state stack at the end of the current action. |
-| [Halt](StateMachine/Halt)() | Creates a transition that halts the state machine at the end of the current action. |
 | override [OnEventHandledAsync](StateMachine/OnEventHandledAsync)(…) | Asynchronous callback that is invoked when the actor finishes handling a dequeued event, unless the handler of the dequeued event raised an event or caused the actor to halt (either normally or due to an exception). Unless this callback raises an event, the actor will either become idle or dequeue the next event from its inbox. |
-| [PopState](StateMachine/PopState)() | Creates a transition that pops the current [`State`](StateMachineStateType) from the state stack at the end of the current action. |
-| [PushState](StateMachine/PushState)(…) | Creates a transition that pushes the specified [`State`](StateMachineStateType) to the state stack at the end of the current action. |
-| [PushState&lt;S&gt;](StateMachine/PushState)() | Creates a transition that pushes the specified [`State`](StateMachineStateType) to the state stack at the end of the current action. |
-| [RaiseEvent](StateMachine/RaiseEvent)(…) | Creates a transition that raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
+| [RaiseEvent](StateMachine/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
+| [RaiseGotoStateEvent](StateMachine/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
+| [RaiseGotoStateEvent&lt;S&gt;](StateMachine/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
+| override [RaiseHaltEvent](StateMachine/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
+| [RaisePopStateEvent](StateMachine/RaisePopStateEvent)() | Raise a special event that performs a pop state operation at the end of the current action. |
+| [RaisePushStateEvent&lt;S&gt;](StateMachine/RaisePushStateEvent)() | Raise a special event that performs a push state operation at the end of the current action. |
+| [RasiePushStateEvent](StateMachine/RasiePushStateEvent)(…) | Raise a special event that performs a push state operation at the end of the current action. |
 
 ## Remarks
 

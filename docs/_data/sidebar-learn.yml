@@ -231,8 +231,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Monitor
         - name: Assert
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Assert
-        - name: Halt
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Halt
+        - name: RaiseHaltEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/RaiseHaltEvent
         - name: OnInitializeAsync
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync
         - name: OnEventDequeuedAsync
@@ -334,14 +334,16 @@ learn-toc:
         subfolderitems:
         - name: RaiseEvent
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent
-        - name: GotoState
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/GotoState
-        - name: PushState
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/PushState
-        - name: PopState
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/PopState
-        - name: Halt
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/Halt
+        - name: RaiseGotoStateEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseGotoStateEvent
+        - name: RaisePushStateEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaisePushStateEvent
+        - name: RasiePushStateEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RasiePushStateEvent
+        - name: RaisePopStateEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent
+        - name: RaiseHaltEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent
         - name: OnEventHandledAsync
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync
         - name: StateMachine
@@ -353,13 +355,6 @@ learn-toc:
         subfolderitems:
         - name: OnEventDoActionAttribute
           link: /learn/ref/Microsoft.Coyote.Actors/Actor.OnEventDoActionAttribute/OnEventDoActionAttribute
-      - name: StateMachine.Transition
-        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineTransitionType
-        subfolderitems:
-        - name: TypeValue
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.Transition/TypeValue
-        - name: None
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.Transition/None
       - name: StateMachine.State
         link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateType
         subfolderitems:
@@ -370,8 +365,6 @@ learn-toc:
         subfolderitems:
         - name: StateGroup
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.StateGroup/StateGroup
-      - name: StateMachine.Transition.Type
-        link: /learn/ref/Microsoft.Coyote.Actors/StateMachineTransitionTypeType
       - name: StateMachine.State.StartAttribute
         link: /learn/ref/Microsoft.Coyote.Actors/StateMachineStateStartAttributeType
         subfolderitems:
@@ -668,8 +661,8 @@ learn-toc:
         subfolderitems:
         - name: RaiseEvent
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/RaiseEvent
-        - name: GotoState
-          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/GotoState
+        - name: RaiseGotoStateEvent
+          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/RaiseGotoStateEvent
         - name: Assert
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Assert
         - name: ToString
@@ -693,13 +686,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Specifications/Specification/RegisterMonitor
         - name: Monitor
           link: /learn/ref/Microsoft.Coyote.Specifications/Specification/Monitor
-      - name: Monitor.Transition
-        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorTransitionType
-        subfolderitems:
-        - name: TypeValue
-          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.Transition/TypeValue
-        - name: None
-          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.Transition/None
       - name: Monitor.State
         link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateType
         subfolderitems:
@@ -710,8 +696,6 @@ learn-toc:
         subfolderitems:
         - name: StateGroup
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.StateGroup/StateGroup
-      - name: Monitor.Transition.Type
-        link: /learn/ref/Microsoft.Coyote.Specifications/MonitorTransitionTypeType
       - name: Monitor.State.StartAttribute
         link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateStartAttributeType
         subfolderitems:

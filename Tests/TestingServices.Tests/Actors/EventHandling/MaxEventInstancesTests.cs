@@ -61,11 +61,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.N = this.CreateActor(typeof(N));
                 this.SendEvent(this.N, new SetupEvent(this.Id));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition EntryS2() => this.RaiseEvent(UnitEvent.Instance);
+            private void EntryS2() => this.RaiseEvent(UnitEvent.Instance);
 
             [OnEventGotoState(typeof(E4), typeof(S3))]
             private class S3 : State
@@ -111,10 +111,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.M = (e as SetupEvent).Id;
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEventGotoState(typeof(E1), typeof(S1))]

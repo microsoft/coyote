@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
         }
 
         [Fact(Timeout = 5000)]

@@ -165,8 +165,8 @@ When an event arrives, the actor dequeues that event from the input queue and ha
 
 * `Client.cs` defines the `Client` class. This is a Coyote [`StateMachine`](/coyote/learn/programming-models/actors/overview#state-machines).
 A Coyote state machine is a special type of `Actor` that inherits from `StateMachine` and adds `State` semantics with explicit
-information about how `Events` can trigger `State` changes in that `StateMachine`. State machines are actors, but also have explicit `states`,
-and state `transitions`.
+information about how `Events` can trigger `State` changes in that `StateMachine`. State machines are actors, but also have explicit states,
+and state transitions.
 
 Let's study the code in detail. You can find the full code in the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 
@@ -246,7 +246,7 @@ internal class Client : StateMachine
     [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
     private class Init : State { }
 
-    private Transition InitOnEntry(Event e) . . .
+    private void InitOnEntry(Event e) . . .
 
     [OnEntry(nameof(ClientActiveEntry))]
     [OnEventDoAction(typeof(GreetingProducedEvent), nameof(HandleGreeting))]
@@ -283,26 +283,24 @@ and the first method to be executed is `InitOnEntry()` as specified on another a
 The `InitOnEntry()` method receives as payload a `ConfigEvent`, and it uses `ConfigEvent`'s members to set the members of the `Client` object:
 
 ```c#
-private Transition InitOnEntry(Event e)
+private void InitOnEntry(Event e)
 {
     ConfigEvent configEvent = e as ConfigEvent;
     this.CompletionSource = configEvent.CompletionSource;
     this.Server = configEvent.OtherParty;
     this.MaxRequests = configEvent.MaxRequests;
 
-    return this.RaiseEvent(new ReadyEvent());
+    this.RaiseEvent(new ReadyEvent());
 }
 ```
 
-The method above raises a `ReadyEvent`, returning a Coyote `Transition` object. As specified by this attribute of the `Init` state:
+The method above raises a `ReadyEvent`. As specified by this attribute of the `Init` state:
 
-`[OnEventGotoState(typeof(ReadyEvent), typeof(Active))]`
-
-
-
+```c#
+[OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
+```
 
 receiving the `ReadyEvent` causes a transition to a new state -- the `Active` state:
-
 
 ```c#
 [OnEntry(nameof(ClientActiveEntry))]

@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
 
             protected override Task OnHaltAsync(Event e)
             {
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
 
             protected override async Task OnHaltAsync(Event e)
             {
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
         }
 
         private class M3 : StateMachine
@@ -129,10 +129,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.tcs = (e as E).Tcs;
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
 
             protected override Task OnHaltAsync(Event e)

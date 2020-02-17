@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.NumOfNodes = 3;
                 this.NumOfIds = (int)Math.Pow(2, this.NumOfNodes);
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
 
                 this.CreateActor(typeof(Client), new Client.SetupEvent(this.Id, new List<int>(this.Keys)));
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEventDoAction(typeof(ChordNode.FindSuccessor), nameof(ForwardFindSuccessor))]
@@ -399,7 +399,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.FingerTable = new Dictionary<int, Finger>();
             }
 
-            private Transition Setup(Event e)
+            private void Setup(Event e)
             {
                 this.NodeId = (e as SetupEvent).Id;
                 this.Keys = (e as SetupEvent).Keys;
@@ -428,7 +428,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     }
                 }
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             private void JoinCluster(Event e)
@@ -623,7 +623,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 }
             }
 
-            private Transition ProcessTerminate() => this.Halt();
+            private void ProcessTerminate() => this.RaiseHaltEvent();
 
             private static int GetSuccessorNodeId(int start, List<int> nodeIds)
             {
@@ -702,7 +702,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.ClusterManager = (e as SetupEvent).ClusterManager;
                 this.Keys = (e as SetupEvent).Keys;
@@ -713,7 +713,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 this.QueryCounter = 0;
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             [OnEntry(nameof(QueryingOnEntry))]
@@ -722,7 +722,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition QueryingOnEntry()
+            private void QueryingOnEntry()
             {
                 if (this.QueryCounter < 5)
                 {
@@ -745,7 +745,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.QueryCounter++;
                 }
 
-                return this.RaiseEvent(new Local());
+                this.RaiseEvent(new Local());
             }
 
             private int GetNextQueryKey()
@@ -781,7 +781,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(successor, new ChordNode.QueryId(this.Id));
             }
 
-            private Transition ProcessQueryIdResp() => this.RaiseEvent(new Local());
+            private void ProcessQueryIdResp() => this.RaiseEvent(new Local());
         }
 
         private class LivenessMonitor : Monitor
@@ -814,7 +814,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Responded>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Responded>();
 
             [Cold]
             [OnEventGotoState(typeof(NotifyClientRequest), typeof(Requested))]

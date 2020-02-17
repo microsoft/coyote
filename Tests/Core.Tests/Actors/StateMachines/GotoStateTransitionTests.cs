@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Final>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Final>();
 
             private class Final : State
             {
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry() => this.RaiseEvent(new Message());
+            private void InitOnEntry() => this.RaiseEvent(new Message());
 
             private class Final : State
             {

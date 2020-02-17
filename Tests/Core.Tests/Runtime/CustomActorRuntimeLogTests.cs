@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             {
             }
 
-            private Transition OnE() => this.GotoState<Done>();
+            private void OnE() => this.RaiseGotoStateEvent<Done>();
         }
 
         internal class N : StateMachine

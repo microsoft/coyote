@@ -31,7 +31,6 @@ public abstract class Actor
 | virtual [OperationGroupId](Actor/OperationGroupId) { get; set; } | Id used to identify subsequent operations performed by this actor. This value is initially either Empty or the Guid specified upon creation. This value is automatically set to the operation group id of the last dequeue or receive operation, if it is not Empty. This value can also be manually set using the property. |
 | [Assert](Actor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [CreateActor](Actor/CreateActor)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This [`Event`](../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled. (3 methods) |
-| [Halt](Actor/Halt)() | Halts the actor at the end of the current action. |
 | [Monitor](Actor/Monitor)(…) | Invokes the specified monitor with the specified event. |
 | [Monitor&lt;T&gt;](Actor/Monitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
 | virtual [OnEventDequeuedAsync](Actor/OnEventDequeuedAsync)(…) | Asynchronous callback that is invoked when the actor successfully dequeues an event from its inbox. This method is not called when the dequeue happens via a receive statement. |
@@ -41,6 +40,7 @@ public abstract class Actor
 | virtual [OnExceptionHandledAsync](Actor/OnExceptionHandledAsync)(…) | Asynchronous callback that is invoked when the actor handles an exception. |
 | virtual [OnHaltAsync](Actor/OnHaltAsync)(…) | Asynchronous callback that is invoked when the actor halts. |
 | virtual [OnInitializeAsync](Actor/OnInitializeAsync)(…) | Asynchronous callback that is invoked when the actor is initialized with an optional event. |
+| virtual [RaiseHaltEvent](Actor/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
 | [Random](Actor/Random)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
 | [Random](Actor/Random)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |
 | [RandomInteger](Actor/RandomInteger)(…) | Returns a nondeterministic integer, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |

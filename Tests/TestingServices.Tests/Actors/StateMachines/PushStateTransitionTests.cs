@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.PushState<Done>();
+            private void InitOnEntry() => this.RaisePushStateEvent<Done>();
 
             [OnEntry(nameof(EntryDone))]
             private class Done : State
@@ -59,11 +59,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Assert(this.cnt == 0); // called once
                 this.cnt++;
-                return this.PushState<Done>();
+                this.RaisePushStateEvent<Done>();
             }
 
             [OnEntry(nameof(EntryDone))]
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition EntryDone() => this.PopState();
+            private void EntryDone() => this.RaisePopStateEvent();
         }
 
         [Fact(Timeout = 5000)]
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.PushState<Done>();
+            private void InitOnEntry() => this.RaisePushStateEvent<Done>();
 
             private void ExitInit()
             {
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.PushState<M4b.Done>();
+            private void InitOnEntry() => this.RaisePushStateEvent<M4b.Done>();
 
             private class Done : State
             {
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition Bar() => this.PopState();
+            private void Bar() => this.RaisePopStateEvent();
         }
 
         private class E1 : Event
@@ -230,9 +230,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
-            private Transition ExitMethod() => this.PushState<Done>();
+            private void ExitMethod() => this.RaisePushStateEvent<Done>();
 
             private class Done : State
             {

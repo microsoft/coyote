@@ -146,10 +146,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.SendEvent(this.Id, new E1());
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             private void HandleUnitEvent()
@@ -485,11 +485,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ActiveOnEntry()
+            private void ActiveOnEntry()
             {
                 this.Test = true;
                 this.SendEvent(this.Id, new E2());
-                return this.PopState();
+                this.RaisePopStateEvent();
             }
 
             private void HandleE2()
@@ -704,10 +704,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ActiveOnEntry()
+            private void ActiveOnEntry()
             {
                 this.Test = true;
-                return this.PopState();
+                this.RaisePopStateEvent();
             }
 
             private void ActiveOnExit()
@@ -759,7 +759,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ActiveOnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void ActiveOnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
             private void HandleE2()
             {
@@ -786,7 +786,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
             [OnEntry(nameof(ActiveOnEntry))]
             [OnExit(nameof(ActiveOnExit))]
@@ -794,7 +794,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ActiveOnEntry() => this.PopState();
+            private void ActiveOnEntry() => this.RaisePopStateEvent();
 
             private void ActiveOnExit()
             {
@@ -825,10 +825,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                return this.RaiseEvent(HaltEvent.Instance);
+                this.RaiseEvent(HaltEvent.Instance);
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -871,7 +871,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.RaiseEvent(new E1());
+            private void InitOnEntry() => this.RaiseEvent(new E1());
 
             private void HandleUnitEvent()
             {
@@ -949,10 +949,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Value = 0;
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             private void DefaultAction()
@@ -966,18 +966,16 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ActiveOnEntry()
+            private void ActiveOnEntry()
             {
                 if (this.Value == 0)
                 {
-                    return this.RaiseEvent(UnitEvent.Instance);
+                    this.RaiseEvent(UnitEvent.Instance);
                 }
                 else
                 {
                     this.Value++;
                 }
-
-                return default;
             }
         }
 
@@ -1052,10 +1050,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition EntryS1()
+            private void EntryS1()
             {
                 this.Assert(this.Test == true); // Holds.
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(EntryS2))]
@@ -1134,11 +1132,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.GhostMachine = this.CreateActor(typeof(M22b));
                 this.SendEvent(this.GhostMachine, new SetupEvent(this.Id));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(EntryS1))]
@@ -1239,11 +1237,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.GhostMachine = this.CreateActor(typeof(M23b));
                 this.SendEvent(this.GhostMachine, new SetupEvent(this.Id));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(EntryS1))]

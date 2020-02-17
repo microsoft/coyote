@@ -24,10 +24,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Item = default;
-                return this.GotoState<Active>();
+                this.RaiseGotoStateEvent<Active>();
             }
 
             [OnEntry(nameof(ActiveInit))]

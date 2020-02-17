@@ -117,19 +117,19 @@ has a couple more advanced parameters which you don't need to worry about right 
 An event can be created by sub-classing from `Microsoft.Coyote.Event`:
 
 ```c#
-    using Microsoft.Coyote;
+using Microsoft.Coyote;
 
-    class PingEvent : Event
+class PingEvent : Event
+{
+    public readonly ActorId Caller;
+
+    public PingEvent(ActorId caller)
     {
-        public readonly ActorId Caller;
-
-        public PingEvent(ActorId caller)
-        {
-            this.Caller = caller;
-        }
+        this.Caller = caller;
     }
+}
 
-    class PongEvent : Event { }
+class PongEvent : Event { }
 ```
 
 An event can contain members of any type (including scalar values or references to object) and when an event
@@ -140,26 +140,25 @@ Now you can write a complete actor, declaring what type of events it can handle,
 and an event handler:
 
 ```c#
-    [OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
-    class Server : Actor
+[OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
+class Server : Actor
+{
+    ActorId ClientId;
+
+    protected override Task OnInitializeAsync(Event initialEvent)
     {
-        ActorId ClientId;
-
-        protected override Task OnInitializeAsync(Event initialEvent)
-        {
-            Console.WriteLine("Server creating client");
-            this.ClientId = this.CreateActor(typeof(Client));
-            Console.WriteLine("Server sending ping event to client");
-            this.SendEvent(this.ClientId, new PingEvent(this.Id));
-            return base.OnInitializeAsync(initialEvent);
-        }
-
-        void HandlePong()
-        {
-            Console.WriteLine("Server received pong event");
-        }
+        Console.WriteLine("Server creating client");
+        this.ClientId = this.CreateActor(typeof(Client));
+        Console.WriteLine("Server sending ping event to client");
+        this.SendEvent(this.ClientId, new PingEvent(this.Id));
+        return base.OnInitializeAsync(initialEvent);
     }
 
+    void HandlePong()
+    {
+        Console.WriteLine("Server received pong event");
+    }
+}
 ```
 
 This `Server` is an `Actor` that can receive `PongEvents`.
@@ -175,18 +174,17 @@ but in this case it doesn't care about the specific type of event it received he
 To complete this Coyote program, you can provide the following implementation of the `Client` actor created by the above `Server`:
 
 ```c#
-    [OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
-    class Client : Actor
+[OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
+class Client : Actor
+{
+    public void HandlePing(Event e)
     {
-        public async Task HandlePing(Event e)
-        {
-            PingEvent pe = (PingEvent)e;
-            Console.WriteLine("Client handling ping");
-            Console.WriteLine("Client sending pong to server");
-            this.SendEvent(pe.Caller, new PongEvent());
-            await Task.CompletedTask;
-        }
+        PingEvent pe = (PingEvent)e;
+        Console.WriteLine("Client handling ping");
+        Console.WriteLine("Client sending pong to server");
+        this.SendEvent(pe.Caller, new PongEvent());
     }
+}
 ```
 
 This `Client` is an `Actor` that can receive `PingEvents`. It handles the `PingEvent` by calling the `HandlePing` method.

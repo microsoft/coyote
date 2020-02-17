@@ -41,10 +41,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected Transition Coyote_Init_on_entry_action()
+            protected void Coyote_Init_on_entry_action()
             {
                 WithNameofValue += 1;
-                return this.RaiseEvent(new E1());
+                this.RaiseEvent(new E1());
             }
 
             protected void Coyote_Init_on_exit_action()
@@ -52,10 +52,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 WithNameofValue += 10;
             }
 
-            protected Transition Coyote_Next_on_entry_action()
+            protected void Coyote_Next_on_entry_action()
             {
                 WithNameofValue += 1000;
-                return this.RaiseEvent(new E2());
+                this.RaiseEvent(new E2());
             }
 
             protected void Coyote_Init_E1_action()
@@ -85,10 +85,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            protected Transition Coyote_Init_on_entry_action()
+            protected void Coyote_Init_on_entry_action()
             {
                 WithoutNameofValue += 1;
-                return this.RaiseEvent(new E1());
+                this.RaiseEvent(new E1());
             }
 
             protected void Coyote_Init_on_exit_action()
@@ -96,10 +96,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 WithoutNameofValue += 10;
             }
 
-            protected Transition Coyote_Next_on_entry_action()
+            protected void Coyote_Next_on_entry_action()
             {
                 WithoutNameofValue += 1000;
-                return this.RaiseEvent(new E2());
+                this.RaiseEvent(new E2());
             }
 
             protected void Coyote_Init_E1_action()

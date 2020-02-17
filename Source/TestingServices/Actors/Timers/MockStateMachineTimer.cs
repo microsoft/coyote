@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.TestingServices.Timers
         /// <summary>
         /// Handles the timeout.
         /// </summary>
-        private Transition HandleTimeout()
+        private void HandleTimeout()
         {
             // Try to send the next timeout event.
             bool isTimeoutSent = false;
@@ -84,10 +84,8 @@ namespace Microsoft.Coyote.TestingServices.Timers
             // inactive until disposal. Else retry.
             if (isTimeoutSent && this.TimerInfo.Period.TotalMilliseconds < 0)
             {
-                return this.GotoState<Inactive>();
+                this.RaiseGotoStateEvent<Inactive>();
             }
-
-            return default;
         }
 
         private class Inactive : State

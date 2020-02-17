@@ -27,9 +27,9 @@ When writing tutorials, keep some basic guidelines in mind.
 
 **Be clear and concise — not hip or clever.** Avoid idioms, colloquial expressions, and culture-specific references.
 
-• Instead of: Down the road, ELL will grow.
+• Instead of: Down the road, Coyote will grow.
 
-• Use: In the future, ELL will grow.
+• Use: In the future, Coyote will grow.
 
 **Don't say it's easy.** You're writing for a variety of readers, with varying degrees of ability. Don't assume you know what's challenging or easy for someone. Avoid adverbs such as _obviously, clearly,_ and _apparently_. Also avoid "filler" adverbs, such as _very, really,_ and _actually_.
 

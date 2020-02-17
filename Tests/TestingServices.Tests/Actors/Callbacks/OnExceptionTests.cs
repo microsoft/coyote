@@ -142,9 +142,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
-                return this.RaiseEvent(new E(this.Id));
+                this.RaiseEvent(new E(this.Id));
             }
 
             private void Act()
@@ -216,9 +216,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
-                return this.RaiseEvent(new E(this.Id));
+                this.RaiseEvent(new E(this.Id));
             }
 
             private async Task Act()
@@ -257,9 +257,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
-                return this.RaiseEvent(new E(this.Id));
+                this.RaiseEvent(new E(this.Id));
             }
 
             private void InitOnExit()

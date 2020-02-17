@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Workers = new List<ActorId>();
 
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 }
 
                 this.Monitor<M>(new MConfig(this.Workers));
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -107,10 +107,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Master = (e as SetupEvent).Id;
-                return this.RaiseEvent(UnitEvent.Instance);
+                this.RaiseEvent(UnitEvent.Instance);
             }
 
             [OnEventGotoState(typeof(DoProcessing), typeof(Done))]
@@ -123,14 +123,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition DoneOnEntry()
+            private void DoneOnEntry()
             {
                 if (this.Random())
                 {
                     this.SendEvent(this.Master, new FinishedProcessing());
                 }
 
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -152,16 +152,14 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 this.Workers = (e as MConfig).Ids;
             }
 
-            private Transition ProcessNotification()
+            private void ProcessNotification()
             {
                 this.Workers.RemoveAt(0);
 
                 if (this.Workers.Count == 0)
                 {
-                    return this.RaiseEvent(UnitEvent.Instance);
+                    this.RaiseEvent(UnitEvent.Instance);
                 }
-
-                return Transition.None;
             }
 
             private class Done : State

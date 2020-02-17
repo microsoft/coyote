@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: Halt
-permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/Halt
+title: RaiseHaltEvent
+permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/RaiseHaltEvent
 ---
-# Actor.Halt method
+# Actor.RaiseHaltEvent method
 
-Halts the actor at the end of the current action.
+Raises a [`HaltEvent`](../HaltEventType) to halt the actor at the end of the current action.
 
 ```csharp
-protected void Halt()
+protected virtual void RaiseHaltEvent()
 ```
 
 ## See Also

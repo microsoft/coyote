@@ -24,13 +24,13 @@ class Server : StateMachine
     [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
     class Init : State { }
 
-    Transition InitOnEntry()
+    void InitOnEntry()
     {
         Console.WriteLine("Server Creating client");
         this.ClientId = this.CreateActor(typeof(Client));
         Console.WriteLine("Server sending ping event to client");
         this.SendEvent(this.ClientId, new PingEvent(this.Id));
-        return this.RaiseEvent(new ReadyEvent());
+        this.RaiseEvent(new ReadyEvent());
     }
 
     [OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
@@ -41,7 +41,6 @@ class Server : StateMachine
         Console.WriteLine("Server received pong event while in the {0} state", this.CurrentState.Name);
     }
 }
-
 ```
 
 The above class declares a state machine named `Server`. The `StateMachine` class itself inherits from `Actor`
@@ -57,45 +56,38 @@ initial state of `Server`. A state declaration can optionally be decorated with 
 seen in the `[Init]` state:
 
 ```c#
-    [OnEntry(nameof(InitOnEntry))]
-    [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
+[OnEntry(nameof(InitOnEntry))]
+[OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
 ```
 
 The `OnEntry` attribute denotes an action that will be executed when the
 machine transitions to the `Init` state, while the `OnExit` attribute denotes
 an action that will be executed when the machine leaves the state. Actions in Coyote are
 C# methods that take either no input parameters or a single input parameter of type `Event`,
-and return either `void`, `async Task`, `Transition` or `async Task<Transition>`.
+and return either `void`, `async Task`.
 
 Notice that the `InitOnEntry` method declared above is similar to the original `OnInitializeAsync`
-method on the `Server` Actor, except it returns a `Transition` object instead of void.
-`Transition` is a special concept used by state machines to manage the changing of the
-current state.  In this case a `RaiseEvent` call is used to signal that the `Init` state
-is done and we are now ready to transition to the `Active` state:
+method on the `Server` Actor.  The `RaiseEvent` call is used to trigger the state transition
+defined in the `OnEventGotoState` custom attribute, in this case it is ready to transition to the `Active` state:
 
 ```c#
-return this.RaiseEvent(new ReadyEvent());
+this.RaiseEvent(new ReadyEvent());
 ```
 
 The `RaiseEvent` call is used to send an event to yourself.
 Similar to `SendEvent`, when a machine raises an event on itself, it is also queued so that
-the method can continue execution until the `Transition` result from `RaiseEvent` is returned
-by the `InitOnEntry` method. When the current machine action finishes, instead of dequeuing the next event
+the method can continue execution until the `InitOnEntry` method is completed.
+But when control returns to the coyote runtime, instead of dequeuing the next event
 from the inbox (if there is one), the machine immediately handles the raised event
-(prioritizing it over the inbox) by performing the raise event transition declared in the `OnEventGotoState` attribute.
+(is it is prioritizing it over the inbox).
 This prioritization is important in the above case, because it guarantees that the Server will transition to the
 `Active` state before the `PongEvent` is received from the `Client`.
 
-Since `Transition` represents a change of state is about to happen, a given method can only
-return one such `Transition`, which means internally the logic must be written in a way that only
-results in the creation of one `Transition` per action.  This means it is illegal to do two
-`RaiseEvent` calls, or a `RaiseEvent` and a `Goto<State>` and so on.  This may seem limiting, but
-these limits are designed to keep your code clean and simple where all your state transitions
-are easy to understand and test.
-
 The attribute `OnEventGotoState` indicates that if the state machine receives the `ReadyEvent` event
 while it is currently in the `Init` state, it will automatically handle the `ReadyEvent` by exiting
-the `Init` state and transitioning to the `Active` state.
+the `Init` state and transitioning to the `Active` state.  This saves you from having to write that
+trivial event handler.
+
 All this happens as a result of the simple `RaiseEvent` call and the `OnEventGotoState` attribute.
 The Coyote state machine programming model takes a lot of tedium out of managing explicit state machinery.
 If you ever find yourself building your own state machinery, then you definitely should consider using the
@@ -120,50 +112,85 @@ is more declarative and is enforced by the Coyote runtime; the Coyote runtime wi
 event is received on a `State` of a `StateMachine` that was not expecting to receive that event.
 This reduces the amount of tedious book keeping code you need to write, and keeps your code even cleaner.
 
-### Goto, Push and Pop states
+### Goto, push and pop states
 
 Besides `RaiseEvent`, state machine event handlers can request an explicit state change rather than
-depending on `OnEventGotoState` attributes.  The following example shows how Goto can be used:
+depending on `OnEventGotoState` attributes.  This allows conditional goto operations as shown in the following
+example:
 
 ```c#
-    Transition InitOnEntry()
+void InitOnEntry()
+{
+    Console.WriteLine("Server Creating client");
+    this.ClientId = this.CreateActor(typeof(Client));
+    Console.WriteLine("Server sending ping event to client");
+    this.SendEvent(this.ClientId, new PingEvent(this.Id));
+    if (this.Random())
     {
-        Console.WriteLine("Server Creating client");
-        this.ClientId = this.CreateActor(typeof(Client));
-        Console.WriteLine("Server sending ping event to client");
-        this.SendEvent(this.ClientId, new PingEvent(this.Id));
-        return this.GotoState<Active>();
+        this.RaiseGotoStateEvent<Active>();
     }
+    else
+    {
+        this.RaiseGotoStateEvent<Busy>();
+    }
+}
 ```
 
-State machines can also `push` and `pop` states, effectively creating a stack of active states.
-Use `PushState` to push a new state:
+State machines can also push and pop states, effectively creating a stack of active states.
+Use `RaisePushStateEvent` to push a new state:
 
 ```c#
-    return this.PushState<Active>();
+return this.RaisePushStateEvent<Active>();
 ```
 
 This will push the `Active` state on the stack, but it will also allow any events declared on the `Init`
 state to also be received and handled.  The Active state could then choose to return to the `Init`
-state using a `PopState` call:
+state using a `RaisePopStateEvent` call:
 
 ```c#
-    Transition HandlePong()
-    {
-        Console.WriteLine("Server received pong event while in the {0} state", this.CurrentState.Name);
-        return this.PopState();
-    }
+void HandlePong()
+{
+    Console.WriteLine("Server received pong event while in the {0} state", this.CurrentState.Name);
+    this.RaisePopStateEvent();  // pop the current state off the stack of active states.
+}
 ```
 
-Note that this does not result in `InitOnEntry` being called again, because with `push` it never
-actually exited the `Init` state.  But if you use `GotoState` instead, and add `GotoState<Init>` to the
-`HandlePong` method then `InitOnEntry` will be called which then creates an infinite loop of ping pong events.
+Note that this does not result in the `OnEntry` method being called again, because with push it never
+actually exited the `Init` state.  But if you used `RaiseGotoStateEvent` instead of `RaisePushStateEvent`
+and `RaisePopStateEvent` then `InitOnEntry` will be called again, and that would creates an infinite series
+of ping pong events.
 
-The `push` and `pop` feature is considered an advanced feature of state machines.
+The push and pop feature is considered an advanced feature of state machines.
 It is designed to help you reuse some of your event handling code, and is a analogous to how
 virtual methods with overrides work in object oriented programming where the override can reuse
 the base implementation.  Similarly a pushed state is reusing all the event handlers of the previous states
-that are on the stack of active states.
+that are on the stack of active states.  If an event handler is defined more than once in the stack,
+the one closest to the top of the stack is used.
+
+### Only one Raise* operation per action
+
+There is an important restriction on the use of the following.  Only one of these operations can
+be queued up per event handling action:
+
+```c#
+RaiseEvent
+RaiseGotoStateEvent
+RaisePushStateEvent
+RaisePopStateEvent
+RaiseHaltEvent
+```
+
+A runtime `Assert` will be raised if you accidentally try and do two of these operations in a single
+action.  For example, this would be an error because you are trying to do two `Raise` operations in
+the `InitOnEntry` action:
+
+```c#
+void InitOnEntry()
+{
+    this.RaiseGotoStateEvent<Active>();
+    this.RaiseEvent(new TestEvent());
+}
+```
 
 ### Deferring and ignoring events
 

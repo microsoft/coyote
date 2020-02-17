@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
             [OnEntry(nameof(WaitForUserOnEntry))]
             [OnEventGotoState(typeof(UserEvent), typeof(HandleEvent))]

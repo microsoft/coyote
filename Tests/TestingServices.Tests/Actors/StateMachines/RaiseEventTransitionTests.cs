@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition HandleUnitEvent() => this.RaiseEvent(new E());
+            private void HandleUnitEvent() => this.RaiseEvent(new E());
 
             private void HandleE()
             {
@@ -58,9 +58,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
-            private Transition ExitMethod() => this.RaiseEvent(UnitEvent.Instance);
+            private void ExitMethod() => this.RaiseEvent(UnitEvent.Instance);
 
             private class Done : State
             {

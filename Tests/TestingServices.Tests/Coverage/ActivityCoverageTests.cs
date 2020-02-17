@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Coverage
             {
             }
 
-            private Transition InitOnEntry() => this.GotoState<Done>();
+            private void InitOnEntry() => this.RaiseGotoStateEvent<Done>();
 
             private class Done : State
             {
@@ -91,7 +91,7 @@ Event coverage: 100.0%
             {
             }
 
-            private Transition InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void InitOnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
             private class Done : State
             {

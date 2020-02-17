@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition EntryOnInit()
+            private void EntryOnInit()
             {
                 this.NumberOfReplicas = 3;
                 this.NumberOfFaults = 1;
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.NodeManager = this.CreateActor(typeof(NodeManager));
                 this.Client = this.CreateActor(typeof(Client));
 
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(ConfiguringOnInit))]
@@ -88,11 +88,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition ConfiguringOnInit()
+            private void ConfiguringOnInit()
             {
                 this.SendEvent(this.NodeManager, new NodeManager.ConfigureEvent(this.Id, this.NumberOfReplicas));
                 this.SendEvent(this.Client, new Client.ConfigureEvent(this.NodeManager));
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEventDoAction(typeof(NotifyNode), nameof(UpdateAliveNodes))]
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.RepairTimer, new RepairTimer.ConfigureEvent(this.Id));
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Environment = (e as ConfigureEvent).Environment;
                 this.NumberOfReplicas = (e as ConfigureEvent).NumberOfReplicas;
@@ -207,7 +207,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                     this.CreateNewNode();
                 }
 
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private void CreateNewNode()
@@ -378,7 +378,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.SyncTimer, new SyncTimer.ConfigureEvent(this.Id));
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Environment = (e as ConfigureEvent).Environment;
                 this.NodeManager = (e as ConfigureEvent).NodeManager;
@@ -387,7 +387,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeCreated(this.NodeId));
                 this.SendEvent(this.Environment, new Environment.NotifyNode(this.Id));
 
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEventDoAction(typeof(StoreRequest), nameof(Store))]
@@ -417,11 +417,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.SendEvent(this.NodeManager, new SyncReport(this.NodeId, this.Data));
             }
 
-            private Transition Terminate()
+            private void Terminate()
             {
                 this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyNodeFail(this.NodeId));
                 this.SendEvent(this.SyncTimer, HaltEvent.Instance);
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
         }
 
@@ -463,10 +463,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Target = (e as ConfigureEvent).Target;
-                return this.RaiseEvent(new StartTimerEvent());
+                this.RaiseEvent(new StartTimerEvent());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -537,10 +537,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Target = (e as ConfigureEvent).Target;
-                return this.RaiseEvent(new StartTimerEvent());
+                this.RaiseEvent(new StartTimerEvent());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -611,10 +611,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.Target = (e as ConfigureEvent).Target;
-                return this.RaiseEvent(new StartTimerEvent());
+                this.RaiseEvent(new StartTimerEvent());
             }
 
             [OnEntry(nameof(ActiveOnEntry))]
@@ -694,10 +694,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.Counter = 0;
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.NodeManager = (e as ConfigureEvent).NodeManager;
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [OnEntry(nameof(PumpRequestOnEntry))]
@@ -706,7 +706,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition PumpRequestOnEntry()
+            private void PumpRequestOnEntry()
             {
                 int command = this.RandomInteger(100) + 1;
                 this.Counter++;
@@ -715,11 +715,11 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 
                 if (this.Counter == 1)
                 {
-                    return this.Halt();
+                    this.RaiseHaltEvent();
                 }
                 else
                 {
-                    return this.RaiseEvent(new LocalEvent());
+                    this.RaiseEvent(new LocalEvent());
                 }
             }
         }
@@ -792,10 +792,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.DataMap = new Dictionary<int, int>();
             }
 
-            private Transition SetupEvent(Event e)
+            private void SetupEvent(Event e)
             {
                 this.NumberOfReplicas = (e as ConfigureEvent).NumberOfReplicas;
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             [Cold]
@@ -813,10 +813,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.DataMap.Add(nodeId, 0);
             }
 
-            private Transition FailAndCheckRepair(Event e)
+            private void FailAndCheckRepair(Event e)
             {
                 this.ProcessNodeFail(e);
-                return this.RaiseEvent(new LocalEvent());
+                this.RaiseEvent(new LocalEvent());
             }
 
             private void ProcessNodeUpdate(Event e)
@@ -841,7 +841,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 this.DataMap.Remove(nodeId);
             }
 
-            private Transition CheckIfRepaired(Event e)
+            private void CheckIfRepaired(Event e)
             {
                 this.ProcessNodeUpdate(e);
                 var consensus = this.DataMap.Select(kvp => kvp.Value).GroupBy(v => v).
@@ -850,10 +850,8 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 var numOfReplicas = consensus.Count();
                 if (numOfReplicas >= this.NumberOfReplicas)
                 {
-                    return this.RaiseEvent(new LocalEvent());
+                    this.RaiseEvent(new LocalEvent());
                 }
-
-                return default;
             }
         }
 

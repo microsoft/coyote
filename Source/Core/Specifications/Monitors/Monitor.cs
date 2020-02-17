@@ -174,40 +174,72 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Raises an <see cref="Event"/> at the end of the current action.
+        /// Raises the specified <see cref="Event"/> at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <param name="e">The event to raise.</param>
-        /// <returns>The raise event transition.</returns>
-        protected Transition RaiseEvent(Event e)
+        protected void RaiseEvent(Event e)
         {
             this.Assert(e != null, "{0} is raising a null event.", this.GetType().Name);
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.Raise, default, e);
+            this.PendingTransition = new Transition(Transition.Type.Raise, default, e);
         }
 
         /// <summary>
-        /// Transitions the monitor to the specified <see cref="State"/>
-        /// at the end of the current action.
+        /// Raise a special event that performs a goto state operation at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// Goto state pops the current <see cref="State"/> and pushes the specified <see cref="State"/> on the active state stack.
+        ///
+        /// This is shorthand for the following code:
+        /// <code>
+        /// class Event E { }
+        /// [OnEventGotoState(typeof(E), typeof(S))]
+        /// this.RaiseEvent(new E());
+        /// </code>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <typeparam name="S">Type of the state.</typeparam>
-        /// <returns>The goto state transition.</returns>
-        protected Transition GotoState<S>()
+        protected void RaiseGotoStateEvent<S>()
             where S : State =>
-            this.GotoState(typeof(S));
+            this.RaiseGotoStateEvent(typeof(S));
 
         /// <summary>
-        /// Transitions the monitor to the specified <see cref="State"/>
-        /// at the end of the current action.
+        /// Raise a special event that performs a goto state operation at the end of the current action.
         /// </summary>
+        /// <remarks>
+        /// Goto state pops the current <see cref="State"/> and pushes the specified <see cref="State"/> on the active state stack.
+        ///
+        /// This is shorthand for the following code:
+        /// <code>
+        /// class Event E { }
+        /// [OnEventGotoState(typeof(E), typeof(S))]
+        /// this.RaiseEvent(new E());
+        /// </code>
+        /// This event is not handled until the action that calls this method returns control back
+        /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
+        /// Only one of the following can be called per action:
+        /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
+        /// An Assert is raised if you accidentally try and do two of these operations in a single action.
+        /// </remarks>
         /// <param name="state">Type of the state.</param>
-        /// <returns>The goto state transition.</returns>
-        protected Transition GotoState(Type state)
+        protected void RaiseGotoStateEvent(Type state)
         {
             // If the state is not a state of the monitor, then report an error and exit.
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
                 "{0} is trying to transition to non-existing state '{1}'.", this.GetType().Name, state.Name);
             this.CheckDanglingTransition();
-            return this.PendingTransition = new Transition(Transition.Type.Goto, state, default);
+            this.PendingTransition = new Transition(Transition.Type.Goto, state, default);
         }
 
         /// <summary>
@@ -329,8 +361,8 @@ namespace Microsoft.Coyote.Specifications
         {
             CachedDelegate cachedAction = this.ActionMap[actionName];
             this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
-            Transition transition = this.ExecuteAction(cachedAction, e);
-            this.ApplyEventHandlerTransition(transition);
+            this.ExecuteAction(cachedAction, e);
+            this.ApplyEventHandlerTransition(this.PendingTransition);
         }
 
         /// <summary>
@@ -351,8 +383,8 @@ namespace Microsoft.Coyote.Specifications
             // if there is one available.
             if (entryAction != null)
             {
-                Transition transition = this.ExecuteAction(entryAction, e);
-                this.ApplyEventHandlerTransition(transition);
+                this.ExecuteAction(entryAction, e);
+                this.ApplyEventHandlerTransition(this.PendingTransition);
             }
         }
 
@@ -374,7 +406,8 @@ namespace Microsoft.Coyote.Specifications
             // if there is one available.
             if (exitAction != null)
             {
-                Transition transition = this.ExecuteAction(exitAction, e);
+                this.ExecuteAction(exitAction, e);
+                Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
@@ -386,7 +419,8 @@ namespace Microsoft.Coyote.Specifications
             if (eventHandlerExitActionName != null)
             {
                 CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
-                Transition transition = this.ExecuteAction(eventHandlerExitAction, e);
+                this.ExecuteAction(eventHandlerExitAction, e);
+                Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None,
                     "{0} has performed a '{1}' transition from an OnExit action.",
                     this.Id, transition.TypeValue);
@@ -398,19 +432,11 @@ namespace Microsoft.Coyote.Specifications
         /// Executes the specified action.
         /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
-        private Transition ExecuteAction(CachedDelegate cachedAction, Event e)
+        private void ExecuteAction(CachedDelegate cachedAction, Event e)
         {
             try
             {
-                if (cachedAction.Handler is Func<Event, Transition> funcWithEventAndResult)
-                {
-                    return funcWithEventAndResult(e);
-                }
-                else if (cachedAction.Handler is Func<Transition> funcWithResult)
-                {
-                    return funcWithResult();
-                }
-                else if (cachedAction.Handler is Action<Event> actionWithEvent)
+                if (cachedAction.Handler is Action<Event> actionWithEvent)
                 {
                     actionWithEvent(e);
                 }
@@ -443,8 +469,6 @@ namespace Microsoft.Coyote.Specifications
                     this.ReportUnhandledException(innerException, cachedAction.MethodInfo.Name);
                 }
             }
-
-            return Transition.None;
         }
 
         /// <summary>
@@ -936,14 +960,14 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Defines the <see cref="Monitor"/> transition that is the
         /// result of executing an event handler.  Transitions are created by using
-        /// <see cref="Monitor.GotoState{T}"/>, or <see cref="Monitor.RaiseEvent"/>.
+        /// <see cref="Monitor.RaiseGotoStateEvent{T}"/>, or <see cref="Monitor.RaiseEvent"/>.
         /// The Transition is processed by the Coyote runtime when
         /// an event handling method returns a Transition object.
         /// This means such a method can only do one such Transition per method call.
         /// If the method wants to do a conditional transition it can return
         /// Transition.None to indicate no transition is to be performed.
         /// </summary>
-        public readonly struct Transition
+        internal readonly struct Transition
         {
             /// <summary>
             /// The type of the transition.
@@ -996,7 +1020,7 @@ namespace Microsoft.Coyote.Specifications
                 Raise,
 
                 /// <summary>
-                /// A transition created by <see cref="Monitor.GotoState{S}"/> from the current <see cref="Monitor.State"/>
+                /// A transition created by <see cref="Monitor.RaiseGotoStateEvent{S}"/> from the current <see cref="Monitor.State"/>
                 /// to the specified <see cref="Monitor.State"/>.
                 /// </summary>
                 Goto

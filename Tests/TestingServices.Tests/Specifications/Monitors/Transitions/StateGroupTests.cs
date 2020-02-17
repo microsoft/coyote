@@ -46,9 +46,9 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
                 }
             }
 
-            private Transition States1S2OnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void States1S2OnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
-            private Transition States2S1OnEntry() => this.RaiseEvent(UnitEvent.Instance);
+            private void States2S1OnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
             private void States2S2OnEntry()
             {

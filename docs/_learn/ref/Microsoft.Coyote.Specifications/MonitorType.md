@@ -19,7 +19,6 @@ public abstract class Monitor
 | override [ToString](Monitor/ToString)() | Returns a string that represents the current monitor. |
 | abstract class [State](MonitorStateType) | Abstract class representing a state. |
 | abstract class [StateGroup](MonitorStateGroupType) | Abstract class used for representing a group of related states. |
-| struct [Transition](MonitorTransitionType) | Defines the [`Monitor`](MonitorType) transition that is the result of executing an event handler. Transitions are created by using [`GotoState`](Monitor/GotoState), or [`RaiseEvent`](Monitor/RaiseEvent). The Transition is processed by the Coyote runtime when an event handling method returns a Transition object. This means such a method can only do one such Transition per method call. If the method wants to do a conditional transition it can return Transition.None to indicate no transition is to be performed. |
 
 ## Protected Members
 
@@ -31,9 +30,9 @@ public abstract class Monitor
 | [Logger](Monitor/Logger) { get; } | The logger installed to the runtime. |
 | [Name](Monitor/Name) { get; } | Gets the name of this monitor. |
 | [Assert](Monitor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (2 methods) |
-| [GotoState](Monitor/GotoState)(…) | Transitions the monitor to the specified [`State`](MonitorStateType) at the end of the current action. |
-| [GotoState&lt;S&gt;](Monitor/GotoState)() | Transitions the monitor to the specified [`State`](MonitorStateType) at the end of the current action. |
-| [RaiseEvent](Monitor/RaiseEvent)(…) | Raises an [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
+| [RaiseEvent](Monitor/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
+| [RaiseGotoStateEvent](Monitor/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
+| [RaiseGotoStateEvent&lt;S&gt;](Monitor/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
 
 ## Remarks
 

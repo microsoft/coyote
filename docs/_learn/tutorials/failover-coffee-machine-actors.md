@@ -377,7 +377,7 @@ starts a new `CoffeeMachine` by running `this.GotoState<Test>()`.
 
 This may seem a bit convoluted compared to just `this.SendEvent(this.CoffeeMachineId, HaltEvent.Instance)`
 followed by `this.GotoState<Test>()`.  The reason a direct halt event was not used in this case is that
-`Halt` events are processed asynchronously, which means the `GotoState` would end up creating the new
+`Halt` events are processed asynchronously, which means the `RaiseGotoStateEvent` would end up creating the new
 `CoffeeMachine` instance before the old one was fully halted.  This can lead to confusion in the `MockSensors`
 class which was written to expect one and only one client `CoffeeMachine` at a time.  The `TerminateEvent`
 handshake solves that problem.
@@ -390,7 +390,7 @@ custom attribute:
 [OnEventDoAction(typeof(TerminateEvent), nameof(OnTerminate))]
 ```
 
-The solution is to handle this event in the `Start` state `Init` then use `PushState` from `Init` to the next state.
+The solution is to handle this event in the `Start` state `Init` then use `RaisePushStateEvent` from `Init` to the next state.
 This leaves the `Init` state in the active mode where it can always handle the `TerminateEvent`.
 
 ## Summary
@@ -407,5 +407,5 @@ In this tutorial you learned:
 - How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
 - How `Assert` helps find violations of safety properties during testing.
 - How to ensure full termination of one state machine before creating a new one.
-- How to use `PushState` to achieve additional simplicity in handling common events in one place.
+- How to use `RaisePushStateEvent` to achieve additional simplicity in handling common events in one place.
 - How to write a `LivenessMonitor`.

@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
 
             protected override Task OnHaltAsync(Event e)
             {
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
 
             protected override async Task OnHaltAsync(Event e)
             {
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry() => this.Halt();
+            private void InitOnEntry() => this.RaiseHaltEvent();
         }
 
         private class M4Receiver : StateMachine
@@ -228,10 +228,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.Receiver = (e as E).Id;
-                return this.Halt();
+                this.RaiseHaltEvent();
             }
 
             protected override Task OnHaltAsync(Event e)

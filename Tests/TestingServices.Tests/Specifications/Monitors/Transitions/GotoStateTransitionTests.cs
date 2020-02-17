@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition Init() => this.GotoState<S2>();
+            private void Init() => this.RaiseGotoStateEvent<S2>();
 
             private void IncrementValue()
             {

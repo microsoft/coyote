@@ -151,10 +151,10 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             {
             }
 
-            private Transition InitOnEntry(Event e)
+            private void InitOnEntry(Event e)
             {
                 this.Tcs = (e as E).Tcs;
-                return this.GotoState<S1>();
+                this.RaiseGotoStateEvent<S1>();
             }
 
             [OnEventGotoState(typeof(EventProcessed), typeof(S2))]

@@ -6,23 +6,22 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseEvent
 ---
 # StateMachine.RaiseEvent method
 
-Creates a transition that raises the specified [`Event`](../../Microsoft.Coyote/EventType) at the end of the current action.
+Raises the specified [`Event`](../../Microsoft.Coyote/EventType) at the end of the current action.
 
 ```csharp
-protected Transition RaiseEvent(Event e)
+protected void RaiseEvent(Event e)
 ```
 
 | parameter | description |
 | --- | --- |
 | e | The event to raise. |
 
-## Return Value
+## Remarks
 
-The raise event transition.
+This event is not handled until the action that calls this method returns control back to the Coyote runtime. It is handled before any other events are dequeued from the inbox. Only one of the following can be called per action: `RaiseEvent`, [`RaiseGotoStateEvent`](RaiseGotoStateEvent), [`RaisePushStateEvent`](RaisePushStateEvent) or [`RaisePopStateEvent`](RaisePopStateEvent) and [`RaiseHaltEvent`](RaiseHaltEvent). An Assert is raised if you accidentally try and do two of these operations in a single action.
 
 ## See Also
 
-* struct [Transition](../StateMachineTransitionType)
 * class [Event](../../Microsoft.Coyote/EventType)
 * class [StateMachine](../StateMachineType)
 * namespace [Microsoft.Coyote.Actors](../StateMachineType)

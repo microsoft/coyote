@@ -25,10 +25,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition InitOnEntry()
+            private void InitOnEntry()
             {
                 this.Item = default;
-                return this.GotoState<Active>();
+                this.RaiseGotoStateEvent<Active>();
             }
 
             [OnEntry(nameof(ActiveInit))]
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Specifications
             {
             }
 
-            private Transition Init() => this.GotoState<S2>();
+            private void Init() => this.RaiseGotoStateEvent<S2>();
         }
 
         [Fact(Timeout = 5000)]

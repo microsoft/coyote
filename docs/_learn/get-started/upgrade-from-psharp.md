@@ -38,21 +38,20 @@ actor programming model.
 ## Machine API changes
 - `Machine.CreateMachine` was renamed `StateMachine.CreateActor`.
 - `Machine.Raise` was renamed `StateMachine.RaiseEvent` to become more descriptive.
-- `Machine.Goto` was renamed `StateMachine.GotoState` to become more descriptive.
-- `Machine.Push` was renamed `StateMachine.PushState` to become more descriptive.
-- `Machine.Pop` was renamed `StateMachine.PopState` to become more descriptive.
+- `Machine.Goto` was renamed `StateMachine.RaiseGotoStateEvent` to become more descriptive.
+- `Machine.Push` was renamed `StateMachine.RaisePushStateEvent` to become more descriptive.
+- `Machine.Pop` was renamed `StateMachine.RaisePopStateEvent` to become more descriptive.
 - `Machine.Receive` was renamed `StateMachine.ReceiveEventAsync` to become more descriptive.
 - `Machine.Send` was renamed `StateMachine.SendEvent` to become more descriptive and match the runtime API.
 - The `ReceivedEvent` property has been removed. You can now declare event handlers that take a single `Event` as an in-parameter, which is the `Event` that triggered the handler. A handler that does not require access to this `Event` can be still declared without an in-parameter. Some of the user callbacks (e.g. `OnException` and `OnHaltAsync`) now give access to the last dequeued event.
-- All `Machine` transitions are now typed: `RaiseEvent`, `GotoState`, `PushState`, `PopState` and `Halt` now return a `struct` of type `Transition`, which must be returned as the result of an event handler. This return type is optional, and an event handler can return `void` or a `default` Transition.
-- Introduced new API `Halt` for performing a halt transition (this is more efficient than halting via a `RaiseEvent`).
+- Introduced new API `RaiseHaltEvent` for raising the HaltEvent on yourself (this is more efficient than halting via a `RaiseEvent`).
 
 ## Event API changes
 - `Halt` (now `HaltEvent`) can no longer be constructed, use `HaltEvent.Instance` instead to get access to a singleton instance created once to reduce unnecessary allocations.
 
 ## Monitor API changes
 - `Monitor.Raise` was renamed to `Monitor.RaiseEvent` to become more descriptive.
-- Similar to the `Machine` type, a monitor transition is now typed.
+- Similar to the `Machine` type, `Goto` is `RaiseGotoStateEvent`.
 
 ## Test attribute changes
 - `[Microsoft.PSharp.Test]` was renamed  to `[Microsoft.Coyote.TestingServices.Test]`

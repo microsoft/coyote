@@ -147,8 +147,8 @@ namespace Microsoft.Coyote.Actors
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <param name="e">The event to raise.</param>
@@ -174,8 +174,8 @@ namespace Microsoft.Coyote.Actors
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <typeparam name="S">Type of the state.</typeparam>
@@ -197,8 +197,8 @@ namespace Microsoft.Coyote.Actors
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <param name="state">Type of the state.</param>
@@ -226,14 +226,14 @@ namespace Microsoft.Coyote.Actors
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <typeparam name="S">Type of the state.</typeparam>
         protected void RaisePushStateEvent<S>()
             where S : State =>
-            this.RasiePushStateEvent(typeof(S));
+            this.RaisePushStateEvent(typeof(S));
 
         /// <summary>
         /// Raise a special event that performs a push state operation at the end of the current action.
@@ -250,12 +250,12 @@ namespace Microsoft.Coyote.Actors
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <param name="state">Type of the state.</param>
-        protected void RasiePushStateEvent(Type state)
+        protected void RaisePushStateEvent(Type state)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked PushState while halting.", this.Id);
             this.Assert(StateTypeCache[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
@@ -274,8 +274,8 @@ namespace Microsoft.Coyote.Actors
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         ///
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         protected void RaisePopStateEvent()
@@ -293,8 +293,8 @@ namespace Microsoft.Coyote.Actors
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         ///
         /// Only one of the following can be called per action:
-        /// <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaiseGotoStateEvent{T}"/>,  <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>,  <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         protected override void RaiseHaltEvent()
@@ -574,8 +574,8 @@ namespace Microsoft.Coyote.Actors
 
             if (transition.TypeValue != Transition.Type.None)
             {
-                var currentState = this.CurrentStateName;
-                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed", transition.TypeValue, this.GetType().Name, this.CurrentStateName);
+                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed",
+                    transition.TypeValue, this.GetType().Name, this.CurrentStateName);
                 string suffix = null;
 
                 if (transition.State != null && transition.Event != null)
@@ -1143,8 +1143,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Defines the <see cref="StateMachine"/> transition that is the
         /// result of executing an event handler.  Transitions are created by using
-        /// <see cref="StateMachine.RaiseGotoStateEvent{T}"/>, <see cref="StateMachine.RaiseEvent"/>, <see cref="StateMachine.RaisePushStateEvent{T}"/> or
-        /// <see cref="StateMachine.RaisePopStateEvent"/> and <see cref="StateMachine.RaiseHaltEvent"/>.
+        /// <see cref="RaiseGotoStateEvent{T}"/>, <see cref="RaiseEvent"/>, <see cref="RaisePushStateEvent{T}"/> or
+        /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// The Transition is processed by the Coyote runtime when
         /// an event handling method of a StateMachine returns a Transition object.
         /// This means such a method can only do one such Transition per method call.
@@ -1207,26 +1207,26 @@ namespace Microsoft.Coyote.Actors
                 RaiseEvent,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.RaiseGotoStateEvent{S}"/> that pops the current <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="RaiseGotoStateEvent{S}"/> that pops the current <see cref="StateMachine.State"/>
                 /// and pushes the specified <see cref="StateMachine.State"/> on the
                 /// stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 GotoState,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.RaisePushStateEvent{S}"/> that pushes the specified <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="RaisePushStateEvent{S}"/> that pushes the specified <see cref="StateMachine.State"/>
                 /// on the stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 PushState,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.RaisePopStateEvent"/> that pops the current <see cref="StateMachine.State"/>
+                /// A transition created by <see cref="RaisePopStateEvent"/> that pops the current <see cref="StateMachine.State"/>
                 /// from the stack of <see cref="StateMachine"/> states.
                 /// </summary>
                 PopState,
 
                 /// <summary>
-                /// A transition created by <see cref="StateMachine.RaiseHaltEvent"/> that halts the <see cref="StateMachine"/>.
+                /// A transition created by <see cref="RaiseHaltEvent"/> that halts the <see cref="StateMachine"/>.
                 /// </summary>
                 Halt
             }

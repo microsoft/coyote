@@ -79,9 +79,8 @@ the iteration is killed and a new one is started. Here, steps are counted as the
 synchronization point is hit in the program. The tester provides output at the end of a test run on the
 iteration lengths that it saw. Use this output for calibrating on what `N` makes most sense for your
 case. This flag is usually only needed when your test has the potential of generating non-terminating
-executions. In such cases, if you do not provide `max-steps` then the tester can appear to hang because
-it can get stuck running one iteration forever. This is related to
-[liveness checking](../specifications/liveness-checking.md).
+executions. In such cases, if you do not provide `max-steps` then the tester can appear to can get stuck 
+running one iteration forever. This is related to [liveness checking](../specifications/liveness-checking.md).
 
 ## Parallel and portfolio testing
 

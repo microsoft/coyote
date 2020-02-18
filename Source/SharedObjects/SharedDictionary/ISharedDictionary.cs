@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.SharedObjects
     public interface ISharedDictionary<TKey, TValue>
     {
         /// <summary>
-        /// Adds a new key to the dictionary, if it doesn’t already exist in the dictionary.
+        /// Adds a new key to the dictionary, if it doesn't already exist in the dictionary.
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>

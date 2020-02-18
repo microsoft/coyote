@@ -211,10 +211,10 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             /// </summary>
             public class VoteRequest : Event
             {
-                public int Term; // candidate’s term
+                public int Term; // candidate's term
                 public ActorId CandidateId; // candidate requesting vote
-                public int LastLogIndex; // index of candidate’s last log entry
-                public int LastLogTerm; // term of candidate’s last log entry
+                public int LastLogIndex; // index of candidate's last log entry
+                public int LastLogTerm; // term of candidate's last log entry
 
                 public VoteRequest(int term, ActorId candidateId, int lastLogIndex, int lastLogTerm)
                     : base()
@@ -253,7 +253,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
                 public int PrevLogIndex; // index of log entry immediately preceding new ones
                 public int PrevLogTerm; // term of PrevLogIndex entry
                 public List<Log> Entries; // log entries to store (empty for heartbeat; may send more than one for efficiency)
-                public int LeaderCommit; // leader’s CommitIndex
+                public int LeaderCommit; // leader's CommitIndex
 
                 public ActorId ReceiverEndpoint; // client
 

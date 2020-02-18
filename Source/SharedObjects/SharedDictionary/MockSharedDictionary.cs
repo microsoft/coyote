@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.SharedObjects
         }
 
         /// <summary>
-        /// Adds a new key to the dictionary, if it doesn’t already exist in the dictionary.
+        /// Adds a new key to the dictionary, if it doesn't already exist in the dictionary.
         /// </summary>
         public bool TryAdd(TKey key, TValue value)
         {

@@ -131,8 +131,8 @@ void Test(IActorRuntime runtime)
 ```
 
 Here, `RunTask` is a special machine that simply invokes the payload method given to it. Look at the
-sample [here](https://github.com/p-org/CoyoteLab/tree/master/Samples/Experimental/SingleTaskMachine) to
-get a hang of it. Or one may create their own special machine for invoking `HandleRequest1` or
+sample [here](https://github.com/p-org/CoyoteLab/tree/master/Samples/Experimental/SingleTaskMachine). 
+Or one may create their own special machine for invoking `HandleRequest1` or
 `HandleRequest2`. Any way of replacing `Task` creation with `StateMachine` creation is fine.
 
 Another example: your code may be using a `Timer` to register a periodic callback. Instead, create a

@@ -338,8 +338,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseGotoStateEvent
         - name: RaisePushStateEvent
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaisePushStateEvent
-        - name: RasiePushStateEvent
-          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RasiePushStateEvent
         - name: RaisePopStateEvent
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent
         - name: RaiseHaltEvent

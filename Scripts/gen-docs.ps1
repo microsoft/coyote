@@ -4,23 +4,47 @@ $PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 
 $CoyoteRoot = Split-Path $PSScriptRoot
 
+$ToolPath = "$CoyoteRoot\packages"
+
 if (-Not (Test-Path -Path "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll"))
 {
     throw "please build coyote project first"
 }
 
-$xmldoc = "$PSScriptRoot\XmlDocMarkdown\XmlDocMarkdown"
-$target = "$CoyoteRoot\docs\_learn\ref"
-
-$inheritdoc = Get-Command InheritDoc -ErrorAction SilentlyContinue
-if ($inheritdoc -eq $null)
+function InstallToolVersion
 {
-    Write-Host "installing InheritDocTool from nuget ..."
-    dotnet tool install -g InheritDocTool --version 2.5.1
+    Param ([string] $name, [string] $version)
+
+    $list = dotnet tool list --tool-path $ToolPath
+    $line = $list | Where-Object { $_ -Match "$name[ ]*([0-9.\-a-z]+).*" }
+    $install = $false
+    if ($null -eq $line) {
+        Write-Host "$name is not installed."
+        $install = $true
+    } elseif (-not ($Matches[1] -eq $version)) {
+        $old = $Matches[1]
+        Write-Host "upgrading $name from version $old"
+        dotnet tool uninstall $name --tool-path $ToolPath
+        $install = $true
+    }
+    if ($install) {
+       Write-Host "installing $name version $version."
+       dotnet tool install $name --version "$version" --tool-path $ToolPath
+    }
+    return $installed
 }
 
+$inheritdoc = "$ToolPath\InheritDoc.exe"
+$xmldoc = "$ToolPath\xmldocmd.exe"
+$target = "$CoyoteRoot\docs\_learn\ref"
+
+# install InheritDocTool
+$installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
+# install xmldocmd
+$installed = InstallToolVersion -name "xmldocmd" -version "2.1.0-beta1"
+
 Write-Host "processing inherit docs under $CoyoteRoot\bin ..."
-InheritDoc --base $CoyoteRoot\bin\net46 -o
+& $inheritdoc --base $CoyoteRoot\bin\net46 -o
 
 # Completely clean the ref folder so we start fresh
 if (Test-Path -Path $target)

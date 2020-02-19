@@ -1,0 +1,289 @@
+<Log>
+  <CreateMonitor id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" type="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Idle" isEntry="True" isInHotState="False" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" creator="external" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" action="OnInit" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Init" action="OnInit" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Init" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" currState="Init" newState="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService.Active" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Init" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" isEntry="True" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" state="Active" isEntry="True" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Init" action="OnInit" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Init" event="Microsoft.Coyote.Actors.PushStateEvent" />
+  <Push id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" currState="Init" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+Paused" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" isEntry="True" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Init" action="OnInit" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" senderState="Init" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" action="OnWakeUp" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Init" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Init" action="OnSetNavigator" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Init" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+NavigatorResetEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+NavigatorResetEvent" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Init" event="Microsoft.Coyote.Actors.PushStateEvent" />
+  <Push id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" currState="Init" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+Active" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" action="OnInitActive" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrinkOrderEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrinkOrderEvent" />
+  <MonitorEvent sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Active" id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="LivenessMonitor" state="Idle" event="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" action="ReadKey" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" senderState="" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" action="RestartPendingJob" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" currState="Paused" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator.Active" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Paused" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="InitActive" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrinkOrderEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="GetDrinkOrder" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" action="WriteKey" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" senderState="" event="Microsoft.Coyote.Samples.DrinksServingRobot.ConfirmedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.ConfirmedEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.ConfirmedEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="OnStorageConfirmed" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderConfirmedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderConfirmedEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderConfirmedEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" action="OnDrinkOrderConfirmed" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+RobotReadyEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+RobotReadyEvent" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.RecognizeDrinksClientEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" event="Microsoft.Coyote.Samples.DrinksServingRobot.RecognizeDrinksClientEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.RecognizeDrinksClientEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" action="FindADrinksClient" />
+  <CreateActor id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" due="00:00:01.5000000" period="-00:00:00.0010000" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" action="Setup" />
+  <DefaultEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" result="0" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" result="False" />
+  <DefaultEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" action="HandleTimeout" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" result="0" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" result="True" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" sender="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService+RecognitionTimerEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" event="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService+RecognitionTimerEvent" />
+  <Raise id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" currState="Active" newState="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer.Inactive" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Active" isEntry="False" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Inactive" isEntry="True" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService+RecognitionTimerEvent" />
+  <StopTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" />
+  <Send target="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" senderState="Active" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" action="OnTick" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" result="9" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" result="17" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" result="0" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrinksClientDetailsEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrinksClientDetailsEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrinksClientDetailsEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="SendClientDetailsToRobot" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderProducedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderProducedEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+DrinkOrderProducedEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" currState="Active" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Robot.ExecutingOrder" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ExecutingOrder" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ExecutingOrder" action="OnInitExecutingOrder" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="ExecutingOrder" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrivingInstructionsEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrivingInstructionsEvent" />
+  <MonitorEvent sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="ExecutingOrder" id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="LivenessMonitor" state="Busy" event="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" />
+  <DequeueEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Inactive" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Inactive" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" state="Inactive" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(8)" inBoxSize="0" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+RobotReadyEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" action="OnRobotReady" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" result="235" />
+  <CreateActor id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" due="00:00:00.7350000" period="-00:00:00.0010000" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+GetDrivingInstructionsEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="GetDrivingInstructions" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.GetRouteEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" event="Microsoft.Coyote.Samples.DrinksServingRobot.GetRouteEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.GetRouteEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" state="Active" action="GenerateRoute" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" result="1" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" result="26" />
+  <Random id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" result="17" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="SendDrivingInstructionsToRobot" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ExecutingOrder" event="Microsoft.Coyote.Samples.DrinksServingRobot.DrivingInstructionsEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" currState="ExecutingOrder" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Robot.ReachingClient" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ExecutingOrder" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ReachingClient" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ReachingClient" action="ReachClient" />
+  <CreateActor id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" />
+  <CreateTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" due="00:00:00.5000000" period="-00:00:00.0010000" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ReachingClient" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" currState="ReachingClient" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Robot.MovingOnRoute" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="ReachingClient" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="MovingOnRoute" isEntry="True" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.DeleteKeyEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.DeleteKeyEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.DeleteKeyEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" action="DeleteKey" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" action="Setup" />
+  <DefaultEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" action="HandleTimeout" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" result="0" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" result="False" />
+  <DefaultEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" action="HandleTimeout" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" result="0" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" result="False" />
+  <DefaultEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" action="HandleTimeout" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" result="0" />
+  <Random id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" result="True" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" sender="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" senderState="Active" event="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" event="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" />
+  <Raise id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" currState="Active" newState="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer.Inactive" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Active" isEntry="False" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Inactive" isEntry="True" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" event="Microsoft.Coyote.Actors.Timers.TimerElapsedEvent" />
+  <StopTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <Send target="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" senderState="Init" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" action="HandleTimer" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="Init" event="Microsoft.Coyote.Actors.PushStateEvent" />
+  <Push id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" currState="Init" newState="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver+TerminatingNavigator" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" action="OnTerminateNavigator" />
+  <StopTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" senderState="TerminatingNavigator" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+TerminateEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+TerminateEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+TerminateEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" state="Active" action="OnTerminate" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)" inBoxSize="0" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" state="Active" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)" inBoxSize="0" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" senderState="Active" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+HaltedEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+HaltedEvent" />
+  <Halt id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)" inBoxSize="0" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+HaltedEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" action="OnHalted" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" state="Init" action="OnInit" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" state="Init" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" currState="Init" newState="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService.Active" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" state="Init" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(11)" state="Active" isEntry="True" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(12)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(12)" state="Active" isEntry="True" />
+  <CreateActor id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" creator="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Init" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Init" action="OnInit" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Init" event="Microsoft.Coyote.Actors.PushStateEvent" />
+  <Push id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" currState="Init" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+Paused" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" isEntry="True" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" senderState="TerminatingNavigator" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+WakeUpEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" action="OnWakeUp" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" senderState="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="MovingOnRoute" event="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator+RegisterNavigatorEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="MovingOnRoute" action="OnSetNavigator" />
+  <StopTimer owner="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" />
+  <Send target="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="MovingOnRoute" event="Microsoft.Coyote.Actors.HaltEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <MonitorEvent sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="MovingOnRoute" id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="LivenessMonitor" state="Busy" event="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+IdleEvent" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Busy" isEntry="False" isInHotState="True" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Idle" isEntry="True" isInHotState="False" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="MovingOnRoute" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+NavigatorResetEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+NavigatorResetEvent" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="MovingOnRoute" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" currState="MovingOnRoute" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Robot.Active" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="MovingOnRoute" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" state="Active" action="OnInitActive" />
+  <MonitorEvent sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Active" id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="LivenessMonitor" state="Idle" event="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+  <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" event="Microsoft.Coyote.Samples.DrinksServingRobot.Robot+NavigatorResetEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" action="OnNavigatorReset" />
+  <Pop id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" currState="" restoredState="TerminatingNavigator" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" state="TerminatingNavigator" isEntry="False" />
+  <Pop id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)" currState="TerminatingNavigator" restoredState="Init" />
+  <DequeueEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Inactive" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Inactive" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" state="Inactive" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(9)" inBoxSize="0" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" state="Active" action="Setup" />
+  <DequeueEvent id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <State id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" state="Active" isEntry="False" />
+  <PopUnhandled id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" state="Active" event="Microsoft.Coyote.Actors.HaltEvent" />
+  <Halt id="Microsoft.Coyote.TestingServices.Timers.MockStateMachineTimer(10)" inBoxSize="0" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" senderState="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" event="Microsoft.Coyote.Samples.DrinksServingRobot.ReadKeyEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" action="ReadKey" />
+  <Send target="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" sender="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)" senderState="" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" isTargetHalted="False" />
+  <EnqueueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" />
+  <DequeueEvent id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" event="Microsoft.Coyote.Samples.DrinksServingRobot.KeyValueEvent" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" action="RestartPendingJob" />
+  <Raise id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" event="Microsoft.Coyote.Actors.GotoStateEvent" />
+  <Goto id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" currState="Paused" newState="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator.Active" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Paused" isEntry="False" />
+  <State id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Active" isEntry="True" />
+  <Action id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)" state="Active" action="InitActive" />
+  <ErrorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" state="Busy"/>
+  <AssertionFailure>&lt;ErrorLog&gt; Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor detected liveness bug in hot state 'Busy' at the end of program execution.</AssertionFailure>
+  <AssertionFailure>&lt;StackTrace&gt;    at Microsoft.Coyote.TestingServices.Scheduling.OperationScheduler.NotifyAssertionFailure(String text, Boolean killTasks, Boolean cancelExecution)
+   at Microsoft.Coyote.TestingServices.Runtime.SystematicTestingRuntime.CheckNoMonitorInHotStateAtTermination()
+   at Microsoft.Coyote.TestingServices.BugFindingEngine.RunNextIteration(Int32 iteration)
+   at Microsoft.Coyote.TestingServices.BugFindingEngine.&lt;CreateTestingTask&gt;b__20_0()
+   at System.Threading.Tasks.Task.Execute()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
+   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task&amp; currentTaskSlot)
+   at System.Threading.Tasks.Task.ExecuteEntry(Boolean bPreventDoubleExecution)
+   at System.Threading.ThreadPoolWorkQueue.Dispatch()
+</AssertionFailure>
+  <Strategy strategy="PCT">PCT[priority change points '10' [3, 4, 36, 53, 103, 124, 144, 152, 201, 205], seed '1453544866']</Strategy>
+</Log>

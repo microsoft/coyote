@@ -11,7 +11,7 @@ function Event() {
 function Actor() {
     this.name = null;
     this.type = null;
-    this.currentState = null;
+    this.currentState = "null";
     this.raisedEvent = false;
     this.inbox = new Array();
 
@@ -61,10 +61,22 @@ function getOrCreateActor(model, actor)
     return model.getOrCreateActor(name, type);
 }
 
+function getShortName(fullName)
+{
+    var normalized = fullName.replace(/\+/g, ".")
+    var i = normalized.lastIndexOf(".");
+    if (i > 0) {
+        // trim fully qualified name down to the short name for the state.
+        return normalized.substr(i + 1);
+    }
+    return normalized;
+}
+
 function handleGotoState(model, step)
 {
     // GotoState happens in response to something, like a previous SendEvent or RaiseEvent, which means the event info should be in our inbox.
     var state = step.getAttribute("newState");
+    state = getShortName(state);
     var source = getOrCreateActor(model, step.getAttribute("id"));
     var e = null;
     // raised events are special because they do not result in HandleDequeueEvent!
@@ -138,6 +150,59 @@ function handleDequeueEvent(model, step){
     }
 }
 
+function handleMonitorState(model, step)
+{
+    // These seem to come in pairs, and show the state transitions that happen in the monitor.
+    // In this case from  idle state to busy state.  We can use the inbox to unravel this.
+    // <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
+    // <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
+    var monitor = getOrCreateActor(model, step.getAttribute("id"));
+    var state = step.getAttribute("state");
+    e = monitor.dequeue();
+    if (e == null) {
+        var e = new Event();
+        e.name = "hidden";
+        e.sender = monitor.name;
+        e.senderState = state;
+        e.receiver = monitor.name;
+        monitor.enqueue(e);
+    } else {
+        e.receiverState = state;
+        model.addEvent(e);
+    }
+}
+
+function handleMonitorEvent(model, step)
+{
+    // <MonitorEvent sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Active" id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="LivenessMonitor" state="Idle" event="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" />
+    var source = getOrCreateActor(model, step.getAttribute("sender"));
+    var senderState = step.getAttribute("senderState");
+    var monitor = getOrCreateActor(model, step.getAttribute("id"));
+    var state = step.getAttribute("state");
+    var eventName = step.getAttribute("event");
+    var e = new Event();
+    e.name = eventName;
+    e.sender = source.name;
+    e.senderState = senderState;
+    e.receiver = monitor.name;
+    e.receiverState = state;
+    // monitors don't actually have a queue, this is dequeued immediately...
+    model.addEvent(e);
+}
+
+function handleErrorState(model, step)
+{
+    var source = getOrCreateActor(model, step.getAttribute("id"));
+    var state = step.getAttribute("state");
+    var e = new Event();
+    e.name = "<error>";
+    e.sender = source.name;
+    e.senderState = state;
+    e.receiver = source.name;
+    e.receiverState = state;
+    model.addEvent(e);
+}
+
 function convertTrace(doc) {
     var model = new Model();
     var ns = doc.documentElement.namespaceURI;
@@ -155,6 +220,12 @@ function convertTrace(doc) {
                 handleSendEvent(model, step);
             } else if (type == "DequeueEvent" || type == "MonitorEvent") {
                 handleDequeueEvent(model, step);
+            } else if (type == "MonitorState") {
+                handleMonitorState(model, step);
+            } else if (type == "MonitorEvent") {
+                handleMonitorEvent(model, step);
+            } else if (type == "ErrorState") {
+                handleErrorState(model, step);
             }
         }
     }

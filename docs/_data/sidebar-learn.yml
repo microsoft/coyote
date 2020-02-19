@@ -75,6 +75,8 @@ learn-toc:
       link: /learn/tutorials/failover-coffee-machine-actors
     - name: Failover Coffee Machine Tasks
       link: /learn/tutorials/failover-coffee-machine-tasks
+    - name: Failover Drinks Serving Robot
+      link: /learn/tutorials/failover-drinks-serving-robot
 - title: Tools
   subfolderitems:
     - name: Testing

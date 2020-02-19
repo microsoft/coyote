@@ -477,6 +477,8 @@
   <Action id="Coyote.Examples.Raft.Server(4)" state="Leader" action="LeaderOnInit" />
   <MonitorEvent sender="Coyote.Examples.Raft.Server(4)" senderState="Leader" id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="SafetyMonitor" state="Monitoring" event="Coyote.Examples.Raft.SafetyMonitor+NotifyLeaderElected" />
   <MonitorAction id="Coyote.Examples.Raft.SafetyMonitor(1)" monitorType="Coyote.Examples.Raft.SafetyMonitor" state="Monitoring" action="ProcessLeaderElected" />
+  <ErrorState id="Coyote.Examples.Raft.Server(5)" state="Leader"/>
+  <ErrorState id="Coyote.Examples.Raft.Server(4)" state="Leader"/>
   <AssertionFailure>&lt;ErrorLog&gt; Detected more than one leader in term 1</AssertionFailure>
   <Strategy strategy="PCT">PCT[priority change points '10' [3, 14, 84, 99, 100, 107, 112, 158, 174, 188], seed '564']</Strategy>
 </Log>

@@ -1,17 +1,18 @@
 <div align="center">
   <img src="/docs/assets/images/logo_color.svg" width="70%">
-  <h2>Build reliable asynchronous software with confidence</h2>
+  <h2>Fearless coding for reliable asynchronous software</h2>
 </div>
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
 [![Build status](https://dev.azure.com/foundry99/Coyote/_apis/build/status/Coyote-Windows-CI)](https://dev.azure.com/foundry99/Coyote/_build/latest?definitionId=49)
 
-Coyote (previously known as [P#](https://github.com/p-org/PSharp)) is a programming
-framework for building reliable asynchronous software.
+Coyote is a programming framework for building reliable asynchronous software.
 Coyote ensures design and code remain in sync, dramatically simplifying the
 addition of new features.
 Coyote comes with with a systematic testing engine that allows finding and
 deterministically reproducing hard-to-find safety and liveness bugs.
+Coyote is made with :heart: by Microsoft Research and is the evolution of the
+[P# project](https://github.com/p-org/PSharp).
 
 Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design,
 implement and systematically test production distributed systems and services.

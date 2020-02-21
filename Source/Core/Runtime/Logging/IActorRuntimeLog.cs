@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="e">The event that cannot be handled.</param>
-        void OnPopUnhandledEvent(ActorId id, string stateName, Event e);
+        void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e);
 
         /// <summary>
         /// Invoked when the specified actor throws an exception.

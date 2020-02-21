@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnPopUnhandledEvent(ActorId id, string stateName, Event e)
+        public void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("PopUnhandled");

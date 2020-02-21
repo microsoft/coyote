@@ -389,7 +389,7 @@ namespace Microsoft.Coyote.Actors
                     await this.ExecuteCurrentStateOnExitAsync(null, e);
                     if (this.CurrentStatus is Status.Active)
                     {
-                        this.Runtime.LogWriter.LogPopUnhandledEvent(this.Id, this.CurrentStateName, e);
+                        this.Runtime.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
                         this.DoStatePop();
                         continue;
                     }

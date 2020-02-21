@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnPopUnhandledEvent(ActorId id, string stateName, Event e)
+        public void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e)
         {
         }
 

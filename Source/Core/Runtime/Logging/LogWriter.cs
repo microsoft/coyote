@@ -345,13 +345,13 @@ namespace Microsoft.Coyote.Runtime
         /// <param name="id">The id of the actor that the pop executed in.</param>
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="e">The event that cannot be handled.</param>
-        public void LogPopUnhandledEvent(ActorId id, string stateName, Event e)
+        public void LogPopStateUnhandledEvent(ActorId id, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnPopUnhandledEvent(id, stateName, e);
+                    log.OnPopStateUnhandledEvent(id, stateName, e);
                 }
             }
         }

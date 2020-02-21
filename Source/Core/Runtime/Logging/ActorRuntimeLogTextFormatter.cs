@@ -220,13 +220,13 @@ namespace Microsoft.Coyote.Runtime.Logging
         }
 
         /// <inheritdoc/>
-        public virtual void OnPopUnhandledEvent(ActorId id, string stateName, Event e)
+        public virtual void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
             var reenteredStateName = string.IsNullOrEmpty(stateName)
                 ? string.Empty
                 : $" and reentered state '{stateName}";
-            var text = $"<PopLog> {id} popped with unhandled event '{eventName}'{reenteredStateName}.";
+            var text = $"<PopLog> {id} popped its state due to unhandled event '{eventName}'{reenteredStateName}.";
             this.Logger.WriteLine(text);
         }
 

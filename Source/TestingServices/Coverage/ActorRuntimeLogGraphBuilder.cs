@@ -250,7 +250,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnPopUnhandledEvent(ActorId actorId, string currStateName, Event e)
+        public void OnPopStateUnhandledEvent(ActorId actorId, string currStateName, Event e)
         {
             if (e is HaltEvent)
             {

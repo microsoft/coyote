@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Utilities;
 using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 
@@ -258,6 +259,19 @@ namespace Microsoft.Coyote.Specifications
             this.Runtime.Assert(predicate, s, args);
         }
 
+        internal ActorId GetOrCreateFakeId(Actor caller)
+        {
+            if (caller == null)
+            {
+                // then this might be from a ControlledTask so use a fake id equal to the task id.
+                return new ActorId(typeof(ControlledTask), Task.CurrentId.ToString(), this.Runtime);
+            }
+            else
+            {
+                return caller.Id;
+            }
+        }
+
         /// <summary>
         /// Notifies the monitor to handle the received event.
         /// </summary>
@@ -271,7 +285,7 @@ namespace Microsoft.Coyote.Specifications
                 senderState = machine.CurrentStateName;
             }
 
-            this.Runtime.LogWriter.LogMonitorProcessEvent(sender?.Id, senderState, this.GetType().Name,
+            this.Runtime.LogWriter.LogMonitorProcessEvent(this.GetOrCreateFakeId(sender), senderState, this.GetType().Name,
                 this.Id, this.CurrentStateName, e);
             this.HandleEvent(e);
         }

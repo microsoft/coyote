@@ -812,8 +812,22 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             }
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
-            this.LogWriter.LogRandom(caller?.Id, choice);
+            this.LogWriter.LogRandom(this.GetOrCreateFakeId(caller), choice);
+
             return choice;
+        }
+
+        internal ActorId GetOrCreateFakeId(Actor caller)
+        {
+            if (caller == null)
+            {
+                // then this might be from a ControlledTask so use a fake id equal to the task id.
+                return new ActorId(typeof(ControlledTask), Task.CurrentId.ToString(), this);
+            }
+            else
+            {
+                return caller.Id;
+            }
         }
 
         /// <summary>
@@ -826,7 +840,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.AssertExpectedCallerActor(caller, "RandomInteger");
 
             var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
-            this.LogWriter.LogRandom(caller?.Id, choice);
+            this.LogWriter.LogRandom(this.GetOrCreateFakeId(caller), choice);
             return choice;
         }
 

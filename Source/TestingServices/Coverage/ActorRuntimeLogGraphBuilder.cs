@@ -466,6 +466,11 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             string id = this.GetResolveActorId(actorId);
             GraphNode parent = this.Graph.GetOrCreateNode(id);
             parent.AddAttribute("Group", "Expanded");
+            if (string.IsNullOrEmpty(stateName))
+            {
+                stateName = this.GetLabel(actorId, null);
+            }
+
             if (label == null)
             {
                 label = stateName;
@@ -505,6 +510,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         private string GetLabel(ActorId actorId, string fullyQualifiedName)
         {
             this.AddNamespace(actorId);
+            if (fullyQualifiedName == null)
+            {
+                // then this is probably an Actor, not a StateMachine.  For Actors we can invent a state
+                // name equal to the short name of the class, this then looks like a Constructor which is fine.
+                int pos = actorId.Type.LastIndexOf(".");
+                if (pos > 0)
+                {
+                    return actorId.Type.Substring(pos + 1);
+                }
+
+                return actorId.Name;
+            }
+
             if (fullyQualifiedName.StartsWith(actorId.Type))
             {
                 fullyQualifiedName = fullyQualifiedName.Substring(actorId.Type.Length + 1).Trim('+');

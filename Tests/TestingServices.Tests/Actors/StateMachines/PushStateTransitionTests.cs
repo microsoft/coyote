@@ -1,7 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common.Actors;
 using Xunit;
 using Xunit.Abstractions;
@@ -10,6 +14,22 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
 {
     public class PushStateTransitionTests : BaseTest
     {
+        private class E1 : Event
+        {
+        }
+
+        private class E2 : Event
+        {
+        }
+
+        private class E3 : Event
+        {
+        }
+
+        private class E4 : Event
+        {
+        }
+
         public PushStateTransitionTests(ITestOutputHelper output)
             : base(output)
         {
@@ -177,38 +197,13 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             }
 
             private void Bar() => this.RaisePopStateEvent();
-        }
 
-        private class E1 : Event
-        {
-        }
-
-        private class E2 : Event
-        {
-        }
-
-        private class E3 : Event
-        {
-        }
-
-        private class E4 : Event
-        {
-        }
-
-        private class M5b : StateMachine
-        {
-            [Start]
-            [OnEntry(nameof(Conf))]
-            private class Init : State
+            internal static void RunTest(IActorRuntime runtime)
             {
-            }
-
-            private void Conf()
-            {
-                var a = this.CreateActor(typeof(M5a));
-                this.SendEvent(a, new E2()); // Push(S1)
-                this.SendEvent(a, new E1()); // Execute foo without popping
-                this.SendEvent(a, new E3()); // Can handle it because A is still in S1
+                var a = runtime.CreateActor(typeof(M5a));
+                runtime.SendEvent(a, new E2()); // Push(S1)
+                runtime.SendEvent(a, new E1()); // Execute foo without popping
+                runtime.SendEvent(a, new E3()); // Can handle it because A is still in S1
             }
         }
 
@@ -217,7 +212,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         {
             this.Test(r =>
             {
-                r.CreateActor(typeof(M5b));
+                M5a.RunTest(r);
             });
         }
 
@@ -249,6 +244,185 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             },
             expectedError: expectedError,
             replay: true);
+        }
+
+        internal class LogEvent : Event
+        {
+            public List<string> Log = new List<string>();
+
+            public void WriteLine(string msg, params object[] args)
+            {
+                this.Log.Add(string.Format(msg, args));
+            }
+        }
+
+        /// <summary>
+        /// Test that GotoState transitions are not inherited by PushState operations.
+        /// </summary>
+        private class M7 : StateMachine
+        {
+            private LogEvent Log;
+
+            [Start]
+            [OnEntry(nameof(OnInit))]
+            [OnEventDoAction(typeof(E1), nameof(HandleE1))]
+            [OnEventGotoState(typeof(E2), typeof(Bad))]
+            public class Init : State
+            {
+            }
+
+            private void HandleE1()
+            {
+                this.Log.WriteLine(string.Format("Handling E1 in state {0}", this.CurrentStateName));
+                this.RaisePushStateEvent<Ready>();
+            }
+
+            private void OnInit(Event e)
+            {
+                this.Log = (LogEvent)e;
+            }
+
+            [OnEntry(nameof(OnReady))]
+            [OnExit(nameof(OnReadyExit))]
+            [OnEventPushState(typeof(E1), typeof(Active))]
+            [OnEventDoAction(typeof(E3), nameof(HandleE3))]
+            public class Ready : State
+            {
+            }
+
+            private void OnReady()
+            {
+                this.Log.WriteLine("Entering Ready state");
+            }
+
+            private void OnReadyExit()
+            {
+                this.Log.WriteLine("Exiting Ready state");
+            }
+
+            [OnEntry(nameof(OnActive))]
+            [OnExit(nameof(OnActiveExit))]
+            public class Active : State
+            {
+            }
+
+            private void OnActive()
+            {
+                this.Log.WriteLine("Entering Active state");
+            }
+
+            private void OnActiveExit()
+            {
+                this.Log.WriteLine("Exiting Active state");
+            }
+
+            private void HandleE3()
+            {
+                this.Log.WriteLine("Handling E3 in State {0}", this.CurrentState);
+            }
+
+            [OnEntry(nameof(OnBad))]
+            public class Bad : State
+            {
+            }
+
+            private void OnBad()
+            {
+                this.Log.WriteLine("Entering Bad state");
+            }
+
+            protected override Task OnEventUnhandledAsync(Event e, string state)
+            {
+                this.Log.WriteLine("Unhandled event {0} in state {1}", e.GetType().Name, state);
+                return base.OnEventUnhandledAsync(e, state);
+            }
+
+            public static void RunTest(IActorRuntime runtime, LogEvent initEvent)
+            {
+                var actor = runtime.CreateActor(typeof(M7), initEvent);
+                runtime.SendEvent(actor, new E1()); // should be handled by Init state, and trigger push to Ready
+                runtime.SendEvent(actor, new E1()); // should be handled by Ready with OnEventPushState to Active
+                runtime.SendEvent(actor, new E2()); // Now OnEventGotoState(E2) should not be inherited so this should pop us back to the Init state.
+                runtime.SendEvent(actor, new E3()); // just to prove we are no longer in the Active state, this should raise an unhandled event error.
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestPushStateNotInheritGoto()
+        {
+            string expectedError = "M7() received event 'E3' that cannot be handled.";
+            var log = new LogEvent();
+            this.TestWithError(r =>
+            {
+                M7.RunTest(r, log);
+            },
+            expectedError: expectedError);
+
+            string actual = string.Join(", ", log.Log);
+            Assert.Equal(@"Handling E1 in state Init, Entering Ready state, Entering Active state, Exiting Active state, Exiting Ready state, Entering Bad state, Unhandled event E3 in state Bad", actual);
+        }
+
+        /// <summary>
+        /// Test that PushState transitions are not inherited by PushState operations, and therefore
+        /// the event in question will cause the pushed state to pop before handling the event again.
+        /// </summary>
+        private class M8 : StateMachine
+        {
+            private LogEvent Log;
+
+            [Start]
+            [OnEntry(nameof(OnInit))]
+            [OnEventPushState(typeof(E1), typeof(Ready))]
+            public class Init : State
+            {
+            }
+
+            private void OnInit(Event e)
+            {
+                this.Log = (LogEvent)e;
+            }
+
+            [OnEntry(nameof(OnReady))]
+            [OnExit(nameof(OnReadyExit))]
+            public class Ready : State
+            {
+            }
+
+            private void OnReady()
+            {
+                this.Log.WriteLine("Entering Ready state");
+            }
+
+            private void OnReadyExit()
+            {
+                this.Log.WriteLine("Exiting Ready state");
+            }
+
+            protected override Task OnEventUnhandledAsync(Event e, string state)
+            {
+                this.Log.WriteLine("Unhandled event {0} in state {1}", e.GetType().Name, state);
+                return base.OnEventUnhandledAsync(e, state);
+            }
+
+            public static void RunTest(IActorRuntime runtime, LogEvent initEvent)
+            {
+                var actor = runtime.CreateActor(typeof(M8), initEvent);
+                runtime.SendEvent(actor, new E1()); // should be handled by Init state, and trigger push to Ready
+                runtime.SendEvent(actor, new E1()); // should pop Active and go back to Init where it will be handled.
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestPushStateNotInheritPush()
+        {
+            var log = new LogEvent();
+            this.Test(r =>
+            {
+                M8.RunTest(r, log);
+            });
+
+            string actual = string.Join(", ", log.Log);
+            Assert.Equal(@"Entering Ready state, Exiting Ready state, Entering Ready state", actual);
         }
     }
 }

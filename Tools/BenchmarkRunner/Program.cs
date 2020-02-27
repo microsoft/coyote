@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using BenchmarkDotNet.Running;
+using StateMachineTests = Microsoft.Coyote.Performance.Tests.Actors.StateMachines;
 
 namespace Microsoft.Coyote.Benchmarking
 {
@@ -14,10 +15,12 @@ namespace Microsoft.Coyote.Benchmarking
         private static void Main(string[] args)
         {
             // BenchmarkSwitcher.FromAssembly(typeof(Program).GetTypeInfo().Assembly).Run(args);
-            BenchmarkRunner.Run<Actors.StateMachines.CreationThroughputBenchmark>();
-            BenchmarkRunner.Run<Actors.StateMachines.ExchangeEventLatencyBenchmark>();
-            BenchmarkRunner.Run<Actors.StateMachines.SendEventThroughputBenchmark>();
-            BenchmarkRunner.Run<Actors.StateMachines.DequeueEventThroughputBenchmark>();
+            BenchmarkRunner.Run<StateMachineTests.CreationThroughputBenchmark>();
+            BenchmarkRunner.Run<StateMachineTests.ExchangeEventLatencyBenchmark>();
+            BenchmarkRunner.Run<StateMachineTests.SendEventThroughputBenchmark>();
+            BenchmarkRunner.Run<StateMachineTests.DequeueEventThroughputBenchmark>();
+            BenchmarkRunner.Run<StateMachineTests.GotoTransitionThroughputBenchmark>();
+            BenchmarkRunner.Run<StateMachineTests.PushTransitionThroughputBenchmark>();
         }
 #pragma warning restore CA1801 // Parameter not used
     }

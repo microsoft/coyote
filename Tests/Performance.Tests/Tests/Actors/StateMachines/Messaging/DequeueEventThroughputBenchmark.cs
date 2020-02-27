@@ -6,7 +6,7 @@ using BenchmarkDotNet.Attributes;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.Benchmarking.Actors.StateMachines
+namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
     [ClrJob(baseline: true), CoreJob]
     [MemoryDiagnoser]

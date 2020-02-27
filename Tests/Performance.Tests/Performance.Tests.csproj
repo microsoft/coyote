@@ -2,21 +2,19 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
-    <Description>The Coyote benchmark runner.</Description>
-    <AssemblyName>BenchmarkRunner</AssemblyName>
-    <RootNamespace>Microsoft.Coyote.Benchmarking</RootNamespace>
-    <OutputType>Exe</OutputType>
+    <Description>The Coyote performance tests.</Description>
+    <AssemblyName>Microsoft.Coyote.Performance.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.Performance.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
-    <ProjectReference Include="..\..\Tests\Performance.Tests\Performance.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.4" />

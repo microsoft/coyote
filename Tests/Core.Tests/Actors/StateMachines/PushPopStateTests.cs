@@ -210,8 +210,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
             catch (Exception e)
             {
-                string fullName = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullName + "+", string.Empty);
+                string fullname = typeof(PushPopStateTests).FullName;
+                actual = e.Message.Replace(fullname + "+", string.Empty);
             }
 
             Assert.Equal("M6(0) declared multiple handlers for event 'E2' in state 'M6+Init'.", actual);
@@ -246,8 +246,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
             catch (Exception e)
             {
-                string fullName = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullName + "+", string.Empty);
+                string fullname = typeof(PushPopStateTests).FullName;
+                actual = e.Message.Replace(fullname + "+", string.Empty);
             }
 
             Assert.Equal("M7(0) declared multiple handlers for event 'E2' in state 'M7+Init'.", actual);
@@ -296,8 +296,8 @@ namespace Microsoft.Coyote.Core.Tests.Actors.StateMachines
             }
             catch (Exception e)
             {
-                string fullName = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullName + "+", string.Empty);
+                string fullname = typeof(PushPopStateTests).FullName;
+                actual = e.Message.Replace(fullname + "+", string.Empty);
             }
 
             Assert.Equal("M8(0) inherited multiple handlers for event 'E1' from state 'BaseState' in state 'M8+Init'.", actual);

@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
             CustomLogger logger = new CustomLogger();
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
-            var graphBuilder = new ActorRuntimeLogGraphBuilder();
+            var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
             var runtime = ActorRuntimeFactory.Create(config);
             runtime.RegisterLog(graphBuilder);
             runtime.SetLogger(logger);
@@ -178,10 +178,10 @@ namespace Microsoft.Coyote.Core.Tests.Runtime
     <Node Id='N().Init' Label='Init'/>
   </Nodes>
   <Links>
-    <Link Source='M().Init' Target='N().Init' Label='E' EventIds='E'/>
+    <Link Source='M().Init' Target='N().Init' Label='E' Index='' EventId='E' HandledBy='Init'/>
     <Link Source='M()' Target='M().Init' Category='Contains'/>
-    <Link Source='N().Act' Target='M().Init' Label='E' EventIds='E'/>
-    <Link Source='N().Init' Target='N().Act' Label='E' EventIds='E'/>
+    <Link Source='N().Act' Target='M().Init' Label='E' Index='' EventId='E' HandledBy='Init'/>
+    <Link Source='N().Init' Target='N().Act' Label='E' Index='' EventId='E' HandledBy='Init'/>
     <Link Source='N()' Target='N().Act' Category='Contains'/>
     <Link Source='N()' Target='N().Init' Category='Contains'/>
   </Links>

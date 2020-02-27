@@ -8,5 +8,6 @@ namespace Microsoft.Coyote.Actors
     /// </summary>
     internal abstract class EventHandlerDeclaration
     {
+        internal abstract bool Inheritable { get; }
     }
 }

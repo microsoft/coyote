@@ -20,5 +20,7 @@ namespace Microsoft.Coyote.Actors
         {
             this.Name = actionName;
         }
+
+        internal override bool Inheritable => true;
     }
 }

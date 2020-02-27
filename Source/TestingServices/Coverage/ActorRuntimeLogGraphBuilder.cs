@@ -24,18 +24,27 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         private Graph CurrentGraph;
         private EventInfo Dequeued; // current dequeued event.
         private string HaltedState;
+        private readonly bool MergeEventLinks; // merge events from node A to node B instead of making them separate links.
 
         private class EventInfo
         {
             public ActorId ActorId;
             public string State;
             public string Event;
+            public string HandlingState;
         }
 
         private readonly Dictionary<string, List<EventInfo>> Inbox = new Dictionary<string, List<EventInfo>>();
         private static readonly Dictionary<string, string> EventAliases = new Dictionary<string, string>();
         private readonly HashSet<string> Namespaces = new HashSet<string>();
-        private readonly Dictionary<ActorId, string> CurrentStates = new Dictionary<ActorId, string>();
+
+        private class DoActionEvent : Event
+        {
+        }
+
+        private class PopStateEvent : Event
+        {
+        }
 
         static ActorRuntimeLogGraphBuilder()
         {
@@ -47,13 +56,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             EventAliases[typeof(WildCardEvent).FullName] = "*";
             EventAliases[typeof(TimerElapsedEvent).FullName] = "timer_elapsed";
             EventAliases[typeof(TimerSetupEvent).FullName] = "timer_setup";
+            EventAliases[typeof(DoActionEvent).FullName] = "do";
+            EventAliases[typeof(PopStateEvent).FullName] = "pop";
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorRuntimeLogGraphBuilder"/> class.
         /// </summary>
-        public ActorRuntimeLogGraphBuilder()
+        public ActorRuntimeLogGraphBuilder(bool mergeEventLinks)
         {
+            this.MergeEventLinks = mergeEventLinks;
             this.CurrentGraph = new Graph();
         }
 
@@ -95,11 +107,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnExecuteAction(ActorId id, string stateName, string actionName)
-        {
-        }
-
-        /// <inheritdoc/>
         public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e,
             Guid opGroupId, bool isTargetHalted)
         {
@@ -124,24 +131,30 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
             var resolvedId = this.GetResolveActorId(id);
+            string eventName = e.GetType().FullName;
+            EventInfo info = this.PopEvent(resolvedId, eventName);
+            if (info != null)
+            {
+                this.Dequeued = info;
+            }
+        }
+
+        private EventInfo PopEvent(string resolvedId, string eventName)
+        {
+            EventInfo result = null;
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
-                string eventName = e.GetType().FullName;
                 for (int i = inbox.Count - 1; i >= 0; i--)
                 {
-                    EventInfo info = inbox[i];
-                    if (info.Event == eventName)
+                    if (inbox[i].Event == eventName)
                     {
-                        // Yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(info.ActorId, info.State);
-                        var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
-                        this.GetOrCreateEventLink(source, target, info);
+                        result = inbox[i];
                         inbox.RemoveAt(i);
-                        this.Dequeued = info;
-                        break;
                     }
                 }
             }
+
+            return result;
         }
 
         /// <inheritdoc/>
@@ -185,26 +198,37 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <inheritdoc/>
         public void OnStateTransition(ActorId id, string stateName, bool isEntry)
         {
-        }
-
-        /// <inheritdoc/>
-        public void OnGotoState(ActorId id, string currStateName, string newStateName)
-        {
-            this.LinkTransition("goto", id, currStateName, newStateName, false);
-        }
-
-        /// <inheritdoc/>
-        public void OnPushState(ActorId id, string currStateName, string newStateName)
-        {
-            this.LinkTransition("push", id, currStateName, newStateName, true);
-        }
-
-        /// <inheritdoc/>
-        public void OnPopState(ActorId id, string currStateName, string restoredStateName)
-        {
-            if (!string.IsNullOrEmpty(currStateName))
+            if (isEntry)
             {
-                this.LinkTransition("pop", id, currStateName, restoredStateName, true);
+                // record the fact we have entered this state
+                this.GetOrCreateChild(id, this.GetLabel(id, stateName));
+            }
+        }
+
+        /// <inheritdoc/>
+        public void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
+        {
+            this.LinkTransition(typeof(DoActionEvent), id, handlingStateName, currentStateName, null);
+        }
+
+        /// <inheritdoc/>
+        public void OnGotoState(ActorId id, string currentStateName, string newStateName)
+        {
+            this.LinkTransition(typeof(GotoStateEvent), id, currentStateName, currentStateName, newStateName);
+        }
+
+        /// <inheritdoc/>
+        public void OnPushState(ActorId id, string currentStateName, string newStateName)
+        {
+            this.LinkTransition(typeof(PushStateEvent), id, currentStateName, currentStateName, newStateName);
+        }
+
+        /// <inheritdoc/>
+        public void OnPopState(ActorId id, string currentStateName, string restoredStateName)
+        {
+            if (!string.IsNullOrEmpty(currentStateName))
+            {
+                this.LinkTransition(typeof(PopStateEvent), id, currentStateName, currentStateName, restoredStateName);
             }
         }
 
@@ -220,12 +244,26 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             // Transition to the Halt state.
             var source = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
             var target = this.GetOrCreateChild(id, "Halt");
-            this.Graph.GetOrCreateLink(source, target, "halt");
+            this.GetOrCreateEventLink(source, target, new EventInfo() { Event = typeof(HaltEvent).FullName });
+        }
+
+        private int? GetLinkIndex(GraphNode source, GraphNode target, string id)
+        {
+            if (this.MergeEventLinks)
+            {
+                return null;
+            }
+
+            return this.Graph.GetUniqueLinkIndex(source, target, id);
         }
 
         /// <inheritdoc/>
         public void OnDefaultEventHandler(ActorId id, string stateName)
         {
+            string resolvedId = this.GetResolveActorId(id);
+            string eventName = typeof(DefaultEvent).FullName;
+            this.AddEvent(id, id, stateName, eventName);
+            this.Dequeued = this.PopEvent(resolvedId, eventName);
         }
 
         /// <inheritdoc/>
@@ -250,11 +288,11 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnPopStateUnhandledEvent(ActorId actorId, string currStateName, Event e)
+        public void OnPopStateUnhandledEvent(ActorId actorId, string currentStateName, Event e)
         {
             if (e is HaltEvent)
             {
-                this.HaltedState = currStateName;
+                this.HaltedState = currentStateName;
             }
         }
 
@@ -289,7 +327,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// <inheritdoc/>
         public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
         {
-            this.CurrentStates[id] = stateName;
             string resolvedId = this.GetResolveActorId(id);
             // Monitors process actions immediately, so this state transition is a result of the only event in the inbox.
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
@@ -308,15 +345,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            // If sender is null then it means we are dealing with a Monitor call from external code.
-            var info = this.AddEvent(id, senderId, senderStateName, eventName);
+
+            // Now add a fake event for internal monitor state transition that might now happen as a result of this event,
+            // storing the monitor's current state in this event.
+            var info = this.AddEvent(id, id, stateName, eventName);
 
             // Draw the link connecting the Sender state to this state!
             var source = this.GetOrCreateChild(senderId, senderStateName);
             var shortStateName = this.GetLabel(id, stateName);
             var target = this.GetOrCreateChild(id, shortStateName);
             this.GetOrCreateEventLink(source, target, info);
-            this.CurrentStates[id] = stateName;
         }
 
         /// <inheritdoc/>
@@ -324,7 +362,6 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             // Raising event to self.
             string eventName = e.GetType().FullName;
-            this.CurrentStates[id] = stateName;
             this.AddEvent(id, id, stateName, eventName);
         }
 
@@ -335,15 +372,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             if (isEntry)
             {
                 string resolvedId = this.GetResolveActorId(id);
-                // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of the only event in the inbox.
+
+                // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of
+                // the fake event we created in OnMonitorProcessEvent.
                 if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox) && inbox.Count > 0)
                 {
-                    var e = inbox[inbox.Count - 1];
+                    var info = inbox[inbox.Count - 1];
                     inbox.RemoveAt(inbox.Count - 1);
 
                     // draw the link connecting the current state to this new state!
-                    string currentState = this.CurrentStates[id];
-                    var shortStateName = this.GetLabel(id, currentState);
+                    var shortStateName = this.GetLabel(id, info.State);
                     var source = this.GetOrCreateChild(id, shortStateName);
 
                     shortStateName = this.GetLabel(id, stateName);
@@ -356,7 +394,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     string label = shortStateName + suffix;
                     var target = this.GetOrCreateChild(id, shortStateName, label);
                     target.Label = label;
-                    this.GetOrCreateEventLink(source, target, e);
+                    this.GetOrCreateEventLink(source, target, info);
                 }
             }
         }
@@ -420,43 +458,56 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
             if (senderId == null)
             {
-                senderStateName = "ExternalState";
+                senderStateName = "ExternalCode";
             }
 
             var info = new EventInfo() { ActorId = senderId, State = senderStateName, Event = eventName };
             inbox.Add(info);
+
             return info;
         }
 
-        private void LinkTransition(string type, ActorId actorId, string currStateName, string newStateName, bool suffixLabel)
+        private void LinkTransition(Type type, ActorId actorId, string handlingStateName, string currentStateName, string newStateName)
         {
-            var source = this.GetOrCreateChild(actorId, this.GetLabel(actorId, currStateName));
-            var target = this.GetOrCreateChild(actorId, this.GetLabel(actorId, newStateName));
-
-            string label = type;
             if (this.Dequeued != null)
             {
-                var eventLabel = this.GetEventLabel(this.Dequeued.Event);
-                if (suffixLabel)
+                var info = this.Dequeued;
+                // Event was dequeued, but now we know what state is handling this event, so connect the dots...
+                if (info.ActorId != actorId || info.State != currentStateName)
                 {
-                    label = eventLabel + "(" + label + ")";
-                }
-                else
-                {
-                    label = eventLabel;
+                    var source = this.GetOrCreateChild(info.ActorId, info.State);
+                    var target = this.GetOrCreateChild(actorId, this.GetLabel(actorId, currentStateName));
+                    this.Dequeued.HandlingState = handlingStateName;
+                    var link = this.GetOrCreateEventLink(source, target, info);
                 }
             }
 
-            GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
-            if (this.Dequeued != null)
+            if (newStateName != null)
             {
-                if (link.AddListAttribute("EventIds", this.Dequeued.Event) > 1)
+                // Then this is a goto or push and we can draw that link also.
+                var source = this.GetOrCreateChild(actorId, this.GetLabel(actorId, currentStateName));
+                var target = this.GetOrCreateChild(actorId, this.GetLabel(actorId, newStateName));
+                EventInfo e = this.Dequeued;
+                if (e == null)
                 {
-                    link.Label = "*";
+                    e = new EventInfo { Event = type.FullName };
                 }
+
+                var link = this.GetOrCreateEventLink(source, target, e);
             }
 
             this.Dequeued = null;
+        }
+
+        private string GetStateId(ActorId actorId, string stateName)
+        {
+            string id = this.GetResolveActorId(actorId);
+            if (string.IsNullOrEmpty(stateName))
+            {
+                stateName = this.GetLabel(actorId, null);
+            }
+
+            return id += "." + stateName;
         }
 
         private GraphNode GetOrCreateChild(ActorId actorId, string stateName, string label = null)
@@ -466,6 +517,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             string id = this.GetResolveActorId(actorId);
             GraphNode parent = this.Graph.GetOrCreateNode(id);
             parent.AddAttribute("Group", "Expanded");
+
             if (string.IsNullOrEmpty(stateName))
             {
                 stateName = this.GetLabel(actorId, null);
@@ -476,19 +528,36 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 label = stateName;
             }
 
-            GraphNode child = this.Graph.GetOrCreateNode(id + "." + stateName, label);
-            this.Graph.GetOrCreateLink(parent, child, null, "Contains");
+            id += "." + stateName;
+
+            GraphNode child = this.Graph.GetOrCreateNode(id, label);
+            this.Graph.GetOrCreateLink(parent, child, null, null, "Contains");
             return child;
         }
 
-        private void GetOrCreateEventLink(GraphNode source, GraphNode target, EventInfo e)
+        private GraphLink GetOrCreateEventLink(GraphNode source, GraphNode target, EventInfo e)
         {
             string label = this.GetEventLabel(e.Event);
-            GraphLink link = this.Graph.GetOrCreateLink(source, target, label);
-            if (link.AddListAttribute("EventIds", e.Event) > 1)
+            var index = this.GetLinkIndex(source, target, label);
+            var category = GetEventCategory(e.Event);
+            GraphLink link = this.Graph.GetOrCreateLink(source, target, index, label, category);
+            if (this.MergeEventLinks)
             {
-                link.Label = "*";
+                if (link.AddListAttribute("EventIds", e.Event) > 1)
+                {
+                    link.Label = "*";
+                }
             }
+            else
+            {
+                link.AddAttribute("EventId", e.Event);
+                if (e.HandlingState != null)
+                {
+                    link.AddAttribute("HandledBy", e.HandlingState);
+                }
+            }
+
+            return link;
         }
 
         private void AddNamespace(ActorId actorId)
@@ -552,6 +621,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
             return fullyQualifiedName;
         }
+
+        private static string GetEventCategory(string fullyQualifiedName)
+        {
+            if (EventAliases.TryGetValue(fullyQualifiedName, out string label))
+            {
+                return label;
+            }
+
+            return null;
+        }
     }
 
     /// <summary>
@@ -562,11 +641,22 @@ namespace Microsoft.Coyote.TestingServices.Coverage
     {
         internal const string DgmlNamespace = "http://schemas.microsoft.com/vs/2009/dgml";
 
-        [DataMember]
-        private readonly Dictionary<string, GraphNode> InternalNodes = new Dictionary<string, GraphNode>();
+        // These [DataMember] fields are here so we can serialize the Graph across parallel or distributed
+        // test processes without losing any information.  There is more information here than in the serialized
+        // DGML which is we we can't just use Save/LoadDgml to do the same.
 
         [DataMember]
+        private readonly Dictionary<string, GraphNode> InternalNodes = new Dictionary<string, GraphNode>();
+        [DataMember]
         private readonly Dictionary<string, GraphLink> InternalLinks = new Dictionary<string, GraphLink>();
+        // last used index for simple link key "a->b".
+        [DataMember]
+        private readonly Dictionary<string, int> InternalNextLinkIndex = new Dictionary<string, int>();
+        // maps augmented link key to the index that has been allocated for that link id "a->b(goto)" => 0
+        [DataMember]
+        private readonly Dictionary<string, int> InternalAllocatedLinkIndexes = new Dictionary<string, int>();
+        [DataMember]
+        private readonly Dictionary<string, string> InternalAllocatedLinkIds = new Dictionary<string, string>();
 
         /// <summary>
         /// Return the current list of nodes (in no particular order).
@@ -581,7 +671,25 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         public IEnumerable<GraphLink> Links
         {
-            get { return this.InternalLinks.Values; }
+            get
+            {
+                if (this.InternalLinks == null)
+                {
+                    return Array.Empty<GraphLink>();
+                }
+
+                return this.InternalLinks.Values;
+            }
+        }
+
+        /// <summary>
+        /// Get existing node or null.
+        /// </summary>
+        /// <param name="id">The id of the node.</param>
+        public GraphNode GetNode(string id)
+        {
+            this.InternalNodes.TryGetValue(id, out GraphNode node);
+            return node;
         }
 
         /// <summary>
@@ -617,16 +725,54 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// Get existing link or create a new one connecting the given source and target nodes.
         /// </summary>
         /// <returns>The new link or the existing link if it was already defined.</returns>
-        public GraphLink GetOrCreateLink(GraphNode source, GraphNode target, string linkLabel = null, string category = null)
+        public GraphLink GetOrCreateLink(GraphNode source, GraphNode target, int? index = null, string linkLabel = null, string category = null)
         {
             string key = source.Id + "->" + target.Id;
+            if (index.HasValue)
+            {
+                key += string.Format("({0})", index.Value);
+            }
+
             if (!this.InternalLinks.TryGetValue(key, out GraphLink link))
             {
                 link = new GraphLink(source, target, linkLabel, category);
+                if (index.HasValue)
+                {
+                    link.Index = index.Value;
+                }
+
                 this.InternalLinks.Add(key, link);
             }
 
             return link;
+        }
+
+        internal int GetUniqueLinkIndex(GraphNode source, GraphNode target, string id)
+        {
+            // augmented key
+            string key = string.Format("{0}->{1}({2})", source.Id, target.Id, id);
+            if (this.InternalAllocatedLinkIndexes.TryGetValue(key, out int index))
+            {
+                return index;
+            }
+
+            // allocate a new index for the simple key
+            var simpleKey = string.Format("{0}->{1}", source.Id, target.Id);
+            if (this.InternalNextLinkIndex.TryGetValue(simpleKey, out index))
+            {
+                index++;
+            }
+
+            this.InternalNextLinkIndex[simpleKey] = index;
+
+            // remember this index has been allocated for this link id.
+            this.InternalAllocatedLinkIndexes[key] = index;
+
+            // remember the original id associated with this link index.
+            key = string.Format("{0}->{1}({2})", source.Id, target.Id, index);
+            this.InternalAllocatedLinkIds[key] = id;
+
+            return index;
         }
 
         /// <summary>
@@ -636,72 +782,105 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             using (var writer = new StringWriter())
             {
-                this.WriteDgml(writer);
+                this.WriteDgml(writer, false);
                 return writer.ToString();
             }
         }
 
-        internal void SaveDgml(string graphFilePath)
+        internal void SaveDgml(string graphFilePath, bool includeDefaultStyles)
         {
             using (StreamWriter writer = new StreamWriter(graphFilePath, false, Encoding.UTF8))
             {
-                this.WriteDgml(writer);
+                this.WriteDgml(writer, includeDefaultStyles);
             }
         }
 
         /// <summary>
         /// Serialize the graph to DGML.
         /// </summary>
-        public void WriteDgml(TextWriter writer)
+        public void WriteDgml(TextWriter writer, bool includeDefaultStyles)
         {
             writer.WriteLine("<DirectedGraph xmlns='{0}'>", DgmlNamespace);
             writer.WriteLine("  <Nodes>");
 
-            List<string> nodes = new List<string>(this.InternalNodes.Keys);
-            nodes.Sort();
-            foreach (var id in nodes)
+            if (this.InternalNodes != null)
             {
-                GraphNode node = this.InternalNodes[id];
-                writer.Write("    <Node Id='{0}'", node.Id);
-
-                if (!string.IsNullOrEmpty(node.Label))
+                List<string> nodes = new List<string>(this.InternalNodes.Keys);
+                nodes.Sort();
+                foreach (var id in nodes)
                 {
-                    writer.Write(" Label='{0}'", node.Label);
-                }
+                    GraphNode node = this.InternalNodes[id];
+                    writer.Write("    <Node Id='{0}'", node.Id);
 
-                if (!string.IsNullOrEmpty(node.Category))
-                {
-                    writer.Write(" Category='{0}'", node.Category);
-                }
+                    if (!string.IsNullOrEmpty(node.Label))
+                    {
+                        writer.Write(" Label='{0}'", node.Label);
+                    }
 
-                node.WriteAttributes(writer);
-                writer.WriteLine("/>");
+                    if (!string.IsNullOrEmpty(node.Category))
+                    {
+                        writer.Write(" Category='{0}'", node.Category);
+                    }
+
+                    node.WriteAttributes(writer);
+                    writer.WriteLine("/>");
+                }
             }
 
             writer.WriteLine("  </Nodes>");
             writer.WriteLine("  <Links>");
 
-            List<string> links = new List<string>(this.InternalLinks.Keys);
-            links.Sort();
-            foreach (var id in links)
+            if (this.InternalLinks != null)
             {
-                GraphLink link = this.InternalLinks[id];
-                writer.Write("    <Link Source='{0}' Target='{1}'", link.Source.Id, link.Target.Id);
-                if (!string.IsNullOrEmpty(link.Label))
+                List<string> links = new List<string>(this.InternalLinks.Keys);
+                links.Sort();
+                foreach (var id in links)
                 {
-                    writer.Write(" Label='{0}'", link.Label);
-                }
+                    GraphLink link = this.InternalLinks[id];
+                    writer.Write("    <Link Source='{0}' Target='{1}'", link.Source.Id, link.Target.Id);
+                    if (!string.IsNullOrEmpty(link.Label))
+                    {
+                        writer.Write(" Label='{0}'", link.Label);
+                    }
 
-                if (!string.IsNullOrEmpty(link.Category))
-                {
-                    writer.Write(" Category='{0}'", link.Category);
-                }
+                    if (!string.IsNullOrEmpty(link.Category))
+                    {
+                        writer.Write(" Category='{0}'", link.Category);
+                    }
 
-                link.WriteAttributes(writer);
-                writer.WriteLine("/>");
+                    if (link.Index.HasValue)
+                    {
+                        writer.Write(" Index='{0}'", link.Index.Value);
+                    }
+
+                    link.WriteAttributes(writer);
+                    writer.WriteLine("/>");
+                }
             }
 
             writer.WriteLine("  </Links>");
+            if (includeDefaultStyles)
+            {
+                writer.WriteLine(
+@"  <Styles>
+    <Style TargetType=""Link"" GroupLabel=""halt"" ValueLabel=""True"">
+        <Condition Expression=""HasCategory('halt')"" />
+        <Setter Property=""Stroke"" Value=""#FFFF6C6C"" />
+        <Setter Property=""StrokeDashArray"" Value=""4 2"" />
+    </Style>
+    <Style TargetType=""Link"" GroupLabel=""push"" ValueLabel=""True"">
+        <Condition Expression=""HasCategory('push')"" />
+        <Setter Property=""Stroke"" Value=""#FF7380F5"" />
+        <Setter Property=""StrokeDashArray"" Value=""4 2"" />
+    </Style>
+    <Style TargetType=""Link"" GroupLabel=""pop"" ValueLabel=""True"">
+        <Condition Expression=""HasCategory('pop')"" />
+        <Setter Property=""Stroke"" Value=""#FF7380F5"" />
+        <Setter Property=""StrokeDashArray"" Value=""4 2"" />
+    </Style>
+</Styles>");
+            }
+
             writer.WriteLine("</DirectedGraph>");
         }
 
@@ -739,7 +918,14 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 var category = (string)e.Attribute("Category");
                 var srcNode = result.GetOrCreateNode(srcId);
                 var targetNode = result.GetOrCreateNode(targetId);
-                var link = result.GetOrCreateLink(srcNode, targetNode, label, category);
+                XAttribute indexAttr = e.Attribute("index");
+                int? index = null;
+                if (indexAttr != null)
+                {
+                    index = (int)indexAttr;
+                }
+
+                var link = result.GetOrCreateLink(srcNode, targetNode, index, label, category);
                 link.AddDgmlProperties(e);
             }
 
@@ -762,7 +948,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             {
                 var source = this.GetOrCreateNode(link.Source.Id, link.Source.Label, link.Source.Category);
                 var target = this.GetOrCreateNode(link.Target.Id, link.Target.Label, link.Target.Category);
-                var newLink = this.GetOrCreateLink(source, target, link.Label, link.Category);
+                int? index = null;
+                if (link.Index.HasValue)
+                {
+                    // ouch, link indexes cannot be compared across Graph instances, we need to assign a new index here.
+                    string key = string.Format("{0}->{1}({2})", source.Id, target.Id, link.Index.Value);
+                    string linkId = other.InternalAllocatedLinkIds[key];
+                    index = this.GetUniqueLinkIndex(source, target, linkId);
+                }
+
+                var newLink = this.GetOrCreateLink(source, target, index, link.Label, link.Category);
                 newLink.Merge(link);
             }
         }
@@ -955,6 +1150,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         /// </summary>
         [DataMember]
         public GraphNode Target { get; internal set; }
+
+        /// <summary>
+        /// The optional link index.
+        /// </summary>
+        [DataMember]
+        public int? Index { get; internal set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GraphLink"/> class.

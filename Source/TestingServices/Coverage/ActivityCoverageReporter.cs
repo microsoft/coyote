@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,11 +21,19 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         private readonly CoverageInfo CoverageInfo;
 
         /// <summary>
+        /// Set of built in events which we hide in the coverage report.
+        /// </summary>
+        private readonly HashSet<string> BuiltInEvents = new HashSet<string>();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActivityCoverageReporter"/> class.
         /// </summary>
         public ActivityCoverageReporter(CoverageInfo coverageInfo)
         {
             this.CoverageInfo = coverageInfo;
+            this.BuiltInEvents.Add(typeof(GotoStateEvent).FullName);
+            this.BuiltInEvents.Add(typeof(PushStateEvent).FullName);
+            this.BuiltInEvents.Add(typeof(DefaultEvent).FullName);
         }
 
         /// <summary>
@@ -34,7 +43,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             if (this.CoverageInfo.CoverageGraph != null)
             {
-                this.CoverageInfo.CoverageGraph.SaveDgml(graphFile);
+                this.CoverageInfo.CoverageGraph.SaveDgml(graphFile, true);
             }
         }
 
@@ -49,15 +58,27 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
         }
 
+        /// <summary>
+        /// Return all events represented by this link.
+        /// </summary>
         private static IEnumerable<string> GetEventIds(GraphLink link)
         {
             if (link.AttributeLists != null)
             {
-                link.AttributeLists.TryGetValue("EventIds", out HashSet<string> idList);
-                return idList;
+                // a collapsed edge graph
+                if (link.AttributeLists.TryGetValue("EventIds", out HashSet<string> idList))
+                {
+                    return idList;
+                }
             }
 
-            return null;
+            // a fully expanded edge graph has individual links for each event.
+            if (link.Attributes.TryGetValue("EventId", out string eventId))
+            {
+                return new string[] { eventId };
+            }
+
+            return Array.Empty<string>();
         }
 
         /// <summary>
@@ -71,6 +92,17 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             bool hasExternalSource = false;
             string externalSrcId = "ExternalCode";
 
+            // look for any external source links.
+            foreach (var link in this.CoverageInfo.CoverageGraph.Links)
+            {
+                string srcId = link.Source.Id;
+                if (srcId == externalSrcId && !hasExternalSource)
+                {
+                    machines.Add(srcId);
+                    hasExternalSource = true;
+                }
+            }
+
             // (machines + "." + states => registered events
             var uncoveredEvents = new Dictionary<string, HashSet<string>>();
             foreach (var item in this.CoverageInfo.RegisteredEvents)
@@ -81,36 +113,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             int totalEvents = (from h in uncoveredEvents select h.Value.Count).Sum();
 
             // Now use the graph to find incoming links to each state and remove those from the list of uncovered events.
-            foreach (var link in this.CoverageInfo.CoverageGraph.Links)
-            {
-                string srcId = link.Source.Id;
-                if (srcId == externalSrcId && !hasExternalSource)
-                {
-                    machines.Add(srcId);
-                    hasExternalSource = true;
-                }
-
-                string targetId = link.Target.Id;
-                IEnumerable<string> eventIds = GetEventIds(link);
-                if (link.Category != "Contains" && eventIds != null)
-                {
-                    if (uncoveredEvents.TryGetValue(srcId, out var sourceEvents))
-                    {
-                        foreach (var eventId in eventIds)
-                        {
-                            sourceEvents.Remove(eventId);
-                        }
-                    }
-
-                    if (uncoveredEvents.TryGetValue(targetId, out var targetEvents))
-                    {
-                        foreach (var eventId in eventIds)
-                        {
-                            targetEvents.Remove(eventId);
-                        }
-                    }
-                }
-            }
+            this.RemoveCoveredEvents(uncoveredEvents);
 
             int totalUncoveredEvents = (from h in uncoveredEvents select h.Value.Count).Sum();
 
@@ -138,38 +141,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 }
 
                 // Now use the graph to find incoming links to each state in this machine and remove those from the list of uncovered events.
-                foreach (var link in this.CoverageInfo.CoverageGraph.Links)
-                {
-                    string srcId = link.Source.Id;
-                    string targetId = link.Target.Id;
-                    IEnumerable<string> eventIds = GetEventIds(link);
-                    if (link.Category != "Contains" && eventIds != null)
-                    {
-                        var id = GetMachineId(srcId);
-                        if (id == machine)
-                        {
-                            if (uncoveredMachineEvents.TryGetValue(srcId, out var events))
-                            {
-                                foreach (var eventId in eventIds)
-                                {
-                                    events.Remove(eventId);
-                                }
-                            }
-                        }
-
-                        id = GetMachineId(targetId);
-                        if (id == machine)
-                        {
-                            if (uncoveredMachineEvents.TryGetValue(targetId, out var events))
-                            {
-                                foreach (var eventId in eventIds)
-                                {
-                                    events.Remove(eventId);
-                                }
-                            }
-                        }
-                    }
-                }
+                this.RemoveCoveredEvents(uncoveredMachineEvents);
 
                 int totalMachineEvents = (from h in allMachineEvents select h.Value.Count).Sum();
                 var totalUncoveredMachineEvents = (from h in uncoveredMachineEvents select h.Value.Count).Sum();
@@ -202,44 +174,30 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     }
 
                     // Now use the graph to find incoming links to each state in this machine
-                    HashSet<string> stateIncomingEvents = new HashSet<string>();
                     HashSet<string> stateIncomingStates = new HashSet<string>();
-                    HashSet<string> stateOutgoingEvents = new HashSet<string>();
                     HashSet<string> stateOutgoingStates = new HashSet<string>();
-                    string gotoEventId = typeof(GotoStateEvent).FullName;
-                    string pushEventId = typeof(PushStateEvent).FullName;
                     foreach (var link in this.CoverageInfo.CoverageGraph.Links)
                     {
-                        string srcId = link.Source.Id;
-                        string targetId = link.Target.Id;
-                        if (link.AttributeLists != null && link.AttributeLists.TryGetValue("EventIds", out HashSet<string> eventList))
+                        if (link.Category != "Contains")
                         {
-                            foreach (string id in eventList)
+                            string srcId = link.Source.Id;
+                            string srcMachine = GetMachineId(srcId);
+                            string targetId = link.Target.Id;
+                            string targetMachine = GetMachineId(targetId);
+                            bool intraMachineTransition = targetMachine == machine && srcMachine == machine;
+                            if (intraMachineTransition)
                             {
-                                if (targetId == key)
+                                foreach (string id in GetEventIds(link))
                                 {
-                                    // Hide the special internal only "goto" event which corresponds to user
-                                    // explicitly calling Goto() from within some action action.
-                                    if (id != gotoEventId && id != pushEventId)
+                                    if (targetId == key)
                                     {
-                                        stateIncomingEvents.Add(id);
-                                    }
-
-                                    if (!srcId.StartsWith(externalSrcId))
-                                    {
+                                        // we want to show incoming/outgoing states within the current machine only.
                                         stateIncomingStates.Add(GetStateName(srcId));
                                     }
-                                }
 
-                                if (srcId == key)
-                                {
-                                    if (id != gotoEventId && id != pushEventId)
+                                    if (srcId == key)
                                     {
-                                        stateOutgoingEvents.Add(id);
-                                    }
-
-                                    if (!srcId.StartsWith(externalSrcId))
-                                    {
+                                        // we want to show incoming/outgoing states within the current machine only.
                                         stateOutgoingStates.Add(GetStateName(targetId));
                                     }
                                 }
@@ -247,30 +205,36 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                         }
                     }
 
-                    if (stateIncomingEvents.Count > 0)
+                    HashSet<string> received = new HashSet<string>(this.CoverageInfo.EventInfo.GetEventsReceived(key));
+                    this.RemoveBuiltInEvents(received);
+
+                    if (received.Count > 0)
                     {
-                        writer.WriteLine("\t\tEvents received: {0}", string.Join(", ", Sort(stateIncomingEvents)));
+                        writer.WriteLine("\t\tEvents received: {0}", string.Join(", ", SortHashSet(received)));
                     }
 
-                    if (stateOutgoingEvents.Count > 0)
+                    HashSet<string> sent = new HashSet<string>(this.CoverageInfo.EventInfo.GetEventsSent(key));
+                    this.RemoveBuiltInEvents(sent);
+
+                    if (sent.Count > 0)
                     {
-                        writer.WriteLine("\t\tEvents sent: {0}", string.Join(", ", Sort(stateOutgoingEvents)));
+                        writer.WriteLine("\t\tEvents sent: {0}", string.Join(", ", SortHashSet(sent)));
                     }
 
                     var stateUncoveredEvents = (from h in uncoveredMachineEvents where h.Key == key select h.Value).FirstOrDefault();
                     if (stateUncoveredEvents != null && stateUncoveredEvents.Count > 0)
                     {
-                        writer.WriteLine("\t\tEvents not covered: {0}", string.Join(", ", Sort(stateUncoveredEvents)));
+                        writer.WriteLine("\t\tEvents not covered: {0}", string.Join(", ", SortHashSet(stateUncoveredEvents)));
                     }
 
                     if (stateIncomingStates.Count > 0)
                     {
-                        writer.WriteLine("\t\tPrevious states: {0}", string.Join(", ", Sort(stateIncomingStates)));
+                        writer.WriteLine("\t\tPrevious states: {0}", string.Join(", ", SortHashSet(stateIncomingStates)));
                     }
 
                     if (stateOutgoingStates.Count > 0)
                     {
-                        writer.WriteLine("\t\tNext states: {0}", string.Join(", ", Sort(stateOutgoingStates)));
+                        writer.WriteLine("\t\tNext states: {0}", string.Join(", ", SortHashSet(stateOutgoingStates)));
                     }
                 }
 
@@ -278,7 +242,66 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
         }
 
-        private static List<string> Sort(HashSet<string> items)
+        private void RemoveBuiltInEvents(HashSet<string> eventList)
+        {
+            var gotoState = typeof(GotoStateEvent).FullName;
+            var defaultEvent = typeof(DefaultEvent).FullName;
+
+            foreach (var name in eventList.ToArray())
+            {
+                if (this.BuiltInEvents.Contains(name))
+                {
+                    eventList.Remove(name);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove all events from expectedEvent that are found in the graph.
+        /// </summary>
+        /// <param name="expectedEvents">The list of all expected events organized by unique state Id</param>
+        private void RemoveCoveredEvents(Dictionary<string, HashSet<string>> expectedEvents)
+        {
+            foreach (var pair in expectedEvents)
+            {
+                string stateId = pair.Key;
+                var eventSet = pair.Value;
+
+                foreach (var e in this.CoverageInfo.EventInfo.GetEventsReceived(stateId))
+                {
+                    eventSet.Remove(e);
+                }
+            }
+        }
+
+        private IEnumerable<string> GetPushedStates(string stateId)
+        {
+            Stack<string> pushed = new Stack<string>();
+            HashSet<string> result = new HashSet<string>();
+            pushed.Push(stateId);
+            while (pushed.Count > 0)
+            {
+                string id = pushed.Pop();
+                GraphNode source = this.CoverageInfo.CoverageGraph.GetNode(stateId);
+                foreach (var link in this.CoverageInfo.CoverageGraph.Links)
+                {
+                    if (link.Category == "push")
+                    {
+                        string srcId = link.Source.Id;
+                        string targetId = link.Target.Id;
+                        if (srcId == id && !result.Contains(targetId))
+                        {
+                            result.Add(targetId);
+                            pushed.Push(targetId);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static List<string> SortHashSet(HashSet<string> items)
         {
             List<string> sorted = new List<string>(items);
             sorted.Sort();

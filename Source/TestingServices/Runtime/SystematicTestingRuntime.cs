@@ -489,7 +489,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         {
             EventOriginInfo originInfo;
 
-            var stateName = string.Empty;
+            string stateName = null;
             if (sender is StateMachine senderStateMachine)
             {
                 originInfo = new EventOriginInfo(sender.Id, senderStateMachine.GetType().FullName,
@@ -859,10 +859,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that an actor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName, Event receivedEvent)
         {
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-            this.LogWriter.LogExecuteAction(actor.Id, stateName, action.Name);
+            this.LogWriter.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
         }
 
         /// <summary>
@@ -884,7 +883,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 ResetProgramCounter(actor);
             }
 
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogDequeueEvent(actor.Id, stateName, e);
         }
 
@@ -911,7 +910,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogRaiseEvent(actor.Id, stateName, e);
         }
 
@@ -920,7 +919,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyHandleRaisedEvent(Actor actor, Event e)
         {
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
         }
 
@@ -938,7 +937,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
             op.OnReceivedEvent();
@@ -950,7 +949,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
         {
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(actor);
@@ -974,7 +973,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// </summary>
         internal override void NotifyWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
         {
-            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
             op.OnWaitEvent(eventTypes);
 
@@ -1024,7 +1023,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             string stateName = stateMachine.CurrentStateName;
-            this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
+            this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
         }
 
         /// <summary>
@@ -1033,7 +1032,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             string stateName = stateMachine.CurrentStateName;
-            this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, action.Name);
+            this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
         }
 
         /// <summary>
@@ -1057,10 +1056,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a monitor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
         {
-            string monitorState = monitor.CurrentStateName;
-            this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, monitorState, action.Name);
+            this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, stateName, action.Name);
         }
 
         /// <summary>
@@ -1087,6 +1085,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 if (builder != null)
                 {
                     result.CoverageGraph = builder.SnapshotGraph(this.Configuration.IsDgmlBugGraph);
+                }
+
+                var eventCoverage = this.LogWriter.GetLogsOfType<ActorRuntimeLogEventCoverage>().FirstOrDefault();
+                if (eventCoverage != null)
+                {
+                    result.EventInfo = eventCoverage.EventCoverage;
                 }
             }
 

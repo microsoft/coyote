@@ -28,9 +28,10 @@ namespace Microsoft.Coyote.Runtime
         /// Invoked when the specified actor executes an action.
         /// </summary>
         /// <param name="id">The id of the actor executing the action.</param>
-        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="handlingStateName">The state that declared this action (can be different from currentStateName in the case of pushed states.</param>
+        /// <param name="currentStateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
-        void OnExecuteAction(ActorId id, string stateName, string actionName);
+        void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName);
 
         /// <summary>
         /// Invoked when the specified event is sent to a target actor.
@@ -112,25 +113,25 @@ namespace Microsoft.Coyote.Runtime
         /// Invoked when the specified state machine performs a goto transition to the specified state.
         /// </summary>
         /// <param name="id">The id of the actor.</param>
-        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="newStateName">The target state of the transition.</param>
-        void OnGotoState(ActorId id, string currStateName, string newStateName);
+        void OnGotoState(ActorId id, string currentStateName, string newStateName);
 
         /// <summary>
         /// Invoked when the specified state machine is being pushed to a state.
         /// </summary>
         /// <param name="id">The id of the actor being pushed to the state.</param>
-        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="newStateName">The target state of the transition.</param>
-        void OnPushState(ActorId id, string currStateName, string newStateName);
+        void OnPushState(ActorId id, string currentStateName, string newStateName);
 
         /// <summary>
         /// Invoked when the specified state machine has popped its current state.
         /// </summary>
         /// <param name="id">The id of the actor that the pop executed in.</param>
-        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="restoredStateName">The name of the state being re-entered, if any.</param>
-        void OnPopState(ActorId id, string currStateName, string restoredStateName);
+        void OnPopState(ActorId id, string currentStateName, string restoredStateName);
 
         /// <summary>
         /// Invoked when the specified actor is idle (there is nothing to dequeue) and the default

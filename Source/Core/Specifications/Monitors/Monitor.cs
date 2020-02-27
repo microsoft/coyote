@@ -59,14 +59,9 @@ namespace Microsoft.Coyote.Specifications
         private State ActiveState;
 
         /// <summary>
-        /// Dictionary containing all the current goto state transitions.
-        /// </summary>
-        internal Dictionary<Type, GotoStateTransition> GotoTransitions;
-
-        /// <summary>
         /// Dictionary containing all the current action bindings.
         /// </summary>
-        internal Dictionary<Type, ActionEventHandlerDeclaration> ActionBindings;
+        internal Dictionary<Type, EventHandlerDeclaration> EventHandlers;
 
         /// <summary>
         /// Map from action names to cached action delegates.
@@ -324,29 +319,31 @@ namespace Microsoft.Coyote.Specifications
                     Type targetState = (e as GotoStateEvent).State;
                     this.GotoState(targetState, null, e);
                 }
-                else if (this.GotoTransitions.ContainsKey(e.GetType()))
-                {
-                    // Checks if the event can trigger a goto state transition.
-                    var transition = this.GotoTransitions[e.GetType()];
-                    this.GotoState(transition.TargetState, transition.Lambda, e);
-                }
-                else if (this.GotoTransitions.ContainsKey(typeof(WildCardEvent)))
-                {
-                    // Checks if the event can trigger a goto state transition.
-                    var transition = this.GotoTransitions[typeof(WildCardEvent)];
-                    this.GotoState(transition.TargetState, transition.Lambda, e);
-                }
-                else if (this.ActionBindings.ContainsKey(e.GetType()))
+                else if (this.EventHandlers.ContainsKey(e.GetType()))
                 {
                     // Checks if the event can trigger an action.
-                    var handler = this.ActionBindings[e.GetType()];
-                    this.Do(handler.Name, e);
+                    var handler = this.EventHandlers[e.GetType()];
+                    if (handler is ActionEventHandlerDeclaration action)
+                    {
+                        this.Do(action.Name, e);
+                    }
+                    else if (handler is GotoStateTransition transition)
+                    {
+                        this.GotoState(transition.TargetState, transition.Lambda, e);
+                    }
                 }
-                else if (this.ActionBindings.ContainsKey(typeof(WildCardEvent)))
+                else if (this.EventHandlers.ContainsKey(typeof(WildCardEvent)))
                 {
                     // Checks if the event can trigger an action.
-                    var handler = this.ActionBindings[typeof(WildCardEvent)];
-                    this.Do(handler.Name, e);
+                    var handler = this.EventHandlers[typeof(WildCardEvent)];
+                    if (handler is ActionEventHandlerDeclaration action)
+                    {
+                        this.Do(action.Name, e);
+                    }
+                    else if (handler is GotoStateTransition transition)
+                    {
+                        this.GotoState(transition.TargetState, transition.Lambda, e);
+                    }
                 }
 
                 break;
@@ -374,7 +371,7 @@ namespace Microsoft.Coyote.Specifications
         private void Do(string actionName, Event e)
         {
             CachedDelegate cachedAction = this.ActionMap[actionName];
-            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
+            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, this.CurrentStateNameWithTemperature, e);
             this.ExecuteAction(cachedAction, e);
             this.ApplyEventHandlerTransition(this.PendingTransition);
         }
@@ -581,10 +578,8 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         private bool CanHandleEvent(Type e)
         {
-            if (this.GotoTransitions.ContainsKey(e) ||
-                this.GotoTransitions.ContainsKey(typeof(WildCardEvent)) ||
-                this.ActionBindings.ContainsKey(e) ||
-                this.ActionBindings.ContainsKey(typeof(WildCardEvent)) ||
+            if (this.EventHandlers.ContainsKey(e) ||
+                this.EventHandlers.ContainsKey(typeof(WildCardEvent)) ||
                 e == typeof(GotoStateEvent))
             {
                 return true;
@@ -793,24 +788,26 @@ namespace Microsoft.Coyote.Specifications
                             this.GetActionWithName(state.ExitAction));
                     }
 
-                    foreach (var transition in state.GotoTransitions)
+                    foreach (var handler in state.EventHandlers.Values)
                     {
-                        if (transition.Value.Lambda != null &&
-                            !MonitorActionMap[monitorType].ContainsKey(transition.Value.Lambda))
+                        if (handler is ActionEventHandlerDeclaration action)
                         {
-                            MonitorActionMap[monitorType].Add(
-                                transition.Value.Lambda,
-                                this.GetActionWithName(transition.Value.Lambda));
+                            if (!MonitorActionMap[monitorType].ContainsKey(action.Name))
+                            {
+                                MonitorActionMap[monitorType].Add(
+                                    action.Name,
+                                    this.GetActionWithName(action.Name));
+                            }
                         }
-                    }
-
-                    foreach (var action in state.ActionBindings)
-                    {
-                        if (!MonitorActionMap[monitorType].ContainsKey(action.Value.Name))
+                        else if (handler is GotoStateTransition transition)
                         {
-                            MonitorActionMap[monitorType].Add(
-                                action.Value.Name,
-                                this.GetActionWithName(action.Value.Name));
+                            if (transition.Lambda != null &&
+                                !MonitorActionMap[monitorType].ContainsKey(transition.Lambda))
+                            {
+                                MonitorActionMap[monitorType].Add(
+                                    transition.Lambda,
+                                    this.GetActionWithName(transition.Lambda));
+                            }
                         }
                     }
                 }
@@ -868,8 +865,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         private void ConfigureStateTransitions(State state)
         {
-            this.GotoTransitions = state.GotoTransitions;
-            this.ActionBindings = state.ActionBindings;
+            this.EventHandlers = state.EventHandlers;
             this.IgnoredEvents = state.IgnoredEvents;
         }
 
@@ -957,14 +953,9 @@ namespace Microsoft.Coyote.Specifications
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateMap[this.GetType()])
             {
-                foreach (var binding in state.ActionBindings)
+                foreach (var binding in state.EventHandlers)
                 {
                     pairs.Add(Tuple.Create(NameResolver.GetQualifiedStateName(state.GetType()), binding.Key.FullName));
-                }
-
-                foreach (var transition in state.GotoTransitions)
-                {
-                    pairs.Add(Tuple.Create(NameResolver.GetQualifiedStateName(state.GetType()), transition.Key.FullName));
                 }
             }
 
@@ -1057,14 +1048,9 @@ namespace Microsoft.Coyote.Specifications
             internal string ExitAction { get; private set; }
 
             /// <summary>
-            /// Dictionary containing all the goto state transitions.
+            /// Dictionary containing all the event handlers.
             /// </summary>
-            internal Dictionary<Type, GotoStateTransition> GotoTransitions;
-
-            /// <summary>
-            /// Dictionary containing all the action bindings.
-            /// </summary>
-            internal Dictionary<Type, ActionEventHandlerDeclaration> ActionBindings;
+            internal Dictionary<Type, EventHandlerDeclaration> EventHandlers;
 
             /// <summary>
             /// Set of ignored event types.
@@ -1102,8 +1088,7 @@ namespace Microsoft.Coyote.Specifications
                 this.IsHot = false;
                 this.IsCold = false;
 
-                this.GotoTransitions = new Dictionary<Type, GotoStateTransition>();
-                this.ActionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
+                this.EventHandlers = new Dictionary<Type, EventHandlerDeclaration>();
 
                 this.IgnoredEvents = new HashSet<Type>();
 
@@ -1155,11 +1140,11 @@ namespace Microsoft.Coyote.Specifications
 
                     if (attr.Action is null)
                     {
-                        this.GotoTransitions.Add(attr.Event, new GotoStateTransition(attr.State));
+                        this.EventHandlers.Add(attr.Event, new GotoStateTransition(attr.State));
                     }
                     else
                     {
-                        this.GotoTransitions.Add(attr.Event, new GotoStateTransition(attr.State, attr.Action));
+                        this.EventHandlers.Add(attr.Event, new GotoStateTransition(attr.State, attr.Action));
                     }
 
                     handledEvents.Add(attr.Event);
@@ -1184,7 +1169,7 @@ namespace Microsoft.Coyote.Specifications
                 var gotoTransitionsInherited = new Dictionary<Type, GotoStateTransition>();
                 foreach (var attr in gotoAttributesInherited)
                 {
-                    if (this.GotoTransitions.ContainsKey(attr.Event))
+                    if (this.EventHandlers.ContainsKey(attr.Event))
                     {
                         continue;
                     }
@@ -1205,7 +1190,7 @@ namespace Microsoft.Coyote.Specifications
 
                 foreach (var kvp in gotoTransitionsInherited)
                 {
-                    this.GotoTransitions.Add(kvp.Key, kvp.Value);
+                    this.EventHandlers.Add(kvp.Key, kvp.Value);
                 }
 
                 this.InheritGotoTransitions(baseState.BaseType, handledEvents);
@@ -1223,7 +1208,7 @@ namespace Microsoft.Coyote.Specifications
                 {
                     CheckEventHandlerAlreadyDeclared(attr.Event, handledEvents);
 
-                    this.ActionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
+                    this.EventHandlers.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                     handledEvents.Add(attr.Event);
                 }
 
@@ -1246,7 +1231,7 @@ namespace Microsoft.Coyote.Specifications
                 var actionBindingsInherited = new Dictionary<Type, ActionEventHandlerDeclaration>();
                 foreach (var attr in doAttributesInherited)
                 {
-                    if (this.ActionBindings.ContainsKey(attr.Event))
+                    if (this.EventHandlers.ContainsKey(attr.Event))
                     {
                         continue;
                     }
@@ -1259,7 +1244,7 @@ namespace Microsoft.Coyote.Specifications
 
                 foreach (var kvp in actionBindingsInherited)
                 {
-                    this.ActionBindings.Add(kvp.Key, kvp.Value);
+                    this.EventHandlers.Add(kvp.Key, kvp.Value);
                 }
 
                 this.InheritActionHandlers(baseState.BaseType, handledEvents);

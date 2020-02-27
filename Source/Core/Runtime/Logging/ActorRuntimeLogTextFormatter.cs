@@ -144,25 +144,29 @@ namespace Microsoft.Coyote.Runtime.Logging
         }
 
         /// <inheritdoc/>
-        public virtual void OnExecuteAction(ActorId id, string stateName, string actionName)
+        public virtual void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
             string text = null;
-            if (stateName is null)
+            if (currentStateName is null)
             {
                 text = $"<ActionLog> {id} invoked action '{actionName}'.";
             }
+            else if (handlingStateName != currentStateName)
+            {
+                text = $"<ActionLog> {id} invoked action '{actionName}' in state '{currentStateName}' where action was declared by state '{handlingStateName}'.";
+            }
             else
             {
-                text = $"<ActionLog> {id} invoked action '{actionName}' in state '{stateName}'.";
+                text = $"<ActionLog> {id} invoked action '{actionName}' in state '{currentStateName}'.";
             }
 
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnGotoState(ActorId id, string currStateName, string newStateName)
+        public virtual void OnGotoState(ActorId id, string currentStateName, string newStateName)
         {
-            string text = $"<GotoLog> {id} is transitioning from state '{currStateName}' to state '{newStateName}'.";
+            string text = $"<GotoLog> {id} is transitioning from state '{currentStateName}' to state '{newStateName}'.";
             this.Logger.WriteLine(text);
         }
 
@@ -211,11 +215,11 @@ namespace Microsoft.Coyote.Runtime.Logging
         }
 
         /// <inheritdoc/>
-        public virtual void OnPopState(ActorId id, string currStateName, string restoredStateName)
+        public virtual void OnPopState(ActorId id, string currentStateName, string restoredStateName)
         {
-            currStateName = string.IsNullOrEmpty(currStateName) ? "[not recorded]" : currStateName;
+            currentStateName = string.IsNullOrEmpty(currentStateName) ? "[not recorded]" : currentStateName;
             var reenteredStateName = restoredStateName ?? string.Empty;
-            var text = $"<PopLog> {id} popped state '{currStateName}' and reentered state '{reenteredStateName}'.";
+            var text = $"<PopLog> {id} popped state '{currentStateName}' and reentered state '{reenteredStateName}'.";
             this.Logger.WriteLine(text);
         }
 
@@ -231,9 +235,9 @@ namespace Microsoft.Coyote.Runtime.Logging
         }
 
         /// <inheritdoc/>
-        public virtual void OnPushState(ActorId id, string currStateName, string newStateName)
+        public virtual void OnPushState(ActorId id, string currentStateName, string newStateName)
         {
-            string text = $"<PushLog> {id} pushed from state '{currStateName}' to state '{newStateName}'.";
+            string text = $"<PushLog> {id} pushed from state '{currentStateName}' to state '{newStateName}'.";
             this.Logger.WriteLine(text);
         }
 

@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Checks if the actor type declaration is cached.
         /// </summary>
-        private protected static readonly ConcurrentDictionary<Type, bool> IsTypeDeclarationCached =
+        private static readonly ConcurrentDictionary<Type, bool> IsTypeDeclarationCached =
             new ConcurrentDictionary<Type, bool>();
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Map from event types to cached action delegates.
         /// </summary>
-        private readonly Dictionary<Type, CachedDelegate> ActionMap;
+        private protected readonly Dictionary<Type, CachedDelegate> ActionMap;
 
         /// <summary>
         /// Map that contains the active timers.
@@ -527,7 +527,7 @@ namespace Microsoft.Coyote.Actors
             if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate cachedAction) ||
                 this.ActionMap.TryGetValue(typeof(WildCardEvent), out cachedAction))
             {
-                this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
+                this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, null, null, e);
                 await this.InvokeActionAsync(cachedAction, e);
             }
             else if (e is HaltEvent)
@@ -552,7 +552,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invokes the specified action delegate.
         /// </summary>
-        private async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
+        private protected async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
         {
             try
             {
@@ -750,7 +750,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Extracts user declarations and setups the event handlers.
+        /// Extracts user declarations and sets up the event handlers.
         /// </summary>
         internal virtual void SetupEventHandlers()
         {

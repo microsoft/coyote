@@ -66,15 +66,16 @@ namespace Microsoft.Coyote.Runtime
         /// Logs that the specified actor executes an action.
         /// </summary>
         /// <param name="id">The id of the actor executing the action.</param>
-        /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
+        /// <param name="handlingStateName">The state that declared this action (can be different from currentStateName in the case of PushStates.</param>
+        /// <param name="currentStateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="actionName">The name of the action being executed.</param>
-        public void LogExecuteAction(ActorId id, string stateName, string actionName)
+        public void LogExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnExecuteAction(id, stateName, actionName);
+                    log.OnExecuteAction(id, handlingStateName, currentStateName, actionName);
                 }
             }
         }
@@ -240,15 +241,15 @@ namespace Microsoft.Coyote.Runtime
         /// Logs that the specified state machine performs a goto state transition.
         /// </summary>
         /// <param name="id">The id of the actor.</param>
-        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="newStateName">The target state of the transition.</param>
-        public void LogGotoState(ActorId id, string currStateName, string newStateName)
+        public void LogGotoState(ActorId id, string currentStateName, string newStateName)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnGotoState(id, currStateName, newStateName);
+                    log.OnGotoState(id, currentStateName, newStateName);
                 }
             }
         }
@@ -257,15 +258,15 @@ namespace Microsoft.Coyote.Runtime
         /// Logs that the specified state machine performs a push state transition.
         /// </summary>
         /// <param name="id">The id of the actor being pushed to the state.</param>
-        /// <param name="currStateName">The name of the current state.</param>
+        /// <param name="currentStateName">The name of the current state.</param>
         /// <param name="newStateName">The target state of the transition.</param>
-        public void LogPushState(ActorId id, string currStateName, string newStateName)
+        public void LogPushState(ActorId id, string currentStateName, string newStateName)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnPushState(id, currStateName, newStateName);
+                    log.OnPushState(id, currentStateName, newStateName);
                 }
             }
         }

@@ -127,24 +127,28 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnExecuteAction(ActorId id, string stateName, string actionName)
+        public void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
             this.Writer.WriteStartElement("Action");
             this.Writer.WriteAttributeString("id", id.ToString());
-            if (!string.IsNullOrEmpty(stateName))
+            if (!string.IsNullOrEmpty(currentStateName))
             {
-                this.Writer.WriteAttributeString("state", stateName);
+                this.Writer.WriteAttributeString("state", currentStateName);
+                if (currentStateName != handlingStateName)
+                {
+                    this.Writer.WriteAttributeString("handledBy", handlingStateName);
+                }
             }
 
             this.Writer.WriteAttributeString("action", actionName);
             this.Writer.WriteEndElement();
         }
 
-        public void OnGotoState(ActorId id, string currStateName, string newStateName)
+        public void OnGotoState(ActorId id, string currentStateName, string newStateName)
         {
             this.Writer.WriteStartElement("Goto");
             this.Writer.WriteAttributeString("id", id.ToString());
-            this.Writer.WriteAttributeString("currState", currStateName);
+            this.Writer.WriteAttributeString("currState", currentStateName);
             this.Writer.WriteAttributeString("newState", newStateName);
             this.Writer.WriteEndElement();
         }
@@ -211,11 +215,11 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnPopState(ActorId id, string currStateName, string restoredStateName)
+        public void OnPopState(ActorId id, string currentStateName, string restoredStateName)
         {
             this.Writer.WriteStartElement("Pop");
             this.Writer.WriteAttributeString("id", id.ToString());
-            this.Writer.WriteAttributeString("currState", currStateName);
+            this.Writer.WriteAttributeString("currState", currentStateName);
             this.Writer.WriteAttributeString("restoredState", restoredStateName);
             this.Writer.WriteEndElement();
         }
@@ -230,11 +234,11 @@ namespace Microsoft.Coyote.Runtime.Logging
             this.Writer.WriteEndElement();
         }
 
-        public void OnPushState(ActorId id, string currStateName, string newStateName)
+        public void OnPushState(ActorId id, string currentStateName, string newStateName)
         {
             this.Writer.WriteStartElement("Push");
             this.Writer.WriteAttributeString("id", id.ToString());
-            this.Writer.WriteAttributeString("currState", currStateName);
+            this.Writer.WriteAttributeString("currState", currentStateName);
             this.Writer.WriteAttributeString("newState", newStateName);
             this.Writer.WriteEndElement();
         }

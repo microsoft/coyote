@@ -26,10 +26,16 @@ namespace Microsoft.Coyote.Actors
     public abstract class StateMachine : Actor
     {
         /// <summary>
-        /// Cache of actor types to a map of action names to action declarations.
+        /// Cache of state machine types to a map of action names to action declarations.
         /// </summary>
         private static readonly ConcurrentDictionary<Type, Dictionary<string, MethodInfo>> ActionCache =
             new ConcurrentDictionary<Type, Dictionary<string, MethodInfo>>();
+
+        /// <summary>
+        /// Checks if the state machine type declaration is cached.
+        /// </summary>
+        private static readonly ConcurrentDictionary<Type, bool> IsTypeDeclarationCached =
+            new ConcurrentDictionary<Type, bool>();
 
         /// <summary>
         /// Cache of state machine types to a set of all possible states types.
@@ -49,26 +55,28 @@ namespace Microsoft.Coyote.Actors
         private readonly Stack<State> StateStack;
 
         /// <summary>
-        /// A stack of maps that determine how to handle each event type. These
-        /// maps do not keep transition handlers. This stack has always the same
-        /// height as <see cref="StateStack"/>.
+        /// A map from event type to a Stack of HandlerInfo where the stack contains the inheritable
+        /// event handlers defined by each state that has been pushed onto the StateStack (if any).
+        /// The HandlerInfo also remembers which state the handler was defined on so that when the
+        /// handler is invoked the IActorRuntimeLog can be given that information.
         /// </summary>
-        private readonly Stack<Dictionary<Type, EventHandlerDeclaration>> EventHandlerStack;
+        private readonly Dictionary<Type, Stack<HandlerInfo>> InheritableEventHandlerMap;
 
         /// <summary>
-        /// Map from action names to cached action delegates.
+        /// A map from event type to EventHandlerDeclaration for those EventHandlerDeclarations that
+        /// are not inheritable on the state stack.
         /// </summary>
-        private readonly Dictionary<string, CachedDelegate> ActionMap;
+        private Dictionary<Type, EventHandlerDeclaration> EventHandlerMap;
 
         /// <summary>
-        /// Dictionary containing all the current goto state transitions.
+        /// This is just so we don't have to allocate an empty map more than once.
         /// </summary>
-        internal Dictionary<Type, GotoStateTransition> GotoTransitions;
+        private static readonly Dictionary<Type, EventHandlerDeclaration> EmptyEventHandlerMap = new Dictionary<Type, EventHandlerDeclaration>();
 
         /// <summary>
-        /// Dictionary containing all the current push state transitions.
+        /// Map from action names to cached action delegates for all states in this state machine.
         /// </summary>
-        internal Dictionary<Type, PushStateTransition> PushTransitions;
+        private readonly Dictionary<string, CachedDelegate> StateMachineActionMap;
 
         /// <summary>
         /// Newly created Transition that hasn't been returned from InvokeActionAsync yet.
@@ -78,39 +86,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Gets the <see cref="Type"/> of the current state.
         /// </summary>
-        protected internal Type CurrentState
-        {
-            get
-            {
-                if (this.StateStack.Count == 0)
-                {
-                    return null;
-                }
-
-                return this.StateStack.Peek().GetType();
-            }
-        }
-
-        /// <summary>
-        /// Map from event types to installed event handlers in the current state.
-        /// </summary>
-        private Dictionary<Type, EventHandlerDeclaration> CurrentStateEventHandlers
-        {
-            get
-            {
-                if (this.EventHandlerStack.Count == 0)
-                {
-                    return null;
-                }
-
-                return this.EventHandlerStack.Peek();
-            }
-        }
+        protected internal Type CurrentState { get; private set; }
 
         /// <summary>
         /// Gets the name of the current state.
         /// </summary>
-        internal string CurrentStateName => NameResolver.GetQualifiedStateName(this.CurrentState);
+        internal string CurrentStateName { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StateMachine"/> class.
@@ -119,8 +100,9 @@ namespace Microsoft.Coyote.Actors
             : base()
         {
             this.StateStack = new Stack<State>();
-            this.EventHandlerStack = new Stack<Dictionary<Type, EventHandlerDeclaration>>();
-            this.ActionMap = new Dictionary<string, CachedDelegate>();
+            this.InheritableEventHandlerMap = new Dictionary<Type, Stack<HandlerInfo>>();
+            this.EventHandlerMap = EmptyEventHandlerMap;
+            this.StateMachineActionMap = new Dictionary<string, CachedDelegate>();
         }
 
         /// <summary>
@@ -354,44 +336,51 @@ namespace Microsoft.Coyote.Actors
                 {
                     await this.PushStateAsync(pushStateEvent.State, e);
                 }
-                else if (this.GotoTransitions.ContainsKey(e.GetType()))
+                else if (this.EventHandlerMap.ContainsKey(e.GetType()))
                 {
-                    var transition = this.GotoTransitions[e.GetType()];
-                    await this.GotoStateAsync(transition.TargetState, transition.Lambda, e);
-                }
-                else if (this.GotoTransitions.ContainsKey(typeof(WildCardEvent)))
-                {
-                    var transition = this.GotoTransitions[typeof(WildCardEvent)];
-                    await this.GotoStateAsync(transition.TargetState, transition.Lambda, e);
-                }
-                else if (this.PushTransitions.ContainsKey(e.GetType()))
-                {
-                    Type targetState = this.PushTransitions[e.GetType()].TargetState;
-                    await this.PushStateAsync(targetState, e);
-                }
-                else if (this.PushTransitions.ContainsKey(typeof(WildCardEvent)))
-                {
-                    Type targetState = this.PushTransitions[typeof(WildCardEvent)].TargetState;
-                    await this.PushStateAsync(targetState, e);
-                }
-                else if ((this.CurrentStateEventHandlers.TryGetValue(e.GetType(), out EventHandlerDeclaration eventHandler) ||
-                    this.CurrentStateEventHandlers.TryGetValue(typeof(WildCardEvent), out eventHandler)) &&
-                    eventHandler is ActionEventHandlerDeclaration actionEventHandler)
-                {
-                    CachedDelegate cachedAction = this.ActionMap[actionEventHandler.Name];
-                    this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, e);
-                    await this.InvokeActionAsync(cachedAction, e);
-                    await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
+                    await this.HandleEventAsync(e, this.StateStack.Peek(), this.EventHandlerMap[e.GetType()]);
                 }
                 else
                 {
-                    // If the current state cannot handle the event.
-                    await this.ExecuteCurrentStateOnExitAsync(null, e);
-                    if (this.CurrentStatus is Status.Active)
+                    bool hasWildCard = this.TryGetInheritedHandler(typeof(WildCardEvent), out HandlerInfo wildInfo);
+                    if (this.EventHandlerMap.ContainsKey(typeof(WildCardEvent)))
                     {
-                        this.Runtime.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
-                        this.DoStatePop();
-                        continue;
+                        // a non-inherited wildcard handler cannot beat a "specific" event handler if that
+                        // "specific" event handler is also at the top of the stack.
+                        wildInfo = new HandlerInfo(this.StateStack.Peek(), this.StateStack.Count,
+                            this.EventHandlerMap[typeof(WildCardEvent)]);
+                        hasWildCard = true;
+                    }
+
+                    bool hasSpecific = this.TryGetInheritedHandler(e.GetType(), out HandlerInfo info);
+
+                    if ((hasWildCard && hasSpecific && wildInfo.StackDepth > info.StackDepth) ||
+                        (!hasSpecific && hasWildCard))
+                    {
+                        // then wild card takes precedence over earlier specific event handlers.
+                        await this.HandleEventAsync(e, wildInfo.State, wildInfo.Handler);
+                    }
+                    else if (hasSpecific)
+                    {
+                        // Then specific event is more recent than any wild card events.
+                        await this.HandleEventAsync(e, info.State, info.Handler);
+                    }
+                    else if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate handler))
+                    {
+                        // allow StateMachine to have class level OnEventDoActions the same way Actor allows.
+                        this.Runtime.NotifyInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName, e);
+                        await this.InvokeActionAsync(handler, e);
+                    }
+                    else
+                    {
+                        // If the current state cannot handle the event.
+                        await this.ExecuteCurrentStateOnExitAsync(null, e);
+                        if (this.CurrentStatus is Status.Active)
+                        {
+                            this.Runtime.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
+                            this.DoStatePop();
+                            continue;
+                        }
                     }
                 }
 
@@ -399,52 +388,23 @@ namespace Microsoft.Coyote.Actors
             }
         }
 
-        /// <summary>
-        /// Invokes the specified action delegate.
-        /// </summary>
-        private async Task InvokeActionAsync(CachedDelegate cachedAction, Event e)
+        private async Task HandleEventAsync(Event e, State declaringState, EventHandlerDeclaration eventHandler)
         {
-            try
+            string handlingStateName = NameResolver.GetQualifiedStateName(declaringState.GetType());
+            if (eventHandler is ActionEventHandlerDeclaration actionEventHandler)
             {
-                if (cachedAction.IsAsync)
-                {
-                    Task task = null;
-                    if (cachedAction.Handler is Func<Event, Task> taskFuncWithEvent)
-                    {
-                        task = taskFuncWithEvent(e);
-                    }
-                    else if (cachedAction.Handler is Func<Task> taskFunc)
-                    {
-                        task = taskFunc();
-                    }
-
-                    this.Runtime.NotifyWaitTask(this, task);
-                    await task;
-                }
-
-                if (cachedAction.Handler is Action<Event> actionWithEvent)
-                {
-                    actionWithEvent(e);
-                }
-                else if (cachedAction.Handler is Action action)
-                {
-                    action();
-                }
+                CachedDelegate cachedAction = this.StateMachineActionMap[actionEventHandler.Name];
+                this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName, e);
+                await this.InvokeActionAsync(cachedAction, e);
+                await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
             }
-            catch (Exception ex) when (this.OnExceptionHandler(ex, cachedAction.MethodInfo.Name, e))
+            else if (eventHandler is GotoStateTransition gotoTransition)
             {
-                // User handled the exception.
-                await this.OnExceptionHandledAsync(ex, e);
+                await this.GotoStateAsync(gotoTransition.TargetState, gotoTransition.Lambda, e);
             }
-            catch (Exception ex) when (!cachedAction.IsAsync && this.InvokeOnFailureExceptionFilter(cachedAction, ex))
+            else if (eventHandler is PushStateTransition pushTransition)
             {
-                // Use an exception filter to call OnFailure before the stack
-                // has been unwound. If the exception filter does not fail-fast,
-                // it returns false to process the exception normally.
-            }
-            catch (Exception ex)
-            {
-                await this.TryHandleActionInvocationExceptionAsync(ex, cachedAction.MethodInfo.Name);
+                await this.PushStateAsync(pushTransition.TargetState, e);
             }
         }
 
@@ -458,7 +418,7 @@ namespace Microsoft.Coyote.Actors
             CachedDelegate entryAction = null;
             if (this.StateStack.Peek().EntryAction != null)
             {
-                entryAction = this.ActionMap[this.StateStack.Peek().EntryAction];
+                entryAction = this.StateMachineActionMap[this.StateStack.Peek().EntryAction];
             }
 
             // Invokes the entry action of the new state, if there is one available.
@@ -480,7 +440,7 @@ namespace Microsoft.Coyote.Actors
             CachedDelegate exitAction = null;
             if (this.StateStack.Peek().ExitAction != null)
             {
-                exitAction = this.ActionMap[this.StateStack.Peek().ExitAction];
+                exitAction = this.StateMachineActionMap[this.StateStack.Peek().ExitAction];
             }
 
             // Invokes the exit action of the current state,
@@ -501,7 +461,7 @@ namespace Microsoft.Coyote.Actors
             // if there is one available.
             if (eventHandlerExitActionName != null && this.CurrentStatus is Status.Active)
             {
-                CachedDelegate eventHandlerExitAction = this.ActionMap[eventHandlerExitActionName];
+                CachedDelegate eventHandlerExitAction = this.StateMachineActionMap[eventHandlerExitActionName];
                 this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, e);
                 await this.InvokeActionAsync(eventHandlerExitAction, e);
                 Transition transition = this.PendingTransition;
@@ -632,84 +592,48 @@ namespace Microsoft.Coyote.Actors
             await this.ExecuteCurrentStateOnEntryAsync(e);
         }
 
+        private void PushHandler(State state, Type eventType, EventHandlerDeclaration handler)
+        {
+            if (handler.Inheritable)
+            {
+                if (!this.InheritableEventHandlerMap.TryGetValue(eventType, out Stack<HandlerInfo> stack))
+                {
+                    stack = new Stack<HandlerInfo>();
+                    this.InheritableEventHandlerMap[eventType] = stack;
+                }
+
+                stack.Push(new HandlerInfo(state, this.StateStack.Count, handler));
+            }
+        }
+
+        private bool TryGetInheritedHandler(Type eventType, out HandlerInfo result)
+        {
+            if (this.InheritableEventHandlerMap.TryGetValue(eventType, out Stack<HandlerInfo> stack) && stack.Count > 0)
+            {
+                result = stack.Peek();
+                return true;
+            }
+
+            result = default;
+            return false;
+        }
+
         /// <summary>
         /// Configures the state transitions of the state machine when a state is pushed into the stack.
         /// </summary>
         private void DoStatePush(State state)
         {
-            this.GotoTransitions = state.GotoTransitions;
-            this.PushTransitions = state.PushTransitions;
-
-            // Gets existing map for actions.
-            var eventHandlerMap = this.CurrentStateEventHandlers is null ?
-                new Dictionary<Type, EventHandlerDeclaration>() :
-                new Dictionary<Type, EventHandlerDeclaration>(this.CurrentStateEventHandlers);
-
-            // Updates the map with defer annotations.
-            foreach (var deferredEvent in state.DeferredEvents)
-            {
-                if (deferredEvent.Equals(typeof(WildCardEvent)))
-                {
-                    eventHandlerMap.Clear();
-                    eventHandlerMap[deferredEvent] = new DeferEventHandlerDeclaration();
-                    break;
-                }
-
-                eventHandlerMap[deferredEvent] = new DeferEventHandlerDeclaration();
-            }
-
-            // Updates the map with action annotations.
-            foreach (var actionBinding in state.ActionBindings)
-            {
-                if (actionBinding.Key.Equals(typeof(WildCardEvent)))
-                {
-                    eventHandlerMap.Clear();
-                    eventHandlerMap[actionBinding.Key] = actionBinding.Value;
-                    break;
-                }
-
-                eventHandlerMap[actionBinding.Key] = actionBinding.Value;
-            }
-
-            // Updates the map with ignore annotations.
-            foreach (var ignoredEvent in state.IgnoredEvents)
-            {
-                if (ignoredEvent.Equals(typeof(WildCardEvent)))
-                {
-                    eventHandlerMap.Clear();
-                    eventHandlerMap[ignoredEvent] = new IgnoreEventHandlerDeclaration();
-                    break;
-                }
-
-                eventHandlerMap[ignoredEvent] = new IgnoreEventHandlerDeclaration();
-            }
-
-            // Removes the events on which push transitions are defined.
-            foreach (var eventType in this.PushTransitions.Keys)
-            {
-                if (eventType.Equals(typeof(WildCardEvent)))
-                {
-                    eventHandlerMap.Clear();
-                    break;
-                }
-
-                eventHandlerMap.Remove(eventType);
-            }
-
-            // Removes the events on which goto transitions are defined.
-            foreach (var eventType in this.GotoTransitions.Keys)
-            {
-                if (eventType.Equals(typeof(WildCardEvent)))
-                {
-                    eventHandlerMap.Clear();
-                    break;
-                }
-
-                eventHandlerMap.Remove(eventType);
-            }
+            this.EventHandlerMap = state.EventHandlers;  // non-inheritable handlers.
 
             this.StateStack.Push(state);
-            this.EventHandlerStack.Push(eventHandlerMap);
+            this.CurrentState = state.GetType();
+            this.CurrentStateName = NameResolver.GetQualifiedStateName(this.CurrentState);
+
+            // Push the inheritable event handlers.
+            foreach (var eventHandler in state.InheritableEventHandlers)
+            {
+                this.PushHandler(state, eventHandler.Key, eventHandler.Value);
+            }
         }
 
         /// <summary>
@@ -718,19 +642,69 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void DoStatePop()
         {
-            this.StateStack.Pop();
-            this.EventHandlerStack.Pop();
+            State state = this.StateStack.Pop();
+            foreach (var item in this.InheritableEventHandlerMap)
+            {
+                var stack = item.Value;
+                if (stack != null && stack.Count > 0 && stack.Peek().State == state)
+                {
+                    stack.Pop();
+                }
+            }
 
             if (this.StateStack.Count > 0)
             {
-                this.GotoTransitions = this.StateStack.Peek().GotoTransitions;
-                this.PushTransitions = this.StateStack.Peek().PushTransitions;
+                // re-instate the non-inheritable handlers from previous state.
+                state = this.StateStack.Peek();
+                this.CurrentState = state.GetType();
+                this.CurrentStateName = NameResolver.GetQualifiedStateName(this.CurrentState);
+                this.EventHandlerMap = this.StateStack.Peek().EventHandlers;
             }
             else
             {
-                this.GotoTransitions = null;
-                this.PushTransitions = null;
+                this.EventHandlerMap = EmptyEventHandlerMap;
+                this.CurrentState = null;
+                this.CurrentStateName = string.Empty;
             }
+        }
+
+        /// <summary>
+        /// Get the appropriate inherited event handler for the given event.
+        /// </summary>
+        /// <param name="e">The event we want to handle</param>
+        /// <param name="info">The HandlerInfo in the state stack</param>
+        /// <returns>True if a handler is found, otherwise false</returns>
+        private bool GetInheritedEventHandler(Event e, ref HandlerInfo info)
+        {
+            Type eventType = e.GetType();
+            // Wild card only takes precidence if it is higher on the state stack.
+            bool hasWildCard = this.TryGetInheritedHandler(typeof(WildCardEvent), out HandlerInfo wildInfo);
+            if (this.EventHandlerMap.ContainsKey(typeof(WildCardEvent)))
+            {
+                // a non-inherited wildcard handler cannot beat a "specific" IgnoreEvent instruction if that
+                // "specific" instruction is also at the top of the stack.
+                wildInfo.StackDepth = this.StateStack.Count;
+                wildInfo.State = this.StateStack.Peek();
+                wildInfo.Handler = this.EventHandlerMap[typeof(WildCardEvent)];
+                hasWildCard = true;
+            }
+
+            bool hasSpecific = this.TryGetInheritedHandler(eventType, out info);
+
+            if ((hasSpecific && hasWildCard && wildInfo.StackDepth > info.StackDepth) ||
+                (!hasSpecific && hasWildCard))
+            {
+                info = wildInfo;
+                return true;
+            }
+
+            if (hasSpecific)
+            {
+                return true;
+            }
+
+            info = new HandlerInfo(null, 0, null);
+            return false;
         }
 
         /// <summary>
@@ -746,43 +720,17 @@ namespace Microsoft.Coyote.Actors
 
             Type eventType = e.GetType();
 
-            if (eventType.IsGenericType)
-            {
-                var genericTypeDefinition = eventType.GetGenericTypeDefinition();
-                foreach (var kvp in this.CurrentStateEventHandlers)
-                {
-                    if (!(kvp.Value is IgnoreEventHandlerDeclaration))
-                    {
-                        continue;
-                    }
-
-                    // TODO: make sure this logic and/or simplify.
-                    if (kvp.Key.IsGenericType && kvp.Key.GetGenericTypeDefinition().Equals(
-                        genericTypeDefinition.GetGenericTypeDefinition()))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            // If a transition is defined, then the event is not ignored.
-            if (this.GotoTransitions.ContainsKey(eventType) ||
-                this.PushTransitions.ContainsKey(eventType) ||
-                this.GotoTransitions.ContainsKey(typeof(WildCardEvent)) ||
-                this.PushTransitions.ContainsKey(typeof(WildCardEvent)))
+            // If a non-inheritable transition is defined, then the event is not ignored
+            // because the non-inheritable operation takes precedent.
+            if (this.EventHandlerMap.ContainsKey(eventType))
             {
                 return false;
             }
 
-            if (this.CurrentStateEventHandlers.ContainsKey(eventType))
+            HandlerInfo info = new HandlerInfo(null, 0, null);
+            if (this.GetInheritedEventHandler(e, ref info))
             {
-                return this.CurrentStateEventHandlers[eventType] is IgnoreEventHandlerDeclaration;
-            }
-
-            if (this.CurrentStateEventHandlers.ContainsKey(typeof(WildCardEvent)) &&
-                this.CurrentStateEventHandlers[typeof(WildCardEvent)] is IgnoreEventHandlerDeclaration)
-            {
-                return true;
+                return info.Handler is IgnoreEventHandlerDeclaration;
             }
 
             return false;
@@ -795,23 +743,16 @@ namespace Microsoft.Coyote.Actors
         {
             Type eventType = e.GetType();
 
-            // If a transition is defined, then the event is not deferred.
-            if (this.GotoTransitions.ContainsKey(eventType) || this.PushTransitions.ContainsKey(eventType) ||
-                this.GotoTransitions.ContainsKey(typeof(WildCardEvent)) ||
-                this.PushTransitions.ContainsKey(typeof(WildCardEvent)))
+            // If a non-inheritable transition is defined, then the event is not deferred.
+            if (this.EventHandlerMap.ContainsKey(eventType))
             {
                 return false;
             }
 
-            if (this.CurrentStateEventHandlers.ContainsKey(eventType))
+            HandlerInfo info = new HandlerInfo(null, 0, null);
+            if (this.GetInheritedEventHandler(e, ref info))
             {
-                return this.CurrentStateEventHandlers[eventType] is DeferEventHandlerDeclaration;
-            }
-
-            if (this.CurrentStateEventHandlers.ContainsKey(typeof(WildCardEvent)) &&
-                this.CurrentStateEventHandlers[typeof(WildCardEvent)] is DeferEventHandlerDeclaration)
-            {
-                return true;
+                return info.Handler is DeferEventHandlerDeclaration;
             }
 
             return false;
@@ -821,9 +762,8 @@ namespace Microsoft.Coyote.Actors
         /// Checks if a default handler is installed in current state.
         /// </summary>
         internal bool IsDefaultHandlerInstalledInCurrentState() =>
-            this.CurrentStateEventHandlers.ContainsKey(typeof(DefaultEvent)) ||
-            this.GotoTransitions.ContainsKey(typeof(DefaultEvent)) ||
-            this.PushTransitions.ContainsKey(typeof(DefaultEvent));
+            this.EventHandlerMap.ContainsKey(typeof(DefaultEvent)) ||
+            this.TryGetInheritedHandler(typeof(DefaultEvent), out _);
 
         /// <summary>
         /// Returns the hashed state of this state machine.
@@ -858,6 +798,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal override void SetupEventHandlers()
         {
+            base.SetupEventHandlers();
+
             Type stateMachineType = this.GetType();
             if (IsTypeDeclarationCached.TryAdd(stateMachineType, false))
             {
@@ -948,24 +890,30 @@ namespace Microsoft.Coyote.Actors
                                 this.GetActionWithName(state.ExitAction));
                         }
 
-                        foreach (var transition in state.GotoTransitions)
+                        foreach (var handler in state.InheritableEventHandlers.Values)
                         {
-                            if (transition.Value.Lambda != null &&
-                                !ActionCache[stateMachineType].ContainsKey(transition.Value.Lambda))
+                            if (handler is ActionEventHandlerDeclaration action)
                             {
-                                ActionCache[stateMachineType].Add(
-                                    transition.Value.Lambda,
-                                    this.GetActionWithName(transition.Value.Lambda));
+                                if (!ActionCache[stateMachineType].ContainsKey(action.Name))
+                                {
+                                    ActionCache[stateMachineType].Add(
+                                        action.Name,
+                                        this.GetActionWithName(action.Name));
+                                }
                             }
                         }
 
-                        foreach (var action in state.ActionBindings)
+                        foreach (var handler in state.EventHandlers.Values)
                         {
-                            if (!ActionCache[stateMachineType].ContainsKey(action.Value.Name))
+                            if (handler is GotoStateTransition transition)
                             {
-                                ActionCache[stateMachineType].Add(
-                                    action.Value.Name,
-                                    this.GetActionWithName(action.Value.Name));
+                                if (transition.Lambda != null &&
+                                    !ActionCache[stateMachineType].ContainsKey(transition.Lambda))
+                                {
+                                    ActionCache[stateMachineType].Add(
+                                        transition.Lambda,
+                                        this.GetActionWithName(transition.Lambda));
+                                }
                             }
                         }
                     }
@@ -992,7 +940,7 @@ namespace Microsoft.Coyote.Actors
             // Populates the map of event handlers for this state machine instance.
             foreach (var kvp in ActionCache[stateMachineType])
             {
-                this.ActionMap.Add(kvp.Key, new CachedDelegate(kvp.Value, this));
+                this.StateMachineActionMap.Add(kvp.Key, new CachedDelegate(kvp.Value, this));
             }
 
             var initialStates = StateInstanceCache[stateMachineType].Where(state => state.IsStart).ToList();
@@ -1059,8 +1007,19 @@ namespace Microsoft.Coyote.Actors
             return allStates;
         }
 
+        private static bool IncludeInCoverage(EventHandlerDeclaration handler)
+        {
+            if (handler is DeferEventHandlerDeclaration || handler is IgnoreEventHandlerDeclaration)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Returns the set of all (states, registered event) pairs in the state machine (for code coverage).
+        /// It does not include events that are deferred or ignored.
         /// </summary>
         internal HashSet<Tuple<string, string>> GetAllStateEventPairs()
         {
@@ -1069,19 +1028,11 @@ namespace Microsoft.Coyote.Actors
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateInstanceCache[this.GetType()])
             {
-                foreach (var binding in state.ActionBindings)
+                foreach (var binding in from b in state.InheritableEventHandlers.Concat(state.EventHandlers)
+                                        where IncludeInCoverage(b.Value)
+                                        select b)
                 {
                     pairs.Add(Tuple.Create(NameResolver.GetQualifiedStateName(state.GetType()), binding.Key.FullName));
-                }
-
-                foreach (var transition in state.GotoTransitions)
-                {
-                    pairs.Add(Tuple.Create(NameResolver.GetQualifiedStateName(state.GetType()), transition.Key.FullName));
-                }
-
-                foreach (var pushtransition in state.PushTransitions)
-                {
-                    pairs.Add(Tuple.Create(NameResolver.GetQualifiedStateName(state.GetType()), pushtransition.Key.FullName));
                 }
             }
 
@@ -1233,6 +1184,36 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// A struct used to track event handlers that are pushed or popped on the StateStack.
+        /// </summary>
+        private struct HandlerInfo
+        {
+            /// <summary>
+            /// The state that provided this EventHandler.
+            /// </summary>
+            public State State;
+
+            /// <summary>
+            /// Records where this State is in the StateStack.  This information is needed to implement WildCardEvent
+            /// semantics.  A specific Handler closest to the top of the stack (higher StackDepth) wins over a
+            /// WildCardEvent further down the stack (lower StackDepth).
+            /// </summary>
+            public int StackDepth;
+
+            /// <summary>
+            /// The event handler for a given event Type defined by the State.
+            /// </summary>
+            public EventHandlerDeclaration Handler;
+
+            public HandlerInfo(State state, int depth, EventHandlerDeclaration handler)
+            {
+                this.State = state;
+                this.StackDepth = depth;
+                this.Handler = handler;
+            }
+        }
+
+        /// <summary>
         /// Abstract class representing a state.
         /// </summary>
         /// <remarks>
@@ -1251,29 +1232,14 @@ namespace Microsoft.Coyote.Actors
             internal string ExitAction { get; private set; }
 
             /// <summary>
-            /// Map containing all goto state transitions.
+            /// Map containing all event handler declarations.
             /// </summary>
-            internal Dictionary<Type, GotoStateTransition> GotoTransitions;
+            internal Dictionary<Type, EventHandlerDeclaration> InheritableEventHandlers;
 
             /// <summary>
-            /// Map containing all push state transitions.
+            /// Map containing all non-inheritable event handler declarations.
             /// </summary>
-            internal Dictionary<Type, PushStateTransition> PushTransitions;
-
-            /// <summary>
-            /// Map containing all action bindings.
-            /// </summary>
-            internal Dictionary<Type, ActionEventHandlerDeclaration> ActionBindings;
-
-            /// <summary>
-            /// Set of ignored event types.
-            /// </summary>
-            internal HashSet<Type> IgnoredEvents;
-
-            /// <summary>
-            /// Set of deferred event types.
-            /// </summary>
-            internal HashSet<Type> DeferredEvents;
+            internal Dictionary<Type, EventHandlerDeclaration> EventHandlers;
 
             /// <summary>
             /// True if this is the start state.
@@ -1294,12 +1260,8 @@ namespace Microsoft.Coyote.Actors
             {
                 this.IsStart = false;
 
-                this.GotoTransitions = new Dictionary<Type, GotoStateTransition>();
-                this.PushTransitions = new Dictionary<Type, PushStateTransition>();
-                this.ActionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
-
-                this.IgnoredEvents = new HashSet<Type>();
-                this.DeferredEvents = new HashSet<Type>();
+                this.InheritableEventHandlers = new Dictionary<Type, EventHandlerDeclaration>();
+                this.EventHandlers = new Dictionary<Type, EventHandlerDeclaration>();
 
                 if (this.GetType().GetCustomAttribute(typeof(OnEntryAttribute), true) is OnEntryAttribute entryAttribute)
                 {
@@ -1341,11 +1303,11 @@ namespace Microsoft.Coyote.Actors
 
                     if (attr.Action is null)
                     {
-                        this.GotoTransitions.Add(attr.Event, new GotoStateTransition(attr.State));
+                        this.EventHandlers.Add(attr.Event, new GotoStateTransition(attr.State));
                     }
                     else
                     {
-                        this.GotoTransitions.Add(attr.Event, new GotoStateTransition(attr.State, attr.Action));
+                        this.EventHandlers.Add(attr.Event, new GotoStateTransition(attr.State, attr.Action));
                     }
 
                     handledEvents.Add(attr.Event);
@@ -1370,7 +1332,7 @@ namespace Microsoft.Coyote.Actors
                 var gotoTransitionsInherited = new Dictionary<Type, GotoStateTransition>();
                 foreach (var attr in gotoAttributesInherited)
                 {
-                    if (this.GotoTransitions.ContainsKey(attr.Event))
+                    if (this.EventHandlers.ContainsKey(attr.Event))
                     {
                         continue;
                     }
@@ -1391,7 +1353,7 @@ namespace Microsoft.Coyote.Actors
 
                 foreach (var kvp in gotoTransitionsInherited)
                 {
-                    this.GotoTransitions.Add(kvp.Key, kvp.Value);
+                    this.EventHandlers.Add(kvp.Key, kvp.Value);
                 }
 
                 this.InheritGotoTransitions(baseState.BaseType, handledEvents);
@@ -1409,7 +1371,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     CheckEventHandlerAlreadyDeclared(attr.Event, handledEvents);
 
-                    this.PushTransitions.Add(attr.Event, new PushStateTransition(attr.State));
+                    this.EventHandlers.Add(attr.Event, new PushStateTransition(attr.State));
                     handledEvents.Add(attr.Event);
                 }
 
@@ -1432,7 +1394,7 @@ namespace Microsoft.Coyote.Actors
                 var pushTransitionsInherited = new Dictionary<Type, PushStateTransition>();
                 foreach (var attr in pushAttributesInherited)
                 {
-                    if (this.PushTransitions.ContainsKey(attr.Event))
+                    if (this.EventHandlers.ContainsKey(attr.Event))
                     {
                         continue;
                     }
@@ -1445,7 +1407,7 @@ namespace Microsoft.Coyote.Actors
 
                 foreach (var kvp in pushTransitionsInherited)
                 {
-                    this.PushTransitions.Add(kvp.Key, kvp.Value);
+                    this.EventHandlers.Add(kvp.Key, kvp.Value);
                 }
 
                 this.InheritPushTransitions(baseState.BaseType, handledEvents);
@@ -1463,7 +1425,7 @@ namespace Microsoft.Coyote.Actors
                 {
                     CheckEventHandlerAlreadyDeclared(attr.Event, handledEvents);
 
-                    this.ActionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
+                    this.InheritableEventHandlers.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                     handledEvents.Add(attr.Event);
                 }
 
@@ -1486,7 +1448,7 @@ namespace Microsoft.Coyote.Actors
                 var actionBindingsInherited = new Dictionary<Type, ActionEventHandlerDeclaration>();
                 foreach (var attr in doAttributesInherited)
                 {
-                    if (this.ActionBindings.ContainsKey(attr.Event))
+                    if (this.InheritableEventHandlers.ContainsKey(attr.Event))
                     {
                         continue;
                     }
@@ -1499,7 +1461,7 @@ namespace Microsoft.Coyote.Actors
 
                 foreach (var kvp in actionBindingsInherited)
                 {
-                    this.ActionBindings.Add(kvp.Key, kvp.Value);
+                    this.InheritableEventHandlers.Add(kvp.Key, kvp.Value);
                 }
 
                 this.InheritActionBindings(baseState.BaseType, handledEvents);
@@ -1510,24 +1472,26 @@ namespace Microsoft.Coyote.Actors
             /// </summary>
             private void InstallIgnoreHandlers(HashSet<Type> handledEvents)
             {
+                HashSet<Type> ignoredEvents = new HashSet<Type>();
                 if (this.GetType().GetCustomAttribute(typeof(IgnoreEventsAttribute), false) is IgnoreEventsAttribute ignoreEventsAttribute)
                 {
                     foreach (var e in ignoreEventsAttribute.Events)
                     {
                         CheckEventHandlerAlreadyDeclared(e, handledEvents);
-                    }
 
-                    this.IgnoredEvents.UnionWith(ignoreEventsAttribute.Events);
-                    handledEvents.UnionWith(ignoreEventsAttribute.Events);
+                        this.InheritableEventHandlers.Add(e, new IgnoreEventHandlerDeclaration());
+                        ignoredEvents.Add(e);
+                        handledEvents.Add(e);
+                    }
                 }
 
-                this.InheritIgnoreHandlers(this.GetType().BaseType, handledEvents);
+                this.InheritIgnoreHandlers(this.GetType().BaseType, handledEvents, ignoredEvents);
             }
 
             /// <summary>
             /// Inherits ignore event handlers from a base state, if there is one.
             /// </summary>
-            private void InheritIgnoreHandlers(Type baseState, HashSet<Type> handledEvents)
+            private void InheritIgnoreHandlers(Type baseState, HashSet<Type> handledEvents, HashSet<Type> ignoredEvents)
             {
                 if (!baseState.IsSubclassOf(typeof(State)))
                 {
@@ -1538,19 +1502,20 @@ namespace Microsoft.Coyote.Actors
                 {
                     foreach (var e in ignoreEventsAttribute.Events)
                     {
-                        if (this.IgnoredEvents.Contains(e))
+                        if (ignoredEvents.Contains(e))
                         {
                             continue;
                         }
 
                         CheckEventHandlerAlreadyInherited(e, baseState, handledEvents);
-                    }
 
-                    this.IgnoredEvents.UnionWith(ignoreEventsAttribute.Events);
-                    handledEvents.UnionWith(ignoreEventsAttribute.Events);
+                        this.InheritableEventHandlers.Add(e, new IgnoreEventHandlerDeclaration());
+                        ignoredEvents.Add(e);
+                        handledEvents.Add(e);
+                    }
                 }
 
-                this.InheritIgnoreHandlers(baseState.BaseType, handledEvents);
+                this.InheritIgnoreHandlers(baseState.BaseType, handledEvents, ignoredEvents);
             }
 
             /// <summary>
@@ -1558,24 +1523,25 @@ namespace Microsoft.Coyote.Actors
             /// </summary>
             private void InstallDeferHandlers(HashSet<Type> handledEvents)
             {
+                HashSet<Type> deferredEvents = new HashSet<Type>();
                 if (this.GetType().GetCustomAttribute(typeof(DeferEventsAttribute), false) is DeferEventsAttribute deferEventsAttribute)
                 {
                     foreach (var e in deferEventsAttribute.Events)
                     {
                         CheckEventHandlerAlreadyDeclared(e, handledEvents);
+                        this.InheritableEventHandlers.Add(e, new DeferEventHandlerDeclaration());
+                        deferredEvents.Add(e);
+                        handledEvents.Add(e);
                     }
-
-                    this.DeferredEvents.UnionWith(deferEventsAttribute.Events);
-                    handledEvents.UnionWith(deferEventsAttribute.Events);
                 }
 
-                this.InheritDeferHandlers(this.GetType().BaseType, handledEvents);
+                this.InheritDeferHandlers(this.GetType().BaseType, handledEvents, deferredEvents);
             }
 
             /// <summary>
             /// Inherits defer event handlers from a base state, if there is one.
             /// </summary>
-            private void InheritDeferHandlers(Type baseState, HashSet<Type> handledEvents)
+            private void InheritDeferHandlers(Type baseState, HashSet<Type> handledEvents, HashSet<Type> deferredEvents)
             {
                 if (!baseState.IsSubclassOf(typeof(State)))
                 {
@@ -1586,19 +1552,19 @@ namespace Microsoft.Coyote.Actors
                 {
                     foreach (var e in deferEventsAttribute.Events)
                     {
-                        if (this.DeferredEvents.Contains(e))
+                        if (deferredEvents.Contains(e))
                         {
                             continue;
                         }
 
                         CheckEventHandlerAlreadyInherited(e, baseState, handledEvents);
+                        this.InheritableEventHandlers.Add(e, new DeferEventHandlerDeclaration());
+                        deferredEvents.Add(e);
+                        handledEvents.Add(e);
                     }
-
-                    this.DeferredEvents.UnionWith(deferEventsAttribute.Events);
-                    handledEvents.UnionWith(deferEventsAttribute.Events);
                 }
 
-                this.InheritDeferHandlers(baseState.BaseType, handledEvents);
+                this.InheritDeferHandlers(baseState.BaseType, handledEvents, deferredEvents);
             }
 
             /// <summary>

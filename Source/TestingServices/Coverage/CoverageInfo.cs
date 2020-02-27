@@ -41,6 +41,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public Graph CoverageGraph { get; set; }
 
         /// <summary>
+        /// Information about events sent and received
+        /// </summary>
+        [DataMember]
+        public EventCoverage EventInfo { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CoverageInfo"/> class.
         /// </summary>
         public CoverageInfo()
@@ -114,6 +120,15 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             else if (coverageInfo.CoverageGraph != null && this.CoverageGraph != coverageInfo.CoverageGraph)
             {
                 this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
+            }
+
+            if (this.EventInfo == null)
+            {
+                this.EventInfo = coverageInfo.EventInfo;
+            }
+            else if (coverageInfo.EventInfo != null && this.EventInfo != coverageInfo.EventInfo)
+            {
+                this.EventInfo.Merge(coverageInfo.EventInfo);
             }
         }
 

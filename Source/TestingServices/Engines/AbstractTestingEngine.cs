@@ -304,10 +304,16 @@ namespace Microsoft.Coyote.TestingServices
             if (this.Configuration.IsDgmlGraphEnabled || this.Configuration.ReportActivityCoverage)
             {
                 // Registers an activity coverage graph builder.
-                runtime.RegisterLog(new ActorRuntimeLogGraphBuilder
+                runtime.RegisterLog(new ActorRuntimeLogGraphBuilder(false)
                 {
                     CollapseMachineInstances = this.Configuration.ReportActivityCoverage
                 });
+            }
+
+            if (this.Configuration.ReportActivityCoverage)
+            {
+                // Need this additional logger to get the event coverage report correct
+                runtime.RegisterLog(new ActorRuntimeLogEventCoverage());
             }
         }
 

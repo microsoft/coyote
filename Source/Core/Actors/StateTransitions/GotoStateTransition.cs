@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// Defines a goto state transition.
     /// </summary>
-    internal sealed class GotoStateTransition
+    internal sealed class GotoStateTransition : EventHandlerDeclaration
     {
         /// <summary>
         /// The target state.
@@ -41,5 +41,7 @@ namespace Microsoft.Coyote.Actors
             this.TargetState = targetState;
             this.Lambda = null;
         }
+
+        internal override bool Inheritable => false;
     }
 }

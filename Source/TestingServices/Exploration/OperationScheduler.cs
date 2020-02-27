@@ -17,7 +17,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
     /// <summary>
     /// Implements a scheduler that serializes and schedules controlled operations.
     /// </summary>
+#if !DEBUG
     [DebuggerStepThrough]
+#endif
     internal sealed class OperationScheduler
     {
         /// <summary>

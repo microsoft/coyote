@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// Defines a push state transition.
     /// </summary>
-    internal sealed class PushStateTransition
+    internal sealed class PushStateTransition : EventHandlerDeclaration
     {
         /// <summary>
         /// The target state.
@@ -23,5 +23,7 @@ namespace Microsoft.Coyote.Actors
         {
             this.TargetState = targetState;
         }
+
+        internal override bool Inheritable => false;
     }
 }

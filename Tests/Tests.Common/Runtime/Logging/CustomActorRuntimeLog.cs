@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
             this.Log.AppendLine("CreateActor");
         }
 
-        public void OnExecuteAction(ActorId id, string stateName, string actionName)
+        public void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
         }
 
@@ -65,15 +65,15 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
             this.Log.AppendLine("StateTransition");
         }
 
-        public void OnGotoState(ActorId id, string currStateName, string newStateName)
+        public void OnGotoState(ActorId id, string currentStateName, string newStateName)
         {
         }
 
-        public void OnPushState(ActorId id, string currStateName, string newStateName)
+        public void OnPushState(ActorId id, string currentStateName, string newStateName)
         {
         }
 
-        public void OnPopState(ActorId id, string currStateName, string restoredStateName)
+        public void OnPopState(ActorId id, string currentStateName, string restoredStateName)
         {
         }
 

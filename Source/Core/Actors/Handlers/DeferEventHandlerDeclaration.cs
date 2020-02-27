@@ -8,5 +8,6 @@ namespace Microsoft.Coyote.Actors
     /// </summary>
     internal sealed class DeferEventHandlerDeclaration : EventHandlerDeclaration
     {
+        internal override bool Inheritable => true;
     }
 }

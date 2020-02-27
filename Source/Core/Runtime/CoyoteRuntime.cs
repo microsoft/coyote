@@ -371,7 +371,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that an actor invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedAction(Actor actor, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStatename, string currentStateName, Event receivedEvent)
         {
         }
 
@@ -526,7 +526,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a monitor invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
         {
         }
 

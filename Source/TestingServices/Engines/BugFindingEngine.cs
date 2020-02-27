@@ -383,7 +383,7 @@ namespace Microsoft.Coyote.TestingServices
             if (this.Graph != null)
             {
                 string graphPath = directory + file + "_" + index + ".dgml";
-                this.Graph.SaveDgml(graphPath);
+                this.Graph.SaveDgml(graphPath, true);
                 this.Logger.WriteLine($"..... Writing {graphPath}");
                 yield return graphPath;
             }

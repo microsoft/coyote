@@ -383,12 +383,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that an actor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogExecuteAction(actor.Id, stateName, action.Name);
+                this.LogWriter.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
             }
         }
 
@@ -518,12 +517,11 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that a monitor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, Event receivedEvent)
+        internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, action.Name,
-                    monitor.CurrentStateNameWithTemperature);
+                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, action.Name, stateName);
             }
         }
 

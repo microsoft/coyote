@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.Tests.Common.Actors;
 using Xunit;
@@ -25,6 +27,54 @@ namespace Microsoft.Coyote.TestingServices.Tests.Coverage
             {
                 this.Id = id;
             }
+        }
+
+        private class M0 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTrivialActivityCoverage()
+        {
+            var configuration = Configuration.Create();
+            configuration.ReportActivityCoverage = true;
+
+            ITestingEngine testingEngine = this.Test(r =>
+            {
+                r.CreateActor(typeof(M0));
+            },
+            configuration);
+
+            string result;
+            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
+            using (var writer = new StringWriter())
+            {
+                activityCoverageReporter.WriteCoverageText(writer);
+                result = RemoveNamespaceReferencesFromReport(writer.ToString());
+                result = RemoveExcessiveEmptySpaceFromReport(result);
+            }
+
+            var expected = @"Total event coverage: 100.0%
+============================
+StateMachine: M0
+======================================================================================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+";
+
+            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            Assert.Equal(expected, result);
         }
 
         private class M1 : StateMachine
@@ -127,12 +177,12 @@ Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
+		Events received: Actors.UnitEvent
 		Events sent: Actors.UnitEvent
 		Next states: Done
 
 	State: Done
 		State has no expected events, so coverage is 100%
-		Events received: Actors.UnitEvent
 		Previous states: Init
 ";
 
@@ -214,13 +264,10 @@ Event coverage: 100.0%
 	State: Init
 		State event coverage: 100.0%
 		Events received: HelloEvent, Actors.UnitEvent
-		Events sent: Actors.UnitEvent
-		Previous states: Init
 		Next states: Done
 
 	State: Done
 		State has no expected events, so coverage is 100%
-		Events received: Actors.UnitEvent
 		Previous states: Init
 
 StateMachine: M3B
@@ -230,7 +277,6 @@ Event coverage: 100.0%
 	State: Init
 		State has no expected events, so coverage is 100%
 		Events sent: HelloEvent, Actors.UnitEvent
-		Next states: Init
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);
@@ -356,13 +402,11 @@ Event coverage: 50.0%
 	State: Init
 		State event coverage: 50.0%
 		Events received: E1
-		Events sent: E1
 		Events not covered: E2
 		Next states: Done
 
 	State: Done
 		State has no expected events, so coverage is 100%
-		Events received: E1
 		Previous states: Init
 
 StateMachine: ExternalCode
@@ -372,6 +416,206 @@ Event coverage: 100.0%
 	State: ExternalState
 		State has no expected events, so coverage is 100%
 		Events sent: E1
+";
+
+            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            Assert.Equal(expected, result);
+        }
+
+        internal class M6 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(OnInit))]
+            [OnEventDoAction(typeof(E1), nameof(HandleE1))]
+
+            public class Init : State
+            {
+            }
+
+            private void HandleE1()
+            {
+                Debug.WriteLine("Handling E1 in State {0}", this.CurrentState);
+            }
+
+            private void OnInit()
+            {
+                this.RaisePushStateEvent<Ready>();
+            }
+
+            [OnEventDoAction(typeof(E2), nameof(HandleE2))]
+            public class Ready : State
+            {
+            }
+
+            private void HandleE2()
+            {
+                Debug.WriteLine("Handling E2 in State {0}", this.CurrentState);
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        private void TestPushStateActivityCoverage()
+        {
+            var configuration = Configuration.Create();
+            configuration.ReportActivityCoverage = true;
+
+            ITestingEngine testingEngine = this.Test(r =>
+            {
+                var actor = r.CreateActor(typeof(M6));
+                r.SendEvent(actor, new E1());  // even though Ready state is pushed E1 can still be handled by Init state because Init state is still active.
+                r.SendEvent(actor, new E2());  // and that handling does not pop the Ready state, so Ready can still handle E2.
+            },
+            configuration);
+
+            string result;
+            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
+            using (var writer = new StringWriter())
+            {
+                activityCoverageReporter.WriteCoverageText(writer);
+                result = RemoveNamespaceReferencesFromReport(writer.ToString());
+                result = RemoveExcessiveEmptySpaceFromReport(result);
+            }
+
+            var expected = @"Total event coverage: 100.0%
+============================
+StateMachine: M6
+======================================================================================
+Event coverage: 100.0%
+
+	State: Init
+		State event coverage: 100.0%
+		Events received: E1
+		Next states: Ready
+
+	State: Ready
+		State event coverage: 100.0%
+		Events received: E2
+		Previous states: Init
+
+StateMachine: ExternalCode
+==========================
+Event coverage: 100.0%
+
+	State: ExternalState
+		State has no expected events, so coverage is 100%
+		Events sent: E1, E2
+";
+
+            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            Assert.Equal(expected, result);
+        }
+
+        internal class Monitor1 : Monitor
+        {
+            [Cold]
+            [Start]
+            [OnEventGotoState(typeof(E1), typeof(Busy))]
+            internal class Idle : State
+            {
+            }
+
+            [Hot]
+            [OnEventGotoState(typeof(E2), typeof(Idle))]
+            internal class Busy : State
+            {
+            }
+        }
+
+        internal class M7 : StateMachine
+        {
+            [Start]
+            [OnEntry(nameof(OnInit))]
+            [OnEventDoAction(typeof(E1), nameof(HandleE1))]
+
+            public class Init : State
+            {
+            }
+
+            private void OnInit()
+            {
+            }
+
+            private void HandleE1(Event e)
+            {
+                this.Monitor<Monitor1>(e);
+                this.RaiseGotoStateEvent<Ready>();
+            }
+
+            [OnEventDoAction(typeof(E2), nameof(HandleE2))]
+            public class Ready : State
+            {
+            }
+
+            private void HandleE2(Event e)
+            {
+                this.Monitor<Monitor1>(e);
+            }
+        }
+
+        // Make sure we get coverage information for Monitors.
+        [Fact(Timeout = 5000)]
+        public void TestMonitorActivityCoverage()
+        {
+            var configuration = Configuration.Create();
+            configuration.ReportActivityCoverage = true;
+
+            ITestingEngine testingEngine = this.Test(r =>
+            {
+                r.RegisterMonitor(typeof(Monitor1));
+                var actor = r.CreateActor(typeof(M7));
+                r.SendEvent(actor, new E1());
+                r.SendEvent(actor, new E2());
+            },
+            configuration);
+
+            string result;
+            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
+            using (var writer = new StringWriter())
+            {
+                activityCoverageReporter.WriteCoverageText(writer);
+                result = RemoveNamespaceReferencesFromReport(writer.ToString());
+                result = RemoveExcessiveEmptySpaceFromReport(result);
+            }
+
+            var expected = @"Total event coverage: 100.0%
+============================
+StateMachine: M7
+======================================================================================
+Event coverage: 100.0%
+
+	State: Init
+		State event coverage: 100.0%
+		Events received: E1
+		Next states: Ready
+
+	State: Ready
+		State event coverage: 100.0%
+		Events received: E2
+		Previous states: Init
+
+StateMachine: Monitor1
+============================================================================================
+Event coverage: 100.0%
+
+	State: Idle
+		State event coverage: 100.0%
+		Events received: E1
+		Previous states: Busy
+		Next states: Busy
+
+	State: Busy
+		State event coverage: 100.0%
+		Events received: E2
+		Previous states: Idle
+		Next states: Idle
+
+StateMachine: ExternalCode
+==========================
+Event coverage: 100.0%
+
+	State: ExternalState
+		State has no expected events, so coverage is 100%
+		Events sent: E1, E2
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);

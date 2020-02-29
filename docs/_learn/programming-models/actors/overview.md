@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/programming-models/actors/overview
 ---
 
-## Programming model: asynchronous actors
+## Asynchronous actors
 
 The _asynchronous actors_ programming model of Coyote is an actor-based programming model that
 encourages a message passing (or event based) programming model where all asynchronous actions
@@ -95,7 +95,7 @@ class Program
 ```
 
 You must first import the Coyote runtime library (`Microsoft.Coyote.dll`), which you can get from
-[Nuget](https://www.nuget.org/packages/Microsoft.Coyote/), then create a `runtime` instance (of type `IActorRuntime`)
+[NuGet](https://www.nuget.org/packages/Microsoft.Coyote/), then create a `runtime` instance (of type `IActorRuntime`)
 which you pass to a `[Test]` method.
 
 The test method named `Execute` will be the entry point that is used during testing of your Coyote program.
@@ -225,4 +225,4 @@ method, which accepts as input a predicate that must always hold in that specifi
 useful for local invariants, i.e., they are about the state of a single actor. For global
 invariants it is recommended that you use [Monitors](/coyote/learn/specifications/overview).
 
-To see a full working example of an `Actor` based program see the [Hello World Actors](/coyote/learn/tutorials/hello-world-tasks) tutorial.
+To see a full working example of an `Actor` based program see the [Hello World Actors](/coyote/learn/tutorials/hello-world-actors) tutorial.

@@ -280,3 +280,12 @@ function fetchTrace(url, handler)
     // send request
     xhr.send();
 }
+
+jQuery(document).ready(function ($) {
+    $(".animated_svg").each(function() {
+        var xmltrace = $(this).attr("trace");
+        if (xmltrace){
+            fetchTrace(xmltrace, convertTrace);
+        }
+    });
+});

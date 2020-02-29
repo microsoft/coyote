@@ -25,6 +25,6 @@ row-2:
   content: |
     <h2>Case studies</h2>
     <h3><blockquote>"Developing a new feature using Coyote took us one month—it would have taken six months without Coyote."</blockquote></h3>
-    <p>Critical Azure services are adopting Coyote and reporting increased performance and uptime. They are experiencing fewer bugs&#8211;in some cases, none&#8211;after production deployment. They're also emphasizing impressive speed when adding new features, plus appreciating Coyote's low-barrier entry for team members.</p>
+    <p>Critical Azure services are adopting Coyote and reporting increased performance and uptime. They are experiencing fewer bugs&mdash;in some cases, none&mdash;after production deployment. They're also emphasizing impressive speed when adding new features, plus appreciating Coyote's low-barrier entry for team members.</p>
 
     <p><a href="/coyote/case-studies/azure-batch-service"  class="cta">Learn about how Azure is using Coyote </a></p>

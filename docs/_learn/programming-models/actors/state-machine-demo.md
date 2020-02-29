@@ -5,18 +5,12 @@ title: Demo
 permalink: /learn/programming-models/actors/state-machine-demo
 ---
 
-<div>
+## State machine demo
+
+<div class="animated_svg" trace="/coyote/assets/data/Raft.xml">
 
 {% include Raft.svg %}
 
-<script language="javascript" src="/coyote/assets/js/animate_trace.js"></script>
-<script language="javascript" src="/coyote/assets/js/trace_model.js"></script>
-
-<script language="javascript">
-
-fetchTrace('/coyote/assets/data/Raft.xml', convertTrace);
-
-</script>
 </div>
 
 This graph was generated from a `coyote test` trace of a `StateMachine` based coyote application that implements the
@@ -29,3 +23,4 @@ The trace shows a global order of messages being transferred between the various
 shown to happen one after the other (when in reality they may be happening in parallel). This makes it easy to
 understand the trace. This trace, in fact, demonstrates a bug where two Raft `Server` state-machines both end up claiming
 to be leaders: this is a violation of Raft's consensus requirements that there be at most one leader at a time.
+consensus requirements that there be at most one leader at a time.

@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/tools/dgml
 ---
 
-## DGML Diagrams
+## DGML diagrams
 
 Coyote generates Directed Graph Markup Language ([DGML](https://en.wikipedia.org/wiki/DGML)) diagrams showing the states and events discovered during testing of a state machine.
 DGML diagrams can be viewed using Visual Studio if you have the `DGML Editor` feature installed.

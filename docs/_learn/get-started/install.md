@@ -3,14 +3,15 @@ title: Get started with Coyote
 permalink: /learn/get-started/install
 layout: reference
 section: learn
+navsection: install
 template: basic
 ---
 
-## Installing the NuGet package
+## Installing Coyote
 
 
 <div>
-<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install package</a> <a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Build from source</a>
+<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install NuGet  package</a> <a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Build from source</a>
 <br/>
 <br/>
 </div>
@@ -61,7 +62,7 @@ powershell -f build.ps1
 
 ### Using a local NuGet package
 
-The samples use the published Microsoft.Coyote NuGet package by default. If you want the samples to use the same Coyote bits you built from the Coyote repo, then edit the Nuget.config file and uncomment the following line:
+The samples use the published Microsoft.Coyote NuGet package by default. If you want the samples to use the same Coyote bits you built from the Coyote repo, then edit the NuGet.config file and uncomment the following line:
 ```xml
 <add key="Coyote" value="../Coyote/bin/nuget"/>
 ```

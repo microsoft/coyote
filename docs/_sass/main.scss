@@ -136,8 +136,6 @@ p {
     margin: 20px 0 0 0;
     transition: .3s;
   }
-
-
   .closebtn {
     display: inline;
   }
@@ -218,7 +216,7 @@ p {
     span {
       opacity: 1;
       transition: all .2s ease-in;
-      color: #fff;
+      color: $white;
       display: block;
       font-size: 20px;
       line-height: 122.2%;
@@ -248,40 +246,11 @@ p {
   }
 }
 
-
-//sidebar navigation
-.panel-heading {
-
-  a {
-    text-decoration: none;
-  }
-
-  // up/down arrows on click
-  a::after {
-    font-family: 'Glyphicons Halflings';
-    content: "\e259";
-    transition: all 0.5s;
-    font-size: 14px;
-    font-weight: 100;
-    display: inline-block;
-    margin: 0 0 0 8px;
-  }
-
-  &.active a::after {
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-}
-
-.panel-title>a,
-.panel-title>a:focus,
-.panel-title>a:hover {
-  text-decoration: none
-}
-
-.panel-title>a.active {
-  color: $black;
+/*
+  Reference Section
+*/
+.navbar-case-studies{
+    padding: 0 20px 0 20px;
 }
 
 .navbar-case-studies h1 {
@@ -325,12 +294,14 @@ p {
   background-color: $brand-color;
 }
 
-.list-unstyled .learn-tertiary {
-  list-style: none;
-  padding: 0 0 0 17px;
-
+.list-unstyled [class^="learn-"]  {
+  padding: 0;
+  margin: 0;
+  a {
+    font-size: 12px;
+  }
   li {
-    padding: 5px 0;
+    padding: 5px 0 0 16px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -369,6 +340,324 @@ p {
     border-top-color: $black;
   }
 }
+.panel-heading {
+
+  a {
+    text-decoration: none;
+  }
+
+  // up/down arrows on click
+  a::after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e259";
+    transition: all 0.5s;
+    font-size: 14px;
+    font-weight: 100;
+    display: inline-block;
+    margin: 0 0 0 8px;
+  }
+
+  &.active a::after {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    transform: rotate(180deg);
+  }
+}
+
+.panel-title>a,
+.panel-title>a:focus,
+.panel-title>a:hover {
+  text-decoration: none
+}
+
+.panel-title>a.active {
+  color: $black;
+}
+.reference.section-main {
+  margin-top: 0;
+
+}
+
+
+.reference .display-flex article {
+  max-width: 100%;
+}
+.reference .row.display-flex {
+  align-items: inherit;
+}
+.panel,
+.panel-default>.panel-heading,
+.panel-group .panel,
+.panel-group,
+.panel-default>.panel-heading+.panel-collapse>.panel-body,
+.panel-group .panel-heading+.panel-collapse>.list-group,
+.panel-group .panel-heading+.panel-collapse>.panel-body,
+.nav-tabs {
+  color: inherit;
+  background-color: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+}
+
+.nav-tabs>li>a,
+.nav-tabs>li.active>a,
+.nav-tabs>li.active>a:focus,
+.nav-tabs>li.active>a:hover,
+.nav-tabs,
+.nav-tabs>li>a:hover {
+  border-color: transparent;
+  border: none;
+  margin-top: -2px;
+}
+
+.panel-title {
+  font-size: 18px;
+
+  a {
+    color: $inline-link;
+  }
+}
+
+.reference h1:first-of-type,
+.reference h2:first-of-type,
+.reference h3:first-of-type {
+  margin-top: 0;
+}
+.reference h1:not(:first-of-type),
+.reference h2:not(:first-of-type),
+.reference h3:not(:first-of-type) {
+  margin-top: 35px;
+}
+
+//reference v1
+.navmenu-fixed-left-wrapper {
+  background-color: $learn-gray;
+  max-width: 300px;
+  position: fixed;
+
+  @include screen(lg) {
+    width: 27%;
+  }
+
+  @include screen(md) {
+    width: 100%;
+    max-width: none;
+  }
+
+  .navmenu-fixed-left {
+    padding: 120px 0 0 0;
+
+    @include screen(md) {
+      padding: 80px 0 0 0;
+      height: auto;
+    }
+  }
+}
+
+.reference-content {
+  margin-left: 300px;
+  @include screen(lg) {
+    width: 73%;
+  }
+
+  @include screen(md) {
+    width: 100%;
+  }
+}
+
+.has-search .form-control-feedback {
+  right: initial;
+  left: 0;
+  color: #ccc;
+}
+
+.has-search .form-control {
+  padding-right: 12px;
+  padding-left: 34px;
+}
+
+#results-container {
+  padding: 0;
+}
+
+
+// reference v2
+
+
+// .reference footer {
+//   height: 900px;
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+//   z-index: 0;
+// }
+
+.container-reference {
+  height: 100%;
+}
+
+.reference-wrapper {
+  margin-bottom: 900px;
+  background-color: $white;
+  position: relative;
+  z-index: 1;
+  padding-top: 100px;
+  background: $white url('/coyote/assets/images/bg-reference.png') repeat-y top left;
+  -webkit-box-shadow: 0 0 30px rgba(0, 0, 0, .45);
+  box-shadow: 0 0 30px rgba(0, 0, 0, .45);
+  min-height: 90vh;
+}
+
+.reference-wrapper .row {
+  height: 100%;
+  padding-bottom: 50px;
+}
+
+.nav-left-wrapper {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding-left: 20px;
+  padding-right: 20px;
+  // max-height: 90vh;
+  position: sticky;
+  top: 0;
+}
+
+.nav-left-wrapper:after {
+  content: "";
+  background: linear-gradient(0deg, rgba(234, 234, 234, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  height: 70px;
+  width: 300px;
+  position: sticky;
+  bottom: 0;
+  display: block;
+}
+
+.nav-left-wrapper .list-unstyled li {
+  padding: 0 0 0 13px;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-wrapper {
+  position: sticky;
+  top: 0;
+  padding: 0 20px 10px 20px;
+  background: linear-gradient(180deg, rgba(234, 234, 234, 1) 75%, rgba(255, 255, 255, 0) 100%);
+  z-index: 3;
+}
+
+.nav-left-wrapper::-webkit-scrollbar {
+  width: 10px
+}
+
+.nav-left-wrapper::-webkit-scrollbar-track {
+  background: $learn-gray;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-left-wrapper::-webkit-scrollbar-track:hover {
+  background: #eeeeee;
+}
+
+.nav-left-wrapper::-webkit-scrollbar-track:active {
+  background: #a8a8a8;
+}
+
+.nav-left-wrapper::-webkit-scrollbar-thumb {
+  background: #d8d8d8;
+  border: 1px solid $white;
+  border-radius: 5px
+}
+
+.nav-left-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #b9b9b9;
+}
+
+.nav-left-wrapper::-webkit-scrollbar-thumb:active {
+  background: $brand-color;
+}
+
+.nav-left-wrapper::-webkit-scrollbar-corner {
+  background: rgb(7, 4, 39);
+}
+
+.has-search .form-control-feedback {
+  right: initial;
+  left: 0;
+  color: #ccc;
+}
+
+.has-search .form-control {
+  padding-right: 12px;
+  padding-left: 34px;
+}
+
+#results-container {
+  padding: 0;
+}
+.reference-content {
+  padding-left: 30px;
+}
+
+// reference mobile styles
+.reference-wrapper {
+  @include screen(md) {
+    background: none;
+    padding-top: 0;
+    background-color: $white;
+    min-height: auto;
+    margin-bottom: 0;
+  }
+}
+.nav-left-wrapper {
+  @include screen(md) {
+    background-color: $learn-gray;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    position: relative;
+    padding-top: 30px;
+    margin-bottom: 30px;
+    overflow: visible;
+  }
+}
+
+.reference-content {
+  @include screen(md) {
+    width: 100%;
+    padding-top: 30px;
+
+  }
+}
+.search-wrapper {
+  @include screen(md) {
+    position: relative;
+
+  }
+}
+
+.reference footer {
+  @include screen(md) {
+    position: relative;
+    height: auto;
+
+  }
+}
+/*
+ end reference section
+*/
+
+
+
+
+
 
 //footer navigation
 footer {
@@ -421,6 +710,10 @@ footer {
   }
 }
 
+.reference-footer {
+    margin-left: 300px;
+}
+
 .footer-dark {
   background-color: $bg-gray;
   color: $white;
@@ -457,7 +750,7 @@ footer {
 
 .logo-mark {
   fill: none;
-  stroke: #FFFFFF;
+  stroke: $white;
   stroke-width: 7;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -510,8 +803,6 @@ footer {
   @include screen(md) {
     margin-left: 0;
   }
-
-
 }
 
 .carousel-inner {
@@ -707,12 +998,9 @@ footer {
   }
 
   @include screen(md) {
-    margin-top: 60px;
+    margin-top: 75px;
   }
 
-  @include screen(sm) {
-    margin-top: 70px;
-  }
 }
 
 .container-hero-text {
@@ -729,9 +1017,7 @@ footer {
   @include screen(sm) {}
 }
 
-.reference.section-main {
-  margin-top: 0;
-}
+
 
 .container-grid img {
   width: 100%;
@@ -751,10 +1037,6 @@ footer {
   margin-bottom: 50px;
 }
 
-.reference .display-flex article {
-  max-width: 100%;
-}
-
 body.gray {
   background-color: $light-gray;
 
@@ -770,6 +1052,13 @@ article .btn {
 
 article .btn:first-of-type {
   margin-right: 30px;
+}
+.feature-img {
+  margin-bottom: 100px;
+
+  @include screen(md) {
+    margin-bottom: 0;
+  }
 }
 
 .feature-img-bg {
@@ -887,9 +1176,6 @@ article .btn:first-of-type {
   align-items: stretch;
 }
 
-.reference .row.display-flex {
-  align-items: inherit;
-}
 
 .container-fluid-no-gutters,
 .no-gutters {
@@ -908,7 +1194,7 @@ article .btn:first-of-type {
 
 
 /*
- * Bootstrap - override default styles
+ * button styles
  */
 
 .btn {
@@ -965,7 +1251,15 @@ a.btn-primary:focus,
 .btn-default:hover {
   background-color: $white;
 }
-
+.btn.active.focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn:active:focus,
+.btn:focus {
+  outline: none;
+  outline-offset: 0;
+}
 .navbar-default .navbar-nav>.active>a,
 .navbar-default .navbar-nav>.active>a:focus,
 .navbar-default .navbar-nav>.active>a:hover {
@@ -976,106 +1270,6 @@ a.btn-primary:focus,
   .navbar-right {
     margin-right: 15px;
   }
-}
-
-//learn sidenav
-.panel,
-.panel-default>.panel-heading,
-.panel-group .panel,
-.panel-group,
-.panel-default>.panel-heading+.panel-collapse>.panel-body,
-.panel-group .panel-heading+.panel-collapse>.list-group,
-.panel-group .panel-heading+.panel-collapse>.panel-body,
-.nav-tabs {
-  color: inherit;
-  background-color: transparent;
-  border-color: transparent;
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-  margin: 0;
-}
-
-.nav-tabs>li>a,
-.nav-tabs>li.active>a,
-.nav-tabs>li.active>a:focus,
-.nav-tabs>li.active>a:hover,
-.nav-tabs,
-.nav-tabs>li>a:hover {
-  border-color: transparent;
-  border: none;
-  margin-top: -2px;
-}
-
-.panel-title {
-  font-size: 18px;
-
-  a {
-    color: $inline-link;
-  }
-}
-
-
-//buttons
-.btn.active.focus,
-.btn.active:focus,
-.btn.focus,
-.btn:active.focus,
-.btn:active:focus,
-.btn:focus {
-  outline: none;
-  outline-offset: 0;
-}
-
-
-//reference section layouts
-.navmenu-fixed-left-wrapper {
-  background-color: $learn-gray;
-  max-width: 300px;
-
-  @include screen(lg) {
-    width: 27%;
-  }
-
-  @include screen(md) {
-    width: 100%;
-    max-width: none;
-  }
-
-  .navmenu-fixed-left {
-    padding: 120px 20px 0 30px;
-    overflow-y: auto;
-    height: 100vh;
-
-    @include screen(md) {
-      padding: 80px 20px 20px 30px;
-    }
-  }
-}
-
-.reference-content {
-  @include screen(lg) {
-    width: 73%;
-  }
-
-  @include screen(md) {
-    width: 100%;
-  }
-}
-
-.has-search .form-control-feedback {
-  right: initial;
-  left: 0;
-  color: #ccc;
-}
-
-.has-search .form-control {
-  padding-right: 12px;
-  padding-left: 34px;
-}
-
-#results-container {
-  padding: 0;
 }
 
 blockquote {
@@ -1237,16 +1431,70 @@ code.highlighter-rouge {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(255, 102, 51, 0.23);
 }
 
-/*
- *  End Bootstrap overrides
- */
 
+.display-flex article {
+  margin: 50px auto;
+  max-width: 70%;
+
+
+  @include screen(lg) {
+    max-width: 80%;
+  }
+
+  @include screen(md) {
+    max-width: 90%;
+    margin: 0 auto 40px auto;
+  }
+
+}
+
+.flex-article {
+  h2 {
+    font-size: 40px;
+    line-height: 46px;
+    font-weight: 100;
+
+    a {
+      font-size: 40px;
+      text-decoration: none;
+    }
+  }
+
+  h3 {
+    font-size: 25px;
+    line-height: 30px;
+    margin-top: 30px;
+  }
+
+  li {
+    margin: 20px 0;
+  }
+
+  blockquote {
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  h3 blockquote {
+    font-size: 25px;
+  }
+
+  .cta {
+    display: block;
+    margin-top: 30px;
+  }
+
+  &>* {
+    margin-bottom: 20 !important;
+  }
+}
 /*
  * Basic typography --
    keep at botom of this file to avoid inheritence issues
  */
 
-body {
+ body {
   font-family: $text-font-stack;
   font-size: 16px;
   line-height: 132.5%;
@@ -1326,64 +1574,6 @@ h1 {
     transition: all 200ms ease-in-out;
   }
 }
-
-.display-flex article {
-  margin: 50px auto;
-  max-width: 70%;
-
-
-  @include screen(lg) {
-    max-width: 80%;
-  }
-
-  @include screen(md) {
-    max-width: 90%;
-    margin: 0 auto 40px auto;
-  }
-
-}
-
-.flex-article {
-  h2 {
-    font-size: 40px;
-    line-height: 46px;
-    font-weight: 100;
-
-    a {
-      font-size: 40px;
-    }
-  }
-
-  h3 {
-    font-size: 25px;
-    line-height: 30px;
-    margin-top: 30px;
-  }
-
-  li {
-    margin: 20px 0;
-  }
-
-  blockquote {
-    margin: 0;
-    padding: 0;
-    border: none;
-  }
-
-  h3 blockquote {
-    font-size: 25px;
-  }
-
-  .cta {
-    display: block;
-    margin-top: 30px;
-  }
-
-  &>* {
-    margin-bottom: 20 !important;
-  }
-}
-
 
 /*
  * end typography

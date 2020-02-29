@@ -1,7 +1,7 @@
 ---
 layout: page
 template: feature-img
-title: Contact Us
+title: Contact us
 permalink: /contact-us
 section: contact-us
 feature-img: /assets/images/contact.jpg

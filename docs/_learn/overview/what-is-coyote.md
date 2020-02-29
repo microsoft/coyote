@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/overview/what-is-coyote
 ---
 
-## Overview
+## What is Coyote?
 
 Coyote is a .NET programming framework designed to help ensure that your code is free of bugs. Too often developers are drowning in the complexity of
 their own code and many hours are wasted trying to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or various other
@@ -48,4 +48,3 @@ you to express your design and concurrency at a higher-level of abstraction.  Th
 asynchronous actor. An actor can create new actors, send events to other actors, and handle received events. This more advanced programming model is ideal for cases
 when asynchronous tasks get too unwieldy.  This programming model also provides a `StateMachine` type for easy development of event-driven state-machines. A `StateMachine`
 is simply an `Actor` with explicit `States` and event-driven state transitions.
-

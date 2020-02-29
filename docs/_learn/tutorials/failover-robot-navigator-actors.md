@@ -2,10 +2,10 @@
 layout: reference
 section: learn
 title: Failover Drinks Serving Robot Example
-permalink: /learn/tutorials/failover-drinks-serving-robot
+permalink: /learn/tutorials/failover-robot-navigator-actors
 ---
 
-## Drinks Serving Robot (DSR) Failover Example
+## Failover robot navigator service with actors
 
 *Wikipedia* provides this [definition](https://en.wikipedia.org/wiki/Failover): "**Failover** is switching to a redundant
 or standby computer server, system, hardware component or network upon the failure
@@ -13,7 +13,7 @@ or abnormal termination of the previously active application, server, system, ha
 Systems designers usually provide failover capability in servers, systems or networks requiring near-continuous availability
 and a high degree of reliability."
 
-This sample implements a failover scenario in a system where **a software service component is terminated and replaced
+This sample implements a failover scenario in a system where **an instance of a service is terminated and replaced
 by a new one**, unlike the [Failover Coffee Machine sample](/coyote/learn/tutorials/failover-coffee-machine-actors), which
 is about applying the failover concept to the firmware of an automated espresso machine.
 
@@ -24,7 +24,7 @@ In this scenario there is a `Robot` that must serve drinks to people in a room:
  1. Before starting to serve the next client
 the `Robot` is always at an `InitialLocation` in the room.
 
- 2. In order to do its job the `Robot` needs the help of a software component called the `Navigator`, which when provided
+ 2. In order to do its job the `Robot` needs the help of a service called the `Navigator`, which when provided
 with the latest picture of the room, finds a person who needs to be served next and sends the details
  (adult or minor, location) of that person to the `Robot`.
 
@@ -50,8 +50,8 @@ The following diagram depicts the Failover workflow in this sample:
 ![image](../../assets/images/DSR-Failover.svg)
 
 Do note:
- 1. This is a general diagram that can be used not only in the Drinks Serving Robot (DSR) scenario,
-but for any other scenarios involving a robot that operates with the help of object recognition and route planning.
+ 1. This is a general diagram that can be used not only in this scenario,
+but for any other scenario that involves a robot operating with the help of object recognition and route planning.
  2. The green nodes represent the product code we are testing here, and everything else is mock test infrastructure.
  The main goal is to show the use of `coyote test` in finding concurrency
  issues even at the design stage when the actual implementation hasn't started. For this reason we've only provided mock
@@ -315,8 +315,7 @@ public static class Program
 
     public static void Main()
     {
-        .   .   .   .   .
-
+        ...
         RunForever = true;
         IActorRuntime runtime = ActorRuntimeFactory.Create(conf);
         Execute(runtime);
@@ -474,19 +473,11 @@ you'll see in the output of the tester that a DGML diagram has been produced:
 
 Open this with Visual Studio 2019 and you will see something like this:
 
-<div>
-
+<div class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml">
 {% include DSR-Bug-01.svg %}
-
-<script language="javascript" src="/coyote/assets/js/animate_trace.js"></script>
-<script language="javascript" src="/coyote/assets/js/trace_model.js"></script>
-
-<script language="javascript">
-fetchTrace('/coyote/assets/data/DrinksServingRobot.trace.xml', convertTrace);
-</script>
 </div>
 
-This is the exact snapshot at the time of the bug of the DSR components.
+This is the exact snapshot at the time when the bug manifested.
 
 This diagram shows that the first `Navigator` (Navigator(6)) was terminated by the `FailoverDriver`, which then created
 a second `Navigator` (Navigator(13)).
@@ -587,7 +578,7 @@ Look at the code of `Robot.cs` where `this.DrinkOrderPending` is being modified.
 private Transition NextMove()
 {
     this.DrinkOrderPending = false;
-    .   .   .   .   .   .   .
+    ...
 }
 ```
 
@@ -664,7 +655,7 @@ scenarios (such as actual cloud services) where someone needs to test failover l
 In this tutorial you learned:
 
 - How to do failover testing using a Coyote `FailoverDriver` state machine.
-- How to use Coyote in a software services failover scenario.
+- How to use Coyote to test failover in a service.
 - How to use `--sch-pct` testing on multiple processes to find tricky bugs more quickly.
 - How to specify the `--graph-bug` argument so that the coyote test tool would produce a snapshot-DGML diagram of the
 final state of the system when the bug was found.

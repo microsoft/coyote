@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/StateMachine/CurrentState
 Gets the Type of the current state.
 
 ```csharp
-protected Type CurrentState { get; }
+protected internal Type CurrentState { get; }
 ```
 
 ## See Also

@@ -2,38 +2,36 @@
 layout: default
 ---
 
-
-
 {% assign template = page.template %}
 {% case template %}
 {% when 'basic' %}
-    <div class="{{page.template}} container">
-        <div class="row">
-            <div class="col-sm-8 fade-in-top">
-                <article class="mw-600">
-                    <h1>{{ page.title }}</h1>
-                    {{ content }}
-                </article>
-            </div>
-        </div>
+<div class="{{page.template}} container">
+  <div class="row">
+    <div class="col-sm-8 fade-in-top">
+      <article class="mw-600">
+        <h1>{{ page.title }}</h1>
+        {{ content }}
+      </article>
     </div>
+  </div>
+</div>
 {% when 'feature-img' %}
-    <div class="{{page.template}} container-fluid container-fluid-no-gutters mb-100">
-        <div class="row row-no-gutters  display-flex">
-            <div class="col-sm-6">
-                <figure>
-                  <img src="{{ page.feature-img | relative_url }}" alt="{{ page.title }}">
-                </figure>
-            </div>
-
-            <div class="col-sm-6 fade-in-top">
-                <article>
-                    <h1>{{ page.title }}</h1>
-                    {{ content }}
-                </article>
-            </div>
-        </div>
+<div class="{{page.template}} container-fluid container-fluid-no-gutters">
+  <div class="row row-no-gutters  display-flex">
+    <div class="col-sm-6">
+      <figure>
+        <img src="{{ page.feature-img | relative_url }}" alt="{{ page.title }}">
+      </figure>
     </div>
+
+    <div class="col-sm-6 fade-in-top">
+      <article>
+        <h1>{{ page.title }}</h1>
+        {{ content }}
+      </article>
+    </div>
+  </div>
+</div>
 {% else %}
-    Please specify a layout template in Front Matter. For example: <code>layout: page</code>.
+Please specify a layout template in Front Matter. For example: <code>layout: page</code>.
 {% endcase %}

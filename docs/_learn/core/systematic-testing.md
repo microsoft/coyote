@@ -5,7 +5,7 @@ title: Core Concepts
 permalink: /learn/core/systematic-testing
 ---
 
-## Coyote Systematic Testing
+## Systematic testing
 
 Coyote testing works by taking over the [non-determinism](../core/non-determinism.md) in a program. Once it has control over the non-determinism, the Coyote tester will repeatedly run a test case, each time exercising a different set of non-deterministic choices, offering much better coverage than using other techniques. This powerful testing ability, however, does require help: you must mark all sources of non-determinism in a way that Coyote understands. Let's see how this is done.
 

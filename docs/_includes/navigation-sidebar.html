@@ -1,59 +1,184 @@
-<div class="navmenu navmenu-default navmenu-fixed-left in">
-  <div class="form-group has-feedback has-search">
-    <span class="glyphicon glyphicon-search form-control-feedback"></span>
-    <input type="text" class="form-control" id="search-input" placeholder="Search">
-  </div>
-  <ul id="results-container"></ul>
+<div class="navmenu navmenu-default navmenu-fixed-left in" permalink="{{ page.permalink }}">
+
+  <div class="search-wrapper">
+    <div class="form-group has-feedback has-search">
+      <span class="glyphicon glyphicon-search form-control-feedback"></span>
+      <input type="text" class="form-control" id="search-input" placeholder="Search">
+    </div>
+</div>
   {% if page.section == 'learn' %}
-  <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-    {% for item in site.data.sidebar-learn.learn-toc %}
-    <div class="panel panel-default">
-      {% assign expanded = false %}
-      {% assign index = 0 %}
-      <div class="panel-heading pl-0" role="tab" id="heading-{{ item.title | downcase | slugify }}">
-        <h4 class="panel-title">
-          <a role="button" data-toggle="collapse" data-parent="#accordion"
-            href="#collapse-{{ item.title | downcase | slugify }}"
-            aria-controls="collapse-{{ item.title | downcase | slugify }}" href="{{ entry.link  | relative_url }}"
-            title="{{ item.title }}" {% for entry in item.subfolderitems %} {% assign index = index + 1 %}
-            {% assign page_prefix = page.url | truncate: entry.link.size, "" %} {% if page_prefix == entry.link %}
-            class="active" {% assign expanded = true %} {% endif %} {% endfor %}>{{ item.title | escape }}</a>
-        </h4>
-      </div>
-      <div id="collapse-{{ item.title | downcase | slugify }}"
-        class="panel-collapse collapse {% if expanded %}in{% endif %}" role="tabpanel"
-        aria-labelledby="heading-{{ item.title | downcase | slugify }}">
-        <div class="panel-body p-0">
-          <ul class="list-unstyled">
-            {% for entry in item.subfolderitems %}
-            {% assign page_prefix = page.url | truncate: entry.link.size, "" %}
-            {% assign three_level = false %}
-            {% if entry.subfolderitems  %}
-            {% assign three_level = true %}
-            {% endif %}
-            <li class="pt-5 pb-5">
-              <a href="{{ entry.link  | relative_url  }}" {% if entry.external == true  %}target="_blank" {% endif %}
-                {% if three_level == false %} {% if page_prefix == entry.link %}class="active" {% endif %}
-                {% endif %}>{{ entry.name | escape }}</a>
-              {% if three_level %}
-              <ul class="learn-tertiary">
-                {% for item in entry.subfolderitems %}
-                <li class="pt-6 pb-6">
-                  <a href="{{ item.link  | relative_url }}" {% if page.url == item.link %} class="active"
-                    {% endif %}>{{ item.name | escape }}</a></li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-            </li>
-            {% endfor %}
-          </ul>
+  <div class="nav-left-wrapper">
+    <ul id="results-container"></ul>
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+      {% for item in site.data.sidebar-learn.learn-toc %}
+      <div class="panel panel-default">
+        <div class="panel-heading pl-0" role="tab" id="heading-{{ item.title | downcase | slugify }}">
+          <h4 class="panel-title">
+            <a
+              role="button"
+              data-toggle="collapse"
+              data-parent="#accordion"
+              href="#collapse-{{ item.title | downcase | slugify }}"
+              aria-controls="collapse-{{ item.title | downcase | slugify }}"
+              title="{{ item.title }}">{{ item.title | escape }}</a>
+          </h4>
+        </div>
+        <div
+          id="collapse-{{ item.title | downcase | slugify }}"
+          class="panel-collapse collapse"
+          role="tabpanel"
+          aria-labelledby="heading-{{ item.title | downcase | slugify }}">
+          <div class="panel-body p-0">
+
+            <!-- secondary - begin folder inception -->
+            <ul class="list-unstyled">
+
+              {% for entry in item.subfolderitems %}
+              <li class="pt-5 pb-5" >
+
+                {% if entry.subfolderitems %}
+                    <div class="panel-group" id="accordion-{{ entry.name | downcase | slugify }}" role="tablist" aria-multiselectable="true">
+                    {% if entry.link %}
+                    <a href="{{ entry.link  | relative_url  }}" permalink="{{entry.link}}"
+                        {% capture secondary-collapse %}{{ entry.name | downcase | slugify }}{% endcapture %}
+                        capture="{{ secondary-collapse }}"
+                        title="{{ entry.name }}">{{ entry.name | escape }}</a>
+                    {% else %}
+                    <a  role="button"
+                        data-toggle="collapse"
+                        data-parent="#accordion-{{ entry.name | downcase | slugify }}"
+                        href="#collapse-{{ entry.name | downcase | slugify }}"
+                        aria-controls="collapse-{{ entry.name | downcase | slugify }}"
+                        permalink="{{entry.link}}"
+                        {% capture secondary-collapse %}{{ entry.name | downcase | slugify }}{% endcapture %}
+                        capture="{{ secondary-collapse }}"
+                        title="{{ entry.name }}">{{ entry.name | escape }}</a>
+                    {% endif %}
+
+                {% else %}
+                    <a href="{{ entry.link  | relative_url  }}" permalink="{{entry.link}}" title="{{ entry.name }}">{{ entry.name | escape }}</a>
+                {% endif %}
+
+                {% if entry.subfolderitems %}
+                <div id="collapse-{{ secondary-collapse }}"
+                class="panel-collapse collapse"
+                role="tabpanel"
+                aria-labelledby="heading-{{ secondary-collapse }}">
+                <!-- tertiary -->
+                <ul class="learn-tertiary">
+                  {% for item in entry.subfolderitems %}
+                  <li class="pt-6 pb-6">
+
+                    {% if item.subfolderitems %}
+                       <div class="panel-group" id="accordion-{{ item.name | downcase | slugify }}" role="tablist" aria-multiselectable="true">
+                        {% if item.link %}
+                        <a href="{{ item.link  | relative_url }}" permalink="{{item.link}}"
+                            {% capture tertiary-collapse %}{{ item.name | downcase | slugify }}{% endcapture %}
+                            capture="{{ tertiary-collapse }}"
+                            title="{{ item.name }}">{{ item.name | escape }}</a>
+                        {% else %}
+                        <a
+                            role="button"
+                            data-toggle="collapse"
+                            data-parent="#accordion-{{ item.name | downcase | slugify }}"
+                            href="#collapse-{{ item.name | downcase | slugify }}"
+                            aria-controls="collapse-{{ item.name | downcase | slugify }}"
+                            permalink="{{item.link}}"
+                            {% capture tertiary-collapse %}{{ item.name | downcase | slugify }}{% endcapture %}
+                            capture="{{ tertiary-collapse }}"
+                            title="{{ item.name }}">{{ item.name | escape }}</a>
+                        {% endif %}
+
+                    {% else %}
+                      <a href="{{ item.link  | relative_url }}" permalink="{{item.link}}" title="{{ item.name }}">{{ item.name | escape }}</a>
+                    {% endif %}
+
+                    <!-- quaternary -->
+                    {% if item.subfolderitems %}
+                    <!-- tertiary collapse -->
+                    <div id="collapse-{{ tertiary-collapse }}"
+                    class="panel-collapse collapse"
+                    role="tabpanel"
+                    aria-labelledby="heading-{{ tertiary-collapse }}">
+                      <ul class="learn-quaternary">
+                        {% for entry in item.subfolderitems %}
+                        <li class="pt-6 pb-6">
+                          <a href="{{ entry.link  | relative_url }}" permalink="{{entry.link}}" title="{{ entry.name }}">{{ entry.name | escape }}</a>
+
+
+                          {% if entry.subfolderitems %}
+                          <!-- quinary -->
+
+                            {% assign accordion_title = {{ entry.title | downcase | slugify }} %}
+                            <ul class="learn-quinary">
+                              {% for item in entry.subfolderitems %}
+
+                                  {{ item.title | downcase | slugify }}
+                                  <li class="pt-6 pb-6">
+                                    <a href="{{ item.link  | relative_url }}" permalink="{{item.link}}" title="{{ item.name }}">{{ item.name | escape }}</a>
+
+
+                                    {% if item.subfolderitems %}
+                                    <!-- senary -->
+
+                                      <ul class="learn-senary">
+                                        {% for entry in item.subfolderitems %}
+                                        <li class="pt-6 pb-6">
+                                          <a href="{{ entry.link  | relative_url }}" permalink="{{entry.link}}" title="{{ entry.name }}">{{ entry.name | escape }}</a>
+                                        </li>
+                                        {% endfor %}
+                                      </ul>
+
+                                    <!-- /senary -->
+                                    {% endif %}
+
+
+                                  </li>
+
+                                <!-- /quinary collapse -->
+
+                              {% endfor %}
+                            </ul>
+
+                          <!-- /quinary -->
+                          {% endif %}
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    <!-- /tertiary collapse -->
+                    <!-- /quaternary -->
+                    {% endif %}
+
+                    {% if item.subfolderitems %}
+                    </div>
+                    <!-- /tertiary panel group -->
+                    {% endif %}
+                  </li>
+                  {% endfor %}
+                </ul>
+                <!-- /tertiary -->
+                </div>
+                {% endif %}
+
+
+                {% if entry.subfolderitems %}
+                </div>
+                <!-- /secondary panel group -->
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            <!-- /secondary -->
+          </div>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
   {% elsif page.section == 'case-studies' %}
   <nav class="navbar navbar-case-studies">
+    <ul id="results-container"></ul>
     <h1 class="panel-title">Case Studies</h1>
     <ul class="list-unstyled">
       {% for item in site.data.sidebar-cs.cs-toc %}
@@ -62,5 +187,7 @@
       {% endfor %}
     </ul>
   </nav>
+  {% else %}
+  <ul id="results-container"></ul>
   {% endif %}
 </div>

@@ -5,7 +5,7 @@ title: Core Concepts
 permalink: /learn/core/non-determinism
 ---
 
-## Program Non-Determinism
+## Program non-determinism
 
 Programs that are deterministic are also easy to test. Intuitively, we say that a program is deterministic whenever it executes in the same manner if provided the same inputs. Most of the software that we develop, however, isn't deterministic. Let's begin by understanding this non-determinism and how it makes our lives as developers harder.
 

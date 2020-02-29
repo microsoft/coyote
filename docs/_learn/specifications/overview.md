@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/specifications/overview
 ---
 
-## Program Specifications
+## Program specifications
 
 Coyote makes it easy to design and express system-level specifications that can be asserted during
 testing. Specifications come in two forms. _Safety_ specifications assert that the system never enters

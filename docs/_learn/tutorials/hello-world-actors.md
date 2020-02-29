@@ -5,10 +5,10 @@ title: Hello World Actors Example
 permalink: /learn/tutorials/hello-world-actors
 ---
 
-## Hello World Actors Example
+## Hello world example with actors
 
-The [Hello World Actors Example ](http://github.com/microsoft/coyote-samples/) is a simple program to get you started
-using the Coyote [Actors Programming Model](/coyote/learn/programming-models/actors/overview).
+The [HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you started
+using the Coyote [actors programming model](/coyote/learn/programming-models/actors/overview).
 
 ## What you will need
 

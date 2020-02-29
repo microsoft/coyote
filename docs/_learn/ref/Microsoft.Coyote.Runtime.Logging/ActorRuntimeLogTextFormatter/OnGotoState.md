@@ -9,14 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 Invoked when the specified state machine performs a goto transition to the specified state.
 
 ```csharp
-public virtual void OnGotoState(ActorId id, string handlingStateName, string currentStateName, 
-    string newStateName)
+public virtual void OnGotoState(ActorId id, string currentStateName, string newStateName)
 ```
 
 | parameter | description |
 | --- | --- |
 | id | The id of the actor. |
-| handlingStateName | The state that declared this goto state operation (can be different from currentStateName in the case of pushed states. |
 | currentStateName | The name of the current state. |
 | newStateName | The target state of the transition. |
 

@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/resources/styleguide
 ---
 
-## Why a style guide ?
+## Why a style guide?
 
 We want to provide high quality documentation and tutorials that create a positive first impression. Our goal is to highlight each new user-facing feature of Coyote with novel, distinctive content. We need to write in a way that ensures success for all skill levels. We believe documentation is much easier to read when it has a consistent voice and tone, terminology, and format.
 

@@ -5,7 +5,7 @@ title: Failover Coffee Machine Actors
 permalink: /learn/tutorials/failover-coffee-machine-actors
 ---
 
-## Failover Coffee Machine Actors
+## Failover coffee machine using actors
 
 *Wikipedia* provides this [definition](https://en.wikipedia.org/wiki/Failover): "**Failover** is switching to a
 redundant or standby computer server, system, hardware component or network upon the failure or abnormal termination of

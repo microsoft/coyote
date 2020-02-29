@@ -5,10 +5,10 @@ title: Hello World Tasks Example
 permalink: /learn/tutorials/hello-world-tasks
 ---
 
-## Hello World Tasks Example
+## Hello world example with tasks
 
-The [Hello World Tasks Example ](http://github.com/microsoft/coyote-samples/) is a simple program to get you started
-using the [Asynchronous Tasks Programming Model ](/coyote/learn/programming-models/async/overview) with Coyote.
+The [HelloWorldTasks](http://github.com/microsoft/coyote-samples/) is a simple program to get you started
+using the [asynchronous tasks programming model](/coyote/learn/programming-models/async/overview) with Coyote.
 
 ## What you will need
 

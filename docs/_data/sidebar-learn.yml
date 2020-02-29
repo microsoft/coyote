@@ -4,7 +4,7 @@ learn-toc:
   subfolderitems:
     - name: What is Coyote?
       link: /learn/overview/what-is-coyote
-    - name: Benefits
+    - name: Key benefits
       link: /learn/overview/benefits
     - name: Frequently asked questions
       link: /learn/overview/faq
@@ -18,32 +18,31 @@ learn-toc:
       link: /learn/get-started/using-coyote
     - name: Upgrading from P#
       link: /learn/get-started/upgrade
-- title: Core Concepts
+- title: Core concepts
   subfolderitems:
-    - name: Non-determinism
+    - name: Program non-determinism
       link: /learn/core/non-determinism
     - name: Systematic testing
       link: /learn/core/systematic-testing
-    - name: Specifications
+    - name: Program specifications
       link: /learn/specifications/overview
     - name: Effective liveness checking
       link: /learn/specifications/liveness-checking
     - name: Logging
       link: /learn/advanced/logging
-- title: Programming Models
-  link: /learn/programming-models
+- title: Programming models
   subfolderitems:
-    - name: Asynchronous Tasks
+    - name: Asynchronous tasks
       link: /learn/programming-models/async/overview
       subfolderitems:
         - name: Overview
           link: /learn/programming-models/async/overview
-    - name: Asynchronous Actors
+    - name: Asynchronous actors
       link: /learn/programming-models/actors/overview
       subfolderitems:
         - name: Overview
           link: /learn/programming-models/actors/overview
-        - name: State Machines
+        - name: State machines
           link: /learn/programming-models/actors/state-machines
         - name: Actor semantics
           link: /learn/programming-models/actors/actor-semantics
@@ -61,24 +60,24 @@ learn-toc:
           link: /learn/programming-models/actors/unit-testing
         - name: Sharing objects
           link: /learn/advanced/object-sharing
-        - name: State Machine Demo
+        - name: State machine demo
           link: /learn/programming-models/actors/state-machine-demo
-- title: Tutorials and Samples
+- title: Tutorials and samples
   subfolderitems:
-    - name: Hello World Tasks
+    - name: Hello world tasks
       link: /learn/tutorials/hello-world-tasks
-    - name: Hello World Actors
+    - name: Hello world actors
       link: /learn/tutorials/hello-world-actors
-    - name: Azure Messaging Example
-      link: /learn/tutorials/raft-azure
-    - name: Azure Mocking Example
-      link: /learn/tutorials/raft-mocking
-    - name: Failover Coffee Machine Actors
+    - name: Coffee machine failover (actors)
       link: /learn/tutorials/failover-coffee-machine-actors
-    - name: Failover Coffee Machine Tasks
+    - name: Coffee machine failover (tasks)
       link: /learn/tutorials/failover-coffee-machine-tasks
-    - name: Failover Drinks Serving Robot
-      link: /learn/tutorials/failover-drinks-serving-robot
+    - name: Robot navigator failover (actors)
+      link: /learn/tutorials/failover-robot-navigator-actors
+    - name: Raft actor service (on Azure)
+      link: /learn/tutorials/raft-azure
+    - name: Raft actor service (mocked)
+      link: /learn/tutorials/raft-mocking
 - title: Tools
   subfolderitems:
     - name: Testing
@@ -87,6 +86,8 @@ learn-toc:
       link: /learn/tools/coverage
     - name: Distributed testing
       link: /learn/tools/distributed-testing
+    - name: DGML diagrams
+      link: /learn/tools/dgml
 - title: API documentation
   subfolderitems:
     - name: Microsoft.Coyote
@@ -837,5 +838,5 @@ learn-toc:
   subfolderitems:
     - name: Publications
       link: /learn/resources/publications
-    - name: Style Guide
+    - name: Style guide
       link: /learn/resources/styleguide

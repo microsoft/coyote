@@ -21,8 +21,12 @@
       <a href="javascript:void(0)" class="closebtn" data-toggle="collapse" data-target="#navbar">&times;</a>
       <a class="navbar-brand-menu" href="{{site.baseurl}}/" title="Homepage"></a>
       <ul class="nav navbar-nav navbar-right">
+        {%  assign section = page.section %}
+        {% if page.navsection %}
+        {% assign section = page.navsection %}
+        {% endif %}
         {% for item in site.data.navigation %}
-        <li class="{% if {{page.section}} == {{item.section}} %}active {% endif %} ">
+        <li class="{% if {{section}} == {{item.section}} %}active {% endif %} ">
           <a {% if item.external == true  %}target="_blank" {% endif %}
             href="{{ item.link  | relative_url }}">{{ item.name }}</a>
         </li>

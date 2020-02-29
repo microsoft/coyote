@@ -135,7 +135,7 @@ testing their code this way, so switching that over to work with Coyote usually 
 
 ### Learn more and contribute
 
-Coyote package is available on [Nuget](https://www.nuget.org/packages/Microsoft.Coyote/) so [getting
+Coyote package is available on [NuGet](https://www.nuget.org/packages/Microsoft.Coyote/) so [getting
 started](/coyote/learn/get-started/install) with Coyote is very simple.
 
 Coyote is also available as [open source on github](http://github.com/microsoft/coyote) and is open to all who what to

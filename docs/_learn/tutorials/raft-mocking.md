@@ -5,10 +5,10 @@ title: Raft Example
 permalink: /learn/tutorials/raft-mocking
 ---
 
-## Azure Mocking Example
+## Raft consensus protocol with mocks for testing
 
 In the [previous example](raft-azure) you created an Azure application that uses Coyote
-and performs messaging using an [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).  This is a great way to build
+and performs messaging using [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/).  This is a great way to build
 a reliable business application.  But there is overhead in using an enterprise scale
 service bus, which limits our ability to fully test the state machine.
 

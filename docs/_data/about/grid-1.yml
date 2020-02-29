@@ -5,7 +5,7 @@ row-1:
   content: |
     <h2>Origin story</h2>
 
-    <p>Grounded on years of experience in formal methods and software engineering at Microsoft Research, Coyote’s inspiration springs from
+    <p>Grounded on years of experience in formal methods and software engineering at Microsoft Research, Coyote's inspiration springs from
     recognizing the ironic absence of tooling for developing concurrent systems.
     </p>
 
@@ -16,7 +16,7 @@ row-1:
     </p>
 
     <p>Our initial thinking was to simply build tools focused on testing, but we quickly realized any technique focused only on testing
-    would have severely limited value: Developers want to write elegant, correct, and performant code on the first go—they don’t want to
+    would have severely limited value: Developers want to write elegant, correct, and performant code on the first go&mdash;they don't want to
     be tracing buggy interleavings late into the wee hours.
     </p>
 
@@ -24,11 +24,11 @@ row-1:
     Coyote is an evolution of Microsoft Research's P# project that got us started on this journey, building over years of research in
     concurrency design and implementation bugs.</p>
 
-    <p>From the moment various Azure teams began using our framework, we’ve been receiving enthusiastic feedback. What started as one
+    <p>From the moment various Azure teams began using our framework, we've been receiving enthusiastic feedback. What started as one
     service using Coyote has now expanded to more than ten and growing.
     </p>
 
-    <p>We would love to make you a part of our story—<a href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a> today.</p>
+    <p>We would love to make you a part of our story&mdash;<a href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a> today.</p>
 row-2:
 - img: /coyote/assets/images/about-vision.jpg
   title: Vision

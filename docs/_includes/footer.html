@@ -1,4 +1,9 @@
-<footer>
+
+<footer
+  {% if page.layout == "reference" %}
+  class="reference-footer"
+  {% endif %}
+  >
   <section class="footer-join pt-40 pb-80">
     <div class="container">
       <div class="row text-center">
@@ -7,19 +12,21 @@
           <p>{{ site.data.global.footer-join-descrip }}</p>
         </div>
       </div>
-      <div class="row">
-        {% for item in site.data.global.footer-join-social %}
-        <div class="col-sm-6">
+      <div class="row text-center">
+        <div class="col-sm-8 col-sm-offset-2">
+
           <ul class="list-unstyled mt-30 pb-20">
-            <li><i class="fab fa-{{ item.i }} fa-3x pb-30"></i>
-            </li>
+            <li><i class="fab fa-{{ site.data.global.footer-join-i }} fa-3x pb-30"></i></li>
+            {% for item in site.data.global.footer-join-social %}
             <li><strong>{{ item.p }}</strong></li>
             <li><a href="{{ item.link }}" {% if item.external == true  %}target="_blank"
-                {% endif %}>{{ item.link-text }}</a></li>
+              {% endif %}>{{ item.link-text }}</a></li>
+            {% endfor %}
+
           </ul>
         </div>
-        {% endfor %}
       </div>
+
     </div>
   </section>
   <section class="footer-dark pt-60">

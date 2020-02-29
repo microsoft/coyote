@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <PropertyGroup>
+    <Description>The Coyote framework core libraries and runtime.</Description>
+    <AssemblyName>Microsoft.Coyote</AssemblyName>
+    <RootNamespace>Microsoft.Coyote</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>coyote;state-machines;asynchronous;event-driven;dotnet;csharp</PackageTags>
+    <OutputPath>..\..\bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
+    <TargetFrameworks>netstandard2.0;net46;net47</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)'=='UNIX'">
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net46'">
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
+  </ItemGroup>
+</Project>

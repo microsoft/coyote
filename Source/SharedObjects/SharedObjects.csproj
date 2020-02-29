@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <PropertyGroup>
+    <Description>The Coyote shared objects library.</Description>
+    <AssemblyName>Microsoft.Coyote.SharedObjects</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.SharedObjects</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>asynchronous;event-driven;state-machines;systematic-testing;dotnet;csharp</PackageTags>
+    <OutputPath>..\..\bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
+    <TargetFrameworks>netstandard2.0;net46;net47</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)'=='UNIX'">
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TestingServices\TestingServices.csproj" />
+  </ItemGroup>
+</Project>

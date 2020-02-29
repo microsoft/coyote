@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
+  <PropertyGroup>
+    <Description>The Coyote framework testing services.</Description>
+    <AssemblyName>Microsoft.Coyote.TestingServices</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.TestingServices</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>coyote;state-machines;testing</PackageTags>
+    <OutputPath>..\..\bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
+    <TargetFrameworks>netstandard2.0;net46;net47</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)'=='UNIX'">
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+</Project>

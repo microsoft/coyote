@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.Coyote</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <description>Coyote is a framework for building reliable asynchronous software.</description>
+    <projectUrl>https://microsoft.github.io/coyote/</projectUrl>
+    <repository type="git" url="https://github.com/microsoft/coyote"/>
+    <license type="expression">MIT</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>asynchrony reliability actors state-machines tasks specifications testing</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6" />
+      <group targetFramework=".NETFramework4.7" />
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETCoreApp2.2" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- .NET Standard 2.0 -->
+    <file src="..\..\bin\netstandard2.0\*.dll" target="lib\netstandard2.0" />
+    <file src="..\..\bin\netstandard2.0\*.mdb" target="lib\netstandard2.0" />
+    <file src="..\..\bin\netstandard2.0\*.xml" target="lib\netstandard2.0" />
+    <!-- .NET Core 2.1 -->
+    <file src="..\..\bin\netcoreapp2.2\*.dll" target="lib\netcoreapp2.2" />
+    <file src="..\..\bin\netcoreapp2.2\*.mdb" target="lib\netcoreapp2.2" />
+    <file src="..\..\bin\netcoreapp2.2\*.xml" target="lib\netcoreapp2.2" />
+    <file src="..\..\bin\netcoreapp2.2\*.runtimeconfig.json" target="lib\netcoreapp2.2" />
+    <!-- .NET Framework 4.7 -->
+    <file src="..\..\bin\net47\*.dll" target="lib\net47" />
+    <file src="..\..\bin\net47\*.mdb" target="lib\net47" />
+    <file src="..\..\bin\net47\*.xml" target="lib\net47" />
+    <file src="..\..\bin\net47\*.exe" target="lib\net47" />
+    <file src="..\..\bin\net47\*.exe.config" target="lib\net47" />
+    <!-- .NET Framework 4.6 -->
+    <file src="..\..\bin\net46\*.dll" target="lib\net46" />
+    <file src="..\..\bin\net46\*.mdb" target="lib\net46" />
+    <file src="..\..\bin\net46\*.xml" target="lib\net46" />
+    <file src="..\..\bin\net46\*.exe" target="lib\net46" />
+    <file src="..\..\bin\net46\*.exe.config" target="lib\net46" />
+  </files>
+</package>

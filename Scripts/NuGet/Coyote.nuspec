@@ -10,6 +10,7 @@
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <icon>images\icon.png</icon>
     <tags>asynchrony reliability actors state-machines tasks specifications testing</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.6" />
@@ -40,5 +41,7 @@
     <file src="..\..\bin\net46\*.xml" target="lib\net46" />
     <file src="..\..\bin\net46\*.exe" target="lib\net46" />
     <file src="..\..\bin\net46\*.exe.config" target="lib\net46" />
+    <!-- Assets -->
+    <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>
 </package>

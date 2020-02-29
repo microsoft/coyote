@@ -1,0 +1,19 @@
+- name: Install Coyote
+  link:  /learn/get-started/install
+  section: install
+- name: Learn
+  link:  /learn/overview/what-is-coyote
+  section: learn
+- name: Case studies
+  link:  /case-studies/azure-batch-service
+  section: case-studies
+- name: About
+  link:  /about
+  section: about
+- name: Contact us
+  link:  /contact-us
+  section: contact-us
+- name: GitHub
+  link: https://github.com/microsoft/coyote/
+  external: true
+  section: github

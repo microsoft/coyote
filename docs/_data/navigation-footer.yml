@@ -1,0 +1,27 @@
+# Footer navigation
+dark:
+- title: Coyote
+  subfolderitems:
+    - name: About
+      link: /about
+    - name: Contact us
+      link: /contact-us
+- title: Resources
+  subfolderitems:
+    - name: Overview
+      link: /learn/overview/what-is-coyote
+    - name: Install
+      link: /learn/get-started/install
+    - name: Getting started
+      link: /learn/get-started/using-coyote
+    - name: Get involved
+      link: /contact-us/
+- title: Join community
+  subfolderitems:
+    - name: GitHub
+      link: https://github.com/microsoft/coyote/
+      external: true
+
+footnote:
+- name: Privacy
+  link: https://privacy.microsoft.com/en-us/privacystatement/

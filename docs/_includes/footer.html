@@ -1,0 +1,64 @@
+<footer>
+  <section class="footer-join pt-40 pb-80">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-sm-8 col-sm-offset-2">
+          <h1>{{ site.data.global.footer-join }}</h1>
+          <p>{{ site.data.global.footer-join-descrip }}</p>
+        </div>
+      </div>
+      <div class="row">
+        {% for item in site.data.global.footer-join-social %}
+        <div class="col-sm-6">
+          <ul class="list-unstyled mt-30 pb-20">
+            <li><i class="fab fa-{{ item.i }} fa-3x pb-30"></i>
+            </li>
+            <li><strong>{{ item.p }}</strong></li>
+            <li><a href="{{ item.link }}" {% if item.external == true  %}target="_blank"
+                {% endif %}>{{ item.link-text }}</a></li>
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  <section class="footer-dark pt-60">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="hidden-xs col-sm-5 col-md-6">
+          <a href="{{ site.baseurl }}/" title="homepage" class="logo-footer">
+            {% include logo-mark.svg %}
+          </a>
+        </div>
+        {% for item in site.data.navigation-footer.dark %}
+        <div class="col-sm-2 col-xs-4 footer-dark-col">
+          <nav class="navbar navbar-footer">
+            <h4>{{ item.title }}</h4>
+            <ul class="list-unstyled">
+              {% for entry in item.subfolderitems %}
+              <li><a href="{{ entry.link   | relative_url  }}" {% if entry.external == true  %}target="_blank"
+                  {% endif %}>{{ entry.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </nav>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row footnote pt-50 pb-20">
+        <div class="col-sm-12">
+          <hr>
+        </div>
+        <div class="col-sm-6">
+          <ul class="list-unstyled list-inline footnote-legal">
+            {% for item in site.data.navigation-footer.footnote %}
+            <li><a href="{{ item.link   | relative_url  }}">{{ item.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-sm-6 text-right footnote-copy">
+          <p>&copy; {{ "now" | date: "%Y" }} Microsoft</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>

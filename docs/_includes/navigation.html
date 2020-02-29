@@ -1,0 +1,33 @@
+<nav class="navbar navbar-default navbar-fixed-top mb-0">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" id="open_nav" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+        aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      {% if page.section == "home" %}
+      <a class="brand-home" href="{{site.baseurl}}/" title="Homepage">
+        <span>Fearless coding for reliable asynchronous software
+        </span>
+      </a>
+      {% endif %}
+      <a class="navbar-brand" href="{{site.baseurl}}/" title="Homepage"></a>
+
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <a href="javascript:void(0)" class="closebtn" data-toggle="collapse" data-target="#navbar">&times;</a>
+      <a class="navbar-brand-menu" href="{{site.baseurl}}/" title="Homepage"></a>
+      <ul class="nav navbar-nav navbar-right">
+        {% for item in site.data.navigation %}
+        <li class="{% if {{page.section}} == {{item.section}} %}active {% endif %} ">
+          <a {% if item.external == true  %}target="_blank" {% endif %}
+            href="{{ item.link  | relative_url }}">{{ item.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</nav>

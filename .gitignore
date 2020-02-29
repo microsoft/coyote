@@ -341,3 +341,6 @@ _site
 .jekyll-cache/
 .jekyll-metadata
 Gemfile.lock
+
+# Website
+docs/assets/images/Thumbs.db

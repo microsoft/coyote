@@ -1,0 +1,52 @@
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.2.min.js"></script>
+    <script>
+        window.jQuery || document.write('<script src="/coyote/assets/js/vendor/jquery-1.11.2.min.js"><\/script>')
+
+    </script>
+    <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.4.1/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="{{ "/assets/js/main.js" | relative_url }}"></script>
+    <script src="{{ "/assets/js/plugins.js" | relative_url }}"></script>
+    <script src="{{ "/assets/js/vendor/simple-jekyll-search.min.js" | relative_url }}"></script>
+
+
+    {% if page.section == "case-studies" or page.section == "learn" %}
+    <script type="text/javascript">
+        SimpleJekyllSearch({
+            searchInput: document.getElementById('search-input'),
+            resultsContainer: document.getElementById('results-container'),
+            json: '{{ "/assets/data/search.json" | relative_url }}',
+            searchResultTemplate: '<div class="search-title"><a href="{url}"><h3> {title}</h3></a></div><p>{excerpt}</p></div><hr> ',
+            noResultsText: 'No results found',
+            limit: 10,
+            fuzzy: false,
+            exclude: []
+        })
+    </script>
+    {% endif %}
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149429280-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-149429280-1');
+
+    $(document).ready(function() {
+        $('h1,h2,h3,h4,h5,h6').filter('[id]').each(function () {
+            $(this).html('<a class="a-unstyled" href="#'+$(this).attr('id')+'">' + $(this).text() + '</a>');
+        });
+
+        $('table').each(function() {
+            $(this).addClass("table");
+            $(this).addClass("table-bordered");
+            $(this).addClass("table-striped");
+            $(this).addClass("table-condensed");
+        });
+
+    });
+    </script>
+
+
+    <script src="{{ "/assets/js/vendor/ie10-viewport-bug-workaround.js" | relative_url }}"></script>

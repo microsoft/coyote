@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="299.21666666666681" height="195.69976621497847" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="299.21666666666681" height="195.69976621497847" fill="#FFFFFF" />
+  <g transform="translate(20,15.6719554426335)">
+    <g id="CoffeeMachine-&gt;MockSensors">
+      <path d="M 68.988623762581,97.8800000000001 L 114.8757294596,129.014636149418" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 122.323240871488,134.067810772345 L 116.29408357958,125.143167230475 C 115.624347922256,127.911301125434 114.127110996944,130.117971173401 111.802372803645,131.763177374376 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="CoffeeMachine1-&gt;MockSensors">
+      <path d="M 194.195121117496,101.9 L 163.453847767637,128.215118617439" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 156.616743516574,134.067810772345 L 166.814722531046,130.603532489589 C 164.320913272067,129.22802295093 162.586782263206,127.202214283949 161.612329504464,124.526106488644 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="FailoverDriver-&gt;">
+      <path d="M 125.326097802078,30.2880445573665 L 75.0864593916411,66.6437642959724" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 67.7952772655696,71.9200000000001 L 78.2415843852169,69.2980412737789 C 75.8681239403859,67.7239394257608 74.3047948428962,65.5635891661841 73.5515970927478,62.8169904950487 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="101.37877541997671" y="63.036167121352044" fill="#A0A0A0">Halt</text>
+    </g>
+    <g id="FailoverDriver-&gt;CoffeeMachine1">
+      <path d="M 155.243120753976,30.2880445573665 L 191.274134906758,69.3263983892178" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 197.378254313671,75.9400000000001 L 193.535277910782,65.8786118071693 C 192.253927737985,68.4220844030084 190.294342075531,70.2307123754272 187.65652092342,71.3044957244257 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="174.72831707720752" y="45.440750493978051" fill="#A0A0A0">Run</text>
+    </g>
+    <g id="CoffeeMachine">
+      <rect y="71.9200000000001" rx="3" ry="3" width="99.7166666666667" height="25.96" fill="#D25C5C" stroke="#A5A6A9" stroke-width="1" />
+      <text x="10" y="89.8700000000001" fill="white">CoffeeMachine</text>
+    </g>
+    <g id="CoffeeMachine1">
+      <rect x="159.5" y="75.9400000000001" rx="3" ry="3" width="99.7166666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="169.5" y="93.8900000000001" fill="#3D3D3D">CoffeeMachine</text>
+    </g>
+    <g id="FailoverDriver">
+      <rect x="97.1197084009808" y="4.32804455736654" rx="3" ry="3" width="92.2866666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="107.1197084009808" y="22.278044557366542" fill="#3D3D3D">FailoverDriver</text>
+    </g>
+    <g id="MockSensors">
+      <rect x="96.3818646340693" y="134.067810772345" rx="3" ry="3" width="90.1433333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="106.3818646340693" y="152.017810772345" fill="#3D3D3D">MockSensors</text>
+    </g>
+  </g>
+</svg>

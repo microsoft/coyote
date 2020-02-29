@@ -1,0 +1,20 @@
+id: carousel_home
+items:
+- title: Confident coding
+  img: /assets/images/slider-1.png
+  link: /coyote/learn/get-started/install
+  p:
+  - Add safety and liveness properties directly in your C# code.
+  - Coyote allows you to express your high-level design directly in your code, dramatically simplifying addition of new features.
+- title: Intelligent testing
+  img: /assets/images/slider-2.png
+  link: /coyote/learn/get-started/install
+  p:
+  - Find deep bugs automatically with Coyote's intelligent testing.
+  - Coyote reproduces nondeterministic bugs and lets you replay them with Visual Studio's debugger.
+- title: Production-proven
+  img: /assets/images/slider-3.png
+  link: /coyote/learn/get-started/install
+  p:
+  - Deploy with peace of mind. Coyote has been thoroughly battle-tested.
+  - Coyote is used in production by a growing number of Azure services, surfacing serious bugs and increasing uptime.

@@ -33,10 +33,11 @@ namespace Microsoft.Coyote.Actors
             new ConcurrentDictionary<Type, Dictionary<Type, MethodInfo>>();
 
         /// <summary>
-        /// Checks if the actor type declaration is cached.
+        /// A set of lockable objects used to protect static initialization of the ActionCache while
+        /// also enabling multithreaded initialization of different Actor types.
         /// </summary>
-        private static readonly ConcurrentDictionary<Type, bool> IsTypeDeclarationCached =
-            new ConcurrentDictionary<Type, bool>();
+        private static readonly ConcurrentDictionary<Type, object> ActionCacheLocks =
+            new ConcurrentDictionary<Type, object>();
 
         /// <summary>
         /// A cached array that contains a single event type.
@@ -755,53 +756,52 @@ namespace Microsoft.Coyote.Actors
         internal virtual void SetupEventHandlers()
         {
             Type actorType = this.GetType();
-            if (IsTypeDeclarationCached.TryAdd(actorType, false))
+            if (!ActionCache.ContainsKey(actorType))
             {
-                // Events with already declared handlers.
-                var handledEvents = new HashSet<Type>();
+                // If this type has not already been setup in the ActionCache, then we need to try and grab the ActionCacheLock
+                // for this type.  First make sure we have one and only one lockable object for this type.
+                object syncObject = ActionCacheLocks.GetOrAdd(actorType, new object());
 
-                // Map containing all action bindings.
-                var actionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
-                var doAttributes = this.GetType().GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
-                    as OnEventDoActionAttribute[];
-
-                foreach (var attr in doAttributes)
+                // Locking this syncObject ensures only one thread enters the initialization code to update
+                // the ActionCache for this specific Actor type.
+                lock (syncObject)
                 {
-                    this.Assert(!handledEvents.Contains(attr.Event),
-                        "{0} declared multiple handlers for event '{1}'.",
-                        this.Id, attr.Event);
-                    actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
-                    handledEvents.Add(attr.Event);
-                }
-
-                // Caches the action declarations for this actor type.
-                if (ActionCache.TryAdd(actorType, new Dictionary<Type, MethodInfo>()))
-                {
-                    foreach (var action in actionBindings)
+                    if (ActionCache.ContainsKey(actorType))
                     {
-                        if (!ActionCache[actorType].ContainsKey(action.Key))
-                        {
-                            ActionCache[actorType].Add(
-                                action.Key,
-                                this.GetActionWithName(action.Value.Name));
-                        }
+                        // Note: even if we won the TryAdd, there is a tiny window of opportunity for another thread
+                        // to slip in and lock the syncObject before us, so we have to check the ActionCache again
+                        // here just in case.
                     }
-                }
-
-                // This actor type has been cached.
-                lock (IsTypeDeclarationCached)
-                {
-                    IsTypeDeclarationCached[actorType] = true;
-                    System.Threading.Monitor.PulseAll(IsTypeDeclarationCached);
-                }
-            }
-            else if (!IsTypeDeclarationCached[actorType])
-            {
-                lock (IsTypeDeclarationCached)
-                {
-                    while (!IsTypeDeclarationCached[actorType])
+                    else
                     {
-                        System.Threading.Monitor.Wait(IsTypeDeclarationCached);
+                        // Events with already declared handlers.
+                        var handledEvents = new HashSet<Type>();
+
+                        // Map containing all action bindings.
+                        var actionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
+                        var doAttributes = this.GetType().GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
+                            as OnEventDoActionAttribute[];
+
+                        foreach (var attr in doAttributes)
+                        {
+                            this.Assert(!handledEvents.Contains(attr.Event),
+                                "{0} declared multiple handlers for event '{1}'.",
+                                this.Id, attr.Event);
+                            actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
+                            handledEvents.Add(attr.Event);
+                        }
+
+                        var map = new Dictionary<Type, MethodInfo>();
+                        foreach (var action in actionBindings)
+                        {
+                            if (!map.ContainsKey(action.Key))
+                            {
+                                map.Add(action.Key, this.GetActionWithName(action.Value.Name));
+                            }
+                        }
+
+                        // Caches the action declarations for this actor type.
+                        ActionCache.TryAdd(actorType, map);
                     }
                 }
             }

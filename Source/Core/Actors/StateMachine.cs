@@ -32,10 +32,11 @@ namespace Microsoft.Coyote.Actors
             new ConcurrentDictionary<Type, Dictionary<string, MethodInfo>>();
 
         /// <summary>
-        /// Checks if the state machine type declaration is cached.
+        /// A set of lockable objects used to protect static initialization of the ActionCache while
+        /// also enabling multithreaded initialization of different StateMachine types.
         /// </summary>
-        private static readonly ConcurrentDictionary<Type, bool> IsTypeDeclarationCached =
-            new ConcurrentDictionary<Type, bool>();
+        private static readonly ConcurrentDictionary<Type, object> ActionCacheLocks =
+            new ConcurrentDictionary<Type, object>();
 
         /// <summary>
         /// Cache of state machine types to a set of all possible states types.
@@ -801,138 +802,131 @@ namespace Microsoft.Coyote.Actors
             base.SetupEventHandlers();
 
             Type stateMachineType = this.GetType();
-            if (IsTypeDeclarationCached.TryAdd(stateMachineType, false))
+            if (!ActionCache.ContainsKey(stateMachineType))
             {
-                // Caches the available state types for this state machine type.
-                if (StateTypeCache.TryAdd(stateMachineType, new HashSet<Type>()))
-                {
-                    Type baseType = stateMachineType;
-                    while (baseType != typeof(StateMachine))
-                    {
-                        foreach (var s in baseType.GetNestedTypes(BindingFlags.Instance |
-                            BindingFlags.NonPublic | BindingFlags.Public |
-                            BindingFlags.DeclaredOnly))
-                        {
-                            this.ExtractStateTypes(s);
-                        }
+                // If this type has not already been setup in the ActionCache, then we need to try and grab the ActionCacheLock
+                // for this type.  First make sure we have one and only one lockable object for this type.
+                object syncObject = ActionCacheLocks.GetOrAdd(stateMachineType, new object());
 
-                        baseType = baseType.BaseType;
+                // Locking this syncObject ensures only one thread enters the initialization code to update
+                // the ActionCache for this specific Actor type.
+                lock (syncObject)
+                {
+                    if (ActionCache.ContainsKey(stateMachineType))
+                    {
+                        // Note: even if we won the TryAdd, there is a tiny window of opportunity for another thread
+                        // to slip in and lock the syncObject before us, so we have to check the ActionCache again
+                        // here just in case.
                     }
-                }
-
-                // Caches the available state instances for this state machine type.
-                if (StateInstanceCache.TryAdd(stateMachineType, new HashSet<State>()))
-                {
-                    foreach (var type in StateTypeCache[stateMachineType])
+                    else
                     {
-                        Type stateType = type;
-                        if (type.IsAbstract)
+                        // Caches the available state types for this state machine type.
+                        if (StateTypeCache.TryAdd(stateMachineType, new HashSet<Type>()))
                         {
-                            continue;
-                        }
-
-                        if (type.IsGenericType)
-                        {
-                            // If the state type is generic (only possible if inherited by a generic state
-                            // machine declaration), then iterate through the base state machine classes to
-                            // identify the runtime generic type, and use it to instantiate the runtime state
-                            // type. This type can be then used to create the state constructor.
-                            Type declaringType = this.GetType();
-                            while (!declaringType.IsGenericType ||
-                                !type.DeclaringType.FullName.Equals(declaringType.FullName.Substring(
-                                0, declaringType.FullName.IndexOf('['))))
+                            Type baseType = stateMachineType;
+                            while (baseType != typeof(StateMachine))
                             {
-                                declaringType = declaringType.BaseType;
-                            }
-
-                            if (declaringType.IsGenericType)
-                            {
-                                stateType = type.MakeGenericType(declaringType.GetGenericArguments());
-                            }
-                        }
-
-                        ConstructorInfo constructor = stateType.GetConstructor(Type.EmptyTypes);
-                        var lambda = Expression.Lambda<Func<State>>(
-                            Expression.New(constructor)).Compile();
-                        State state = lambda();
-
-                        try
-                        {
-                            state.InitializeState();
-                        }
-                        catch (InvalidOperationException ex)
-                        {
-                            this.Assert(false, "{0} {1} in state '{2}'.", this.Id, ex.Message, state);
-                        }
-
-                        StateInstanceCache[stateMachineType].Add(state);
-                    }
-                }
-
-                // Caches the action declarations for this state machine type.
-                if (ActionCache.TryAdd(stateMachineType, new Dictionary<string, MethodInfo>()))
-                {
-                    foreach (var state in StateInstanceCache[stateMachineType])
-                    {
-                        if (state.EntryAction != null &&
-                            !ActionCache[stateMachineType].ContainsKey(state.EntryAction))
-                        {
-                            ActionCache[stateMachineType].Add(
-                                state.EntryAction,
-                                this.GetActionWithName(state.EntryAction));
-                        }
-
-                        if (state.ExitAction != null &&
-                            !ActionCache[stateMachineType].ContainsKey(state.ExitAction))
-                        {
-                            ActionCache[stateMachineType].Add(
-                                state.ExitAction,
-                                this.GetActionWithName(state.ExitAction));
-                        }
-
-                        foreach (var handler in state.InheritableEventHandlers.Values)
-                        {
-                            if (handler is ActionEventHandlerDeclaration action)
-                            {
-                                if (!ActionCache[stateMachineType].ContainsKey(action.Name))
+                                foreach (var s in baseType.GetNestedTypes(BindingFlags.Instance |
+                                    BindingFlags.NonPublic | BindingFlags.Public |
+                                    BindingFlags.DeclaredOnly))
                                 {
-                                    ActionCache[stateMachineType].Add(
-                                        action.Name,
-                                        this.GetActionWithName(action.Name));
+                                    this.ExtractStateTypes(s);
+                                }
+
+                                baseType = baseType.BaseType;
+                            }
+                        }
+
+                        // Caches the available state instances for this state machine type.
+                        if (StateInstanceCache.TryAdd(stateMachineType, new HashSet<State>()))
+                        {
+                            foreach (var type in StateTypeCache[stateMachineType])
+                            {
+                                Type stateType = type;
+                                if (type.IsAbstract)
+                                {
+                                    continue;
+                                }
+
+                                if (type.IsGenericType)
+                                {
+                                    // If the state type is generic (only possible if inherited by a generic state
+                                    // machine declaration), then iterate through the base state machine classes to
+                                    // identify the runtime generic type, and use it to instantiate the runtime state
+                                    // type. This type can be then used to create the state constructor.
+                                    Type declaringType = this.GetType();
+                                    while (!declaringType.IsGenericType ||
+                                        !type.DeclaringType.FullName.Equals(declaringType.FullName.Substring(
+                                        0, declaringType.FullName.IndexOf('['))))
+                                    {
+                                        declaringType = declaringType.BaseType;
+                                    }
+
+                                    if (declaringType.IsGenericType)
+                                    {
+                                        stateType = type.MakeGenericType(declaringType.GetGenericArguments());
+                                    }
+                                }
+
+                                ConstructorInfo constructor = stateType.GetConstructor(Type.EmptyTypes);
+                                var lambda = Expression.Lambda<Func<State>>(
+                                    Expression.New(constructor)).Compile();
+                                State state = lambda();
+
+                                try
+                                {
+                                    state.InitializeState();
+                                }
+                                catch (InvalidOperationException ex)
+                                {
+                                    this.Assert(false, "{0} {1} in state '{2}'.", this.Id, ex.Message, state);
+                                }
+
+                                StateInstanceCache[stateMachineType].Add(state);
+                            }
+                        }
+
+                        // Caches the action declarations for this state machine type.
+                        var map = new Dictionary<string, MethodInfo>();
+                        foreach (var state in StateInstanceCache[stateMachineType])
+                        {
+                            if (state.EntryAction != null &&
+                                !map.ContainsKey(state.EntryAction))
+                            {
+                                map.Add(state.EntryAction, this.GetActionWithName(state.EntryAction));
+                            }
+
+                            if (state.ExitAction != null &&
+                                !map.ContainsKey(state.ExitAction))
+                            {
+                                map.Add(state.ExitAction, this.GetActionWithName(state.ExitAction));
+                            }
+
+                            foreach (var handler in state.InheritableEventHandlers.Values)
+                            {
+                                if (handler is ActionEventHandlerDeclaration action)
+                                {
+                                    if (!map.ContainsKey(action.Name))
+                                    {
+                                        map.Add(action.Name, this.GetActionWithName(action.Name));
+                                    }
+                                }
+                            }
+
+                            foreach (var handler in state.EventHandlers.Values)
+                            {
+                                if (handler is GotoStateTransition transition)
+                                {
+                                    if (transition.Lambda != null &&
+                                        !map.ContainsKey(transition.Lambda))
+                                    {
+                                        map.Add(transition.Lambda, this.GetActionWithName(transition.Lambda));
+                                    }
                                 }
                             }
                         }
 
-                        foreach (var handler in state.EventHandlers.Values)
-                        {
-                            if (handler is GotoStateTransition transition)
-                            {
-                                if (transition.Lambda != null &&
-                                    !ActionCache[stateMachineType].ContainsKey(transition.Lambda))
-                                {
-                                    ActionCache[stateMachineType].Add(
-                                        transition.Lambda,
-                                        this.GetActionWithName(transition.Lambda));
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // This state machine type has been cached.
-                lock (IsTypeDeclarationCached)
-                {
-                    IsTypeDeclarationCached[stateMachineType] = true;
-                    System.Threading.Monitor.PulseAll(IsTypeDeclarationCached);
-                }
-            }
-            else if (!IsTypeDeclarationCached[stateMachineType])
-            {
-                lock (IsTypeDeclarationCached)
-                {
-                    while (!IsTypeDeclarationCached[stateMachineType])
-                    {
-                        System.Threading.Monitor.Wait(IsTypeDeclarationCached);
+                        ActionCache.TryAdd(stateMachineType, map);
                     }
                 }
             }

@@ -282,10 +282,10 @@ p {
 
 .navmenu-fixed-left a::before {
   content: '';
-  display: inline-block;
-  position: absolute;
-  left: -10px;
-  width: 2px;
+  //display: inline-block;
+  margin-left: -7px;
+  float: left;
+  width: 4px;
   height: 14px;
   margin-top: 5px;
 }
@@ -307,16 +307,18 @@ p {
     text-overflow: ellipsis;
   }
 
-  li a:before {
-    /*Using a Bootstrap glyphicon as the bullet point*/
-    content: "\e080";
-    font-family: 'Glyphicons Halflings';
-    font-size: 9px;
-    float: left;
-    margin-left: -7px;
-    color: #ccc;
-    background: none;
-  }
+  // puts a little ">" icon next to the list item, problem is this implies expandability
+  // but not all items are expandable, so this is confusing.
+  // li a:before {
+  //   /*Using a Bootstrap glyphicon as the bullet point*/
+  //   content: "\e080";
+  //   font-family: 'Glyphicons Halflings';
+  //   font-size: 9px;
+  //   float: left;
+  //   margin-left: -10px;
+  //   color: #ccc;
+  //   background: none;
+  // }
 
   li a.active:before {
     color: $brand-color;
@@ -434,17 +436,27 @@ p {
 
 //reference v1
 .navmenu-fixed-left-wrapper {
-  background-color: $learn-gray;
-  max-width: 300px;
-  position: fixed;
 
-  @include screen(lg) {
-    width: 27%;
+  max-width: 300px;
+  background-color: $learn-gray;
+
+  // Fixed position if we are not on small screen.
+  @include screen(lg, min) {
+    width: 300px;
+    position: fixed;
+    z-index: 300;
   }
 
-  @include screen(md) {
+  @media (min-width: $breakpoint-sm) and (max-width: $breakpoint-lg) {
+    width: 27%;
+    position: fixed;
+    z-index: 300;
+  }
+
+  @include screen(sm, max) {
     width: 100%;
     max-width: none;
+    position: relative;
   }
 
   .navmenu-fixed-left {
@@ -458,13 +470,23 @@ p {
 }
 
 .reference-content {
-  margin-left: 300px;
-  @include screen(lg) {
-    width: 73%;
+  z-index: 0;
+
+  @include screen(lg, min) {
+    width: 100%;
+    margin-left: 300px;
+    padding-left: 0px;
   }
 
-  @include screen(md) {
+  @media (min-width: $breakpoint-sm) and (max-width: $breakpoint-lg) {
     width: 100%;
+    margin-left: 27%;
+  }
+
+  @include screen(sm) {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 0px;
   }
 }
 
@@ -479,21 +501,7 @@ p {
   padding-left: 34px;
 }
 
-#results-container {
-  padding: 0;
-}
-
-
 // reference v2
-
-
-// .reference footer {
-//   height: 900px;
-//   position: fixed;
-//   bottom: 0;
-//   width: 100%;
-//   z-index: 0;
-// }
 
 .container-reference {
   height: 100%;
@@ -517,23 +525,26 @@ p {
 }
 
 .nav-left-wrapper {
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   padding-left: 20px;
   padding-right: 20px;
-  // max-height: 90vh;
   position: sticky;
   top: 0;
 }
 
+// provide space at bottom of TOC so last entry is not slammed right at the bottom.
 .nav-left-wrapper:after {
   content: "";
-  background: linear-gradient(0deg, rgba(234, 234, 234, 1) 0%, rgba(255, 255, 255, 0) 100%);
   height: 70px;
-  width: 300px;
+  width: 30px;
   position: sticky;
   bottom: 0;
   display: block;
+
+  @include screen(md) {
+    height: 10px;
+  }
 }
 
 .nav-left-wrapper .list-unstyled li {
@@ -601,9 +612,7 @@ p {
 
 #results-container {
   padding: 0;
-}
-.reference-content {
-  padding-left: 30px;
+  overflow: hidden;
 }
 
 // reference mobile styles
@@ -629,13 +638,6 @@ p {
   }
 }
 
-.reference-content {
-  @include screen(md) {
-    width: 100%;
-    padding-top: 30px;
-
-  }
-}
 .search-wrapper {
   @include screen(md) {
     position: relative;
@@ -644,20 +646,26 @@ p {
 }
 
 .reference footer {
-  @include screen(md) {
-    position: relative;
-    height: auto;
+  z-index: 0;
 
+  @include screen(lg, min) {
+    // width: 100%;
+    margin-left: 300px;
+  }
+
+  @media (min-width: $breakpoint-sm) and (max-width: $breakpoint-lg) { // 480px to 992px
+    width: 73%;
+    margin-left: 27%;
+  }
+
+  @include screen(sm) {
+    width: 100%;
+    margin-left: 0;
   }
 }
 /*
  end reference section
 */
-
-
-
-
-
 
 //footer navigation
 footer {
@@ -679,6 +687,10 @@ footer {
 .footer-join {
   background-color: $light-gray;
   color: $dark-gray;
+
+  .container-fluid {
+    max-width: 992px;
+  }
 
   h1 {
     font-weight: 300;
@@ -708,10 +720,6 @@ footer {
   @include screen(md) {
     text-align: left;
   }
-}
-
-.reference-footer {
-    margin-left: 300px;
 }
 
 .footer-dark {
@@ -1176,7 +1184,6 @@ article .btn:first-of-type {
   align-items: stretch;
 }
 
-
 .container-fluid-no-gutters,
 .no-gutters {
   padding-right: 0;
@@ -1186,7 +1193,6 @@ article .btn:first-of-type {
     overflow: hidden;
   }
 }
-
 
 /*
  * End helpers

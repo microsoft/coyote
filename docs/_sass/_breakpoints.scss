@@ -1,18 +1,18 @@
 //bootstrap defaults
 
 
-/* phones -- */ 
+/* phones -- */
 $breakpoint-xs: 320px;
-/* phones ++ */ 
-$breakpoint-sm: 480px;
+/* phones ++ */
+$breakpoint-sm: 640px;
 
-/* tablets */ 
+/* tablets */
 $breakpoint-md: 768px;
 
-/* desktop */ 
+/* desktop */
 $breakpoint-lg: 992px;
 
-/* biggie */ 
+/* biggie */
 $breakpoint-xl: 1200px;
 
 @mixin screen($size, $type: max, $pixels: $breakpoint-xs) {
@@ -40,7 +40,7 @@ $breakpoint-xl: 1200px;
     @media screen and ($type + -width: $breakpoint-xl) {
         @content;
     }
-  }    
+  }
   @else if $size == 'custom' {
     @media screen and ($type + -width: $pixels + px) {
      @content;

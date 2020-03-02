@@ -7,8 +7,8 @@ layout: null
       {
         "title"    : "{{ post.title | escape }}",
         "url"      : "{{ post.url | relative_url }}",
-        "content"  : {{ post.content | markdownify | truncate: '2000' | strip_html | strip_newlines | escape | jsonify }},
-        "excerpt"  : {{ post.content | markdownify | truncate: '150' | strip_html | strip_newlines | escape | jsonify }}
+        "content"  : {{ post.content | markdownify | strip_html | truncate: '2000' | strip_newlines | escape | jsonify }},
+        "excerpt"  : {{ post.content | markdownify | strip_html | truncate: '150' | strip_newlines | escape | jsonify }}
       } {% unless forloop.last %},{% endunless %}
    {% endfor %}
    ,
@@ -17,8 +17,8 @@ layout: null
        {% if page.title != nil %}
           "title"    : "{{ page.title | escape }}",
           "url"      : "{{ page.url | relative_url }}",
-          "content"  : {{ post.content | markdownify | truncate: '8000' | strip_html | strip_newlines | escape | jsonify }},
-          "excerpt"  : {{ post.content | markdownify | truncate: '150' | strip_html | strip_newlines | escape | jsonify }}
+          "content"  : {{ post.content | markdownify | strip_html | truncate: '8000' | strip_newlines | escape | jsonify }},
+          "excerpt"  : {{ post.content | markdownify | strip_html | truncate: '150' | strip_newlines | escape | jsonify }}
        {% endif %}
      } {% unless forloop.last %},{% endunless %}
    {% endfor %}

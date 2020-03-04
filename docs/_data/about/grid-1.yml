@@ -5,30 +5,33 @@ row-1:
   content: |
     <h2>Origin story</h2>
 
-    <p>Grounded on years of experience in formal methods and software engineering at Microsoft Research, Coyote's inspiration springs from
-    recognizing the ironic absence of tooling for developing concurrent systems.
-    </p>
+    <p>Grounded on years of experience in formal methods and software engineering at Microsoft
+    Research, Coyote's inspiration springs from recognizing the ironic absence of tooling for
+    developing concurrent systems.</p>
 
-    <p>Despite concurrency being a fundamental paradigm of computer science (all layers of a computer system are concurrent, starting from
-    the hardware to the operating system, to applications, distributed systems, and cloud) not much attention has previously been given to
-    the problem of testing these systems for correctness. Current practices dictate that unit tests be deterministic, often leading to the
-    oblique art of stress testing to weed out bugs.
-    </p>
+    <p>Despite concurrency being a fundamental paradigm of computer science (all layers of a
+    computer system are concurrent, starting from the hardware to the operating system, to
+    applications, distributed systems, and cloud) not much attention has previously been given to
+    the problem of testing these systems for correctness. Current practices dictate that unit tests
+    be deterministic, often leading to the oblique art of stress testing to weed out bugs.</p>
 
-    <p>Our initial thinking was to simply build tools focused on testing, but we quickly realized any technique focused only on testing
-    would have severely limited value: Developers want to write elegant, correct, and performant code on the first go&mdash;they don't want to
-    be tracing buggy interleavings late into the wee hours.
-    </p>
+    <p>Our initial thinking was to simply build tools focused on testing, but we quickly realized
+    any technique focused only on testing would have severely limited value: developers want to
+    write elegant, correct, and performant code on the first go&mdash;they don't want to be tracing
+    buggy interleavings late into the wee hours.</p>
 
-    <p>With this broader vision, Coyote's programming models marry design, implementation, and testing for remarkable productivity.
-    Coyote is an evolution of Microsoft Research's P# project that got us started on this journey, building over years of research in
-    concurrency design and implementation bugs.</p>
+    <p>With this broader vision, Coyote's programming models marry design, implementation, and
+    testing for remarkable productivity. Coyote is an evolution of Microsoft Research's P# project
+    that got us started on this journey, building over years of research in concurrency design and
+    implementation bugs.</p>
 
-    <p>From the moment various Azure teams began using our framework, we've been receiving enthusiastic feedback. What started as one
-    service using Coyote has now expanded to more than ten and growing.
-    </p>
+    <p>From the moment various Azure teams began using our framework, we've been
+    receiving enthusiastic feedback. What started as one service using Coyote has now expanded to
+    more than ten and growing. </p>
 
-    <p>We would love to make you a part of our story&mdash;<a href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a> today.</p>
+    <p>We would love to make you a part of our story&mdash;<a
+    href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a>
+    today.</p>
 row-2:
 - img: /coyote/assets/images/about-vision.jpg
   title: Vision
@@ -36,10 +39,11 @@ row-2:
   id2: about_figure_2b
   content: |
     <h2>Vision</h2>
-    <p>
-      With Coyote we envision a future where developing software with any form of concurrency is as natural as developing sequential code. We want to demystify concurrency issues, be it with design, testing, or debugging—be it with single-box systems or large distributed systems.
-    </p>
+    
+    <p>With Coyote we envision a future where developing software with any form of concurrency is as
+    natural as developing sequential code. We want to demystify concurrency issues, be it with
+    design, testing, or debugging—be it with single-box systems or large distributed systems.</p>
 
-    <p>
-      Through rapid design–implement–test cycles, Coyote empowers developers with a quantum leap in productivity. The technology provides programming frameworks that reduce the gap between design and implementation and offers unmatched testing capabilities for weeding out bugs early.
-    </p>
+    <p>Through rapid design–implement–test cycles, Coyote empowers developers with a quantum leap in
+    productivity. The technology provides programming frameworks that reduce the gap between design
+    and implementation and offers unmatched testing capabilities for weeding out bugs early.</p>

@@ -16,8 +16,6 @@ learn-toc:
       link: /learn/get-started/install
     - name: Using Coyote
       link: /learn/get-started/using-coyote
-    - name: Upgrading from P#
-      link: /learn/get-started/upgrade
 - title: Core concepts
   subfolderitems:
     - name: Program non-determinism

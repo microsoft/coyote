@@ -7,7 +7,7 @@ permalink: /learn/advanced/object-sharing
 
 ## Sharing objects
 
-This feature is currently only available in the [actors programming model](../programming-models/actors/overview.md).
+This feature is currently only available in the [actors programming model](../programming-models/actors/overview).
 
 A Coyote program is expected to be free of low-level data races. This means that two
 different actors

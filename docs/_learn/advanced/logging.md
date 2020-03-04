@@ -22,7 +22,7 @@ and/or `System.IO.TextWriter` in order to gain full control over what is logged 
 For an interesting example of this see the `ActorRuntimeLogGraphBuilder` class
 which implements `IActorRuntimeLog` and generates a directed graph representing
 all activities that happened during the execution of your actors.
-See [activity coverage](../tools/coverage.md) for an example graph output.
+See [activity coverage](../tools/coverage) for an example graph output.
 The `coyote` tester uses this when you specify `--graph` or `--coverage activity`
 command line options.
 
@@ -110,7 +110,7 @@ The current `TextWriter` can be accessed via the `Logger` property on the follow
 TextWriter Logger { get; }
 ```
 
-It is possible to replace the default logger with a custom one.  The following example captures all log output in a `StringBuilder`:
+It is possible to replace the default logger with a custom one. The following example captures all log output in a `StringBuilder`:
 
 ```c#
     public class CustomLogger : TextWriter

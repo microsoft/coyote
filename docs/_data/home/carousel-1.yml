@@ -11,7 +11,7 @@ items:
   link: /coyote/learn/get-started/install
   p:
   - Find deep bugs automatically with Coyote's intelligent testing.
-  - Coyote reproduces nondeterministic bugs and lets you replay them with Visual Studio's debugger.
+  - Coyote reproduces nondeterministic bugs and lets you replay them with a debugger.
 - title: Production-proven
   img: /assets/images/slider-3.png
   link: /coyote/learn/get-started/install

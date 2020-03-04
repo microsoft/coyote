@@ -7,10 +7,10 @@ permalink: /learn/programming-models/actors/unit-testing
 
 ## Unit-testing actors in isolation
 
-The `ActorTestKit` API provides the capability to _unit-test_ a single actor _sequentially_ and
-in _isolation_ from other actors, or the external environment. This is orthogonal from using the
-[Coyote tester](../tools/testing.md) for end-to-end testing of a program. You will get the
-most value out of the Coyote framework if you use both actor-unit-tests and Coyote tests.
+The `ActorTestKit` API provides the capability to _unit-test_ a single actor _sequentially_ and in
+_isolation_ from other actors, or the external environment. This is orthogonal from using the
+[Coyote tester](../tools/testing) for end-to-end testing of a program. You will get the most
+value out of the Coyote framework if you use both actor-unit-tests and Coyote tests.
 
 Let's discuss how to use `ActorTestKit` by going through some simple examples.
 
@@ -39,8 +39,8 @@ To unit-test the above logic, first import the `Microsoft.Coyote.TestingServices
 using Microsoft.Coyote.TestingServices;
 ```
 
-Next, create a new `ActorTestKit` instance for the actor `M` in your test method, as seen below.
-You can pass an optional `Configuration` (e.g. if you want to enable verbosity).
+Next, create a new `ActorTestKit` instance for the actor `M` in your test method, as seen below. You
+can pass an optional `Configuration` (e.g. if you want to enable verbosity).
 
 ```c#
 public void Test()
@@ -49,30 +49,30 @@ public void Test()
 }
 ```
 
-When `ActorTestKit<M>` is instantiated, it creates an instance of the actor `M`, which executes in
-a special runtime that provides isolation. The internals of the actor (e.g. the queue) are properly
+When `ActorTestKit<M>` is instantiated, it creates an instance of the actor `M`, which executes in a
+special runtime that provides isolation. The internals of the actor (e.g. the queue) are properly
 initialized, as if the actor was executing in production. However, if the actor is trying to create
-other actors, it will get a _dummy_ `ActorId`, and if the actor tries to send an event to a
-actor other than itself, that event will be dropped. Talking to external APIs (e.g. network or
-storage) will require mocking (as is the case in regular unit-testing).
+other actors, it will get a _dummy_ `ActorId`, and if the actor tries to send an event to an actor
+other than itself, that event will be dropped. Talking to external APIs (e.g. network or storage)
+will require mocking (as is the case in regular unit-testing).
 
-The `ActorTestKit` provides two APIs that allow someone to asynchronously (but sequentially) interact
-with the actor via its inbox, and thus test how the actor transitions to different states and
-handles events. These two APIs are `StartActorAsync(Event initialEvent = null)` and
+The `ActorTestKit` provides two APIs that allow someone to asynchronously (but sequentially)
+interact with the actor via its inbox, and thus test how the actor transitions to different states
+and handles events. These two APIs are `StartActorAsync(Event initialEvent = null)` and
 `SendEventAsync(Event e)`.
 
-The `StartActorAsync` method initializes the Actor, passing the optional
-specified event (`initialEvent`) and since it is a `StateMachine` in this example it
-also transitions the machine to its `Start` state, and invokes its `OnEntry` handler, if there is one available. This
-method returns a task that completes when the actor reaches quiescence (typically when the event
-handler finishes executing because there are not more events to dequeue, or when the actor
-asynchronously waits to receive an event). This method should only be called in the beginning of the
-unit-test, since an actor can only be initialized once.
+The `StartActorAsync` method initializes the Actor, passing the optional specified event
+(`initialEvent`) and since it is a `StateMachine` in this example it also transitions the machine to
+its `Start` state, and invokes its `OnEntry` handler, if there is one available. This method returns
+a task that completes when the actor reaches quiescence (typically when the event handler finishes
+executing because there are not more events to dequeue, or when the actor asynchronously waits to
+receive an event). This method should only be called in the beginning of the unit-test, since an
+actor can only be initialized once.
 
 The `SendEventAsync` method sends an event to the actor and starts its event handler. Similar to
 `StartActorAsync`, this method returns a task that completes when the actor reaches quiescence
-(typically when the event handler finishes executing because there are not more events to dequeue, or
-when the actor asynchronously waits to receive an event).
+(typically when the event handler finishes executing because there are not more events to dequeue,
+or when the actor asynchronously waits to receive an event).
 
 The `ActorTestKit<M>` also provides `Assert`, which is a generic assertion that you can use for
 checking correctness, as well as several other specialized assertions, e.g. for asserting state
@@ -95,16 +95,16 @@ public async Task Test()
 ```
 
 The above unit-test creates a new instance of the machine `M`, then transitions the machine to its
-`Start` state using `StartActorAsync`, and then asserts that the machine is asynchronously waiting to
-receive an event of type `E` by invoking the `AssertIsWaitingToReceiveEvent(true)` assertion. Next, the
-test is sending the expected event `E` using `SendEventAsync`, and finally asserts that the machine is
-not waiting any event, by calling `AssertIsWaitingToReceiveEvent(false)`, and that its inbox is empty,
-by calling `AssertInboxSize(0)`.
+`Start` state using `StartActorAsync`, and then asserts that the machine is asynchronously waiting
+to receive an event of type `E` by invoking the `AssertIsWaitingToReceiveEvent(true)` assertion.
+Next, the test is sending the expected event `E` using `SendEventAsync`, and finally asserts that
+the machine is not waiting any event, by calling `AssertIsWaitingToReceiveEvent(false)`, and that
+its inbox is empty, by calling `AssertInboxSize(0)`.
 
 Besides providing the capability to drive the execution of an actor via the `StartActorAsync` and
 `SendEventAsync` APIs, the `ActorTestKit` also allows someone to directly call actor methods. Let's
-see how this can be done in a simple example. Say that you have the following state machine `M`, which has a
-method `Add(int m, int k)` that takes two integers, adds them, and returns the result:
+see how this can be done in a simple example. Say that you have the following state machine `M`,
+which has a method `Add(int m, int k)` that takes two integers, adds them, and returns the result:
 
 ```c#
 class M : StateMachine
@@ -119,8 +119,8 @@ class M : StateMachine
 }
 ```
 
-To unit-test the above `Add` method, the `ActorTestKit<M>` instance gives you access to the
-actor reference through the `ActorTestKit.ActorInstance` property. You can then use this reference to
+To unit-test the above `Add` method, the `ActorTestKit<M>` instance gives you access to the actor
+reference through the `ActorTestKit.ActorInstance` property. You can then use this reference to
 directly invoke methods of the actor, as seen below.
 
 ```c#
@@ -133,12 +133,12 @@ public void Test()
 ```
 
 Note that directly calling methods only works if these methods are declared as `public` or
-`internal`. This is typically not recommended for actors, since the only way
-to interact with them should be by sending messages. However, it can be very useful to unit-test
-private methods, and for this reason the `ActorTestKit` provides the `Invoke` and
-`InvokeAsync` APIs, which accept the name of the method (and, optionally, parameter types for
-distinguishing overloaded methods), as well as the parameters to invoke the method, if any. The
-following example shows how to use these APIs to invoke private methods:
+`internal`. This is typically not recommended for actors, since the only way to interact with them
+should be by sending messages. However, it can be very useful to unit-test private methods, and for
+this reason the `ActorTestKit` provides the `Invoke` and `InvokeAsync` APIs, which accept the name
+of the method (and, optionally, parameter types for distinguishing overloaded methods), as well as
+the parameters to invoke the method, if any. The following example shows how to use these APIs to
+invoke private methods:
 
 ```c#
 class M : StateMachine

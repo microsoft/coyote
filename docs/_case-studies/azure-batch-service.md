@@ -17,7 +17,7 @@ of thousands of VMs on Azure.
 
 Integrating scheduling with virtual machine (VM) management, Azure Batch Service supports
 auto-scaling the number of VMs created, spinning up or down according to the needs of the job.
-This differs from many other schedulers—like Yarn or Mesos, for example—that must be installed
+This differs from many other schedulers&mdash;like Yarn or Mesos, for example&mdash;that must be installed
 on a pre-created set of VMs.
 
 ## Challenge
@@ -34,7 +34,7 @@ microservice be able to:
 
 Coding three of their core microservices with Coyote, the team used Coyote's state machines
 programming model for fully asynchronous, non-blocking computation. The team also wrote
-detailed functional specifications—as well as models of external services—to allow for
+detailed functional specifications&mdash;as well as models of external services&mdash;to allow for
 exhaustive testing of concurrent behaviors and failures. These services totalled to more than
 100,000 lines of code.
 

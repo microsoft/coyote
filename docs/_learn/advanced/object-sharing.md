@@ -18,11 +18,11 @@ have to be performed on the object. An exception to this rule is when using
 
 ## Microsoft.Coyote.SharedObjects
 
-Coyote provides multiple shared data structures that help simplify the development of
-a Coyote program. Instances of these data structures can be shared freely and accessed
-by multiple actors, even when performing write operations. There is a simple API
-for creating these shared objects. Currently three kinds of shared objects are available:
-`SharedCounter`, `SharedRegister<T>` and `SharedDictionary`.
+Coyote provides multiple shared data structures that help simplify the development of a Coyote
+program. Instances of these data structures can be shared freely and accessed by multiple actors,
+even when performing write operations. There is a simple API for creating these shared objects.
+Currently three kinds of shared objects are available: `SharedCounter`, `SharedRegister<T>` and
+`SharedDictionary`.
 
 The following code snippet creates and initializes a `SharedRegister`. It then sends the register to a
 different actor `m` by stashing it as part of the payload of an event.

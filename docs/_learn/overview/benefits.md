@@ -17,7 +17,7 @@ software development.
 Coyote allows you to develop with confidence! That confidence comes from having your code changes be
 backed by powerful testing. This has allowed teams to move at a faster pace, often finishing
 features in a fraction of the time compared to developing with legacy techniques where the
-uncertainity of vetting corner-cases (especially with concurrency, failures, etc.) weighs you down
+uncertainty of vetting corner-cases (especially with concurrency, failures, etc.) weighs you down
 heavily. The confidence also results in better performant code because Coyote helps you validate
 even highly-concurrent designs.
 

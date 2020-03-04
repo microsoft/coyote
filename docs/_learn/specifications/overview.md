@@ -22,10 +22,10 @@ programming model, you should use `Specification.Assert` and in the actors progr
 corresponding API is `IActorRuntime.Assert`. In addition, Coyote also provides a way to specify
 _global_ assertions that can describe the relationship across tasks or actors.
 
-Coyote provides the notion of a `Monitor`. It is a special kind of actor (to be more precise, a
-state machine) that can receive events but cannot send events to other actors. It some sense, it can
-only observe the execution of a program but not influence it: a desirable property when writing
-specifications in code. Monitors are declared as follows:
+Coyote provides the notion of a `Monitor`. It is a special kind of actor that can receive events but
+cannot send events to other actors. So it can only observe the execution of a program but not
+influence it: a desirable property when writing specifications in code. Monitors are declared as
+follows:
 
 ```c#
 class GlobalSpec : Monitor { ... }

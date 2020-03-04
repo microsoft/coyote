@@ -41,12 +41,17 @@ function handle_resize()
     var height = window.outerHeight;
     var width = window.outerWidth;
     var wrapper = $(".nav-left-wrapper");
+    if (!wrapper.length)
+    {
+        wrapper = $(".navbar-case-studies");
+    }
     if (wrapper.length)
     {
         if (width >= 640) {
             var search_top = $(".search-wrapper").offset().top;
+            var search_offset = search_top - window.scrollY;
             var top = wrapper.offset().top;
-            var search_height = 50 + top - search_top;
+            var search_height = search_offset + top - search_top;
             var scroller_height = height - search_height;
             wrapper.height(scroller_height);
         } else {
@@ -66,7 +71,9 @@ $(document).ready(function () {
         if (permalink.length){
             // ok we have one, so time to synchronize the expand/collapse state on the TOC.
             var li = $("li").find("[permalink='" + permalink + "']");
-            expand_nav(li);
+            if (li.length) {
+                expand_nav(li);
+            }
         }
     });
 });

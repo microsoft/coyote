@@ -14,7 +14,7 @@ component, or network. Systems designers usually provide failover capability in 
 networks requiring near-continuous availability and a high degree of reliability."
 
 This sample applies the failover concept to the firmware of an automated espresso machine using the
-Coyote [asynchronous tasks](.../programming-models/async/overview) programming model. Imagine what
+Coyote [asynchronous tasks](../programming-models/async/overview) programming model. Imagine what
 would happen if the tiny CPU running the machine rebooted in the middle of making a coffee. What
 bad things might happen? Can we design a code that can handle this scenario and provide a more fault
 tolerant coffee machine?

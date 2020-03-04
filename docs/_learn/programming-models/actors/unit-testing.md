@@ -9,7 +9,7 @@ permalink: /learn/programming-models/actors/unit-testing
 
 The `ActorTestKit` API provides the capability to _unit-test_ a single actor _sequentially_ and in
 _isolation_ from other actors, or the external environment. This is orthogonal from using the
-[Coyote tester](../tools/testing) for end-to-end testing of a program. You will get the most
+[Coyote tester](../../tools/testing) for end-to-end testing of a program. You will get the most
 value out of the Coyote framework if you use both actor-unit-tests and Coyote tests.
 
 Let's discuss how to use `ActorTestKit` by going through some simple examples.
@@ -51,7 +51,7 @@ public void Test()
 
 When `ActorTestKit<M>` is instantiated, it creates an instance of the actor `M`, which executes in a
 special runtime that provides isolation. The internals of the actor (e.g. the queue) are properly
-initialized, as if the actor was executing in production. However, if the actor is trying to create
+initialized, as if the actor were executing in production. However, if the actor is trying to create
 other actors, it will get a _dummy_ `ActorId`, and if the actor tries to send an event to an actor
 other than itself, that event will be dropped. Talking to external APIs (e.g. network or storage)
 will require mocking (as is the case in regular unit-testing).

@@ -18,7 +18,7 @@ our readers be successful in using Coyote. Try to follow them unless there's a g
 ## How to use this guide
 
 This guide specifies style and format for contributors to use when developing tutorials for
-Microsoft Research. Be warm and relaxed, crisp and clear, and ready to lend a hand to your readers.
+Coyote. Be warm and relaxed, crisp and clear, and ready to lend a hand to your readers.
 The following sections offer guidance on structure, style, and formatting. Additional resources for
 word choice and other topics can be found in the [Microsoft Writing
 Guide](https://docs.microsoft.com/en-us/style-guide/welcome/).
@@ -37,7 +37,7 @@ When writing tutorials, keep some basic guidelines in mind.
 - Use: To protect the processor from damage caused by overheating, Raspbian throttles the processor
   speed during heavy loads.
 
-**Be clear and concise—not hip or clever.** Avoid idioms, colloquial expressions, and
+**Be clear and concise&mdash;not hip or clever.** Avoid idioms, colloquial expressions, and
 culture-specific references.
 
 - Instead of: Down the road, Coyote will grow.
@@ -58,13 +58,13 @@ These basic guidelines will get you started creating clear and useful content.
 
 **Use present-tense verbs.** Present-tense verbs indicate the action is happening now, like _is_ and
 _open_. Avoid _will, was,_ and verbs ending in _–ed,_ which indicate that text isn't in the present
-tense. .
+tense:
 
 - **Instead of:** The predict function will return an array.
 - **Use:** The predict function returns an array.
 
 **Be direct.** Write simple statements of fact (called the indicative mood) or use direct commands
-(called imperative mood) for procedures and instructions.
+(called imperative mood) for procedures and instructions:
 
 - **Instead of:** Next, we will copy the file to the Raspberry Pi. OR You should copy the files to
   your Raspberry Pi.
@@ -73,13 +73,13 @@ tense. .
 - **Use:** After the process terminates, restart your computer.
 
 **Use active voice** (where the subject performs the action). In passive voice, the receiver of the
-action is the subject.
+action is the subject:
 
 - Active example: The predict function returns an array.
 - Passive example: An array is returned by the predict function.
 
 **Speak to the reader.** Use second person most of the time. Second person often uses the pronoun
-_you_, as though you're speaking to the reader.
+_you_, as though you're speaking to the reader:
 
 - Instead of: Next, we'll create a directory for this tutorial anywhere on your computer.
 - Use: Next, you'll learn how to create a directory for this tutorial on your computer.
@@ -93,7 +93,7 @@ _you_, as though you're speaking to the reader.
 - Use title-style capitalization for product and service names, book and song titles, article titles
   in citations, names of blogs, and titles of people (Vice President, for example). This typically
   means capitalizing the first and last word of a title, and using lower case for articles,
-  prepositions, and conjuctions.
+  prepositions, and conjunctions.
 - In programming languages, follow the traditional capitalization of keywords and other special
   terms.
 - Don't use all uppercase for emphasis.
@@ -115,7 +115,7 @@ Make sure you have the following materials before you begin this tutorial:
 - Raspberry Pi camera or USB webcam.
 
 - Include commas after items in a series, including before the second-to-last item, even when a
-  conjuction (such as *and*) is used. Example: networks, storage, and virtual machines
+  conjunction (such as *and*) is used. Example: networks, storage, and virtual machines
 
 - Don't use a slash (/) to indicate a choice or as a substitute for or.
 
@@ -168,9 +168,10 @@ Code blocks are part of the markdown spec, but syntax highlighting isn't. Howeve
 Choose simple, precise words that you use in conversations.
 
 - Use common contractions, such as that's and don't. They're friendly and conversational. [Learn
-  more](https://worldready.cloudapp.net/Styleguide/Read?id=2700&amp;topicid=26899).
+  more](https://docs.microsoft.com/en-us/style-guide/word-choice/use-contractions).
 - Avoid words with more than one meaning. [Learn
-  more](https://worldready.cloudapp.net/Styleguide/Read?id=2700&amp;topicid=25512).
+  more](https://docs.microsoft.com/en-us/style-guide/word-choice/use-simple-words-concise-sentences).
+
 
 Refer to this list to understand which common terms to use and when. (List to be updated regularly.)
 

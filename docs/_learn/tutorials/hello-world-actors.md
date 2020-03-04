@@ -342,9 +342,11 @@ World!" greeting and then call the `RequestGreeting()` method which, as its name
 `GreetingProducedEvent` that contains the language and greeting as selected from one of 53
 languages. However, the `Server` must not return a greeting in English, if it does so it is a bug.
 
-Note that that the console has limited capability for displaying UTF-8 characters. Thus greetings in
-some non-Latin alphabets might be displayed incorrectly. In order to see all greetings displayed
-correctly, you can redirect the output to a file and then view it with your favorite editor / tool.
+Note that your Console window may have a limited ability to display some UTF-8 characters depending
+on your default Operating System language setting. For example, greetings in some non-Latin
+alphabets might be displayed incorrectly on a system not setup for that. In order to see all
+greetings displayed correctly, you can redirect the output to a file and then view it with your
+favorite text editor that supports UTF-8 with automatic font substitution, like Visual Studio Code.
 
 Here is the code for the `HandleGreeting()` method which is invoked when a `GreetingProducedEvent`
 is received in the `Active` state:
@@ -387,7 +389,7 @@ safety properties. In this case, the assertion will check whether the value of `
 is "English"  or not, and if it is, in production it will throw an exception, or during testing it
 will report an error together with a reproducible trace.
 
-Definitely, this Assertion will fire sometimes because calling
+Definitely, this `Assert` will fire sometimes because calling
 `this.RandomInteger(Translations.LanguagesCount)` in the `Server` must produce a random integer in
 the interval [0, `Translations.LanguagesCount`). A value of `0` for the index will cause English to
 be selected as the language. Despite having this assertion here on purpose, imagine if in a real
@@ -487,8 +489,8 @@ The intent is that the code must be testable with the Coyote tester. This is don
 `Execute()` method and the only thing the `Main()` method does is to call this `async Execute()`
 method and await its execution.
 
-It is a rule in Coyote that for any executable to be testable with the Tester, it must contain a
-static method which must have a specific, predefined signature, such as one of these:
+It is a rule in Coyote that for any executable to be testable with the `coyote test` tool, it must
+contain a static method which must have a specific, predefined signature, such as one of these:
 
 ```c#
 [Microsoft.Coyote.TestingServices.TestAttribute]

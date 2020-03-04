@@ -11,7 +11,7 @@ The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/master/Clo
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
 machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows the Coyote
-[systematic testing process](/learn/core/systematic-testing) in action on this application.
+[systematic testing process](/coyote/learn/core/systematic-testing) in action on this application.
 
 This example is organized into the following projects:
 - **Raft** - a .NET core C# class library that implements the [Raft Consensus
@@ -126,7 +126,7 @@ runtime.SendEvent(clusterManager, new ClientRequestEvent(command));
 This goes to all servers in the cluster via the Azure Service Bus. The servers then implement their
 Raft voting protocol to figure out which server will handle the request. Eventually a response
 comes back over the Azure Service Bus which is received by a C# event call back `ResponseReceived`
-on the `AzureMessageReceiver`. For this example, we setup an `CancellationTokenSource` which the
+on the `AzureMessageReceiver`. For this example, we setup a `CancellationTokenSource` which the
 sample code waits on before kicking off the next `ClientRequestEvent`.
 
 The `Server` setup is performed by `RunServer` which delegates to the `AzureServer` class. This

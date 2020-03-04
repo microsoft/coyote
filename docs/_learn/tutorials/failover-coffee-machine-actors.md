@@ -30,7 +30,7 @@ reliable software.
 The `CoffeeMachine` is modeled as an asynchronous [state
 machine](../programming-models/actors/state-machines). This example is not providing real firmware,
 instead it `mocks` the hardware sensor platform built into the machine. This is done in the
-`MockSensors` state machine. This state machine provides async ways of reading sensor values like
+`MockSensors` actor. This actor provides async ways of reading sensor values like
 Water Temperature and setting things like the power button, or turning on and off the coffee grinder
 and so on.
 

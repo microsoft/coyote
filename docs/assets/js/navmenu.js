@@ -38,20 +38,19 @@ function expand_nav(item)
 
 function handle_resize()
 {
-    var height = window.innerHeight;
-    var width = window.innerWidth;
-    var wrapper = $(".navmenu-fixed-left-wrapper");
-    if (wrapper.length && width >= 640)
+    var height = window.outerHeight;
+    var width = window.outerWidth;
+    var wrapper = $(".nav-left-wrapper");
+    if (wrapper.length)
     {
-        var wrapper = $(".nav-left-wrapper")
-        if (wrapper.length) {
+        if (width >= 640) {
             var search_top = $(".search-wrapper").offset().top;
-            var top = $(".nav-left-wrapper").offset().top;
-            var search_height = 110 + top - search_top;
-            var scroller_height = height - search_height
-            $(".nav-left-wrapper").height(scroller_height)
+            var top = wrapper.offset().top;
+            var search_height = 50 + top - search_top;
+            var scroller_height = height - search_height;
+            wrapper.height(scroller_height);
         } else {
-            $(".navmenu").height(height);
+            wrapper.height("auto");
         }
     }
 }

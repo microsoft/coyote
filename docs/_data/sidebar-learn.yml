@@ -41,6 +41,8 @@ learn-toc:
           link: /learn/programming-models/async/async-lock
         - name: Controlled semaphore
           link: /learn/programming-models/async/semaphore
+        - name: Improving coverage of fine-grained interleavings
+          link: /learn/programming-models/async/interleavings
     - name: Asynchronous actors
       link: /learn/programming-models/actors/overview
       subfolderitems:
@@ -115,6 +117,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy
         - name: WithPCTStrategy
           link: /learn/ref/Microsoft.Coyote/Configuration/WithPCTStrategy
+        - name: WithReplayStrategy
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithReplayStrategy
         - name: WithTestingIterations
           link: /learn/ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithMaxSchedulingSteps

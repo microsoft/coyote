@@ -21,6 +21,8 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/WithProbabilisticStrategy
         - name: WithPCTStrategy
           link: /learn/ref/Microsoft.Coyote/Configuration/WithPCTStrategy
+        - name: WithReplayStrategy
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithReplayStrategy
         - name: WithTestingIterations
           link: /learn/ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithMaxSchedulingSteps

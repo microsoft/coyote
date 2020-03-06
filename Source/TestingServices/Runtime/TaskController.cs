@@ -39,7 +39,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask ScheduleAction(Action action, Task predecessor, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
@@ -98,7 +100,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask ScheduleFunction(Func<ControlledTask> function, Task predecessor, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
@@ -155,7 +159,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask<TResult> ScheduleFunction<TResult>(Func<ControlledTask<TResult>> function, Task predecessor,
             CancellationToken cancellationToken)
         {
@@ -213,7 +219,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask<TResult> ScheduleDelegate<TResult>(Delegate work, Task predecessor, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
@@ -286,7 +294,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
@@ -301,7 +311,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public void ScheduleTaskAwaiterContinuation(Task task, Action continuation)
         {
             try
@@ -333,7 +345,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public void ScheduleYieldAwaiterContinuation(Action continuation)
         {
             try
@@ -352,7 +366,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask WhenAllTasksCompleteAsync(IEnumerable<ControlledTask> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -389,7 +405,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -413,7 +431,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask<ControlledTask> WhenAnyTaskCompletesAsync(IEnumerable<ControlledTask> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -439,7 +459,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public ControlledTask<ControlledTask<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -482,7 +504,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public int WaitAnyTaskCompletes(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
@@ -533,7 +557,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public void OnAsyncControlledTaskMethodBuilderStart(Type stateMachineType)
         {
             try
@@ -548,7 +574,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public void OnAsyncControlledTaskMethodBuilderTask()
         {
             if (!this.Scheduler.IsRunning)
@@ -560,23 +588,36 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public void OnAsyncControlledTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType)
         {
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp.IsAwaiterControlled, "Controlled task '{0}' is trying to wait for an uncontrolled " +
-                "task or awaiter to complete. Please make sure to use Coyote APIs to express concurrency " +
-                "(e.g. ControlledTask instead of Task).",
-                Task.CurrentId);
-            this.Assert(awaiterType.Namespace == typeof(ControlledTask).Namespace,
-                "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency (e.g. ControlledTask instead of Task).",
-                Task.CurrentId);
+            if (!callerOp.IsAwaiterControlled)
+            {
+                this.Assert(false, "Controlled task '{0}' is trying to wait for an uncontrolled " +
+                    "task or awaiter to complete. Please make sure to use Coyote APIs to express concurrency " +
+                    "(e.g. ControlledTask instead of Task).",
+                    Task.CurrentId);
+            }
+
+            bool sameNamespace = awaiterType.Namespace == typeof(ControlledTask).Namespace;
+            if (!sameNamespace)
+            {
+                this.Assert(false,
+                    "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
+                    "Please make sure to use Coyote APIs to express concurrency (e.g. ControlledTask instead of Task).",
+                    Task.CurrentId);
+            }
+
             callerOp.SetExecutingAsyncControlledTaskStateMachineType(stateMachineType);
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         public void OnGetControlledAwaiter()
         {
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
@@ -584,14 +625,18 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public void OnControlledYieldAwaiterGetResult()
         {
             this.Scheduler.ScheduleNextEnabledOperation();
         }
 
         /// <inheritdoc/>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         public void OnWaitTask(Task task)
         {
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
@@ -601,7 +646,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Callback invoked when the executing task is waiting for the task with the specified operation id to complete.
         /// </summary>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         internal void OnWaitTask(ulong operationId, Task task)
         {
             this.Assert(task != null, "Controlled task '{0}' is waiting for a null task to complete.", Task.CurrentId);
@@ -628,7 +675,9 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Checks if the assertion holds, and if not, triggers a failure.
         /// </summary>
+#if !DEBUG
         [DebuggerHidden]
+#endif
         private void Assert(bool predicate, string s, params object[] args)
         {
             if (!predicate)

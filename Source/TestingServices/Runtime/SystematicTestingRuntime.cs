@@ -1129,6 +1129,16 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                     this.CoverageInfo.DeclareStateEvent(name, tup.Item1, tup.Item2);
                 }
             }
+            else
+            {
+                var fakeStateName = actor.GetType().Name;
+                this.CoverageInfo.DeclareMachineState(name, fakeStateName);
+
+                foreach (var eventId in actor.GetAllRegisteredEvents())
+                {
+                    this.CoverageInfo.DeclareStateEvent(name, fakeStateName, eventId);
+                }
+            }
         }
 
         /// <summary>

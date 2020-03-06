@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="944b151a-5736-40d5-8851-dff5e6bb6c201" Category="Comment" Bounds="420.773333333333,97.6475,241.843333333333,41.92" Label="Start state where all events are deferred until we get the NotifyJoinedServiceEvent." />
+    <Node Id="AnyStateExceptInitCanHandleAppendLogEntriesResponseEvent" Category="Comment" Bounds="20,313.4075,241.42,57.88" Label="Any state except Init can handle AppendLogEntriesRequestEvents, sending back AppendLogEntriesResponseEvents" />
+    <Node Id="HandlesClientRequestEvent" Category="Comment" Bounds="165.381666666667,97.6475,224.626666666667,41.92" Label="Handles ClientRequestEvent and sends AppendLogEntriesRequestEvent" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server" Bounds="0,0,682.616666666667,391.2875" Group="Expanded" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Bounds="60.7866666666668,105.6275,73.8166666666666,25.96" Label="Candidate" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Bounds="206.266666666667,257.4475,64.8566666666667,25.96" Label="Follower" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Bounds="516.695,185.5275,50,25.96" Label="Init" />
+    <Node Id="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Bounds="210.92,185.5275,55.55,25.96" Label="Leader" />
+    <Node Id="SendsVoteRequestEvents" Category="Comment" Bounds="20,40,155.39,25.96" Label="Sends VoteRequestEvents" />
+    <Node Id="SendsVoteResponseEvents" Category="Comment" Bounds="291.42,313.4075,240.59,41.9200000000001" Label="Any state handles VoteRequestEvents and sends back VoteResponseEvents." />
+  </Nodes>
+  <Links>
+    <Link Source="944b151a-5736-40d5-8851-dff5e6bb6c201" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Bounds="541.695007324219,139.567504882813,0,36.9599914550781" />
+    <Link Source="HandlesClientRequestEvent" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Bounds="259.378509521484,139.567504882813,18.3164978027344,39.8478698730469" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="944b151a-5736-40d5-8851-dff5e6bb6c201" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="AnyStateExceptInitCanHandleAppendLogEntriesResponseEvent" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="HandlesClientRequestEvent" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="SendsVoteRequestEvents" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server" Target="SendsVoteResponseEvents" Category="Contains" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="goto" Bounds="104.640968322754,131.587493896484,97.3471450805664,122.131408691406" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="demoted" LabelBounds="119.575,190.5275,48.1199999999999,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Category="goto" Bounds="115.446739196777,131.587493896484,88.0293045043945,51.2664947509766" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="majority of votes" LabelBounds="157.788333333334,154.5675,88.9066666666663,15.9600000000003" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Category="goto" Bounds="72.6949996948242,139.410003662109,133.571662902832,123.992645263672" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="timeout" LabelBounds="31.2216666666668,190.5275,41.4733333333334,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Init" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Bounds="279.932861328125,205.370101928711,236.762145996094,56.4358062744141" EventId="Microsoft.Coyote.Samples.CloudMessaging.NotifyJoinedServiceEvent" HandledBy="Init" Label="NotifyJoinedServiceEvent" LabelBounds="277.551666666667,226.4875,133.143333333333,15.96" />
+    <Link Source="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower" Category="goto" Bounds="238.695007324219,211.487503051758,0,36.9599914550781" EventId="Microsoft.Coyote.Actors.GotoStateEvent" Label="demoted" LabelBounds="190.575,226.4875,48.1199999999999,15.96" />
+    <Link Source="SendsVoteRequestEvents" Target="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate" Bounds="97.6949996948242,65.9599990844727,0,30.6675033569336" />
+  </Links>
+  <Categories>
+    <Category Id="Comment" Label="Comment" Description="Represents a user defined comment on the diagram" CanBeDataDriven="True" IsProviderRoot="False" NavigationActionLabel="Comments" />
+    <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />
+    <Category Id="goto" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="CanLinkedNodesBeDataDriven" Label="CanLinkedNodesBeDataDriven" Description="CanLinkedNodesBeDataDriven" DataType="System.Boolean" />
+    <Property Id="EventId" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="Group" Label="Group" Description="Display the node as a group" DataType="Microsoft.VisualStudio.GraphModel.GraphGroupStyle" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="HandledBy" DataType="System.String" />
+    <Property Id="IncomingActionLabel" Label="IncomingActionLabel" Description="IncomingActionLabel" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsProviderRoot" Label="IsProviderRoot" Description="IsProviderRoot" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="NavigationActionLabel" Label="NavigationActionLabel" Description="NavigationActionLabel" DataType="System.String" />
+    <Property Id="OutgoingActionLabel" Label="OutgoingActionLabel" Description="OutgoingActionLabel" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Link" GroupLabel="halt" ValueLabel="True">
+      <Condition Expression="HasCategory('halt')" />
+      <Setter Property="Stroke" Value="#FFFF6C6C" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="push" ValueLabel="True">
+      <Condition Expression="HasCategory('push')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="pop" ValueLabel="True">
+      <Condition Expression="HasCategory('pop')" />
+      <Setter Property="Stroke" Value="#FF7380F5" />
+      <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Comment" ValueLabel="Has comment">
+      <Condition Expression="HasCategory('Comment')" />
+      <Setter Property="Background" Value="#FFFFFACD" />
+      <Setter Property="Stroke" Value="#FFE5C365" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="NodeRadius" Value="2" />
+      <Setter Property="MaxWidth" Value="250" />
+    </Style>
+  </Styles>
+</DirectedGraph>

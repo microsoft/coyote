@@ -574,7 +574,6 @@ Event coverage: 100.0%
             {
                 activityCoverageReporter.WriteCoverageText(writer);
                 result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
             }
 
             var expected = @"Total event coverage: 100.0%
@@ -593,8 +592,8 @@ Event coverage: 100.0%
 		Events received: E2
 		Previous states: Init
 
-StateMachine: Monitor1
-============================================================================================
+Monitor: Monitor1
+=======================================================================================
 Event coverage: 100.0%
 
 	State: Idle
@@ -618,6 +617,7 @@ Event coverage: 100.0%
 		Events sent: E1, E2
 ";
 
+            result = RemoveExcessiveEmptySpaceFromReport(result);
             expected = RemoveExcessiveEmptySpaceFromReport(expected);
             Assert.Equal(expected, result);
         }

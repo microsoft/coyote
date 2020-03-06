@@ -817,6 +817,15 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Returns the set of all registered events (for code coverage).
+        /// It does not include events that are deferred or ignored.
+        /// </summary>
+        internal HashSet<string> GetAllRegisteredEvents()
+        {
+            return new HashSet<string>(from key in this.ActionMap.Keys select key.FullName);
+        }
+
+        /// <summary>
         /// Returns the action with the specified name.
         /// </summary>
         private protected MethodInfo GetActionWithName(string actionName)

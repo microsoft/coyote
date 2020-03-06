@@ -103,7 +103,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public void OnCreateActor(ActorId id, ActorId creator)
         {
             var resolvedId = this.GetResolveActorId(id);
-            this.Graph.GetOrCreateNode(resolvedId);
+            GraphNode node = this.Graph.GetOrCreateNode(resolvedId);
+            node.Category = "Actor";
         }
 
         /// <inheritdoc/>
@@ -171,7 +172,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     {
                         // Yay, found it so we can draw the complete link connecting the Sender state to this state!
                         var source = this.GetOrCreateChild(info.ActorId, info.State);
-                        var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
+                        var target = this.GetOrCreateChild(id, stateName);
                         this.GetOrCreateEventLink(source, target, info);
                         inbox.RemoveAt(i);
                         break;
@@ -201,7 +202,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             if (isEntry)
             {
                 // record the fact we have entered this state
-                this.GetOrCreateChild(id, this.GetLabel(id, stateName));
+                this.GetOrCreateChild(id, stateName);
             }
         }
 
@@ -242,8 +243,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             }
 
             // Transition to the Halt state.
-            var source = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
-            var target = this.GetOrCreateChild(id, "Halt");
+            var source = this.GetOrCreateChild(id, stateName);
+            var target = this.GetOrCreateChild(id, "Halt", "Halt");
             this.GetOrCreateEventLink(source, target, new EventInfo() { Event = typeof(HaltEvent).FullName });
         }
 
@@ -321,7 +322,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         public void OnCreateMonitor(string monitorTypeName, ActorId id)
         {
             string resolvedId = this.GetResolveActorId(id);
-            this.Graph.GetOrCreateNode(resolvedId, monitorTypeName);
+            GraphNode node = this.Graph.GetOrCreateNode(resolvedId, monitorTypeName);
+            node.Category = "Monitor";
         }
 
         /// <inheritdoc/>
@@ -335,7 +337,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 inbox.RemoveAt(inbox.Count - 1);
                 // Draw the link connecting the Sender state to this state!
                 var source = this.GetOrCreateChild(e.ActorId, e.State);
-                var target = this.GetOrCreateChild(id, this.GetLabel(id, stateName));
+                var target = this.GetOrCreateChild(id, stateName);
                 this.GetOrCreateEventLink(source, target, e);
             }
         }
@@ -352,8 +354,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
             // Draw the link connecting the Sender state to this state!
             var source = this.GetOrCreateChild(senderId, senderStateName);
-            var shortStateName = this.GetLabel(id, stateName);
-            var target = this.GetOrCreateChild(id, shortStateName);
+            var target = this.GetOrCreateChild(id, stateName);
             this.GetOrCreateEventLink(source, target, info);
         }
 
@@ -381,10 +382,9 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     inbox.RemoveAt(inbox.Count - 1);
 
                     // draw the link connecting the current state to this new state!
-                    var shortStateName = this.GetLabel(id, info.State);
-                    var source = this.GetOrCreateChild(id, shortStateName);
+                    var source = this.GetOrCreateChild(id, info.State);
 
-                    shortStateName = this.GetLabel(id, stateName);
+                    var shortStateName = this.GetLabel(id, stateName);
                     string suffix = string.Empty;
                     if (isInHotState.HasValue)
                     {
@@ -392,7 +392,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                     }
 
                     string label = shortStateName + suffix;
-                    var target = this.GetOrCreateChild(id, shortStateName, label);
+                    var target = this.GetOrCreateChild(id, stateName, label);
                     target.Label = label;
                     this.GetOrCreateEventLink(source, target, info);
                 }
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 if (info.ActorId != actorId || info.State != currentStateName)
                 {
                     var source = this.GetOrCreateChild(info.ActorId, info.State);
-                    var target = this.GetOrCreateChild(actorId, this.GetLabel(actorId, currentStateName));
+                    var target = this.GetOrCreateChild(actorId, currentStateName);
                     this.Dequeued.HandlingState = handlingStateName;
                     var link = this.GetOrCreateEventLink(source, target, info);
                 }
@@ -485,8 +485,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             if (newStateName != null)
             {
                 // Then this is a goto or push and we can draw that link also.
-                var source = this.GetOrCreateChild(actorId, this.GetLabel(actorId, currentStateName));
-                var target = this.GetOrCreateChild(actorId, this.GetLabel(actorId, newStateName));
+                var source = this.GetOrCreateChild(actorId, currentStateName);
+                var target = this.GetOrCreateChild(actorId, newStateName);
                 EventInfo e = this.Dequeued;
                 if (e == null)
                 {
@@ -514,13 +514,16 @@ namespace Microsoft.Coyote.TestingServices.Coverage
         {
             this.AddNamespace(actorId);
 
+            // make label relative to fully qualified actor id (it's usually a nested class).
+            stateName = this.GetLabel(actorId, stateName);
+
             string id = this.GetResolveActorId(actorId);
             GraphNode parent = this.Graph.GetOrCreateNode(id);
             parent.AddAttribute("Group", "Expanded");
 
-            if (string.IsNullOrEmpty(stateName))
+            if (!string.IsNullOrEmpty(stateName) && parent.Category == "Actor")
             {
-                stateName = this.GetLabel(actorId, null);
+                parent.Category = "StateMachine";
             }
 
             if (label == null)
@@ -578,6 +581,12 @@ namespace Microsoft.Coyote.TestingServices.Coverage
 
         private string GetLabel(ActorId actorId, string fullyQualifiedName)
         {
+            if (actorId == null)
+            {
+                // external code
+                return fullyQualifiedName;
+            }
+
             this.AddNamespace(actorId);
             if (fullyQualifiedName == null)
             {
@@ -863,22 +872,30 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             {
                 writer.WriteLine(
 @"  <Styles>
+    <Style TargetType=""Node"" GroupLabel=""Actor"" ValueLabel=""True"">
+      <Condition Expression=""HasCategory('Actor')"" />
+      <Setter Property=""Background"" Value=""#FF57AC56"" />
+    </Style>
+    <Style TargetType=""Node"" GroupLabel=""Monitor"" ValueLabel=""True"">
+      <Condition Expression=""HasCategory('Monitor')"" />
+      <Setter Property=""Background"" Value=""#FF558FDA"" />
+    </Style>
     <Style TargetType=""Link"" GroupLabel=""halt"" ValueLabel=""True"">
-        <Condition Expression=""HasCategory('halt')"" />
-        <Setter Property=""Stroke"" Value=""#FFFF6C6C"" />
-        <Setter Property=""StrokeDashArray"" Value=""4 2"" />
+      <Condition Expression=""HasCategory('halt')"" />
+      <Setter Property=""Stroke"" Value=""#FFFF6C6C"" />
+      <Setter Property=""StrokeDashArray"" Value=""4 2"" />
     </Style>
     <Style TargetType=""Link"" GroupLabel=""push"" ValueLabel=""True"">
-        <Condition Expression=""HasCategory('push')"" />
-        <Setter Property=""Stroke"" Value=""#FF7380F5"" />
-        <Setter Property=""StrokeDashArray"" Value=""4 2"" />
+      <Condition Expression=""HasCategory('push')"" />
+      <Setter Property=""Stroke"" Value=""#FF7380F5"" />
+      <Setter Property=""StrokeDashArray"" Value=""4 2"" />
     </Style>
     <Style TargetType=""Link"" GroupLabel=""pop"" ValueLabel=""True"">
-        <Condition Expression=""HasCategory('pop')"" />
-        <Setter Property=""Stroke"" Value=""#FF7380F5"" />
-        <Setter Property=""StrokeDashArray"" Value=""4 2"" />
+      <Condition Expression=""HasCategory('pop')"" />
+      <Setter Property=""Stroke"" Value=""#FF7380F5"" />
+      <Setter Property=""StrokeDashArray"" Value=""4 2"" />
     </Style>
-</Styles>");
+  </Styles>");
             }
 
             writer.WriteLine("</DirectedGraph>");

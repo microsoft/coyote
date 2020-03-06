@@ -89,6 +89,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             var machines = new List<string>(this.CoverageInfo.Machines);
             machines.Sort();
 
+            var machineTypes = new Dictionary<string, string>();
+
             bool hasExternalSource = false;
             string externalSrcId = "ExternalCode";
 
@@ -100,6 +102,15 @@ namespace Microsoft.Coyote.TestingServices.Coverage
                 {
                     machines.Add(srcId);
                     hasExternalSource = true;
+                }
+            }
+
+            foreach (var node in this.CoverageInfo.CoverageGraph.Nodes)
+            {
+                string id = node.Id;
+                if (machines.Contains(id))
+                {
+                    machineTypes[id] = node.Category ?? "StateMachine";
                 }
             }
 
@@ -124,7 +135,8 @@ namespace Microsoft.Coyote.TestingServices.Coverage
             // Per-machine data.
             foreach (var machine in machines)
             {
-                WriteHeader(writer, string.Format("StateMachine: {0}", machine));
+                machineTypes.TryGetValue(machine, out string machineType);
+                WriteHeader(writer, string.Format("{0}: {1}", machineType, machine));
 
                 // find all possible events for this machine.
                 var uncoveredMachineEvents = new Dictionary<string, HashSet<string>>();

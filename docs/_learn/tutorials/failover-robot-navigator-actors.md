@@ -500,15 +500,8 @@ you'll see in the output of the tester that a DGML diagram has been produced:
 
 Open this with Visual Studio 2019 and you will see something like this:
 
-<div>
+<div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml">
 {% include DSR-Bug-01.svg %}
-
-<script language="javascript" src="/coyote/assets/js/animate_trace.js"></script>
-<script language="javascript" src="/coyote/assets/js/trace_model.js"></script>
-
-<script language="javascript">
-fetchTrace('/coyote/assets/data/DrinksServingRobot.trace.xml', convertTrace);
-</script>
 </div>
 
 This is the exact snapshot at the time when the bug manifested.

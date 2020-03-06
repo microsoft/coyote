@@ -16,6 +16,7 @@ namespace Microsoft.Coyote.Runtime.Logging
     internal class ActorRuntimeLogXmlFormatter : IActorRuntimeLog
     {
         private readonly XmlWriter Writer;
+        private bool Closed;
 
         public ActorRuntimeLogXmlFormatter(XmlWriter writer)
         {
@@ -28,6 +29,7 @@ namespace Microsoft.Coyote.Runtime.Logging
         /// </summary>
         public void OnCompleted()
         {
+            this.Closed = true;
             using (this.Writer)
             {
                 this.Writer.WriteEndElement();
@@ -36,11 +38,21 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnAssertionFailure(string error)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteElementString("AssertionFailure", error);
         }
 
         public void OnCreateActor(ActorId id, ActorId creator)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("CreateActor");
             this.Writer.WriteAttributeString("id", id.ToString());
             var creatorId = creator is null ? "external" : creator.Name;
@@ -50,6 +62,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnCreateMonitor(string monitorTypeName, ActorId id)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("CreateMonitor");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("type", monitorTypeName);
@@ -58,6 +75,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnCreateTimer(TimerInfo info)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             var ownerId = info.OwnerId is null ? "external" : info.OwnerId.Name;
             this.Writer.WriteStartElement("CreateTimer");
             this.Writer.WriteAttributeString("owner", ownerId);
@@ -68,6 +90,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnDefaultEventHandler(ActorId id, string stateName)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("DefaultEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -80,6 +107,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("DequeueEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
@@ -94,6 +126,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnEnqueueEvent(ActorId id, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("EnqueueEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
@@ -103,6 +140,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("ExceptionHandled");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -118,6 +160,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("ExceptionThrown");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("state", stateName);
@@ -129,6 +176,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Action");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(currentStateName))
@@ -146,6 +198,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnGotoState(ActorId id, string currentStateName, string newStateName)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Goto");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("currState", currentStateName);
@@ -155,6 +212,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnHalt(ActorId id, int inboxSize)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Halt");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("inBoxSize", inboxSize.ToString());
@@ -163,10 +225,19 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnHandleRaisedEvent(ActorId id, string stateName, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
         }
 
         public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("MonitorAction");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
@@ -177,6 +248,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("MonitorEvent");
             if (senderId != null)
@@ -194,6 +270,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("MonitorRaise");
             this.Writer.WriteAttributeString("id", id.ToString());
@@ -205,6 +286,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName, bool isEntry, bool? isInHotState)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("MonitorState");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
@@ -217,6 +303,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnPopState(ActorId id, string currentStateName, string restoredStateName)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Pop");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("currState", currentStateName);
@@ -226,6 +317,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnPopStateUnhandledEvent(ActorId id, string stateName, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("PopUnhandled");
             this.Writer.WriteAttributeString("id", id.ToString());
@@ -236,6 +332,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnPushState(ActorId id, string currentStateName, string newStateName)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Push");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("currState", currentStateName);
@@ -245,6 +346,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Raise");
             this.Writer.WriteAttributeString("id", id.ToString());
@@ -259,6 +365,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnRandom(ActorId id, object result)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Random");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("result", result.ToString());
@@ -267,6 +378,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             var eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Receive");
             this.Writer.WriteAttributeString("id", id.ToString());
@@ -282,6 +398,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             var eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Send");
             this.Writer.WriteAttributeString("target", targetActorId.ToString());
@@ -303,6 +424,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnStateTransition(ActorId id, string stateName, bool isEntry)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("State");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("state", stateName);
@@ -312,6 +438,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnStopTimer(TimerInfo info)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             var ownerId = info.OwnerId is null ? "external" : info.OwnerId.Name;
             this.Writer.WriteStartElement("StopTimer");
             this.Writer.WriteAttributeString("owner", ownerId);
@@ -320,6 +451,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnStrategyDescription(SchedulingStrategy strategy, string description)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("Strategy");
             this.Writer.WriteAttributeString("strategy", strategy.ToString());
             if (!string.IsNullOrEmpty(description))
@@ -332,6 +468,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnWaitEvent(ActorId id, string stateName, Type eventType)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("WaitEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("event", eventType.FullName);
@@ -345,6 +486,11 @@ namespace Microsoft.Coyote.Runtime.Logging
 
         public void OnWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
         {
+            if (this.Closed)
+            {
+                return;
+            }
+
             this.Writer.WriteStartElement("WaitEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
             StringBuilder sb = new StringBuilder();

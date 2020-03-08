@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(A1), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M1), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(A2), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M2), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M3), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M4));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1),
             expectedError: "M4() registered a timer with a negative due time.",
             replay: true);
         }
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M5));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1),
             expectedError: "M5() registered a periodic timer with a negative period.",
             replay: true);
         }
@@ -340,7 +340,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M6));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200),
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1),
             expectedError: "M7() is not allowed to dispose timer '', which is owned by M6().",
             replay: true);
         }
@@ -377,7 +377,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(M8));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1));
         }
 
         private class T6 : StateMachine
@@ -448,7 +448,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(T6), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
 
@@ -460,7 +460,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(T6), config);
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200));
+            configuration: Configuration.Create().WithNumberOfIterations(200).WithMaxSteps(200).WithTimeoutDelay(1));
             Assert.True(config.Count > 0, "Timer never fired?");
         }
     }

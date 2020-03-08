@@ -57,13 +57,14 @@ public class Configuration
 | [TestingSchedulerIpAddress](Configuration/TestingSchedulerIpAddress) | Specify ip address if you want to use something other than localhost. |
 | [TestMethodName](Configuration/TestMethodName) | Test method to be used. |
 | [Timeout](Configuration/Timeout) | Timeout in seconds. |
-| [TimeoutDelay](Configuration/TimeoutDelay) | The timeout delay used during testing. By default it is 1. Increase to the make timeouts less frequent. |
+| [TimeoutDelay](Configuration/TimeoutDelay) | Value that controls the probability of triggering a timeout each time a built-in timer is scheduled during systematic testing. Decrease the value to increase the frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this value is 10. |
 | [ToolCommand](Configuration/ToolCommand) | The user-specified command to perform by the Coyote tool. |
 | [UserExplicitlySetMaxFairSchedulingSteps](Configuration/UserExplicitlySetMaxFairSchedulingSteps) | True if the user has explicitly set the fair scheduling steps bound. |
 | [WaitForTestingProcesses](Configuration/WaitForTestingProcesses) | Do not automatically launch the TestingProcesses in parallel mode, instead wait for them to be launched independently. |
 | [WithMaxSteps](Configuration/WithMaxSteps)(…) | Updates the configuration with the specified number of scheduling steps to perform per iteration (for both fair and unfair schedulers). |
 | [WithNumberOfIterations](Configuration/WithNumberOfIterations)(…) | Updates the configuration with the specified number of iterations to perform. |
 | [WithStrategy](Configuration/WithStrategy)(…) | Updates the configuration with the specified scheduling strategy. |
+| [WithTimeoutDelay](Configuration/WithTimeoutDelay)(…) | Updates the [`TimeoutDelay`](Configuration/TimeoutDelay) to the specified value. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled)(…) | Updates the configuration with verbose output enabled or disabled. |
 
 ## Protected Members

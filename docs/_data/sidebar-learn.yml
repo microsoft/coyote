@@ -104,6 +104,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/WithNumberOfIterations
         - name: WithMaxSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSteps
+        - name: WithTimeoutDelay
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithTimeoutDelay
         - name: Configuration
           link: /learn/ref/Microsoft.Coyote/Configuration/Configuration
         - name: MaxSchedulingSteps

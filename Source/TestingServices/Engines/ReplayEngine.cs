@@ -113,17 +113,8 @@ namespace Microsoft.Coyote.TestingServices
                         this.TestInitMethod.Invoke(null, Array.Empty<object>());
                     }
 
-                    // Creates a new instance of the testing runtime.
-                    if (this.TestRuntimeFactoryMethod != null)
-                    {
-                        runtime = (SystematicTestingRuntime)this.TestRuntimeFactoryMethod.Invoke(
-                            null,
-                            new object[] { this.Configuration, this.Strategy });
-                    }
-                    else
-                    {
-                        runtime = new SystematicTestingRuntime(this.Configuration, this.Strategy);
-                    }
+                    // Creates a new instance of the systematic testing runtime.
+                    runtime = new SystematicTestingRuntime(this.Configuration, this.Strategy);
 
                     // If verbosity is turned off, then intercept the program log, and also redirect
                     // the standard output and error streams into the runtime logger.

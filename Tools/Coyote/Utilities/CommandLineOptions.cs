@@ -80,7 +80,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             hiddenGroup.IsHidden = true;
             hiddenGroup.AddArgument("timeout-delay", null, "Specifies the default delay on timers created using CreateMachineTimer", typeof(uint));
             hiddenGroup.AddArgument("interactive", null, "Test using the interactive test strategy", typeof(bool));
-            hiddenGroup.AddArgument("runtime", null, "The path to the testing runtime to use");
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
             hiddenGroup.AddArgument("depth-bound-bug", null, "Consider depth bound hit as a bug", typeof(bool));
@@ -145,9 +144,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "path":
                     configuration.AssemblyToBeAnalyzed = (string)option.Value;
-                    break;
-                case "runtime":
-                    configuration.TestingRuntimeAssembly = (string)option.Value;
                     break;
                 case "method":
                     configuration.TestMethodName = (string)option.Value;

@@ -42,17 +42,6 @@ namespace Microsoft.Coyote.TestingServices
         internal Assembly Assembly;
 
         /// <summary>
-        /// The assembly that provides the runtime to use during testing.
-        /// If its null, the engine uses the default Coyote testing runtime.
-        /// </summary>
-        internal Assembly RuntimeAssembly;
-
-        /// <summary>
-        /// The Coyote test runtime factory method.
-        /// </summary>
-        internal MethodInfo TestRuntimeFactoryMethod;
-
-        /// <summary>
         /// The Coyote test initialization method.
         /// </summary>
         internal MethodInfo TestInitMethod;
@@ -167,20 +156,6 @@ namespace Microsoft.Coyote.TestingServices
                 Error.Report(ex.Message);
             }
 #endif
-
-            if (!string.IsNullOrEmpty(configuration.TestingRuntimeAssembly))
-            {
-                try
-                {
-                    this.RuntimeAssembly = Assembly.LoadFrom(configuration.TestingRuntimeAssembly);
-                }
-                catch (FileNotFoundException ex)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
-                this.FindRuntimeFactoryMethod();
-            }
 
             this.FindEntryPoint();
             this.TestInitMethod = this.FindTestMethod(typeof(TestInitAttribute));
@@ -446,42 +421,6 @@ namespace Microsoft.Coyote.TestingServices
         public void RegisterPerIterationCallBack(Action<int> callback)
         {
             this.PerIterationCallbacks.Add(callback);
-        }
-
-        /// <summary>
-        /// Finds the testing runtime factory method, if one is provided.
-        /// </summary>
-        private void FindRuntimeFactoryMethod()
-        {
-            BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
-            List<MethodInfo> runtimeFactoryMethods = this.FindTestMethodsWithAttribute(typeof(TestRuntimeCreateAttribute), flags, this.RuntimeAssembly);
-            if (runtimeFactoryMethods.Count == 0)
-            {
-                Error.ReportAndExit($"Failed to find a testing runtime factory method in the '{this.RuntimeAssembly.FullName}' assembly.");
-            }
-            else if (runtimeFactoryMethods.Count > 1)
-            {
-                Error.ReportAndExit("Only one testing runtime factory method can be declared with " +
-                    $"the attribute '{typeof(TestRuntimeCreateAttribute).FullName}'. " +
-                    $"'{runtimeFactoryMethods.Count}' factory methods were found instead.");
-            }
-
-            if (runtimeFactoryMethods[0].ReturnType != typeof(SystematicTestingRuntime) ||
-                runtimeFactoryMethods[0].ContainsGenericParameters ||
-                runtimeFactoryMethods[0].IsAbstract || runtimeFactoryMethods[0].IsVirtual ||
-                runtimeFactoryMethods[0].IsConstructor ||
-                runtimeFactoryMethods[0].IsPublic || !runtimeFactoryMethods[0].IsStatic ||
-                runtimeFactoryMethods[0].GetParameters().Length != 2 ||
-                runtimeFactoryMethods[0].GetParameters()[0].ParameterType != typeof(Configuration) ||
-                runtimeFactoryMethods[0].GetParameters()[1].ParameterType != typeof(ISchedulingStrategy))
-            {
-                Error.ReportAndExit("Incorrect test runtime factory method declaration. Please " +
-                    "declare the method as follows:\n" +
-                    $"  [{typeof(TestRuntimeCreateAttribute).FullName}] internal static SystematicTestingRuntime " +
-                    $"{runtimeFactoryMethods[0].Name}(Configuration configuration, ISchedulingStrategy strategy) {{ ... }}");
-            }
-
-            this.TestRuntimeFactoryMethod = runtimeFactoryMethods[0];
         }
 
         /// <summary>

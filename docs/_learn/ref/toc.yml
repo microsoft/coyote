@@ -34,8 +34,6 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/RuntimeGeneration
         - name: AssemblyToBeAnalyzed
           link: /learn/ref/Microsoft.Coyote/Configuration/AssemblyToBeAnalyzed
-        - name: TestingRuntimeAssembly
-          link: /learn/ref/Microsoft.Coyote/Configuration/TestingRuntimeAssembly
         - name: TestMethodName
           link: /learn/ref/Microsoft.Coyote/Configuration/TestMethodName
         - name: SchedulingStrategy

@@ -50,11 +50,6 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append("--debug ");
             }
 
-            if (!string.IsNullOrEmpty(configuration.TestingRuntimeAssembly))
-            {
-                arguments.Append($"--runtime {configuration.TestingRuntimeAssembly} ");
-            }
-
             if (!string.IsNullOrEmpty(configuration.TestMethodName))
             {
                 arguments.Append($"--method {configuration.TestMethodName} ");

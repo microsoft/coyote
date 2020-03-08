@@ -41,14 +41,6 @@ namespace Microsoft.Coyote
         public string AssemblyToBeAnalyzed;
 
         /// <summary>
-        /// The assembly that contains the testing runtime.
-        /// By default it is empty, which uses the default
-        /// testing runtime of Coyote.
-        /// </summary>
-        [DataMember]
-        public string TestingRuntimeAssembly;
-
-        /// <summary>
         /// Test method to be used.
         /// </summary>
         [DataMember]
@@ -338,7 +330,6 @@ namespace Microsoft.Coyote
             this.RuntimeGeneration = 0;
 
             this.AssemblyToBeAnalyzed = string.Empty;
-            this.TestingRuntimeAssembly = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = SchedulingStrategy.Random;

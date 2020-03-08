@@ -53,7 +53,6 @@ public class Configuration
 | [SchedulingIterations](Configuration/SchedulingIterations) | Number of scheduling iterations. |
 | [SchedulingStrategy](Configuration/SchedulingStrategy) | Scheduling strategy to use with the Coyote tester. |
 | [TestingProcessId](Configuration/TestingProcessId) | The unique testing process id. |
-| [TestingRuntimeAssembly](Configuration/TestingRuntimeAssembly) | The assembly that contains the testing runtime. By default it is empty, which uses the default testing runtime of Coyote. |
 | [TestingSchedulerEndPoint](Configuration/TestingSchedulerEndPoint) | The testing scheduler unique endpoint. |
 | [TestingSchedulerIpAddress](Configuration/TestingSchedulerIpAddress) | Specify ip address if you want to use something other than localhost. |
 | [TestMethodName](Configuration/TestMethodName) | Test method to be used. |

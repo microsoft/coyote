@@ -29,19 +29,26 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Creates a new replaying engine.
         /// </summary>
-        internal static ReplayEngine Create(Configuration configuration)
-        {
-            configuration.SchedulingStrategy = SchedulingStrategy.Replay;
-            return new ReplayEngine(configuration);
-        }
+        internal static ReplayEngine Create(Configuration configuration) =>
+            Create(configuration, LoadAssembly(configuration.AssemblyToBeAnalyzed));
 
         /// <summary>
         /// Creates a new replaying engine.
         /// </summary>
         internal static ReplayEngine Create(Configuration configuration, Assembly assembly)
         {
+            TestMethodInfo testMethodInfo = null;
+            try
+            {
+                testMethodInfo = TestMethodInfo.GetFromAssembly(assembly, configuration.TestMethodName);
+            }
+            catch
+            {
+                Error.ReportAndExit($"Failed to get test method '{configuration.TestMethodName}' from assembly '{assembly.FullName}'");
+            }
+
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
-            return new ReplayEngine(configuration, assembly);
+            return new ReplayEngine(configuration, testMethodInfo);
         }
 
         /// <summary>
@@ -49,8 +56,9 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         internal static ReplayEngine Create(Configuration configuration, Delegate testMethod)
         {
+            var testMethodInfo = new TestMethodInfo(testMethod);
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
-            return new ReplayEngine(configuration, testMethod);
+            return new ReplayEngine(configuration, testMethodInfo);
         }
 
         /// <summary>
@@ -58,32 +66,17 @@ namespace Microsoft.Coyote.TestingServices
         /// </summary>
         internal static ReplayEngine Create(Configuration configuration, Delegate testMethod, string trace)
         {
+            var testMethodInfo = new TestMethodInfo(testMethod);
             configuration.SchedulingStrategy = SchedulingStrategy.Replay;
             configuration.ScheduleTrace = trace;
-            return new ReplayEngine(configuration, testMethod);
+            return new ReplayEngine(configuration, testMethodInfo);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayEngine"/> class.
         /// </summary>
-        private ReplayEngine(Configuration configuration)
-            : base(configuration)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReplayEngine"/> class.
-        /// </summary>
-        private ReplayEngine(Configuration configuration, Assembly assembly)
-            : base(configuration, assembly)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReplayEngine"/> class.
-        /// </summary>
-        private ReplayEngine(Configuration configuration, Delegate testMethod)
-            : base(configuration, testMethod)
+        private ReplayEngine(Configuration configuration, TestMethodInfo testMethodInfo)
+            : base(configuration, testMethodInfo)
         {
         }
 
@@ -107,11 +100,8 @@ namespace Microsoft.Coyote.TestingServices
 
                 try
                 {
-                    if (this.TestInitMethod != null)
-                    {
-                        // Initializes the test state.
-                        this.TestInitMethod.Invoke(null, Array.Empty<object>());
-                    }
+                    // Invokes the user-specified initialization method.
+                    this.TestMethodInfo.InitializeAllIterations();
 
                     // Creates a new instance of the systematic testing runtime.
                     runtime = new SystematicTestingRuntime(this.Configuration, this.Strategy);
@@ -136,22 +126,12 @@ namespace Microsoft.Coyote.TestingServices
                     }
 
                     // Runs the test and waits for it to terminate.
-                    runtime.RunTest(this.TestMethod, this.TestName);
+                    runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
                     runtime.WaitAsync().Wait();
 
-                    // Invokes user-provided cleanup for this iteration.
-                    if (this.TestIterationDisposeMethod != null)
-                    {
-                        // Disposes the test state.
-                        this.TestIterationDisposeMethod.Invoke(null, Array.Empty<object>());
-                    }
-
-                    // Invokes user-provided cleanup for all iterations.
-                    if (this.TestDisposeMethod != null)
-                    {
-                        // Disposes the test state.
-                        this.TestDisposeMethod.Invoke(null, Array.Empty<object>());
-                    }
+                    // Invokes the user-specified disposal methods.
+                    this.TestMethodInfo.DisposeCurrentIteration();
+                    this.TestMethodInfo.DisposeAllIterations();
 
                     this.InternalError = (this.Strategy as ReplayStrategy).ErrorText;
 

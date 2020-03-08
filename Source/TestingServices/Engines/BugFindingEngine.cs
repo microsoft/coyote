@@ -49,63 +49,52 @@ namespace Microsoft.Coyote.TestingServices
         private StringBuilder XmlLog;
 
         /// <summary>
-        /// Creates a new bug-finding engine.
+        /// A guard for printing info.
         /// </summary>
-        internal static BugFindingEngine Create(Configuration configuration, Delegate testMethod)
-        {
-            return new BugFindingEngine(configuration, testMethod);
-        }
+        private int PrintGuard;
 
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
-        internal static BugFindingEngine Create(Configuration configuration)
-        {
-            return new BugFindingEngine(configuration);
-        }
+        internal static BugFindingEngine Create(Configuration configuration) =>
+            Create(configuration, LoadAssembly(configuration.AssemblyToBeAnalyzed));
 
         /// <summary>
         /// Creates a new bug-finding engine.
         /// </summary>
         internal static BugFindingEngine Create(Configuration configuration, Assembly assembly)
         {
-            return new BugFindingEngine(configuration, assembly);
+            TestMethodInfo testMethodInfo = null;
+            try
+            {
+                testMethodInfo = TestMethodInfo.GetFromAssembly(assembly, configuration.TestMethodName);
+            }
+            catch
+            {
+                Error.ReportAndExit($"Failed to get test method '{configuration.TestMethodName}' from assembly '{assembly.FullName}'");
+            }
+
+            return new BugFindingEngine(configuration, testMethodInfo);
+        }
+
+        /// <summary>
+        /// Creates a new bug-finding engine.
+        /// </summary>
+        internal static BugFindingEngine Create(Configuration configuration, Delegate testMethod)
+        {
+            var testMethodInfo = new TestMethodInfo(testMethod);
+            return new BugFindingEngine(configuration, testMethodInfo);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BugFindingEngine"/> class.
         /// </summary>
-        private BugFindingEngine(Configuration configuration)
-            : base(configuration)
-        {
-            this.Initialize();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BugFindingEngine"/> class.
-        /// </summary>
-        private BugFindingEngine(Configuration configuration, Assembly assembly)
-            : base(configuration, assembly)
-        {
-            this.Initialize();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BugFindingEngine"/> class.
-        /// </summary>
-        private BugFindingEngine(Configuration configuration, Delegate testMethod)
-            : base(configuration, testMethod)
-        {
-            this.Initialize();
-        }
-
-        /// <summary>
-        /// Initializes the bug-finding engine.
-        /// </summary>
-        private void Initialize()
+        private BugFindingEngine(Configuration configuration, TestMethodInfo testMethodInfo)
+            : base(configuration, testMethodInfo)
         {
             this.ReadableTrace = string.Empty;
             this.ReproducableTrace = string.Empty;
+            this.PrintGuard = 1;
         }
 
         /// <summary>
@@ -129,11 +118,8 @@ namespace Microsoft.Coyote.TestingServices
             {
                 try
                 {
-                    if (this.TestInitMethod != null)
-                    {
-                        // Initializes the test state.
-                        this.TestInitMethod.Invoke(null, Array.Empty<object>());
-                    }
+                    // Invokes the user-specified initialization method.
+                    this.TestMethodInfo.InitializeAllIterations();
 
                     int maxIterations = this.Configuration.SchedulingIterations;
                     for (int i = 0; i < maxIterations; i++)
@@ -172,11 +158,8 @@ namespace Microsoft.Coyote.TestingServices
                         }
                     }
 
-                    if (this.TestDisposeMethod != null)
-                    {
-                        // Disposes the test state.
-                        this.TestDisposeMethod.Invoke(null, Array.Empty<object>());
-                    }
+                    // Invokes the user-specified test disposal method.
+                    this.TestMethodInfo.DisposeAllIterations();
                 }
                 catch (Exception ex)
                 {
@@ -252,15 +235,11 @@ namespace Microsoft.Coyote.TestingServices
                 }
 
                 // Runs the test and waits for it to terminate.
-                runtime.RunTest(this.TestMethod, this.TestName);
+                runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
                 runtime.WaitAsync().Wait();
 
-                // Invokes user-provided cleanup for this iteration.
-                if (this.TestIterationDisposeMethod != null)
-                {
-                    // Disposes the test state.
-                    this.TestIterationDisposeMethod.Invoke(null, null);
-                }
+                // Invokes the user-specified iteration disposal method.
+                this.TestMethodInfo.DisposeCurrentIteration();
 
                 // Invoke the per iteration callbacks, if any.
                 foreach (var callback in this.PerIterationCallbacks)

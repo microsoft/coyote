@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-#if NET46
+#if NET46 || NET47
 using System.Configuration;
 #endif
 using System.IO;
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.TestingServices
                 Error.ReportAndExit(ex.Message);
             }
 
-#if NET46
+#if NET46 || NET47
             // Load config file and absorb its settings.
             try
             {

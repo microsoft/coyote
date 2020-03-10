@@ -1,4 +1,5 @@
 ---
+layout: default
 title: About Us
 permalink: /about
 section: about

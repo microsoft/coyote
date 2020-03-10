@@ -1,0 +1,103 @@
+﻿<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
+  <Nodes>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Driver(3)' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Driver(3).Init' Label='Init'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures' Label='InjectFailures'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.FailureDetector(6)' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Init' Label='Init'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset' Label='Reset'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='SendPing'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse' Label='WaitForCancelResponse'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Liveness(2)' Label='Microsoft.Coyote.Samples.Monitors.Liveness' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Liveness(2).Done' Label='Done'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Liveness(2).Init' Label='Init'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait' Label='Wait[hot]'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait[hot]' Label='Wait[hot]'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Node(4)' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Node(4).Halt' Label='Halt'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing' Label='WaitPing'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Node(5)' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Node(5).Halt' Label='Halt'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing' Label='WaitPing'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Safety(1)' Label='Microsoft.Coyote.Samples.Monitors.Safety' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Label='Init'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Timer(7)' Group='Expanded'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Timer(7).Init' Label='Init'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Label='WaitForCancel'/>
+    <Node Id='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Label='WaitForReq'/>
+  </Nodes>
+  <Links>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3).Init' Target='Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures' Label='goto' Category='goto' Index='0' EventId='Microsoft.Coyote.Actors.GotoStateEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3).Init' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='RegisterClient' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Driver+RegisterClient' HandledBy='Init'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3).Init' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Init' Label='RegisterNodes' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Liveness+RegisterNodes'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait' Label='NodeFailed' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.FailureDetector+NodeFailed'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).Init' Label='halt' Category='halt' Index='0' EventId='Microsoft.Coyote.Actors.HaltEvent' HandledBy='Init'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3)' Target='Microsoft.Coyote.Samples.Monitors.Driver(3).Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Driver(3)' Target='Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Init' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='Unit' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.FailureDetector+Unit'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='TimeoutEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+TimeoutEvent' HandledBy='Reset'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Label='StartTimerEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+StartTimerEvent' HandledBy='WaitForReq'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures' Label='NodeFailed' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.FailureDetector+NodeFailed' HandledBy='InjectFailures'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset' Label='RoundDone' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.FailureDetector+RoundDone'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='goto' Category='goto' Index='0' EventId='Microsoft.Coyote.Actors.GotoStateEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse' Label='TimerCancelled' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.FailureDetector+TimerCancelled'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing' Label='Ping' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Node+Ping' HandledBy='WaitPing'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing' Label='Ping' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Node+Ping' HandledBy='WaitPing'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Label='Ping' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Safety+Ping'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Label='CancelTimerEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+CancelTimerEvent' HandledBy='WaitForCancel'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Label='StartTimerEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+StartTimerEvent' HandledBy='WaitForReq'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='pop' Category='pop' Index='0' EventId='Microsoft.Coyote.TestingServices.Coverage.ActorRuntimeLogGraphBuilder+PopStateEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6)' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6)' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6)' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.FailureDetector(6)' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2).Init' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Init' Label='RegisterNodes' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Liveness+RegisterNodes'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2).Init' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait' Label='goto' Category='goto' Index='0' EventId='Microsoft.Coyote.Actors.GotoStateEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Done' Label='goto' Category='goto' Index='0' EventId='Microsoft.Coyote.Actors.GotoStateEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait[hot]' Label='NodeFailed' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.FailureDetector+NodeFailed'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2)' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Done' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2)' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2)' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Liveness(2)' Target='Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait[hot]' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='Pong' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Node+Pong' HandledBy='SendPing'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing' Target='Microsoft.Coyote.Samples.Monitors.Node(4).Halt' Label='halt' Category='halt' Index='0' EventId='Microsoft.Coyote.Actors.HaltEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing' Target='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Label='Pong' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Safety+Pong'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(4)' Target='Microsoft.Coyote.Samples.Monitors.Node(4).Halt' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(4)' Target='Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='Pong' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Node+Pong' HandledBy='SendPing'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing' Target='Microsoft.Coyote.Samples.Monitors.Node(5).Halt' Label='halt' Category='halt' Index='0' EventId='Microsoft.Coyote.Actors.HaltEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing' Target='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Label='Pong' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Safety+Pong'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(5)' Target='Microsoft.Coyote.Samples.Monitors.Node(5).Halt' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Node(5)' Target='Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Target='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Label='Ping' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Safety+Ping'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Target='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Label='Pong' Index='1' EventId='Microsoft.Coyote.Samples.Monitors.Safety+Pong'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Safety(1)' Target='Microsoft.Coyote.Samples.Monitors.Safety(1).Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).Init' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Label='goto' Category='goto' Index='0' EventId='Microsoft.Coyote.Actors.GotoStateEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset' Label='TimeoutEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+TimeoutEvent' HandledBy='Reset'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing' Label='TimeoutEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+TimeoutEvent' HandledBy='SendPing'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Target='Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse' Label='CancelFailure' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+CancelFailure' HandledBy='WaitForCancelResponse'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Label='CancelTimerEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+CancelTimerEvent' HandledBy='WaitForCancel'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Label='default' Category='default' Index='1' EventId='Microsoft.Coyote.Actors.DefaultEvent'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Label='StartTimerEvent' Index='0' EventId='Microsoft.Coyote.Samples.Monitors.Timer+StartTimerEvent' HandledBy='WaitForReq'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7)' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).Init' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7)' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Samples.Monitors.Timer(7)' Target='Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq' Category='Contains'/>
+  </Links>
+  <Styles>
+    <Style TargetType="Link" GroupLabel="halt" ValueLabel="True">
+        <Condition Expression="HasCategory('halt')" />
+        <Setter Property="Stroke" Value="#FFFF6C6C" />
+        <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="push" ValueLabel="True">
+        <Condition Expression="HasCategory('push')" />
+        <Setter Property="Stroke" Value="#FF7380F5" />
+        <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="pop" ValueLabel="True">
+        <Condition Expression="HasCategory('pop')" />
+        <Setter Property="Stroke" Value="#FF7380F5" />
+        <Setter Property="StrokeDashArray" Value="4 2" />
+    </Style>
+</Styles>
+</DirectedGraph>

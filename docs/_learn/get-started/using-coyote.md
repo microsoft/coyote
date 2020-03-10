@@ -86,7 +86,7 @@ tool can help you with that also. If you run the following command line it will 
 diagram](../tools/dgml) of the state machines that are being tested:
 
 ```
-coyote test ./bin/net46/Monitors.exe --iterations 10 --max-steps 20 --graph
+coyote test ./bin/net46/Monitors.exe --iterations 10 --max-steps 20 --graph-bug
 ```
 
 You will see the following output:
@@ -98,9 +98,11 @@ You will see the following output:
 
 Open the DGML diagram using Visual Studio 2019 and you will see the following:
 
-![image](/coyote/assets/images/FailureDetector.png)
+<div>
+{% include Monitors.svg %}
+</div>
 
-Download the [FailureDetector.dgml](/coyote/assets/images/FailureDetector.dgml) file to view it
+Download the [Monitors.dgml](/coyote/assets/images/Monitors.dgml) file to view it
 interactively using Visual Studio. Make sure the downloaded file keeps the file extension `.dgml`.
 Use CTRL+A to select everything and this will show you all the detailed links as well.
 

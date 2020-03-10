@@ -128,13 +128,15 @@ in state that happened in different machine instances.
 The following picture shows the DGML output from the command:
 
 ```
-coyote test ..\coyote-samples\StateMachineExamples\bin\net46\Raft.exe -i 1000 -ms 200 -sch-pct 10 --graph
+coyote test ..\coyote-samples\StateMachineExamples\bin\net46\Raft.exe -i 1000 -ms 200 -sch-pct 10 --graph-bug
 ```
 This looks for bugs in the sample implementation of the [Raft Concensus
-Algorithm](https://raft.github.io/). In the picture you can see why the test failed, two of the
+Algorithm](https://raft.github.io/). In the animation below you can see why the test failed, two of the
 server nodes have taken on the `Leader` role, which is not allowed. See also the [DGML
 diagram](/coyote/assets/images/raft.dgml) which you can open in Visual Studio. Here we've manually
 highlighted the Server state machines in green, and the Leader states in red to highlight the
 problem.
 
-![raft](/coyote/assets/images/raft.png)
+<div class="animated_svg" trace="/coyote/assets/data/Raft.xml">
+{% include Raft.svg %}
+</div>

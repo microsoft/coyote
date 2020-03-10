@@ -98,6 +98,11 @@ namespace Microsoft.Coyote.TestingServices
                 var stdOut = Console.Out;
                 var stdErr = Console.Error;
 
+                if (this.Configuration.AttachDebugger)
+                {
+                    Debugger.Launch();
+                }
+
                 try
                 {
                     // Invokes the user-specified initialization method.
@@ -119,11 +124,6 @@ namespace Microsoft.Coyote.TestingServices
                     }
 
                     this.InitializeCustomLogging(runtime);
-
-                    if (this.Configuration.AttachDebugger)
-                    {
-                        Debugger.Launch();
-                    }
 
                     // Runs the test and waits for it to terminate.
                     runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);

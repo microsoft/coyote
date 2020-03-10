@@ -24,7 +24,9 @@ namespace Microsoft.Coyote.TestingServices
     /// <summary>
     /// Implementation of the bug-finding engine.
     /// </summary>
+#if !DEBUG
     [DebuggerStepThrough]
+#endif
     internal sealed class BugFindingEngine : AbstractTestingEngine
     {
         /// <summary>
@@ -116,6 +118,11 @@ namespace Microsoft.Coyote.TestingServices
 
             return new Task(() =>
             {
+                if (this.Configuration.AttachDebugger)
+                {
+                    Debugger.Launch();
+                }
+
                 try
                 {
                     // Invokes the user-specified initialization method.

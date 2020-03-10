@@ -36,6 +36,7 @@ namespace Microsoft.Coyote.Utilities
             basicGroup.AddArgument("outdir", "o", "Dump output to directory x (absolute path or relative to current directory");
             basicGroup.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
             basicGroup.AddArgument("debug", "d", "Enable debugging", typeof(bool)).IsHidden = true;
+            basicGroup.AddArgument("break", "b", "Attaches the debugger and also adds a breakpoint when an assertion fails (disabled during parallel testing)", typeof(bool));
 
             var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
@@ -56,7 +57,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay and debug options");
             replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };
             replayOptions.AddPositionalArgument("schedule", "Schedule file to replay");
-            replayOptions.AddArgument("break", "b", "Attach debugger and break at bug", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:

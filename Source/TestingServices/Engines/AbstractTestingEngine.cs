@@ -307,11 +307,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Tries to emit the testing traces, if any.
         /// </summary>
-        public virtual IEnumerable<string> TryEmitTraces(string directory, string file)
-        {
-            // No-op, must be implemented in subclass.
-            throw new NotImplementedException();
-        }
+        public virtual IEnumerable<string> TryEmitTraces(string directory, string file) => Array.Empty<string>();
 
         /// <summary>
         /// Registers a callback to invoke at the end of each iteration. The callback takes as

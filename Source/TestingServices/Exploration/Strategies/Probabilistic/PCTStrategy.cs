@@ -152,21 +152,9 @@ namespace Microsoft.Coyote.TestingServices.Scheduling.Strategies
         /// <inheritdoc/>
         public string GetDescription()
         {
-            var text = $"PCT[priority change points '{this.MaxPrioritySwitchPoints}' [";
-
-            int idx = 0;
-            foreach (var points in this.PriorityChangePoints)
-            {
-                text += points;
-                if (idx < this.PriorityChangePoints.Count - 1)
-                {
-                    text += ", ";
-                }
-
-                idx++;
-            }
-
-            text += "], seed '" + this.RandomValueGenerator.Seed + "']";
+            var text = $"PCT[priority change points '{this.MaxPrioritySwitchPoints}' [" +
+                string.Join(", ", this.PriorityChangePoints.ToArray()) +
+                "], seed '" + this.RandomValueGenerator.Seed + "']";
             return text;
         }
 

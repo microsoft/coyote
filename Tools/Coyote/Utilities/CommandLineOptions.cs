@@ -42,10 +42,15 @@ namespace Microsoft.Coyote.Utilities
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
             testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored (disabled by default).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
+            testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
+            testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
+            testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(int));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
             testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
+            testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
+                "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probablity is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(int));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay and debug options");
@@ -78,17 +83,11 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
-            hiddenGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             hiddenGroup.AddArgument("interactive", null, "Test using the interactive test strategy", typeof(bool));
+            hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
-            hiddenGroup.AddArgument("depth-bound-bug", null, "Consider depth bound hit as a bug", typeof(bool));
-            hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int));
-            hiddenGroup.AddArgument("liveness-temperature-threshold", null, "Liveness temperature threshold", typeof(int));
-            hiddenGroup.AddArgument("enable-program-state-hashing", null, "Enable program state hashing", typeof(bool));
-            hiddenGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given number " +
-                "of coin flips on each for each new schedule.", typeof(uint));
-            hiddenGroup.AddArgument("sch-dfs", null, "Choose the DFS scheduling strategy", typeof(bool));
+            // hiddenGroup.AddArgument("sch-dfs", null, "Choose the DFS scheduling strategy", typeof(bool)); // currently broken, re-enable when it's fixed
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
         }
 
@@ -315,7 +314,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     }
 
                     break;
-                case "depth-bound-bug":
+                case "fail-on-maxsteps":
                     configuration.ConsiderDepthBoundHitAsBug = true;
                     break;
                 case "prefix":
@@ -323,9 +322,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "liveness-temperature-threshold":
                     configuration.LivenessTemperatureThreshold = (int)option.Value;
-                    break;
-                case "enable-program-state-hashing":
-                    configuration.IsProgramStateHashingEnabled = true;
                     break;
                 default:
                     throw new Exception(string.Format("Unhandled parsed argument: '{0}'", option.LongName));

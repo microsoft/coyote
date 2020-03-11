@@ -406,16 +406,16 @@ fully halted. This can lead to confusion in the `MockSensors` class which was wr
 and only one client `CoffeeMachine` at a time. The `TerminateEvent` handshake solves that problem.
 
 Since the `TerminateEvent` could be sent to the `CoffeeMachine` at any time we need an easy way to
-handle this event in `CoffeeMachine`, hopefully without having to decorate every single state in the
-machine with the custom attribute:
+handle this event at any time in `CoffeeMachine`, hopefully without having to decorate every single
+state in the machine with the custom attribute:
 
 ```c#
 [OnEventDoAction(typeof(TerminateEvent), nameof(OnTerminate))]
 ```
 
-The solution is to handle this event in the `Start` state `Init` then use `RaisePushStateEvent` from
-`Init` to the next state. This leaves the `Init` state in the active mode where it can always handle
-the `TerminateEvent`.
+The solution is to promote this `OnEventDoAction` to the class level.  Class level handlers are
+handled like a fall back mechanism so that no matter what state the `CoffeeMachine` is in the class
+level handler can be invoked, unless the current state overrides that handler.
 
 ## Summary
 
@@ -432,6 +432,6 @@ In this tutorial you learned:
 - How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
 - How `Assert` helps find violations of safety properties during testing.
 - How to ensure full termination of one state machine before creating a new one.
-- How to use `RaisePushStateEvent` to achieve additional simplicity in handling common events in one
-  place.
+- How to use class level event handlers in a `StateMachine` to define an event handler
+in one place that is invoked no matter what state the machine is in.
 - How to write a `LivenessMonitor`.

@@ -108,7 +108,7 @@ Client sending pong to server
 Server received pong event while in the Active state
 ```
 
-Unlike Actors which declare the events they can receive at the class level, `StateMachines` must
+Unlike Actors which declare the events they can receive at the class level, `StateMachines` can also
 declare this information on the `States`. This gives `StateMachines` more fine grained control, for
 example, perhaps you want your state machine to only be able to receive a certain type of event when
 it is in a particular state. In an Actor you would need to check this yourself and throw an

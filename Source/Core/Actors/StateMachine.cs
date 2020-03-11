@@ -1043,32 +1043,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Checks the validity of the specified action.
-        /// </summary>
-        private protected override void AssertActionValidity(MethodInfo action)
-        {
-            ParameterInfo[] parameters = action.GetParameters();
-            this.Assert(parameters.Length is 0 ||
-                (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
-                "Action '{0}' in '{1}' must either accept no parameters or a single parameter of type 'Event'.",
-                action.Name, this.GetType().Name);
-
-            // Check if the action is an 'async' method.
-            if (action.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null)
-            {
-                this.Assert(action.ReturnType == typeof(Task) || action.ReturnType == typeof(Task<Transition>),
-                    "Async action '{0}' in '{1}' must have 'Task' or 'Task<Transition>' return type.",
-                    action.Name, this.GetType().Name);
-            }
-            else
-            {
-                this.Assert(action.ReturnType == typeof(void) || action.ReturnType == typeof(Transition),
-                    "Action '{0}' in '{1}' must have 'void' or 'Transition' return type.",
-                    action.Name, this.GetType().Name);
-            }
-        }
-
-        /// <summary>
         /// Returns the formatted strint to be used with a fair nondeterministic boolean choice.
         /// </summary>
         private protected override string FormatFairRandom(string callerMemberName, string callerFilePath, int callerLineNumber) =>

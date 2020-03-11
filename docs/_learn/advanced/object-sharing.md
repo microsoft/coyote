@@ -61,11 +61,11 @@ At the moment, the APIs used to implement `SharedObjects` are internal to Coyote
 
 Conceptually one should think of a Coyote SharedObject as a wrapper around a Coyote actor. Thus, one
 needs to be careful about stashing references inside a SharedObject and treat it in the same manner as
-sharing references between actors. In the case of a `SharedDictionary` both key and value objects
+sharing references between actors. In the case of a `SharedDictionary` both the key and the value
 (which are passed by reference into the dictionary) should not be mutated unless first removed from the
 dictionary because this can lead to a data race. Consider two actors that share a `SharedDictionary`
 object `D`. If both actors grab the value `D[k]` at the same key `k` they will each have a reference
-to the same value object, creating the potential for a data race (unless the intention is to only do
-read operations on the value object).
+to the same object, creating the potential for a data race (unless the intention is to only do
+read operations on that object).
 
 The same note holds for `SharedRegister<T>` when `T` is a `struct` type with reference fields inside it.

@@ -39,11 +39,12 @@ row-2:
   id2: about_figure_2b
   content: |
     <h2>Vision</h2>
-    
+
     <p>With Coyote we envision a future where developing software with any form of concurrency is as
     natural as developing sequential code. We want to demystify concurrency issues, be it with
-    design, testing, or debugging—be it with single-box systems or large distributed systems.</p>
+    design, testing, or debugging&mdash;be it with single-box systems or large distributed
+    systems.</p>
 
-    <p>Through rapid design–implement–test cycles, Coyote empowers developers with a quantum leap in
+    <p>Through rapid design-implement-test cycles, Coyote empowers developers with a quantum leap in
     productivity. The technology provides programming frameworks that reduce the gap between design
     and implementation and offers unmatched testing capabilities for weeding out bugs early.</p>

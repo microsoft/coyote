@@ -37,21 +37,9 @@ in doing so hundreds of messages are flying back and forth between these machine
 non-determinism.  This system might work under stress tests with no bugs, but can you ever be really confident it is
 ready to ship?
 
-
-<div style="width:400">
-
+<div style="width:400" class="animated_svg" trace="/coyote/assets/data/Raft.xml">
 {% include Raft.svg %}
-
-<script language="javascript" src="/coyote/assets/js/animate_trace.js"></script>
-<script language="javascript" src="/coyote/assets/js/trace_model.js"></script>
-
-<script language="javascript">
-
-fetchTrace('/coyote/assets/data/Raft.xml', convertTrace);
-
-</script>
 </div>
-
 
 ### Coyote enables fearless development of reliable asynchronous software
 

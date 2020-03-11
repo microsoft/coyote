@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.TestingServices
         {
             string assembly = Assembly.GetExecutingAssembly().Location;
             Console.WriteLine("Launching " + assembly);
-#if NET46
+#if NET46 || NET47
             ProcessStartInfo startInfo = new ProcessStartInfo(assembly,
                 CreateArgumentsFromConfiguration(id, configuration));
 #else
@@ -48,11 +48,6 @@ namespace Microsoft.Coyote.TestingServices
             if (configuration.EnableDebugging)
             {
                 arguments.Append("--debug ");
-            }
-
-            if (!string.IsNullOrEmpty(configuration.TestingRuntimeAssembly))
-            {
-                arguments.Append($"--runtime {configuration.TestingRuntimeAssembly} ");
             }
 
             if (!string.IsNullOrEmpty(configuration.TestMethodName))

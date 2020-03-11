@@ -159,8 +159,7 @@ namespace Microsoft.Coyote.TestingServices
             configuration.EnableColoredConsoleOutput = true;
 
             this.Configuration = configuration;
-            this.TestingEngine = TestingEngineFactory.CreateBugFindingEngine(
-                this.Configuration);
+            this.TestingEngine = TestingEngineFactory.CreateBugFindingEngine(this.Configuration);
         }
 
         ~TestingProcess()

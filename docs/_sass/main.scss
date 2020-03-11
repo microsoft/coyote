@@ -26,7 +26,21 @@ $black: #000;
 p {
   line-height: 132.5%;
 }
-
+.cc-container {
+  display: none;
+}
+.cookiebanner .cc-container {
+  display: block;
+}
+.cookiebanner .navbar-default {
+ margin-top: 66px;
+}
+@media (min-width: 768px) {
+  margin-top: 47px;
+}
+.cookiebanner .navbar-default.shrink {
+  margin-top: 0;
+}
 /*
  * Navigation
  */
@@ -726,11 +740,6 @@ footer {
   background-color: $bg-gray;
   color: $white;
 
-  .list-unstyled li {
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-
   a {
     color: $white;
     font-size: 16px;
@@ -769,10 +778,6 @@ footer {
     font-size: 14px;
     line-height: 16px;
   }
-
-  p {
-    font-size: 14px;
-  }
 }
 
 .footnote li {
@@ -781,6 +786,22 @@ footer {
   @include screen(sm) {
     display: block;
     float: none;
+  }
+}
+
+.footnote-copy {
+  .list-unstyled li {
+    padding-bottom: 0;
+    margin: 0 0 0 10px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 14px;
+    display: inline-block;
+    float: right;
+  }
+  img {
+    width: auto;
+    height: 16px;
   }
 }
 

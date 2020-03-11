@@ -18,6 +18,8 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/WithNumberOfIterations
         - name: WithMaxSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSteps
+        - name: WithTimeoutDelay
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithTimeoutDelay
         - name: Configuration
           link: /learn/ref/Microsoft.Coyote/Configuration/Configuration
         - name: MaxSchedulingSteps
@@ -34,8 +36,6 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/RuntimeGeneration
         - name: AssemblyToBeAnalyzed
           link: /learn/ref/Microsoft.Coyote/Configuration/AssemblyToBeAnalyzed
-        - name: TestingRuntimeAssembly
-          link: /learn/ref/Microsoft.Coyote/Configuration/TestingRuntimeAssembly
         - name: TestMethodName
           link: /learn/ref/Microsoft.Coyote/Configuration/TestMethodName
         - name: SchedulingStrategy

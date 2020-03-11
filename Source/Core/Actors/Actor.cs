@@ -755,7 +755,41 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal virtual void SetupEventHandlers()
         {
-            Type actorType = this.GetType();
+            if (!ActionCache.ContainsKey(this.GetType()))
+            {
+                Stack<Type> actorTypes = new Stack<Type>();
+                for (var actorType = this.GetType(); typeof(Actor).IsAssignableFrom(actorType); actorType = actorType.BaseType)
+                {
+                    actorTypes.Push(actorType);
+                }
+
+                // process base types in reverse order, so mosts derrived type is cached first.
+                while (actorTypes.Count > 0)
+                {
+                    this.SetupEventHandlers(actorTypes.Pop());
+                }
+            }
+
+            // Now we have all derrived types cached, we can build the combined action map for this type.
+            for (var actorType = this.GetType(); typeof(Actor).IsAssignableFrom(actorType); actorType = actorType.BaseType)
+            {
+                // Populates the map of event handlers for this actor instance.
+                foreach (var kvp in ActionCache[actorType])
+                {
+                    // use the most derrived action handler for a given event (ignoring any base handlers defined for the same event).
+                    if (!this.ActionMap.ContainsKey(kvp.Key))
+                    {
+                        // MethodInfo.Invoke catches the exception to wrap it in a TargetInvocationException.
+                        // This unwinds the stack before the ExecuteAction exception filter is invoked, so
+                        // call through a delegate instead (which is also much faster than Invoke).
+                        this.ActionMap.Add(kvp.Key, new CachedDelegate(kvp.Value, this));
+                    }
+                }
+            }
+        }
+
+        private void SetupEventHandlers(Type actorType)
+        {
             if (!ActionCache.ContainsKey(actorType))
             {
                 // If this type has not already been setup in the ActionCache, then we need to try and grab the ActionCacheLock
@@ -779,14 +813,14 @@ namespace Microsoft.Coyote.Actors
 
                         // Map containing all action bindings.
                         var actionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
-                        var doAttributes = this.GetType().GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
+                        var doAttributes = actorType.GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
                             as OnEventDoActionAttribute[];
 
                         foreach (var attr in doAttributes)
                         {
                             this.Assert(!handledEvents.Contains(attr.Event),
                                 "{0} declared multiple handlers for event '{1}'.",
-                                this.Id, attr.Event);
+                                actorType.FullName, attr.Event);
                             actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
                             handledEvents.Add(attr.Event);
                         }
@@ -805,15 +839,15 @@ namespace Microsoft.Coyote.Actors
                     }
                 }
             }
+        }
 
-            // Populates the map of event handlers for this actor instance.
-            foreach (var kvp in ActionCache[actorType])
-            {
-                // MethodInfo.Invoke catches the exception to wrap it in a TargetInvocationException.
-                // This unwinds the stack before the ExecuteAction exception filter is invoked, so
-                // call through a delegate instead (which is also much faster than Invoke).
-                this.ActionMap.Add(kvp.Key, new CachedDelegate(kvp.Value, this));
-            }
+        /// <summary>
+        /// Returns the set of all registered events (for code coverage).
+        /// It does not include events that are deferred or ignored.
+        /// </summary>
+        internal HashSet<string> GetAllRegisteredEvents()
+        {
+            return new HashSet<string>(from key in this.ActionMap.Keys select key.FullName);
         }
 
         /// <summary>
@@ -846,26 +880,27 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Checks the validity of the specified action.
         /// </summary>
-        private protected virtual void AssertActionValidity(MethodInfo action)
+        private void AssertActionValidity(MethodInfo action)
         {
+            Type actionType = action.DeclaringType;
             ParameterInfo[] parameters = action.GetParameters();
             this.Assert(parameters.Length is 0 ||
                 (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
                 "Action '{0}' in '{1}' must either accept no parameters or a single parameter of type 'Event'.",
-                action.Name, this.GetType().Name);
+                action.Name, actionType.Name);
 
             // Check if the action is an 'async' method.
             if (action.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null)
             {
                 this.Assert(action.ReturnType == typeof(Task),
                     "Async action '{0}' in '{1}' must have 'Task' return type.",
-                    action.Name, this.GetType().Name);
+                    action.Name, actionType.Name);
             }
             else
             {
                 this.Assert(action.ReturnType == typeof(void),
                     "Action '{0}' in '{1}' must have 'void' return type.",
-                    action.Name, this.GetType().Name);
+                    action.Name, actionType.Name);
             }
         }
 

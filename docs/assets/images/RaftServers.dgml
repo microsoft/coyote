@@ -1,31 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <DirectedGraph Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
   <Nodes>
-    <Node Id="AzureClusterManager" Bounds="363.540013400572,476.92030670166,134.44,25.96" />
-    <Node Id="AzureClusterManager1" Bounds="57.3416760253906,486.586783677951,134.44,25.96" Label="AzureClusterManager" />
-    <Node Id="AzureClusterManager2" Bounds="173.813392481172,178.920299072266,134.44,25.96" Label="AzureClusterManager" />
-    <Node Id="AzureMessageReceiver" Bounds="53.9999788411458,373.666554893772,141.123333333333,25.96" />
-    <Node Id="AzureMessageReceiver1" Bounds="360.198316192327,365.000102539063,141.123333333333,25.96" Label="AzureMessageReceiver" />
-    <Node Id="AzureMessageReceiver2" Bounds="170.47164952056,67.0001025390626,141.123333333333,25.96" Label="AzureMessageReceiver" />
-    <Node Id="AzureServiceBus" Bounds="254.955,266.88,113.213333333333,25.96" Label="Azure Service bus" UseManualLocation="True" />
-    <Node Id="Client" Bounds="89.3733167012532,430.626683677951,71.1333333333333,25.96" Label="RunClient" UseManualLocation="True" />
-    <Node Id="Raft.AzureClient.dll" Bounds="33.9999788411458,333.666454893772,181.123333333333,198.880428784179" Group="Expanded" Label="Raft.Azure.dll (Client)" UseManualLocation="True" />
-    <Node Id="Raft.AzureClient.dll(Server)" Bounds="340.198316192327,325.000002539063,181.123333333333,197.880404162597" Group="Expanded" Label="Raft.Azure.dll (Server 1)" UseManualLocation="True" />
-    <Node Id="Raft.AzureClient.dll(Server2)" Bounds="150.47164952056,27.0000016723633,181.123333333333,197.880397399903" Group="Expanded" Label="Raft.Azure.dll (Server 2)" UseManualLocation="True" />
-    <Node Id="Server" Bounds="404.249982920794,420.960231323242,53.02,25.96" />
-    <Node Id="Server1" Bounds="214.523346704805,122.960200805664,53.0199999999999,25.96" Label="Server" />
+    <Node Id="AzureClusterManager" Bounds="421.539979248047,423.920314331055,134.44,25.96" />
+    <Node Id="AzureClusterManager1" Bounds="234.341676025391,186.702800292969,134.44,25.96" Label="AzureClusterManager" />
+    <Node Id="AzureClusterManager2" Bounds="37.8133709716797,418.543361206055,134.44,25.96" Label="AzureClusterManager" />
+    <Node Id="AzureMessageReceiver" Bounds="230.999963582357,73.7825274658203,141.123333333333,25.96" />
+    <Node Id="AzureMessageReceiver1" Bounds="418.19831258138,312.000102539062,141.123333333333,25.96" Label="AzureMessageReceiver" />
+    <Node Id="AzureMessageReceiver2" Bounds="34.4716280110679,306.623164672852,141.123333333333,25.96" Label="AzureMessageReceiver" />
+    <Node Id="AzureServiceBus" Bounds="247.158312582164,267.662959594727,113.04,25.96" Label="Azure Service Bus" UseManualLocation="True" />
+    <Node Id="Client" Bounds="266.373320515951,130.742549438477,71.1333333333333,25.96" Label="RunClient" UseManualLocation="True" />
+    <Node Id="Raft.AzureClient.dll" Bounds="210.999963582357,33.7824173863873,181.123333333333,198.88044230957" Group="Expanded" Label="Raft.Azure.dll (Client)" UseManualLocation="True" />
+    <Node Id="Raft.AzureClient.dll(Server)" Bounds="398.198316192327,272.000002539063,181.123333333333,197.880404162597" Group="Expanded" Label="Raft.Azure.dll (Server 1)" UseManualLocation="True" />
+    <Node Id="Raft.AzureClient.dll(Server2)" Bounds="14.4716394551596,266.623058540359,181.123333333333,197.8804" Group="Expanded" Label="Raft.Azure.dll (Server 2)" UseManualLocation="True" />
+    <Node Id="Server" Bounds="462.250009765625,367.960231323242,53.02,25.96" />
+    <Node Id="Server1" Bounds="78.5233404541016,362.583262939453,53.0199999999999,25.96" Label="Server" />
   </Nodes>
   <Links>
-    <Link Source="AzureClusterManager" Target="AzureServiceBus" Bounds="323.369972942017,300.667394434297,100.023865576764,176.252912267364" />
-    <Link Source="AzureClusterManager1" Target="AzureServiceBus" Bounds="135.643028809954,299.684855881838,158.99373019464,186.235260084959" />
-    <Link Source="AzureClusterManager2" Target="AzureServiceBus" Bounds="251.441089376822,204.880299072266,44.0828824399274,54.978139717864" />
-    <Link Source="AzureMessageReceiver" Target="Client" Bounds="124.647860646876,399.626554893772,0.146129528384066,22.0003273094625" />
-    <Link Source="AzureMessageReceiver1" Target="Server" Bounds="430.759982873328,390.960102539063,2.31918306781154E-08,21.000128784179" />
-    <Link Source="AzureMessageReceiver2" Target="Server1" Bounds="241.033323265809,92.9601016723633,1.14523061824912E-05,21.0001000000014" />
-    <Link Source="AzureServiceBus" Target="AzureMessageReceiver" Bounds="155.030399004632,292.840000610352,133.872042693054,76.6863702656838" />
-    <Link Source="AzureServiceBus" Target="AzureMessageReceiver1" Bounds="327.330098487525,292.840000610352,80.7129163533737,66.4402359825647" />
-    <Link Source="AzureServiceBus" Target="AzureMessageReceiver2" Bounds="248.608084164438,101.447247733169,58.3736080203146,165.432752877183" />
-    <Link Source="Client" Target="AzureClusterManager1" Bounds="124.710266138518,456.586683677951,0.141968470803675,21.0003056507062" />
+    <Link Source="AzureClusterManager" Target="AzureServiceBus" Bounds="322.144329858444,296.685354632764,101.318983378498,180.234952068896" />
+    <Link Source="AzureClusterManager1" Target="AzureServiceBus" Bounds="135.509739220649,295.71961900458,160.988118701381,190.867164673371" />
+    <Link Source="AzureClusterManager2" Target="AzureServiceBus" Bounds="251.683231755245,204.880299072266,45.1608411339372,55.041930946845" />
+    <Link Source="AzureMessageReceiver" Target="Client" Bounds="301.647849896207,99.7425274658203,0.146136460021694,22.0002205187011" />
+    <Link Source="AzureMessageReceiver1" Target="Server" Bounds="488.760009765625,337.960205078125,0,21" />
+    <Link Source="AzureMessageReceiver2" Target="Server1" Bounds="105.033317565918,332.583282470703,0,21" />
+    <Link Source="AzureServiceBus" Target="AzureMessageReceiver" Bounds="154.653158661429,288.84,138.034298464094,80.3009309519344" />
+    <Link Source="AzureServiceBus" Target="AzureMessageReceiver1" Bounds="324.633941650415,288.84,83.781131292494,70.3715935240968" />
+    <Link Source="AzureServiceBus" Target="AzureMessageReceiver2" Bounds="248.681239558218,101.437718202193,58.9669356683937,165.442281797807" />
+    <Link Source="Client" Target="AzureClusterManager1" Bounds="301.710267236255,156.702549438477,0.141970539491922,21.000456508237" />
     <Link Source="Raft.AzureClient.dll" Target="AzureClusterManager1" Category="Contains" />
     <Link Source="Raft.AzureClient.dll" Target="AzureMessageReceiver" Category="Contains" />
     <Link Source="Raft.AzureClient.dll" Target="AzureServiceBus" Bounds="215.123316192627,298.540923619445,73.6181034120663,60.2644605876644" />
@@ -36,8 +36,8 @@
     <Link Source="Raft.AzureClient.dll(Server2)" Target="AzureClusterManager2" Category="Contains" />
     <Link Source="Raft.AzureClient.dll(Server2)" Target="AzureMessageReceiver2" Category="Contains" />
     <Link Source="Raft.AzureClient.dll(Server2)" Target="Server1" Category="Contains" Bounds="32.4495820312051,323.22375,3.10412150557313,31.144383031848" />
-    <Link Source="Server" Target="AzureClusterManager" Bounds="430.759989990612,446.920231323242,1.1438112437645E-05,21.0000753784194" />
-    <Link Source="Server1" Target="AzureClusterManager2" Bounds="241.033357322679,148.920201672363,1.71784577389644E-05,21.0000973999057" />
+    <Link Source="Server" Target="AzureClusterManager" Bounds="488.760009765625,393.920196533203,0,21" />
+    <Link Source="Server1" Target="AzureClusterManager2" Bounds="105.033317565918,388.543273925781,0,21" />
   </Links>
   <Categories>
     <Category Id="Contains" Label="Contains" Description="Whether the source of the link contains the target object" CanBeDataDriven="False" CanLinkedNodesBeDataDriven="True" IncomingActionLabel="Contained By" IsContainment="True" OutgoingActionLabel="Contains" />

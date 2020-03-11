@@ -3,20 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-#if NET46
+#if NET46 || NET47
 using System.Configuration;
 #endif
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.TestingServices.Runtime;
 using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
@@ -34,54 +31,33 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Configuration.
         /// </summary>
-        internal Configuration Configuration;
-
-        /// <summary>
-        /// The Coyote assembly to analyze.
-        /// </summary>
-        internal Assembly Assembly;
-
-        /// <summary>
-        /// The assembly that provides the runtime to use during testing.
-        /// If its null, the engine uses the default Coyote testing runtime.
-        /// </summary>
-        internal Assembly RuntimeAssembly;
-
-        /// <summary>
-        /// The Coyote test runtime factory method.
-        /// </summary>
-        internal MethodInfo TestRuntimeFactoryMethod;
-
-        /// <summary>
-        /// The Coyote test initialization method.
-        /// </summary>
-        internal MethodInfo TestInitMethod;
-
-        /// <summary>
-        /// The Coyote test dispose method.
-        /// </summary>
-        internal MethodInfo TestDisposeMethod;
-
-        /// <summary>
-        /// The Coyote test dispose method per iteration.
-        /// </summary>
-        internal MethodInfo TestIterationDisposeMethod;
+        internal readonly Configuration Configuration;
 
         /// <summary>
         /// The method to test.
         /// </summary>
-        internal Delegate TestMethod;
-
-        /// <summary>
-        /// The name of the test.
-        /// </summary>
-        internal string TestName;
+        internal readonly TestMethodInfo TestMethodInfo;
 
         /// <summary>
         /// Set of callbacks to invoke at the end
         /// of each iteration.
         /// </summary>
-        protected ISet<Action<int>> PerIterationCallbacks;
+        protected readonly ISet<Action<int>> PerIterationCallbacks;
+
+        /// <summary>
+        /// The bug-finding scheduling strategy.
+        /// </summary>
+        protected readonly ISchedulingStrategy Strategy;
+
+        /// <summary>
+        /// Random value generator used by the scheduling strategies.
+        /// </summary>
+        protected readonly IRandomValueGenerator RandomValueGenerator;
+
+        /// <summary>
+        /// The error reporter.
+        /// </summary>
+        protected readonly ErrorReporter ErrorReporter;
 
         /// <summary>
         /// The installed logger.
@@ -92,34 +68,14 @@ namespace Microsoft.Coyote.TestingServices
         protected TextWriter Logger;
 
         /// <summary>
-        /// The bug-finding scheduling strategy.
-        /// </summary>
-        protected ISchedulingStrategy Strategy;
-
-        /// <summary>
-        /// Random value generator used by the scheduling strategies.
-        /// </summary>
-        protected IRandomValueGenerator RandomValueGenerator;
-
-        /// <summary>
-        /// The error reporter.
-        /// </summary>
-        protected ErrorReporter ErrorReporter;
-
-        /// <summary>
         /// The profiler.
         /// </summary>
-        protected Profiler Profiler;
+        protected readonly Profiler Profiler;
 
         /// <summary>
         /// The testing task cancellation token source.
         /// </summary>
-        protected CancellationTokenSource CancellationTokenSource;
-
-        /// <summary>
-        /// A guard for printing info.
-        /// </summary>
-        protected int PrintGuard;
+        protected readonly CancellationTokenSource CancellationTokenSource;
 
         /// <summary>
         /// Data structure containing information
@@ -130,92 +86,11 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractTestingEngine"/> class.
         /// </summary>
-        protected AbstractTestingEngine(Configuration configuration)
-        {
-            this.Initialize(configuration);
-
-            try
-            {
-                this.Assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
-            }
-            catch (FileNotFoundException ex)
-            {
-                Error.ReportAndExit(ex.Message);
-            }
-
-#if NET46
-            // Load config file and absorb its settings.
-            try
-            {
-                var configFile = ConfigurationManager.OpenExeConfiguration(configuration.AssemblyToBeAnalyzed);
-
-                var settings = configFile.AppSettings.Settings;
-                foreach (var key in settings.AllKeys)
-                {
-                    if (ConfigurationManager.AppSettings.Get(key) is null)
-                    {
-                        ConfigurationManager.AppSettings.Set(key, settings[key].Value);
-                    }
-                    else
-                    {
-                        ConfigurationManager.AppSettings.Add(key, settings[key].Value);
-                    }
-                }
-            }
-            catch (ConfigurationErrorsException ex)
-            {
-                Error.Report(ex.Message);
-            }
-#endif
-
-            if (!string.IsNullOrEmpty(configuration.TestingRuntimeAssembly))
-            {
-                try
-                {
-                    this.RuntimeAssembly = Assembly.LoadFrom(configuration.TestingRuntimeAssembly);
-                }
-                catch (FileNotFoundException ex)
-                {
-                    Error.ReportAndExit(ex.Message);
-                }
-
-                this.FindRuntimeFactoryMethod();
-            }
-
-            this.FindEntryPoint();
-            this.TestInitMethod = this.FindTestMethod(typeof(TestInitAttribute));
-            this.TestDisposeMethod = this.FindTestMethod(typeof(TestDisposeAttribute));
-            this.TestIterationDisposeMethod = this.FindTestMethod(typeof(TestIterationDisposeAttribute));
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractTestingEngine"/> class.
-        /// </summary>
-        protected AbstractTestingEngine(Configuration configuration, Assembly assembly)
-        {
-            this.Initialize(configuration);
-            this.Assembly = assembly;
-            this.FindEntryPoint();
-            this.TestInitMethod = this.FindTestMethod(typeof(TestInitAttribute));
-            this.TestDisposeMethod = this.FindTestMethod(typeof(TestDisposeAttribute));
-            this.TestIterationDisposeMethod = this.FindTestMethod(typeof(TestIterationDisposeAttribute));
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractTestingEngine"/> class.
-        /// </summary>
-        protected AbstractTestingEngine(Configuration configuration, Delegate testMethod)
-        {
-            this.Initialize(configuration);
-            this.TestMethod = testMethod;
-        }
-
-        /// <summary>
-        /// Initialized the testing engine.
-        /// </summary>
-        private void Initialize(Configuration configuration)
+        protected AbstractTestingEngine(Configuration configuration, TestMethodInfo testMethodInfo)
         {
             this.Configuration = configuration;
+            this.TestMethodInfo = testMethodInfo;
+
             this.Logger = new ConsoleLogger();
             this.ErrorReporter = new ErrorReporter(configuration, this.Logger);
             this.Profiler = new Profiler();
@@ -227,7 +102,6 @@ namespace Microsoft.Coyote.TestingServices
 
             this.TestReport = new TestReport(configuration);
             this.CancellationTokenSource = new CancellationTokenSource();
-            this.PrintGuard = 1;
 
             if (configuration.SchedulingStrategy == SchedulingStrategy.Interactive)
             {
@@ -433,11 +307,7 @@ namespace Microsoft.Coyote.TestingServices
         /// <summary>
         /// Tries to emit the testing traces, if any.
         /// </summary>
-        public virtual IEnumerable<string> TryEmitTraces(string directory, string file)
-        {
-            // No-op, must be implemented in subclass.
-            throw new NotImplementedException();
-        }
+        public virtual IEnumerable<string> TryEmitTraces(string directory, string file) => Array.Empty<string>();
 
         /// <summary>
         /// Registers a callback to invoke at the end of each iteration. The callback takes as
@@ -446,204 +316,6 @@ namespace Microsoft.Coyote.TestingServices
         public void RegisterPerIterationCallBack(Action<int> callback)
         {
             this.PerIterationCallbacks.Add(callback);
-        }
-
-        /// <summary>
-        /// Finds the testing runtime factory method, if one is provided.
-        /// </summary>
-        private void FindRuntimeFactoryMethod()
-        {
-            BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
-            List<MethodInfo> runtimeFactoryMethods = this.FindTestMethodsWithAttribute(typeof(TestRuntimeCreateAttribute), flags, this.RuntimeAssembly);
-            if (runtimeFactoryMethods.Count == 0)
-            {
-                Error.ReportAndExit($"Failed to find a testing runtime factory method in the '{this.RuntimeAssembly.FullName}' assembly.");
-            }
-            else if (runtimeFactoryMethods.Count > 1)
-            {
-                Error.ReportAndExit("Only one testing runtime factory method can be declared with " +
-                    $"the attribute '{typeof(TestRuntimeCreateAttribute).FullName}'. " +
-                    $"'{runtimeFactoryMethods.Count}' factory methods were found instead.");
-            }
-
-            if (runtimeFactoryMethods[0].ReturnType != typeof(SystematicTestingRuntime) ||
-                runtimeFactoryMethods[0].ContainsGenericParameters ||
-                runtimeFactoryMethods[0].IsAbstract || runtimeFactoryMethods[0].IsVirtual ||
-                runtimeFactoryMethods[0].IsConstructor ||
-                runtimeFactoryMethods[0].IsPublic || !runtimeFactoryMethods[0].IsStatic ||
-                runtimeFactoryMethods[0].GetParameters().Length != 2 ||
-                runtimeFactoryMethods[0].GetParameters()[0].ParameterType != typeof(Configuration) ||
-                runtimeFactoryMethods[0].GetParameters()[1].ParameterType != typeof(ISchedulingStrategy))
-            {
-                Error.ReportAndExit("Incorrect test runtime factory method declaration. Please " +
-                    "declare the method as follows:\n" +
-                    $"  [{typeof(TestRuntimeCreateAttribute).FullName}] internal static SystematicTestingRuntime " +
-                    $"{runtimeFactoryMethods[0].Name}(Configuration configuration, ISchedulingStrategy strategy) {{ ... }}");
-            }
-
-            this.TestRuntimeFactoryMethod = runtimeFactoryMethods[0];
-        }
-
-        /// <summary>
-        /// Finds the entry point to the Coyote program.
-        /// </summary>
-        private void FindEntryPoint()
-        {
-            BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
-            List<MethodInfo> testMethods = this.FindTestMethodsWithAttribute(typeof(TestAttribute), flags, this.Assembly);
-
-            // Filter by test method name
-            var filteredTestMethods = testMethods
-                .FindAll(mi => string.Format("{0}.{1}", mi.DeclaringType.FullName, mi.Name)
-                .EndsWith(this.Configuration.TestMethodName));
-
-            if (filteredTestMethods.Count == 0)
-            {
-                if (testMethods.Count > 0)
-                {
-                    var msg = "Cannot detect a Coyote test method with name " + this.Configuration.TestMethodName +
-                        ". Possible options are: " + Environment.NewLine;
-                    foreach (var mi in testMethods)
-                    {
-                        msg += string.Format("{0}.{1}{2}", mi.DeclaringType.FullName, mi.Name, Environment.NewLine);
-                    }
-
-                    Error.ReportAndExit(msg);
-                }
-                else
-                {
-                    Error.ReportAndExit("Cannot detect a Coyote test method. Use the " +
-                        $"attribute '[{typeof(TestAttribute).FullName}]' to declare a test method.");
-                }
-            }
-            else if (filteredTestMethods.Count > 1)
-            {
-                var msg = "Only one test method to the Coyote program can " +
-                    $"be declared with the attribute '{typeof(TestAttribute).FullName}'. " +
-                    $"'{testMethods.Count}' test methods were found instead. Provide " +
-                    $"/method flag to qualify the test method name you wish to use. " +
-                    "Possible options are: " + Environment.NewLine;
-
-                foreach (var mi in testMethods)
-                {
-                    msg += string.Format("{0}.{1}{2}", mi.DeclaringType.FullName, mi.Name, Environment.NewLine);
-                }
-
-                Error.ReportAndExit(msg);
-            }
-
-            MethodInfo testMethod = filteredTestMethods[0];
-            ParameterInfo[] testParams = testMethod.GetParameters();
-
-            bool hasExpectedReturnType = (testMethod.ReturnType == typeof(void) &&
-                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) ||
-                (testMethod.ReturnType == typeof(ControlledTask) &&
-                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
-            bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
-                (testParams.Length is 0 ||
-                (testParams.Length is 1 && testParams[0].ParameterType == typeof(IActorRuntime)));
-
-            if (testMethod.IsAbstract || testMethod.IsVirtual || testMethod.IsConstructor ||
-                !testMethod.IsPublic || !testMethod.IsStatic ||
-                !hasExpectedReturnType || !hasExpectedParameters)
-            {
-                Error.ReportAndExit("Incorrect test method declaration. Please " +
-                    "use one of the following supported declarations:\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}() {{ ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async ControlledTask {testMethod.Name}() {{ ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async ControlledTask {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}");
-            }
-
-            if (testMethod.ReturnType == typeof(void) && testParams.Length == 1)
-            {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Action<IActorRuntime>), testMethod);
-            }
-            else if (testMethod.ReturnType == typeof(void))
-            {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Action), testMethod);
-            }
-            else if (testParams.Length == 1)
-            {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Func<IActorRuntime, ControlledTask>), testMethod);
-            }
-            else
-            {
-                this.TestMethod = Delegate.CreateDelegate(typeof(Func<ControlledTask>), testMethod);
-            }
-
-            this.TestName = $"{testMethod.DeclaringType}.{testMethod.Name}";
-        }
-
-        /// <summary>
-        /// Finds the test method with the specified attribute.
-        /// Returns null if no such method is found.
-        /// </summary>
-        private MethodInfo FindTestMethod(Type attribute)
-        {
-            BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
-            List<MethodInfo> testMethods = this.FindTestMethodsWithAttribute(attribute, flags, this.Assembly);
-
-            if (testMethods.Count == 0)
-            {
-                return null;
-            }
-            else if (testMethods.Count > 1)
-            {
-                Error.ReportAndExit("Only one test method to the Coyote program can " +
-                    $"be declared with the attribute '{attribute.FullName}'. " +
-                    $"'{testMethods.Count}' test methods were found instead.");
-            }
-
-            if (testMethods[0].ReturnType != typeof(void) ||
-                testMethods[0].ContainsGenericParameters ||
-                testMethods[0].IsAbstract || testMethods[0].IsVirtual ||
-                testMethods[0].IsConstructor ||
-                !testMethods[0].IsPublic || !testMethods[0].IsStatic ||
-                testMethods[0].GetParameters().Length != 0)
-            {
-                Error.ReportAndExit("Incorrect test method declaration. Please " +
-                    "declare the test method as follows:\n" +
-                    $"  [{attribute.FullName}] public static void " +
-                    $"{testMethods[0].Name}() {{ ... }}");
-            }
-
-            return testMethods[0];
-        }
-
-        /// <summary>
-        /// Finds the test methods with the specified attribute in the given assembly.
-        /// Returns an empty list if no such methods are found.
-        /// </summary>
-        private List<MethodInfo> FindTestMethodsWithAttribute(Type attribute, BindingFlags bindingFlags, Assembly assembly)
-        {
-            List<MethodInfo> testMethods = null;
-
-            try
-            {
-                testMethods = assembly.GetTypes().SelectMany(t => t.GetMethods(bindingFlags)).
-                    Where(m => m.GetCustomAttributes(attribute, false).Length > 0).ToList();
-            }
-            catch (ReflectionTypeLoadException ex)
-            {
-                foreach (var le in ex.LoaderExceptions)
-                {
-                    this.ErrorReporter.WriteErrorLine(le.Message);
-                }
-
-                Error.ReportAndExit($"Failed to load assembly '{assembly.FullName}'");
-            }
-            catch (Exception ex)
-            {
-                this.ErrorReporter.WriteErrorLine(ex.Message);
-                Error.ReportAndExit($"Failed to load assembly '{assembly.FullName}'");
-            }
-
-            return testMethods;
         }
 
         /// <summary>
@@ -689,14 +361,47 @@ namespace Microsoft.Coyote.TestingServices
         }
 
         /// <summary>
-        /// Returns (and creates if it does not exist) the output directory.
+        /// Loads and returns the specified assembly.
         /// </summary>
-        protected string GetOutputDirectory()
+        protected static Assembly LoadAssembly(string assemblyFile)
         {
-            string directoryPath = Path.GetDirectoryName(this.Assembly.Location) +
-                Path.DirectorySeparatorChar + "Output" + Path.DirectorySeparatorChar;
-            Directory.CreateDirectory(directoryPath);
-            return directoryPath;
+            Assembly assembly = null;
+
+            try
+            {
+                assembly = Assembly.LoadFrom(assemblyFile);
+            }
+            catch (FileNotFoundException ex)
+            {
+                Error.ReportAndExit(ex.Message);
+            }
+
+#if NET46 || NET47
+            // Load config file and absorb its settings.
+            try
+            {
+                var configFile = ConfigurationManager.OpenExeConfiguration(assemblyFile);
+
+                var settings = configFile.AppSettings.Settings;
+                foreach (var key in settings.AllKeys)
+                {
+                    if (ConfigurationManager.AppSettings.Get(key) is null)
+                    {
+                        ConfigurationManager.AppSettings.Set(key, settings[key].Value);
+                    }
+                    else
+                    {
+                        ConfigurationManager.AppSettings.Add(key, settings[key].Value);
+                    }
+                }
+            }
+            catch (ConfigurationErrorsException ex)
+            {
+                Error.Report(ex.Message);
+            }
+#endif
+
+            return assembly;
         }
 
         /// <summary>

@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Utilities
         /// <summary>
         /// Defines a list of possible values.
         /// </summary>
-        public List<string> AllowedValues;
+        public List<string> AllowedValues = new List<string>();
 
         internal string LongSyntax
         {
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.Utilities
                 }
                 else
                 {
-                    if (this.AllowedValues == null || !this.AllowedValues.Contains(string.Empty))
+                    if (!this.AllowedValues.Contains(string.Empty))
                     {
                         throw new Exception(string.Format("Argument: '{0}' missing a value", this.LongName));
                     }
@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.Utilities
                 throw new Exception(string.Format("Argument: '{0}' type '{1}' is not supported, use bool, int, uint, double, string", this.LongName, type.Name));
             }
 
-            if (this.AllowedValues != null)
+            if (this.AllowedValues.Count > 0)
             {
                 if (result == null)
                 {
@@ -558,6 +558,7 @@ namespace Microsoft.Coyote.Utilities
                 this.Output = output;
                 this.Indent = indent;
                 this.LineLength = lineLength;
+                this.CurrentLineLength = indent;
                 this.IndentText = new string(' ', this.Indent);
             }
 

@@ -18,6 +18,9 @@ namespace Microsoft.Coyote.Tasks
     /// <see cref="ControlledTask"/> is controlled by the runtime and systematically interleaved
     /// with other asynchronous operations to find bugs.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/programming-models/async/overview">Programming model: asynchronous tasks</see> for more information.
+    /// </remarks>
     [AsyncMethodBuilder(typeof(AsyncControlledTaskMethodBuilder))]
     public class ControlledTask : IDisposable
     {

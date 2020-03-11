@@ -5,16 +5,16 @@ row-1:
   content: |
     <h2>Coyote benefits</h2>
 
-    <h3>Discovers deep bugs automatically </h3>
+    <h3>Discovers deep bugs automatically</h3>
     <p>Coyote's intelligent systematic-testing engine finds and reproduces nondeterministic bugs for rapid repair.</p>
 
-    <h3>Embeds the design in your code </h3>
+    <h3>Embeds the design in your code</h3>
     <p>Coyote makes adding new features easy and cost-efficient because it ensures software design and code remain in sync.</p>
 
     <h3>Delivers a lightweight runtime</h3>
     <p>Coyote's runtime is built on the Task Parallel Library and works with any communication, storage, or deployment mechanism.</p>
 
-    <h3>Increases productivity </h3>
+    <h3>Increases productivity</h3>
     <p>Coyote is easy to adopt, even in production. Devs get up to speed quickly, and teams report significant productivity increases.</p>
     <a href="/coyote/learn/overview/what-is-coyote" class="cta">Learn more </a>
 row-2:
@@ -24,7 +24,7 @@ row-2:
   id2: home_figure_2b
   content: |
     <h2>Case studies</h2>
-    <h3><blockquote>"Developing a new feature using Coyote took us one month—it would have taken six months without Coyote."</blockquote></h3>
+    <h3><blockquote>"Developing a new feature using Coyote took us one month&mdash;it would have taken six months without Coyote."</blockquote></h3>
     <p>Critical Azure services are adopting Coyote and reporting increased performance and uptime. They are experiencing fewer bugs&mdash;in some cases, none&mdash;after production deployment. They're also emphasizing impressive speed when adding new features, plus appreciating Coyote's low-barrier entry for team members.</p>
 
     <p><a href="/coyote/case-studies/azure-batch-service"  class="cta">Learn about how Azure is using Coyote </a></p>

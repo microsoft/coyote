@@ -961,11 +961,16 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         internal override void NotifyWaitTask(Actor actor, Task task)
         {
             this.Assert(task != null, "{0} is waiting for a null task to complete.", actor.Id);
-            this.Assert(task.IsCompleted || task.IsCanceled || task.IsFaulted,
-                "Task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
-                "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are using " +
-                "external libraries that are executing concurrently, you will need to mock them during testing.",
-                Task.CurrentId);
+
+            bool finished = task.IsCompleted || task.IsCanceled || task.IsFaulted;
+            if (!finished)
+            {
+                this.Assert(finished,
+                    "Task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
+                    "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are using " +
+                    "external libraries that are executing concurrently, you will need to mock them during testing.",
+                    Task.CurrentId);
+            }
         }
 
         /// <summary>
@@ -1122,6 +1127,16 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 foreach (var tup in pairs)
                 {
                     this.CoverageInfo.DeclareStateEvent(name, tup.Item1, tup.Item2);
+                }
+            }
+            else
+            {
+                var fakeStateName = actor.GetType().Name;
+                this.CoverageInfo.DeclareMachineState(name, fakeStateName);
+
+                foreach (var eventId in actor.GetAllRegisteredEvents())
+                {
+                    this.CoverageInfo.DeclareStateEvent(name, fakeStateName, eventId);
                 }
             }
         }

@@ -30,10 +30,11 @@ In this scenario there is a `Robot` that must serve drinks to people in a room:
     and sends the details (adult or minor, location) of that person to the `Robot`.
 
  3. It is not always possible to follow the straight line connecting the `Robot`'s location with
-    that of the selected client as there are obstacles, like furniture, in the room. Thus the
+    that of the selected client as there are obstacles, like furniture, in the room. Thus, the
     `Robot` asks the `Navigator` to produce a collision-free route from the `Robot`'s location to
     the person who will be served. The `Navigator` provides the requested route that must be
-    reached, with the last being that of the client.
+    reached, with the last being that of the client. A route is simply a list of consecutive
+    straight line segments.
 
  4. The `Robot` traverses the route and reaches the client. Then the `Robot` selects randomly an
     appropriate drink for the client: alcoholic for an adult and non-alcoholic for a minor client.
@@ -499,15 +500,8 @@ you'll see in the output of the tester that a DGML diagram has been produced:
 
 Open this with Visual Studio 2019 and you will see something like this:
 
-<div>
+<div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml">
 {% include DSR-Bug-01.svg %}
-
-<script language="javascript" src="/coyote/assets/js/animate_trace.js"></script>
-<script language="javascript" src="/coyote/assets/js/trace_model.js"></script>
-
-<script language="javascript">
-fetchTrace('/coyote/assets/data/DrinksServingRobot.trace.xml', convertTrace);
-</script>
 </div>
 
 This is the exact snapshot at the time when the bug manifested.
@@ -559,7 +553,7 @@ private void NextMove()
 }
 ```
 
-Note that in this code, there is no transition or even mentioning of the state `Active` ... so how
+Note that in this code there is no transition or even mentioning of the state `Active` ... so how
 was it possible to transition from `MovingOnRoute` to `Active`?
 
 The diagram shows exactly what happened:

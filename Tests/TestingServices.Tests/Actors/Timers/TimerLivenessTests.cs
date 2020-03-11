@@ -60,6 +60,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
         public void TestTimerLiveness()
         {
             var configuration = GetConfiguration();
+            configuration.TimeoutDelay = 1;
             configuration.LivenessTemperatureThreshold = 150;
             configuration.MaxSchedulingSteps = 300;
             configuration.SchedulingIterations = 1000;

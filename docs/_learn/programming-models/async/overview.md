@@ -63,7 +63,7 @@ IAsyncStateMachine) which keeps track of things like yielding execution when an 
 and resuming execution when a background job has finished.
 
 The `ControlledTask` type uses a C# 7 feature known as `async task types` (see
-[here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types)) that allows
+[here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types.md)) that allows
 framework developers to create custom task types that can be used with `async` and `await`. This is
 where the magic happens. In production, `ControlledTask` enables C# to build a custom asynchronous
 state machine that uses regular `Task` objects. However, during testing, Coyote uses dependency

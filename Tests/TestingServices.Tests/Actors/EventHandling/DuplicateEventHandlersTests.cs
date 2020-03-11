@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Actors
             {
                 r.CreateActor(typeof(A1));
             },
-            expectedError: "A1() declared multiple handlers for event 'Actors.UnitEvent'.");
+            expectedError: "A1 declared multiple handlers for event 'Actors.UnitEvent'.");
         }
 
         private class M1 : StateMachine

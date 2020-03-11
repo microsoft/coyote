@@ -7,10 +7,10 @@ navsection: install
 template: basic
 ---
 
-##  Installing the NuGet package
+## Installing the NuGet package
 
 <div>
-<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install NuGet package</a> <a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Build from source</a>
+<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install NuGet package</a>
 <br/>
 <br/>
 </div>
@@ -21,6 +21,8 @@ immediately start programming the Coyote API as shown in the
 [samples](http://github.com/microsoft/coyote-samples).
 
 ## Build from source
+
+<a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Build from source</a>
 
 ### Prerequisites
 

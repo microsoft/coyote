@@ -4,6 +4,7 @@ title:        Coyote
 alt-title:    Coyote
 tagline:      Coyote - for rapid development of reliable asynchronous code.
 baseurl:      "/coyote"
+cookiebanner: false
 
 author:
   name:       Microsoft
@@ -45,7 +46,7 @@ relative_links:
 # Handling Reading
 safe:         false
 include:      [".htaccess"]
-# exclude:      [_learn/ref]
+#exclude:      [_learn]
 keep_files:   [".git", ".svn"]
 encoding:     "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"

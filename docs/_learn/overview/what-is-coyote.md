@@ -14,8 +14,8 @@ other sources of _non-determinism_ (like message ordering, failures, timeouts an
 
 Coyote provides programming models to express concurrent systems. These programming models offer
 convenient ways to program at a high-level of abstraction. As mentioned below, Coyote currently
-supports two programming models: a familiar tasks-based programming (currently in-preview) as well
-as a more advanced actor-based programming model. These programming models are built using
+supports two programming models: a familiar tasks-based programming model (currently in-preview) as
+well as a more advanced actor-based programming model. These programming models are built using
 asynchronous APIs, supported by a lightweight runtime, making it easy to program efficient
 non-blocking code.
 
@@ -46,8 +46,7 @@ studies](../../case-studies/azure-batch-service) for some great customer testimo
 
 Coyote provides two main programming models:
 
-- [Asynchronous tasks](../programming-models/async/overview) ![Task programming model is
-  currently
+- [Asynchronous tasks](../programming-models/async/overview) ![Task programming model is currently
   in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview), which
   follows the popular [task-based asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).

@@ -2,10 +2,13 @@
 dark:
 - title: Coyote
   subfolderitems:
+    - name: Overview
+      link: /
     - name: About
       link: /about
-    - name: Contact us
-      link: /contact-us
+    # - name: Contact us
+    #   link: https://support.microsoft.com/en-us/contactus/
+    #  external: true
 - title: Resources
   subfolderitems:
     - name: Overview
@@ -14,14 +17,21 @@ dark:
       link: /learn/get-started/install
     - name: Getting started
       link: /learn/get-started/using-coyote
-    - name: Get involved
-      link: /contact-us/
 - title: Join community
   subfolderitems:
     - name: GitHub
       link: https://github.com/microsoft/coyote/
       external: true
-
+    - name: Gitter
+      link: https://gitter.im/microsoft/coyote
+      external: true
 footnote:
 - name: Privacy
   link: https://privacy.microsoft.com/en-us/privacystatement/
+  external: true
+- name: Terms of Use
+  link: https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/default.aspx
+  external: true
+- name: License
+  link: https://github.com/microsoft/coyote/blob/master/LICENSE
+  external: true

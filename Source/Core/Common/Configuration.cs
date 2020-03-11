@@ -41,14 +41,6 @@ namespace Microsoft.Coyote
         public string AssemblyToBeAnalyzed;
 
         /// <summary>
-        /// The assembly that contains the testing runtime.
-        /// By default it is empty, which uses the default
-        /// testing runtime of Coyote.
-        /// </summary>
-        [DataMember]
-        public string TestingRuntimeAssembly;
-
-        /// <summary>
         /// Test method to be used.
         /// </summary>
         [DataMember]
@@ -195,8 +187,11 @@ namespace Microsoft.Coyote
         public int CoinFlipBound;
 
         /// <summary>
-        /// The timeout delay used during testing. By default it is 1.
-        /// Increase to the make timeouts less frequent.
+        /// Value that controls the probability of triggering a timeout each time a built-in timer
+        /// is scheduled during systematic testing. Decrease the value to increase the frequency of
+        /// timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to
+        /// decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default
+        /// this value is 10.
         /// </summary>
         [DataMember]
         public uint TimeoutDelay;
@@ -338,7 +333,6 @@ namespace Microsoft.Coyote
             this.RuntimeGeneration = 0;
 
             this.AssemblyToBeAnalyzed = string.Empty;
-            this.TestingRuntimeAssembly = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = SchedulingStrategy.Random;
@@ -358,7 +352,7 @@ namespace Microsoft.Coyote
             this.ConsiderDepthBoundHitAsBug = false;
             this.PrioritySwitchBound = 0;
             this.CoinFlipBound = 0;
-            this.TimeoutDelay = 1;
+            this.TimeoutDelay = 10;
             this.SafetyPrefixBound = 0;
 
             this.IsLivenessCheckingEnabled = true;
@@ -441,6 +435,16 @@ namespace Microsoft.Coyote
         public Configuration WithMaxSteps(int maxSteps)
         {
             this.MaxSchedulingSteps = maxSteps;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the <see cref="TimeoutDelay"/> to the specified value.
+        /// </summary>
+        /// <param name="timeoutDelay">The timeout delay during testing.</param>
+        public Configuration WithTimeoutDelay(uint timeoutDelay)
+        {
+            this.TimeoutDelay = timeoutDelay;
             return this;
         }
     }

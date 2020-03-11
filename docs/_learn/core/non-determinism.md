@@ -40,7 +40,7 @@ individual memory accesses. Even _high level_ races such as the order in which m
 get processed also contributes to non-determinism.
 
 Non-determinism arises from many other sources as well. Timeouts are a good example. The use of
-timers prevails in many distributed systems. Consider a program that wishes to offload some
+timers prevail in many distributed systems. Consider a program that wishes to offload some
 computation to a remote computer. It will typically send a message over the network, and then start
 a timer with some pre-determined timeout value. If the response arrives successfully from the remote
 machine, the timer is canceled and all is good. If the timer fires before the response arrives, then
@@ -59,9 +59,9 @@ external service.
 The trouble with non-determinism is that you must defend against all the ways in which the
 non-determinism unfolds at runtime. For example, no matter what scheduling happens between
 concurrent operations or when failures happen, our program must still work. This imposes a cognitive
-burden on our design and makes it harder to write correct code. Once the design and code is in
+burden on our design and makes it harder to write correct code. Once the design and code are in
 place, even testing is hard because how do you get coverage of these non-deterministic activities?
-Stress testing technique hope that with enough load on the system, the corner cases will get
+Stress testing techniques hope that with enough load on the system, the corner cases will get
 covered. Coyote offers a more principled approach, namely [systematic
 testing](../core/systematic-testing) that has proven to be very effective in practice, and
 [widely adopted in Azure](../../case-studies/azure-batch-service).

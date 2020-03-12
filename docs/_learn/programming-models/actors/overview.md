@@ -142,71 +142,101 @@ an event is sent to a target actor there is no deep-copying of those members, fo
 reasons. The target actor will be able to see the Event object and cast it to a specific type to
 extract the information it needs.
 
-Now you can write a complete actor, declaring what type of events it can handle, and defining some
-initialization behavior and an event handler:
+Now you can write a complete actor, declaring what type of events it can handle:
 
 ```c#
-[OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
+[OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
 class Server : Actor
 {
-    ActorId ClientId;
-
-    protected override Task OnInitializeAsync(Event initialEvent)
+    public void HandlePing(Event e)
     {
-        Console.WriteLine("Server creating client");
-        this.ClientId = this.CreateActor(typeof(Client));
-        Console.WriteLine("Server sending ping event to client");
-        this.SendEvent(this.ClientId, new PingEvent(this.Id));
-        return base.OnInitializeAsync(initialEvent);
-    }
-
-    void HandlePong()
-    {
-        Console.WriteLine("Server received pong event");
+        PingEvent ping = (PingEvent)e;
+        Console.WriteLine("Server handling ping");
+        Console.WriteLine("Server sending pong back to caller");
+        this.SendEvent(ping.Caller, new PongEvent());
     }
 }
 ```
 
-This `Server` is an `Actor` that can receive `PongEvents`. During initialization it creates a new
-`Client` actor and sends a `PingEvent` to it containing `this.Id` which is the `ActorId` of the
-`Server`. It handles the `PongEvent` by calling the `HandlePong` event handler method which prints a
-message.
+This `Server` is an `Actor` that can receive `PingEvent`.  The `PingEvent` contains the `ActorId` of
+the caller and the `Server` uses that to send back a `PongEvent` in response.
 
 An event handler controls how a machine _reacts_ to a received event. It is clearly just a method so
 you can do anything there, including creating one or more actor instances, sending one or more
-events, updating some private state or invoking some 3rd party library. Notice the `HandlePong`
-event handler has no parameters. It could also choose to specify one parameter of type `Event` but
-in this case it doesn't care about the specific type of event it received here.
+events, updating some private state or invoking some 3rd party library.
 
 To complete this Coyote program, you can provide the following implementation of the `Client` actor
 created by the above `Server`:
 
 ```c#
-[OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
+class SetupEvent : Event
+{
+    public readonly ActorId ServerId;
+
+    public SetupEvent(ActorId server)
+    {
+        this.ServerId = server;
+    }
+}
+
+[OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
 class Client : Actor
 {
-    public void HandlePing(Event e)
+    public ActorId ServerId;
+
+    protected override Task OnInitializeAsync(Event initialEvent)
     {
-        PingEvent pe = (PingEvent)e;
-        Console.WriteLine("Client handling ping");
-        Console.WriteLine("Client sending pong to server");
-        this.SendEvent(pe.Caller, new PongEvent());
+        Console.WriteLine("Client initializing");
+        this.ServerId = ((SetupEvent)initialEvent).ServerId;
+        Console.WriteLine("Client sending ping event to server");
+        this.SendEvent(this.ServerId, new PingEvent(this.Id));
+        return base.OnInitializeAsync(initialEvent);
+    }
+
+    void HandlePong()
+    {
+        Console.WriteLine("Client received pong event");
     }
 }
 ```
 
-This `Client` is an `Actor` that can receive `PingEvents`. It handles the `PingEvent` by calling the
-`HandlePing` method. Notice in this case the `HandlePing` method chooses to receive the `Event` as a
-parameter. It then casts the incoming `Event` to type `PingEvent` and uses the `Caller` field to
-send a `PongEvent` back to the caller (which is the id of the Server in this case).
+This `Client` is an `Actor` that sends `PingEvents` to a server.  This means the `Client` needs to
+know the `ActorId` of the `Server`.  This can be done using an initialEvent passed to
+`OnInitializeAsync`.  The `Client` then uses this `ActorId` to send a `PingEvent` to the `Server`.
+
+When the `Server` responds with a `PongEvent` the `HandlePong` method is called because of the
+`OnEventDoAction` declaration on the class.  Notice in this case the `HandlePong` event handler
+takes no `Event` argument.  The `Event` argument is optional on Coyote event handlers.
 
 Note that `HandlePing` could also be defined as an `async Task` method. Async handlers are allowed
 so that you can call external async systems in your production code, but do not directly create
-parallel tasks inside an actor (e.g. by using `Task.Run) as that can introduce race conditions (if
+parallel tasks inside an actor (e.g. by using `Task.Run`) as that can introduce race conditions (if
 you need to parallelize a workload, you can create more actors). Also, during testing, you should
 not use `Task.Delay` or `Task.Yield` in your event handlers. It is ok to have truly async behavior
 in production, but at test time `coyote test` wants to know about and control all async behavior of
 your actor. If it detects some uncontrolled async behavior an error will be reported.
+
+One last remaining bit of code is needed in your `Program` to complete this example, you need
+to create the `Client` actor in the `Execute` method:
+
+```c#
+    public static void Execute(IActorRuntime runtime)
+    {
+        ActorId serverId = runtime.CreateActor(typeof(Server));
+        ActorId clientid = runtime.CreateActor(typeof(Client),
+            new SetupEvent(serverId));
+    }
+```
+
+The output of the program will be:
+
+```
+Client initializing
+Client sending ping event to server
+Server handling ping
+Server sending pong back to caller
+Client received pong event
+```
 
 The `CreateActor` and `SendEvent` methods are non-blocking. The Coyote runtime will take care of all
 the underlying concurrency using the Task Parallel Library, which means that you do not need to

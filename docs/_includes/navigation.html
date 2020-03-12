@@ -10,15 +10,14 @@
       </button>
       {% if page.section == "home" %}
       <a class="brand-home" href="{{site.baseurl}}/" title="Homepage">
-        <p>coyote</p>
         <span>Fearless coding for reliable asynchronous software</span>
       </a>
       {% endif %}
-      <a class="navbar-brand" style="color:#ff6633; margin-left:0px;" href="{{site.baseurl}}/" title="Homepage">coyote</a>
-
+      <a class="navbar-brand" style="color:#ff6633; margin-left:0px;" href="{{site.baseurl}}/" title="Homepage"></a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <a href="javascript:void(0)" class="closebtn" data-toggle="collapse" data-target="#navbar">&times;</a>
+      <a class="navbar-brand-menu" href="{{site.baseurl}}/" title="Homepage"></a>
       <ul class="nav navbar-nav navbar-right">
         {%  assign section = page.section %}
         {% if page.navsection %}

@@ -142,6 +142,7 @@ p {
   }
 
   .navbar-brand-menu {
+    background: url("/coyote/assets/images/logo_coyote_white.svg") no-repeat 30px center;
     display: block;
     width: 267px;
     height: 40px;
@@ -172,18 +173,23 @@ p {
 // homepage brand
 .navbar-brand {
   display: block;
+  background: url("/coyote/assets/images/logo_coyote.svg") no-repeat 30px center;
   width: 267px;
+  height: 40px;
+  background-size: contain;
+  margin: 20px 0 0 0;
   transition: .3s;
-  font-size: 50px;
-  margin-top: -10px;
-  margin-left: 10px;
-  font-family: 'Segoe UI';
-  text-decoration: none;
-  line-height: 100%;
+}
+
+@media only screen and (max-width: 768px) {
+  .home .navbar-default .navbar-brand {
+    width: 147px;
+  }
 }
 
 .shrink .navbar-brand {
-  font-size: 36px;
+  height: 20px;
+  margin-top: 15px;
 }
 
 .home {
@@ -194,6 +200,9 @@ p {
   .brand-home {
     position: absolute;
     z-index: 1;
+    background: url("/coyote/assets/images/logo_coyote_white.svg") no-repeat;
+    background-position: center 20px;
+    background-size: 130px auto;
     transition: all .2s ease-in;
     padding: 0 10px;
     width: 200px;
@@ -226,27 +235,20 @@ p {
       line-height: 122.2%;
       font-weight: 100;
       width: 100%;
-      padding: 0px 10px;
+      padding: 63px 22px;
 
       @media only screen and (min-width: 768px) {
         font-size: 30px;
-        padding: 40px 10px;
+        padding: 100px 10px;
       }
-    }
-
-    p {
-      // this is for the 'coyote' word part of the brand-home
-      margin-top: 15px;
-      font-size: 50px;
-      margin-bottom: -16px;
-      margin-left: 10px;
     }
 
     &.brand-shrink {
       background-color: transparent;
+      background: url("/coyote/assets/images/logo_coyote.svg") no-repeat 30px center;
       width: 267px;
       height: 20px;
-      // margin-top: 15px;
+      margin-top: 15px;
       background-size: contain;
 
       span {
@@ -254,26 +256,6 @@ p {
         margin-top: -100px;
       }
     }
-
-    @media only screen and (max-width: 768px) {
-      p {
-        font-size: 36px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-    }
-  }
-
-}
-
-@media only screen and (max-width: 768px) {
-  .home .navbar-default .navbar-brand {
-    width: 147px;
-  }
-
-  .navbar-brand {
-    font-size: 36px;
-    margin: 10px 0 0 0;
   }
 }
 

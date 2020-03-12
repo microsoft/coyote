@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.TestingServices;
 using Microsoft.Coyote.Utilities;
 
@@ -93,8 +94,15 @@ namespace Microsoft.Coyote
 
         private static void ReplayTest()
         {
-            // Creates and starts a replaying process.
-            ReplayingProcess.Create(Configuration).Start();
+            // Set some replay specific options.
+            Configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+            Configuration.EnableColoredConsoleOutput = true;
+            Configuration.DisableEnvironmentExit = false;
+
+            Console.WriteLine($". Replaying {Configuration.ScheduleFile}");
+            TestingEngine engine = TestingEngine.Create(Configuration);
+            engine.Run();
+            Console.WriteLine(engine.GetReport());
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Coverage
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 r.CreateActor(typeof(M0));
             },
@@ -98,7 +98,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 r.CreateActor(typeof(M1));
             },
@@ -154,7 +154,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 r.CreateActor(typeof(M2));
             },
@@ -240,7 +240,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 r.CreateActor(typeof(M3A));
             },
@@ -302,7 +302,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine1 = this.Test(r =>
+            TestingEngine testingEngine1 = this.Test(r =>
             {
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
@@ -316,7 +316,7 @@ Event coverage: 100.0%
             Assert.Contains(typeof(M4.Done).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
             Assert.Contains(coverage1.RegisteredEvents, tup => tup.Value.Contains(typeof(UnitEvent).FullName));
 
-            ITestingEngine testingEngine2 = this.Test(r =>
+            TestingEngine testingEngine2 = this.Test(r =>
             {
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
@@ -377,7 +377,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 var m = r.CreateActor(typeof(M5));
                 r.SendEvent(m, new E1());
@@ -459,7 +459,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 var actor = r.CreateActor(typeof(M6));
                 r.SendEvent(actor, new E1());  // even though Ready state is pushed E1 can still be handled by Init state because Init state is still active.
@@ -559,7 +559,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            ITestingEngine testingEngine = this.Test(r =>
+            TestingEngine testingEngine = this.Test(r =>
             {
                 r.RegisterMonitor(typeof(Monitor1));
                 var actor = r.CreateActor(typeof(M7));

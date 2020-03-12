@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 r.CreateActor(typeof(M));
             };
 
-            BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
+            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
 
             try
             {
@@ -114,7 +114,7 @@ StateTransition
                 r.CreateActor(typeof(M));
             };
 
-            BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
+            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
 
             try
             {
@@ -167,7 +167,7 @@ StateTransition
                 r.CreateActor(typeof(M));
             };
 
-            BugFindingEngine engine = BugFindingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
+            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithStrategy(SchedulingStrategy.DFS), test);
 
             try
             {

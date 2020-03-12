@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.TestingServices.Scheduling
         private readonly SystematicTestingRuntime Runtime;
 
         /// <summary>
-        /// The scheduling strategy to be used for state-space exploration.
+        /// The scheduling strategy used for program exploration.
         /// </summary>
         private readonly ISchedulingStrategy Strategy;
 

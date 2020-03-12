@@ -80,6 +80,8 @@ learn-toc:
   subfolderitems:
     - name: Testing
       link: /learn/tools/testing
+    - name: Tester requirements
+      link: /learn/tools/tester-requirements
     - name: Code and activity coverage
       link: /learn/tools/coverage
     - name: Distributed testing

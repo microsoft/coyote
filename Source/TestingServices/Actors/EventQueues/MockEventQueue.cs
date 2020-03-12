@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Utilities;
 
-namespace Microsoft.Coyote.TestingServices.Runtime
+namespace Microsoft.Coyote.Actors.Mocks
 {
     /// <summary>
     /// Implements a queue of events that is used during testing.

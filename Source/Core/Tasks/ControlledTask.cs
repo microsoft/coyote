@@ -713,7 +713,7 @@ namespace Microsoft.Coyote.Tasks
         /// Injects a context switch point that can be systematically explored during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ExploreContextSwitch();
+        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ScheduleNextOperation();
 
         /// <summary>
         /// Converts the specified <see cref="ControlledTask"/> into a <see cref="Task"/>.

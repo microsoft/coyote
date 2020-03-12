@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.TestingServices.Runtime;
-using Microsoft.Coyote.TestingServices.Scheduling;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SharedObjects
 {

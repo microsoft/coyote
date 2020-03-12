@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.TestingServices.Runtime;
 
 namespace Microsoft.Coyote.SharedObjects
 {

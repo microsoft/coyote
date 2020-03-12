@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.TestingServices.Runtime;
 
 namespace Microsoft.Coyote.SharedObjects
 {

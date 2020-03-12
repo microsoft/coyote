@@ -472,7 +472,8 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Notifies that an actor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName, Event receivedEvent)
+        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName,
+            string currentStateName, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {

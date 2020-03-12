@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.TestingServices;
+using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -19,11 +19,10 @@ using System.Xml;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Exploration.Strategies;
 using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.TestingServices.Coverage;
-using Microsoft.Coyote.TestingServices.Runtime;
-using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
 using Microsoft.Coyote.TestingServices.Tracing;
 using Microsoft.Coyote.Utilities;
 

@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Runtime
         /// If true, the program execution is controlled by the runtime to
         /// explore interleavings and sources of nondeterminism.
         /// </summary>
-        protected static bool IsExecutionControlled { get; private protected set; } = false;
+        internal static bool IsExecutionControlled { get; private protected set; } = false;
 
         /// <summary>
         /// The configuration used by the runtime.
@@ -360,10 +360,20 @@ namespace Microsoft.Coyote.Runtime
         internal abstract int GetNondeterministicIntegerChoice(Actor caller, int maxValue);
 
         /// <summary>
-        /// Injects a context switch point that can be systematically explored during testing.
+        /// Gets the <see cref="IAsyncOperation"/> that is executing on the current
+        /// synchronization context, or null if no such operation is executing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void ExploreContextSwitch()
+        internal virtual TAsyncOperation GetExecutingOperation<TAsyncOperation>()
+            where TAsyncOperation : IAsyncOperation =>
+            default;
+
+        /// <summary>
+        /// Schedules the next controlled asynchronous operation. This method
+        /// is only used during testing.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void ScheduleNextOperation()
         {
         }
 
@@ -371,7 +381,8 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that an actor invoked an action.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStatename, string currentStateName, Event receivedEvent)
+        internal virtual void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStatename,
+            string currentStateName, Event receivedEvent)
         {
         }
 

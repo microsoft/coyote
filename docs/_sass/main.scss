@@ -142,7 +142,7 @@ p {
   }
 
   .navbar-brand-menu {
-    background: url("/coyote/assets/images/logo_rev.svg") no-repeat 30px center; //white logo
+    background: url("/coyote/assets/images/logo_coyote_white.svg") no-repeat 30px center;
     display: block;
     width: 267px;
     height: 40px;
@@ -173,14 +173,13 @@ p {
 // homepage brand
 .navbar-brand {
   display: block;
-  background: url("/coyote/assets/images/logo_color.svg") no-repeat 30px center;
+  background: url("/coyote/assets/images/logo_coyote.svg") no-repeat 30px center;
   width: 267px;
   height: 40px;
   background-size: contain;
   margin: 20px 0 0 0;
   transition: .3s;
 }
-
 
 @media only screen and (max-width: 768px) {
   .home .navbar-default .navbar-brand {
@@ -201,7 +200,7 @@ p {
   .brand-home {
     position: absolute;
     z-index: 1;
-    background: url("/coyote/assets/images/logo_rev.svg") no-repeat;
+    background: url("/coyote/assets/images/logo_coyote_white.svg") no-repeat;
     background-position: center 20px;
     background-size: 130px auto;
     transition: all .2s ease-in;
@@ -246,7 +245,7 @@ p {
 
     &.brand-shrink {
       background-color: transparent;
-      background: url("/coyote/assets/images/logo_color.png") no-repeat 30px center;
+      background: url("/coyote/assets/images/logo_coyote.svg") no-repeat 30px center;
       width: 267px;
       height: 20px;
       margin-top: 15px;
@@ -321,19 +320,6 @@ p {
     text-overflow: ellipsis;
   }
 
-  // puts a little ">" icon next to the list item, problem is this implies expandability
-  // but not all items are expandable, so this is confusing.
-  // li a:before {
-  //   /*Using a Bootstrap glyphicon as the bullet point*/
-  //   content: "\e080";
-  //   font-family: 'Glyphicons Halflings';
-  //   font-size: 9px;
-  //   float: left;
-  //   margin-left: -10px;
-  //   color: #ccc;
-  //   background: none;
-  // }
-
   li a.active:before {
     color: $brand-color;
   }
@@ -393,7 +379,6 @@ p {
   margin-top: 0;
 
 }
-
 
 .reference .display-flex article {
   max-width: 100%;
@@ -654,8 +639,7 @@ p {
 
 .search-wrapper {
   @include screen(md) {
-    position: relative;
-
+    // position: relative;
   }
 }
 

@@ -55,6 +55,10 @@ public class ControlledTask : IDisposable
 | --- | --- |
 | virtual [Dispose](ControlledTask/Dispose)(…) | Disposes the [`ControlledTask`](ControlledTaskType), releasing all of its unmanaged resources. |
 
+## Remarks
+
+See [Programming model: asynchronous tasks](/coyote/learn/programming-models/async/overview) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Tasks](../MicrosoftCoyoteTasksNamespace)

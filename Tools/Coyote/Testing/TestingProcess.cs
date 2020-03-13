@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.TestingServices
         /// The testing engine associated with
         /// this testing process.
         /// </summary>
-        private readonly ITestingEngine TestingEngine;
+        private readonly TestingEngine TestingEngine;
 
         /// <summary>
         /// The channel to the TestProcessScheduler.
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.TestingServices
             configuration.EnableColoredConsoleOutput = true;
 
             this.Configuration = configuration;
-            this.TestingEngine = TestingEngineFactory.CreateBugFindingEngine(this.Configuration);
+            this.TestingEngine = TestingEngine.Create(this.Configuration);
         }
 
         ~TestingProcess()

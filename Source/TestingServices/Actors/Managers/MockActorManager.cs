@@ -4,10 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 
-namespace Microsoft.Coyote.TestingServices.Runtime
+namespace Microsoft.Coyote.Actors.Mocks
 {
     /// <summary>
     /// Implements an actor manager that is used during testing.

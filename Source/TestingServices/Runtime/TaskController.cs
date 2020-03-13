@@ -10,11 +10,10 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.TestingServices.Scheduling;
 
-namespace Microsoft.Coyote.TestingServices.Runtime
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Responsible for controlling the execution of tasks during systematic testing.
@@ -50,7 +49,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(action != null, "The task cannot execute a null action.");
 
             ulong operationId = this.Runtime.GetNextOperationId();
-            var op = new TaskOperation(operationId, "ControlledTask", this.Scheduler);
+            var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
             op.OnEnabled();
 
@@ -111,7 +110,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(function != null, "The task cannot execute a null function.");
 
             ulong operationId = this.Runtime.GetNextOperationId();
-            var op = new TaskOperation(operationId, "ControlledTask", this.Scheduler);
+            var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
             op.OnEnabled();
 
@@ -171,7 +170,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(function != null, "The task cannot execute a null function.");
 
             ulong operationId = this.Runtime.GetNextOperationId();
-            var op = new TaskOperation(operationId, "ControlledTask", this.Scheduler);
+            var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
             op.OnEnabled();
 
@@ -230,7 +229,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(work != null, "The task cannot execute a null delegate.");
 
             ulong operationId = this.Runtime.GetNextOperationId();
-            var op = new TaskOperation(operationId, "ControlledTask", this.Scheduler);
+            var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
             op.OnEnabled();
 

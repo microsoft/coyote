@@ -9,9 +9,9 @@ using System.Text;
 using System.Xml.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.TestingServices.Timers;
 
 namespace Microsoft.Coyote.TestingServices.Coverage
 {

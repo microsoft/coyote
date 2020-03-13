@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Exploration.Strategies;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-
 using Common = Microsoft.Coyote.Tests.Common;
 
 namespace Microsoft.Coyote.TestingServices.Tests
@@ -21,19 +22,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
         {
         }
 
-        protected ITestingEngine Test(Action test, Configuration configuration = null) =>
+        protected TestingEngine Test(Action test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected ITestingEngine Test(Action<IActorRuntime> test, Configuration configuration = null) =>
+        protected TestingEngine Test(Action<IActorRuntime> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected ITestingEngine Test(Func<ControlledTask> test, Configuration configuration = null) =>
+        protected TestingEngine Test(Func<ControlledTask> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected ITestingEngine Test(Func<IActorRuntime, ControlledTask> test, Configuration configuration = null) =>
+        protected TestingEngine Test(Func<IActorRuntime, ControlledTask> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        private ITestingEngine Test(Delegate test, Configuration configuration)
+        private TestingEngine Test(Delegate test, Configuration configuration)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -47,13 +48,11 @@ namespace Microsoft.Coyote.TestingServices.Tests
                 logger = TextWriter.Null;
             }
 
-            BugFindingEngine engine = null;
+            TestingEngine engine = null;
 
             try
             {
-                engine = BugFindingEngine.Create(configuration, test);
-                engine.SetLogger(logger);
-                engine.Run();
+                engine = RunTest(test, configuration, logger);
 
                 var numErrors = engine.TestReport.NumOfFoundBugs;
                 Assert.True(numErrors == 0, GetBugReport(engine));
@@ -134,20 +133,19 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             try
             {
-                var bfEngine = BugFindingEngine.Create(configuration, test);
-                bfEngine.SetLogger(logger);
-                bfEngine.Run();
-
-                CheckErrors(bfEngine, expectedErrors);
+                var engine = RunTest(test, configuration, logger);
+                CheckErrors(engine, expectedErrors);
 
                 if (replay)
                 {
-                    var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
-                    rEngine.SetLogger(logger);
-                    rEngine.Run();
+                    configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+                    configuration.ScheduleTrace = engine.ReproducableTrace;
 
-                    Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
-                    CheckErrors(rEngine, expectedErrors);
+                    engine = RunTest(test, configuration, logger);
+
+                    string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                    Assert.True(replayError.Length == 0, replayError);
+                    CheckErrors(engine, expectedErrors);
                 }
             }
             catch (Exception ex)
@@ -207,20 +205,20 @@ namespace Microsoft.Coyote.TestingServices.Tests
 
             try
             {
-                var bfEngine = BugFindingEngine.Create(configuration, test);
-                bfEngine.SetLogger(logger);
-                bfEngine.Run();
+                var engine = RunTest(test, configuration, logger);
 
-                CheckErrors(bfEngine, exceptionType);
+                CheckErrors(engine, exceptionType);
 
                 if (replay)
                 {
-                    var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
-                    rEngine.SetLogger(logger);
-                    rEngine.Run();
+                    configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+                    configuration.ScheduleTrace = engine.ReproducableTrace;
 
-                    Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
-                    CheckErrors(rEngine, exceptionType);
+                    engine = RunTest(test, configuration, logger);
+
+                    string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                    Assert.True(replayError.Length == 0, replayError);
+                    CheckErrors(engine, exceptionType);
                 }
             }
             catch (Exception ex)
@@ -233,7 +231,15 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private static void CheckErrors(ITestingEngine engine, IEnumerable<string> expectedErrors)
+        private static TestingEngine RunTest(Delegate test, Configuration configuration, TextWriter logger)
+        {
+            var engine = new TestingEngine(configuration, test);
+            engine.SetLogger(logger);
+            engine.Run();
+            return engine;
+        }
+
+        private static void CheckErrors(TestingEngine engine, IEnumerable<string> expectedErrors)
         {
             Assert.True(engine.TestReport.NumOfFoundBugs > 0);
             foreach (var bugReport in engine.TestReport.BugReports)
@@ -243,7 +249,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             }
         }
 
-        private static void CheckErrors(ITestingEngine engine, Type exceptionType)
+        private static void CheckErrors(TestingEngine engine, Type exceptionType)
         {
             Assert.Equal(1, engine.TestReport.NumOfFoundBugs);
             Assert.Contains("'" + exceptionType.FullName + "'",
@@ -255,7 +261,7 @@ namespace Microsoft.Coyote.TestingServices.Tests
             return Configuration.Create();
         }
 
-        protected static string GetBugReport(ITestingEngine engine)
+        protected static string GetBugReport(TestingEngine engine)
         {
             string report = string.Empty;
             foreach (var bug in engine.TestReport.BugReports)

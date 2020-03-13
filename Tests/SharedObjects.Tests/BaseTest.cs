@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Exploration.Strategies;
 using Microsoft.Coyote.TestingServices;
 using Xunit;
 using Xunit.Abstractions;
@@ -31,9 +34,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             try
             {
-                var engine = BugFindingEngine.Create(configuration, test);
-                engine.SetLogger(logger);
-                engine.Run();
+                var engine = RunTest(test, configuration, logger);
 
                 var numErrors = engine.TestReport.NumOfFoundBugs;
                 Assert.True(numErrors == 0, GetBugReport(engine));
@@ -82,18 +83,18 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             try
             {
-                var bfEngine = BugFindingEngine.Create(configuration, test);
-                bfEngine.SetLogger(logger);
-                bfEngine.Run();
+                var engine = RunTest(test, configuration, logger);
 
-                CheckErrors(bfEngine, numExpectedErrors, expectedOutputs);
+                CheckErrors(engine, numExpectedErrors, expectedOutputs);
 
-                var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
-                rEngine.SetLogger(logger);
-                rEngine.Run();
+                configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+                configuration.ScheduleTrace = engine.ReproducableTrace;
 
-                Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
-                CheckErrors(rEngine, numExpectedErrors, expectedOutputs);
+                engine = RunTest(test, configuration, logger);
+
+                string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                Assert.True(replayError.Length == 0, replayError);
+                CheckErrors(engine, numExpectedErrors, expectedOutputs);
             }
             catch (Exception ex)
             {
@@ -105,7 +106,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private static void CheckErrors(ITestingEngine engine, int numExpectedErrors, ISet<string> expectedOutputs)
+        private static void CheckErrors(TestingEngine engine, int numExpectedErrors, ISet<string> expectedOutputs)
         {
             var numErrors = engine.TestReport.NumOfFoundBugs;
             Assert.Equal(numExpectedErrors, numErrors);
@@ -141,18 +142,18 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
             try
             {
-                var bfEngine = BugFindingEngine.Create(configuration, test);
-                bfEngine.SetLogger(logger);
-                bfEngine.Run();
+                var engine = RunTest(test, configuration, logger);
 
-                CheckErrors(bfEngine, exceptionType);
+                CheckErrors(engine, exceptionType);
 
-                var rEngine = ReplayEngine.Create(configuration, test, bfEngine.ReproducableTrace);
-                rEngine.SetLogger(logger);
-                rEngine.Run();
+                configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+                configuration.ScheduleTrace = engine.ReproducableTrace;
 
-                Assert.True(rEngine.InternalError.Length == 0, rEngine.InternalError);
-                CheckErrors(rEngine, exceptionType);
+                engine = RunTest(test, configuration, logger);
+
+                string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
+                Assert.True(replayError.Length == 0, replayError);
+                CheckErrors(engine, exceptionType);
             }
             catch (Exception ex)
             {
@@ -164,7 +165,15 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
-        private static void CheckErrors(ITestingEngine engine, Type exceptionType)
+        private static TestingEngine RunTest(Delegate test, Configuration configuration, TextWriter logger)
+        {
+            var engine = new TestingEngine(configuration, test);
+            engine.SetLogger(logger);
+            engine.Run();
+            return engine;
+        }
+
+        private static void CheckErrors(TestingEngine engine, Type exceptionType)
         {
             var numErrors = engine.TestReport.NumOfFoundBugs;
             Assert.Equal(1, numErrors);
@@ -179,7 +188,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             return Configuration.Create();
         }
 
-        private static string GetBugReport(ITestingEngine engine)
+        private static string GetBugReport(TestingEngine engine)
         {
             string report = string.Empty;
             foreach (var bug in engine.TestReport.BugReports)

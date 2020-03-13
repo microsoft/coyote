@@ -9,11 +9,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Runtime;
-using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
-namespace Microsoft.Coyote.TestingServices.Runtime
+namespace Microsoft.Coyote.Runtime.UnitTesting
 {
     /// <summary>
     /// Runtime for testing an actor in isolation.
@@ -383,7 +381,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that an actor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName, Event receivedEvent)
+        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName,
+            string currentStateName, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {

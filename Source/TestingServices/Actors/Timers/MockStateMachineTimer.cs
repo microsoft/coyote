@@ -1,10 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.Timers;
-
-namespace Microsoft.Coyote.TestingServices.Timers
+namespace Microsoft.Coyote.Actors.Timers.Mocks
 {
     /// <summary>
     /// A mock timer that replaces <see cref="ActorTimer"/> during testing.

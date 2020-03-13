@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.TestingServices.Tests.Runtime
                 r.CreateActor(typeof(M1A), new ExecuteSynchronouslySetupEvent(true));
             },
             configuration: Configuration.Create().WithNumberOfIterations(10),
-            expectedError: "Deadlock detected. 'M1A()' and 'M1B()' are waiting to receive " +
+            expectedError: "Deadlock detected. M1A() and M1B() are waiting to receive " +
                 "an event, but no other controlled tasks are enabled.",
             replay: true);
         }

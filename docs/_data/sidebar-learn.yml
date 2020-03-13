@@ -80,6 +80,8 @@ learn-toc:
   subfolderitems:
     - name: Testing
       link: /learn/tools/testing
+    - name: Tester requirements
+      link: /learn/tools/tester-requirements
     - name: Code and activity coverage
       link: /learn/tools/coverage
     - name: Distributed testing
@@ -804,11 +806,48 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/ConfigureAwait
         - name: Result
           link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/Result
+      - name: AsyncLock
+        link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLockType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/Create
+        - name: AcquireAsync
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/AcquireAsync
+        - name: Release
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/Release
+        - name: AsyncLock
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/AsyncLock
+        - name: IsAcquired
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/IsAcquired
+        - name: Awaiters
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/Awaiters
+      - name: Semaphore
+        link: /learn/ref/Microsoft.Coyote.Tasks/SemaphoreType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Create
+        - name: Wait
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Wait
+        - name: WaitAsync
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/WaitAsync
+        - name: Release
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Release
+        - name: Dispose
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Dispose
+        - name: Semaphore
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore
+        - name: CurrentCount
+          link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount
       - name: TaskExtensions
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensionsType
         subfolderitems:
         - name: ToControlledTask
           link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensions/ToControlledTask
+      - name: AsyncLock.Releaser
+        link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLockReleaserType
+        subfolderitems:
+        - name: Dispose
+          link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose
     - name: Microsoft.Coyote.TestingServices
       link: /learn/ref/MicrosoftCoyoteTestingServicesNamespace
       subfolderitems:

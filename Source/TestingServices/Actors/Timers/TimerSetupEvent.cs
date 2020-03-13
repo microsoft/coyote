@@ -1,10 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.Timers;
-
-namespace Microsoft.Coyote.TestingServices.Timers
+namespace Microsoft.Coyote.Actors.Timers.Mocks
 {
     /// <summary>
     /// Defines a timer elapsed event that is sent from a timer to the actor that owns the timer.

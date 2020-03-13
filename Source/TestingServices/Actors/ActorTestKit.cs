@@ -5,13 +5,12 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.TestingServices.Runtime;
+using Microsoft.Coyote.Runtime.UnitTesting;
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.Actors.UnitTesting
 {
     /// <summary>
-    /// Provides methods for testing a actors of type <typeparamref name="T"/> in isolation.
+    /// Provides methods for testing an actor of type <typeparamref name="T"/> in isolation.
     /// </summary>
     /// <typeparam name="T">The actor type to test.</typeparam>
     public sealed class ActorTestKit<T>

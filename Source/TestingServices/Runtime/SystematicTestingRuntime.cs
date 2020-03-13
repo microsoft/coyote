@@ -10,19 +10,18 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Actors.Timers.Mocks;
+using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Runtime.Exploration.Strategies;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.TestingServices.Coverage;
-using Microsoft.Coyote.TestingServices.Scheduling;
-using Microsoft.Coyote.TestingServices.Scheduling.Strategies;
-using Microsoft.Coyote.TestingServices.Timers;
 using Microsoft.Coyote.TestingServices.Tracing;
 using Microsoft.Coyote.Utilities;
-using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
-namespace Microsoft.Coyote.TestingServices.Runtime
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
     /// Runtime for controlling and systematically testing asynchronous operations
@@ -211,7 +210,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
 
             ulong operationId = this.GetNextOperationId();
-            var op = new TaskOperation(operationId, testName, this.Scheduler);
+            var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
             op.OnEnabled();
 
@@ -373,7 +372,7 @@ namespace Microsoft.Coyote.TestingServices.Runtime
                 this.ReportActivityCoverageOfActor(actor);
             }
 
-            bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor, this.Scheduler));
+            bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor));
             this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
             this.LogWriter.LogCreateActor(id, creator?.Id);
 
@@ -844,10 +843,12 @@ namespace Microsoft.Coyote.TestingServices.Runtime
             return choice;
         }
 
-        /// <summary>
-        /// Injects a context switch point that can be systematically explored during testing.
-        /// </summary>
-        internal override void ExploreContextSwitch()
+        /// <inheritdoc/>
+        internal override TAsyncOperation GetExecutingOperation<TAsyncOperation>() =>
+            this.Scheduler.GetExecutingOperation<TAsyncOperation>();
+
+        /// <inheritdoc/>
+        internal override void ScheduleNextOperation()
         {
             var callerOp = this.Scheduler.GetExecutingOperation<AsyncOperation>();
             if (callerOp != null)
@@ -859,7 +860,8 @@ namespace Microsoft.Coyote.TestingServices.Runtime
         /// <summary>
         /// Notifies that an actor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName, string currentStateName, Event receivedEvent)
+        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName,
+            string currentStateName, Event receivedEvent)
         {
             this.LogWriter.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
         }

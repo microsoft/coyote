@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
+using TCS = System.Threading.Tasks.TaskCompletionSource<object>;
 
 namespace Microsoft.Coyote.Tasks
 {
@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Queue of tasks awaiting to acquire the lock.
         /// </summary>
-        protected readonly Queue<TaskCompletionSource<object>> Awaiters;
+        protected readonly Queue<TCS> Awaiters;
 
         /// <summary>
         /// True if the lock has been acquired, else false.
@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         protected AsyncLock()
         {
-            this.Awaiters = new Queue<TaskCompletionSource<object>>();
+            this.Awaiters = new Queue<TCS>();
             this.IsAcquired = false;
         }
 
@@ -48,12 +48,12 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         public virtual async ControlledTask<Releaser> AcquireAsync()
         {
-            TaskCompletionSource<object> awaiter;
+            TCS awaiter;
             lock (this.Awaiters)
             {
                 if (this.IsAcquired)
                 {
-                    awaiter = new TaskCompletionSource<object>();
+                    awaiter = new TCS();
                     this.Awaiters.Enqueue(awaiter);
                 }
                 else
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         protected virtual void Release()
         {
-            TaskCompletionSource<object> awaiter = null;
+            TCS awaiter = null;
             lock (this.Awaiters)
             {
                 if (this.Awaiters.Count > 0)
@@ -143,10 +143,10 @@ namespace Microsoft.Coyote.Tasks
             {
                 this.Resource.Runtime.ScheduleNextOperation();
 
-                TaskCompletionSource<object> awaiter;
+                TCS awaiter;
                 if (this.IsAcquired)
                 {
-                    awaiter = new TaskCompletionSource<object>();
+                    awaiter = new TCS();
                     this.Awaiters.Enqueue(awaiter);
 
                     // We need this, because when a resource gets released it notifies all asynchronous
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Tasks
             /// <inheritdoc/>
             protected override void Release()
             {
-                TaskCompletionSource<object> awaiter = null;
+                TCS awaiter = null;
                 if (this.Awaiters.Count > 0)
                 {
                     awaiter = this.Awaiters.Dequeue();

@@ -280,7 +280,7 @@ namespace Microsoft.Coyote.Runtime
                     IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
-            });
+            }, cancellationToken);
 
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
             task.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);

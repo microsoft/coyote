@@ -1033,6 +1033,27 @@
           link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore
         - name: CurrentCount
           link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount
+      - name: TaskCompletionSource<TResult>
+        link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1Type
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Create
+        - name: SetResult
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetResult
+        - name: TrySetResult
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetResult
+        - name: SetCanceled
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetCanceled
+        - name: TrySetCanceled
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetCanceled
+        - name: SetException
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetException
+        - name: TrySetException
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetException
+        - name: TaskCompletionSource
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TaskCompletionSource
+        - name: Task
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task
       - name: TaskExtensions
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensionsType
         subfolderitems:

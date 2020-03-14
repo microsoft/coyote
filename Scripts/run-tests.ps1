@@ -2,7 +2,7 @@ param(
     [string]$dotnet="dotnet",
     [ValidateSet("all","netcoreapp2.2","net46","net47")]
     [string]$framework="all",
-    [ValidateSet("all","core","testing-services","shared-objects")]
+    [ValidateSet("all","production","testing","shared-objects")]
     [string]$test="all",
     [string]$filter="",
     [ValidateSet("quiet","minimal","normal","detailed","diagnostic")]
@@ -14,8 +14,8 @@ Import-Module $PSScriptRoot\powershell\common.psm1
 $frameworks = "netcoreapp2.2", "net46", "net47"
 
 $targets = [ordered]@{
-    "core" = "Core.Tests"
-    "testing-services" = "TestingServices.Tests"
+    "production" = "Production.Tests"
+    "testing" = "SystematicTesting.Tests"
     "shared-objects" = "SharedObjects.Tests"
 }
 

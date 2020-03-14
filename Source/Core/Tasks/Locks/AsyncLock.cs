@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Tasks
 {

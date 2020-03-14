@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     result.AppendLine(trimmed);
                 }
-                else if (strip && trimmed.Contains("Microsoft.Coyote.TestingServices.Tests"))
+                else if (strip && trimmed.Contains("Microsoft.Coyote.SystematicTesting.Tests"))
                 {
                     result.AppendLine(trimmed);
                 }
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     result.AppendLine(trimmed);
                 }
-                else if (strip && trimmed.Contains("Microsoft.Coyote.TestingServices.Tests"))
+                else if (strip && trimmed.Contains("Microsoft.Coyote.SystematicTesting.Tests"))
                 {
                     result.AppendLine(trimmed);
                 }

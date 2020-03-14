@@ -1,41 +1,37 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Runtime.Exploration;
-
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// The Coyote testing portfolio.
+    /// A portfolio of systematic testing strategies.
     /// </summary>
     internal static class TestingPortfolio
     {
         /// <summary>
-        /// Configures the testing strategy for the current
-        /// testing process.
+        /// Configures the systematic testing strategy for the current testing process.
         /// </summary>
-        /// <param name="configuration">Configuration</param>
         internal static void ConfigureStrategyForCurrentProcess(Configuration configuration)
         {
-            // Random, PCT[1], ProbabilisticRandom[1], PCT[5], ProbabilisticRandom[2], PCT[10], etc.
+            // random, fairpct[1], probabilistic[1], fairpct[5], probabilistic[2], fairpct[10], etc.
             if (configuration.TestingProcessId == 0)
             {
-                configuration.SchedulingStrategy = SchedulingStrategy.Random;
+                configuration.SchedulingStrategy = "random";
             }
             else if (configuration.TestingProcessId % 2 == 0)
             {
-                configuration.SchedulingStrategy = SchedulingStrategy.ProbabilisticRandom;
-                configuration.CoinFlipBound = (int)(configuration.TestingProcessId / 2);
+                configuration.SchedulingStrategy = "probabilistic";
+                configuration.StrategyBound = (int)(configuration.TestingProcessId / 2);
             }
             else if (configuration.TestingProcessId == 1)
             {
-                configuration.SchedulingStrategy = SchedulingStrategy.FairPCT;
-                configuration.PrioritySwitchBound = 1;
+                configuration.SchedulingStrategy = "fairpct";
+                configuration.StrategyBound = 1;
             }
             else
             {
-                configuration.SchedulingStrategy = SchedulingStrategy.FairPCT;
-                configuration.PrioritySwitchBound = 5 * (int)((configuration.TestingProcessId + 1) / 2);
+                configuration.SchedulingStrategy = "fairpct";
+                configuration.StrategyBound = 5 * (int)((configuration.TestingProcessId + 1) / 2);
             }
         }
     }

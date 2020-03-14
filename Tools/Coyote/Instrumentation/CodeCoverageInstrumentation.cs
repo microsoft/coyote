@@ -12,10 +12,10 @@ using System.IO;
 using System.Linq;
 
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.TestingServices.Utilities;
+using Microsoft.Coyote.SystematicTesting.Utilities;
 #endif
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// Instruments a binary for code coverage.

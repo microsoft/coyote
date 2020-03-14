@@ -124,7 +124,7 @@ work for the most part. For our running example, we modify our `Test` method to 
 machines:
 
 ```C#
-[Microsoft.Coyote.TestingServices.Test]
+[Microsoft.Coyote.SystematicTesting.Test]
 void Test(IActorRuntime runtime)
 {
    runtime.CreateActor(typeof(RunTask), new TaskPayload(async () => await HandleRequest1(...)));

@@ -335,7 +335,7 @@ public static class Program
         Console.ReadLine();
     }
 
-    [Microsoft.Coyote.TestingServices.Test]
+    [Microsoft.Coyote.SystematicTesting.Test]
     public static void Execute(IActorRuntime runtime)
     {
         runtime.RegisterMonitor(typeof(LivenessMonitor));

@@ -8,11 +8,10 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CoyoteTester.Interfaces;
-using Microsoft.Coyote.Runtime.Exploration;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SmartSockets;
-using Microsoft.Coyote.TestingServices.Coverage;
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// A testing process, this can also be the client side of a multi-process test
@@ -145,7 +144,7 @@ namespace Microsoft.Coyote.TestingServices
         {
             this.Name = this.Name + "." + configuration.TestingProcessId;
 
-            if (configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
+            if (configuration.SchedulingStrategy is "portfolio")
             {
                 TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
             }

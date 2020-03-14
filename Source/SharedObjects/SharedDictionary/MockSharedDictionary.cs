@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects
 {
@@ -19,14 +20,14 @@ namespace Microsoft.Coyote.SharedObjects
         private readonly ActorId DictionaryActor;
 
         /// <summary>
-        /// The testing runtime hosting this shared dictionary.
+        /// The controlled runtime hosting this shared dictionary.
         /// </summary>
-        private readonly SystematicTestingRuntime Runtime;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MockSharedDictionary{TKey, TValue}"/> class.
         /// </summary>
-        public MockSharedDictionary(IEqualityComparer<TKey> comparer, SystematicTestingRuntime runtime)
+        public MockSharedDictionary(IEqualityComparer<TKey> comparer, ControlledRuntime runtime)
         {
             this.Runtime = runtime;
             if (comparer != null)

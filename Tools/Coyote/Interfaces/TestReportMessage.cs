@@ -3,7 +3,7 @@
 
 using System.Runtime.Serialization;
 using Microsoft.Coyote.SmartSockets;
-using Microsoft.Coyote.TestingServices;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace CoyoteTester.Interfaces
 {

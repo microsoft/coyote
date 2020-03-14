@@ -35,6 +35,25 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | class [TimerElapsedEvent](Microsoft.Coyote.Actors.Timers/TimerElapsedEventType) | Defines a timer elapsed event that is sent from a timer to the actor that owns the timer. |
 | class [TimerInfo](Microsoft.Coyote.Actors.Timers/TimerInfoType) | Stores information about a timer that can send timeout events to its owner actor. |
 
+## Microsoft.Coyote.Actors.UnitTesting namespace
+
+| public type | description |
+| --- | --- |
+| class [ActorTestKit&lt;T&gt;](Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1Type) | Provides methods for testing an actor of type *T* in isolation. |
+
+## Microsoft.Coyote.Coverage namespace
+
+| public type | description |
+| --- | --- |
+| class [ActivityCoverageReporter](Microsoft.Coyote.Coverage/ActivityCoverageReporterType) | The Coyote code coverage reporter. |
+| class [ActorRuntimeLogGraphBuilder](Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType) | Implements the [`IActorRuntimeLog`](Microsoft.Coyote.Runtime/IActorRuntimeLogType) and builds a directed graph from the recorded events and state transitions. |
+| class [CoverageInfo](Microsoft.Coyote.Coverage/CoverageInfoType) | Class for storing coverage-specific data across multiple testing iterations. |
+| class [EventCoverage](Microsoft.Coyote.Coverage/EventCoverageType) | This class maintains information about events received and sent from each state of each actor. |
+| class [Graph](Microsoft.Coyote.Coverage/GraphType) | A directed graph made up of Nodes and Links. |
+| class [GraphLink](Microsoft.Coyote.Coverage/GraphLinkType) | A Link represents a directed graph connection between two Nodes. |
+| class [GraphNode](Microsoft.Coyote.Coverage/GraphNodeType) | A Node of a Graph. |
+| class [GraphObject](Microsoft.Coyote.Coverage/GraphObjectType) | A Node of a Graph. |
+
 ## Microsoft.Coyote.IO namespace
 
 | public type | description |
@@ -54,12 +73,6 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | delegate [OnFailureHandler](Microsoft.Coyote.Runtime/OnFailureHandlerType) | Handles the [`OnFailure`](Microsoft.Coyote.Runtime/IActorRuntime/OnFailure) event. |
 | class [RuntimeException](Microsoft.Coyote.Runtime/RuntimeExceptionType) | An exception that is thrown by the Coyote runtime. |
 
-## Microsoft.Coyote.Runtime.Exploration namespace
-
-| public type | description |
-| --- | --- |
-| enum [SchedulingStrategy](Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType) | Coyote runtime scheduling strategy. |
-
 ## Microsoft.Coyote.Runtime.Logging namespace
 
 | public type | description |
@@ -73,6 +86,17 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | abstract class [Monitor](Microsoft.Coyote.Specifications/MonitorType) | Abstract class representing a specification monitor. |
 | static class [Specification](Microsoft.Coyote.Specifications/SpecificationType) | Provides static methods that are useful for writing specifications and interacting with the systematic testing engine. |
 
+## Microsoft.Coyote.SystematicTesting namespace
+
+| public type | description |
+| --- | --- |
+| class [TestAttribute](Microsoft.Coyote.SystematicTesting/TestAttributeType) | Attribute for declaring the entry point to a Coyote program test. |
+| class [TestDisposeAttribute](Microsoft.Coyote.SystematicTesting/TestDisposeAttributeType) | Attribute for declaring a cleanup method to be called when all test iterations terminate. |
+| class [TestingEngine](Microsoft.Coyote.SystematicTesting/TestingEngineType) | Testing engine that can run a controlled concurrency test using a specified configuration. |
+| class [TestInitAttribute](Microsoft.Coyote.SystematicTesting/TestInitAttributeType) | Attribute for declaring the initialization method to be called before testing starts. |
+| class [TestIterationDisposeAttribute](Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttributeType) | Attribute for declaring a cleanup method to be called when each test iteration terminates. |
+| class [TestReport](Microsoft.Coyote.SystematicTesting/TestReportType) | Class implementing the Coyote test report. |
+
 ## Microsoft.Coyote.Tasks namespace
 
 | public type | description |
@@ -82,14 +106,5 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | class [ControlledTask](Microsoft.Coyote.Tasks/ControlledTaskType) | Represents an asynchronous operation. Each [`ControlledTask`](Microsoft.Coyote.Tasks/ControlledTaskType) is a thin wrapper over Task and each call simply invokes the wrapped task. During testing, a [`ControlledTask`](Microsoft.Coyote.Tasks/ControlledTaskType) is controlled by the runtime and systematically interleaved with other asynchronous operations to find bugs. |
 | class [Semaphore](Microsoft.Coyote.Tasks/SemaphoreType) | A semaphore that limits the number of tasks that can access a resource. During testing, the semaphore is automatically replaced with a controlled mocked version. |
 | static class [TaskExtensions](Microsoft.Coyote.Tasks/TaskExtensionsType) | Extension methods for Task and Task objects. |
-
-## Microsoft.Coyote.TestingServices namespace
-
-| public type | description |
-| --- | --- |
-| class [TestAttribute](Microsoft.Coyote.TestingServices/TestAttributeType) | Attribute for declaring the entry point to a Coyote program test. |
-| class [TestDisposeAttribute](Microsoft.Coyote.TestingServices/TestDisposeAttributeType) | Attribute for declaring a cleanup method to be called when all test iterations terminate. |
-| class [TestInitAttribute](Microsoft.Coyote.TestingServices/TestInitAttributeType) | Attribute for declaring the initialization method to be called before testing starts. |
-| class [TestIterationDisposeAttribute](Microsoft.Coyote.TestingServices/TestIterationDisposeAttributeType) | Attribute for declaring a cleanup method to be called when each test iteration terminates. |
 
 <!-- DO NOT EDIT: generated by xmldocmd for Microsoft.Coyote.dll -->

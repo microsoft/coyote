@@ -79,7 +79,7 @@ your C# process (typically in the `Main` method). An example of this is the foll
 
 ```c#
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.TestingServices;
+using Microsoft.Coyote.SystematicTesting;
 
 class Program
 {

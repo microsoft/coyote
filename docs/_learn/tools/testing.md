@@ -18,7 +18,7 @@ coyote test ${YOUR_PROGRAM}
 ```
 
 Where `${YOUR_PROGRAM}` is the path to you application or library that contains a method annotated
-with the `[Microsoft.Coyote.TestingServices.Test]` attribute. This method is the entry point to the
+with the `[Microsoft.Coyote.SystematicTesting.Test]` attribute. This method is the entry point to the
 test.
 
 Type `coyote -?` to see the full command line options. If you are using the .NET Core version of

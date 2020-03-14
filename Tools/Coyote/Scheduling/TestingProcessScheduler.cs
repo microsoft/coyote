@@ -8,11 +8,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CoyoteTester.Interfaces;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SmartSockets;
-using Microsoft.Coyote.TestingServices.Coverage;
 using Microsoft.Coyote.Utilities;
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     internal sealed class TestingProcessScheduler
     {

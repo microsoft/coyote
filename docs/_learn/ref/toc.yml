@@ -5,6 +5,18 @@
     - name: Microsoft.Coyote
       link: /learn/ref/MicrosoftCoyoteNamespace
       subfolderitems:
+      - name: Event
+        link: /learn/ref/Microsoft.Coyote/EventType
+        subfolderitems:
+        - name: Event
+          link: /learn/ref/Microsoft.Coyote/Event/Event
+      - name: ControlledRandomValueGenerator
+        link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGeneratorType
+        subfolderitems:
+        - name: GetNextBoolean
+          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextBoolean
+        - name: GetNextInteger
+          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextInteger
       - name: Configuration
         link: /learn/ref/Microsoft.Coyote/ConfigurationType
         subfolderitems:
@@ -72,10 +84,8 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/TestingProcessId
         - name: ConsiderDepthBoundHitAsBug
           link: /learn/ref/Microsoft.Coyote/Configuration/ConsiderDepthBoundHitAsBug
-        - name: PrioritySwitchBound
-          link: /learn/ref/Microsoft.Coyote/Configuration/PrioritySwitchBound
-        - name: CoinFlipBound
-          link: /learn/ref/Microsoft.Coyote/Configuration/CoinFlipBound
+        - name: StrategyBound
+          link: /learn/ref/Microsoft.Coyote/Configuration/StrategyBound
         - name: TimeoutDelay
           link: /learn/ref/Microsoft.Coyote/Configuration/TimeoutDelay
         - name: SafetyPrefixBound
@@ -110,18 +120,6 @@
           link: /learn/ref/Microsoft.Coyote/Configuration/EnableProfiling
         - name: EnableColoredConsoleOutput
           link: /learn/ref/Microsoft.Coyote/Configuration/EnableColoredConsoleOutput
-      - name: Event
-        link: /learn/ref/Microsoft.Coyote/EventType
-        subfolderitems:
-        - name: Event
-          link: /learn/ref/Microsoft.Coyote/Event/Event
-      - name: ControlledRandomValueGenerator
-        link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGeneratorType
-        subfolderitems:
-        - name: GetNextBoolean
-          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextBoolean
-        - name: GetNextInteger
-          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextInteger
     - name: Microsoft.Coyote.Actors
       link: /learn/ref/MicrosoftCoyoteActorsNamespace
       subfolderitems:
@@ -347,6 +345,217 @@
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
+    - name: Microsoft.Coyote.Actors.UnitTesting
+      link: /learn/ref/MicrosoftCoyoteActorsUnitTestingNamespace
+      subfolderitems:
+      - name: ActorTestKit<T>
+        link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1Type
+        subfolderitems:
+        - name: StartActorAsync
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/StartActorAsync
+        - name: SendEventAsync
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/SendEventAsync
+        - name: Invoke
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Invoke
+        - name: InvokeAsync
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/InvokeAsync
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Assert
+        - name: AssertStateTransition
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertStateTransition
+        - name: AssertIsWaitingToReceiveEvent
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertIsWaitingToReceiveEvent
+        - name: AssertInboxSize
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertInboxSize
+        - name: ActorTestKit
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorTestKit
+        - name: ActorInstance
+          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorInstance
+    - name: Microsoft.Coyote.Coverage
+      link: /learn/ref/MicrosoftCoyoteCoverageNamespace
+      subfolderitems:
+      - name: ActivityCoverageReporter
+        link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporterType
+        subfolderitems:
+        - name: EmitVisualizationGraph
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporter/EmitVisualizationGraph
+        - name: EmitCoverageReport
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporter/EmitCoverageReport
+        - name: ActivityCoverageReporter
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporter/ActivityCoverageReporter
+      - name: EventCoverage
+        link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverageType
+        subfolderitems:
+        - name: GetEventsReceived
+          link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverage/GetEventsReceived
+        - name: GetEventsSent
+          link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverage/GetEventsSent
+        - name: EventCoverage
+          link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverage/EventCoverage
+      - name: ActorRuntimeLogGraphBuilder
+        link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType
+        subfolderitems:
+        - name: OnCreateActor
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCreateActor
+        - name: OnSendEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnSendEvent
+        - name: OnRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnRaiseEvent
+        - name: OnEnqueueEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnEnqueueEvent
+        - name: OnDequeueEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnDequeueEvent
+        - name: OnReceiveEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnReceiveEvent
+        - name: OnWaitEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnWaitEvent
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnRandom
+        - name: OnStateTransition
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnStateTransition
+        - name: OnExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnExecuteAction
+        - name: OnGotoState
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnGotoState
+        - name: OnPushState
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnPushState
+        - name: OnPopState
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnPopState
+        - name: OnHalt
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnHalt
+        - name: OnDefaultEventHandler
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnDefaultEventHandler
+        - name: OnHandleRaisedEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnHandleRaisedEvent
+        - name: OnPopStateUnhandledEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnPopStateUnhandledEvent
+        - name: OnExceptionThrown
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnExceptionThrown
+        - name: OnExceptionHandled
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnExceptionHandled
+        - name: OnCreateTimer
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCreateTimer
+        - name: OnStopTimer
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnStopTimer
+        - name: OnCreateMonitor
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCreateMonitor
+        - name: OnMonitorExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorStateTransition
+        - name: OnAssertionFailure
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnAssertionFailure
+        - name: OnStrategyDescription
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnStrategyDescription
+        - name: OnCompleted
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCompleted
+        - name: SnapshotGraph
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/SnapshotGraph
+        - name: ActorRuntimeLogGraphBuilder
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/ActorRuntimeLogGraphBuilder
+        - name: CollapseMachineInstances
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/CollapseMachineInstances
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/Logger
+        - name: Graph
+          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/Graph
+      - name: Graph
+        link: /learn/ref/Microsoft.Coyote.Coverage/GraphType
+        subfolderitems:
+        - name: GetNode
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/GetNode
+        - name: GetOrCreateNode
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/GetOrCreateNode
+        - name: GetOrCreateLink
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/GetOrCreateLink
+        - name: ToString
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/ToString
+        - name: WriteDgml
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/WriteDgml
+        - name: LoadDgml
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/LoadDgml
+        - name: Merge
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/Merge
+        - name: Graph
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/Graph
+        - name: Nodes
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/Nodes
+        - name: Links
+          link: /learn/ref/Microsoft.Coyote.Coverage/Graph/Links
+      - name: GraphObject
+        link: /learn/ref/Microsoft.Coyote.Coverage/GraphObjectType
+        subfolderitems:
+        - name: AddAttribute
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphObject/AddAttribute
+        - name: AddListAttribute
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphObject/AddListAttribute
+        - name: GraphObject
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphObject/GraphObject
+        - name: Attributes
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphObject/Attributes
+        - name: AttributeLists
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphObject/AttributeLists
+      - name: GraphNode
+        link: /learn/ref/Microsoft.Coyote.Coverage/GraphNodeType
+        subfolderitems:
+        - name: AddDgmlProperties
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphNode/AddDgmlProperties
+        - name: GraphNode
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphNode/GraphNode
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphNode/Id
+        - name: Label
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphNode/Label
+        - name: Category
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphNode/Category
+      - name: GraphLink
+        link: /learn/ref/Microsoft.Coyote.Coverage/GraphLinkType
+        subfolderitems:
+        - name: AddDgmlProperties
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/AddDgmlProperties
+        - name: GraphLink
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/GraphLink
+        - name: Label
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/Label
+        - name: Category
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/Category
+        - name: Source
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/Source
+        - name: Target
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/Target
+        - name: Index
+          link: /learn/ref/Microsoft.Coyote.Coverage/GraphLink/Index
+      - name: CoverageInfo
+        link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfoType
+        subfolderitems:
+        - name: IsMachineDeclared
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/IsMachineDeclared
+        - name: DeclareMachineState
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareMachineState
+        - name: DeclareStateEvent
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/DeclareStateEvent
+        - name: Merge
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/Merge
+        - name: Load
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/Load
+        - name: Save
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/Save
+        - name: CoverageInfo
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/CoverageInfo
+        - name: Machines
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/Machines
+        - name: MachinesToStates
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/MachinesToStates
+        - name: RegisteredEvents
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/RegisteredEvents
+        - name: CoverageGraph
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/CoverageGraph
+        - name: EventInfo
+          link: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfo/EventInfo
     - name: Microsoft.Coyote.IO
       link: /learn/ref/MicrosoftCoyoteIONamespace
       subfolderitems:
@@ -495,11 +704,6 @@
           link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStrategyDescription
         - name: OnCompleted
           link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCompleted
-    - name: Microsoft.Coyote.Runtime.Exploration
-      link: /learn/ref/MicrosoftCoyoteRuntimeExplorationNamespace
-      subfolderitems:
-      - name: SchedulingStrategy
-        link: /learn/ref/Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType
     - name: Microsoft.Coyote.Runtime.Logging
       link: /learn/ref/MicrosoftCoyoteRuntimeLoggingNamespace
       subfolderitems:
@@ -651,6 +855,85 @@
         subfolderitems:
         - name: HotAttribute
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
+    - name: Microsoft.Coyote.SystematicTesting
+      link: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
+      subfolderitems:
+      - name: TestAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttributeType
+        subfolderitems:
+        - name: TestAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttribute/TestAttribute
+      - name: TestInitAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestInitAttributeType
+        subfolderitems:
+        - name: TestInitAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestInitAttribute/TestInitAttribute
+      - name: TestDisposeAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestDisposeAttributeType
+        subfolderitems:
+        - name: TestDisposeAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestDisposeAttribute/TestDisposeAttribute
+      - name: TestIterationDisposeAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttributeType
+        subfolderitems:
+        - name: TestIterationDisposeAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttribute/TestIterationDisposeAttribute
+      - name: TestingEngine
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngineType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Create
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Run
+        - name: Stop
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop
+        - name: GetReport
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
+        - name: TryEmitTraces
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
+        - name: RegisterPerIterationCallBack
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
+        - name: SetLogger
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
+        - name: TestReport
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
+      - name: TestReport
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReportType
+        subfolderitems:
+        - name: Merge
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge
+        - name: GetText
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText
+        - name: Clone
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone
+        - name: TestReport
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport
+        - name: Configuration
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration
+        - name: CoverageInfo
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo
+        - name: NumOfExploredFairSchedules
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules
+        - name: NumOfExploredUnfairSchedules
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules
+        - name: NumOfFoundBugs
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs
+        - name: BugReports
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports
+        - name: MinExploredFairSteps
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
+        - name: MaxExploredFairSteps
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps
+        - name: TotalExploredFairSteps
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps
+        - name: MaxFairStepsHitInFairTests
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests
+        - name: MaxUnfairStepsHitInFairTests
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests
+        - name: MaxUnfairStepsHitInUnfairTests
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests
+        - name: InternalErrors
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors
     - name: Microsoft.Coyote.Tasks
       link: /learn/ref/MicrosoftCoyoteTasksNamespace
       subfolderitems:
@@ -760,26 +1043,3 @@
         subfolderitems:
         - name: Dispose
           link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose
-    - name: Microsoft.Coyote.TestingServices
-      link: /learn/ref/MicrosoftCoyoteTestingServicesNamespace
-      subfolderitems:
-      - name: TestAttribute
-        link: /learn/ref/Microsoft.Coyote.TestingServices/TestAttributeType
-        subfolderitems:
-        - name: TestAttribute
-          link: /learn/ref/Microsoft.Coyote.TestingServices/TestAttribute/TestAttribute
-      - name: TestInitAttribute
-        link: /learn/ref/Microsoft.Coyote.TestingServices/TestInitAttributeType
-        subfolderitems:
-        - name: TestInitAttribute
-          link: /learn/ref/Microsoft.Coyote.TestingServices/TestInitAttribute/TestInitAttribute
-      - name: TestDisposeAttribute
-        link: /learn/ref/Microsoft.Coyote.TestingServices/TestDisposeAttributeType
-        subfolderitems:
-        - name: TestDisposeAttribute
-          link: /learn/ref/Microsoft.Coyote.TestingServices/TestDisposeAttribute/TestDisposeAttribute
-      - name: TestIterationDisposeAttribute
-        link: /learn/ref/Microsoft.Coyote.TestingServices/TestIterationDisposeAttributeType
-        subfolderitems:
-        - name: TestIterationDisposeAttribute
-          link: /learn/ref/Microsoft.Coyote.TestingServices/TestIterationDisposeAttribute/TestIterationDisposeAttribute

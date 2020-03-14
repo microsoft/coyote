@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// The exit code returned by the tester.

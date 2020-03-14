@@ -7,8 +7,7 @@ permalink: /learn/programming-models/actors/state-machine-demo
 
 ## State machine demo
 
-<div class="animated_svg" trace="/coyote/assets/data/Raft.xml">
-{% include Raft.svg %}
+<div class="animated_svg" trace="/coyote/assets/data/Raft.xml" svg="/coyote/assets/images/Raft.svg">
 </div>
 
 This graph was generated from a `coyote test` trace of a `StateMachine` based coyote application

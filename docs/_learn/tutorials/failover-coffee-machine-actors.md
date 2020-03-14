@@ -231,8 +231,8 @@ like this:
 So the `CoffeeMachine` accidentally tried to grind beans when the hopper was empty. If you look at
 the resulting DGML diagram you will see exactly what happened:
 
-<div class="animated_svg" trace="/coyote/assets/data/CoffeeMachine.trace.xml">
-{% include FailoverCoffeeMachineBug.svg %}
+<div class="animated_svg" trace="/coyote/assets/data/CoffeeMachine.trace.xml"
+     svg="/coyote/assets/images/FailoverCoffeeMachineBug.svg">
 </div>
 
 The `Timer` machines were removed from this diagram just for simplicity. The `FailoverDriver`

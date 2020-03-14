@@ -165,8 +165,7 @@ An event handler controls how a machine _reacts_ to a received event. It is clea
 you can do anything there, including creating one or more actor instances, sending one or more
 events, updating some private state or invoking some 3rd party library.
 
-To complete this Coyote program, you can provide the following implementation of the `Client` actor
-created by the above `Server`:
+To complete this Coyote program, you can provide the following implementation of the `Client` actor:
 
 ```c#
 class SetupEvent : Event
@@ -186,16 +185,16 @@ class Client : Actor
 
     protected override Task OnInitializeAsync(Event initialEvent)
     {
-        Console.WriteLine("Client initializing");
+        Console.WriteLine("{0} initializing", this.Id);
         this.ServerId = ((SetupEvent)initialEvent).ServerId;
-        Console.WriteLine("Client sending ping event to server");
+        Console.WriteLine("{0} sending ping event to server", this.Id);
         this.SendEvent(this.ServerId, new PingEvent(this.Id));
         return base.OnInitializeAsync(initialEvent);
     }
 
     void HandlePong()
     {
-        Console.WriteLine("Client received pong event");
+        Console.WriteLine("{0} received pong event", this.Id);
     }
 }
 ```
@@ -208,40 +207,54 @@ When the `Server` responds with a `PongEvent` the `HandlePong` method is called 
 `OnEventDoAction` declaration on the class.  Notice in this case the `HandlePong` event handler
 takes no `Event` argument.  The `Event` argument is optional on Coyote event handlers.
 
-Note that `HandlePing` could also be defined as an `async Task` method. Async handlers are allowed
-so that you can call external async systems in your production code, but do not directly create
-parallel tasks inside an actor (e.g. by using `Task.Run`) as that can introduce race conditions (if
-you need to parallelize a workload, you can create more actors). Also, during testing, you should
-not use `Task.Delay` or `Task.Yield` in your event handlers. It is ok to have truly async behavior
-in production, but at test time `coyote test` wants to know about and control all async behavior of
-your actor. If it detects some uncontrolled async behavior an error will be reported.
+Note that `HandlePong` could also be defined as an `async Task` method. Async handlers are allowed
+so that you can call external async systems in your production code, but this has some restrictions.
+You are not allowed to directly create parallel tasks inside an actor (e.g. by using `Task.Run`) as
+that can introduce race conditions (if you need to parallelize a workload, you can create more
+actors). Also, during testing, you should not use `Task.Delay` or `Task.Yield` in your event
+handlers. It is ok to have truly async behavior in production, but at test time the `coyote test`
+tool wants to know about, so that it can control, all async behavior of your actor. If it detects
+some uncontrolled async behavior an error will be reported.
 
-One last remaining bit of code is needed in your `Program` to complete this example, you need
-to create the `Client` actor in the `Execute` method:
+One last remaining bit of code is needed in your `Program` to complete this example, namely, you
+need to create the `Client` actor in the `Execute` method, in fact, you can create as many `Client`
+actors as you want to make this an interesting test:
 
 ```c#
     public static void Execute(IActorRuntime runtime)
     {
         ActorId serverId = runtime.CreateActor(typeof(Server));
-        ActorId clientid = runtime.CreateActor(typeof(Client),
-            new SetupEvent(serverId));
+        runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+        runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+        runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
     }
 ```
 
-The output of the program will be:
+The output of the program will be something like this:
 
 ```
-Client initializing
-Client sending ping event to server
-Server handling ping
+Client(3) initializing
+Client(3) sending ping event to server
+Client(1) initializing
+Client(2) initializing
+Client(2) sending ping event to server
+Client(1) sending ping event to server
+Server handling ping from Client(1)
 Server sending pong back to caller
-Client received pong event
+Client(1) received pong event
+Server handling ping from Client(3)
+Server sending pong back to caller
+Server handling ping from Client(2)
+Server sending pong back to caller
+Client(2) received pong event
+Client(3) received pong event
 ```
 
-The `CreateActor` and `SendEvent` methods are non-blocking. The Coyote runtime will take care of all
-the underlying concurrency using the Task Parallel Library, which means that you do not need to
-explicitly create and manage tasks. However, you must be careful not to share data between actors
-because accessing that shared data from multiple actors at once could lead to race conditions.
+The `CreateActor` and `SendEvent` methods are non-blocking so you can see those operations are
+interleaved in the log output.  The Coyote runtime will take care of all the underlying concurrency
+using the Task Parallel Library, which means that you do not need to explicitly create and manage
+tasks. However, you must be careful not to share data between actors because accessing that shared
+data from multiple actors at once could lead to race conditions.
 
 You can reduce race conditions in your code if you use events to _transfer_ data from one actor to
 another. But since it is a reference model without deep copy semantics, you can actually share data

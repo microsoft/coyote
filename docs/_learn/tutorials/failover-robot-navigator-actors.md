@@ -500,8 +500,8 @@ you'll see in the output of the tester that a DGML diagram has been produced:
 
 Open this with Visual Studio 2019 and you will see something like this:
 
-<div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml">
-{% include DSR-Bug-01.svg %}
+<div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml"
+     svg="/coyote/assets/images/DSR-Bug-01.svg">
 </div>
 
 This is the exact snapshot at the time when the bug manifested.

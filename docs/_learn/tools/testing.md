@@ -38,7 +38,7 @@ would be very hard to discover using traditional testing techniques.
 During testing, the `coyote` tester executes a program from start to finish for a given number of
 testing iterations. During each iteration, the tester is exploring a potentially different
 serialized execution path. If a bug is discovered, the tester will terminate and dump a reproducible
-trace (including a human readable version of it). Make sure to follow the 
+trace (including a human readable version of it). Make sure to follow the
 [requirements](./tester-requirements) of effectively using the tester.
 
 See [below](#reproducing-and-debugging-traces) to learn how to reproduce traces and debug them using
@@ -138,6 +138,5 @@ diagram](/coyote/assets/images/raft.dgml) which you can open in Visual Studio. H
 highlighted the Server state machines in green, and the Leader states in red to highlight the
 problem.
 
-<div class="animated_svg" trace="/coyote/assets/data/Raft.xml">
-{% include Raft.svg %}
+<div class="animated_svg" trace="/coyote/assets/data/Raft.xml" svg="/coyote/assets/images/Raft.svg">
 </div>

@@ -22,8 +22,7 @@ simply enqueued into the input queue of the target actor and, most importantly, 
 the message to be processed at the target before returning control to the sender.
 
 The actor model also provides a specialized type of actor called a
-[StateMachine](/coyote/learn/programming-models/actors/state-machines). State machines are actors,
-but also have explicit states, and state transitions. Every object oriented class that has member
+[StateMachine](state-machines). State machines are actors that have explicitly declared states and state transitions. Every object oriented class that has member
 variables is really also just a state machine where that state is updated as methods are called, but
 sometimes this gets really complicated and hard to test. Formal state machines help you model your
 states more explicitly and [coyote tester](/coyote/learn/tools/testing) can help you find bugs
@@ -271,3 +270,5 @@ invariants it is recommended that you use [Monitors](/coyote/learn/specification
 
 To see a full working example of an `Actor` based program see the [Hello World
 Actors](/coyote/learn/tutorials/hello-world-actors) tutorial.
+
+Seel also precise definition of [actor semantics](actor-semantics).

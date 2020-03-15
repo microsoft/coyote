@@ -132,11 +132,13 @@ The following picture shows the DGML output from the command:
 coyote test ..\coyote-samples\StateMachineExamples\bin\net46\Raft.exe -i 1000 -ms 200 -sch-pct 10 --graph-bug
 ```
 This looks for bugs in the sample implementation of the [Raft Concensus
-Algorithm](https://raft.github.io/). In the animation below you can see why the test failed, two of the
-server nodes have taken on the `Leader` role, which is not allowed. See also the [DGML
-diagram](/coyote/assets/images/raft.dgml) which you can open in Visual Studio. Here we've manually
-highlighted the Server state machines in green, and the Leader states in red to highlight the
-problem.
+Algorithm](https://raft.github.io/).
 
-<div class="animated_svg" trace="/coyote/assets/data/Raft.xml" svg="/coyote/assets/images/Raft.svg">
-</div>
+See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) for a
+visual explanation of what `coyote test` does when it is looking for bugs. In the animation you will
+see why the test failed, two of the server nodes have taken on the `Leader` role, which is not
+allowed.
+
+See also the [DGML diagram](/coyote/assets/images/raft.dgml) which you can open in Visual Studio.
+Here the Server state machines are colored in green, and the Leader states in red to
+highlight the bug found.

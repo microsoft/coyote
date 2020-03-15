@@ -22,3 +22,7 @@ message exchange is shown to happen one after the other (when in reality they ma
 parallel). This makes it easy to understand the trace. This trace, in fact, demonstrates a bug where
 two Raft `Server` state-machines both end up claiming to be leaders: this is a violation of Raft's
 consensus requirements that there be at most one leader at a time.
+
+This animation is slowed down from actual testing speed so you can see what is happening. This
+entire test normally takes milliseconds so that Coyote can explore huge number of possible
+tests in short amount of time.

@@ -7,12 +7,12 @@ permalink: /learn/programming-models/actors/timers
 
 ## Using timers in actors
 
-The Coyote actor model has built-in support for timers. Timers are themselves a type of `Actor`
-that send a `TimerElapsedEvent` to the actor that created them upon timeout. Timers are handy for
+The Coyote actor programming model has built-in support for timers. Timers are themselves a type of `Actor` that
+send a `TimerElapsedEvent` upon timeout to the actor that created the timer. Timers are handy for
 modeling a common type of asynchronous behavior in distributed systems, so you can find more bugs in
 your code relating to how it deals with the uncertainty of various kinds of timeouts.
 
-Timers support a once only timeout event and periodic timeouts, which can continually send such
+Timers provide a once only timeout event or a periodic timeout, which can continually send such
 events on a user-defined interval until they are stopped.
 
 To make use of timers, you must include the `Microsoft.Coyote.Actors.Timers` namespace. You can
@@ -144,3 +144,20 @@ The output of this program is as follows:
 <Client> Handling timeout from periodic timer
 <Client> Stopping the periodic timer
 ```
+
+## Implementation notes
+
+Note that timers are implemented differently depending on what mode your program is running in.
+Normal "production" mode execution uses an optimized timer built on `System.Threading.Timer`.
+
+Timers that run during systematic testing, however, are quite different and are implemented in a
+`MockTimerActor` class.  This mock actually removes all concept of real time intervals, and replaces
+that with a random decision to timeout or not to timeout.  This makes your test run much faster. But
+it can also make your test see a lot more timeout events that you may be expecting.  This is good
+for finding bugs, but can overwhelm the test with timeout events.  To reduce the number of timeouts
+there is a `--timeout-delay` command line option on the `coyote test` tool.  This timeout delay is
+given to the mock timer and it will only fire a timeout when `RandomInteger(delay) == 0`.  The
+default value of `--timeout-delay` is 10, which means timeouts only fire once every 10 times the
+timer gets scheduled by the systematic testing runtime.  This turns out to be a pretty good default
+that stops your test from getting too overwhelmed by timeout events, but if you still see too many
+timeout events in your test logs, then you can increase this number.

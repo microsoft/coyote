@@ -11,7 +11,7 @@ A Coyote state machine is a special type of `Actor` that inherits from the `Stat
 which lives in the `Microsoft.Coyote.Actors` namespace. A state machine adds `State` semantics with
 explicit information about how `Events` can trigger `State` changes in a `StateMachine`. You can
 write a state machine version of the `Server` class shown in [Programming model: asynchronous
-actors](/coyote/learn/programming-models/actors/overview) like this:
+actors](overview) like this:
 
 ```c#
 class ReadyEvent : Event { }

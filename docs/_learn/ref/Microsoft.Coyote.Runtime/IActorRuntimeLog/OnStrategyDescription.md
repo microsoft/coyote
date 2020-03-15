@@ -9,17 +9,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStrategyDescri
 Invoked to describe the specified scheduling strategy.
 
 ```csharp
-public void OnStrategyDescription(SchedulingStrategy strategy, string description)
+public void OnStrategyDescription(string strategyName, string description)
 ```
 
 | parameter | description |
 | --- | --- |
-| strategy | The scheduling strategy that was used. |
+| strategyName | The name of the strategy that was used. |
 | description | More information about the scheduling strategy. |
 
 ## See Also
 
-* enum [SchedulingStrategy](../../Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType)
 * interface [IActorRuntimeLog](../IActorRuntimeLogType)
 * namespace [Microsoft.Coyote.Runtime](../IActorRuntimeLogType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

@@ -259,7 +259,7 @@ function convertTrace(doc) {
     start_trace(model.events);
 }
 
-function fetchTrace(url, handler)
+function fetchXml(url, asXml, handler)
 {
     const xhr = new XMLHttpRequest();
     // listen for `onload` event
@@ -267,8 +267,11 @@ function fetchTrace(url, handler)
         // process response
         if (xhr.status == 200) {
             // parse JSON data
-            var trace = xhr.responseXML;
-            handler(trace);
+            if (asXml) {
+                handler(xhr.responseXML);
+            } else {
+                handler(xhr.responseText);
+            }
         } else {
             console.error('Error downloading:  ' + url + ", error=" + xhr.status);
         }
@@ -283,9 +286,14 @@ function fetchTrace(url, handler)
 
 jQuery(document).ready(function ($) {
     $(".animated_svg").each(function() {
+        var div = $(this)[0];
         var xmltrace = $(this).attr("trace");
-        if (xmltrace){
-            fetchTrace(xmltrace, convertTrace);
+        var svgFile = $(this).attr("svg");
+        if (xmltrace && svgFile) {
+            fetchXml(svgFile, false, function (data){
+                div.innerHTML = data;
+                fetchXml(xmltrace, true, convertTrace);
+            });
         }
     });
 });

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Tasks;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 

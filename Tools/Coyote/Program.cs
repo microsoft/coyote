@@ -5,8 +5,7 @@ using System;
 using System.IO;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.TestingServices;
+using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote
@@ -95,7 +94,7 @@ namespace Microsoft.Coyote
         private static void ReplayTest()
         {
             // Set some replay specific options.
-            Configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+            Configuration.SchedulingStrategy = "replay";
             Configuration.EnableColoredConsoleOutput = true;
             Configuration.DisableEnvironmentExit = false;
 

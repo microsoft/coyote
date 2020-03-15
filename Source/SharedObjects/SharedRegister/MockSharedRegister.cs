@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects
 {
@@ -19,14 +20,14 @@ namespace Microsoft.Coyote.SharedObjects
         private readonly ActorId RegisterActor;
 
         /// <summary>
-        /// The testing runtime hosting this shared register.
+        /// The controlled runtime hosting this shared register.
         /// </summary>
-        private readonly SystematicTestingRuntime Runtime;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MockSharedRegister{T}"/> class.
         /// </summary>
-        public MockSharedRegister(T value, SystematicTestingRuntime runtime)
+        public MockSharedRegister(T value, ControlledRuntime runtime)
         {
             this.Runtime = runtime;
             this.RegisterActor = this.Runtime.CreateActor(typeof(SharedRegisterActor<T>));

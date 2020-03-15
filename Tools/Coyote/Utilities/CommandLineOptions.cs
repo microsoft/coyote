@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.Utilities
 {
@@ -41,7 +40,7 @@ namespace Microsoft.Coyote.Utilities
             var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
-            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored (disabled by default).
+            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (disabled by default).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
@@ -83,7 +82,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
-            hiddenGroup.AddArgument("interactive", null, "Test using the interactive test strategy", typeof(bool));
+            hiddenGroup.AddArgument("sch-interactive", null, "Test using the interactive test strategy", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
@@ -151,28 +150,15 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.RandomValueGeneratorSeed = (uint)option.Value;
                     break;
                 case "sch-random":
-                    configuration.SchedulingStrategy = SchedulingStrategy.Random;
+                case "sch-dfs":
+                case "sch-portfolio":
+                case "sch-interactive":
+                    configuration.SchedulingStrategy = option.LongName.Substring(4);
                     break;
                 case "sch-pct":
-                    configuration.SchedulingStrategy = SchedulingStrategy.PCT;
-                    configuration.PrioritySwitchBound = (int)(uint)option.Value;
-                    break;
                 case "sch-fairpct":
-                    configuration.SchedulingStrategy = SchedulingStrategy.FairPCT;
-                    configuration.PrioritySwitchBound = (int)(uint)option.Value;
-                    break;
-                case "sch-probabilistic":
-                    configuration.SchedulingStrategy = SchedulingStrategy.ProbabilisticRandom;
-                    configuration.CoinFlipBound = (int)(uint)option.Value;
-                    break;
-                case "sch-dfs":
-                    configuration.SchedulingStrategy = SchedulingStrategy.DFS;
-                    break;
-                case "sch-portfolio":
-                    configuration.SchedulingStrategy = SchedulingStrategy.Portfolio;
-                    break;
-                case "interactive":
-                    configuration.SchedulingStrategy = SchedulingStrategy.Interactive;
+                    configuration.SchedulingStrategy = option.LongName.Substring(4);
+                    configuration.StrategyBound = (int)(uint)option.Value;
                     break;
                 case "schedule":
                     {
@@ -345,13 +331,13 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 Error.ReportAndExit("Please give a valid path to a Coyote program's dll using 'test x'.");
             }
 
-            if (configuration.SchedulingStrategy != SchedulingStrategy.Interactive &&
-                configuration.SchedulingStrategy != SchedulingStrategy.Portfolio &&
-                configuration.SchedulingStrategy != SchedulingStrategy.Random &&
-                configuration.SchedulingStrategy != SchedulingStrategy.PCT &&
-                configuration.SchedulingStrategy != SchedulingStrategy.FairPCT &&
-                configuration.SchedulingStrategy != SchedulingStrategy.ProbabilisticRandom &&
-                configuration.SchedulingStrategy != SchedulingStrategy.DFS)
+            if (configuration.SchedulingStrategy != "interactive" &&
+                configuration.SchedulingStrategy != "portfolio" &&
+                configuration.SchedulingStrategy != "random" &&
+                configuration.SchedulingStrategy != "pct" &&
+                configuration.SchedulingStrategy != "fairpct" &&
+                configuration.SchedulingStrategy != "probabilistic" &&
+                configuration.SchedulingStrategy != "dfs")
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
             }
@@ -366,14 +352,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             {
                 Error.ReportAndExit("Please give a safety prefix bound that is less than the " +
                     "max scheduling steps bound.");
-            }
-
-            if (configuration.SchedulingStrategy.Equals("iddfs") &&
-                configuration.MaxUnfairSchedulingSteps == 0)
-            {
-                Error.ReportAndExit("The Iterative Deepening DFS scheduler ('iddfs') " +
-                    "must have a max scheduling steps bound, which can be given using " +
-                    "'--max-steps bound', where bound > 0.");
             }
 
 #if NETCOREAPP2_1

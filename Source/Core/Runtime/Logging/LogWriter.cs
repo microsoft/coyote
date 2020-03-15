@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime.Exploration;
 using Microsoft.Coyote.Runtime.Logging;
 
 namespace Microsoft.Coyote.Runtime
@@ -536,15 +535,15 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Logs the specified scheduling strategy description.
         /// </summary>
-        /// <param name="strategy">The scheduling strategy that was used.</param>
+        /// <param name="strategyName">The name of the strategy that was used.</param>
         /// <param name="description">More information about the scheduling strategy.</param>
-        public void LogStrategyDescription(SchedulingStrategy strategy, string description)
+        public void LogStrategyDescription(string strategyName, string description)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnStrategyDescription(strategy, description);
+                    log.OnStrategyDescription(strategyName, description);
                 }
             }
         }

@@ -22,9 +22,9 @@ namespace Microsoft.Coyote.SharedObjects
             {
                 return new ProductionSharedRegister<T>(value);
             }
-            else if (runtime is SystematicTestingRuntime testingRuntime)
+            else if (runtime is ControlledRuntime controlledRuntime)
             {
-                return new MockSharedRegister<T>(value, testingRuntime);
+                return new MockSharedRegister<T>(value, controlledRuntime);
             }
             else
             {

@@ -3,6 +3,7 @@
 
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects
 {
@@ -17,14 +18,14 @@ namespace Microsoft.Coyote.SharedObjects
         private readonly ActorId CounterActor;
 
         /// <summary>
-        /// The testing runtime hosting this shared counter.
+        /// The controlled runtime hosting this shared counter.
         /// </summary>
-        private readonly SystematicTestingRuntime Runtime;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MockSharedCounter"/> class.
         /// </summary>
-        public MockSharedCounter(int value, SystematicTestingRuntime runtime)
+        public MockSharedCounter(int value, ControlledRuntime runtime)
         {
             this.Runtime = runtime;
             this.CounterActor = this.Runtime.CreateActor(typeof(SharedCounterActor));

@@ -33,10 +33,10 @@ class M : StateMachine
 }
 ```
 
-To unit-test the above logic, first import the `Microsoft.Coyote.TestingServices` library:
+To unit-test the above logic, first import the `Microsoft.Coyote.Actors.UnitTesting` library:
 
 ```c#
-using Microsoft.Coyote.TestingServices;
+using Microsoft.Coyote.Actors.UnitTesting;
 ```
 
 Next, create a new `ActorTestKit` instance for the actor `M` in your test method, as seen below. You

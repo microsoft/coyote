@@ -66,7 +66,7 @@ upgrade your applications and services. Contact us if you have any questions or 
 - Similar to the `Machine` type, `Goto` is `RaiseGotoStateEvent`.
 
 ## Test attribute changes
-- `[Microsoft.PSharp.Test]` was renamed  to `[Microsoft.Coyote.TestingServices.Test]`
+- `[Microsoft.PSharp.Test]` was renamed  to `[Microsoft.Coyote.SystematicTesting.Test]`
 
 ## Command line tool changes
 - The `PSharpTester` and `PSharpReplayer` executables have now been merged into the `coyote` command

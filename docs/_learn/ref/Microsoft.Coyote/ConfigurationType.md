@@ -22,7 +22,6 @@ public class Configuration
 | [MaxSchedulingSteps](Configuration/MaxSchedulingSteps) { set; } | The maximum scheduling steps to explore for both fair and unfair schedulers. By default there is no bound. |
 | [AssemblyToBeAnalyzed](Configuration/AssemblyToBeAnalyzed) | The assembly to be analyzed for bugs. |
 | [AttachDebugger](Configuration/AttachDebugger) | Attaches the debugger during trace replay. |
-| [CoinFlipBound](Configuration/CoinFlipBound) | Coin-flip bound. By default it is 2. |
 | [ConsiderDepthBoundHitAsBug](Configuration/ConsiderDepthBoundHitAsBug) | If true, then the Coyote tester will consider an execution that hits the depth bound as buggy. |
 | [CustomActorRuntimeLogType](Configuration/CustomActorRuntimeLogType) | If specified, requests a custom runtime log to be used instead of the default. This is the AssemblyQualifiedName of the type to load. |
 | [DebugActivityCoverage](Configuration/DebugActivityCoverage) | Enables activity coverage debugging. |
@@ -42,7 +41,6 @@ public class Configuration
 | [ParallelBugFindingTasks](Configuration/ParallelBugFindingTasks) | Number of parallel bug-finding tasks. By default it is 1 task. |
 | [ParallelDebug](Configuration/ParallelDebug) | Put a debug prompt at the beginning of each child TestProcess. |
 | [PerformFullExploration](Configuration/PerformFullExploration) | If true, the Coyote tester performs a full exploration, and does not stop when it finds a bug. |
-| [PrioritySwitchBound](Configuration/PrioritySwitchBound) | The priority switch bound. By default it is 2. Used by priority-based schedulers. |
 | [RandomValueGeneratorSeed](Configuration/RandomValueGeneratorSeed) | Custom seed to be used by the random value generator. By default, this value is null indicating that no seed has been set. |
 | [ReportActivityCoverage](Configuration/ReportActivityCoverage) | Enables activity coverage reporting of a Coyote program. |
 | [ReportCodeCoverage](Configuration/ReportCodeCoverage) | Enables code coverage reporting of a Coyote program. |
@@ -51,7 +49,8 @@ public class Configuration
 | [SafetyPrefixBound](Configuration/SafetyPrefixBound) | Safety prefix bound. By default it is 0. |
 | [ScheduleFile](Configuration/ScheduleFile) | The schedule file to be replayed. |
 | [SchedulingIterations](Configuration/SchedulingIterations) | Number of scheduling iterations. |
-| [SchedulingStrategy](Configuration/SchedulingStrategy) | Scheduling strategy to use with the Coyote tester. |
+| [SchedulingStrategy](Configuration/SchedulingStrategy) | The systematic testing strategy to use. |
+| [StrategyBound](Configuration/StrategyBound) | A strategy-specific bound. |
 | [TestingProcessId](Configuration/TestingProcessId) | The unique testing process id. |
 | [TestingSchedulerEndPoint](Configuration/TestingSchedulerEndPoint) | The testing scheduler unique endpoint. |
 | [TestingSchedulerIpAddress](Configuration/TestingSchedulerIpAddress) | Specify ip address if you want to use something other than localhost. |
@@ -63,7 +62,7 @@ public class Configuration
 | [WaitForTestingProcesses](Configuration/WaitForTestingProcesses) | Do not automatically launch the TestingProcesses in parallel mode, instead wait for them to be launched independently. |
 | [WithMaxSteps](Configuration/WithMaxSteps)(…) | Updates the configuration with the specified number of scheduling steps to perform per iteration (for both fair and unfair schedulers). |
 | [WithNumberOfIterations](Configuration/WithNumberOfIterations)(…) | Updates the configuration with the specified number of iterations to perform. |
-| [WithStrategy](Configuration/WithStrategy)(…) | Updates the configuration with the specified scheduling strategy. |
+| [WithStrategy](Configuration/WithStrategy)(…) | Updates the configuration with the specified systematic testing strategy. |
 | [WithTimeoutDelay](Configuration/WithTimeoutDelay)(…) | Updates the [`TimeoutDelay`](Configuration/TimeoutDelay) to the specified value. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled)(…) | Updates the configuration with verbose output enabled or disabled. |
 

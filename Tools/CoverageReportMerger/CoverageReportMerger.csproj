@@ -16,6 +16,6 @@
     <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\TestingServices\TestingServices.csproj" />
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
   </ItemGroup>
 </Project>

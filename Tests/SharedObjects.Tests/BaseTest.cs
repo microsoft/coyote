@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Exploration;
-using Microsoft.Coyote.Runtime.Exploration.Strategies;
-using Microsoft.Coyote.TestingServices;
+using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.SystematicTesting.Strategies;
 using Xunit;
 using Xunit.Abstractions;
 using Common = Microsoft.Coyote.Tests.Common;
@@ -87,7 +86,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 CheckErrors(engine, numExpectedErrors, expectedOutputs);
 
-                configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+                configuration.SchedulingStrategy = "replay";
                 configuration.ScheduleTrace = engine.ReproducableTrace;
 
                 engine = RunTest(test, configuration, logger);
@@ -146,7 +145,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 CheckErrors(engine, exceptionType);
 
-                configuration.SchedulingStrategy = SchedulingStrategy.Replay;
+                configuration.SchedulingStrategy = "replay";
                 configuration.ScheduleTrace = engine.ReproducableTrace;
 
                 engine = RunTest(test, configuration, logger);

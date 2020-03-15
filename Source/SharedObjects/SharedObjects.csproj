@@ -6,7 +6,7 @@
     <AssemblyName>Microsoft.Coyote.SharedObjects</AssemblyName>
     <RootNamespace>Microsoft.Coyote.SharedObjects</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>asynchronous;event-driven;state-machines;systematic-testing;dotnet;csharp</PackageTags>
+    <PackageTags>asynchronous;actors;state-machines;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
@@ -16,6 +16,6 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestingServices\TestingServices.csproj" />
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 </Project>

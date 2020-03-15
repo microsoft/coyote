@@ -6,15 +6,14 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/SchedulingStrategy
 ---
 # Configuration.SchedulingStrategy field
 
-Scheduling strategy to use with the Coyote tester.
+The systematic testing strategy to use.
 
 ```csharp
-public SchedulingStrategy SchedulingStrategy;
+public string SchedulingStrategy;
 ```
 
 ## See Also
 
-* enum [SchedulingStrategy](../../Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType)
 * class [Configuration](../ConfigurationType)
 * namespace [Microsoft.Coyote](../ConfigurationType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

@@ -6,19 +6,18 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/WithStrategy
 ---
 # Configuration.WithStrategy method
 
-Updates the configuration with the specified scheduling strategy.
+Updates the configuration with the specified systematic testing strategy.
 
 ```csharp
-public Configuration WithStrategy(SchedulingStrategy strategy)
+public Configuration WithStrategy(string strategyName)
 ```
 
 | parameter | description |
 | --- | --- |
-| strategy | The scheduling strategy. |
+| strategyName | The name of the strategy. |
 
 ## See Also
 
-* enum [SchedulingStrategy](../../Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType)
 * class [Configuration](../ConfigurationType)
 * namespace [Microsoft.Coyote](../ConfigurationType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

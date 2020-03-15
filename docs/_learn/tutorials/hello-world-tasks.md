@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Samples.HelloWorldTasks
             await Execute();
         }
 
-        [Microsoft.Coyote.TestingServices.Test]
+        [Microsoft.Coyote.SystematicTesting.Test]
         public static async ControlledTask Execute()
         {
             var greeter = new Greeter();
@@ -270,7 +270,7 @@ It is a rule in Coyote that for any executable to be testable with `coyote test`
 static `Execute()` method which must have a specific, signature. In this code one of these allowed
 signatures for the method is specified.
 
-Do note the `[Microsoft.Coyote.TestingServices.Test]` attribute of the `Execute()` method, and its
+Do note the `[Microsoft.Coyote.SystematicTesting.Test]` attribute of the `Execute()` method, and its
 return type: `ControlledTask`. When these are specified, then `coyote test` can find the `Execute()`
 method in the executable assembly and can control its execution.
 

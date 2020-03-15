@@ -6,7 +6,7 @@
     <AssemblyName>Microsoft.Coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>coyote;state-machines;asynchronous;event-driven;dotnet;csharp</PackageTags>
+    <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
@@ -15,6 +15,9 @@
   <PropertyGroup Condition="'$(OS)'=='UNIX'">
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47'">
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net46'">
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>

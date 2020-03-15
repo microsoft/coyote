@@ -22,9 +22,9 @@ namespace Microsoft.Coyote.SharedObjects
             {
                 return new ProductionSharedDictionary<TKey, TValue>();
             }
-            else if (runtime is SystematicTestingRuntime testingRuntime)
+            else if (runtime is ControlledRuntime controlledRuntime)
             {
-                return new MockSharedDictionary<TKey, TValue>(null, testingRuntime);
+                return new MockSharedDictionary<TKey, TValue>(null, controlledRuntime);
             }
             else
             {
@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.SharedObjects
             {
                 return new ProductionSharedDictionary<TKey, TValue>(comparer);
             }
-            else if (runtime is SystematicTestingRuntime testingRuntime)
+            else if (runtime is ControlledRuntime controlledRuntime)
             {
-                return new MockSharedDictionary<TKey, TValue>(comparer, testingRuntime);
+                return new MockSharedDictionary<TKey, TValue>(comparer, controlledRuntime);
             }
             else
             {

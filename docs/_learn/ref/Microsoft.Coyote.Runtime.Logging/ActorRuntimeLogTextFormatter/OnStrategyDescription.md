@@ -9,17 +9,16 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormat
 Invoked to describe the specified scheduling strategy.
 
 ```csharp
-public virtual void OnStrategyDescription(SchedulingStrategy strategy, string description)
+public virtual void OnStrategyDescription(string strategyName, string description)
 ```
 
 | parameter | description |
 | --- | --- |
-| strategy | The scheduling strategy that was used. |
+| strategyName | The name of the strategy that was used. |
 | description | More information about the scheduling strategy. |
 
 ## See Also
 
-* enum [SchedulingStrategy](../../Microsoft.Coyote.Runtime.Exploration/SchedulingStrategyType)
 * class [ActorRuntimeLogTextFormatter](../ActorRuntimeLogTextFormatterType)
 * namespace [Microsoft.Coyote.Runtime.Logging](../ActorRuntimeLogTextFormatterType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

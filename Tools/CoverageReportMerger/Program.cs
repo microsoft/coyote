@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Coyote.TestingServices.Coverage;
+using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote
 {

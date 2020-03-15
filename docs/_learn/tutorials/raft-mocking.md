@@ -115,7 +115,7 @@ this case is `Raft.Mocking.dgml` and it will look something like this:
 
 Here you see all the mock objects in green, and the production server code in gray. You can see that
 all the states were explored in the `Server`, including the `Leader` state.  The `MockStateMachineTimer`
-is a helper `Actor` provided in the `Microsoft.Coyote.TestingServices` framework and is the testing
+is a helper `Actor` provided in the `Microsoft.Coyote.Actors.Timers.Mocks` framework and is the testing
 implementation behind the Coyote `CreateTimer` and `CreatePeriodicTimer` API's.
 
 There are many different `coyote test` command line options you can play with to test different things

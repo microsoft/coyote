@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.Runtime
 {
@@ -255,9 +254,9 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Invoked to describe the specified scheduling strategy.
         /// </summary>
-        /// <param name="strategy">The scheduling strategy that was used.</param>
+        /// <param name="strategyName">The name of the strategy that was used.</param>
         /// <param name="description">More information about the scheduling strategy.</param>
-        void OnStrategyDescription(SchedulingStrategy strategy, string description);
+        void OnStrategyDescription(string strategyName, string description);
 
         /// <summary>
         /// Invoked when a log is complete (and is about to be closed).

@@ -6,7 +6,6 @@ using System.IO;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.Runtime.Logging
 {
@@ -309,10 +308,10 @@ namespace Microsoft.Coyote.Runtime.Logging
         }
 
         /// <inheritdoc/>
-        public virtual void OnStrategyDescription(SchedulingStrategy strategy, string description)
+        public virtual void OnStrategyDescription(string strategyName, string description)
         {
             var desc = string.IsNullOrEmpty(description) ? $" Description: {description}" : string.Empty;
-            var text = $"<StrategyLog> Found bug using '{strategy}' strategy.{desc}";
+            var text = $"<StrategyLog> Found bug using '{strategyName}' strategy.{desc}";
             this.Logger.WriteLine(text);
         }
 

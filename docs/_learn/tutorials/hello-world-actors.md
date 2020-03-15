@@ -467,7 +467,7 @@ public static class HostProgram
         await CompletionSource.Task;
     }
 
-    [Microsoft.Coyote.TestingServices.Test]
+    [Microsoft.Coyote.SystematicTesting.Test]
     public static void Execute(IActorRuntime runtime)
     {
         ActorId serverId = runtime.CreateActor(typeof(Server));
@@ -493,22 +493,22 @@ It is a rule in Coyote that for any executable to be testable with the `coyote t
 contain a static method which must have a specific, predefined signature, such as one of these:
 
 ```c#
-[Microsoft.Coyote.TestingServices.TestAttribute]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static void Execute() { ... }
 
-[Microsoft.Coyote.TestingServices.TestAttribute]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static void Execute(IActorRuntime runtime) { ... }
 
-[Microsoft.Coyote.TestingServices.TestAttribute]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static async ControlledTask Execute() { ... await ... }
 
-[Microsoft.Coyote.TestingServices.TestAttribute]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static async ControlledTask Execute(IActorRuntime runtime) { ... await ... }
 ```
 
 In this code one of these allowed signatures for the `Execute()` method is specified.
 
-Do note the `[Microsoft.Coyote.TestingServices.Test]` attribute of the `Execute()` method. When this
+Do note the `[Microsoft.Coyote.SystematicTesting.Test]` attribute of the `Execute()` method. When this
 is specified, then the Coyote tester can find the `Execute()` method in the executable assembly and
 can control its execution.
 

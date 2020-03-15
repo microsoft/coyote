@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.Coyote.TestingServices.Utilities
+namespace Microsoft.Coyote.SystematicTesting.Utilities
 {
     public sealed class DependentAssemblyLoader : MarshalByRefObject
     {

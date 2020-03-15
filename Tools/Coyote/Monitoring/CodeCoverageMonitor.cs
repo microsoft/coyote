@@ -9,7 +9,7 @@ using System.Threading;
 
 using Microsoft.Coyote.IO;
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// Monitors the program being tested for code coverage.

@@ -21,9 +21,9 @@ namespace Microsoft.Coyote.SharedObjects
             {
                 return new ProductionSharedCounter(value);
             }
-            else if (runtime is SystematicTestingRuntime testingRuntime)
+            else if (runtime is ControlledRuntime controlledRuntime)
             {
-                return new MockSharedCounter(value, testingRuntime);
+                return new MockSharedCounter(value, controlledRuntime);
             }
             else
             {

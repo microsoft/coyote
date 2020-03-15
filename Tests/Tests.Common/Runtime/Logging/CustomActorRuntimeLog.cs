@@ -6,7 +6,6 @@ using System.Text;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Exploration;
 
 namespace Microsoft.Coyote.Tests.Common.Runtime
 {
@@ -133,7 +132,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnStrategyDescription(SchedulingStrategy strategy, string description)
+        public void OnStrategyDescription(string strategyName, string description)
         {
         }
 

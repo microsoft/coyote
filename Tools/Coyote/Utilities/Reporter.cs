@@ -3,9 +3,9 @@
 
 using System;
 using System.IO;
-using Microsoft.Coyote.TestingServices.Coverage;
+using Microsoft.Coyote.Coverage;
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// The Coyote testing reporter.

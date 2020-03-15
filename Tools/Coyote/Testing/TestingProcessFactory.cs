@@ -5,9 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using Microsoft.Coyote.Runtime.Exploration;
 
-namespace Microsoft.Coyote.TestingServices
+namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// The Coyote testing process factory.
@@ -68,20 +67,16 @@ namespace Microsoft.Coyote.TestingServices
                 arguments.Append($"--max-steps {configuration.MaxUnfairSchedulingSteps} ");
             }
 
-            if (configuration.SchedulingStrategy == SchedulingStrategy.PCT ||
-                configuration.SchedulingStrategy == SchedulingStrategy.FairPCT)
+            if (configuration.SchedulingStrategy is "pct" ||
+                configuration.SchedulingStrategy is "fairpct" ||
+                configuration.SchedulingStrategy is "probabilistic")
             {
-                arguments.Append($"--sch-{configuration.SchedulingStrategy} ".ToLower() +
-                    $"{configuration.PrioritySwitchBound} ");
+                arguments.Append($"--sch-{configuration.SchedulingStrategy} {configuration.StrategyBound} ");
             }
-            else if (configuration.SchedulingStrategy == SchedulingStrategy.ProbabilisticRandom)
+            else if (configuration.SchedulingStrategy is "random" ||
+                configuration.SchedulingStrategy is "portfolio")
             {
-                arguments.Append($"--sch-probabilistic {configuration.CoinFlipBound} ");
-            }
-            else if (configuration.SchedulingStrategy == SchedulingStrategy.Random ||
-                configuration.SchedulingStrategy == SchedulingStrategy.Portfolio)
-            {
-                arguments.Append($"--sch-{configuration.SchedulingStrategy} ".ToLower());
+                arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
             if (configuration.RandomValueGeneratorSeed.HasValue)

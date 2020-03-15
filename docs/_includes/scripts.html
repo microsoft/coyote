@@ -27,21 +27,24 @@
 
     fetchJson("{{ "/assets/data/search.json" | relative_url }}", setupSearchJson);
   });
+
+  var awaConfig = {
+    userConsented: false,
+    syncMuid: true,
+    autoCapture: {
+        lineage: true
+    },
+    coreData: {
+        appId: "MSR_Coyote",
+        pageName: "{{page.title}}"
+    }
+  };
+
 </script>
 {% endif %}
 
 <!-- Microsoft JSLL -->
 <script src="https://az725175.vo.msecnd.net/scripts/jsll-4.js" type="text/javascript"></script>
-<script type="text/javascript">
-var config = {
-    autoCapture: {
-            lineage: true
-    },
-    coreData: {
-            appId: "MSR_Coyote"
-    }
-};
-awa.init(config);
-</script>
+<script language="javascript" src="/coyote/assets/js/analytics.js"></script>
 
 <script src="{{ "/assets/js/vendor/ie10-viewport-bug-workaround.js" | relative_url }}"></script>

@@ -4,7 +4,6 @@ title:        Coyote
 alt-title:    Coyote
 tagline:      Coyote - for rapid development of reliable asynchronous code.
 baseurl:      "/coyote"
-cookiebanner: false
 
 author:
   name:       Microsoft

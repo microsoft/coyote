@@ -255,8 +255,7 @@ function convertTrace(doc) {
             }
         }
     }
-
-    start_trace(model.events);
+    return model;
 }
 
 function fetchXml(url, asXml, handler)
@@ -292,7 +291,10 @@ jQuery(document).ready(function ($) {
         if (xmltrace && svgFile) {
             fetchXml(svgFile, false, function (data){
                 div.innerHTML = data;
-                fetchXml(xmltrace, true, convertTrace);
+                fetchXml(xmltrace, true, function (trace) {
+                    model = convertTrace(trace);
+                    start_trace(model.events, div);
+                });
             });
         }
     });

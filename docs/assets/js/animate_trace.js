@@ -8,10 +8,10 @@ var nodes = null;
 var links = null;
 var crossGroupLinks = null;
 var position = 0;
-var svg = null;
 var currentStates = new Array();
 var progressBar = null;
 var playing = false;
+var svg = null;
 
 const linkSeparator = "-\u003E";
 const comet_color = "#409050";
@@ -25,10 +25,15 @@ const restart_timeout = 5000; // 5 seconds
 var normal_foreground = "#3D3D3D";
 
 // see: http://owl3d.com/svg/vsw/articles/vsw_article.html
-function start_trace(events) {
-    animate_events = events;
+function start_trace(events, parentDiv) {
     position = 0;
-    start_animation();
+    animate_events = events;
+    svg = $(parentDiv).children("svg");
+    if (svg.length > 0)
+    {
+        svg = svg[0];
+        start_animation(svg);
+    }
 }
 
 ProgressBar = function(svg, options) {
@@ -149,31 +154,28 @@ ProgressBar = function(svg, options) {
     this.setState(1);
 }
 
-function start_animation() {
+function start_animation(svg) {
     playing = true;
-    tags = document.getElementsByTagNameNS(svgNS, "svg");
-    if (tags.length > 0) {
-        svg = tags[0];
-        if (!progressBar) {
-            progressBar = new ProgressBar(svg);
-            progressBar.onclick = function (state) {
-                if (playing) {
-                    stop_animation();
-                } else {
-                    start_animation();
-                }
+    if (!progressBar) {
+        progressBar = new ProgressBar(svg);
+        progressBar.onclick = function (state) {
+            if (playing) {
+                stop_animation();
+            } else {
+                start_animation(svg);
             }
         }
-        progressBar.setState(1);
-        if (!crossGroupLinks) {
-            nodes = new Array();
-            links = new Array();
-            crossGroupLinks = new Array();
-            find_nodes(svg.children, 0);
-            hide_crossGroupLinks_links(crossGroupLinks);
-            trim_bad_events();
-        }
     }
+    progressBar.setState(1);
+    if (!crossGroupLinks) {
+        nodes = new Array();
+        links = new Array();
+        crossGroupLinks = new Array();
+        find_nodes(svg.children, 0);
+        hide_crossGroupLinks_links(crossGroupLinks);
+        trim_bad_events();
+    }
+
     if (position >= animate_events.length) {
         deselectAll();
         position = 0;

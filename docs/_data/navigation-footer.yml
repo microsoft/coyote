@@ -2,7 +2,7 @@
 dark:
 - title: Coyote
   subfolderitems:
-    - name: Overview
+    - name: Home
       link: /
     - name: About
       link: /about
@@ -17,7 +17,7 @@ dark:
       link: /learn/get-started/install
     - name: Getting started
       link: /learn/get-started/using-coyote
-- title: Join community
+- title: Community
   subfolderitems:
     - name: GitHub
       link: https://github.com/microsoft/coyote/

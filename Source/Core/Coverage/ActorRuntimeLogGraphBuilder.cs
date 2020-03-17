@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Coverage
     /// Implements the <see cref="IActorRuntimeLog"/> and builds a directed graph
     /// from the recorded events and state transitions.
     /// </summary>
-    public class ActorRuntimeLogGraphBuilder : IActorRuntimeLog
+    internal class ActorRuntimeLogGraphBuilder : IActorRuntimeLog
     {
         private Graph CurrentGraph;
         private EventInfo Dequeued; // current dequeued event.

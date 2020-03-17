@@ -12,7 +12,7 @@ namespace Microsoft.Coyote.Coverage
     /// <summary>
     /// The Coyote code coverage reporter.
     /// </summary>
-    public class ActivityCoverageReporter
+    internal class ActivityCoverageReporter
     {
         /// <summary>
         /// Data structure containing information

@@ -638,15 +638,6 @@ learn-toc:
     - name: Microsoft.Coyote.Coverage
       link: /learn/ref/MicrosoftCoyoteCoverageNamespace
       subfolderitems:
-      - name: ActivityCoverageReporter
-        link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporterType
-        subfolderitems:
-        - name: EmitVisualizationGraph
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporter/EmitVisualizationGraph
-        - name: EmitCoverageReport
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporter/EmitCoverageReport
-        - name: ActivityCoverageReporter
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActivityCoverageReporter/ActivityCoverageReporter
       - name: EventCoverage
         link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverageType
         subfolderitems:
@@ -656,77 +647,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverage/GetEventsSent
         - name: EventCoverage
           link: /learn/ref/Microsoft.Coyote.Coverage/EventCoverage/EventCoverage
-      - name: ActorRuntimeLogGraphBuilder
-        link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType
-        subfolderitems:
-        - name: OnCreateActor
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCreateActor
-        - name: OnSendEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnSendEvent
-        - name: OnRaiseEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnRaiseEvent
-        - name: OnEnqueueEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnEnqueueEvent
-        - name: OnDequeueEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnDequeueEvent
-        - name: OnReceiveEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnReceiveEvent
-        - name: OnWaitEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnWaitEvent
-        - name: OnRandom
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnRandom
-        - name: OnStateTransition
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnStateTransition
-        - name: OnExecuteAction
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnExecuteAction
-        - name: OnGotoState
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnGotoState
-        - name: OnPushState
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnPushState
-        - name: OnPopState
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnPopState
-        - name: OnHalt
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnHalt
-        - name: OnDefaultEventHandler
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnDefaultEventHandler
-        - name: OnHandleRaisedEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnHandleRaisedEvent
-        - name: OnPopStateUnhandledEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnPopStateUnhandledEvent
-        - name: OnExceptionThrown
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnExceptionThrown
-        - name: OnExceptionHandled
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnExceptionHandled
-        - name: OnCreateTimer
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCreateTimer
-        - name: OnStopTimer
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnStopTimer
-        - name: OnCreateMonitor
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCreateMonitor
-        - name: OnMonitorExecuteAction
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorExecuteAction
-        - name: OnMonitorProcessEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorProcessEvent
-        - name: OnMonitorRaiseEvent
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorRaiseEvent
-        - name: OnMonitorStateTransition
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnMonitorStateTransition
-        - name: OnAssertionFailure
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnAssertionFailure
-        - name: OnStrategyDescription
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnStrategyDescription
-        - name: OnCompleted
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/OnCompleted
-        - name: SnapshotGraph
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/SnapshotGraph
-        - name: ActorRuntimeLogGraphBuilder
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/ActorRuntimeLogGraphBuilder
-        - name: CollapseMachineInstances
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/CollapseMachineInstances
-        - name: Logger
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/Logger
-        - name: Graph
-          link: /learn/ref/Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilder/Graph
       - name: Graph
         link: /learn/ref/Microsoft.Coyote.Coverage/GraphType
         subfolderitems:

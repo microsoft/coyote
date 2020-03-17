@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
@@ -17,10 +17,10 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunParallelTask()
+        public async SystemTasks.Task TestRunParallelTask()
         {
             SharedEntry entry = new SharedEntry();
-            await ControlledTask.Run(() =>
+            await Task.Run(() =>
             {
                 entry.Value = 5;
             }).ConfigureAwait(false);
@@ -29,12 +29,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunParallelSynchronousTask()
+        public async SystemTasks.Task TestRunParallelSynchronousTask()
         {
             SharedEntry entry = new SharedEntry();
-            await ControlledTask.Run(async () =>
+            await Task.Run(async () =>
             {
-                await ControlledTask.CompletedTask;
+                await Task.CompletedTask;
                 entry.Value = 5;
             }).ConfigureAwait(false);
 
@@ -42,12 +42,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunParallelAsynchronousTask()
+        public async SystemTasks.Task TestRunParallelAsynchronousTask()
         {
             SharedEntry entry = new SharedEntry();
-            await ControlledTask.Run(async () =>
+            await Task.Run(async () =>
             {
-                await ControlledTask.Delay(1).ConfigureAwait(false);
+                await Task.Delay(1).ConfigureAwait(false);
                 entry.Value = 5;
             }).ConfigureAwait(false);
 
@@ -55,14 +55,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunNestedParallelSynchronousTask()
+        public async SystemTasks.Task TestRunNestedParallelSynchronousTask()
         {
             SharedEntry entry = new SharedEntry();
-            await ControlledTask.Run(async () =>
+            await Task.Run(async () =>
             {
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     entry.Value = 3;
                 }).ConfigureAwait(false);
 
@@ -73,14 +73,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAwaitNestedParallelAsynchronousTask()
+        public async SystemTasks.Task TestAwaitNestedParallelAsynchronousTask()
         {
             SharedEntry entry = new SharedEntry();
-            await ControlledTask.Run(async () =>
+            await Task.Run(async () =>
             {
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(false);
+                    await Task.Delay(1).ConfigureAwait(false);
                     entry.Value = 3;
                 }).ConfigureAwait(false);
 
@@ -91,10 +91,10 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunParallelTaskResult()
+        public async SystemTasks.Task TestRunParallelTaskResult()
         {
             SharedEntry entry = new SharedEntry();
-            int value = await ControlledTask.Run(() =>
+            int value = await Task.Run(() =>
             {
                 entry.Value = 5;
                 return entry.Value;
@@ -104,12 +104,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunParallelSynchronousTaskResult()
+        public async SystemTasks.Task TestRunParallelSynchronousTaskResult()
         {
             SharedEntry entry = new SharedEntry();
-            int value = await ControlledTask.Run(async () =>
+            int value = await Task.Run(async () =>
             {
-                await ControlledTask.CompletedTask;
+                await Task.CompletedTask;
                 entry.Value = 5;
                 return entry.Value;
             }).ConfigureAwait(false);
@@ -118,12 +118,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunParallelAsynchronousTaskResult()
+        public async SystemTasks.Task TestRunParallelAsynchronousTaskResult()
         {
             SharedEntry entry = new SharedEntry();
-            int value = await ControlledTask.Run(async () =>
+            int value = await Task.Run(async () =>
             {
-                await ControlledTask.Delay(1).ConfigureAwait(false);
+                await Task.Delay(1).ConfigureAwait(false);
                 entry.Value = 5;
                 return entry.Value;
             }).ConfigureAwait(false);
@@ -132,14 +132,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunNestedParallelSynchronousTaskResult()
+        public async SystemTasks.Task TestRunNestedParallelSynchronousTaskResult()
         {
             SharedEntry entry = new SharedEntry();
-            int value = await ControlledTask.Run(async () =>
+            int value = await Task.Run(async () =>
             {
-                return await ControlledTask.Run(async () =>
+                return await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     entry.Value = 5;
                     return entry.Value;
                 }).ConfigureAwait(false);
@@ -149,14 +149,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestRunNestedParallelAsynchronousTaskResult()
+        public async SystemTasks.Task TestRunNestedParallelAsynchronousTaskResult()
         {
             SharedEntry entry = new SharedEntry();
-            int value = await ControlledTask.Run(async () =>
+            int value = await Task.Run(async () =>
             {
-                return await ControlledTask.Run(async () =>
+                return await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(false);
+                    await Task.Delay(1).ConfigureAwait(false);
                     entry.Value = 5;
                     return entry.Value;
                 }).ConfigureAwait(false);

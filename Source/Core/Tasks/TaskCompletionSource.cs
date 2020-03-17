@@ -3,9 +3,10 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
+using TaskCanceledException = System.Threading.Tasks.TaskCanceledException;
+using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace Microsoft.Coyote.Tasks
 {
@@ -24,7 +25,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Gets the task created by this task completion source.
         /// </summary>
-        public virtual ControlledTask<TResult> Task => this.Instance.Task.ToControlledTask();
+        public virtual Task<TResult> Task => this.Instance.Task.WrapInControlledTask();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskCompletionSource{TResult}"/> class.
@@ -101,7 +102,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// The task that provides access to the result.
             /// </summary>
-            private ControlledTask<TResult> ResultTask;
+            private Task<TResult> ResultTask;
 
             /// <summary>
             /// The result value.
@@ -121,7 +122,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Gets the task created by this task completion source.
             /// </summary>
-            public override ControlledTask<TResult> Task
+            public override Task<TResult> Task
             {
                 get
                 {
@@ -131,20 +132,20 @@ namespace Microsoft.Coyote.Tasks
                         // just return a completed task, no need to run a new task.
                         if (this.Status is TaskStatus.RanToCompletion)
                         {
-                            this.ResultTask = ControlledTask.FromResult(this.Result);
+                            this.ResultTask = Tasks.Task.FromResult(this.Result);
                         }
                         else if (this.Status is TaskStatus.Canceled)
                         {
-                            this.ResultTask = ControlledTask.FromCanceled<TResult>(this.CancellationTokenSource.Token);
+                            this.ResultTask = Tasks.Task.FromCanceled<TResult>(this.CancellationTokenSource.Token);
                         }
                         else if (this.Status is TaskStatus.Faulted)
                         {
-                            this.ResultTask = ControlledTask.FromException<TResult>(this.Exception);
+                            this.ResultTask = Tasks.Task.FromException<TResult>(this.Exception);
                         }
                         else
                         {
                             // Else, return a task that will complete once the task completion source also completes.
-                            this.ResultTask = ControlledTask.Run(() =>
+                            this.ResultTask = Tasks.Task.Run(() =>
                             {
                                 if (this.Status is TaskStatus.Created)
                                 {

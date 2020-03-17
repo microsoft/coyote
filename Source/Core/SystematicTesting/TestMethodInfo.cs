@@ -151,7 +151,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             bool hasExpectedReturnType = (testMethod.ReturnType == typeof(void) &&
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) ||
-                (testMethod.ReturnType == typeof(ControlledTask) &&
+                (testMethod.ReturnType == typeof(Task) &&
                 testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
             bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
                 (testParams.Length is 0 ||
@@ -168,9 +168,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static void {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async ControlledTask {testMethod.Name}() {{ ... }}\n\n" +
+                    $"  public static async {typeof(Task).FullName} {testMethod.Name}() {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async ControlledTask {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}");
+                    $"  public static async {typeof(Task).FullName} {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}");
             }
 
             Delegate test;
@@ -184,11 +184,11 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (testParams.Length == 1)
             {
-                test = Delegate.CreateDelegate(typeof(Func<IActorRuntime, ControlledTask>), testMethod);
+                test = Delegate.CreateDelegate(typeof(Func<IActorRuntime, Task>), testMethod);
             }
             else
             {
-                test = Delegate.CreateDelegate(typeof(Func<ControlledTask>), testMethod);
+                test = Delegate.CreateDelegate(typeof(Func<Task>), testMethod);
             }
 
             return (test, $"{testMethod.DeclaringType}.{testMethod.Name}");

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
@@ -20,9 +20,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                async Task CallAsync()
+                async SystemTasks.Task CallAsync()
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                 }
 
                 await CallAsync();
@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task CallAsync()
+                async SystemTasks.Task CallAsync()
                 {
-                    await ControlledTask.Delay(100);
+                    await Task.Delay(100);
                 }
 
                 await CallAsync();
@@ -53,14 +53,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                async Task NestedCallAsync()
+                async SystemTasks.Task NestedCallAsync()
                 {
-                    async Task CallAsync()
+                    async SystemTasks.Task CallAsync()
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                     }
 
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     await CallAsync();
                 }
 
@@ -74,14 +74,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task NestedCallAsync()
+                async SystemTasks.Task NestedCallAsync()
                 {
-                    async Task CallAsync()
+                    async SystemTasks.Task CallAsync()
                     {
-                        await ControlledTask.Delay(100);
+                        await Task.Delay(100);
                     }
 
-                    await ControlledTask.Delay(100);
+                    await Task.Delay(100);
                     await CallAsync();
                 }
 
@@ -98,9 +98,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                async Task<int> GetWriteResultAsync()
+                async SystemTasks.Task<int> GetWriteResultAsync()
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     return 5;
                 }
 
@@ -114,9 +114,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task<int> GetWriteResultWithDelayAsync()
+                async SystemTasks.Task<int> GetWriteResultWithDelayAsync()
                 {
-                    await ControlledTask.Delay(100);
+                    await Task.Delay(100);
                     return 5;
                 }
 
@@ -133,15 +133,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                async Task<int> NestedGetWriteResultAsync()
+                async SystemTasks.Task<int> NestedGetWriteResultAsync()
                 {
-                    async Task<int> GetWriteResultAsync()
+                    async SystemTasks.Task<int> GetWriteResultAsync()
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         return 5;
                     }
 
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     return await GetWriteResultAsync();
                 }
 
@@ -155,15 +155,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task<int> NestedGetWriteResultWithDelayAsync()
+                async SystemTasks.Task<int> NestedGetWriteResultWithDelayAsync()
                 {
-                    async Task<int> GetWriteResultWithDelayAsync()
+                    async SystemTasks.Task<int> GetWriteResultWithDelayAsync()
                     {
-                        await ControlledTask.Delay(100);
+                        await Task.Delay(100);
                         return 5;
                     }
 
-                    await ControlledTask.Delay(100);
+                    await Task.Delay(100);
                     return await GetWriteResultWithDelayAsync();
                 }
 

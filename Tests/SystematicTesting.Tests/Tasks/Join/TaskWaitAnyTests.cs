@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
@@ -17,15 +17,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = WriteAsync(entry, 5);
-                ControlledTask task2 = WriteAsync(entry, 3);
-                int index = ControlledTask.WaitAny(task1, task2);
+                Task task1 = WriteAsync(entry, 5);
+                Task task2 = WriteAsync(entry, 3);
+                int index = Task.WaitAny(task1, task2);
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
@@ -54,9 +54,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = WriteWithDelayAsync(entry, 3);
-                ControlledTask task2 = WriteWithDelayAsync(entry, 5);
-                int index = ControlledTask.WaitAny(task1, task2);
+                Task task1 = WriteWithDelayAsync(entry, 3);
+                Task task2 = WriteWithDelayAsync(entry, 5);
+                int index = Task.WaitAny(task1, task2);
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
@@ -73,17 +73,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 3);
                 });
 
-                ControlledTask task2 = ControlledTask.Run(async () =>
+                Task task2 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 5);
                 });
 
-                int index = ControlledTask.WaitAny(task1, task2);
+                int index = Task.WaitAny(task1, task2);
 
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
@@ -94,17 +94,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask<int> GetWriteResultAsync(SharedEntry entry, int value)
+        private static async Task<int> GetWriteResultAsync(SharedEntry entry, int value)
         {
             entry.Value = value;
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             return entry.Value;
         }
 
-        private static async ControlledTask<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
+        private static async Task<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
             entry.Value = value;
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             return entry.Value;
         }
 
@@ -114,10 +114,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask<int> task1 = GetWriteResultAsync(entry, 5);
-                ControlledTask<int> task2 = GetWriteResultAsync(entry, 3);
-                int index = ControlledTask.WaitAny(task1, task2);
-                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
+                Task<int> task1 = GetWriteResultAsync(entry, 5);
+                Task<int> task2 = GetWriteResultAsync(entry, 3);
+                int index = Task.WaitAny(task1, task2);
+                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
@@ -134,10 +134,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(() =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask<int> task1 = GetWriteResultWithDelayAsync(entry, 5);
-                ControlledTask<int> task2 = GetWriteResultWithDelayAsync(entry, 3);
-                int index = ControlledTask.WaitAny(task1, task2);
-                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
+                Task<int> task1 = GetWriteResultWithDelayAsync(entry, 5);
+                Task<int> task2 = GetWriteResultWithDelayAsync(entry, 3);
+                int index = Task.WaitAny(task1, task2);
+                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
@@ -154,18 +154,18 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask<int> task1 = ControlledTask.Run(async () =>
+                Task<int> task1 = Task.Run(async () =>
                 {
                     return await GetWriteResultAsync(entry, 5);
                 });
 
-                ControlledTask<int> task2 = ControlledTask.Run(async () =>
+                Task<int> task2 = Task.Run(async () =>
                 {
                     return await GetWriteResultAsync(entry, 3);
                 });
 
-                int index = ControlledTask.WaitAny(task1, task2);
-                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
+                int index = Task.WaitAny(task1, task2);
+                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
 
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
@@ -183,18 +183,18 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask<int> task1 = ControlledTask.Run(async () =>
+                Task<int> task1 = Task.Run(async () =>
                 {
                     return await GetWriteResultWithDelayAsync(entry, 5);
                 });
 
-                ControlledTask<int> task2 = ControlledTask.Run(async () =>
+                Task<int> task2 = Task.Run(async () =>
                 {
                     return await GetWriteResultWithDelayAsync(entry, 3);
                 });
 
-                int index = ControlledTask.WaitAny(task1, task2);
-                Task<int> result = index == 0 ? task1.AwaiterTask : task2.AwaiterTask;
+                int index = Task.WaitAny(task1, task2);
+                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
 
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");

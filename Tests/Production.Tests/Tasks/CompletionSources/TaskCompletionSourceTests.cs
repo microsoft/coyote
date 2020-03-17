@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using TCS = Microsoft.Coyote.Tasks.TaskCompletionSource<int>;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
@@ -18,88 +17,88 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSetResult()
+        public async SystemTasks.Task TestSetResult()
         {
-            var tcs = TCS.Create();
+            var tcs = TaskCompletionSource<int>.Create();
             tcs.SetResult(3);
             int result = await tcs.Task;
-            Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, tcs.Task.Status);
             Assert.Equal(3, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestTrySetResult()
+        public async SystemTasks.Task TestTrySetResult()
         {
-            var tcs = TCS.Create();
+            var tcs = TaskCompletionSource<int>.Create();
             tcs.SetResult(3);
             bool check = tcs.TrySetResult(5);
             int result = await tcs.Task;
             Assert.False(check);
-            Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, tcs.Task.Status);
             Assert.Equal(3, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAsynchronousSetResult()
+        public async SystemTasks.Task TestAsynchronousSetResult()
         {
-            var tcs = TCS.Create();
-            var task = ControlledTask.Run(async () =>
+            var tcs = TaskCompletionSource<int>.Create();
+            var task = Task.Run(async () =>
             {
                 return await tcs.Task;
             });
 
             tcs.SetResult(3);
             int result = await task;
-            Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, tcs.Task.Status);
             Assert.Equal(3, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAsynchronousSetResultTask()
+        public async SystemTasks.Task TestAsynchronousSetResultTask()
         {
-            var tcs = TCS.Create();
-            var task1 = ControlledTask.Run(async () =>
+            var tcs = TaskCompletionSource<int>.Create();
+            var task1 = Task.Run(async () =>
             {
                 return await tcs.Task;
             });
 
-            var task2 = ControlledTask.Run(() =>
+            var task2 = Task.Run(() =>
             {
                 tcs.SetResult(3);
             });
 
             int result = await task1;
-            Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, tcs.Task.Status);
             Assert.Equal(3, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAsynchronousSetResultWithTwoAwaiters()
+        public async SystemTasks.Task TestAsynchronousSetResultWithTwoAwaiters()
         {
-            var tcs = TCS.Create();
-            var task1 = ControlledTask.Run(async () =>
+            var tcs = TaskCompletionSource<int>.Create();
+            var task1 = Task.Run(async () =>
             {
                 return await tcs.Task;
             });
 
-            var task2 = ControlledTask.Run(async () =>
+            var task2 = Task.Run(async () =>
             {
                 return await tcs.Task;
             });
 
             tcs.SetResult(3);
-            await ControlledTask.WhenAll(task1, task2);
+            await Task.WhenAll(task1, task2);
             int result1 = task1.Result;
             int result2 = task2.Result;
-            Assert.Equal(TaskStatus.RanToCompletion, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, tcs.Task.Status);
             Assert.Equal(3, result1);
             Assert.Equal(3, result2);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSetCanceled()
+        public async SystemTasks.Task TestSetCanceled()
         {
-            var tcs = TCS.Create();
+            var tcs = TaskCompletionSource<int>.Create();
             tcs.SetCanceled();
 
             int result = default;
@@ -113,15 +112,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 exception = ex;
             }
 
-            Assert.IsType<TaskCanceledException>(exception);
-            Assert.Equal(TaskStatus.Canceled, tcs.Task.Status);
+            Assert.IsType<SystemTasks.TaskCanceledException>(exception);
+            Assert.Equal(SystemTasks.TaskStatus.Canceled, tcs.Task.Status);
             Assert.Equal(default, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestTrySetCanceled()
+        public async SystemTasks.Task TestTrySetCanceled()
         {
-            var tcs = TCS.Create();
+            var tcs = TaskCompletionSource<int>.Create();
             tcs.SetCanceled();
             bool check = tcs.TrySetCanceled();
 
@@ -137,16 +136,16 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.False(check);
-            Assert.IsType<TaskCanceledException>(exception);
-            Assert.Equal(TaskStatus.Canceled, tcs.Task.Status);
+            Assert.IsType<SystemTasks.TaskCanceledException>(exception);
+            Assert.Equal(SystemTasks.TaskStatus.Canceled, tcs.Task.Status);
             Assert.Equal(default, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAsynchronousSetCanceled()
+        public async SystemTasks.Task TestAsynchronousSetCanceled()
         {
-            var tcs = TCS.Create();
-            var task = ControlledTask.Run(() =>
+            var tcs = TaskCompletionSource<int>.Create();
+            var task = Task.Run(() =>
             {
                 tcs.SetCanceled();
             });
@@ -162,15 +161,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 exception = ex;
             }
 
-            Assert.IsType<TaskCanceledException>(exception);
-            Assert.Equal(TaskStatus.Canceled, tcs.Task.Status);
+            Assert.IsType<SystemTasks.TaskCanceledException>(exception);
+            Assert.Equal(SystemTasks.TaskStatus.Canceled, tcs.Task.Status);
             Assert.Equal(default, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSetException()
+        public async SystemTasks.Task TestSetException()
         {
-            var tcs = TCS.Create();
+            var tcs = TaskCompletionSource<int>.Create();
             tcs.SetException(new InvalidOperationException());
 
             int result = default;
@@ -185,14 +184,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, tcs.Task.Status);
             Assert.Equal(default, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestTrySetException()
+        public async SystemTasks.Task TestTrySetException()
         {
-            var tcs = TCS.Create();
+            var tcs = TaskCompletionSource<int>.Create();
             tcs.SetException(new InvalidOperationException());
             bool check = tcs.TrySetException(new NotImplementedException());
 
@@ -209,15 +208,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
             Assert.False(check);
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, tcs.Task.Status);
             Assert.Equal(default, result);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAsynchronousSetException()
+        public async SystemTasks.Task TestAsynchronousSetException()
         {
-            var tcs = TCS.Create();
-            var task = ControlledTask.Run(() =>
+            var tcs = TaskCompletionSource<int>.Create();
+            var task = Task.Run(() =>
             {
                 tcs.SetException(new InvalidOperationException());
             });
@@ -234,7 +233,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, tcs.Task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, tcs.Task.Status);
             Assert.Equal(default, result);
         }
     }

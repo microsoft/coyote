@@ -9,12 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task
 Gets the task created by this task completion source.
 
 ```csharp
-public virtual ControlledTask<TResult> Task { get; }
+public virtual Task<TResult> Task { get; }
 ```
 
 ## See Also
 
-* class [ControlledTask&lt;TResult&gt;](../ControlledTask-1Type)
+* class [Task&lt;TResult&gt;](../Task-1Type)
 * class [TaskCompletionSource&lt;TResult&gt;](../TaskCompletionSource-1Type)
 * namespace [Microsoft.Coyote.Tasks](../TaskCompletionSource-1Type)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

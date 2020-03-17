@@ -17,15 +17,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -35,9 +35,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = WriteAsync(entry, 5);
-                ControlledTask task2 = WriteAsync(entry, 3);
-                ControlledTask result = await ControlledTask.WhenAny(task1, task2);
+                Task task1 = WriteAsync(entry, 5);
+                Task task2 = WriteAsync(entry, 3);
+                Task result = await Task.WhenAny(task1, task2);
                 Specification.Assert(result.IsCompleted, "No task has completed.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -52,9 +52,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = WriteWithDelayAsync(entry, 3);
-                ControlledTask task2 = WriteWithDelayAsync(entry, 5);
-                ControlledTask result = await ControlledTask.WhenAny(task1, task2);
+                Task task1 = WriteWithDelayAsync(entry, 3);
+                Task task2 = WriteWithDelayAsync(entry, 5);
+                Task result = await Task.WhenAny(task1, task2);
                 Specification.Assert(result.IsCompleted, "No task has completed.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -70,17 +70,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 3);
                 });
 
-                ControlledTask task2 = ControlledTask.Run(async () =>
+                Task task2 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 5);
                 });
 
-                ControlledTask result = await ControlledTask.WhenAny(task1, task2);
+                Task result = await Task.WhenAny(task1, task2);
 
                 Specification.Assert(result.IsCompleted, "No task has completed.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
@@ -90,17 +90,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask<int> GetWriteResultAsync(SharedEntry entry, int value)
+        private static async Task<int> GetWriteResultAsync(SharedEntry entry, int value)
         {
             entry.Value = value;
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             return entry.Value;
         }
 
-        private static async ControlledTask<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
+        private static async Task<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
             entry.Value = value;
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             return entry.Value;
         }
 
@@ -110,9 +110,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask<int> task1 = GetWriteResultAsync(entry, 5);
-                ControlledTask<int> task2 = GetWriteResultAsync(entry, 3);
-                ControlledTask<int> result = await ControlledTask.WhenAny(task1, task2);
+                Task<int> task1 = GetWriteResultAsync(entry, 5);
+                Task<int> task2 = GetWriteResultAsync(entry, 3);
+                Task<int> result = await Task.WhenAny(task1, task2);
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert(
                     (result.Id == task1.Id && result.Result == 5) ||
@@ -131,9 +131,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask<int> task1 = GetWriteResultWithDelayAsync(entry, 5);
-                ControlledTask<int> task2 = GetWriteResultWithDelayAsync(entry, 3);
-                ControlledTask<int> result = await ControlledTask.WhenAny(task1, task2);
+                Task<int> task1 = GetWriteResultWithDelayAsync(entry, 5);
+                Task<int> task2 = GetWriteResultWithDelayAsync(entry, 3);
+                Task<int> result = await Task.WhenAny(task1, task2);
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert(
                     (result.Id == task1.Id && result.Result == 5) ||
@@ -152,17 +152,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask<int> task1 = ControlledTask.Run(async () =>
+                Task<int> task1 = Task.Run(async () =>
                 {
                     return await GetWriteResultAsync(entry, 5);
                 });
 
-                ControlledTask<int> task2 = ControlledTask.Run(async () =>
+                Task<int> task2 = Task.Run(async () =>
                 {
                     return await GetWriteResultAsync(entry, 3);
                 });
 
-                ControlledTask<int> result = await ControlledTask.WhenAny(task1, task2);
+                Task<int> result = await Task.WhenAny(task1, task2);
 
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert(
@@ -183,17 +183,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask<int> task1 = ControlledTask.Run(async () =>
+                Task<int> task1 = Task.Run(async () =>
                 {
                     return await GetWriteResultWithDelayAsync(entry, 5);
                 });
 
-                ControlledTask<int> task2 = ControlledTask.Run(async () =>
+                Task<int> task2 = Task.Run(async () =>
                 {
                     return await GetWriteResultWithDelayAsync(entry, 3);
                 });
 
-                ControlledTask<int> result = await ControlledTask.WhenAny(task1, task2);
+                Task<int> result = await Task.WhenAny(task1, task2);
 
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert(
@@ -213,19 +213,19 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 3);
                     throw new InvalidOperationException();
                 });
 
-                ControlledTask task2 = ControlledTask.Run(async () =>
+                Task task2 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 5);
                     throw new NotSupportedException();
                 });
 
-                ControlledTask result = await ControlledTask.WhenAny(task1, task2);
+                Task result = await Task.WhenAny(task1, task2);
 
                 Specification.Assert(result.IsFaulted, "No task has faulted.");
                 Specification.Assert(

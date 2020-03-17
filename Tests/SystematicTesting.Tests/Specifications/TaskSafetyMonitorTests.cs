@@ -39,9 +39,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
             this.TestWithError(async () =>
             {
                 Specification.RegisterMonitor<SafetyMonitor>();
-                async ControlledTask WriteAsync()
+                async Task WriteAsync()
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 }
 
@@ -58,9 +58,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
             this.TestWithError(async () =>
             {
                 Specification.RegisterMonitor<SafetyMonitor>();
-                async ControlledTask WriteWithDelayAsync()
+                async Task WriteWithDelayAsync()
                 {
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 }
 
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
             this.TestWithError(async () =>
             {
                 Specification.RegisterMonitor<SafetyMonitor>();
-                await ControlledTask.Run(() =>
+                await Task.Run(() =>
                 {
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
@@ -93,9 +93,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
             this.TestWithError(async () =>
             {
                 Specification.RegisterMonitor<SafetyMonitor>();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
@@ -110,9 +110,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
             this.TestWithError(async () =>
             {
                 Specification.RegisterMonitor<SafetyMonitor>();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
@@ -127,11 +127,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
             this.TestWithError(async () =>
             {
                 Specification.RegisterMonitor<SafetyMonitor>();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Run(async () =>
+                    await Task.Run(async () =>
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         Specification.Monitor<SafetyMonitor>(new Notify());
                     });
                 });

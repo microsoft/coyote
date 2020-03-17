@@ -17,7 +17,7 @@ using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting.Strategies;
-using Microsoft.Coyote.Tasks;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 using EventInfo = Microsoft.Coyote.Actors.EventInfo;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
@@ -42,9 +42,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal static ControlledRuntime Current =>
             AsyncLocalInstance.Value ?? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                "Uncontrolled task '{0}' tried to access the runtime. Please make sure to avoid using concurrency " +
-                "APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you " +
-                "are using external libraries that are executing concurrently, you will need to mock them during testing.",
+                "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
+                "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
+                "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
+                "you will need to mock them during testing.",
                 Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
 
         /// <summary>
@@ -250,11 +251,11 @@ namespace Microsoft.Coyote.SystematicTesting
                     {
                         action();
                     }
-                    else if (testMethod is Func<IActorRuntime, ControlledTask> functionWithRuntime)
+                    else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime)
                     {
                         await functionWithRuntime(this);
                     }
-                    else if (testMethod is Func<ControlledTask> function)
+                    else if (testMethod is Func<CoyoteTasks.Task> function)
                     {
                         await function();
                     }
@@ -838,8 +839,8 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             if (caller == null)
             {
-                // then this might be from a ControlledTask so use a fake id equal to the task id.
-                return new ActorId(typeof(ControlledTask), Task.CurrentId.ToString(), this);
+                // Then this might be from a controlled Task so use a fake id equal to the task id.
+                return new ActorId(typeof(CoyoteTasks.Task), Task.CurrentId.ToString(), this);
             }
             else
             {
@@ -990,9 +991,10 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!finished)
             {
                 this.Assert(finished,
-                    "Task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please make sure to avoid using " +
-                    "concurrency APIs such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers. If you are using " +
-                    "external libraries that are executing concurrently, you will need to mock them during testing.",
+                    "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
+                    "make sure to avoid using concurrency APIs (e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from " +
+                    "the 'System.Threading.Tasks' namespace) inside actor handlers. If you are using external libraries " +
+                    "that are executing concurrently, you will need to mock them during testing.",
                     Task.CurrentId);
             }
         }

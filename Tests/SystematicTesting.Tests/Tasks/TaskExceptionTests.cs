@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
@@ -18,15 +18,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 var task = WriteAsync(entry, 5);
                 await task;
 
-                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 var task = WriteWithDelayAsync(entry, 5);
                 await task;
 
-                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -68,14 +68,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                var task = ControlledTask.Run(() =>
+                var task = Task.Run(() =>
                 {
                     entry.Value = 5;
                 });
 
                 await task;
 
-                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -88,14 +88,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                var task = ControlledTask.Run(async () =>
+                var task = Task.Run(async () =>
                 {
                     entry.Value = 5;
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                 });
                 await task;
 
-                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -108,32 +108,32 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async ControlledTask func()
+                async Task func()
                 {
                     entry.Value = 5;
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                 }
 
-                var task = ControlledTask.Run(func);
+                var task = Task.Run(func);
                 await task;
 
-                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
         }
 
-        private static async ControlledTask WriteWithExceptionAsync(SharedEntry entry, int value)
+        private static async Task WriteWithExceptionAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
             throw new InvalidOperationException();
         }
 
-        private static async ControlledTask WriteWithDelayedExceptionAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayedExceptionAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
             throw new InvalidOperationException();
         }
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == TaskStatus.Faulted,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == TaskStatus.Faulted,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                var task = ControlledTask.Run(() =>
+                var task = Task.Run(() =>
                 {
                     entry.Value = 5;
                     throw new InvalidOperationException();
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == TaskStatus.Faulted,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -229,10 +229,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                var task = ControlledTask.Run(async () =>
+                var task = Task.Run(async () =>
                 {
                     entry.Value = 5;
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                     throw new InvalidOperationException();
                 });
 
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == TaskStatus.Faulted,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -261,14 +261,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async ControlledTask func()
+                async Task func()
                 {
                     entry.Value = 5;
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                     throw new InvalidOperationException();
                 }
 
-                var task = ControlledTask.Run(func);
+                var task = Task.Run(func);
 
                 Exception exception = null;
                 try
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == TaskStatus.Faulted,
+                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },

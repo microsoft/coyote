@@ -23,9 +23,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                var task = ControlledTask.Run(() =>
+                var task = Task.Run(() =>
                 {
-                    entry.Value = ControlledTask.CurrentId.Value;
+                    entry.Value = Task.CurrentId.Value;
                 });
 
                 await task;
@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var task = ControlledTask.Run(() =>
+                var task = Task.Run(() =>
                 {
-                    return ControlledTask.CurrentId.Value;
+                    return Task.CurrentId.Value;
                 });
 
                 await task;
@@ -65,10 +65,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                var task = ControlledTask.Run(async () =>
+                var task = Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1);
-                    entry.Value = ControlledTask.CurrentId.Value;
+                    await Task.Delay(1);
+                    entry.Value = Task.CurrentId.Value;
                 });
 
                 await task;
@@ -86,10 +86,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var task = ControlledTask.Run(async () =>
+                var task = Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1);
-                    return ControlledTask.CurrentId.Value;
+                    await Task.Delay(1);
+                    return Task.CurrentId.Value;
                 });
 
                 await task;

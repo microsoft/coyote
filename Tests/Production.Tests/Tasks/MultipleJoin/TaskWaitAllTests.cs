@@ -15,15 +15,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -31,9 +31,9 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public void TestWaitAllWithTwoSynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
-            ControlledTask task1 = WriteAsync(entry, 5);
-            ControlledTask task2 = WriteAsync(entry, 3);
-            ControlledTask.WaitAll(task1, task2);
+            Task task1 = WriteAsync(entry, 5);
+            Task task2 = WriteAsync(entry, 3);
+            Task.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
@@ -43,9 +43,9 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public void TestWaitAllWithTwoAsynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
-            ControlledTask task1 = WriteWithDelayAsync(entry, 3);
-            ControlledTask task2 = WriteWithDelayAsync(entry, 5);
-            ControlledTask.WaitAll(task1, task2);
+            Task task1 = WriteWithDelayAsync(entry, 3);
+            Task task2 = WriteWithDelayAsync(entry, 5);
+            Task.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
@@ -56,41 +56,41 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             SharedEntry entry = new SharedEntry();
 
-            ControlledTask task1 = ControlledTask.Run(async () =>
+            Task task1 = Task.Run(async () =>
             {
                 await WriteAsync(entry, 3);
             });
 
-            ControlledTask task2 = ControlledTask.Run(async () =>
+            Task task2 = Task.Run(async () =>
             {
                 await WriteAsync(entry, 5);
             });
 
-            ControlledTask.WaitAll(task1, task2);
+            Task.WaitAll(task1, task2);
 
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.True(entry.Value == 5 || entry.Value == 3, $"Found unexpected value.");
         }
 
-        private static async ControlledTask<int> GetWriteResultAsync(int value)
+        private static async Task<int> GetWriteResultAsync(int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             return value;
         }
 
-        private static async ControlledTask<int> GetWriteResultWithDelayAsync(int value)
+        private static async Task<int> GetWriteResultWithDelayAsync(int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             return value;
         }
 
         [Fact(Timeout = 5000)]
         public void TestWaitAllWithTwoSynchronousTaskResults()
         {
-            ControlledTask<int> task1 = GetWriteResultAsync(5);
-            ControlledTask<int> task2 = GetWriteResultAsync(3);
-            ControlledTask.WaitAll(task1, task2);
+            Task<int> task1 = GetWriteResultAsync(5);
+            Task<int> task2 = GetWriteResultAsync(3);
+            Task.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.Equal(5, task1.Result);
@@ -100,9 +100,9 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestWaitAllWithTwoAsynchronousTaskResults()
         {
-            ControlledTask<int> task1 = GetWriteResultWithDelayAsync(5);
-            ControlledTask<int> task2 = GetWriteResultWithDelayAsync(3);
-            ControlledTask.WaitAll(task1, task2);
+            Task<int> task1 = GetWriteResultWithDelayAsync(5);
+            Task<int> task2 = GetWriteResultWithDelayAsync(3);
+            Task.WaitAll(task1, task2);
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
             Assert.Equal(5, task1.Result);
@@ -112,17 +112,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestWaitAllWithTwoParallelSynchronousTaskResults()
         {
-            ControlledTask<int> task1 = ControlledTask.Run(async () =>
+            Task<int> task1 = Task.Run(async () =>
             {
                 return await GetWriteResultAsync(5);
             });
 
-            ControlledTask<int> task2 = ControlledTask.Run(async () =>
+            Task<int> task2 = Task.Run(async () =>
             {
                 return await GetWriteResultAsync(3);
             });
 
-            ControlledTask.WaitAll(task1, task2);
+            Task.WaitAll(task1, task2);
 
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
@@ -133,17 +133,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestWaitAllWithTwoParallelAsynchronousTaskResults()
         {
-            ControlledTask<int> task1 = ControlledTask.Run(async () =>
+            Task<int> task1 = Task.Run(async () =>
             {
                 return await GetWriteResultWithDelayAsync(5);
             });
 
-            ControlledTask<int> task2 = ControlledTask.Run(async () =>
+            Task<int> task2 = Task.Run(async () =>
             {
                 return await GetWriteResultWithDelayAsync(3);
             });
 
-            ControlledTask.WaitAll(task1, task2);
+            Task.WaitAll(task1, task2);
 
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);

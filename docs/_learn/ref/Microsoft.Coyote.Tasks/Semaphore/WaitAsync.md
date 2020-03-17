@@ -9,12 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/WaitAsync
 Asynchronously waits to enter the semaphore.
 
 ```csharp
-public virtual ControlledTask WaitAsync()
+public virtual Task WaitAsync()
 ```
 
 ## See Also
 
-* class [ControlledTask](../ControlledTaskType)
+* class [Task](../TaskType)
 * class [Semaphore](../SemaphoreType)
 * namespace [Microsoft.Coyote.Tasks](../SemaphoreType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

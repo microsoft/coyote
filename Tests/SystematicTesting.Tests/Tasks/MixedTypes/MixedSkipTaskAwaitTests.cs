@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
@@ -20,10 +20,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task CallAsync()
+                async SystemTasks.Task CallAsync()
                 {
-                    _ = ControlledTask.Delay(10);
-                    await Task.Delay(10);
+                    _ = Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                 }
 
                 await CallAsync();
@@ -39,10 +39,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async ControlledTask CallAsync()
+                async Task CallAsync()
                 {
-                    _ = ControlledTask.Delay(10);
-                    await Task.Delay(10);
+                    _ = Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                 }
 
                 await CallAsync();
@@ -58,15 +58,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task NestedCallAsync()
+                async SystemTasks.Task NestedCallAsync()
                 {
-                    async Task CallAsync()
+                    async SystemTasks.Task CallAsync()
                     {
-                        _ = ControlledTask.Delay(10);
-                        await Task.Delay(10);
+                        _ = Task.Delay(10);
+                        await SystemTasks.Task.Delay(10);
                     }
 
-                    await Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                     await CallAsync();
                 }
 
@@ -83,15 +83,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task NestedCallAsync()
+                async SystemTasks.Task NestedCallAsync()
                 {
-                    async ControlledTask CallAsync()
+                    async Task CallAsync()
                     {
-                        _ = ControlledTask.Delay(10);
-                        await Task.Delay(10);
+                        _ = Task.Delay(10);
+                        await SystemTasks.Task.Delay(10);
                     }
 
-                    await Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                     await CallAsync();
                 }
 
@@ -108,10 +108,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task<int> GetWriteResultWithDelayAsync()
+                async SystemTasks.Task<int> GetWriteResultWithDelayAsync()
                 {
-                    _ = ControlledTask.Delay(10);
-                    await Task.Delay(10);
+                    _ = Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                     return 5;
                 }
 
@@ -128,10 +128,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async ControlledTask<int> GetWriteResultWithDelayAsync()
+                async Task<int> GetWriteResultWithDelayAsync()
                 {
-                    _ = ControlledTask.Delay(10);
-                    await Task.Delay(10);
+                    _ = Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                     return 5;
                 }
 
@@ -148,16 +148,16 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task<int> NestedGetWriteResultWithDelayAsync()
+                async SystemTasks.Task<int> NestedGetWriteResultWithDelayAsync()
                 {
-                    async Task<int> GetWriteResultWithDelayAsync()
+                    async SystemTasks.Task<int> GetWriteResultWithDelayAsync()
                     {
-                        _ = ControlledTask.Delay(10);
-                        await Task.Delay(10);
+                        _ = Task.Delay(10);
+                        await SystemTasks.Task.Delay(10);
                         return 5;
                     }
 
-                    await Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                     return await GetWriteResultWithDelayAsync();
                 }
 
@@ -174,16 +174,16 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                async Task<int> NestedGetWriteResultWithDelayAsync()
+                async SystemTasks.Task<int> NestedGetWriteResultWithDelayAsync()
                 {
-                    async ControlledTask<int> GetWriteResultWithDelayAsync()
+                    async Task<int> GetWriteResultWithDelayAsync()
                     {
-                        _ = ControlledTask.Delay(10);
-                        await Task.Delay(10);
+                        _ = Task.Delay(10);
+                        await SystemTasks.Task.Delay(10);
                         return 5;
                     }
 
-                    await Task.Delay(10);
+                    await SystemTasks.Task.Delay(10);
                     return await GetWriteResultWithDelayAsync();
                 }
 
@@ -194,9 +194,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency ().",
-                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
-                "such as 'Task.Run', 'Task.Delay' or 'Task.Yield' inside actor handlers or controlled tasks. If you are " +
-                "using external libraries that are executing concurrently, you will need to mock them during testing.",
+                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
+                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
+                "concurrently, you will need to mock them during testing.",
             },
             replay: true);
         }

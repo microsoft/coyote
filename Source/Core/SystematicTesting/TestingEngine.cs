@@ -17,7 +17,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Strategies;
-using Microsoft.Coyote.Tasks;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -155,13 +155,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
-        public static TestingEngine Create(Configuration configuration, Func<ControlledTask> test) =>
+        public static TestingEngine Create(Configuration configuration, Func<CoyoteTasks.Task> test) =>
             new TestingEngine(configuration, test);
 
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
-        public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, ControlledTask> test) =>
+        public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, CoyoteTasks.Task> test) =>
             new TestingEngine(configuration, test);
 
         /// <summary>

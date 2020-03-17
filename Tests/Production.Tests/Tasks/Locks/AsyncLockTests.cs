@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAcquireRelease()
+        public async SystemTasks.Task TestAcquireRelease()
         {
             AsyncLock mutex = AsyncLock.Create();
             Assert.True(!mutex.IsAcquired);
@@ -28,12 +28,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSynchronizeTwoAsynchronousTasks()
+        public async SystemTasks.Task TestSynchronizeTwoAsynchronousTasks()
         {
             SharedEntry entry = new SharedEntry();
             AsyncLock mutex = AsyncLock.Create();
 
-            async ControlledTask WriteAsync(int value)
+            async Task WriteAsync(int value)
             {
                 using (await mutex.AcquireAsync())
                 {
@@ -41,33 +41,33 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }
             }
 
-            ControlledTask task1 = WriteAsync(3);
-            ControlledTask task2 = WriteAsync(5);
-            await ControlledTask.WhenAll(task1, task2);
+            Task task1 = WriteAsync(3);
+            Task task2 = WriteAsync(5);
+            await Task.WhenAll(task1, task2);
 
             Assert.True(task1.IsCompleted && task2.IsCompleted && !mutex.IsAcquired);
             Assert.True(entry.Value == 5, $"Value is '{entry.Value}' instead of 5.");
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSynchronizeTwoAsynchronousTasksWithYield()
+        public async SystemTasks.Task TestSynchronizeTwoAsynchronousTasksWithYield()
         {
             SharedEntry entry = new SharedEntry();
             AsyncLock mutex = AsyncLock.Create();
 
-            async ControlledTask WriteAsync(int value)
+            async Task WriteAsync(int value)
             {
                 using (await mutex.AcquireAsync())
                 {
                     entry.Value = value;
-                    await ControlledTask.Yield();
+                    await Task.Yield();
                     Assert.True(entry.Value == value, $"Value is '{entry.Value}' instead of '{value}'.");
                 }
             }
 
-            ControlledTask task1 = WriteAsync(3);
-            ControlledTask task2 = WriteAsync(5);
-            await ControlledTask.WhenAll(task1, task2);
+            Task task1 = WriteAsync(3);
+            Task task2 = WriteAsync(5);
+            await Task.WhenAll(task1, task2);
 
             Assert.True(task1.IsCompleted && task2.IsCompleted && !mutex.IsAcquired);
         }

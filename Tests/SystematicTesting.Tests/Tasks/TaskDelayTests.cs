@@ -17,12 +17,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteWithLoopAndDelayAsync(SharedEntry entry, int value, int delay)
+        private static async Task WriteWithLoopAndDelayAsync(SharedEntry entry, int value, int delay)
         {
             for (int i = 0; i < 2; i++)
             {
                 entry.Value = value + i;
-                await ControlledTask.Delay(delay);
+                await Task.Delay(delay);
             }
         }
 
@@ -33,13 +33,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask[] tasks = new ControlledTask[2];
+                Task[] tasks = new Task[2];
                 for (int i = 0; i < 2; i++)
                 {
                     tasks[i] = WriteWithLoopAndDelayAsync(entry, i, 0);
                 }
 
-                await ControlledTask.WhenAll(tasks);
+                await Task.WhenAll(tasks);
 
                 Specification.Assert(entry.Value == 2, "Value is '{0}' instead of 2.", entry.Value);
             },
@@ -53,13 +53,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask[] tasks = new ControlledTask[2];
+                Task[] tasks = new Task[2];
                 for (int i = 0; i < 2; i++)
                 {
                     tasks[i] = WriteWithLoopAndDelayAsync(entry, i, 1);
                 }
 
-                await ControlledTask.WhenAll(tasks);
+                await Task.WhenAll(tasks);
 
                 Specification.Assert(entry.Value == 2, "Value is {0} instead of 2.", entry.Value);
             },
@@ -68,10 +68,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value, int delay, bool repeat = false)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value, int delay, bool repeat = false)
         {
-            await ControlledTask.Delay(delay);
-            ControlledTask task = null;
+            await Task.Delay(delay);
+            Task task = null;
             if (repeat)
             {
                 task = InvokeWriteWithDelayAsync(entry, value + 1, delay);
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             }
         }
 
-        private static async ControlledTask InvokeWriteWithDelayAsync(SharedEntry entry, int value, int delay, bool repeat = false)
+        private static async Task InvokeWriteWithDelayAsync(SharedEntry entry, int value, int delay, bool repeat = false)
         {
             await WriteWithDelayAsync(entry, value, delay, repeat);
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task = InvokeWriteWithDelayAsync(entry, 3, 0);
+                Task task = InvokeWriteWithDelayAsync(entry, 3, 0);
                 entry.Value = 5;
                 await task;
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task = InvokeWriteWithDelayAsync(entry, 3, 1);
+                Task task = InvokeWriteWithDelayAsync(entry, 3, 1);
                 entry.Value = 5;
                 await task;
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
@@ -125,9 +125,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = InvokeWriteWithDelayAsync(entry, 3, 0);
-                ControlledTask task2 = InvokeWriteWithDelayAsync(entry, 5, 0);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = InvokeWriteWithDelayAsync(entry, 3, 0);
+                Task task2 = InvokeWriteWithDelayAsync(entry, 5, 0);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
@@ -139,9 +139,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = InvokeWriteWithDelayAsync(entry, 3, 1);
-                ControlledTask task2 = InvokeWriteWithDelayAsync(entry, 5, 1);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = InvokeWriteWithDelayAsync(entry, 3, 1);
+                Task task2 = InvokeWriteWithDelayAsync(entry, 5, 1);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
@@ -155,9 +155,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = InvokeWriteWithDelayAsync(entry, 3, 0, true);
-                ControlledTask task2 = InvokeWriteWithDelayAsync(entry, 5, 0, true);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = InvokeWriteWithDelayAsync(entry, 3, 0, true);
+                Task task2 = InvokeWriteWithDelayAsync(entry, 5, 0, true);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value != 3, "Value is 3.");
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
@@ -169,9 +169,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                ControlledTask task1 = InvokeWriteWithDelayAsync(entry, 3, 1, true);
-                ControlledTask task2 = InvokeWriteWithDelayAsync(entry, 5, 1, true);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = InvokeWriteWithDelayAsync(entry, 3, 1, true);
+                Task task2 = InvokeWriteWithDelayAsync(entry, 5, 1, true);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value != 3, "Value is 3.");
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
@@ -186,15 +186,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 #pragma warning disable IDE0039 // Use local function
-                Func<int, int, ControlledTask> invokeWriteWithDelayAsync = async (value, delay) =>
+                Func<int, int, Task> invokeWriteWithDelayAsync = async (value, delay) =>
 #pragma warning restore IDE0039 // Use local function
                 {
                     await WriteWithDelayAsync(entry, value, delay);
                 };
 
-                ControlledTask task1 = invokeWriteWithDelayAsync(3, 0);
-                ControlledTask task2 = invokeWriteWithDelayAsync(5, 0);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = invokeWriteWithDelayAsync(3, 0);
+                Task task2 = invokeWriteWithDelayAsync(5, 0);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
@@ -207,15 +207,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 #pragma warning disable IDE0039 // Use local function
-                Func<int, int, ControlledTask> invokeWriteWithDelayAsync = async (value, delay) =>
+                Func<int, int, Task> invokeWriteWithDelayAsync = async (value, delay) =>
 #pragma warning restore IDE0039 // Use local function
                 {
                     await WriteWithDelayAsync(entry, value, delay);
                 };
 
-                ControlledTask task1 = invokeWriteWithDelayAsync(3, 1);
-                ControlledTask task2 = invokeWriteWithDelayAsync(5, 1);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = invokeWriteWithDelayAsync(3, 1);
+                Task task2 = invokeWriteWithDelayAsync(5, 1);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
@@ -229,14 +229,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async ControlledTask invokeWriteWithDelayAsync(int value, int delay)
+                async Task invokeWriteWithDelayAsync(int value, int delay)
                 {
                     await WriteWithDelayAsync(entry, value, delay);
                 }
 
-                ControlledTask task1 = invokeWriteWithDelayAsync(3, 0);
-                ControlledTask task2 = invokeWriteWithDelayAsync(5, 0);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = invokeWriteWithDelayAsync(3, 0);
+                Task task2 = invokeWriteWithDelayAsync(5, 0);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
@@ -248,14 +248,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async ControlledTask invokeWriteWithDelayAsync(int value, int delay)
+                async Task invokeWriteWithDelayAsync(int value, int delay)
                 {
                     await WriteWithDelayAsync(entry, value, delay);
                 }
 
-                ControlledTask task1 = invokeWriteWithDelayAsync(3, 1);
-                ControlledTask task2 = invokeWriteWithDelayAsync(5, 1);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = invokeWriteWithDelayAsync(3, 1);
+                Task task2 = invokeWriteWithDelayAsync(5, 1);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
@@ -263,13 +263,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static ControlledTask InvokeParallelWriteWithDelayAsync(SharedEntry entry, int delay)
+        private static Task InvokeParallelWriteWithDelayAsync(SharedEntry entry, int delay)
         {
-            return ControlledTask.Run(async () =>
+            return Task.Run(async () =>
             {
-                ControlledTask task1 = WriteWithDelayAsync(entry, 3, delay);
-                ControlledTask task2 = WriteWithDelayAsync(entry, 5, delay);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = WriteWithDelayAsync(entry, 3, delay);
+                Task task2 = WriteWithDelayAsync(entry, 5, delay);
+                await Task.WhenAll(task1, task2);
             });
         }
 

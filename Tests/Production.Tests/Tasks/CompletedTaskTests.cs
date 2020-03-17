@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestCompletedTask()
         {
-            ControlledTask task = ControlledTask.CompletedTask;
+            Task task = Task.CompletedTask;
             Assert.True(task.IsCompleted);
         }
 
@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public void TestCanceledTask()
         {
             CancellationToken token = new CancellationToken(true);
-            ControlledTask task = ControlledTask.FromCanceled(token);
+            Task task = Task.FromCanceled(token);
             Assert.True(task.IsCanceled);
         }
 
@@ -35,14 +35,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public void TestCanceledTaskWithResult()
         {
             CancellationToken token = new CancellationToken(true);
-            ControlledTask<int> task = ControlledTask.FromCanceled<int>(token);
+            Task<int> task = Task.FromCanceled<int>(token);
             Assert.True(task.IsCanceled);
         }
 
         [Fact(Timeout = 5000)]
         public void TestFailedTask()
         {
-            ControlledTask task = ControlledTask.FromException(new InvalidOperationException());
+            Task task = Task.FromException(new InvalidOperationException());
             Assert.True(task.IsFaulted);
             Assert.Equal(typeof(AggregateException), task.Exception.GetType());
             Assert.Equal(typeof(InvalidOperationException), task.Exception.InnerException.GetType());
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestFailedTaskWithResult()
         {
-            ControlledTask<int> task = ControlledTask.FromException<int>(new InvalidOperationException());
+            Task<int> task = Task.FromException<int>(new InvalidOperationException());
             Assert.True(task.IsFaulted);
             Assert.Equal(typeof(AggregateException), task.Exception.GetType());
             Assert.Equal(typeof(InvalidOperationException), task.Exception.InnerException.GetType());

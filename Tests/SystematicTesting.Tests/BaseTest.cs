@@ -27,10 +27,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
         protected TestingEngine Test(Action<IActorRuntime> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected TestingEngine Test(Func<ControlledTask> test, Configuration configuration = null) =>
+        protected TestingEngine Test(Func<Task> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
-        protected TestingEngine Test(Func<IActorRuntime, ControlledTask> test, Configuration configuration = null) =>
+        protected TestingEngine Test(Func<IActorRuntime, Task> test, Configuration configuration = null) =>
             this.Test(test as Delegate, configuration);
 
         private TestingEngine Test(Delegate test, Configuration configuration)
@@ -80,13 +80,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
         }
 
-        protected void TestWithError(Func<ControlledTask> test, Configuration configuration = null, string expectedError = null,
+        protected void TestWithError(Func<Task> test, Configuration configuration = null, string expectedError = null,
             bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
         }
 
-        protected void TestWithError(Func<IActorRuntime, ControlledTask> test, Configuration configuration = null,
+        protected void TestWithError(Func<IActorRuntime, Task> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, new string[] { expectedError }, replay);
@@ -104,13 +104,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
         }
 
-        protected void TestWithError(Func<ControlledTask> test, Configuration configuration = null, string[] expectedErrors = null,
+        protected void TestWithError(Func<Task> test, Configuration configuration = null, string[] expectedErrors = null,
             bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
         }
 
-        protected void TestWithError(Func<IActorRuntime, ControlledTask> test, Configuration configuration = null,
+        protected void TestWithError(Func<IActorRuntime, Task> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
             this.TestWithError(test as Delegate, configuration, expectedErrors, replay);
@@ -170,13 +170,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
             this.TestWithException<TException>(test as Delegate, configuration, replay);
         }
 
-        protected void TestWithException<TException>(Func<ControlledTask> test, Configuration configuration = null, bool replay = false)
+        protected void TestWithException<TException>(Func<Task> test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
             this.TestWithException<TException>(test as Delegate, configuration, replay);
         }
 
-        protected void TestWithException<TException>(Func<IActorRuntime, ControlledTask> test, Configuration configuration = null,
+        protected void TestWithException<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null,
             bool replay = false)
             where TException : Exception
         {

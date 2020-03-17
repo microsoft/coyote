@@ -9,12 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock/AcquireAsync
 Tries to acquire the lock asynchronously, and returns a task that completes when the lock has been acquired. The returned task contains a releaser that releases the lock when disposed. This is not a reentrant operation.
 
 ```csharp
-public virtual ControlledTask<Releaser> AcquireAsync()
+public virtual Task<Releaser> AcquireAsync()
 ```
 
 ## See Also
 
-* class [ControlledTask&lt;TResult&gt;](../ControlledTask-1Type)
+* class [Task&lt;TResult&gt;](../Task-1Type)
 * struct [Releaser](../AsyncLockReleaserType)
 * class [AsyncLock](../AsyncLockType)
 * namespace [Microsoft.Coyote.Tasks](../AsyncLockType)

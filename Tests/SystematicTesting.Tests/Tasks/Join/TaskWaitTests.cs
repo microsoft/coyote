@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = ControlledTask.Run(() =>
+                Task task = Task.Run(() =>
                 {
                     entry.Value = 3;
                 });
@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = ControlledTask.Run(() =>
+                Task task = Task.Run(() =>
                 {
                     entry.Value = 3;
                 });
@@ -58,9 +58,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = ControlledTask.Run(async () =>
+                Task task = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 3);
                 });
@@ -86,9 +86,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = ControlledTask.Run(async () =>
+                Task task = Task.Run(async () =>
                 {
                     await WriteWithDelayAsync(entry, 3);
                 });

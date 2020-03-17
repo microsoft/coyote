@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 AsyncLock mutex = AsyncLock.Create();
                 await mutex.AcquireAsync();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
                     await mutex.AcquireAsync();
                 });
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 AsyncLock mutex = AsyncLock.Create();
 
-                async ControlledTask WriteAsync(int value)
+                async Task WriteAsync(int value)
                 {
                     using (await mutex.AcquireAsync())
                     {
@@ -64,9 +64,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 }
 
-                ControlledTask task1 = WriteAsync(3);
-                ControlledTask task2 = WriteAsync(5);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = WriteAsync(3);
+                Task task2 = WriteAsync(5);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 AsyncLock mutex = AsyncLock.Create();
 
-                async ControlledTask WriteAsync(int value)
+                async Task WriteAsync(int value)
                 {
                     using (await mutex.AcquireAsync())
                     {
@@ -88,17 +88,17 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 }
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
                     await WriteAsync(3);
                 });
 
-                ControlledTask task2 = ControlledTask.Run(async () =>
+                Task task2 = Task.Run(async () =>
                 {
                     await WriteAsync(5);
                 });
 
-                await ControlledTask.WhenAll(task1, task2);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
@@ -114,19 +114,19 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 AsyncLock mutex = AsyncLock.Create();
 
                 SharedEntry entry = new SharedEntry();
-                async ControlledTask WriteAsync(int value)
+                async Task WriteAsync(int value)
                 {
                     using (await mutex.AcquireAsync())
                     {
                         entry.Value = value;
-                        await ControlledTask.Yield();
+                        await Task.Yield();
                         Specification.Assert(entry.Value == value, "Value is '{0}' instead of '{1}'.", entry.Value, value);
                     }
                 }
 
-                ControlledTask task1 = WriteAsync(3);
-                ControlledTask task2 = WriteAsync(5);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = WriteAsync(3);
+                Task task2 = WriteAsync(5);
+                await Task.WhenAll(task1, task2);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
         }

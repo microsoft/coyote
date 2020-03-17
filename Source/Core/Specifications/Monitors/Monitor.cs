@@ -8,11 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Tasks;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 using EventInfo = Microsoft.Coyote.Actors.EventInfo;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -257,8 +257,8 @@ namespace Microsoft.Coyote.Specifications
         {
             if (caller == null)
             {
-                // then this might be from a ControlledTask so use a fake id equal to the task id.
-                return new ActorId(typeof(ControlledTask), Task.CurrentId.ToString(), this.Runtime);
+                // Then this might be from a controlled Task so use a fake id equal to the task id.
+                return new ActorId(typeof(CoyoteTasks.Task), SystemTasks.Task.CurrentId.ToString(), this.Runtime);
             }
             else
             {
@@ -469,7 +469,7 @@ namespace Microsoft.Coyote.Specifications
                 }
 
                 if (innerException is ExecutionCanceledException ||
-                    innerException is TaskSchedulerException)
+                    innerException is SystemTasks.TaskSchedulerException)
                 {
                     throw;
                 }

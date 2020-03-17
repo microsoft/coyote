@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Asynchronously waits to enter the semaphore.
         /// </summary>
-        public virtual ControlledTask WaitAsync() => this.Instance.WaitAsync().ToControlledTask();
+        public virtual Task WaitAsync() => this.Instance.WaitAsync().WrapInControlledTask();
 
         /// <summary>
         /// Releases the semaphore.
@@ -139,10 +139,10 @@ namespace Microsoft.Coyote.Tasks
             }
 
             /// <inheritdoc/>
-            public override ControlledTask WaitAsync()
+            public override Task WaitAsync()
             {
                 this.Wait();
-                return ControlledTask.CompletedTask;
+                return Task.CompletedTask;
             }
 
             /// <inheritdoc/>

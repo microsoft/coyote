@@ -16,15 +16,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -80,15 +80,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask NestedWriteAsync(SharedEntry entry, int value)
+        private static async Task NestedWriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             await WriteAsync(entry, value);
         }
 
-        private static async ControlledTask NestedWriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task NestedWriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             await WriteWithDelayAsync(entry, value);
         }
 
@@ -144,16 +144,16 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask<int> GetWriteResultAsync(SharedEntry entry, int value)
+        private static async Task<int> GetWriteResultAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
             return entry.Value;
         }
 
-        private static async ControlledTask<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
+        private static async Task<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
             return entry.Value;
         }
@@ -210,15 +210,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             replay: true);
         }
 
-        private static async ControlledTask<int> NestedGetWriteResultAsync(SharedEntry entry, int value)
+        private static async Task<int> NestedGetWriteResultAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             return await GetWriteResultAsync(entry, value);
         }
 
-        private static async ControlledTask<int> NestedGetWriteResultWithDelayAsync(SharedEntry entry, int value)
+        private static async Task<int> NestedGetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             return await GetWriteResultWithDelayAsync(entry, value);
         }
 

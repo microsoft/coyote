@@ -944,70 +944,6 @@ learn-toc:
     - name: Microsoft.Coyote.Tasks
       link: /learn/ref/MicrosoftCoyoteTasksNamespace
       subfolderitems:
-      - name: ControlledTask
-        link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTaskType
-        subfolderitems:
-        - name: FromResult
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/FromResult
-        - name: FromCanceled
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/FromCanceled
-        - name: FromException
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/FromException
-        - name: Run
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Run
-        - name: Delay
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Delay
-        - name: WhenAll
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAll
-        - name: WhenAny
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAny
-        - name: WhenAnyTaskCompletesAsync
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAnyTaskCompletesAsync
-        - name: WhenAnyTaskCompletesInProductionAsync
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WhenAnyTaskCompletesInProductionAsync
-        - name: WaitAll
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WaitAll
-        - name: WaitAny
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/WaitAny
-        - name: Yield
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Yield
-        - name: Wait
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Wait
-        - name: GetAwaiter
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/GetAwaiter
-        - name: ConfigureAwait
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/ConfigureAwait
-        - name: ExploreContextSwitch
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/ExploreContextSwitch
-        - name: ToTask
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/ToTask
-        - name: Dispose
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Dispose
-        - name: CompletedTask
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/CompletedTask
-        - name: CurrentId
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/CurrentId
-        - name: Id
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Id
-        - name: IsCompleted
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/IsCompleted
-        - name: IsCanceled
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/IsCanceled
-        - name: IsFaulted
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/IsFaulted
-        - name: Exception
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Exception
-        - name: Status
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask/Status
-      - name: ControlledTask<TResult>
-        link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1Type
-        subfolderitems:
-        - name: GetAwaiter
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/GetAwaiter
-        - name: ConfigureAwait
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/ConfigureAwait
-        - name: Result
-          link: /learn/ref/Microsoft.Coyote.Tasks/ControlledTask-1/Result
       - name: AsyncLock
         link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLockType
         subfolderitems:
@@ -1040,6 +976,70 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore
         - name: CurrentCount
           link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount
+      - name: Task
+        link: /learn/ref/Microsoft.Coyote.Tasks/TaskType
+        subfolderitems:
+        - name: FromResult
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/FromResult
+        - name: FromCanceled
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/FromCanceled
+        - name: FromException
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/FromException
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Run
+        - name: Delay
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Delay
+        - name: WhenAll
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAll
+        - name: WhenAny
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAny
+        - name: WhenAnyTaskCompletesAsync
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAnyTaskCompletesAsync
+        - name: WhenAnyTaskCompletesInProductionAsync
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAnyTaskCompletesInProductionAsync
+        - name: WaitAll
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WaitAll
+        - name: WaitAny
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WaitAny
+        - name: Yield
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Yield
+        - name: Wait
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Wait
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/GetAwaiter
+        - name: ConfigureAwait
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/ConfigureAwait
+        - name: ExploreContextSwitch
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/ExploreContextSwitch
+        - name: Dispose
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Dispose
+        - name: CompletedTask
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/CompletedTask
+        - name: CurrentId
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/CurrentId
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Id
+        - name: UncontrolledTask
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/UncontrolledTask
+        - name: IsCompleted
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/IsCompleted
+        - name: IsCanceled
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/IsCanceled
+        - name: IsFaulted
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/IsFaulted
+        - name: Exception
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Exception
+        - name: Status
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task/Status
+      - name: Task<TResult>
+        link: /learn/ref/Microsoft.Coyote.Tasks/Task-1Type
+        subfolderitems:
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task-1/GetAwaiter
+        - name: ConfigureAwait
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task-1/ConfigureAwait
+        - name: Result
+          link: /learn/ref/Microsoft.Coyote.Tasks/Task-1/Result
       - name: TaskCompletionSource<TResult>
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1Type
         subfolderitems:
@@ -1064,8 +1064,8 @@ learn-toc:
       - name: TaskExtensions
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensionsType
         subfolderitems:
-        - name: ToControlledTask
-          link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensions/ToControlledTask
+        - name: WrapInControlledTask
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskExtensions/WrapInControlledTask
       - name: AsyncLock.Releaser
         link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLockReleaserType
         subfolderitems:

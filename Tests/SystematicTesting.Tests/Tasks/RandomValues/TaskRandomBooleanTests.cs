@@ -25,9 +25,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Generator generator = Generator.Create();
                 SharedEntry entry = new SharedEntry();
 
-                async ControlledTask WriteAsync()
+                async Task WriteAsync()
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     if (generator.NextBoolean())
                     {
                         entry.Value = 3;
@@ -54,9 +54,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Generator generator = Generator.Create();
                 SharedEntry entry = new SharedEntry();
 
-                async ControlledTask WriteWithDelayAsync()
+                async Task WriteWithDelayAsync()
                 {
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                     if (generator.NextBoolean())
                     {
                         entry.Value = 3;
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Generator generator = Generator.Create();
                 SharedEntry entry = new SharedEntry();
 
-                await ControlledTask.Run(() =>
+                await Task.Run(() =>
                 {
                     if (generator.NextBoolean())
                     {
@@ -110,9 +110,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Generator generator = Generator.Create();
                 SharedEntry entry = new SharedEntry();
 
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     if (generator.NextBoolean())
                     {
                         entry.Value = 3;
@@ -138,9 +138,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Generator generator = Generator.Create();
                 SharedEntry entry = new SharedEntry();
 
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1);
+                    await Task.Delay(1);
                     if (generator.NextBoolean())
                     {
                         entry.Value = 3;
@@ -166,11 +166,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Generator generator = Generator.Create();
                 SharedEntry entry = new SharedEntry();
 
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Run(async () =>
+                    await Task.Run(async () =>
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         if (generator.NextBoolean())
                         {
                             entry.Value = 3;

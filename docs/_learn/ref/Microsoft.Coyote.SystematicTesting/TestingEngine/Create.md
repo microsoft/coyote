@@ -78,13 +78,14 @@ public static TestingEngine Create(Configuration configuration, Assembly assembl
 Creates a new systematic testing engine.
 
 ```csharp
-public static TestingEngine Create(Configuration configuration, Func<ControlledTask> test)
+public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, Task> test)
 ```
 
 ## See Also
 
 * class [Configuration](../../Microsoft.Coyote/ConfigurationType)
-* class [ControlledTask](../../Microsoft.Coyote.Tasks/ControlledTaskType)
+* interface [IActorRuntime](../../Microsoft.Coyote.Actors/IActorRuntimeType)
+* class [Task](../../Microsoft.Coyote.Tasks/TaskType)
 * class [TestingEngine](../TestingEngineType)
 * namespace [Microsoft.Coyote.SystematicTesting](../TestingEngineType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
@@ -96,15 +97,13 @@ public static TestingEngine Create(Configuration configuration, Func<ControlledT
 Creates a new systematic testing engine.
 
 ```csharp
-public static TestingEngine Create(Configuration configuration, 
-    Func<IActorRuntime, ControlledTask> test)
+public static TestingEngine Create(Configuration configuration, Func<Task> test)
 ```
 
 ## See Also
 
 * class [Configuration](../../Microsoft.Coyote/ConfigurationType)
-* interface [IActorRuntime](../../Microsoft.Coyote.Actors/IActorRuntimeType)
-* class [ControlledTask](../../Microsoft.Coyote.Tasks/ControlledTaskType)
+* class [Task](../../Microsoft.Coyote.Tasks/TaskType)
 * class [TestingEngine](../TestingEngineType)
 * namespace [Microsoft.Coyote.SystematicTesting](../TestingEngineType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

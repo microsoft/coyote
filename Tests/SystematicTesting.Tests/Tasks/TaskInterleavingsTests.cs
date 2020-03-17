@@ -16,15 +16,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = WriteAsync(entry, 3);
+                Task task = WriteAsync(entry, 3);
                 entry.Value = 5;
                 await task;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = WriteWithDelayAsync(entry, 3);
+                Task task = WriteWithDelayAsync(entry, 3);
                 entry.Value = 5;
                 await task;
 
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task = ControlledTask.Run(async () =>
+                Task task = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 3);
                 });
@@ -91,8 +91,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = WriteAsync(entry, 3);
-                ControlledTask task2 = WriteAsync(entry, 5);
+                Task task1 = WriteAsync(entry, 3);
+                Task task2 = WriteAsync(entry, 5);
 
                 await task1;
                 await task2;
@@ -109,8 +109,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = WriteWithDelayAsync(entry, 3);
-                ControlledTask task2 = WriteWithDelayAsync(entry, 5);
+                Task task1 = WriteWithDelayAsync(entry, 3);
+                Task task2 = WriteWithDelayAsync(entry, 5);
 
                 await task1;
                 await task2;
@@ -129,12 +129,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 3);
                 });
 
-                ControlledTask task2 = ControlledTask.Run(async () =>
+                Task task2 = Task.Run(async () =>
                 {
                     await WriteAsync(entry, 5);
                 });
@@ -156,9 +156,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             {
                 SharedEntry entry = new SharedEntry();
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
-                    ControlledTask task2 = ControlledTask.Run(async () =>
+                    Task task2 = Task.Run(async () =>
                     {
                         await WriteAsync(entry, 5);
                     });

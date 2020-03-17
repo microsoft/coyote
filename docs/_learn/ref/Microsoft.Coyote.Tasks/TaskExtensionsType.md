@@ -16,8 +16,8 @@ public static class TaskExtensions
 
 | name | description |
 | --- | --- |
-| static [ToControlledTask](TaskExtensions/ToControlledTask)(…) | Converts the specified Task into a [`ControlledTask`](ControlledTaskType). |
-| static [ToControlledTask&lt;TResult&gt;](TaskExtensions/ToControlledTask)(…) | Converts the specified Task into a [`ControlledTask`](ControlledTask-1Type). |
+| static [WrapInControlledTask](TaskExtensions/WrapInControlledTask)(…) | Returns a dummy controlled [`Task`](TaskType) that wraps this uncontrolled Task. |
+| static [WrapInControlledTask&lt;TResult&gt;](TaskExtensions/WrapInControlledTask)(…) | Returns a dummy controlled [`Task`](Task-1Type) that wraps this uncontrolled Task. |
 
 ## See Also
 

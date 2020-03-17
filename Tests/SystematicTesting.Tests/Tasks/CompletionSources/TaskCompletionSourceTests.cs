@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using TCS = Microsoft.Coyote.Tasks.TaskCompletionSource<int>;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
@@ -23,10 +22,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TCS.Create();
+                var tcs = TaskCompletionSource<int>.Create();
                 tcs.SetResult(3);
                 int result = await tcs.Task;
-                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -40,12 +39,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TCS.Create();
+                var tcs = TaskCompletionSource<int>.Create();
                 tcs.SetResult(3);
                 bool check = tcs.TrySetResult(5);
                 int result = await tcs.Task;
                 Specification.Assert(!check, "Cannot set result again.");
-                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -59,15 +58,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TCS.Create();
-                var task = ControlledTask.Run(async () =>
+                var tcs = TaskCompletionSource<int>.Create();
+                var task = Task.Run(async () =>
                 {
                     return await tcs.Task;
                 });
 
                 tcs.SetResult(3);
                 int result = await task;
-                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
@@ -79,19 +78,19 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TCS.Create();
-                var task1 = ControlledTask.Run(async () =>
+                var tcs = TaskCompletionSource<int>.Create();
+                var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
                 });
 
-                var task2 = ControlledTask.Run(() =>
+                var task2 = Task.Run(() =>
                 {
                     tcs.SetResult(3);
                 });
 
                 int result = await task1;
-                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
@@ -103,22 +102,22 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TCS.Create();
-                var task1 = ControlledTask.Run(async () =>
+                var tcs = TaskCompletionSource<int>.Create();
+                var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
                 });
 
-                var task2 = ControlledTask.Run(async () =>
+                var task2 = Task.Run(async () =>
                 {
                     return await tcs.Task;
                 });
 
                 tcs.SetResult(3);
-                await ControlledTask.WhenAll(task1, task2);
+                await Task.WhenAll(task1, task2);
                 int result1 = task1.Result;
                 int result2 = task2.Result;
-                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result1 is 3, "Found unexpected value {0}.", result1);
                 Specification.Assert(result2 is 3, "Found unexpected value {0}.", result2);
@@ -131,7 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TCS.Create();
+                var tcs = TaskCompletionSource<int>.Create();
                 tcs.SetCanceled();
 
                 int result = default;
@@ -147,7 +146,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is OperationCanceledException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -161,7 +160,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TCS.Create();
+                var tcs = TaskCompletionSource<int>.Create();
                 tcs.SetCanceled();
                 bool check = tcs.TrySetCanceled();
 
@@ -179,7 +178,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(!check, "Cannot set result again.");
                 Specification.Assert(exception is OperationCanceledException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -193,8 +192,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TCS.Create();
-                var task = ControlledTask.Run(() =>
+                var tcs = TaskCompletionSource<int>.Create();
+                var task = Task.Run(() =>
                 {
                     tcs.SetCanceled();
                 });
@@ -212,7 +211,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is OperationCanceledException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },
@@ -224,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TCS.Create();
+                var tcs = TaskCompletionSource<int>.Create();
                 tcs.SetException(new InvalidOperationException());
 
                 int result = default;
@@ -240,7 +239,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -254,7 +253,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TCS.Create();
+                var tcs = TaskCompletionSource<int>.Create();
                 tcs.SetException(new InvalidOperationException());
                 bool check = tcs.TrySetException(new NotImplementedException());
 
@@ -272,7 +271,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(!check, "Cannot set result again.");
                 Specification.Assert(exception is InvalidOperationException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -286,8 +285,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TCS.Create();
-                var task = ControlledTask.Run(() =>
+                var tcs = TaskCompletionSource<int>.Create();
+                var task = Task.Run(() =>
                 {
                     tcs.SetException(new InvalidOperationException());
                 });
@@ -305,7 +304,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
+                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },

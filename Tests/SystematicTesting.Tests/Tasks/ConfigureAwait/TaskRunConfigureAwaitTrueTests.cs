@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(() =>
+                await Task.Run(() =>
                 {
                     entry.Value = 5;
                 }).ConfigureAwait(true);
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(() =>
+                await Task.Run(() =>
                 {
                     entry.Value = 3;
                 }).ConfigureAwait(true);
@@ -56,9 +56,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     entry.Value = 5;
                 }).ConfigureAwait(true);
 
@@ -73,9 +73,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     entry.Value = 3;
                 }).ConfigureAwait(true);
 
@@ -92,9 +92,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(true);
+                    await Task.Delay(1).ConfigureAwait(true);
                     entry.Value = 5;
                 }).ConfigureAwait(true);
 
@@ -109,9 +109,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(true);
+                    await Task.Delay(1).ConfigureAwait(true);
                     entry.Value = 3;
                 }).ConfigureAwait(true);
 
@@ -128,11 +128,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Run(async () =>
+                    await Task.Run(async () =>
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         entry.Value = 3;
                     }).ConfigureAwait(true);
 
@@ -150,11 +150,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Run(async () =>
+                    await Task.Run(async () =>
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         entry.Value = 5;
                     }).ConfigureAwait(true);
 
@@ -174,11 +174,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Run(async () =>
+                    await Task.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(true);
+                        await Task.Delay(1).ConfigureAwait(true);
                         entry.Value = 3;
                     }).ConfigureAwait(true);
 
@@ -196,11 +196,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                await ControlledTask.Run(async () =>
+                await Task.Run(async () =>
                 {
-                    await ControlledTask.Run(async () =>
+                    await Task.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(true);
+                        await Task.Delay(1).ConfigureAwait(true);
                         entry.Value = 5;
                     }).ConfigureAwait(true);
 
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(() =>
+                int value = await Task.Run(() =>
                 {
                     entry.Value = 5;
                     return entry.Value;
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(() =>
+                int value = await Task.Run(() =>
                 {
                     entry.Value = 3;
                     return entry.Value;
@@ -256,9 +256,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     entry.Value = 5;
                     return entry.Value;
                 }).ConfigureAwait(true);
@@ -274,9 +274,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    await ControlledTask.CompletedTask;
+                    await Task.CompletedTask;
                     entry.Value = 3;
                     return entry.Value;
                 }).ConfigureAwait(true);
@@ -294,9 +294,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(true);
+                    await Task.Delay(1).ConfigureAwait(true);
                     entry.Value = 5;
                     return entry.Value;
                 }).ConfigureAwait(true);
@@ -312,9 +312,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    await ControlledTask.Delay(1).ConfigureAwait(true);
+                    await Task.Delay(1).ConfigureAwait(true);
                     entry.Value = 3;
                     return entry.Value;
                 }).ConfigureAwait(true);
@@ -332,11 +332,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    return await ControlledTask.Run(async () =>
+                    return await Task.Run(async () =>
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         entry.Value = 5;
                         return entry.Value;
                     }).ConfigureAwait(true);
@@ -353,11 +353,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    return await ControlledTask.Run(async () =>
+                    return await Task.Run(async () =>
                     {
-                        await ControlledTask.CompletedTask;
+                        await Task.CompletedTask;
                         entry.Value = 3;
                         return entry.Value;
                     }).ConfigureAwait(true);
@@ -376,11 +376,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    return await ControlledTask.Run(async () =>
+                    return await Task.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(true);
+                        await Task.Delay(1).ConfigureAwait(true);
                         entry.Value = 5;
                         return entry.Value;
                     }).ConfigureAwait(true);
@@ -397,11 +397,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await ControlledTask.Run(async () =>
+                int value = await Task.Run(async () =>
                 {
-                    return await ControlledTask.Run(async () =>
+                    return await Task.Run(async () =>
                     {
-                        await ControlledTask.Delay(1).ConfigureAwait(true);
+                        await Task.Delay(1).ConfigureAwait(true);
                         entry.Value = 3;
                         return entry.Value;
                     }).ConfigureAwait(true);

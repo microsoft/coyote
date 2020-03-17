@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Tasks
         /// when the lock has been acquired. The returned task contains a releaser that
         /// releases the lock when disposed. This is not a reentrant operation.
         /// </summary>
-        public virtual async ControlledTask<Releaser> AcquireAsync()
+        public virtual async Task<Releaser> AcquireAsync()
         {
             TCS awaiter;
             lock (this.Awaiters)
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Tasks
             }
 
             /// <inheritdoc/>
-            public override ControlledTask<Releaser> AcquireAsync()
+            public override Task<Releaser> AcquireAsync()
             {
                 this.Resource.Runtime.ScheduleNextOperation();
 
@@ -165,7 +165,7 @@ namespace Microsoft.Coyote.Tasks
                     this.IsAcquired = true;
                 }
 
-                return ControlledTask.FromResult(new Releaser(this));
+                return Task.FromResult(new Releaser(this));
             }
 
             /// <inheritdoc/>

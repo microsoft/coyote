@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tasks
 {
@@ -16,33 +16,33 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Schedules the specified action to be executed asynchronously.
         /// </summary>
-        ControlledTask ScheduleAction(Action action, Task predecessor, CancellationToken cancellationToken);
+        Task ScheduleAction(Action action, SystemTasks.Task predecessor, CancellationToken cancellationToken);
 
         /// <summary>
         /// Schedules the specified function to be executed asynchronously.
         /// </summary>
-        ControlledTask ScheduleFunction(Func<ControlledTask> function, Task predecessor, CancellationToken cancellationToken);
+        Task ScheduleFunction(Func<Task> function, SystemTasks.Task predecessor, CancellationToken cancellationToken);
 
         /// <summary>
         /// Schedules the specified function to be executed asynchronously.
         /// </summary>
-        ControlledTask<TResult> ScheduleFunction<TResult>(Func<ControlledTask<TResult>> function, Task predecessor,
+        Task<TResult> ScheduleFunction<TResult>(Func<Task<TResult>> function, SystemTasks.Task predecessor,
             CancellationToken cancellationToken);
 
         /// <summary>
         /// Schedules the specified delegate to be executed asynchronously.
         /// </summary>
-        ControlledTask<TResult> ScheduleDelegate<TResult>(Delegate work, Task predecessor, CancellationToken cancellationToken);
+        Task<TResult> ScheduleDelegate<TResult>(Delegate work, SystemTasks.Task predecessor, CancellationToken cancellationToken);
 
         /// <summary>
         /// Schedules the specified delay to be executed asynchronously.
         /// </summary>
-        ControlledTask ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken);
+        Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken);
 
         /// <summary>
         /// Schedules the specified task awaiter continuation to be executed asynchronously.
         /// </summary>
-        void ScheduleTaskAwaiterContinuation(Task task, Action continuation);
+        void ScheduleTaskAwaiterContinuation(SystemTasks.Task task, Action continuation);
 
         /// <summary>
         /// Schedules the specified yield awaiter continuation to be executed asynchronously.
@@ -53,78 +53,78 @@ namespace Microsoft.Coyote.Tasks
         /// Creates a controlled task that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
-        ControlledTask WhenAllTasksCompleteAsync(IEnumerable<ControlledTask> tasks);
+        Task WhenAllTasksCompleteAsync(IEnumerable<Task> tasks);
 
         /// <summary>
         /// Creates a controlled task that will complete when all tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
-        ControlledTask<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
+        Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<Task<TResult>> tasks);
 
         /// <summary>
         /// Creates a controlled task that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
-        ControlledTask<ControlledTask> WhenAnyTaskCompletesAsync(IEnumerable<ControlledTask> tasks);
+        Task<Task> WhenAnyTaskCompletesAsync(IEnumerable<Task> tasks);
 
         /// <summary>
         /// Creates a controlled task that will complete when any task
         /// in the specified enumerable collection have completed.
         /// </summary>
-        ControlledTask<ControlledTask<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks);
+        Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<Task<TResult>> tasks);
 
         /// <summary>
         /// Waits for all of the provided controlled task objects to complete execution within
         /// a specified number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
-        bool WaitAllTasksComplete(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
+        bool WaitAllTasksComplete(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
 
         /// <summary>
         /// Waits for any of the provided controlled task objects to complete execution within
         /// a specified number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
-        int WaitAnyTaskCompletes(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
+        int WaitAnyTaskCompletes(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken);
 
         /// <summary>
         /// Waits for the task to complete execution. The wait terminates if a timeout interval
         /// elapses or a cancellation token is canceled before the task completes.
         /// </summary>
-        bool WaitTaskCompletes(ControlledTask task, int millisecondsTimeout, CancellationToken cancellationToken);
+        bool WaitTaskCompletes(Task task, int millisecondsTimeout, CancellationToken cancellationToken);
 
         /// <summary>
         /// Waits for the task to complete execution and returns the result.
         /// </summary>
-        TResult WaitTaskCompletes<TResult>(ControlledTask<TResult> task);
+        TResult WaitTaskCompletes<TResult>(Task<TResult> task);
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncControlledTaskMethodBuilder.Start"/> is called.
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Start"/> is called.
         /// </summary>
-        void OnAsyncControlledTaskMethodBuilderStart(Type stateMachineType);
+        void OnAsyncTaskMethodBuilderStart(Type stateMachineType);
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncControlledTaskMethodBuilder.Task"/> is accessed.
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
         /// </summary>
-        void OnAsyncControlledTaskMethodBuilderTask();
+        void OnAsyncTaskMethodBuilderTask();
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncControlledTaskMethodBuilder.AwaitOnCompleted"/>
-        /// or <see cref="AsyncControlledTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.AwaitOnCompleted"/>
+        /// or <see cref="AsyncTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
         /// </summary>
-        void OnAsyncControlledTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType);
+        void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType);
 
         /// <summary>
         /// Callback invoked when the currently executing task operation gets a controlled awaiter.
         /// </summary>
-        void OnGetControlledAwaiter();
+        void OnGetAwaiter();
 
         /// <summary>
-        /// Callback invoked when the <see cref="ControlledYieldAwaitable.ControlledYieldAwaiter.GetResult"/> is called.
+        /// Callback invoked when the <see cref="YieldAwaitable.YieldAwaiter.GetResult"/> is called.
         /// </summary>
-        void OnControlledYieldAwaiterGetResult();
+        void OnYieldAwaiterGetResult();
 
         /// <summary>
         /// Callback invoked when the executing operation is waiting for the specified task to complete.
         /// </summary>
-        void OnWaitTask(Task task);
+        void OnWaitTask(SystemTasks.Task task);
     }
 }

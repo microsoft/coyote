@@ -151,16 +151,16 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 Semaphore semaphore = Semaphore.Create(1, 1);
 
-                async ControlledTask WriteAsync(int value)
+                async Task WriteAsync(int value)
                 {
                     await semaphore.WaitAsync();
                     entry.Value = value;
                     semaphore.Release();
                 }
 
-                ControlledTask task1 = WriteAsync(3);
-                ControlledTask task2 = WriteAsync(5);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = WriteAsync(3);
+                Task task2 = WriteAsync(5);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
@@ -174,24 +174,24 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 Semaphore semaphore = Semaphore.Create(1, 1);
 
-                async ControlledTask WriteAsync(int value)
+                async Task WriteAsync(int value)
                 {
                     await semaphore.WaitAsync();
                     entry.Value = value;
                     semaphore.Release();
                 }
 
-                ControlledTask task1 = ControlledTask.Run(async () =>
+                Task task1 = Task.Run(async () =>
                 {
                     await WriteAsync(3);
                 });
 
-                ControlledTask task2 = ControlledTask.Run(async () =>
+                Task task2 = Task.Run(async () =>
                 {
                     await WriteAsync(5);
                 });
 
-                await ControlledTask.WhenAll(task1, task2);
+                await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200),
@@ -207,18 +207,18 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Semaphore semaphore = Semaphore.Create(1, 1);
 
                 SharedEntry entry = new SharedEntry();
-                async ControlledTask WriteAsync(int value)
+                async Task WriteAsync(int value)
                 {
                     await semaphore.WaitAsync();
                     entry.Value = value;
-                    await ControlledTask.Yield();
+                    await Task.Yield();
                     Specification.Assert(entry.Value == value, "Value is '{0}' instead of '{1}'.", entry.Value, value);
                     semaphore.Release();
                 }
 
-                ControlledTask task1 = WriteAsync(3);
-                ControlledTask task2 = WriteAsync(5);
-                await ControlledTask.WhenAll(task1, task2);
+                Task task1 = WriteAsync(3);
+                Task task2 = WriteAsync(5);
+                await Task.WhenAll(task1, task2);
             },
             configuration: GetConfiguration().WithNumberOfIterations(200));
         }

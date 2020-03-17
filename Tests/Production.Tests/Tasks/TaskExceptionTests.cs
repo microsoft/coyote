@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
@@ -17,103 +17,103 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
         }
 
-        private static async ControlledTask WriteAsync(SharedEntry entry, int value)
+        private static async Task WriteAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
         }
 
-        private static async ControlledTask WriteWithDelayAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestNoSynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestNoSynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
             var task = WriteAsync(entry, 5);
             await task;
 
-            Assert.Equal(TaskStatus.RanToCompletion, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestNoAsynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestNoAsynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
             var task = WriteWithDelayAsync(entry, 5);
             await task;
 
-            Assert.Equal(TaskStatus.RanToCompletion, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestNoParallelSynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestNoParallelSynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
-            var task = ControlledTask.Run(() =>
+            var task = Task.Run(() =>
             {
                 entry.Value = 5;
             });
 
             await task;
 
-            Assert.Equal(TaskStatus.RanToCompletion, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestNoParallelAsynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestNoParallelAsynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
-            var task = ControlledTask.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 entry.Value = 5;
-                await ControlledTask.Delay(1);
+                await Task.Delay(1);
             });
             await task;
 
-            Assert.Equal(TaskStatus.RanToCompletion, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestNoParallelFuncTaskExceptionStatus()
+        public async SystemTasks.Task TestNoParallelFuncTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
-            async ControlledTask func()
+            async Task func()
             {
                 entry.Value = 5;
-                await ControlledTask.Delay(1);
+                await Task.Delay(1);
             }
 
-            var task = ControlledTask.Run(func);
+            var task = Task.Run(func);
             await task;
 
-            Assert.Equal(TaskStatus.RanToCompletion, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
-        private static async ControlledTask WriteWithExceptionAsync(SharedEntry entry, int value)
+        private static async Task WriteWithExceptionAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.CompletedTask;
+            await Task.CompletedTask;
             entry.Value = value;
             throw new InvalidOperationException();
         }
 
-        private static async ControlledTask WriteWithDelayedExceptionAsync(SharedEntry entry, int value)
+        private static async Task WriteWithDelayedExceptionAsync(SharedEntry entry, int value)
         {
-            await ControlledTask.Delay(1);
+            await Task.Delay(1);
             entry.Value = value;
             throw new InvalidOperationException();
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestSynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
             var task = WriteWithExceptionAsync(entry, 5);
@@ -129,12 +129,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAsynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestAsynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
             var task = WriteWithDelayedExceptionAsync(entry, 5);
@@ -150,15 +150,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestParallelSynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestParallelSynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
-            var task = ControlledTask.Run(() =>
+            var task = Task.Run(() =>
             {
                 entry.Value = 5;
                 throw new InvalidOperationException();
@@ -175,18 +175,18 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestParallelAsynchronousTaskExceptionStatus()
+        public async SystemTasks.Task TestParallelAsynchronousTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
-            var task = ControlledTask.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 entry.Value = 5;
-                await ControlledTask.Delay(1);
+                await Task.Delay(1);
                 throw new InvalidOperationException();
             });
 
@@ -201,22 +201,22 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, task.Status);
             Assert.Equal(5, entry.Value);
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestParallelFuncTaskExceptionStatus()
+        public async SystemTasks.Task TestParallelFuncTaskExceptionStatus()
         {
             SharedEntry entry = new SharedEntry();
-            async ControlledTask func()
+            async Task func()
             {
                 entry.Value = 5;
-                await ControlledTask.Delay(1);
+                await Task.Delay(1);
                 throw new InvalidOperationException();
             }
 
-            var task = ControlledTask.Run(func);
+            var task = Task.Run(func);
 
             Exception exception = null;
             try
@@ -229,7 +229,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             }
 
             Assert.IsType<InvalidOperationException>(exception);
-            Assert.Equal(TaskStatus.Faulted, task.Status);
+            Assert.Equal(SystemTasks.TaskStatus.Faulted, task.Status);
             Assert.Equal(5, entry.Value);
         }
     }

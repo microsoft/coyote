@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Tracing;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

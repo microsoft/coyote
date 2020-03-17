@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Actors
         /// A string that represents the current options.
         /// </summary>
         public override string ToString() =>
-            string.Format("SendOptions[MustHandle='{0}', Assert='{1}', HashedState='{3}']",
+            string.Format("SendOptions[MustHandle='{0}', Assert='{1}', HashedState='{2}']",
                 this.MustHandle, this.Assert, this.HashedState);
     }
 }

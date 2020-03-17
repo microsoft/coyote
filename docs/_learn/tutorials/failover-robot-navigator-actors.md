@@ -330,7 +330,7 @@ public static class Program
     {
         ...
         RunForever = true;
-        IActorRuntime runtime = ActorRuntimeFactory.Create(conf);
+        IActorRuntime runtime = RuntimeFactory.Create(conf);
         Execute(runtime);
         Console.ReadLine();
     }

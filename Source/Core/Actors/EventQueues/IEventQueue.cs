@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
 {

@@ -4,7 +4,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -107,7 +106,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public async Task TestActorInheritance()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var config = new ConfigEvent();
             var actor = runtime.CreateActor(typeof(ActorSubclass), config);
             runtime.SendEvent(actor, new E1());

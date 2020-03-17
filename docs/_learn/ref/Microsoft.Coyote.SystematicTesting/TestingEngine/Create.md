@@ -49,7 +49,7 @@ public static TestingEngine Create(Configuration configuration, Action<IActorRun
 ## See Also
 
 * class [Configuration](../../Microsoft.Coyote/ConfigurationType)
-* interface [IActorRuntime](../../Microsoft.Coyote.Runtime/IActorRuntimeType)
+* interface [IActorRuntime](../../Microsoft.Coyote.Actors/IActorRuntimeType)
 * class [TestingEngine](../TestingEngineType)
 * namespace [Microsoft.Coyote.SystematicTesting](../TestingEngineType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
@@ -103,7 +103,7 @@ public static TestingEngine Create(Configuration configuration,
 ## See Also
 
 * class [Configuration](../../Microsoft.Coyote/ConfigurationType)
-* interface [IActorRuntime](../../Microsoft.Coyote.Runtime/IActorRuntimeType)
+* interface [IActorRuntime](../../Microsoft.Coyote.Actors/IActorRuntimeType)
 * class [ControlledTask](../../Microsoft.Coyote.Tasks/ControlledTaskType)
 * class [TestingEngine](../TestingEngineType)
 * namespace [Microsoft.Coyote.SystematicTesting](../TestingEngineType)

@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -218,7 +217,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             var tcs = new TaskCompletionSource<bool>();
             var configuration = Configuration.Create();
-            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
             var a = runtime.CreateActor(typeof(A), null, new A.SetupEvent(tcs));
             runtime.SendEvent(a, new A.E3());
             runtime.SendEvent(a, new E1());

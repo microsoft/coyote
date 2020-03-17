@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Tasks
 {
@@ -21,7 +22,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ITaskController TaskController;
+        private readonly TaskController TaskController;
 
         /// <summary>
         /// The <see cref="AsyncTaskMethodBuilder"/> to which most operations are delegated.
@@ -68,7 +69,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncControlledTaskMethodBuilder"/> struct.
         /// </summary>
-        private AsyncControlledTaskMethodBuilder(ITaskController taskManager)
+        private AsyncControlledTaskMethodBuilder(TaskController taskManager)
         {
             this.TaskController = taskManager;
             this.MethodBuilder = default;
@@ -82,8 +83,12 @@ namespace Microsoft.Coyote.Tasks
         [DebuggerHidden]
         public static AsyncControlledTaskMethodBuilder Create()
         {
-            CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController);
-            return new AsyncControlledTaskMethodBuilder(taskController);
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                return new AsyncControlledTaskMethodBuilder(ControlledRuntime.Current.TaskController);
+            }
+
+            return new AsyncControlledTaskMethodBuilder(null);
         }
 
         /// <summary>
@@ -170,7 +175,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ITaskController TaskController;
+        private readonly TaskController TaskController;
 
         /// <summary>
         /// The <see cref="AsyncTaskMethodBuilder"/> to which most operations are delegated.
@@ -222,7 +227,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncControlledTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
-        private AsyncControlledTaskMethodBuilder(ITaskController taskManager)
+        private AsyncControlledTaskMethodBuilder(TaskController taskManager)
         {
             this.TaskController = taskManager;
             this.MethodBuilder = default;
@@ -238,8 +243,12 @@ namespace Microsoft.Coyote.Tasks
         [DebuggerHidden]
         public static AsyncControlledTaskMethodBuilder<TResult> Create()
         {
-            CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController);
-            return new AsyncControlledTaskMethodBuilder<TResult>(taskController);
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                return new AsyncControlledTaskMethodBuilder<TResult>(ControlledRuntime.Current.TaskController);
+            }
+
+            return new AsyncControlledTaskMethodBuilder<TResult>(null);
         }
 #pragma warning restore CA1000 // Do not declare static members on generic types
 

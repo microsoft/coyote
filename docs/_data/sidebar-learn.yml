@@ -98,13 +98,6 @@ learn-toc:
         subfolderitems:
         - name: Event
           link: /learn/ref/Microsoft.Coyote/Event/Event
-      - name: ControlledRandomValueGenerator
-        link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGeneratorType
-        subfolderitems:
-        - name: GetNextBoolean
-          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextBoolean
-        - name: GetNextInteger
-          link: /learn/ref/Microsoft.Coyote/ControlledRandomValueGenerator/GetNextInteger
       - name: Configuration
         link: /learn/ref/Microsoft.Coyote/ConfigurationType
         subfolderitems:
@@ -208,6 +201,13 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/EnableProfiling
         - name: EnableColoredConsoleOutput
           link: /learn/ref/Microsoft.Coyote/Configuration/EnableColoredConsoleOutput
+      - name: ExecutionCanceledException
+        link: /learn/ref/Microsoft.Coyote/ExecutionCanceledExceptionType
+      - name: RuntimeException
+        link: /learn/ref/Microsoft.Coyote/RuntimeExceptionType
+        subfolderitems:
+        - name: RuntimeException
+          link: /learn/ref/Microsoft.Coyote/RuntimeException/RuntimeException
     - name: Microsoft.Coyote.Actors
       link: /learn/ref/MicrosoftCoyoteActorsNamespace
       subfolderitems:
@@ -308,8 +308,12 @@ learn-toc:
         subfolderitems:
         - name: WildCardEvent
           link: /learn/ref/Microsoft.Coyote.Actors/WildCardEvent/WildCardEvent
+      - name: OnEventDroppedHandler
+        link: /learn/ref/Microsoft.Coyote.Actors/OnEventDroppedHandlerType
       - name: OnExceptionOutcome
         link: /learn/ref/Microsoft.Coyote.Actors/OnExceptionOutcomeType
+      - name: OnFailureHandler
+        link: /learn/ref/Microsoft.Coyote.Actors/OnFailureHandlerType
       - name: UnhandledEventException
         link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventExceptionType
         subfolderitems:
@@ -317,6 +321,178 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventException/UnhandledEvent
         - name: CurrentStateName
           link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventException/CurrentStateName
+      - name: IActorRuntime
+        link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeType
+        subfolderitems:
+        - name: CreateActorId
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorId
+        - name: CreateActorIdFromName
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName
+        - name: CreateActor
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
+        - name: CreateActorAndExecuteAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorAndExecuteAsync
+        - name: SendEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
+        - name: SendEventAndExecuteAsync
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEventAndExecuteAsync
+        - name: RegisterMonitor
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterMonitor
+        - name: InvokeMonitor
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/InvokeMonitor
+        - name: Random
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Random
+        - name: RandomInteger
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RandomInteger
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Assert
+        - name: GetCurrentOperationGroupId
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperationGroupId
+        - name: SetLogger
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SetLogger
+        - name: RegisterLog
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog
+        - name: RemoveLog
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RemoveLog
+        - name: Stop
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Stop
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Logger
+        - name: OnFailure
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/OnFailure
+        - name: OnEventDropped
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
+      - name: ActorRuntimeLogTextFormatter
+        link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatterType
+        subfolderitems:
+        - name: OnAssertionFailure
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnAssertionFailure
+        - name: OnCreateActor
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor
+        - name: OnCreateMonitor
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateMonitor
+        - name: OnCreateTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateTimer
+        - name: OnDefaultEventHandler
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDefaultEventHandler
+        - name: OnDequeueEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnDequeueEvent
+        - name: OnEnqueueEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnEnqueueEvent
+        - name: OnExceptionHandled
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionHandled
+        - name: OnExceptionThrown
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExceptionThrown
+        - name: OnExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnExecuteAction
+        - name: OnGotoState
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnGotoState
+        - name: OnHalt
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHalt
+        - name: OnHandleRaisedEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
+        - name: OnMonitorExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorStateTransition
+        - name: OnPopState
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState
+        - name: OnPopStateUnhandledEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent
+        - name: OnPushState
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState
+        - name: OnRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRandom
+        - name: OnReceiveEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent
+        - name: OnSendEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSendEvent
+        - name: OnStateTransition
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStateTransition
+        - name: OnStopTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStopTimer
+        - name: OnStrategyDescription
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStrategyDescription
+        - name: OnWaitEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent
+        - name: OnCompleted
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCompleted
+        - name: ActorRuntimeLogTextFormatter
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/Logger
+      - name: IActorRuntimeLog
+        link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLogType
+        subfolderitems:
+        - name: OnCreateActor
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor
+        - name: OnExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction
+        - name: OnSendEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnSendEvent
+        - name: OnRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRaiseEvent
+        - name: OnEnqueueEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnEnqueueEvent
+        - name: OnDequeueEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDequeueEvent
+        - name: OnReceiveEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent
+        - name: OnWaitEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnWaitEvent
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
+        - name: OnStateTransition
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStateTransition
+        - name: OnGotoState
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnGotoState
+        - name: OnPushState
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPushState
+        - name: OnPopState
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopState
+        - name: OnDefaultEventHandler
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnDefaultEventHandler
+        - name: OnHalt
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHalt
+        - name: OnHandleRaisedEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnHandleRaisedEvent
+        - name: OnPopStateUnhandledEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnPopStateUnhandledEvent
+        - name: OnExceptionThrown
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionThrown
+        - name: OnExceptionHandled
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExceptionHandled
+        - name: OnCreateTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateTimer
+        - name: OnStopTimer
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStopTimer
+        - name: OnCreateMonitor
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateMonitor
+        - name: OnMonitorExecuteAction
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorExecuteAction
+        - name: OnMonitorProcessEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorProcessEvent
+        - name: OnMonitorRaiseEvent
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorRaiseEvent
+        - name: OnMonitorStateTransition
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorStateTransition
+        - name: OnAssertionFailure
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnAssertionFailure
+        - name: OnStrategyDescription
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStrategyDescription
+        - name: OnCompleted
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted
+      - name: RuntimeFactory
+        link: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactoryType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactory/Create
       - name: SendOptions
         link: /learn/ref/Microsoft.Coyote.Actors/SendOptionsType
         subfolderitems:
@@ -671,195 +847,18 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger
         - name: Encoding
           link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding
-    - name: Microsoft.Coyote.Runtime
-      link: /learn/ref/MicrosoftCoyoteRuntimeNamespace
+    - name: Microsoft.Coyote.Random
+      link: /learn/ref/MicrosoftCoyoteRandomNamespace
       subfolderitems:
-      - name: ActorRuntimeFactory
-        link: /learn/ref/Microsoft.Coyote.Runtime/ActorRuntimeFactoryType
+      - name: Generator
+        link: /learn/ref/Microsoft.Coyote.Random/GeneratorType
         subfolderitems:
         - name: Create
-          link: /learn/ref/Microsoft.Coyote.Runtime/ActorRuntimeFactory/Create
-      - name: ExecutionCanceledException
-        link: /learn/ref/Microsoft.Coyote.Runtime/ExecutionCanceledExceptionType
-      - name: OnEventDroppedHandler
-        link: /learn/ref/Microsoft.Coyote.Runtime/OnEventDroppedHandlerType
-      - name: OnFailureHandler
-        link: /learn/ref/Microsoft.Coyote.Runtime/OnFailureHandlerType
-      - name: RuntimeException
-        link: /learn/ref/Microsoft.Coyote.Runtime/RuntimeExceptionType
-        subfolderitems:
-        - name: RuntimeException
-          link: /learn/ref/Microsoft.Coyote.Runtime/RuntimeException/RuntimeException
-      - name: IActorRuntime
-        link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeType
-        subfolderitems:
-        - name: CreateActorId
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActorId
-        - name: CreateActorIdFromName
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActorIdFromName
-        - name: CreateActor
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActor
-        - name: CreateActorAndExecuteAsync
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/CreateActorAndExecuteAsync
-        - name: SendEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/SendEvent
-        - name: SendEventAndExecuteAsync
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/SendEventAndExecuteAsync
-        - name: RegisterMonitor
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RegisterMonitor
-        - name: InvokeMonitor
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/InvokeMonitor
-        - name: Random
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Random
-        - name: RandomInteger
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RandomInteger
-        - name: Assert
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Assert
-        - name: GetCurrentOperationGroupId
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/GetCurrentOperationGroupId
-        - name: SetLogger
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/SetLogger
-        - name: RegisterLog
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RegisterLog
-        - name: RemoveLog
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/RemoveLog
-        - name: Stop
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Stop
-        - name: Logger
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/Logger
-        - name: OnFailure
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/OnFailure
-        - name: OnEventDropped
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntime/OnEventDropped
-      - name: IActorRuntimeLog
-        link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLogType
-        subfolderitems:
-        - name: OnCreateActor
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCreateActor
-        - name: OnExecuteAction
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnExecuteAction
-        - name: OnSendEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnSendEvent
-        - name: OnRaiseEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnRaiseEvent
-        - name: OnEnqueueEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnEnqueueEvent
-        - name: OnDequeueEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnDequeueEvent
-        - name: OnReceiveEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnReceiveEvent
-        - name: OnWaitEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnWaitEvent
-        - name: OnRandom
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnRandom
-        - name: OnStateTransition
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStateTransition
-        - name: OnGotoState
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnGotoState
-        - name: OnPushState
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnPushState
-        - name: OnPopState
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnPopState
-        - name: OnDefaultEventHandler
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnDefaultEventHandler
-        - name: OnHalt
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnHalt
-        - name: OnHandleRaisedEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnHandleRaisedEvent
-        - name: OnPopStateUnhandledEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnPopStateUnhandledEvent
-        - name: OnExceptionThrown
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnExceptionThrown
-        - name: OnExceptionHandled
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnExceptionHandled
-        - name: OnCreateTimer
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCreateTimer
-        - name: OnStopTimer
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStopTimer
-        - name: OnCreateMonitor
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCreateMonitor
-        - name: OnMonitorExecuteAction
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorExecuteAction
-        - name: OnMonitorProcessEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorProcessEvent
-        - name: OnMonitorRaiseEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorRaiseEvent
-        - name: OnMonitorStateTransition
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnMonitorStateTransition
-        - name: OnAssertionFailure
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnAssertionFailure
-        - name: OnStrategyDescription
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnStrategyDescription
-        - name: OnCompleted
-          link: /learn/ref/Microsoft.Coyote.Runtime/IActorRuntimeLog/OnCompleted
-    - name: Microsoft.Coyote.Runtime.Logging
-      link: /learn/ref/MicrosoftCoyoteRuntimeLoggingNamespace
-      subfolderitems:
-      - name: ActorRuntimeLogTextFormatter
-        link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatterType
-        subfolderitems:
-        - name: OnAssertionFailure
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnAssertionFailure
-        - name: OnCreateActor
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCreateActor
-        - name: OnCreateMonitor
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCreateMonitor
-        - name: OnCreateTimer
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCreateTimer
-        - name: OnDefaultEventHandler
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnDefaultEventHandler
-        - name: OnDequeueEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnDequeueEvent
-        - name: OnEnqueueEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnEnqueueEvent
-        - name: OnExceptionHandled
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnExceptionHandled
-        - name: OnExceptionThrown
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnExceptionThrown
-        - name: OnExecuteAction
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnExecuteAction
-        - name: OnGotoState
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnGotoState
-        - name: OnHalt
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnHalt
-        - name: OnHandleRaisedEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnHandleRaisedEvent
-        - name: OnMonitorExecuteAction
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorExecuteAction
-        - name: OnMonitorProcessEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorProcessEvent
-        - name: OnMonitorRaiseEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent
-        - name: OnMonitorStateTransition
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnMonitorStateTransition
-        - name: OnPopState
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnPopState
-        - name: OnPopStateUnhandledEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent
-        - name: OnPushState
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnPushState
-        - name: OnRaiseEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnRaiseEvent
-        - name: OnRandom
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnRandom
-        - name: OnReceiveEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnReceiveEvent
-        - name: OnSendEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnSendEvent
-        - name: OnStateTransition
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnStateTransition
-        - name: OnStopTimer
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnStopTimer
-        - name: OnStrategyDescription
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnStrategyDescription
-        - name: OnWaitEvent
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnWaitEvent
-        - name: OnCompleted
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/OnCompleted
-        - name: ActorRuntimeLogTextFormatter
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter
-        - name: Logger
-          link: /learn/ref/Microsoft.Coyote.Runtime.Logging/ActorRuntimeLogTextFormatter/Logger
+          link: /learn/ref/Microsoft.Coyote.Random/Generator/Create
+        - name: NextBoolean
+          link: /learn/ref/Microsoft.Coyote.Random/Generator/NextBoolean
+        - name: NextInteger
+          link: /learn/ref/Microsoft.Coyote.Random/Generator/NextInteger
     - name: Microsoft.Coyote.Specifications
       link: /learn/ref/MicrosoftCoyoteSpecificationsNamespace
       subfolderitems:

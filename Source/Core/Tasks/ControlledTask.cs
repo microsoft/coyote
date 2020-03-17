@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Tasks
 {
@@ -37,7 +38,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private protected readonly ITaskController TaskController;
+        private protected readonly TaskController TaskController;
 
         /// <summary>
         /// Internal task used to execute the work.
@@ -85,13 +86,8 @@ namespace Microsoft.Coyote.Tasks
         /// Initializes a new instance of the <see cref="ControlledTask"/> class.
         /// </summary>
         [DebuggerStepThrough]
-        internal ControlledTask(ITaskController taskController, Task task)
+        internal ControlledTask(TaskController taskController, Task task)
         {
-            // if (taskController is null)
-            // {
-            //    CoyoteRuntime.Current.TryGetTaskController(out taskController);
-            // }
-
             this.TaskController = taskController;
             this.InternalTask = task ?? throw new ArgumentNullException(nameof(task));
         }
@@ -165,9 +161,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Run(Action action, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.ScheduleAction(action, null, cancellationToken);
+                return ControlledRuntime.Current.TaskController.ScheduleAction(action, null, cancellationToken);
             }
 
             return new ControlledTask(null, Task.Run(action, cancellationToken));
@@ -193,9 +189,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Run(Func<ControlledTask> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.ScheduleFunction(function, null, cancellationToken);
+                return ControlledRuntime.Current.TaskController.ScheduleFunction(function, null, cancellationToken);
             }
 
             return new ControlledTask(null, Task.Run(async () => await function(), cancellationToken));
@@ -223,9 +219,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult> Run<TResult>(Func<ControlledTask<TResult>> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.ScheduleFunction(function, null, cancellationToken);
+                return ControlledRuntime.Current.TaskController.ScheduleFunction(function, null, cancellationToken);
             }
 
             return new ControlledTask<TResult>(null, Task.Run(async () => await function(), cancellationToken));
@@ -252,9 +248,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.ScheduleDelegate<TResult>(function, null, cancellationToken);
+                return ControlledRuntime.Current.TaskController.ScheduleDelegate<TResult>(function, null, cancellationToken);
             }
 
             return new ControlledTask<TResult>(null, Task.Run(function, cancellationToken));
@@ -281,9 +277,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Delay(int millisecondsDelay, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+                return ControlledRuntime.Current.TaskController.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
             }
 
             return new ControlledTask(null, Task.Delay(millisecondsDelay, cancellationToken));
@@ -312,9 +308,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask Delay(TimeSpan delay, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.ScheduleDelay(delay, cancellationToken);
+                return ControlledRuntime.Current.TaskController.ScheduleDelay(delay, cancellationToken);
             }
 
             return new ControlledTask(null, Task.Delay(delay, cancellationToken));
@@ -347,9 +343,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ControlledTask WhenAllTasksCompleteAsync(IEnumerable<ControlledTask> tasks)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.WhenAllTasksCompleteAsync(tasks);
+                return ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks);
             }
 
             return new ControlledTask(null, Task.WhenAll(tasks.Select(t => t.InternalTask)));
@@ -385,9 +381,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ControlledTask<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.WhenAllTasksCompleteAsync(tasks);
+                return ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks);
             }
 
             return new ControlledTask<TResult[]>(null, Task.WhenAll(tasks.Select(t => t.AwaiterTask)));
@@ -417,9 +413,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ControlledTask<ControlledTask> WhenAnyTaskCompletesAsync(IEnumerable<ControlledTask> tasks)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.WhenAnyTaskCompletesAsync(tasks);
+                return ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks);
             }
 
             return WhenAnyTaskCompletesInProductionAsync(tasks);
@@ -462,9 +458,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledTask<ControlledTask<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<ControlledTask<TResult>> tasks)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.WhenAnyTaskCompletesAsync(tasks);
+                return ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks);
             }
 
             return WhenAnyTaskCompletesInProductionAsync(tasks);
@@ -542,9 +538,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool WaitAll(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.WaitAllTasksComplete(tasks, millisecondsTimeout, cancellationToken);
+                return ControlledRuntime.Current.TaskController.WaitAllTasksComplete(tasks, millisecondsTimeout, cancellationToken);
             }
 
             return Task.WaitAll(tasks.Select(t => t.AwaiterTask).ToArray(), millisecondsTimeout, cancellationToken);
@@ -612,9 +608,9 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(ControlledTask[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            if (CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController))
+            if (CoyoteRuntime.IsExecutionControlled)
             {
-                return taskController.WaitAnyTaskCompletes(tasks, millisecondsTimeout, cancellationToken);
+                return ControlledRuntime.Current.TaskController.WaitAnyTaskCompletes(tasks, millisecondsTimeout, cancellationToken);
             }
 
             return Task.WaitAny(tasks.Select(t => t.AwaiterTask).ToArray(), millisecondsTimeout, cancellationToken);
@@ -626,8 +622,12 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ControlledYieldAwaitable Yield()
         {
-            CoyoteRuntime.Current.TryGetTaskController(out ITaskController taskController);
-            return new ControlledYieldAwaitable(taskController);
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                return new ControlledYieldAwaitable(ControlledRuntime.Current.TaskController);
+            }
+
+            return new ControlledYieldAwaitable(null);
         }
 
         /// <summary>
@@ -713,7 +713,7 @@ namespace Microsoft.Coyote.Tasks
         /// Injects a context switch point that can be systematically explored during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ScheduleNextOperation();
+        public static void ExploreContextSwitch() => ControlledRuntime.Current.ScheduleNextOperation();
 
         /// <summary>
         /// Converts the specified <see cref="ControlledTask"/> into a <see cref="Task"/>.
@@ -779,7 +779,7 @@ namespace Microsoft.Coyote.Tasks
         /// Initializes a new instance of the <see cref="ControlledTask{TResult}"/> class.
         /// </summary>
         [DebuggerStepThrough]
-        internal ControlledTask(ITaskController taskController, Task<TResult> task)
+        internal ControlledTask(TaskController taskController, Task<TResult> task)
             : base(taskController, task)
         {
         }

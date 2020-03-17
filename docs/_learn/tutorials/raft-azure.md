@@ -131,7 +131,7 @@ The startup sequence for all this can be found in `Program.cs` and goes like thi
 2. `RunAsync` sets up the Azure Service Bus pub/sub topic using `CreateTopicAsync`, and creates a
    subscription to that topic using `CreateSubscriptionAsync`. Each process does this same thing so
    they can all talk to each other via the Azure Service Bus using the `TopicClient`.
-3. Create the Coyote `IActorRuntime` using `ActorRuntimeFactory.Create`.
+3. Create the Coyote `IActorRuntime` using `RuntimeFactory.Create`.
 3. The `TopicClient` is then wrapped by the first Coyote Actor called `AzureClusterManager`.
 4. Then depending which process is running it calls `RunClient` or `RunServer`.
 5. `RunClient` launches the server processes in `StartRaftServers` and special hidden command line

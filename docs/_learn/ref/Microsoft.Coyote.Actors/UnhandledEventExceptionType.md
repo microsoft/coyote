@@ -21,7 +21,7 @@ public sealed class UnhandledEventException : RuntimeException
 
 ## See Also
 
-* class [RuntimeException](../Microsoft.Coyote.Runtime/RuntimeExceptionType)
+* class [RuntimeException](../Microsoft.Coyote/RuntimeExceptionType)
 * namespace [Microsoft.Coyote.Actors](../MicrosoftCoyoteActorsNamespace)
 * assembly [Microsoft.Coyote](../MicrosoftCoyoteAssembly)
 

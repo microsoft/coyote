@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using CoyoteTester.Interfaces;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SmartSockets;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

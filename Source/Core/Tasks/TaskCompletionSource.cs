@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.Tasks
             internal Mock()
                 : base(default)
             {
-                this.Resource = Resource.Create();
+                this.Resource = new Resource();
                 this.Status = TaskStatus.Created;
                 this.CancellationTokenSource = new CancellationTokenSource();
             }

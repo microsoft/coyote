@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 

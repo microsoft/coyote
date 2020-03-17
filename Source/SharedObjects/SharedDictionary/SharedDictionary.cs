@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects
 {
@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <param name="runtime">The actor runtime.</param>
         public static ISharedDictionary<TKey, TValue> Create<TKey, TValue>(IActorRuntime runtime)
         {
-            if (runtime is ProductionRuntime)
+            if (runtime is ActorRuntime)
             {
                 return new ProductionSharedDictionary<TKey, TValue>();
             }
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <param name="runtime">The actor runtime.</param>
         public static ISharedDictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey> comparer, IActorRuntime runtime)
         {
-            if (runtime is ProductionRuntime)
+            if (runtime is ActorRuntime)
             {
                 return new ProductionSharedDictionary<TKey, TValue>(comparer);
             }

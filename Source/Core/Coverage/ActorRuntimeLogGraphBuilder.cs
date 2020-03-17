@@ -10,7 +10,6 @@ using System.Xml.Linq;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Coverage
 {

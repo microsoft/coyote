@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.Tasks
             internal Mock()
                 : base()
             {
-                this.Resource = Resource.Create();
+                this.Resource = new Resource();
             }
 
             /// <inheritdoc/>

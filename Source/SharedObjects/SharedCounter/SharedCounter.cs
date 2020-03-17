@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects
 {
@@ -17,7 +18,7 @@ namespace Microsoft.Coyote.SharedObjects
         /// <param name="value">The initial value.</param>
         public static ISharedCounter Create(IActorRuntime runtime, int value = 0)
         {
-            if (runtime is ProductionRuntime)
+            if (runtime is ActorRuntime)
             {
                 return new ProductionSharedCounter(value);
             }

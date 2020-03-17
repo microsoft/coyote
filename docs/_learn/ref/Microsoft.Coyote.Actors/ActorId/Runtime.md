@@ -14,7 +14,7 @@ public IActorRuntime Runtime { get; }
 
 ## See Also
 
-* interface [IActorRuntime](../../Microsoft.Coyote.Runtime/IActorRuntimeType)
+* interface [IActorRuntime](../IActorRuntimeType)
 * class [ActorId](../ActorIdType)
 * namespace [Microsoft.Coyote.Actors](../ActorIdType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

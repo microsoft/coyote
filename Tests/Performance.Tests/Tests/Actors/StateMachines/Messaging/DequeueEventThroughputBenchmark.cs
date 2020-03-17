@@ -4,7 +4,6 @@
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
@@ -122,7 +121,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 
         private static int NumMessages => 1000000;
 
-        private ProductionRuntime Runtime;
+        private ActorRuntime Runtime;
         private ActorId[] ProducerMachines;
         private TaskCompletionSource<bool> ExperimentAwaiter;
 
@@ -130,7 +129,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void IterationSetup()
         {
             var configuration = Configuration.Create();
-            this.Runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
+            this.Runtime = RuntimeFactory.CreateProductionRuntime(configuration);
             this.ExperimentAwaiter = new TaskCompletionSource<bool>();
 
             var consumer = this.Runtime.CreateActor(typeof(Consumer), null,

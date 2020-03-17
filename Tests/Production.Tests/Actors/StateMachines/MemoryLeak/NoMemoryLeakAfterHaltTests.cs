@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -104,7 +103,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 await WaitAsync(tcs.Task, 15000);
 
-                (r as ProductionRuntime).Stop();
+                (r as ActorRuntime).Stop();
             });
         }
     }

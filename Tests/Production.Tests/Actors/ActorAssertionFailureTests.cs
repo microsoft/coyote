@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -55,7 +54,7 @@ namespace Microsoft.Coyote.Production.Tests
         public void TestSendNullEvent()
         {
             var passed = false;
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var id = runtime.CreateActor(typeof(A));
             try
             {
@@ -86,7 +85,7 @@ namespace Microsoft.Coyote.Production.Tests
         public async Task TestSendNullEventInActor()
         {
             TaskCompletionSource<bool> completed = new TaskCompletionSource<bool>();
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             runtime.OnFailure += (e) =>
             {
                 completed.SetResult(true);
@@ -100,7 +99,7 @@ namespace Microsoft.Coyote.Production.Tests
         public async Task TestSendNullSendorInActor()
         {
             TaskCompletionSource<bool> completed = new TaskCompletionSource<bool>();
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             runtime.OnFailure += (e) =>
             {
                 completed.SetResult(true);

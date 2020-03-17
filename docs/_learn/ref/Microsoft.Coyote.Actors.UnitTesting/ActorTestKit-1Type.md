@@ -8,10 +8,6 @@ permalink: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1Type
 
 Provides methods for testing an actor of type *T* in isolation.
 
-Provides methods for testing an actor of type *T* in isolation.
-
-Provides methods for testing an actor of type *T* in isolation.
-
 ```csharp
 public sealed class ActorTestKit<T>
     where T : Actor
@@ -19,8 +15,6 @@ public sealed class ActorTestKit<T>
 
 | parameter | description |
 | --- | --- |
-| T | The actor type to test. |
-| T | The actor type to test. |
 | T | The actor type to test. |
 
 ## Public Members

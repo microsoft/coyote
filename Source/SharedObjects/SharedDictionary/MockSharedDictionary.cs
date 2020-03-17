@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects

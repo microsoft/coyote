@@ -10,8 +10,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.Actors
 {

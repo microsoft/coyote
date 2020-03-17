@@ -107,7 +107,7 @@ namespace Microsoft.Coyote.Tasks
             internal Mock(int initialCount, int maxCount)
                 : base(default)
             {
-                this.Resource = Resource.Create();
+                this.Resource = new Resource();
                 this.Resource.Runtime.Assert(initialCount >= 0,
                     "Cannot create semaphore with initial count of {0}. The count must be equal or greater than 0.", initialCount);
                 this.Resource.Runtime.Assert(initialCount <= maxCount,

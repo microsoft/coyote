@@ -3,7 +3,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.Coyote.Utilities
+namespace Microsoft.Coyote
 {
     /// <summary>
     /// The Coyote profiler.

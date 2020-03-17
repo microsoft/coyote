@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Production.Tests
 
             try
             {
-                var runtime = ActorRuntimeFactory.Create(configuration);
+                var runtime = RuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 test(runtime);
             }
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Production.Tests
 
             try
             {
-                var runtime = ActorRuntimeFactory.Create(configuration);
+                var runtime = RuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 await test(runtime);
             }

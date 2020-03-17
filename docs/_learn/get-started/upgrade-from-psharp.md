@@ -31,8 +31,8 @@ upgrade your applications and services. Contact us if you have any questions or 
 - `RuntimeLogWriter` was renamed to `ActorRuntimeLogWriter`.
 
 ## Runtime API changes
-- The static runtime factory was renamed from `PSharpRuntime` to `ActorRuntimeFactory`, so you can
-  now do `ActorRuntimeFactory.Create()` to get an actor runtime instance (that can execute state
+- The static runtime factory was renamed from `PSharpRuntime` to `RuntimeFactory`, so you can
+  now do `RuntimeFactory.Create()` to get an actor runtime instance (that can execute state
   machines).
 - `IMachineRuntime.CreateMachine` was renamed to `IActorRuntime.CreateActor`.
 - The previously deprecated method `IMachineRuntime.CreateMachineAndExecute` has been removed,

@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -243,7 +242,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary1()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var counter = SharedDictionary.Create<int, string>(runtime);
             var tcs1 = new TaskCompletionSource<bool>();
             var failed = false;
@@ -263,7 +262,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary2()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var counter = SharedDictionary.Create<int, string>(runtime);
             var tcs1 = new TaskCompletionSource<bool>();
             var failed = false;
@@ -283,7 +282,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary3()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var counter = SharedDictionary.Create<int, string>(runtime);
             var tcs1 = new TaskCompletionSource<bool>();
             var tcs2 = new TaskCompletionSource<bool>();
@@ -306,7 +305,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary4()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var counter = SharedDictionary.Create<int, string>(runtime);
             var tcs1 = new TaskCompletionSource<bool>();
             var failed = false;
@@ -326,7 +325,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestProductionSharedDictionary5()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var counter = SharedDictionary.Create<int, string>(runtime);
             var tcs1 = new TaskCompletionSource<bool>();
             var failed = false;

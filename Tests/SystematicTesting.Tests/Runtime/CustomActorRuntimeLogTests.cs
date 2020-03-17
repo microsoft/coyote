@@ -6,8 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Logging;
 using Microsoft.Coyote.Tests.Common.Runtime;
 using Xunit;
 using Xunit.Abstractions;

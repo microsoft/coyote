@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.SharedObjects
 {
@@ -18,7 +19,7 @@ namespace Microsoft.Coyote.SharedObjects
         public static ISharedRegister<T> Create<T>(IActorRuntime runtime, T value = default)
             where T : struct
         {
-            if (runtime is ProductionRuntime)
+            if (runtime is ActorRuntime)
             {
                 return new ProductionSharedRegister<T>(value);
             }

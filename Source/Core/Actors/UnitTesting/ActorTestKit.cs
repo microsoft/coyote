@@ -5,7 +5,6 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Runtime.UnitTesting;
 
 namespace Microsoft.Coyote.Actors.UnitTesting
 {

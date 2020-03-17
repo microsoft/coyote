@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using Xunit;

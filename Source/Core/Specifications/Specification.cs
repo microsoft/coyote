@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -16,32 +17,38 @@ namespace Microsoft.Coyote.Specifications
     public static class Specification
     {
         /// <summary>
+        /// The currently executing runtime.
+        /// </summary>
+        private static CoyoteRuntime CurrentRuntime => CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current : CoyoteRuntime.Default;
+
+        /// <summary>
         /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0) =>
-            CoyoteRuntime.Current.Assert(predicate, s, arg0);
+            CurrentRuntime.Assert(predicate, s, arg0);
 
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0, object arg1) =>
-            CoyoteRuntime.Current.Assert(predicate, s, arg0, arg1);
+            CurrentRuntime.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
-            CoyoteRuntime.Current.Assert(predicate, s, arg0, arg1, arg2);
+            CurrentRuntime.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
         /// Checks if the predicate holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, params object[] args) =>
-            CoyoteRuntime.Current.Assert(predicate, s, args);
+            CurrentRuntime.Assert(predicate, s, args);
 
         /// <summary>
         /// Registers a new safety or liveness monitor.
@@ -49,7 +56,7 @@ namespace Microsoft.Coyote.Specifications
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterMonitor<T>()
             where T : Monitor =>
-            CoyoteRuntime.Current.RegisterMonitor(typeof(T));
+            CurrentRuntime.RegisterMonitor(typeof(T));
 
         /// <summary>
         /// Invokes the specified monitor with the given event.
@@ -57,6 +64,6 @@ namespace Microsoft.Coyote.Specifications
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Monitor<T>(Event e)
             where T : Monitor =>
-            CoyoteRuntime.Current.Monitor(typeof(T), null, e);
+            CurrentRuntime.Monitor(typeof(T), null, e);
     }
 }

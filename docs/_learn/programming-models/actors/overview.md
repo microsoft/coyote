@@ -84,7 +84,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        IActorRuntime runtime = ActorRuntimeFactory.Create();
+        IActorRuntime runtime = RuntimeFactory.Create();
         Execute(runtime);
         Console.ReadLine();
     }

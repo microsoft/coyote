@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common.IO;
 using Microsoft.Coyote.Tests.Common.Runtime;
@@ -118,7 +117,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             CustomLogger logger = new CustomLogger();
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
-            var runtime = ActorRuntimeFactory.Create(config);
+            var runtime = RuntimeFactory.Create(config);
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -159,7 +158,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
             var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-            var runtime = ActorRuntimeFactory.Create(config);
+            var runtime = RuntimeFactory.Create(config);
             runtime.RegisterLog(graphBuilder);
             runtime.SetLogger(logger);
 
@@ -199,7 +198,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
         {
             var logger = TextWriter.Null;
 
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -213,7 +212,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
         [Fact(Timeout = 5000)]
         public async Task TestNullCustomLogger()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             runtime.SetLogger(null);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -230,7 +229,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             config.IsMonitoringEnabledInInProduction = true;
 
-            var runtime = ActorRuntimeFactory.Create(config);
+            var runtime = RuntimeFactory.Create(config);
             runtime.RegisterMonitor(typeof(S));
             runtime.SetLogger(null);
             var logger = new CustomActorRuntimeLog();

@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
 
 namespace Microsoft.Coyote.Actors
 {

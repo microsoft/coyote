@@ -4,7 +4,6 @@
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
@@ -158,7 +157,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             var tcs = new TaskCompletionSource<bool>();
 
             var configuration = Configuration.Create();
-            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
             runtime.CreateActor(typeof(M1), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
 
@@ -171,7 +170,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             var tcs = new TaskCompletionSource<bool>();
 
             var configuration = Configuration.Create();
-            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
             runtime.CreateActor(typeof(M3), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
 

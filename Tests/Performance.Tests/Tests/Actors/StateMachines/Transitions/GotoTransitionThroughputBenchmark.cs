@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
@@ -96,7 +95,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void MeasureGotoTransitionThroughput()
         {
             var configuration = Configuration.Create();
-            var runtime = ActorRuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
 
             var tcs = new TaskCompletionSource<bool>();
             var e = new SetupEvent(tcs, this.NumTransitions);

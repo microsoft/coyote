@@ -7,11 +7,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.Runtime;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
-namespace Microsoft.Coyote.Runtime.UnitTesting
+namespace Microsoft.Coyote.Actors.UnitTesting
 {
     /// <summary>
     /// Runtime for testing an actor in isolation.

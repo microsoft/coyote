@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Utilities;
 

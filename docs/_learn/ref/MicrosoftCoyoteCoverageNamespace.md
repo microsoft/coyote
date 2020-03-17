@@ -9,7 +9,7 @@ permalink: /learn/ref/MicrosoftCoyoteCoverageNamespace
 | public type | description |
 | --- | --- |
 | class [ActivityCoverageReporter](Microsoft.Coyote.Coverage/ActivityCoverageReporterType) | The Coyote code coverage reporter. |
-| class [ActorRuntimeLogGraphBuilder](Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType) | Implements the [`IActorRuntimeLog`](Microsoft.Coyote.Runtime/IActorRuntimeLogType) and builds a directed graph from the recorded events and state transitions. |
+| class [ActorRuntimeLogGraphBuilder](Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType) | Implements the [`IActorRuntimeLog`](Microsoft.Coyote.Actors/IActorRuntimeLogType) and builds a directed graph from the recorded events and state transitions. |
 | class [CoverageInfo](Microsoft.Coyote.Coverage/CoverageInfoType) | Class for storing coverage-specific data across multiple testing iterations. |
 | class [EventCoverage](Microsoft.Coyote.Coverage/EventCoverageType) | This class maintains information about events received and sent from each state of each actor. |
 | class [Graph](Microsoft.Coyote.Coverage/GraphType) | A directed graph made up of Nodes and Links. |

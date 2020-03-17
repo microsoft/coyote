@@ -13,14 +13,11 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Runtime.Logging;
-using Microsoft.Coyote.Runtime.Tracing;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Utilities;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

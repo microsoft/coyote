@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Coverage
 {

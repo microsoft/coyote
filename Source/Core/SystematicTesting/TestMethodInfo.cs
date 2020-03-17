@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting

@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -74,7 +73,7 @@ namespace Microsoft.Coyote.Production.Tests
         [Fact(Timeout = 5000)]
         public async Task TestAssertFailureNoEventHandler()
         {
-            var runtime = ActorRuntimeFactory.Create();
+            var runtime = RuntimeFactory.Create();
             var tcs = new TaskCompletionSource<bool>();
             runtime.CreateActor(typeof(M), new SetupEvent(tcs));
             await tcs.Task;

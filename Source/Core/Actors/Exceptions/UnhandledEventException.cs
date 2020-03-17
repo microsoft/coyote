@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Runtime;
-
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>

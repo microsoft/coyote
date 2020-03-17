@@ -461,7 +461,7 @@ public static class HostProgram
             MaxGreetings = long.Parse(args[0]);
         }
 
-        IActorRuntime runtime = ActorRuntimeFactory.Create();
+        IActorRuntime runtime = RuntimeFactory.Create();
         Execute(runtime);
 
         await CompletionSource.Task;

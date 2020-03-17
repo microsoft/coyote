@@ -2,19 +2,18 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// Resource that can be used to synchronize asynchronous operations.
     /// </summary>
-    internal readonly struct Resource
+    internal class Resource
     {
         /// <summary>
         /// The runtime associated with this resource.
         /// </summary>
-        internal readonly CoyoteRuntime Runtime;
+        internal readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// Set of asynchronous operations that are waiting on the resource to be released.
@@ -22,25 +21,19 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly HashSet<AsyncOperation> AwaitingOperations;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Resource"/> struct.
+        /// Initializes a new instance of the <see cref="Resource"/> class.
         /// </summary>
-        private Resource(CoyoteRuntime runtime)
+        internal Resource()
         {
-            this.Runtime = runtime;
+            this.Runtime = ControlledRuntime.Current;
             this.AwaitingOperations = new HashSet<AsyncOperation>();
         }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="Resource"/> struct.
-        /// </summary>
-        /// <returns>The resource instance.</returns>
-        public static Resource Create() => new Resource(CoyoteRuntime.Current);
 
         /// <summary>
         /// Notifies that the currently executing asynchronous operation is waiting
         /// for the resource to be released.
         /// </summary>
-        public void NotifyWait()
+        internal void NotifyWait()
         {
             var op = this.Runtime.GetExecutingOperation<AsyncOperation>();
             op.Status = AsyncOperationStatus.BlockedOnResource;
@@ -51,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Notifies all waiting asynchronous operations waiting on this resource,
         /// that the resource has been released.
         /// </summary>
-        public void NotifyRelease()
+        internal void NotifyRelease()
         {
             foreach (var op in this.AwaitingOperations)
             {

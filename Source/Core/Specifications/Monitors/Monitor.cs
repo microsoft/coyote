@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Utilities;
-using EventInfo = Microsoft.Coyote.Runtime.EventInfo;
+using EventInfo = Microsoft.Coyote.Actors.EventInfo;
 
 namespace Microsoft.Coyote.Specifications
 {

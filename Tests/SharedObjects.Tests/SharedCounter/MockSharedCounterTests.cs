@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedCounter1()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M1));
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedCounter2()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2), new SetupEvent(0));
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedCounter3()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2), new SetupEvent(1));
@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedCounter4()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2), new SetupEvent(2));
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedCounter5()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2), new SetupEvent(3));
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedCounter6()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M3));

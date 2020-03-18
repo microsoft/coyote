@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(entry.Value == task.Id, "Unexpected task id.");
                 Specification.Assert(entry.Value != task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(task.Result == task.Id, "Unexpected task id.");
                 Specification.Assert(task.Result != task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(entry.Value != task.Id, "Unexpected task id.");
                 Specification.Assert(entry.Value == task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(task.Result != task.Id, "Unexpected task id.");
                 Specification.Assert(task.Result == task.Id, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }

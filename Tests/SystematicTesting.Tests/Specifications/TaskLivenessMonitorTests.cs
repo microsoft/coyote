@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
                 await WriteAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
                 await WriteWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     Specification.Monitor<LivenessMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     Specification.Monitor<LivenessMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     Specification.Monitor<LivenessMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     });
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
                 await WriteAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
                 await WriteWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 {
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     await Task.CompletedTask;
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     await Task.Delay(1);
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     });
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "LivenessMonitor detected liveness bug in hot state 'Init' at the end of program execution.",
             replay: true);
         }

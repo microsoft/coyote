@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 var id = r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(5));
+            configuration: GetConfiguration().WithTestingIterations(5));
         }
     }
 }

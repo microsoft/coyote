@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             var configuration = GetConfiguration();
             configuration.LivenessTemperatureThreshold = 200;
-            configuration.SchedulingIterations = 1;
+            configuration.TestingIterations = 1;
 
             this.TestWithError(r =>
             {

@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 r.RegisterMonitor(typeof(WatchDog));
                 r.CreateActor(typeof(EventHandler));
             },
-            configuration: Configuration.Create().WithStrategy("dfs"));
+            configuration: Configuration.Create().WithDFSStrategy());
         }
     }
 }

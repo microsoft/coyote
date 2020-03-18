@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedRegister1()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M1), new Setup(true));
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedRegister2()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M1), new Setup(false));
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedRegister3()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2), new Setup(true));
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedRegister4()
         {
-            var config = Configuration.Create().WithNumberOfIterations(100);
+            var config = Configuration.Create().WithTestingIterations(100);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2), new Setup(false));

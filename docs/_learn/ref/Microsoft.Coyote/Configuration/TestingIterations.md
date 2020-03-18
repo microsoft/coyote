@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: IsDgmlBugGraph
-permalink: /learn/ref/Microsoft.Coyote/Configuration/IsDgmlBugGraph
+title: TestingIterations
+permalink: /learn/ref/Microsoft.Coyote/Configuration/TestingIterations
 ---
-# Configuration.IsDgmlBugGraph field
+# Configuration.TestingIterations property
 
-Is DGML graph showing all test iterations or just one "bug" iteration. False means all, and True means only the iteration containing a bug.
+Number of testing iterations.
 
 ```csharp
-public bool IsDgmlBugGraph;
+public int TestingIterations { get; }
 ```
 
 ## See Also

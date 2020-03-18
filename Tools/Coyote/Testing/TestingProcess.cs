@@ -149,9 +149,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 TestingPortfolio.ConfigureStrategyForCurrentProcess(configuration);
             }
 
-            if (configuration.RandomValueGeneratorSeed.HasValue)
+            if (configuration.RandomGeneratorSeed.HasValue)
             {
-                configuration.RandomValueGeneratorSeed = configuration.RandomValueGeneratorSeed.Value +
+                configuration.RandomGeneratorSeed = configuration.RandomGeneratorSeed.Value +
                     (673 * configuration.TestingProcessId);
             }
 

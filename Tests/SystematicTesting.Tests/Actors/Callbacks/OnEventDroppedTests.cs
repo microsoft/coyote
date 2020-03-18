@@ -244,7 +244,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(A3a), new E(m));
                 r.CreateActor(typeof(A3b), new E(m));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200));
+            configuration: Configuration.Create().WithTestingIterations(200));
         }
 
         private class M3a : StateMachine
@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(M3a), new E(m));
                 r.CreateActor(typeof(M3b), new E(m));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200));
+            configuration: Configuration.Create().WithTestingIterations(200));
         }
     }
 }

@@ -4,12 +4,12 @@ section: learn
 title: MaxFairSchedulingSteps
 permalink: /learn/ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps
 ---
-# Configuration.MaxFairSchedulingSteps field
+# Configuration.MaxFairSchedulingSteps property
 
 The maximum scheduling steps to explore for fair schedulers. By default there is no bound.
 
 ```csharp
-public int MaxFairSchedulingSteps;
+public int MaxFairSchedulingSteps { get; }
 ```
 
 ## See Also

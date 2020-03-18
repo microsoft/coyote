@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(M5), new E2(id));
                 r.CreateActor(id, typeof(M4));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100),
+            configuration: Configuration.Create().WithTestingIterations(100),
             expectedError: "Cannot send event 'Actors.UnitEvent' to actor id '' that is not bound to an actor instance.",
             replay: true);
         }

@@ -4,12 +4,12 @@ section: learn
 title: StrategyBound
 permalink: /learn/ref/Microsoft.Coyote/Configuration/StrategyBound
 ---
-# Configuration.StrategyBound field
+# Configuration.StrategyBound property
 
 A strategy-specific bound.
 
 ```csharp
-public int StrategyBound;
+public int StrategyBound { get; }
 ```
 
 ## See Also

@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
                 Specification.Assert(results[0] == results[1], "Results are not equal.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Results are not equal.",
             replay: true);
         }
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
                 Specification.Assert(results[0] == results[1], "Results are not equal.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Results are not equal.",
             replay: true);
         }
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
@@ -231,7 +231,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     "The second task exception is not of the expected type.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

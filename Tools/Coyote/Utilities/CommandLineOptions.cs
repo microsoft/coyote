@@ -44,13 +44,13 @@ namespace Microsoft.Coyote.Utilities
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));
-            testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(int));
+            testingGroup.AddArgument("liveness-temperature-threshold", null, "Specify the liveness temperature threshold is the liveness temperature value that triggers a liveness bug", typeof(uint));
             testingGroup.AddArgument("parallel", "p", "Number of parallel testing processes (the default '0' runs the test in-process)", typeof(uint));
             testingGroup.AddArgument("sch-random", null, "Choose the random scheduling strategy (this is the default)", typeof(bool));
+            testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
+                "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probability is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(uint));
             testingGroup.AddArgument("sch-pct", null, "Choose the PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
-            testingGroup.AddArgument("sch-probabilistic", "sp", "Choose the probabilistic scheduling strategy with given probability for each scheduling decision where the probability is " +
-                "specified as the integer N in the equation 0.5 to the power of N.  So for N=1, the probablity is 0.5, for N=2 the probability is 0.25, N=3 you get 0.125, etc.", typeof(int));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay and debug options");
@@ -147,7 +147,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.TestMethodName = (string)option.Value;
                     break;
                 case "seed":
-                    configuration.RandomValueGeneratorSeed = (uint)option.Value;
+                    configuration.RandomGeneratorSeed = (uint)option.Value;
                     break;
                 case "sch-random":
                 case "sch-dfs":
@@ -155,6 +155,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "sch-interactive":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     break;
+                case "sch-probabilistic":
                 case "sch-pct":
                 case "sch-fairpct":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
@@ -178,7 +179,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.AttachDebugger = true;
                     break;
                 case "iterations":
-                    configuration.SchedulingIterations = (int)(uint)option.Value;
+                    configuration.TestingIterations = (int)(uint)option.Value;
                     break;
                 case "parallel":
                     configuration.ParallelBugFindingTasks = (uint)option.Value;
@@ -307,7 +308,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.SafetyPrefixBound = (int)option.Value;
                     break;
                 case "liveness-temperature-threshold":
-                    configuration.LivenessTemperatureThreshold = (int)option.Value;
+                    configuration.LivenessTemperatureThreshold = (int)(uint)option.Value;
                     break;
                 default:
                     throw new Exception(string.Format("Unhandled parsed argument: '{0}'", option.LongName));

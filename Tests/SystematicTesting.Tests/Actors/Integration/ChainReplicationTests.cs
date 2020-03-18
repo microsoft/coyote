@@ -1520,8 +1520,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             configuration.SchedulingStrategy = "fairpct";
             configuration.StrategyBound = 1;
             configuration.MaxSchedulingSteps = 100;
-            configuration.RandomValueGeneratorSeed = seed;
-            configuration.SchedulingIterations = 1;
+            configuration.RandomGeneratorSeed = seed;
+            configuration.TestingIterations = 1;
 
             this.TestWithError(r =>
             {

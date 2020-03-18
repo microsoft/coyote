@@ -39,7 +39,7 @@ namespace Microsoft.Coyote
         /// </summary>
         internal RandomValueGenerator(Configuration configuration)
         {
-            this.RandomSeed = configuration.RandomValueGeneratorSeed ?? (uint)Guid.NewGuid().GetHashCode();
+            this.RandomSeed = configuration.RandomGeneratorSeed ?? (uint)Guid.NewGuid().GetHashCode();
             this.Random = new System.Random((int)this.RandomSeed);
         }
 

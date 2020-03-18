@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 r.CreateActor(typeof(M1A), new ExecuteSynchronouslySetupEvent(true));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(10),
+            configuration: Configuration.Create().WithTestingIterations(10),
             expectedError: "Deadlock detected. M1A() and M1B() are waiting to receive " +
                 "an event, but no other controlled tasks are enabled.",
             replay: true);
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 r.CreateActor(typeof(M2A));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200));
+            configuration: Configuration.Create().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 r.CreateActor(typeof(M2C));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(200),
+            configuration: Configuration.Create().WithTestingIterations(200),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }
@@ -256,7 +256,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 r.CreateActor(typeof(M3A));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100));
+            configuration: Configuration.Create().WithTestingIterations(100));
         }
 
         private class M4A : StateMachine
@@ -300,7 +300,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 r.CreateActor(typeof(M4A));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100));
+            configuration: Configuration.Create().WithTestingIterations(100));
         }
 
         private class M5A : StateMachine
@@ -385,7 +385,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 r.RegisterMonitor(typeof(M5SafetyMonitor));
                 r.CreateActor(typeof(M5A));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100));
+            configuration: Configuration.Create().WithTestingIterations(100));
         }
 
         private class HandleExceptionSetupEvent : Event
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 r.RegisterMonitor(typeof(M6SafetyMonitor));
                 r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(true));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100));
+            configuration: Configuration.Create().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]

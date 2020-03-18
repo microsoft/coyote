@@ -4,12 +4,12 @@ section: learn
 title: ReportActivityCoverage
 permalink: /learn/ref/Microsoft.Coyote/Configuration/ReportActivityCoverage
 ---
-# Configuration.ReportActivityCoverage field
+# Configuration.ReportActivityCoverage property
 
 Enables activity coverage reporting of a Coyote program.
 
 ```csharp
-public bool ReportActivityCoverage;
+public bool ReportActivityCoverage { get; }
 ```
 
 ## See Also

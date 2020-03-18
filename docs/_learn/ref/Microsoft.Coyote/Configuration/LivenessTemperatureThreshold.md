@@ -4,12 +4,12 @@ section: learn
 title: LivenessTemperatureThreshold
 permalink: /learn/ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
 ---
-# Configuration.LivenessTemperatureThreshold field
+# Configuration.LivenessTemperatureThreshold property
 
 The liveness temperature threshold. If it is 0 then it is disabled.
 
 ```csharp
-public int LivenessTemperatureThreshold;
+public int LivenessTemperatureThreshold { get; }
 ```
 
 ## See Also

@@ -4,12 +4,12 @@ section: learn
 title: MaxUnfairSchedulingSteps
 permalink: /learn/ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
 ---
-# Configuration.MaxUnfairSchedulingSteps field
+# Configuration.MaxUnfairSchedulingSteps property
 
 The maximum scheduling steps to explore for unfair schedulers. By default there is no bound.
 
 ```csharp
-public int MaxUnfairSchedulingSteps;
+public int MaxUnfairSchedulingSteps { get; }
 ```
 
 ## See Also

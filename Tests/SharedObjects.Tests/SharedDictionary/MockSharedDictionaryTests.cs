@@ -259,7 +259,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary1()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M1));
@@ -271,7 +271,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary2()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M2));
@@ -283,7 +283,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary3()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M3));
@@ -295,7 +295,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary4()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 r.CreateActor(typeof(M4));
@@ -307,7 +307,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary5()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary6()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);
@@ -333,7 +333,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         [Fact(Timeout = 5000)]
         public void TestMockSharedDictionary7()
         {
-            var config = Configuration.Create().WithNumberOfIterations(50);
+            var config = Configuration.Create().WithTestingIterations(50);
             var test = new Action<IActorRuntime>((r) =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);

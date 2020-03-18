@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         public void TestCreateActorIdFromName8()
         {
             var configuration = Configuration.Create();
-            configuration.SchedulingIterations = 100;
+            configuration.TestingIterations = 100;
 
             this.TestWithError(r =>
             {

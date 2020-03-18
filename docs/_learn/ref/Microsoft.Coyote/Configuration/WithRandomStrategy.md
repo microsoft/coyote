@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: SchedulingIterations
-permalink: /learn/ref/Microsoft.Coyote/Configuration/SchedulingIterations
+title: WithRandomStrategy
+permalink: /learn/ref/Microsoft.Coyote/Configuration/WithRandomStrategy
 ---
-# Configuration.SchedulingIterations field
+# Configuration.WithRandomStrategy method
 
-Number of scheduling iterations.
+Updates the configuration to use the random scheduling strategy during systematic testing.
 
 ```csharp
-public int SchedulingIterations;
+public Configuration WithRandomStrategy()
 ```
 
 ## See Also

@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (configuration.SchedulingStrategy is "interactive")
             {
-                configuration.SchedulingIterations = 1;
+                configuration.TestingIterations = 1;
                 configuration.PerformFullExploration = false;
                 configuration.IsVerbose = true;
                 this.Strategy = new InteractiveStrategy(configuration, this.Logger);
@@ -335,7 +335,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     this.TestMethodInfo.InitializeAllIterations();
 
-                    int maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.SchedulingIterations;
+                    int maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.TestingIterations;
                     for (int i = 0; i < maxIterations; i++)
                     {
                         if (this.CancellationTokenSource.IsCancellationRequested)
@@ -361,7 +361,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                         // Increases iterations if there is a specified timeout
                         // and the default iteration given.
-                        if (this.Configuration.SchedulingIterations == 1 &&
+                        if (this.Configuration.TestingIterations == 1 &&
                             this.Configuration.Timeout > 0)
                         {
                             maxIterations++;

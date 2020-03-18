@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 r.RegisterMonitor(typeof(Spec1));
                 r.CreateActor(typeof(M1<Spec1>));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"),
+            configuration: GetConfiguration().WithDFSStrategy(),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 r.RegisterMonitor(typeof(Spec2));
                 r.CreateActor(typeof(M2));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"));
+            configuration: GetConfiguration().WithDFSStrategy());
         }
 
         [Fact(Timeout = 5000)]
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 r.RegisterMonitor(typeof(Spec3));
                 r.CreateActor(typeof(M1<Spec3>));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"));
+            configuration: GetConfiguration().WithDFSStrategy());
         }
     }
 }

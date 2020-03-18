@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 r.CreateActor(typeof(M));
             };
 
-            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithStrategy("dfs"), test);
+            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithDFSStrategy(), test);
 
             try
             {
@@ -111,7 +111,7 @@ StateTransition
                 r.CreateActor(typeof(M));
             };
 
-            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithStrategy("dfs"), test);
+            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithDFSStrategy(), test);
 
             try
             {
@@ -164,7 +164,7 @@ StateTransition
                 r.CreateActor(typeof(M));
             };
 
-            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithStrategy("dfs"), test);
+            TestingEngine engine = TestingEngine.Create(GetConfiguration().WithDFSStrategy(), test);
 
             try
             {

@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
                 await WriteAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
                 await WriteWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     Specification.Monitor<SafetyMonitor>(new Notify());
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -136,7 +136,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                     });
                 });
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Reached test assertion.",
             replay: true);
         }

@@ -4,12 +4,12 @@ section: learn
 title: SchedulingStrategy
 permalink: /learn/ref/Microsoft.Coyote/Configuration/SchedulingStrategy
 ---
-# Configuration.SchedulingStrategy field
+# Configuration.SchedulingStrategy property
 
 The systematic testing strategy to use.
 
 ```csharp
-public string SchedulingStrategy;
+public string SchedulingStrategy { get; }
 ```
 
 ## See Also

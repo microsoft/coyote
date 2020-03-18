@@ -1113,7 +1113,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M21a));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"),
+            configuration: GetConfiguration().WithDFSStrategy(),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -1218,7 +1218,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M22a));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"),
+            configuration: GetConfiguration().WithDFSStrategy(),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -1315,7 +1315,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M23a));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"),
+            configuration: GetConfiguration().WithDFSStrategy(),
             expectedError: "Reached test assertion.",
             replay: true);
         }

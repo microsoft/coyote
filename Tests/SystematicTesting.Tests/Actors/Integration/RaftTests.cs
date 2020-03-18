@@ -1224,8 +1224,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             configuration.MaxUnfairSchedulingSteps = 100;
             configuration.MaxFairSchedulingSteps = 1000;
             configuration.LivenessTemperatureThreshold = 500;
-            configuration.RandomValueGeneratorSeed = seed;
-            configuration.SchedulingIterations = 1;
+            configuration.RandomGeneratorSeed = seed;
+            configuration.TestingIterations = 1;
 
             this.TestWithError(r =>
             {

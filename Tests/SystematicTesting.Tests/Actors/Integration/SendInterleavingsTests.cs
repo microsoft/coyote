@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(Receiver));
             },
-            configuration: GetConfiguration().WithStrategy("dfs").WithNumberOfIterations(600),
+            configuration: GetConfiguration().WithDFSStrategy().WithTestingIterations(600),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }

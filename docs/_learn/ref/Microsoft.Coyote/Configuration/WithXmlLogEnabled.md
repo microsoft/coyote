@@ -1,20 +1,20 @@
 ---
 layout: reference
 section: learn
-title: WithStrategy
-permalink: /learn/ref/Microsoft.Coyote/Configuration/WithStrategy
+title: WithXmlLogEnabled
+permalink: /learn/ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled
 ---
-# Configuration.WithStrategy method
+# Configuration.WithXmlLogEnabled method
 
-Updates the configuration with the specified systematic testing strategy.
+Updates the configuration with XML log generation enabled or disabled.
 
 ```csharp
-public Configuration WithStrategy(string strategyName)
+public Configuration WithXmlLogEnabled(bool isEnabled = true)
 ```
 
 | parameter | description |
 | --- | --- |
-| strategyName | The name of the strategy. |
+| isEnabled | If true, then enables XML log generation. |
 
 ## See Also
 

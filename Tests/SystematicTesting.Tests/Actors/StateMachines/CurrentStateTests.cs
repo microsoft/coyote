@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(Server));
             },
-            configuration: GetConfiguration().WithStrategy("dfs"));
+            configuration: GetConfiguration().WithDFSStrategy());
         }
     }
 }

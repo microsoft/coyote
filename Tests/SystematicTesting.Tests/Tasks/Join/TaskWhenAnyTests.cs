@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.IsCompleted, "No task has completed.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.IsCompleted, "No task has completed.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.IsCompleted, "No task has completed.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     "Found unexpected value.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     (result.Id == task2.Id && result.Result == 3),
                     "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     "Found unexpected value.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     (result.Id == task2.Id && result.Result == 3),
                     "Found unexpected value.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
             replay: true);
         }
@@ -234,7 +234,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     "The exception is not of the expected type.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

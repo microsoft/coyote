@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                         continue;
                     }
 
-                    this.Configuration.SchedulingIterations++;
+                    this.Configuration.TestingIterations++;
                     this.PrepareForNextIteration();
                     return false;
                 }
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 }
                 else if (input.Equals("reset"))
                 {
-                    this.Configuration.SchedulingIterations++;
+                    this.Configuration.TestingIterations++;
                     this.Reset();
                     return false;
                 }
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                         continue;
                     }
 
-                    this.Configuration.SchedulingIterations++;
+                    this.Configuration.TestingIterations++;
                     this.PrepareForNextIteration();
                     return false;
                 }
@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 }
                 else if (input.Equals("reset"))
                 {
-                    this.Configuration.SchedulingIterations++;
+                    this.Configuration.TestingIterations++;
                     this.Reset();
                     return false;
                 }
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                         continue;
                     }
 
-                    this.Configuration.SchedulingIterations++;
+                    this.Configuration.TestingIterations++;
                     this.PrepareForNextIteration();
                     return false;
                 }
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 }
                 else if (input.Equals("reset"))
                 {
-                    this.Configuration.SchedulingIterations++;
+                    this.Configuration.TestingIterations++;
                     this.Reset();
                     return false;
                 }

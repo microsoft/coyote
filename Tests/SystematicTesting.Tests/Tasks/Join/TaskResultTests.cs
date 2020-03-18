@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result == 7, "Result is {0} instead of 7.", result);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result == 7, "Result is {0} instead of 7.", result);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result == 7, "Result is {0} instead of 7.", result);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result == 7, "Result is {0} instead of 7.", result);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

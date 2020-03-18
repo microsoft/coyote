@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(ServerActor1));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100));
+            configuration: GetConfiguration().WithTestingIterations(100));
         }
 
         [OnEventDoAction(typeof(Pong), nameof(IgnorePongEvent))]
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(ServerActor2));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientActor() is waiting to " +
                 "receive an event, but no other controlled tasks are enabled.",
             replay: true);
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(ServerActor2));
                 r.CreateActor(typeof(ServerActor2));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientActor() and ClientActor() are " +
                 "waiting to receive an event, but no other controlled tasks are enabled.",
             replay: true);
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(ServerActor2));
                 r.CreateActor(typeof(ServerActor2));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientActor(), ClientActor() and " +
                 "ClientActor() are waiting to receive an event, but no other " +
                 "controlled tasks are enabled.",
@@ -287,7 +287,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(ServerStateMachine1));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100));
+            configuration: GetConfiguration().WithTestingIterations(100));
         }
 
         private class ServerStateMachine2 : StateMachine
@@ -327,7 +327,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(ServerStateMachine2));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientStateMachine() is waiting " +
                 "to receive an event, but no other controlled tasks are enabled.",
             replay: true);
@@ -341,7 +341,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(ServerStateMachine2));
                 r.CreateActor(typeof(ServerStateMachine2));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientStateMachine() and ClientStateMachine() " +
                 "are waiting to receive an event, but no other controlled tasks are enabled.",
             replay: true);
@@ -356,7 +356,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(typeof(ServerStateMachine2));
                 r.CreateActor(typeof(ServerStateMachine2));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Deadlock detected. ClientStateMachine(), ClientStateMachine() " +
                 "and ClientStateMachine() are waiting to receive an event, but no other " +
                 "controlled tasks are enabled.",

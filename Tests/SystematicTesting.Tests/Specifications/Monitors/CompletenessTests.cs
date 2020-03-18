@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 r.CreateActor(typeof(M2));
                 r.CreateActor(typeof(M1));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100),
+            configuration: Configuration.Create().WithTestingIterations(100),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
                 r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(M2));
             },
-            configuration: Configuration.Create().WithNumberOfIterations(100),
+            configuration: Configuration.Create().WithTestingIterations(100),
             expectedError: "Detected an assertion failure.",
             replay: true);
         }

@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: RandomValueGeneratorSeed
-permalink: /learn/ref/Microsoft.Coyote/Configuration/RandomValueGeneratorSeed
+title: RandomGeneratorSeed
+permalink: /learn/ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed
 ---
-# Configuration.RandomValueGeneratorSeed field
+# Configuration.RandomGeneratorSeed property
 
 Custom seed to be used by the random value generator. By default, this value is null indicating that no seed has been set.
 
 ```csharp
-public uint? RandomValueGeneratorSeed;
+public uint? RandomGeneratorSeed { get; }
 ```
 
 ## See Also

@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is '' instead of 5.",
             replay: true);
         }
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
     }
 }

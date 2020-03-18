@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
                     "Both task have completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Both task have completed.",
             replay: true);
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
                     "Both task have completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Both task have completed.",
             replay: true);
         }
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
             replay: true);
         }

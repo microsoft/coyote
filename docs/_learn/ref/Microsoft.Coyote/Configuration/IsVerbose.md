@@ -4,12 +4,12 @@ section: learn
 title: IsVerbose
 permalink: /learn/ref/Microsoft.Coyote/Configuration/IsVerbose
 ---
-# Configuration.IsVerbose field
+# Configuration.IsVerbose property
 
 If true, then messages are logged.
 
 ```csharp
-public bool IsVerbose;
+public bool IsVerbose { get; }
 ```
 
 ## See Also

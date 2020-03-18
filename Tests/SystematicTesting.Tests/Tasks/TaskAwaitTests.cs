@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await WriteAsync(entry, 5);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await WriteAsync(entry, 3);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await WriteWithDelayAsync(entry, 5);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await WriteWithDelayAsync(entry, 3);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await NestedWriteAsync(entry, 5);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await NestedWriteAsync(entry, 3);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await NestedWriteWithDelayAsync(entry, 5);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await NestedWriteWithDelayAsync(entry, 3);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await GetWriteResultAsync(entry, 5);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await GetWriteResultAsync(entry, 3);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -193,7 +193,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await GetWriteResultWithDelayAsync(entry, 5);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await GetWriteResultWithDelayAsync(entry, 3);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -231,7 +231,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await NestedGetWriteResultAsync(entry, 5);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -243,7 +243,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await NestedGetWriteResultAsync(entry, 3);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -257,7 +257,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await NestedGetWriteResultWithDelayAsync(entry, 5);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -269,7 +269,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 int value = await NestedGetWriteResultWithDelayAsync(entry, 3);
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

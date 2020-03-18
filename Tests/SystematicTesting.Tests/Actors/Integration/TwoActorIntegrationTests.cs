@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M1a));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M2a));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -295,7 +295,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M3a));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M4a));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M5a));
             },
-            configuration: GetConfiguration().WithNumberOfIterations(100),
+            configuration: GetConfiguration().WithTestingIterations(100),
             expectedError: "Reached test assertion.",
             replay: true);
         }

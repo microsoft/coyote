@@ -1,20 +1,20 @@
 ---
 layout: reference
 section: learn
-title: WithNumberOfIterations
-permalink: /learn/ref/Microsoft.Coyote/Configuration/WithNumberOfIterations
+title: WithRandomGeneratorSeed
+permalink: /learn/ref/Microsoft.Coyote/Configuration/WithRandomGeneratorSeed
 ---
-# Configuration.WithNumberOfIterations method
+# Configuration.WithRandomGeneratorSeed method
 
-Updates the configuration with the specified number of iterations to perform.
+Updates the seed used by the random value generator during systematic testing.
 
 ```csharp
-public Configuration WithNumberOfIterations(int iterations)
+public Configuration WithRandomGeneratorSeed(uint seed)
 ```
 
 | parameter | description |
 | --- | --- |
-| iterations | The number of iterations to perform. |
+| seed | The seed used by the random value generator. |
 
 ## See Also
 

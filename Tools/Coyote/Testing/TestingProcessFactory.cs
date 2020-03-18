@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--method {configuration.TestMethodName} ");
             }
 
-            arguments.Append($"--iterations {configuration.SchedulingIterations} ");
+            arguments.Append($"--iterations {configuration.TestingIterations} ");
             arguments.Append($"--timeout {configuration.Timeout} ");
 
             if (configuration.UserExplicitlySetMaxFairSchedulingSteps)
@@ -79,9 +79,9 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
             }
 
-            if (configuration.RandomValueGeneratorSeed.HasValue)
+            if (configuration.RandomGeneratorSeed.HasValue)
             {
-                arguments.Append($"--seed {configuration.RandomValueGeneratorSeed.Value} ");
+                arguments.Append($"--seed {configuration.RandomGeneratorSeed.Value} ");
             }
 
             if (configuration.PerformFullExploration)

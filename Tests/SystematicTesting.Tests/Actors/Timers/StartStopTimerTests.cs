@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             var configuration = GetConfiguration();
             configuration.LivenessTemperatureThreshold = 150;
             configuration.MaxSchedulingSteps = 300;
-            configuration.SchedulingIterations = 1000;
+            configuration.TestingIterations = 1000;
 
             this.TestWithError(r =>
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             var configuration = GetConfiguration();
             configuration.LivenessTemperatureThreshold = 150;
             configuration.MaxSchedulingSteps = 300;
-            configuration.SchedulingIterations = 1000;
+            configuration.TestingIterations = 1000;
 
             this.TestWithError(r =>
             {

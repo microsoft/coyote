@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await CallAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency ().",
             replay: true);
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await CallAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency ().",
             replay: true);
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await NestedCallAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedErrors: new string[]
                 {
                     "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await NestedCallAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency ().",
             replay: true);
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await GetWriteResultWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency ().",
             replay: true);
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await GetWriteResultWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
                 "Please make sure to use Coyote APIs to express concurrency ().",
             replay: true);
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await NestedGetWriteResultWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedErrors: new string[]
                 {
                     "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await NestedGetWriteResultWithDelayAsync();
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedErrors: new string[]
                 {
                     "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +

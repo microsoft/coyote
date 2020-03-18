@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value == 2, "Value is '{0}' instead of 2.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value == 2, "Value is {0} instead of 2.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 1 instead of 2.",
             replay: true);
         }
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await task;
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await task;
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value != 3, "Value is 3.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value != 3, "Value is 3.");
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3.",
             replay: true);
         }
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -239,7 +239,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await InvokeParallelWriteWithDelayAsync(entry, 0);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
@@ -294,7 +294,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await InvokeParallelWriteWithDelayAsync(entry, 1);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
-            configuration: GetConfiguration().WithNumberOfIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

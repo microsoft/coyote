@@ -5,6 +5,8 @@
   {% include head.html %}
   {% seo %}
 </head>
+{% include scripts.html %}
+{% include awa.html %}
 
 <body class="{{ page.title | downcase | slugify }}{% if page.body-class %}{{page.body-class}}{% endif %} ">
   {% include navigation.html %}
@@ -15,7 +17,6 @@
       {% include footer.html %}
     </section>
   </main>
-  {% include scripts.html %}
 </body>
 
 </html>

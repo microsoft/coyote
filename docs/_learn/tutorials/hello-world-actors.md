@@ -80,7 +80,7 @@ Greeting in English             : Hello World!
 Greeting in German              : Hallo Welt!
 Greeting in Finnish             : Hei maailma!
 Greeting in English             : Hello World!
-Exception of type Microsoft.Coyote.Runtime.AssertionFailureException { ... Exception text here }
+Exception of type Microsoft.Coyote.AssertionFailureException { ... Exception text here }
 ```
 
 ## How to reproduce the bug
@@ -94,7 +94,7 @@ get this exception:
 Greeting in English             : Hello World!
 Greeting in Mongolian           : Сайн уу дэлхий!
 Greeting in English             : Hello World!
-Exception of type Microsoft.Coyote.Runtime.AssertionFailureException: Message: The starting Greeting in English was duplicated but this should never happen.
+Exception of type Microsoft.Coyote.AssertionFailureException: Message: The starting Greeting in English was duplicated but this should never happen.
 ```
 
 Although this is one of the simplest programs you can write with Actors, you may need to perform

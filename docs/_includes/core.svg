@@ -1,0 +1,508 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,1222,1032" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <image id="CodeSchema_Assembly" width="15" height="15" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAACZSURBVDhPpZHrDcMgEIMBdQj+dhQYg/1gC1ilWQRazjJV1SQNST8J3VnCZx5affHssD1k0+y9p9qnlMKuI6ZZnHOo72QRs4myD8kYMclIHPUm007fkRjWSyB5sDX916n+Sr5kzjkv/b2WU2ZrLaox5o4FRWqtq/VJjBGJlErLf81+le5QAphDCJT7pJTW5tbag/0hck+2HaVeRi+y+Nr6zuYAAAAASUVORK5CYII=" />
+    <image id="CodeSchema_Namespace" width="12" height="12" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAEOSURBVChTjZKxaoRAEIbHsznBMo/gY6QRrATfQDDFiSnvHa5IaZlGxCadjSAYSCXanV0CVyhckTyHk/k3e0suae6Hwd9v5nd3VYKYebuu65PUu3hWUAQv7CSVi3U1JhKwa5qGkyTBzFUgjmOuqgrBg8Yq8BaGIXdd9y8wTRMHQYDArPFPw/d9XMzwRX97G0nul2Uh13XR/FJTvyTs1fM8GscRO8nNE8qyhH3Qc0bC7tu2NatsNL9d2NI8zxxFEQ72qbGRsC5NUx6GAf1cQSx186E1/HAch+q6VgNgEHzf92TbNrx6ISpgWdZLlmUkh8PtlYqiIPl4sJUCF8n+HqWOUmeNwM5S+DWeZYU7IqJvNbTwkVne5JcAAAAASUVORK5CYII=" />
+    <image id="CodeSchema_Class" width="16" height="16" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAFUSURBVDhPY0AH////5/n3799hIL4OZEtAhYkDMM2Pj876f29H03+SDEHWfLBGEozvbqsjaAgTiABpBuLtT4/Psbm3vR4sAQJPjs1muL+jQQMotx9mCFQt3EAmqACGZmwAphaI4QYyAp14HKjZAptmGatUBiXPRigPAkCu+vXxCYOiR8MNRkZGR7wG4AMgw0GGMAFNcZW2TDmCbBNI0q75GRiDAIhGdwkMgAz4AsSeMENgJgPlJCFKMAFMDcgLUCFENCJHG5AGRycMwNIHFDiA1ICjEQRgLgGZCsQvoMJg8OPDYzAW0fJg+P/vDwMovIAGLAdiDUaoGqwAZM2pPnMoD2jQ+8dQFtwbL+AuwAaA+h+YFp54Y1Z0kkFE0wMqCgFs/DIg6gNeA5iYmBSB3lEEGnQEqgEMQIENDHTUQMQHgAbA8wkIIwc00QBqyHYgPo7QzMAAAIfcGSkfjgnSAAAAAElFTkSuQmCC" />
+    <image id="CodeSchema_Struct" width="14" height="11" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAALCAYAAABPhbxiAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAABWSURBVChTY/wPBAxkALBGxuA5UC5x4P/aFAYmKJtkQLZGsv2I00ZGKIByMQDWwAF5HqYJlzz9AwesUUGMFwWjA2zyjP/+/bsPZqEBJiYmRRCNXZ6BAQAwdyb7wEYwRwAAAABJRU5ErkJggg==" />
+    <image id="CodeSchema_Interface" width="16" height="9" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAFxSURBVChTYyAE/v//zwLECf/+/dsPxPeBeDcQ54DEQfKMUEU8QMoFxAaCA4yMjB9ADKjm5WfvvQmpXX6W4cbTjwwywtwM5QF6DN7GsiB1roxABRpAvP3k7dcKX378ZrDXknjBysLsCJS8ARRPOHHr1XzXxu0MIDlksLrEmSHEUrGRAeiczTXLzvxnCJoNxiHde4D6EMClYRtYfPrOa/+///rzf/OZR2C+StbK/0C91xlB/tIrWqdw5dF7qNnYwbflCQycbCxAbzEwMIXMAYv9X5vCwASkr3gYyoIFQADoLLAEDLvoSYPFN5x6CHTtf4aD156D+QpivKAwugELg8M7LzwVefPpB0OwpcJLoE0OoDAAuq7g6I2X/Y712xj+/P0H1ggD83PsGOIdVDvAHKABAkCcAMUiYEEgALI5gIYc3n/l2X+b6s3/eaIW/NcpWPN//r6bIP+fBslDleIGQEU8IJcA8Xkg/gzVWAHEwHTAwAAAzqT6wt3Hgl4AAAAASUVORK5CYII=" />
+    <image id="CodeSchema_Delegate" width="11" height="11" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAACpSURBVChTY2SAgv9AAGViAEYgANNgHhCAFKfqToDyEGD25QK4YjgAKU7R6QdRcADjQ5UwMCJzCAGw4vbolQz3Lj2HCmECCUUhhuZNcQxMIE5GnxdDZJUDAzsXK1gS5E4QYGJmYvDNtGAomRcM5oPdmmc57f/RDVdBTAxw8cDd/6XOs8FssDPQQwFkMjYxsDPQAbYgBAGwYhFpPoIYBBj//ft3H8wiCBgYAGM+cBJqjCLwAAAAAElFTkSuQmCC" />
+    <image id="CodeSchema_Enum" width="12" height="11" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA6cAfpM6f8AAAC+SURBVChTY0AH////5/n3799hII0CgGLXgZQEI1QdHIAUPz0+x+be9nqoCAQoeTYySFum3IByEQBk2sEaSRCFAmBiGDaABA/VSkF5qMCu+RlYgQTUfXgBzAYWIN4PdLMGuptlrFIZJExiGc5MsoPzgWpvEHQzDMBDCcTB52ZGIIByIQCkAZ8NUGVwwAgL92cn5kCFIEBU24dBwa3mBhMTkyZUCAxATuIB4tVAtgZECA5eAF0TCMQvoHwgYGAAAOj46+500e/PAAAAAElFTkSuQmCC" />
+  </defs>
+  <rect width="1222.4066840885112" height="1032.5318138249754" fill="#FFFFFF" />
+  <g transform="translate(395.284246258027,244.775362428083)">
+    <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll)">
+      <rect x="-375.284246258027" y="-224.77536242808253" rx="5" ry="5" width="1182.4066840885112" height="992.53181382497542" fill="#094167" stroke="#094167" stroke-width="1" />
+      <use x="152.715753741973" y="-219.77536242808253" xlink:href="#CodeSchema_Assembly" />
+      <text x="172.715753741973" y="-206.82536242808254" fill="#FFFFFF">Microsoft.Coyote.dll</text>
+      <rect x="-370.284246258027" y="-196.81536242808252" width="1172.4066840885112" height="959.57181382497538" fill="#FFFFFF" stroke="#094167" stroke-width="1" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)">
+        <path d="M -153.85645518965,211.258309384006 L -143.659151036453,183.667324046604" stroke-dasharray="2,2" fill="none" stroke="#00A600" stroke-width="4.1699250014423122" />
+        <path d="M -140.539128650704,175.225436798339 L -147.837463839811,183.189181024501 C -144.936365586248,183.19528054856 -142.381936486657,184.139367544649 -140.174176541038,186.021442012767 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)">
+        <path d="M -44.8259129246934,328.517077484449 L -7.06950442339155,326.634115929725" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="3.2617809780285065" />
+        <path d="M 1.91932424680682,326.185831268132 L -8.26750079189947,322.688890372037 C -7.1359169658498,325.302437608215 -7.00309188093329,327.965794251236 -7.86902553714994,330.678960301102 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Random)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks)">
+        <path d="M 516.052349096249,217.961181722191 L 515.535722507424,194.60810797441" stroke-dasharray="2,2" fill="none" stroke="#00A600" stroke-width="4.2214717479243644" />
+        <path d="M 515.336669397903,185.610309473688 L 511.448109176971,195.698780558727 C 514.165812393216,194.638413706193 516.905632621631,194.577802242628 519.667569862215,195.516946168031 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)">
+        <path d="M 49.9205974044005,175.225436798339 L 76.58112374199,213.946860599854" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="5.019459494646151" />
+        <path d="M 81.6850229600037,221.359701672773 L 79.7461152349188,210.591389016238 C 77.8192685530537,213.094371483898 75.3429789309262,214.79934971581 72.3172463685361,215.706323711975 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)">
+        <path d="M 121.087451661601,473.131288918707 L 129.699296179545,425.218155625585" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="1.792481250360578" />
+        <path d="M 131.291431184462,416.360102446352 L 125.585479766006,425.49476819887 C 128.386992004844,424.982283773004 131.011600354246,425.454027478165 133.459304814213,426.909999314351 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.UnitTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.UnitTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.UnitTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.UnitTesting)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)" />
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage)">
+        <rect x="-355.284246258027" y="211.25830938400608" rx="5" ry="5" width="310.4583333333336" height="250.00050000000013" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="-280.284246258027" y="217.25830938400608" xlink:href="#CodeSchema_Namespace" />
+        <text x="-263.284246258027" y="229.20830938400607" fill="#FFFFFF">Microsoft‎.Coyote‎.Coverage</text>
+        <rect x="-350.284246258027" y="239.21830938400609" width="300.4583333333336" height="217.04050000000012" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=CoverageInfo)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=EventCoverage)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=CoverageInfo)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=Graph)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=Graph)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphLink)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=Graph)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphNode)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=Graph)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphObject)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphLink)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphNode)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphLink)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphObject)">
+          <path d="M -244.087276561154,276.258562867256 L -171.257700788882,303.141961759355" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="1.792481250360578" />
+          <path d="M -162.814549288248,306.258561125631 L -170.810673515147,299.043161112604 C -170.795982361035,301.891124491297 -171.719419216729,304.392799027414 -173.580984082228,306.548184720955 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphNode)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphObject)">
+          <path d="M -128.950912924537,276.258562867256 L -128.950912924537,297.258561648118" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="1.792481250360578" />
+          <path d="M -128.950912924537,306.258561125631 L -124.950912924537,296.258561125631 C -127.617579591204,297.258561648118 -130.28424625787,297.258561648118 -132.950912924537,296.258561125631 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=CoverageInfo)">
+          <rect x="-211.92757959136031" y="361.25860938400626" rx="5" ry="5" width="131.876666666667" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-191.92757959136031" y="366.25860938400626" xlink:href="#CodeSchema_Class" />
+          <text x="-170.92757959136031" y="379.20860938400625" fill="#FFFFFF">CoverageInfo</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=EventCoverage)">
+          <rect x="-335.284246258027" y="416.25870938400624" rx="5" ry="5" width="140.05666666666596" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-316.284246258027" y="421.25870938400624" xlink:href="#CodeSchema_Class" />
+          <text x="-295.284246258027" y="434.20870938400623" fill="#FFFFFF">EventCoverage</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=Graph)">
+          <rect x="-335.28424625802643" y="361.2585086104275" rx="5" ry="5" width="93.35666666666657" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-316.28424625802643" y="366.2585086104275" xlink:href="#CodeSchema_Class" />
+          <text x="-295.28424625802643" y="379.20850861042749" fill="#FFFFFF">Graph</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphLink)">
+          <rect x="-335.28424625802637" y="251.2584093840062" rx="5" ry="5" width="114.66666666666697" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-315.28424625802637" y="256.2584093840062" xlink:href="#CodeSchema_Class" />
+          <text x="-294.28424625802637" y="269.20840938400619" fill="#FFFFFF">GraphLink</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphNode)">
+          <rect x="-190.30424625802647" y="251.2584093840062" rx="5" ry="5" width="122.70666666666703" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-170.30424625802647" y="256.2584093840062" xlink:href="#CodeSchema_Class" />
+          <text x="-149.30424625802647" y="269.20840938400619" fill="#FFFFFF">GraphNode</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Coverage Type=GraphObject)">
+          <rect x="-193.07591292469294" y="306.25850938400617" rx="5" ry="5" width="128.25" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-173.07591292469294" y="311.25850938400617" xlink:href="#CodeSchema_Class" />
+          <text x="-152.07591292469294" y="324.20850938400616" fill="#FFFFFF">GraphObject</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO)">
+        <rect x="-339.013628717304" y="492.755450623309" rx="5" ry="5" width="192.646666666667" height="140.000300000004" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="-304.013628717304" y="498.755450623309" xlink:href="#CodeSchema_Namespace" />
+        <text x="-287.013628717304" y="510.705450623309" fill="#FFFFFF">Microsoft‎.Coyote‎.IO</text>
+        <rect x="-334.013628717304" y="520.715450623309" width="182.646666666667" height="107.04030000000398" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO Type=ConsoleLogger)">
+          <rect x="-319.013628717304" y="532.755550623309" rx="5" ry="5" width="140.82" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-300.013628717304" y="537.755550623309" xlink:href="#CodeSchema_Class" />
+          <text x="-279.013628717304" y="550.705550623309" fill="#FFFFFF">ConsoleLogger</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.IO Type=InMemoryLogger)">
+          <rect x="-319.013628717303" y="587.755650623314" rx="5" ry="5" width="152.646666666666" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-300.013628717303" y="592.755650623314" xlink:href="#CodeSchema_Class" />
+          <text x="-279.013628717303" y="605.705650623314" fill="#FFFFFF">InMemoryLogger</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Random)">
+        <rect x="-337.348588435157" y="662.755850623314" rx="5" ry="5" width="194.723333333333" height="85.0002" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="-318.348588435157" y="668.755850623314" xlink:href="#CodeSchema_Namespace" />
+        <text x="-301.348588435157" y="680.70585062331406" fill="#FFFFFF">Microsoft‎.Coyote‎.Random</text>
+        <rect x="-332.348588435157" y="690.715850623314" width="184.723333333333" height="52.040200000000006" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Random Type=Generator)">
+          <rect x="-297.050255101824" y="702.755950623314" rx="5" ry="5" width="114.126666666667" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-277.050255101824" y="707.755950623314" xlink:href="#CodeSchema_Class" />
+          <text x="-256.050255101824" y="720.705950623314" fill="#FFFFFF">Generator</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications)">
+        <rect x="455.926812508297" y="498.602308147037" rx="5" ry="5" width="222.57" height="140.000300000004" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="474.926812508297" y="504.602308147037" xlink:href="#CodeSchema_Namespace" />
+        <text x="491.926812508297" y="516.552308147037" fill="#FFFFFF">Microsoft‎.Coyote‎.Specifications</text>
+        <rect x="460.926812508297" y="526.562308147037" width="212.57" height="107.04030000000398" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications Type=Specification)">
+          <rect x="503.081812508296" y="593.602517383852" rx="5" ry="5" width="128.260000000002" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="523.081812508296" y="598.602517383852" xlink:href="#CodeSchema_Class" />
+          <text x="544.081812508296" y="611.55251738385209" fill="#FFFFFF">Specification</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Specifications Type=Monitor)">
+          <rect x="503.081812508298" y="538.602417383848" rx="5" ry="5" width="103.773333333335" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="523.08181250829807" y="543.602417383848" xlink:href="#CodeSchema_Class" />
+          <text x="544.08181250829807" y="556.552417383848" fill="#FFFFFF">Monitor</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting)">
+        <rect x="325.71265758014073" y="217.96118172219073" rx="5" ry="5" width="386.21000000000009" height="250.00050077357835" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="416.71265758014073" y="223.96118172219073" xlink:href="#CodeSchema_Namespace" />
+        <text x="433.71265758014073" y="235.91118172219072" fill="#FFFFFF">Microsoft‎.Coyote‎.SystematicTesting</text>
+        <rect x="330.71265758014073" y="245.92118172219074" width="376.21000000000009" height="217.04050077357834" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestingEngine)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestReport)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestAttribute)">
+          <rect x="345.712657580141" y="422.96158223790974" rx="5" ry="5" width="128.69333333333293" height="24.999999999999773" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="364.712657580141" y="427.96158223790974" xlink:href="#CodeSchema_Class" />
+          <text x="385.712657580141" y="440.91158223790973" fill="#FFFFFF">TestAttribute</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestDisposeAttribute)">
+          <rect x="521.36265758014122" y="312.96138172219071" rx="5" ry="5" width="170.55999999999995" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="540.36265758014122" y="317.96138172219071" xlink:href="#CodeSchema_Class" />
+          <text x="561.36265758014122" y="330.9113817221907" fill="#FFFFFF">TestDisposeAttribute</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestInitAttribute)">
+          <rect x="345.7126575801409" y="312.96138223790979" rx="5" ry="5" width="145.65000000000009" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="365.7126575801409" y="317.96138223790979" xlink:href="#CodeSchema_Class" />
+          <text x="386.7126575801409" y="330.91138223790978" fill="#FFFFFF">TestInitAttribute</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestIterationDisposeAttribute)">
+          <rect x="345.7126575801409" y="367.96148249576936" rx="5" ry="5" width="215.17000000000007" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="365.7126575801409" y="372.96148249576936" xlink:href="#CodeSchema_Class" />
+          <text x="386.7126575801409" y="385.91148249576935" fill="#FFFFFF">TestIterationDisposeAttribute</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestingEngine)">
+          <rect x="492.69265758013989" y="257.96128172219073" rx="5" ry="5" width="134.21666666666602" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="511.69265758013989" y="262.96128172219073" xlink:href="#CodeSchema_Class" />
+          <text x="532.69265758013989" y="275.91128172219072" fill="#FFFFFF">TestingEngine</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.SystematicTesting Type=TestReport)">
+          <rect x="345.71265758014067" y="257.9612822379097" rx="5" ry="5" width="116.97999999999905" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="364.71265758014067" y="262.9612822379097" xlink:href="#CodeSchema_Class" />
+          <text x="385.71265758014067" y="275.91128223790969" fill="#FFFFFF">TestReport</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks)">
+        <rect x="235.587966479686" y="-174.390135408268" rx="5" ry="5" width="551.533333355615" height="360.000889763913" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="442.587966479686" y="-168.390135408268" xlink:href="#CodeSchema_Namespace" />
+        <text x="459.587966479686" y="-156.44013540826802" fill="#FFFFFF">Microsoft‎.Coyote‎.Tasks</text>
+        <rect x="240.587966479686" y="-146.430135408268" width="541.533333355615" height="327.040889763913" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Semaphore)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Semaphore)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskExtensions)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskAwaiter)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=YieldAwaitable)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=AsyncTaskMethodBuilder GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskAwaiter GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=ConfiguredTaskAwaitable)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskExtensions)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskExtensions)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=AsyncTaskMethodBuilder GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=AsyncTaskMethodBuilder GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)">
+          <path d="M 324.472966490827,-109.389690526312 L 324.472966490827,-88.3896905263115" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="2.5" />
+          <path d="M 324.472966490827,-79.3896905263115 L 328.472966490827,-89.3896905263115 C 325.80629982416,-88.3896905263115 323.139633157494,-88.3896905263115 320.472966490827,-89.3896905263115 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=ConfiguredTaskAwaitable GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskAwaiter GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskCompletionSource GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskCompletionSource GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskExtensions)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskCompletionSource GenericParameterCount=1))-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=AsyncLock)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=AsyncLock)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=AsyncTaskMethodBuilder GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=AsyncLock)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=AsyncTaskMethodBuilder)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Semaphore)">
+          <rect x="423.357966501969" y="-79.3899169939132" rx="5" ry="5" width="121.416666666666" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="442.357966501969" y="-74.3899169939132" xlink:href="#CodeSchema_Class" />
+          <text x="463.357966501969" y="-61.4399169939132" fill="#FFFFFF">Semaphore</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=Task)">
+          <rect x="282.921299813019" y="-79.3897945162458" rx="5" ry="5" width="83.1033333333335" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="302.921299813019" y="-74.3897945162458" xlink:href="#CodeSchema_Class" />
+          <text x="323.921299813019" y="-61.4397945162458" fill="#FFFFFF">Task</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskAwaiter)">
+          <rect x="569.51796647969" y="-134.390035408268" rx="5" ry="5" width="120.813333333334" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="589.51796647969" y="-127.390035408268" xlink:href="#CodeSchema_Struct" />
+          <text x="608.51796647969" y="-116.440035408268" fill="#FFFFFF">TaskAwaiter</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=TaskExtensions)">
+          <rect x="255.587966479687" y="-24.3896945162458" rx="5" ry="5" width="138.726666666666" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="274.587966479687" y="-19.3896945162458" xlink:href="#CodeSchema_Class" />
+          <text x="295.587966479687" y="-6.4396945162457992" fill="#FFFFFF">TaskExtensions</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=YieldAwaitable)">
+          <rect x="574.774633168636" y="-79.3899354082674" rx="5" ry="5" width="136.393333333333" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="593.774633168636" y="-72.3899354082674" xlink:href="#CodeSchema_Struct" />
+          <text x="612.774633168636" y="-61.4399354082674" fill="#FFFFFF">YieldAwaitable</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=AsyncTaskMethodBuilder GenericParameterCount=1))">
+          <rect x="521.371299835301" y="85.6104201460324" rx="5" ry="5" width="245.75" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="541.371299835301" y="92.6104201460324" xlink:href="#CodeSchema_Struct" />
+          <text x="560.371299835301" y="103.5604201460324" fill="#FFFFFF">AsyncTaskMethodBuilder‎&lt;TResult‎&gt;</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=ConfiguredTaskAwaitable GenericParameterCount=1))">
+          <rect x="255.587966551879" y="140.610654355646" rx="5" ry="5" width="246.66" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="274.587966551879" y="147.610654355646" xlink:href="#CodeSchema_Struct" />
+          <text x="293.587966551879" y="158.560654355646" fill="#FFFFFF">ConfiguredTaskAwaitable‎&lt;TResult‎&gt;</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=Task GenericParameterCount=1))">
+          <rect x="255.587966479686" y="-134.389894516248" rx="5" ry="5" width="137.77" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="275.587966479686" y="-129.389894516248" xlink:href="#CodeSchema_Class" />
+          <text x="296.587966479686" y="-116.439894516248" fill="#FFFFFF">Task‎&lt;TResult‎&gt;</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskAwaiter GenericParameterCount=1))">
+          <rect x="424.314633146354" y="-24.3897798539714" rx="5" ry="5" width="175.48" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="443.314633146354" y="-17.3897798539714" xlink:href="#CodeSchema_Struct" />
+          <text x="462.314633146354" y="-6.4397798539714" fill="#FFFFFF">TaskAwaiter‎&lt;TResult‎&gt;</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=(Name=TaskCompletionSource GenericParameterCount=1))">
+          <rect x="255.587966501966" y="85.6105337391965" rx="5" ry="5" width="235.783333333333" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="274.587966501966" y="90.6105337391965" xlink:href="#CodeSchema_Class" />
+          <text x="295.587966501966" y="103.5605337391965" fill="#FFFFFF">TaskCompletionSource‎&lt;TResult‎&gt;</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=AsyncLock)">
+          <rect x="423.357966479688" y="-134.39001699392" rx="5" ry="5" width="116.160000000001" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="443.357966479688" y="-129.39001699392" xlink:href="#CodeSchema_Class" />
+          <text x="464.357966479688" y="-116.44001699392" fill="#FFFFFF">AsyncLock</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=AsyncTaskMethodBuilder)">
+          <rect x="255.587966501964" y="30.6104054837544" rx="5" ry="5" width="191.083333333334" height="24.9999999999999" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="275.587966501964" y="37.6104054837544" xlink:href="#CodeSchema_Struct" />
+          <text x="294.587966501964" y="48.5604054837544" fill="#FFFFFF">AsyncTaskMethodBuilder</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Tasks Type=ConfiguredTaskAwaitable)">
+          <rect x="476.671299835298" y="30.6103201460319" rx="5" ry="5" width="191.993333333334" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="496.671299835298" y="37.610320146031896" xlink:href="#CodeSchema_Struct" />
+          <text x="515.671299835298" y="48.5603201460319" fill="#FFFFFF">ConfiguredTaskAwaitable</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote)">
+        <rect x="1.9193242468068377" y="221.35970167277321" rx="5" ry="5" width="293.7933333333342" height="195.00040077357858" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="94.919324246806838" y="227.35970167277321" xlink:href="#CodeSchema_Namespace" />
+        <text x="111.91932424680684" y="239.3097016727732" fill="#FFFFFF">Microsoft‎.Coyote</text>
+        <rect x="6.9193242468068377" y="249.31970167277322" width="283.7933333333342" height="162.04040077357857" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote Type=ExecutionCanceledException)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote Type=RuntimeException)">
+          <path d="M 127.729324246745,286.359901930436 L 127.729324246745,307.359902013872" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="1.5" />
+          <path d="M 127.729324246745,316.35990204963 L 131.729324246745,306.35990204963 C 129.062657580078,307.359902013872 126.395990913412,307.359902013872 123.729324246745,306.35990204963 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote Type=RuntimeException)">
+          <rect x="49.435990913473361" y="316.35990167277328" rx="5" ry="5" width="156.58666666666699" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="69.435990913473361" y="321.35990167277328" xlink:href="#CodeSchema_Class" />
+          <text x="90.435990913473361" y="334.30990167277326" fill="#FFFFFF">RuntimeException</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote Type=Configuration)">
+          <rect x="141.86932424680705" y="371.36000205956259" rx="5" ry="5" width="133.84333333333402" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="161.86932424680705" y="376.36000205956259" xlink:href="#CodeSchema_Class" />
+          <text x="182.86932424680705" y="389.31000205956258" fill="#FFFFFF">Configuration</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote Type=Event)">
+          <rect x="21.919324246807008" y="371.36000167277325" rx="5" ry="5" width="89.9500000000001" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="41.919324246807008" y="376.36000167277325" xlink:href="#CodeSchema_Class" />
+          <text x="62.919324246807008" y="389.31000167277324" fill="#FFFFFF">Event</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote Type=ExecutionCanceledException)">
+          <rect x="21.919324246806866" y="261.35980205956264" rx="5" ry="5" width="211.62" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="41.919324246806866" y="266.35980205956264" xlink:href="#CodeSchema_Class" />
+          <text x="62.919324246806866" y="279.30980205956263" fill="#FFFFFF">ExecutionCanceledException</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors)">
+        <rect x="-353.616575914665" y="-184.777237611774" rx="5" ry="5" width="559.206666701303" height="360.005348820226" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="-146.61657591466502" y="-178.777237611774" xlink:href="#CodeSchema_Namespace" />
+        <text x="-129.61657591466502" y="-166.82723761177402" fill="#FFFFFF">Microsoft‎.Coyote‎.Actors</text>
+        <rect x="-348.616575914665" y="-156.817237611774" width="549.206666701303" height="327.045348820226" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=RuntimeFactory)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=StateMachine)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=UnhandledEventException)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=StateMachine)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)">
+          <path d="M -267.26990923068,-119.774563201661 L -267.26990923068,-98.774563201661" stroke-dasharray="2,0" fill="none" stroke="#00A600" stroke-width="4.3146783100398043" />
+          <path d="M -267.26990923068,-89.774563201661 L -263.11257007566,-99.774563201661 C -265.88412951234,-98.774563201661 -268.65568894902,-98.774563201661 -271.4272483857,-99.774563201661 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=StateMachine)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=SendOptions)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=StateMachine)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=UnhandledEventException)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnExceptionOutcome)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorRuntimeLogTextFormatter)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorRuntimeLogTextFormatter)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntimeLog)">
+          <path d="M -57.5732425640139,-119.774563201661 L -57.5732425640139,-98.774563201661" stroke-dasharray="2,2" fill="none" stroke="#00A600" stroke-width="1" />
+          <path d="M -57.5732425640139,-89.774563201661 L -53.5732425640139,-99.774563201661 C -56.2399092306805,-98.774563201661 -58.9065758973472,-98.774563201661 -61.5732425640139,-99.774563201661 z" fill="#00A600" stroke="#00A600" stroke-width="1" stroke-linejoin="round" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=SendOptions)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntimeLog)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnEventDroppedHandler)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnFailureHandler)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntimeLog)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnEventDroppedHandler)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=RuntimeFactory)">
+          <rect x="2.29009080312221" y="20.2272463816189" rx="5" ry="5" width="143.52" height="25.0000000000001" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="22.290090803122212" y="25.2272463816189" xlink:href="#CodeSchema_Class" />
+          <text x="43.290090803122212" y="38.1772463816189" fill="#FFFFFF">RuntimeFactory</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=SendOptions)">
+          <rect x="-33.7999091968778" y="-34.7729261933367" rx="5" ry="5" width="129.493333333333" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-14.799909196877799" y="-29.7729261933367" xlink:href="#CodeSchema_Class" />
+          <text x="6.2000908031222011" y="-16.8229261933367" fill="#FFFFFF">SendOptions</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=StateMachine)">
+          <rect x="-333.616575890816" y="-144.773239735587" rx="5" ry="5" width="132.693333333333" height="25.0000000000001" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-314.616575890816" y="-139.773239735587" xlink:href="#CodeSchema_Class" />
+          <text x="-293.616575890816" y="-126.823239735587" fill="#FFFFFF">StateMachine</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=UnhandledEventException)">
+          <rect x="-113.92324258133" y="130.228011208453" rx="5" ry="5" width="199.23" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-94.92324258133" y="135.228011208453" xlink:href="#CodeSchema_Class" />
+          <text x="-73.92324258133" y="148.178011208453" fill="#FFFFFF">UnhandledEventException</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=WildCardEvent)">
+          <rect x="-166.526575863546" y="20.2271738066634" rx="5" ry="5" width="138.816666666667" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-146.526575863546" y="25.2271738066634" xlink:href="#CodeSchema_Class" />
+          <text x="-125.52657586354599" y="38.177173806663404" fill="#FFFFFF">WildCardEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=Actor)">
+          <rect x="-312.046575870809" y="-89.7730456208797" rx="5" ry="5" width="89.5533333333333" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-293.046575870809" y="-84.7730456208797" xlink:href="#CodeSchema_Class" />
+          <text x="-272.046575870809" y="-71.8230456208797" fill="#FFFFFF">Actor</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorId)">
+          <rect x="85.7767574533047" y="-144.777137611774" rx="5" ry="5" width="99.8133333333336" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="105.7767574533047" y="-139.777137611774" xlink:href="#CodeSchema_Class" />
+          <text x="126.7767574533047" y="-126.827137611774" fill="#FFFFFF">ActorId</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=ActorRuntimeLogTextFormatter)">
+          <rect x="-170.923242557482" y="-144.773299717181" rx="5" ry="5" width="226.7" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-151.923242557482" y="-139.773299717181" xlink:href="#CodeSchema_Class" />
+          <text x="-130.923242557482" y="-126.823299717181" fill="#FFFFFF">ActorRuntimeLogTextFormatter</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=DefaultEvent)">
+          <rect x="-192.066575863545" y="-34.7729476109953" rx="5" ry="5" width="128.266666666667" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-172.066575863545" y="-29.772947610995303" xlink:href="#CodeSchema_Class" />
+          <text x="-151.066575863545" y="-16.8229476109953" fill="#FFFFFF">DefaultEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=HaltEvent)">
+          <rect x="-333.616575863546" y="-34.7729456208797" rx="5" ry="5" width="111.55" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="-314.616575863546" y="-29.772945620879703" xlink:href="#CodeSchema_Class" />
+          <text x="-293.616575863546" y="-16.8229456208797" fill="#FFFFFF">HaltEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntime)">
+          <rect x="-333.616575863546" y="20.2275093392725" rx="5" ry="5" width="137.09" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="-313.616575863546" y="28.2275093392725" xlink:href="#CodeSchema_Interface" />
+          <text x="-292.616575863546" y="38.177509339272504" fill="#FFFFFF">IActorRuntime</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=IActorRuntimeLog)">
+          <rect x="-135.991575870809" y="-89.7731997171814" rx="5" ry="5" width="156.836666666667" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="-115.99157587080899" y="-81.7731997171814" xlink:href="#CodeSchema_Interface" />
+          <text x="-94.991575870808987" y="-71.8231997171814" fill="#FFFFFF">IActorRuntimeLog</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnEventDroppedHandler)">
+          <rect x="-333.616575914665" y="130.227938633498" rx="5" ry="5" width="189.693333333334" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="-313.616575914665" y="137.227938633498" xlink:href="#CodeSchema_Delegate" />
+          <text x="-297.616575914665" y="148.177938633498" fill="#FFFFFF">OnEventDroppedHandler</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnExceptionOutcome)">
+          <rect x="-155.329909229244" y="75.2278386334977" rx="5" ry="5" width="173.17" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="-136.329909229244" y="82.2278386334977" xlink:href="#CodeSchema_Enum" />
+          <text x="-119.32990922924401" y="93.1778386334977" fill="#FFFFFF">OnExceptionOutcome</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors Type=OnFailureHandler)">
+          <rect x="-333.616575895911" y="75.2276093392725" rx="5" ry="5" width="148.286666666667" height="25" fill="#1382CE" stroke="#1382CE" stroke-width="1" />
+          <use x="-313.616575895911" y="82.2276093392725" xlink:href="#CodeSchema_Delegate" />
+          <text x="-297.616575895911" y="93.177609339272507" fill="#FFFFFF">OnFailureHandler</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#1382CE" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers)">
+        <rect x="-2.2625910029642" y="473.131138918708" rx="5" ry="5" width="221.536666666105" height="140.000299999999" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="16.7374089970358" y="479.131138918708" xlink:href="#CodeSchema_Namespace" />
+        <text x="33.7374089970358" y="491.081138918708" fill="#FFFFFF">Microsoft‎.Coyote‎.Actors‎.Timers</text>
+        <rect x="2.7374089970358" y="501.091138918708" width="211.536666666105" height="107.04029999999898" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerElapsedEvent)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerInfo)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerInfo)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerElapsedEvent)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerInfo)-&gt;(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerInfo)" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerElapsedEvent)">
+          <rect x="28.2540756631413" y="568.131338918708" rx="5" ry="5" width="160.503333333333" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="47.2540756631413" y="573.131338918708" xlink:href="#CodeSchema_Class" />
+          <text x="68.2540756631413" y="586.08133891870807" fill="#FFFFFF">TimerElapsedEvent</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.Timers Type=TimerInfo)">
+          <rect x="28.2540756637023" y="513.131238918708" rx="5" ry="5" width="111.75" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="48.254075663702295" y="518.131238918708" xlink:href="#CodeSchema_Class" />
+          <text x="69.2540756637023" y="531.0812389187081" fill="#FFFFFF">TimerInfo</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+      <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.UnitTesting)">
+        <rect x="-1.95802664545607" y="643.122326851274" rx="5" ry="5" width="245.786666666667" height="85.0002000000002" fill="#0E619A" stroke="#0E619A" stroke-width="1" />
+        <use x="18.041973354543931" y="649.122326851274" xlink:href="#CodeSchema_Namespace" />
+        <text x="35.041973354543927" y="661.072326851274" fill="#FFFFFF">Microsoft‎.Coyote‎.Actors‎.UnitTesting</text>
+        <rect x="3.04197335454393" y="671.082326851274" width="235.786666666667" height="52.040200000000205" fill="#FFFFFF" stroke="#0E619A" stroke-width="1" />
+        <g id="(Assembly=file:///D:/git/foundry99/Coyote/bin/netstandard2.0/Microsoft.Coyote.dll Namespace=Microsoft.Coyote.Actors.UnitTesting Type=(Name=ActorTestKit GenericParameterCount=1))">
+          <rect x="47.561973354544" y="683.113675385812" rx="5" ry="5" width="146.746666666667" height="25" fill="#0E70C0" stroke="#0E70C0" stroke-width="1" />
+          <use x="67.561973354544" y="688.113675385812" xlink:href="#CodeSchema_Class" />
+          <text x="88.561973354544" y="701.06367538581208" fill="#FFFFFF">ActorTestKit‎&lt;T‎&gt;</text>
+          <rect x="INF" y="INF" width="-INF" height="-INF" fill="#FFFFFF" stroke="#0E70C0" stroke-width="1" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

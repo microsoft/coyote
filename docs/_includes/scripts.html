@@ -28,17 +28,6 @@
     fetchJson("{{ "/assets/data/search.json" | relative_url }}", setupSearchJson);
   });
 
-  var awaConfig = {
-    userConsented: false,
-    syncMuid: true,
-    autoCapture: {
-        lineage: true
-    },
-    coreData: {
-        appId: "MSR_Coyote",
-        pageName: "{{page.title}}"
-    }
-  };
 
 </script>
 {% endif %}

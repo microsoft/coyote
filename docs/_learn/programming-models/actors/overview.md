@@ -77,7 +77,8 @@ To create the first instance of an `Actor` you need to initialize the Coyote act
 your C# process (typically in the `Main` method). An example of this is the following:
 
 ```c#
-using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote;
+using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.SystematicTesting;
 
 class Program
@@ -121,8 +122,6 @@ has a couple more advanced parameters which you don't need to worry about right 
 An event can be created by sub-classing from `Microsoft.Coyote.Event`:
 
 ```c#
-using Microsoft.Coyote;
-
 class PingEvent : Event
 {
     public readonly ActorId Caller;

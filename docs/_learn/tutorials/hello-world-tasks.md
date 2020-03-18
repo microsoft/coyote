@@ -67,7 +67,7 @@ When the error is caught, the run may look like this:
 C:\git\CoyoteSamples>.\bin\net47\HelloWorldTasks.exe
 Good Morning
 
-Unhandled Exception: Microsoft.Coyote.Runtime.AssertionFailureException: { ... Exception text here }
+Unhandled Exception: Microsoft.Coyote.AssertionFailureException: { ... Exception text here }
 ```
 
 ## How to reproduce the bug
@@ -80,7 +80,7 @@ get this exception:
 ```
 Good Morning
 
-Unhandled Exception: Microsoft.Coyote.Runtime.AssertionFailureException: Value is 'Good Morning' instead of 'Hello World!'.
+Unhandled Exception: Microsoft.Coyote.AssertionFailureException: Value is 'Good Morning' instead of 'Hello World!'.
    at Microsoft.Coyote.Runtime.CoyoteRuntime.Assert(Boolean predicate, String s, Object[] args)
    at Microsoft.Coyote.Samples.HelloWorld.Greeter.<RunAsync>d__4.MoveNext() in C:\git\CoyoteSamples\HelloWorldTasks\Greeter.cs:line 38
 ```

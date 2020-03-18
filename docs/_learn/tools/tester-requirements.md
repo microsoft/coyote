@@ -18,7 +18,7 @@ potentially violates these restrictions, then you must mocking the call for the 
 
 The test must only have concurrency in the chosen Coyote programming model. The following code that
 spawns both a `ControlledTask` as well as a native `Task` is going to confuse the tester because it
-would not know how to control the scheduling of the latter. 
+would not know how to control the scheduling of the latter.
 
 ```c#
 [Microsoft.Coyote.SystematicTesting.Test]
@@ -51,12 +51,13 @@ if (DateTime.Now - prevTime > TimeSpan.FromSeconds(5)) { ... } else { ... }
 
 This branch is not in the control of the tester, hence an attempt to replay a test iteration can
 fail. In such a case, for the purpose of the test, the branch should instead be based on a call to
-`Microsoft.Coyote.Runtime.Random`, which can be recorded and replayed by the tester. This change has
+`Microsoft.Coyote.Random.Generator`, which can be recorded and replayed by the tester. This change has
 the added bonus that it makes it easier for the tester to explore both sides of the branch. Of
 course, do continue to use the time-based decision in production code.
 
 ```c#
-var branch = InTest ? Microsoft.Coyote.Runtime.Random() :
+var generator = Microsoft.Coyote.Random.Generator.Create();
+var branch = InTest ? generator.NextBoolean() :
              DateTime.Now - prevTime > TimeSpan.FromSeconds(5);
 if (branch) { ... } else { ... }
 ```
@@ -64,7 +65,7 @@ if (branch) { ... } else { ... }
 ### Exceptions
 
 The code executed by the test should not catch exceptions of the type
-`Microsoft.Coyote.Runtime.RuntimeException` (or any derived type). These exceptions are used by the
+`Microsoft.Coyote.RuntimeException` (or any derived type). These exceptions are used by the
 tester for multiple purposes. For instance, it is thrown when an assertion fails in a monitor, or
 when a test iteration hits `max-steps`. In these cases, the test needs to fully unwind its stack.
 
@@ -76,10 +77,10 @@ tester does not expect.
 [Microsoft.Coyote.SystematicTesting.Test]
 public static async ControlledTask MyTest()
 {
-  try 
+  try
   {
     RunTheTest();
-  } 
+  }
   catch (Exception e)
   {
     Cleanup();
@@ -95,11 +96,11 @@ your test code. The above code can be "fixed" as follows:
 [Microsoft.Coyote.SystematicTesting.Test]
 public static async ControlledTask MyTest()
 {
-  try 
+  try
   {
     RunTheTest();
-  } 
-  catch (Exception e) when (!(e is Microsoft.Coyote.Runtime.RuntimeException))
+  }
+  catch (Exception e) when (!(e is Microsoft.Coyote.RuntimeException))
   {
     Cleanup();
   }

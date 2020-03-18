@@ -42,6 +42,40 @@ So Coyote brings together elements of design, development and testing into an in
 that works really well in the real world. See our [case
 studies](../../case-studies/azure-batch-service) for some great customer testimonials.
 
+<script src="/coyote/assets/js/animation.js"></script>
+
+<svg id="animation" viewbox="0,0,1920,1080" width="75%">
+    <style>
+      .title { font: bold 50px sans-serif; fill:white; }
+    </style>
+    <defs>
+        <filter id="glow-filter" x="0" y="0" width="125%">
+            <feGaussianBlur stdDeviation="5" />
+            <feOffset dx="0" dy="0"/>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="glow-filter-2" x="-25%" y="-25%" width="150%" height="150%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+            <feOffset dx="0" dy="0"/>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <rect fill="#151520" width="100%" height="100%"/>
+</svg>
+
+<script>
+    $(document).ready(function () {
+        svg = $("#animation")[0];
+        hero_animation.start(svg);
+    });
+</script>
+
 ## Supported programming models
 
 Coyote provides two main programming models:

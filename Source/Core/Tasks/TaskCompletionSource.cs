@@ -14,80 +14,21 @@ namespace Microsoft.Coyote.Tasks
     /// Represents the producer side of a task unbound to a delegate, providing access to the consumer
     /// side through the <see cref="TaskCompletionSource{TResult}.Task"/> property.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result value assocatied with this task completion source.</typeparam>
-    public class TaskCompletionSource<TResult>
+    public static class TaskCompletionSource
     {
-        /// <summary>
-        /// The internal task completion source.
-        /// </summary>
-        private readonly System.Threading.Tasks.TaskCompletionSource<TResult> Instance;
-
-        /// <summary>
-        /// Gets the task created by this task completion source.
-        /// </summary>
-        public virtual Task<TResult> Task => this.Instance.Task.WrapInControlledTask();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TaskCompletionSource{TResult}"/> class.
-        /// </summary>
-        protected TaskCompletionSource(System.Threading.Tasks.TaskCompletionSource<TResult> tcs)
-        {
-            this.Instance = tcs;
-        }
-
         /// <summary>
         /// Creates a new <see cref="TaskCompletionSource{TResult}"/> instance.
         /// </summary>
+        /// <typeparam name="TResult">The type of the result value assocatied with this task completion source.</typeparam>
         /// <returns>The task completion source.</returns>
-#pragma warning disable CA1000 // Do not declare static members on generic types
-        public static TaskCompletionSource<TResult> Create() => CoyoteRuntime.IsExecutionControlled ?
-#pragma warning restore CA1000 // Do not declare static members on generic types
-            new Mock() : new TaskCompletionSource<TResult>(new System.Threading.Tasks.TaskCompletionSource<TResult>());
-
-        /// <summary>
-        /// Transitions the underlying task into the <see cref="TaskStatus.RanToCompletion"/> state.
-        /// </summary>
-        /// <param name="result">The result value to bind to this task.</param>
-        public virtual void SetResult(TResult result) => this.Instance.SetResult(result);
-
-        /// <summary>
-        /// Attempts to transition the underlying task into the <see cref="TaskStatus.RanToCompletion"/> state.
-        /// </summary>
-        /// <param name="result">The result value to bind to this task.</param>
-        /// <returns>True if the operation was successful; otherwise, false.</returns>
-        public virtual bool TrySetResult(TResult result) => this.Instance.TrySetResult(result);
-
-        /// <summary>
-        /// Transitions the underlying task into the <see cref="TaskStatus.Canceled"/> state.
-        /// </summary>
-        public virtual void SetCanceled() => this.Instance.SetCanceled();
-
-        /// <summary>
-        /// Attempts to transition the underlying task into the <see cref="TaskStatus.Canceled"/> state.
-        /// </summary>
-        /// <returns>True if the operation was successful; otherwise, false.</returns>
-        public virtual bool TrySetCanceled() => this.Instance.TrySetCanceled();
-
-        /// <summary>
-        /// Transitions the underlying task into the <see cref="TaskStatus.Faulted"/> state
-        /// and binds it to the specified exception.
-        /// </summary>
-        /// <param name="exception">The exception to bind to this task.</param>
-        public virtual void SetException(Exception exception) => this.Instance.SetException(exception);
-
-        /// <summary>
-        /// Attempts to transition the underlying task into the <see cref="TaskStatus.Faulted"/> state
-        /// and binds it to the specified exception.
-        /// </summary>
-        /// <param name="exception">The exception to bind to this task.</param>
-        /// <returns>True if the operation was successful; otherwise, false.</returns>
-        public virtual bool TrySetException(Exception exception) => this.Instance.TrySetException(exception);
+        public static TaskCompletionSource<TResult> Create<TResult>() => CoyoteRuntime.IsExecutionControlled ?
+            new Mock<TResult>() : new TaskCompletionSource<TResult>(new System.Threading.Tasks.TaskCompletionSource<TResult>());
 
         /// <summary>
         /// Mock implementation of <see cref="TaskCompletionSource{TResult}"/> that
         /// can be controlled during systematic testing.
         /// </summary>
-        private class Mock : TaskCompletionSource<TResult>
+        private class Mock<TResult> : TaskCompletionSource<TResult>
         {
             /// <summary>
             /// The resource associated with this task completion source.
@@ -175,7 +116,7 @@ namespace Microsoft.Coyote.Tasks
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Mock"/> class.
+            /// Initializes a new instance of the <see cref="Mock{TResult}"/> class.
             /// </summary>
             internal Mock()
                 : base(default)
@@ -272,5 +213,70 @@ namespace Microsoft.Coyote.Tasks
                 this.Resource.Runtime.ScheduleNextOperation();
             }
         }
+    }
+
+    /// <summary>
+    /// Represents the producer side of a task unbound to a delegate, providing access to the consumer
+    /// side through the <see cref="TaskCompletionSource{TResult}.Task"/> property.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result value assocatied with this task completion source.</typeparam>
+    public class TaskCompletionSource<TResult>
+    {
+        /// <summary>
+        /// The internal task completion source.
+        /// </summary>
+        private readonly System.Threading.Tasks.TaskCompletionSource<TResult> Instance;
+
+        /// <summary>
+        /// Gets the task created by this task completion source.
+        /// </summary>
+        public virtual Task<TResult> Task => this.Instance.Task.WrapInControlledTask();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskCompletionSource{TResult}"/> class.
+        /// </summary>
+        internal TaskCompletionSource(System.Threading.Tasks.TaskCompletionSource<TResult> tcs)
+        {
+            this.Instance = tcs;
+        }
+
+        /// <summary>
+        /// Transitions the underlying task into the <see cref="TaskStatus.RanToCompletion"/> state.
+        /// </summary>
+        /// <param name="result">The result value to bind to this task.</param>
+        public virtual void SetResult(TResult result) => this.Instance.SetResult(result);
+
+        /// <summary>
+        /// Attempts to transition the underlying task into the <see cref="TaskStatus.RanToCompletion"/> state.
+        /// </summary>
+        /// <param name="result">The result value to bind to this task.</param>
+        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        public virtual bool TrySetResult(TResult result) => this.Instance.TrySetResult(result);
+
+        /// <summary>
+        /// Transitions the underlying task into the <see cref="TaskStatus.Canceled"/> state.
+        /// </summary>
+        public virtual void SetCanceled() => this.Instance.SetCanceled();
+
+        /// <summary>
+        /// Attempts to transition the underlying task into the <see cref="TaskStatus.Canceled"/> state.
+        /// </summary>
+        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        public virtual bool TrySetCanceled() => this.Instance.TrySetCanceled();
+
+        /// <summary>
+        /// Transitions the underlying task into the <see cref="TaskStatus.Faulted"/> state
+        /// and binds it to the specified exception.
+        /// </summary>
+        /// <param name="exception">The exception to bind to this task.</param>
+        public virtual void SetException(Exception exception) => this.Instance.SetException(exception);
+
+        /// <summary>
+        /// Attempts to transition the underlying task into the <see cref="TaskStatus.Faulted"/> state
+        /// and binds it to the specified exception.
+        /// </summary>
+        /// <param name="exception">The exception to bind to this task.</param>
+        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        public virtual bool TrySetException(Exception exception) => this.Instance.TrySetException(exception);
     }
 }

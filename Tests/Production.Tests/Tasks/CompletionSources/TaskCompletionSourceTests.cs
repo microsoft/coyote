@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestSetResult()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             tcs.SetResult(3);
             int result = await tcs.Task;
             Assert.Equal(SystemTasks.TaskStatus.RanToCompletion, tcs.Task.Status);
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestTrySetResult()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             tcs.SetResult(3);
             bool check = tcs.TrySetResult(5);
             int result = await tcs.Task;
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestAsynchronousSetResult()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             var task = Task.Run(async () =>
             {
                 return await tcs.Task;
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestAsynchronousSetResultTask()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             var task1 = Task.Run(async () =>
             {
                 return await tcs.Task;
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestAsynchronousSetResultWithTwoAwaiters()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             var task1 = Task.Run(async () =>
             {
                 return await tcs.Task;
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestSetCanceled()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             tcs.SetCanceled();
 
             int result = default;
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestTrySetCanceled()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             tcs.SetCanceled();
             bool check = tcs.TrySetCanceled();
 
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestAsynchronousSetCanceled()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             var task = Task.Run(() =>
             {
                 tcs.SetCanceled();
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestSetException()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             tcs.SetException(new InvalidOperationException());
 
             int result = default;
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestTrySetException()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             tcs.SetException(new InvalidOperationException());
             bool check = tcs.TrySetException(new NotImplementedException());
 
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public async SystemTasks.Task TestAsynchronousSetException()
         {
-            var tcs = TaskCompletionSource<int>.Create();
+            var tcs = TaskCompletionSource.Create<int>();
             var task = Task.Run(() =>
             {
                 tcs.SetException(new InvalidOperationException());

@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 tcs.SetResult(3);
                 int result = await tcs.Task;
                 Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 tcs.SetResult(3);
                 bool check = tcs.TrySetResult(5);
                 int result = await tcs.Task;
@@ -58,7 +58,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 var task = Task.Run(async () =>
                 {
                     return await tcs.Task;
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 tcs.SetCanceled();
 
                 int result = default;
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 tcs.SetCanceled();
                 bool check = tcs.TrySetCanceled();
 
@@ -192,7 +192,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 var task = Task.Run(() =>
                 {
                     tcs.SetCanceled();
@@ -223,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 tcs.SetException(new InvalidOperationException());
 
                 int result = default;
@@ -253,7 +253,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 tcs.SetException(new InvalidOperationException());
                 bool check = tcs.TrySetException(new NotImplementedException());
 
@@ -285,7 +285,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource<int>.Create();
+                var tcs = TaskCompletionSource.Create<int>();
                 var task = Task.Run(() =>
                 {
                     tcs.SetException(new InvalidOperationException());

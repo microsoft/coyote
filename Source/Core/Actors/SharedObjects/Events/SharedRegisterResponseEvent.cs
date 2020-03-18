@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.SharedObjects
+namespace Microsoft.Coyote.Actors.SharedObjects
 {
     /// <summary>
-    /// Event containing the value of a shared dictionary.
+    /// Event containing the value of a shared register.
     /// </summary>
-    internal class SharedDictionaryResponseEvent<T> : Event
+    internal class SharedRegisterResponseEvent<T> : Event
     {
         /// <summary>
         /// Value.
@@ -14,9 +14,9 @@ namespace Microsoft.Coyote.SharedObjects
         internal T Value;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SharedDictionaryResponseEvent{T}"/> class.
+        /// Initializes a new instance of the <see cref="SharedRegisterResponseEvent{T}"/> class.
         /// </summary>
-        internal SharedDictionaryResponseEvent(T value)
+        internal SharedRegisterResponseEvent(T value)
         {
             this.Value = value;
         }

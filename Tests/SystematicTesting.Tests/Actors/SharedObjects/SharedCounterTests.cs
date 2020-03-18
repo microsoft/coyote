@@ -3,14 +3,15 @@
 
 using System;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.SharedObjects;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SharedObjects.Tests
+namespace Microsoft.Coyote.SystematicTesting.Tests.Actors.SharedObjects
 {
-    public class MockSharedCounterTests : BaseTest
+    public class SharedCounterTests : BaseSystematicTest
     {
-        public MockSharedCounterTests(ITestOutputHelper output)
+        public SharedCounterTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -27,9 +28,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
         private class E : Event
         {
-            public ISharedCounter Counter;
+            public SharedCounter Counter;
 
-            public E(ISharedCounter counter)
+            public E(SharedCounter counter)
             {
                 this.Counter = counter;
             }
@@ -54,7 +55,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 counter.Increment();
                 var v = counter.GetValue();
-                this.Assert(v == 1);
+                this.Assert(v == 1, "Reached test assertion.");
             }
         }
 
@@ -74,15 +75,15 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMockSharedCounter1()
+        public void TestSharedCounter1()
         {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
+            this.TestWithError(r =>
             {
                 r.CreateActor(typeof(M1));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
+            },
+            configuration: Configuration.Create().WithTestingIterations(50),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
 
         private class M2 : StateMachine
@@ -98,38 +99,37 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 var flag = (e as SetupEvent).Flag;
 
                 var counter = SharedCounter.Create(this.Id.Runtime, 0);
-                var n = this.CreateActor(typeof(N2), new E(counter));
+                this.CreateActor(typeof(N2), new E(counter));
 
                 int v1 = counter.CompareExchange(10, 0); // if 0 then 10
                 int v2 = counter.GetValue();
 
                 if (flag == 0)
                 {
-                    this.Assert((v1 == 5 && v2 == 5) ||
-                        (v1 == 0 && v2 == 10) ||
+                    this.Assert((v1 == 5 && v2 == 5) || (v1 == 0 && v2 == 10) ||
                         (v1 == 0 && v2 == 15));
                 }
                 else if (flag == 1)
                 {
-                    this.Assert((v1 == 0 && v2 == 10) ||
-                        (v1 == 0 && v2 == 15));
+                    this.Assert((v1 == 0 && v2 == 10) || (v1 == 0 && v2 == 15),
+                        "Reached test assertion.");
                 }
                 else if (flag == 2)
                 {
-                    this.Assert((v1 == 5 && v2 == 5) ||
-                        (v1 == 0 && v2 == 15));
+                    this.Assert((v1 == 5 && v2 == 5) || (v1 == 0 && v2 == 15),
+                        "Reached test assertion.");
                 }
                 else if (flag == 3)
                 {
-                    this.Assert((v1 == 5 && v2 == 5) ||
-                        (v1 == 0 && v2 == 10));
+                    this.Assert((v1 == 5 && v2 == 5) || (v1 == 0 && v2 == 10),
+                        "Reached test assertion.");
                 }
             }
         }
 
         private class N2 : StateMachine
         {
-            private ISharedCounter Counter;
+            private SharedCounter Counter;
 
             [Start]
             [OnEventDoAction(typeof(Done), nameof(Check))]
@@ -149,6 +149,52 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 var v = this.Counter.GetValue();
                 this.Assert(v == 0);
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedCounter2()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(M2), new SetupEvent(0));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedCounter3()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M2), new SetupEvent(1));
+            },
+            configuration: Configuration.Create().WithTestingIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedCounter4()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M2), new SetupEvent(2));
+            },
+            configuration: Configuration.Create().WithTestingIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedCounter5()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M2), new SetupEvent(3));
+            },
+            configuration: Configuration.Create().WithTestingIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
 
         private class M3 : StateMachine
@@ -174,7 +220,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
         private class N3 : StateMachine
         {
-            private ISharedCounter Counter;
+            private SharedCounter Counter;
 
             [Start]
             [OnEventDoAction(typeof(Done), nameof(Check))]
@@ -202,63 +248,13 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMockSharedCounter2()
+        public void TestSharedCounter6()
         {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M2), new SetupEvent(0));
-            });
-
-            this.AssertSucceeded(config, test);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedCounter3()
-        {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M2), new SetupEvent(1));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedCounter4()
-        {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M2), new SetupEvent(2));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedCounter5()
-        {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M2), new SetupEvent(3));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedCounter6()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
+            this.Test(r =>
             {
                 r.CreateActor(typeof(M3));
-            });
-
-            this.AssertSucceeded(config, test);
+            },
+            configuration: Configuration.Create().WithTestingIterations(50));
         }
     }
 }

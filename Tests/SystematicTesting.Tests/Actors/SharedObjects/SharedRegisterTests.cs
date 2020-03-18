@@ -3,14 +3,15 @@
 
 using System;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.SharedObjects;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SharedObjects.Tests
+namespace Microsoft.Coyote.SystematicTesting.Tests.Actors.SharedObjects
 {
-    public class MockSharedRegisterTests : BaseTest
+    public class SharedRegisterTests : BaseSystematicTest
     {
-        public MockSharedRegisterTests(ITestOutputHelper output)
+        public SharedRegisterTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -30,9 +31,9 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         private class E<T> : Event
             where T : struct
         {
-            public ISharedRegister<T> Counter;
+            public SharedRegister<T> Counter;
 
-            public E(ISharedRegister<T> counter)
+            public E(SharedRegister<T> counter)
             {
                 this.Counter = counter;
             }
@@ -84,7 +85,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 else
                 {
                     // Fails.
-                    this.Assert(v == 6);
+                    this.Assert(v == 6, "Reached test assertion.");
                 }
             }
         }
@@ -102,6 +103,28 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 var counter = (e as E<int>).Counter;
                 counter.SetValue(2);
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedRegister1()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(M1), new Setup(true));
+            },
+            configuration: Configuration.Create().WithTestingIterations(100));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedRegister2()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M1), new Setup(false));
+            },
+            configuration: Configuration.Create().WithTestingIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
 
         private class M2 : StateMachine
@@ -139,7 +162,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 else
                 {
                     // Fails.
-                    this.Assert(v.Value1 == 2 || v.Value1 == 6);
+                    this.Assert(v.Value1 == 2 || v.Value1 == 6, "Reached test assertion.");
                 }
             }
         }
@@ -160,51 +183,25 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMockSharedRegister1()
+        public void TestSharedRegister3()
         {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M1), new Setup(true));
-            });
-
-            this.AssertSucceeded(config, test);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedRegister2()
-        {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M1), new Setup(false));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedRegister3()
-        {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
+            this.Test(r =>
             {
                 r.CreateActor(typeof(M2), new Setup(true));
-            });
-
-            this.AssertSucceeded(config, test);
+            },
+            configuration: Configuration.Create().WithTestingIterations(100));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMockSharedRegister4()
+        public void TestSharedRegister4()
         {
-            var config = Configuration.Create().WithTestingIterations(100);
-            var test = new Action<IActorRuntime>((r) =>
+            this.TestWithError(r =>
             {
                 r.CreateActor(typeof(M2), new Setup(false));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
+            },
+            configuration: Configuration.Create().WithTestingIterations(100),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
     }
 }

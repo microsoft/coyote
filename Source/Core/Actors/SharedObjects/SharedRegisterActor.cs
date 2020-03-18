@@ -3,9 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Actors;
 
-namespace Microsoft.Coyote.SharedObjects
+namespace Microsoft.Coyote.Actors.SharedObjects
 {
     /// <summary>
     /// A shared register modeled using an actor for testing.

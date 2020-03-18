@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Actors;
-
-namespace Microsoft.Coyote.SharedObjects
+namespace Microsoft.Coyote.Actors.SharedObjects
 {
     /// <summary>
     /// Event used to communicate with a shared register actor.

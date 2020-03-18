@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.SharedObjects
+namespace Microsoft.Coyote.Actors.SharedObjects
 {
     /// <summary>
     /// Event containing the value of a shared counter.

@@ -3,23 +3,24 @@
 
 using System;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.SharedObjects;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SharedObjects.Tests
+namespace Microsoft.Coyote.SystematicTesting.Tests.Actors.SharedObjects
 {
-    public class MockSharedDictionaryTests : BaseTest
+    public class SharedDictionaryTests : BaseSystematicTest
     {
-        public MockSharedDictionaryTests(ITestOutputHelper output)
+        public SharedDictionaryTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         private class E1 : Event
         {
-            public ISharedDictionary<int, string> Counter;
+            public SharedDictionary<int, string> Counter;
 
-            public E1(ISharedDictionary<int, string> counter)
+            public E1(SharedDictionary<int, string> counter)
             {
                 this.Counter = counter;
             }
@@ -27,10 +28,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
         private class E2 : Event
         {
-            public ISharedDictionary<int, string> Counter;
+            public SharedDictionary<int, string> Counter;
             public bool Flag;
 
-            public E2(ISharedDictionary<int, string> counter, bool flag)
+            public E2(SharedDictionary<int, string> counter, bool flag)
             {
                 this.Counter = counter;
                 this.Flag = flag;
@@ -49,12 +50,10 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             {
                 var counter = SharedDictionary.Create<int, string>(this.Id.Runtime);
                 this.CreateActor(typeof(N1), new E1(counter));
-
                 counter.TryAdd(1, "M");
 
                 var v = counter[1];
-
-                this.Assert(v == "M");
+                this.Assert(v == "M", "Reached test assertion.");
             }
         }
 
@@ -73,6 +72,18 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestSharedDictionary1()
+        {
+            this.TestWithError(r =>
+            {
+                r.CreateActor(typeof(M1));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
         private class M2 : StateMachine
         {
             [Start]
@@ -87,8 +98,19 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 counter.TryAdd(1, "M");
 
                 // Key not present; will throw an exception.
-                var v = counter[2];
+                _ = counter[2];
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedDictionary2()
+        {
+            this.TestWithException<System.Collections.Generic.KeyNotFoundException>(r =>
+            {
+                r.CreateActor(typeof(M2));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50),
+            replay: true);
         }
 
         private class M3 : StateMachine
@@ -106,7 +128,7 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 counter.TryAdd(1, "M");
 
-                var v = counter[1];
+                _ = counter[1];
                 var c = counter.Count;
 
                 this.Assert(c == 1);
@@ -126,6 +148,16 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 var counter = (e as E1).Counter;
                 counter.TryUpdate(1, "N", "M");
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedDictionary3()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(M3));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50));
         }
 
         private class M4 : StateMachine
@@ -165,6 +197,16 @@ namespace Microsoft.Coyote.SharedObjects.Tests
 
                 this.Assert(b == false || v == "M");
             }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedDictionary4()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(M4));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50));
         }
 
         private class M5 : StateMachine
@@ -221,6 +263,28 @@ namespace Microsoft.Coyote.SharedObjects.Tests
             }
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestSharedDictionary5()
+        {
+            this.Test(r =>
+            {
+                var counter = SharedDictionary.Create<int, string>(r);
+                r.CreateActor(typeof(M5), new E2(counter, true));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSharedDictionary6()
+        {
+            this.Test(r =>
+            {
+                var counter = SharedDictionary.Create<int, string>(r);
+                r.CreateActor(typeof(M5), new E2(counter, false));
+            },
+            configuration: Configuration.Create().WithTestingIterations(50));
+        }
+
         private class M6 : StateMachine
         {
             [Start]
@@ -236,8 +300,8 @@ namespace Microsoft.Coyote.SharedObjects.Tests
                 this.CreateActor(typeof(N6), new E1(counter));
                 counter.TryAdd(1, "M");
 
-                var b = counter.TryGetValue(2, out string v);
-                this.Assert(!b);
+                var b = counter.TryGetValue(2, out string _);
+                this.Assert(!b, "Reached test assertion.");
             }
         }
 
@@ -257,90 +321,16 @@ namespace Microsoft.Coyote.SharedObjects.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary1()
+        public void TestSharedDictionary7()
         {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M1));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary2()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M2));
-            });
-
-            this.AssertFailed(config, test, 1);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary3()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M3));
-            });
-
-            this.AssertSucceeded(config, test);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary4()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                r.CreateActor(typeof(M4));
-            });
-
-            this.AssertSucceeded(config, test);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary5()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                var counter = SharedDictionary.Create<int, string>(r);
-                r.CreateActor(typeof(M5), new E2(counter, true));
-            });
-
-            this.AssertSucceeded(config, test);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary6()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
-            {
-                var counter = SharedDictionary.Create<int, string>(r);
-                r.CreateActor(typeof(M5), new E2(counter, false));
-            });
-
-            this.AssertSucceeded(config, test);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestMockSharedDictionary7()
-        {
-            var config = Configuration.Create().WithTestingIterations(50);
-            var test = new Action<IActorRuntime>((r) =>
+            this.TestWithError(r =>
             {
                 var counter = SharedDictionary.Create<int, string>(r);
                 r.CreateActor(typeof(M6), new E1(counter));
-            });
-
-            this.AssertFailed(config, test, "Detected an assertion failure.");
+            },
+            configuration: Configuration.Create().WithTestingIterations(50),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
     }
 }

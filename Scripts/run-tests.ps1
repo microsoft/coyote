@@ -2,7 +2,7 @@ param(
     [string]$dotnet="dotnet",
     [ValidateSet("all","netcoreapp2.2","net46","net47")]
     [string]$framework="all",
-    [ValidateSet("all","production","testing","shared-objects")]
+    [ValidateSet("all","production","testing")]
     [string]$test="all",
     [string]$filter="",
     [ValidateSet("quiet","minimal","normal","detailed","diagnostic")]
@@ -16,7 +16,6 @@ $frameworks = "netcoreapp2.2", "net46", "net47"
 $targets = [ordered]@{
     "production" = "Production.Tests"
     "testing" = "SystematicTesting.Tests"
-    "shared-objects" = "SharedObjects.Tests"
 }
 
 Write-Comment -prefix "." -text "Running the Coyote tests" -color "yellow"

@@ -3,24 +3,25 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.SharedObjects;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SharedObjects.Tests
+namespace Microsoft.Coyote.Production.Tests.Actors.SharedObjects
 {
-    public class ProductionSharedDictionaryTests : BaseTest
+    public class SharedDictionaryTests : BaseProductionTest
     {
-        public ProductionSharedDictionaryTests(ITestOutputHelper output)
+        public SharedDictionaryTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         private class E : Event
         {
-            public ISharedDictionary<int, string> Counter;
+            public SharedDictionary<int, string> Counter;
             public TaskCompletionSource<bool> Tcs;
 
-            public E(ISharedDictionary<int, string> counter, TaskCompletionSource<bool> tcs)
+            public E(SharedDictionary<int, string> counter, TaskCompletionSource<bool> tcs)
             {
                 this.Counter = counter;
                 this.Tcs = tcs;

@@ -3,24 +3,25 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Actors.SharedObjects;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SharedObjects.Tests
+namespace Microsoft.Coyote.Production.Tests.Actors.SharedObjects
 {
-    public class ProductionSharedRegisterTests : BaseTest
+    public class SharedRegisterTests : BaseProductionTest
     {
-        public ProductionSharedRegisterTests(ITestOutputHelper output)
+        public SharedRegisterTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         private class E : Event
         {
-            public ISharedRegister<int> Counter;
+            public SharedRegister<int> Counter;
             public TaskCompletionSource<bool> Tcs;
 
-            public E(ISharedRegister<int> counter, TaskCompletionSource<bool> tcs)
+            public E(SharedRegister<int> counter, TaskCompletionSource<bool> tcs)
             {
                 this.Counter = counter;
                 this.Tcs = tcs;

@@ -19,7 +19,7 @@
     <DefineConstants></DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\SharedObjects\SharedObjects.csproj" />
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47'">
     <Reference Include="System.Configuration" />

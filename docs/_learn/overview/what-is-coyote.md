@@ -84,13 +84,13 @@ Coyote provides two main programming models:
   in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview), which
   follows the popular [task-based asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
-  This programming model offers a `ControlledTask` type  that serves as a drop-in-replacement type
-  for the native `System.Threading.Tasks.Task`. As with `Task`, a `ControlledTask` represents an
-  asynchronous operation that the programmer can coordinate using the `async` and `await` keywords
-  of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/). In production, a `ControlledTask`
-  executes with the same semantics of a regular `Task`. In fact, it is simply a thin wrapper around
-  a `Task` object. During testing, however, is where the magic happens. Coyote controls the
-  execution of each `ControlledTask` so that it can explore various different interleavings to find
+  This programming model offers a `Task` type  that serves as a drop-in-replacement type for the
+  native .NET `System.Threading.Tasks.Task`. As with the native `Task`, a Coyote `Task` represents
+  an asynchronous operation that the programmer can coordinate using the `async` and `await`
+  keywords of [C#](https://docs.microsoft.com/en-gb/dotnet/csharp/). In production, a Coyote `Task`
+  executes with the same semantics of a native `Task`. In fact, it is simply a thin wrapper around a
+  native `Task` object. During testing, however, is where the magic happens. Coyote controls the
+  execution of each Coyote `Task` so that it can explore various different interleavings to find
   bugs. Please note that this programming model is currently in preview.
 
 - [Asynchronous actors](../programming-models/actors/overview) is an [actor-based programming

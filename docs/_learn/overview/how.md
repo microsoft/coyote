@@ -29,7 +29,7 @@ and logs from production or stress tests, which are typically nondeterministic. 
 [Heisenbugs](https://en.wikipedia.org/wiki/Heisenbug)!
 
 The exact mechanism Coyote uses to do this depends on the programming model you have chosen. For the
-`ControlledTask` model, the `coyote test` tool is able to intercept all task creation operations by
+`Task` model, the `coyote test` tool is able to intercept all task creation operations by
 overriding various .NET Task methods.  For the `Actor` model the `coyote test` tool can control when
 messages are dequeued by each Actor and therefore control the overall message scheduling.
 

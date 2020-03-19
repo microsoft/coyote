@@ -500,10 +500,10 @@ public static void Execute() { ... }
 public static void Execute(IActorRuntime runtime) { ... }
 
 [Microsoft.Coyote.SystematicTesting.Test]
-public static async ControlledTask Execute() { ... await ... }
+public static async Task Execute() { ... await ... }
 
 [Microsoft.Coyote.SystematicTesting.Test]
-public static async ControlledTask Execute(IActorRuntime runtime) { ... await ... }
+public static async Task Execute(IActorRuntime runtime) { ... await ... }
 ```
 
 In this code one of these allowed signatures for the `Execute()` method is specified.

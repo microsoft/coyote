@@ -53,9 +53,10 @@ do testing while developing, not after you are ready to ship :)
 Depends on what programming model and concurrency APIs you used for developing your existing system
 because, for Coyote testing to work, it needs to understand the
 [non-determinism](../core/non-determinism) in your system. In some cases, this may be as simple as
-replacing the `Task` type with [`ControlledTask`](../programming-models/async/overview). In other
-cases, you would also have to model additional non-determinism, such as timers and external
-services. In general, we recommend using Coyote in early stages of development.
+replacing the `System.Threading.Tasks.Task` type with
+[`Microsoft.Coyote.Tasks.Task`](../programming-models/async/overview). In other cases, you would
+also have to model additional non-determinism, such as timers and external services. In general, we
+recommend using Coyote in early stages of development.
 <br/><br/>
 
 #### How is Coyote being maintained and what level of support can we expect? 

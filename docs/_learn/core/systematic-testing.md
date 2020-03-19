@@ -17,24 +17,27 @@ The first requirement is to use one of Coyote's supported programming models to 
 concurrency. This can be fairly easy to do, but very important because Coyote tester is going to
 take over the scheduling of the program. In fact, the tester will complain if it detects concurrency
 that is outside its control. Take the simple example that was used to explain concurrency
-[non-determinism](../core/non-determinism). Notice the code below has replaced the .NET Task
-class with Coyote's `ControlledTask` type, which is part of Coyote's [asynchronous Task programming
-model](../programming-models/async/overview).
+[non-determinism](../core/non-determinism). Notice the code below has replaced the .NET
+`System.Threading.Tasks.Task` type with Coyote's `Task` type, which is part of Coyote's
+[asynchronous Task programming model](../programming-models/async/overview), and is controlled
+during systematic testing.
 
 ```c#
+// Use the Coyote controlled task type.
+using Microsoft.Coyote.Tasks;
+
 // Shared variable x.
 int x = 0;
 
 int foo()
 {
    // Concurrent operations on x.
-   var t1 = ControlledTask.Run(() => { x = 1; });
-   var t2 = ControlledTask.Run(() => { x = 2; });
+   var t1 = Task.Run(() => { x = 1; });
+   var t2 = Task.Run(() => { x = 2; });
 
    // Join all.
-   ControlledTask.WaitAll(t1, t2);
+   Task.WaitAll(t1, t2);
 }
-
 ```
 
 When this method `foo` now executes as part of a test case, the Coyote tester will understand that

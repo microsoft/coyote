@@ -17,15 +17,18 @@ potentially violates these restrictions, then you must mocking the call for the 
 ### Stick to your programming model
 
 The test must only have concurrency in the chosen Coyote programming model. The following code that
-spawns both a `ControlledTask` as well as a native `Task` is going to confuse the tester because it
-would not know how to control the scheduling of the latter.
+spawns both a controlled Coyote `Task` as well as an native .NET `Task` is going to confuse
+the tester because it would not know how to control the scheduling of the latter.
 
 ```c#
+using CoyoteTasks = Microsoft.Coyote.Tasks;
+using SystemTasks = System.Threading.Tasks;
+
 [Microsoft.Coyote.SystematicTesting.Test]
-public static async ControlledTask MyTest()
+public static async CoyoteTasks.Task MyTest()
 {
-    var t1 = ControlledTask.Run(() => { foo(); });
-    var t2 = Task.Run(() => { bar(); });
+    var t1 = CoyoteTasks.Task.Run(() => { foo(); });
+    var t2 = SystemTasks.Task.Run(() => { bar(); });
     ...
 }
 ```
@@ -34,10 +37,11 @@ The tester does its best to identify concurrency outside its control (e.g., the 
 complain so that you can debug your code, but it is not always able to do so.
 
 The same holds for synchronization operations, e.g., acquiring or releasing locks via the `lock`
-construct. In this case, the tester can deadlock if there is synchronization in the test that it does
-not know about. In most cases, Coyote code would be free of these low-level synchronization
-operations, but whenever you find yourself calling code that uses them, mock the call using just
-`Actor` or `ControlledTask` APIs.
+construct. In this case, the tester can deadlock if there is synchronization in the test that it
+does not know about. In most cases, Coyote code would be free of these low-level synchronization
+operations. If you must use a lock and you are using the Coyote Tasks programming model try the
+Coyote `AsyncLock`. If you are calling 3rd party code that mixes locks and concurrency you may need
+to mock that external code.
 
 ### Declare all nondeterminism
 
@@ -56,9 +60,17 @@ the added bonus that it makes it easier for the tester to explore both sides of 
 course, do continue to use the time-based decision in production code.
 
 ```c#
-var generator = Microsoft.Coyote.Random.Generator.Create();
-var branch = InTest ? generator.NextBoolean() :
-             DateTime.Now - prevTime > TimeSpan.FromSeconds(5);
+bool branch = false;
+if (isTest)
+{
+  // You should cache this generator at a higher level for better
+  // performance.
+  var generator = Microsoft.Coyote.Random.Generator.Create();
+  branch = generator.NextBoolean();
+} else {
+  branch = DateTime.Now - prevTime > TimeSpan.FromSeconds(5);
+}
+
 if (branch) { ... } else { ... }
 ```
 
@@ -75,7 +87,7 @@ tester does not expect.
 
 ```c#
 [Microsoft.Coyote.SystematicTesting.Test]
-public static async ControlledTask MyTest()
+public static async Microsoft.Coyote.Tasks.Task MyTest()
 {
   try
   {
@@ -94,7 +106,7 @@ your test code. The above code can be "fixed" as follows:
 
 ```c#
 [Microsoft.Coyote.SystematicTesting.Test]
-public static async ControlledTask MyTest()
+public static async Microsoft.Coyote.Tasks.Task MyTest()
 {
   try
   {

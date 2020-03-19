@@ -450,6 +450,60 @@
         subfolderitems:
         - name: IgnoreEventsAttribute
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine.State.IgnoreEventsAttribute/IgnoreEventsAttribute
+    - name: Microsoft.Coyote.Actors.SharedObjects
+      link: /learn/ref/MicrosoftCoyoteActorsSharedObjectsNamespace
+      subfolderitems:
+      - name: SharedCounter
+        link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounterType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Create
+        - name: Increment
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Increment
+        - name: Decrement
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Decrement
+        - name: GetValue
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/GetValue
+        - name: Add
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Add
+        - name: Exchange
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/Exchange
+        - name: CompareExchange
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedCounter/CompareExchange
+      - name: SharedDictionary
+        link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionaryType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary/Create
+      - name: SharedDictionary<TKey,TValue>
+        link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2Type
+        subfolderitems:
+        - name: TryAdd
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryAdd
+        - name: TryUpdate
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryUpdate
+        - name: TryGetValue
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryGetValue
+        - name: TryRemove
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/TryRemove
+        - name: Item
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Item
+        - name: Count
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedDictionary-2/Count
+      - name: SharedRegister
+        link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegisterType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister/Create
+      - name: SharedRegister<T>
+        link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1Type
+        subfolderitems:
+        - name: Update
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/Update
+        - name: GetValue
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/GetValue
+        - name: SetValue
+          link: /learn/ref/Microsoft.Coyote.Actors.SharedObjects/SharedRegister-1/SetValue
     - name: Microsoft.Coyote.Actors.Timers
       link: /learn/ref/MicrosoftCoyoteActorsTimersNamespace
       subfolderitems:
@@ -908,11 +962,14 @@
           link: /learn/ref/Microsoft.Coyote.Tasks/Task-1/ConfigureAwait
         - name: Result
           link: /learn/ref/Microsoft.Coyote.Tasks/Task-1/Result
+      - name: TaskCompletionSource
+        link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSourceType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource/Create
       - name: TaskCompletionSource<TResult>
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1Type
         subfolderitems:
-        - name: Create
-          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Create
         - name: SetResult
           link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetResult
         - name: TrySetResult
@@ -925,8 +982,6 @@
           link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/SetException
         - name: TrySetException
           link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TrySetException
-        - name: TaskCompletionSource
-          link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/TaskCompletionSource
         - name: Task
           link: /learn/ref/Microsoft.Coyote.Tasks/TaskCompletionSource-1/Task
       - name: TaskExtensions

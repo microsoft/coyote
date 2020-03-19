@@ -20,7 +20,6 @@ public class TaskCompletionSource<TResult>
 
 | name | description |
 | --- | --- |
-| static [Create](TaskCompletionSource-1/Create)() | Creates a new [`TaskCompletionSource`](TaskCompletionSource-1Type) instance. |
 | virtual [Task](TaskCompletionSource-1/Task) { get; } | Gets the task created by this task completion source. |
 | virtual [SetCanceled](TaskCompletionSource-1/SetCanceled)() | Transitions the underlying task into the Canceled state. |
 | virtual [SetException](TaskCompletionSource-1/SetException)(…) | Transitions the underlying task into the Faulted state and binds it to the specified exception. |
@@ -28,12 +27,6 @@ public class TaskCompletionSource<TResult>
 | virtual [TrySetCanceled](TaskCompletionSource-1/TrySetCanceled)() | Attempts to transition the underlying task into the Canceled state. |
 | virtual [TrySetException](TaskCompletionSource-1/TrySetException)(…) | Attempts to transition the underlying task into the Faulted state and binds it to the specified exception. |
 | virtual [TrySetResult](TaskCompletionSource-1/TrySetResult)(…) | Attempts to transition the underlying task into the RanToCompletion state. |
-
-## Protected Members
-
-| name | description |
-| --- | --- |
-| [TaskCompletionSource](TaskCompletionSource-1/TaskCompletionSource)(…) | Initializes a new instance of the [`TaskCompletionSource`](TaskCompletionSource-1Type) class. |
 
 ## See Also
 

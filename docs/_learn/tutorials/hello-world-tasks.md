@@ -144,12 +144,11 @@ bugs](/coyote/learn/tools/testing).
 
 ## The code
 
-This section shows how to write a program using the Coyote asynchronous task programming model. As
-mentioned in [Asynchronous Tasks Programming Model
-](/coyote/learn/programming-models/async/overview), the `ControlledTask` type is a drop-in
-replacement for the `Task` type, and thus any prior experience writing asynchronous code using
-`async` and `await` is useful and relevant. If you are not already familiar with `async` and
-`await`, you can learn more in the C#
+This section shows how to write a program using the Coyote [asynchronous task programming
+model](/coyote/learn/programming-models/async/overview). The Coyote controlled `Task` type is a
+drop-in replacement for the `System.Threading.Tasks.Task` type, and thus any prior experience
+writing asynchronous code using `async` and `await` is useful and relevant. If you are not already
+familiar with `async` and `await`, you can learn more in the C#
 [docs](https://docs.microsoft.com/en-us/dotnet/standard/async-in-depth).
 
 The program consists of two code files:
@@ -172,19 +171,19 @@ namespace Microsoft.Coyote.Samples.HelloWorld
 
         private string Value;
 
-        private async ControlledTask WriteWithDelayAsync(string value)
+        private async Task WriteWithDelayAsync(string value)
         {
-            await ControlledTask.Delay(100);
+            await Task.Delay(100);
             this.Value = value;
         }
 
-        public async ControlledTask RunAsync()
+        public async Task RunAsync()
         {
-            ControlledTask task1 = this.WriteWithDelayAsync(GoodMorning);
-            ControlledTask task2 = this.WriteWithDelayAsync(HelloWorld);
-            ControlledTask task3 = this.WriteWithDelayAsync(HelloWorld);
+            Task task1 = this.WriteWithDelayAsync(GoodMorning);
+            Task task2 = this.WriteWithDelayAsync(HelloWorld);
+            Task task3 = this.WriteWithDelayAsync(HelloWorld);
 
-            await ControlledTask.WhenAll(task1, task2, task3);
+            await Task.WhenAll(task1, task2, task3);
 
             Console.WriteLine(this.Value);
 
@@ -194,22 +193,21 @@ namespace Microsoft.Coyote.Samples.HelloWorld
 }
 ```
 
-`WriteWithDelayAsync()` is a C# `async` method that asynchronously waits for a `ControlledTask` to
-complete after `100`ms delay (created via the `ControlledTask.Delay(100)` call), and then modifies
-the value of the `SharedEntry` object.
+`WriteWithDelayAsync()` is a C# `async` method that asynchronously waits for a `Task` to complete
+after `100`ms delay (created via the `Task.Delay(100)` call), and then modifies the value of the
+`SharedEntry` object.
 
 The `RunAsync()` asynchronous method is invoking the `WriteWithDelayAsync()` method three times,
 first passing the value `"Good Morning"` and then twice passing the value `"Hello World!"`
-respectively. Each method call returns a `ControlledTask` object, which can be awaited upon using
-`await`. After invoking the three asynchronous method calls The `RunAsync` method calls
-`ControlledTask.WhenAll(...)` to `await` on the completion of all three tasks.
+respectively. Each method call returns a `Task` object, which can be awaited upon using `await`.
+After invoking the three asynchronous method calls The `RunAsync` method calls `Task.WhenAll(...)`
+to `await` on the completion of all three tasks.
 
-Because the `WriteWithDelayAsync()` method awaits a `ControlledTask.Delay` to complete, it will
- yield control to the caller of the method, which is the `RunAsync()` method. However, the
- `RunAsync()` method is not doing any awaiting immediately after invoking the
- `WriteWithDelayAsync()` method calls. This means that the three calls will be executed
- _asynchronously_, and thus the value in the `Value` member can be either `"Good Morning"` or
- `"Hello World!"` after `ControlledTask.WhenAll(...)` completes.
+Because the `WriteWithDelayAsync()` method awaits a `Task.Delay` to complete, it will yield control
+to the caller of the method, which is the `RunAsync()` method. However, the `RunAsync()` method is
+not doing any awaiting immediately after invoking the `WriteWithDelayAsync()` method calls. This
+means that the three calls will be executed _asynchronously_, and thus the value in the `Value`
+member can be either `"Good Morning"` or `"Hello World!"` after `Task.WhenAll(...)` completes.
 
 Using `Specification.Assert`, Coyote allows you to write assertions that check these kinds of safety
 properties. In this case, the assertion will check if the value is `"Hello World!"` or not, and if
@@ -226,7 +224,6 @@ showing that assertions like this can be very useful in finding some pretty tric
 The code for `Program.cs` is much simpler:
 
 ```c#
-using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Samples.HelloWorld;
 using Microsoft.Coyote.Tasks;
@@ -235,13 +232,13 @@ namespace Microsoft.Coyote.Samples.HelloWorldTasks
 {
     public static class Program
     {
-        public static async Task Main()
+        public static async System.Threading.Tasks.Task Main()
         {
             await Execute();
         }
 
         [Microsoft.Coyote.SystematicTesting.Test]
-        public static async ControlledTask Execute()
+        public static async Task Execute()
         {
             var greeter = new Greeter();
             await greeter.RunAsync();
@@ -271,22 +268,21 @@ static `Execute()` method which must have a specific, signature. In this code on
 signatures for the method is specified.
 
 Do note the `[Microsoft.Coyote.SystematicTesting.Test]` attribute of the `Execute()` method, and its
-return type: `ControlledTask`. When these are specified, then `coyote test` can find the `Execute()`
-method in the executable assembly and can control its execution.
+return type: `Task`. When these are specified, then `coyote test` can find the `Execute()` method in
+the executable assembly and can control its execution.
 
-The `ControlledTask` type uses a C# 7 feature known as `async task types` (see
-[here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types)) that allows
-framework developers to create custom task types that can be used with `async` and `await`. This is
-where the magic happens. In production, `ControlledTask` enables C# to build a custom asynchronous
-state machine that uses regular `Task` objects. However, during testing, Coyote uses dependency
-injection to supply another custom implementation of an asynchronous state machine that allows
-controlling the scheduling of `ControlledTask` objects, and thus systematically explore their
-interleavings.
+The Coyote `Task` type uses a C# 7 feature known as `async task types` (see
+[here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types)) that allows framework
+developers to create custom task types that can be used with `async` and `await`. This is where the
+magic happens. In production, `Task` enables C# to build a custom asynchronous state machine that
+uses regular `Task` objects. However, during testing, Coyote uses dependency injection to supply
+another custom implementation of an asynchronous state machine that allows controlling the
+scheduling of `Task` objects, and thus systematically explore their interleavings.
 
 Also note that **with `coyote test` the `Main()` method is not executed**! This is why it is
 recommended that the `Main()` method should not contain any other code except awaiting the
-`Execute()` method. If it did contain other actions, their code would never be executed (and
-tested) with `coyote test`.
+`Execute()` method. If it did contain other actions, their code would never be executed (and tested)
+with `coyote test`.
 
 ## Summary
 
@@ -295,7 +291,7 @@ In this tutorial you learned:
 2. [How to build the samples used in the tutorials](#build-the-sample)
 3. [How to run the HelloWorldTasks sample from the
    command-line](#run-the-helloworldtasks-application)
-4. [Using the ControlledTask type to enable Coyote to control the scheduling of the
+4. [Using the controlled `Task` type to enable Coyote to control the scheduling of the
    program](/coyote/learn/programming-models/async/overview)
 5. [How to write code that is Coyote-testable](#coyote-testable)
 6. [How testing with Coyote results in finding even the trickiest concurrency bugs quickly even

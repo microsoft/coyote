@@ -28,7 +28,7 @@ reliable software.
 ![FailoverCoffeeMachine](../../assets/images/FailoverCoffeeMachine.svg)
 
 The `CoffeeMachine` is modeled as an asynchronous interface using
-[ControlledTasks](../programming-models/async/overview). This example it not providing real
+[controlled Tasks](../programming-models/async/overview). This example it not providing real
 firmware, instead it `mocks` the hardware sensor platform built into the machine. This is done in
 the asynchronous `MockSensors` class. This class provides async ways of reading sensor values like
 the water temperature and setting things like the power button, or turning on and off the coffee
@@ -395,7 +395,7 @@ of production code using Coyote.
 
 In this tutorial you learned:
 
-- How to do failover testing using Coyote `ControlledTasks`.
+- How to do failover testing in the Coyote controlled `Task` programming model.
 - How to use Coyote in a firmware/sensor scenario.
 - How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
 - How `Assert` helps find violations of safety properties during testing.

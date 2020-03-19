@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Safety));
+                r.RegisterMonitor<Safety>();
             });
         }
     }

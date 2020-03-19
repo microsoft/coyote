@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
             return this.Log.ToString();
         }
 
-        public void OnCreateActor(ActorId id, ActorId creator)
+        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
         {
             this.Log.AppendLine("CreateActor");
         }
@@ -26,7 +26,8 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
+        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+            Event e, Guid opGroupId, bool isTargetHalted)
         {
         }
 
@@ -107,23 +108,24 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnCreateMonitor(string monitorTypeName, ActorId id)
+        public void OnCreateMonitor(string monitorTypeName)
         {
         }
 
-        public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
+        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
         {
         }
 
-        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
+        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
+            string senderName, string senderStateName, Event e)
         {
         }
 
-        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
+        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
         {
         }
 
-        public void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName, bool isEntry, bool? isInHotState)
+        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
         {
         }
 

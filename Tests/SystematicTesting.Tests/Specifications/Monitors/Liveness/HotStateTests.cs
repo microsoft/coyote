@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M));
+                r.RegisterMonitor<M>();
                 r.CreateActor(typeof(Master));
             },
             configuration: configuration,

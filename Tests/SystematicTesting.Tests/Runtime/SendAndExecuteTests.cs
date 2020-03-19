@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M5SafetyMonitor));
+                r.RegisterMonitor<M5SafetyMonitor>();
                 r.CreateActor(typeof(M5A));
             },
             configuration: Configuration.Create().WithTestingIterations(100));
@@ -473,7 +473,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M6SafetyMonitor));
+                r.RegisterMonitor<M6SafetyMonitor>();
                 r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(true));
             },
             configuration: Configuration.Create().WithTestingIterations(100));
@@ -484,7 +484,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                r.RegisterMonitor(typeof(M6SafetyMonitor));
+                r.RegisterMonitor<M6SafetyMonitor>();
                 r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(false));
             },
             replay: true);

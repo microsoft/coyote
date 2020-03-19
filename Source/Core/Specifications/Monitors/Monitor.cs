@@ -8,11 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Runtime;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 using EventInfo = Microsoft.Coyote.Actors.EventInfo;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -88,14 +87,9 @@ namespace Microsoft.Coyote.Specifications
         private int LivenessTemperature;
 
         /// <summary>
-        /// The unique monitor id.
-        /// </summary>
-        internal ActorId Id { get; private set; }
-
-        /// <summary>
         /// Gets the name of this monitor.
         /// </summary>
-        protected internal string Name => this.Id.Name;
+        protected internal string Name => this.GetType().FullName;
 
         /// <summary>
         /// The logger installed to the runtime.
@@ -168,10 +162,8 @@ namespace Microsoft.Coyote.Specifications
         /// Initializes this monitor.
         /// </summary>
         /// <param name="runtime">The runtime that executes this monitor.</param>
-        /// <param name="id">The monitor id.</param>
-        internal void Initialize(CoyoteRuntime runtime, ActorId id)
+        internal void Initialize(CoyoteRuntime runtime)
         {
-            this.Id = id;
             this.Runtime = runtime;
         }
 
@@ -188,7 +180,7 @@ namespace Microsoft.Coyote.Specifications
         /// <param name="e">The event to raise.</param>
         protected void RaiseEvent(Event e)
         {
-            this.Assert(e != null, "{0} is raising a null event.", this.GetType().Name);
+            this.Assert(e != null, "{0} is raising a null event.", this.GetType().FullName);
             this.CheckDanglingTransition();
             this.PendingTransition = new Transition(Transition.Type.Raise, default, e);
         }
@@ -239,7 +231,7 @@ namespace Microsoft.Coyote.Specifications
         {
             // If the state is not a state of the monitor, then report an error and exit.
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
-                "{0} is trying to transition to non-existing state '{1}'.", this.GetType().Name, state.Name);
+                "{0} is trying to transition to non-existing state '{1}'.", this.GetType().FullName, state.Name);
             this.CheckDanglingTransition();
             this.PendingTransition = new Transition(Transition.Type.Goto, state, default);
         }
@@ -260,19 +252,6 @@ namespace Microsoft.Coyote.Specifications
             this.Runtime.Assert(predicate, s, args);
         }
 
-        internal ActorId GetOrCreateFakeId(Actor caller)
-        {
-            if (caller == null)
-            {
-                // Then this might be from a controlled Task so use a fake id equal to the task id.
-                return new ActorId(typeof(CoyoteTasks.Task), SystemTasks.Task.CurrentId.ToString(), this.Runtime);
-            }
-            else
-            {
-                return caller.Id;
-            }
-        }
-
         /// <summary>
         /// Notifies the monitor to handle the received event.
         /// </summary>
@@ -280,14 +259,24 @@ namespace Microsoft.Coyote.Specifications
         /// <param name="e">The event to monitor.</param>
         internal void MonitorEvent(Actor sender, Event e)
         {
+            string senderType = null;
+            string senderName = null;
             string senderState = null;
-            if (sender is StateMachine machine)
+            if (sender is null)
             {
+                // Then this might be from a controlled Task so create a dummy sender.
+                senderType = "Task";
+                senderName = Task.CurrentId.ToString();
+            }
+            else if (sender is StateMachine machine)
+            {
+                senderType = sender.Id.Type;
+                senderName = sender.Id.Name;
                 senderState = machine.CurrentStateName;
             }
 
-            this.Runtime.LogWriter.LogMonitorProcessEvent(this.GetOrCreateFakeId(sender), senderState, this.GetType().Name,
-                this.Id, this.CurrentStateName, e);
+            this.Runtime.LogWriter.LogMonitorProcessEvent(this.GetType().FullName, this.CurrentStateName,
+                senderType, senderName, senderState, e);
             this.HandleEvent(e);
         }
 
@@ -308,7 +297,7 @@ namespace Microsoft.Coyote.Specifications
                 {
                     // If the event cannot be handled, then report an error and exit.
                     this.Assert(false, "{0} received event '{1}' that cannot be handled.",
-                        this.GetType().Name, e.GetType().FullName);
+                        this.GetType().FullName, e.GetType().FullName);
                 }
 
                 // If current state cannot handle the event then null the state.
@@ -427,7 +416,7 @@ namespace Microsoft.Coyote.Specifications
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None,
                     "{0} has performed a '{1}' transition from an OnExit action.",
-                    this.Id, transition.TypeValue);
+                    this.GetType().FullName, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
             }
 
@@ -440,7 +429,7 @@ namespace Microsoft.Coyote.Specifications
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None,
                     "{0} has performed a '{1}' transition from an OnExit action.",
-                    this.Id, transition.TypeValue);
+                    this.GetType().FullName, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
             }
         }
@@ -476,7 +465,7 @@ namespace Microsoft.Coyote.Specifications
                 }
 
                 if (innerException is ExecutionCanceledException ||
-                    innerException is SystemTasks.TaskSchedulerException)
+                    innerException is TaskSchedulerException)
                 {
                     throw;
                 }
@@ -501,20 +490,14 @@ namespace Microsoft.Coyote.Specifications
             {
                 this.PendingTransition = default;
                 var e = transition.Event;
-                var eventOrigin = new EventOriginInfo(this.Id, this.GetType().FullName,
-                NameResolver.GetQualifiedStateName(this.CurrentState));
-                EventInfo raisedEvent = new EventInfo(e, eventOrigin);
-                this.Runtime.NotifyRaisedEvent(this, e, raisedEvent);
+                this.Runtime.NotifyRaisedEvent(this, e);
                 this.HandleEvent(e);
             }
             else if (transition.TypeValue is Transition.Type.Goto)
             {
                 this.PendingTransition = default;
                 var e = new GotoStateEvent(transition.State);
-                var eventOrigin = new EventOriginInfo(this.Id, this.GetType().FullName,
-                NameResolver.GetQualifiedStateName(this.CurrentState));
-                EventInfo raisedEvent = new EventInfo(e, eventOrigin);
-                this.Runtime.NotifyRaisedEvent(this, e, raisedEvent);
+                this.Runtime.NotifyRaisedEvent(this, e);
                 this.HandleEvent(e);
             }
             else
@@ -533,8 +516,8 @@ namespace Microsoft.Coyote.Specifications
 
             if (transition.TypeValue != Transition.Type.None)
             {
-                var currentState = this.CurrentState?.GetTypeInfo().Name;
-                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed", transition.TypeValue, this.GetType().Name, this.CurrentStateName);
+                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed",
+                    transition.TypeValue, this.GetType().FullName, this.CurrentStateName);
                 string suffix = null;
 
                 if (transition.State != null && transition.Event != null)
@@ -609,7 +592,7 @@ namespace Microsoft.Coyote.Specifications
                     this.LivenessTemperature <= this.Runtime.
                     Configuration.LivenessTemperatureThreshold,
                     "{0} detected potential liveness bug in hot state '{1}'.",
-                    this.GetType().Name, this.CurrentStateName);
+                    this.GetType().FullName, this.CurrentStateName);
             }
         }
 
@@ -624,7 +607,7 @@ namespace Microsoft.Coyote.Specifications
             {
                 this.Runtime.Assert(
                     livenessTemperature <= this.Runtime.Configuration.LivenessTemperatureThreshold,
-                    $"{this.GetType().Name} detected infinite execution that violates a liveness property.");
+                    $"{this.GetType().FullName} detected infinite execution that violates a liveness property.");
             }
         }
 
@@ -690,7 +673,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Returns a string that represents the current monitor.
         /// </summary>
-        public override string ToString() => this.GetType().Name;
+        public override string ToString() => this.GetType().FullName;
 
         /// <summary>
         /// Transitions to the start state, and executes the
@@ -786,7 +769,7 @@ namespace Microsoft.Coyote.Specifications
                                     (state.IsCold && !state.IsHot) ||
                                     (!state.IsCold && state.IsHot) ||
                                     (!state.IsCold && !state.IsHot),
-                                    "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.GetType().Name);
+                                    "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.GetType().FullName);
 
                                 StateMap[monitorType].Add(state);
                             }
@@ -844,8 +827,8 @@ namespace Microsoft.Coyote.Specifications
             }
 
             var initialStates = StateMap[monitorType].Where(state => state.IsStart).ToList();
-            this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.GetType().Name);
-            this.Assert(initialStates.Count == 1, "{0} can not declare more than one start states.", this.GetType().Name);
+            this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.GetType().FullName);
+            this.Assert(initialStates.Count == 1, "{0} can not declare more than one start states.", this.GetType().FullName);
 
             this.ConfigureStateTransitions(initialStates.Single());
             this.ActiveState = initialStates.Single();
@@ -916,17 +899,17 @@ namespace Microsoft.Coyote.Specifications
             while (action is null && monitorType != typeof(Monitor));
 
             this.Assert(action != null, "Cannot detect action declaration '{0}' in {1}.",
-                actionName, this.GetType().Name);
+                actionName, this.GetType().FullName);
 
             ParameterInfo[] parameters = action.GetParameters();
             this.Assert(parameters.Length is 0 ||
                 (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
                 "Action '{0}' in {1} must either accept no parameters or a single parameter of type 'Event'.",
-                action.Name, this.GetType().Name);
+                action.Name, this.GetType().FullName);
 
             this.Assert(action.ReturnType == typeof(void) || action.ReturnType == typeof(Transition),
                 "Action '{0}' in {1} must have 'void' or 'Transition' return type.",
-                action.Name, this.GetType().Name);
+                action.Name, this.GetType().FullName);
 
             return action;
         }
@@ -936,8 +919,8 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         private void AssertStateValidity()
         {
-            this.Assert(StateTypeMap[this.GetType()].Count > 0, "{0} must have one or more states.", this.GetType().Name);
-            this.Assert(this.ActiveState != null, "{0} must not have a null current state.", this.GetType().Name);
+            this.Assert(StateTypeMap[this.GetType()].Count > 0, "{0} must have one or more states.", this.GetType().FullName);
+            this.Assert(this.ActiveState != null, "{0} must not have a null current state.", this.GetType().FullName);
         }
 
         /// <summary>
@@ -948,7 +931,7 @@ namespace Microsoft.Coyote.Specifications
         {
             var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
             this.Runtime.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')",
-                this.GetType().Name, state, actionName);
+                this.GetType().FullName, state, actionName);
         }
 
         /// <summary>
@@ -956,7 +939,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal HashSet<string> GetAllStates()
         {
-            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().Name);
+            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().FullName);
 
             var allStates = new HashSet<string>();
             foreach (var state in StateMap[this.GetType()])
@@ -972,7 +955,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal HashSet<Tuple<string, string>> GetAllStateEventPairs()
         {
-            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().Name);
+            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().FullName);
 
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateMap[this.GetType()])

@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Actors
             Actor creator, Guid opGroupId)
         {
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.LogWriter.LogCreateActor(actor.Id, creator?.Id);
+            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Type, creator?.Id.Name);
             this.RunActorEventHandler(actor, initialEvent, true);
             return actor.Id;
         }
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Actors
             Event initialEvent, Actor creator, Guid opGroupId)
         {
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.LogWriter.LogCreateActor(actor.Id, creator?.Id);
+            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Type, creator?.Id.Name);
             await this.RunActorEventHandlerAsync(actor, initialEvent, true);
             return actor.Id;
         }
@@ -284,14 +284,14 @@ namespace Microsoft.Coyote.Actors
             target = this.GetActorWithId<Actor>(targetId);
             if (target is null || target.IsHalted)
             {
-                this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                    e, opGroupId, isTargetHalted: true);
+                this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                    (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
 
-            this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                e, opGroupId, isTargetHalted: false);
+            this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: false);
 
             EnqueueStatus enqueueStatus = target.Enqueue(e, opGroupId, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
@@ -383,10 +383,8 @@ namespace Microsoft.Coyote.Actors
 
             this.Assert(type.IsSubclassOf(typeof(Monitor)), "Type '{0}' is not a subclass of Monitor.", type.FullName);
 
-            ActorId id = new ActorId(type, null, this);
             Monitor monitor = (Monitor)Activator.CreateInstance(type);
-
-            monitor.Initialize(this, id);
+            monitor.Initialize(this);
             monitor.InitializeStateInformation();
 
             lock (this.Monitors)
@@ -394,7 +392,7 @@ namespace Microsoft.Coyote.Actors
                 this.Monitors.Add(monitor);
             }
 
-            this.LogWriter.LogCreateMonitor(type.FullName, monitor.Id);
+            this.LogWriter.LogCreateMonitor(type.FullName);
 
             monitor.GotoStartState();
         }
@@ -602,7 +600,7 @@ namespace Microsoft.Coyote.Actors
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState,
                     true, monitor.GetHotState());
             }
         }
@@ -615,7 +613,7 @@ namespace Microsoft.Coyote.Actors
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState,
                     false, monitor.GetHotState());
             }
         }
@@ -627,20 +625,19 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, action.Name, stateName);
+                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, action.Name, stateName);
             }
         }
 
         /// <summary>
         /// Notifies that a monitor raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
+        internal override void NotifyRaisedEvent(Monitor monitor, Event e)
         {
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
-                    monitorState, e);
+                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitorState, e);
             }
         }
 

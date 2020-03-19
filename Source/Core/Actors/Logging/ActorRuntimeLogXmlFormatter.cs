@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteElementString("AssertionFailure", error);
         }
 
-        public void OnCreateActor(ActorId id, ActorId creator)
+        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
         {
             if (this.Closed)
             {
@@ -53,12 +53,12 @@ namespace Microsoft.Coyote.Actors
 
             this.Writer.WriteStartElement("CreateActor");
             this.Writer.WriteAttributeString("id", id.ToString());
-            var creatorId = creator is null ? "external" : creator.Name;
+            var creatorId = creatorType is null ? "external" : creatorName;
             this.Writer.WriteAttributeString("creator", creatorId);
             this.Writer.WriteEndElement();
         }
 
-        public void OnCreateMonitor(string monitorTypeName, ActorId id)
+        public void OnCreateMonitor(string monitorTypeName)
         {
             if (this.Closed)
             {
@@ -66,7 +66,6 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.Writer.WriteStartElement("CreateMonitor");
-            this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("type", monitorTypeName);
             this.Writer.WriteEndElement();
         }
@@ -229,7 +228,7 @@ namespace Microsoft.Coyote.Actors
             }
         }
 
-        public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
+        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
         {
             if (this.Closed)
             {
@@ -237,14 +236,14 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.Writer.WriteStartElement("MonitorAction");
-            this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
             this.Writer.WriteAttributeString("state", stateName);
             this.Writer.WriteAttributeString("action", actionName);
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
+        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
+            string senderName, string senderStateName, Event e)
         {
             if (this.Closed)
             {
@@ -253,20 +252,19 @@ namespace Microsoft.Coyote.Actors
 
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("MonitorEvent");
-            if (senderId != null)
+            if (senderType != null)
             {
-                this.Writer.WriteAttributeString("sender", senderId.ToString());
+                this.Writer.WriteAttributeString("sender", senderName);
             }
 
             this.Writer.WriteAttributeString("senderState", senderStateName);
-            this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
             this.Writer.WriteAttributeString("state", stateName);
             this.Writer.WriteAttributeString("event", eventName);
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
+        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
         {
             if (this.Closed)
             {
@@ -275,14 +273,13 @@ namespace Microsoft.Coyote.Actors
 
             string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("MonitorRaise");
-            this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
             this.Writer.WriteAttributeString("state", stateName);
             this.Writer.WriteAttributeString("event", eventName);
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName, bool isEntry, bool? isInHotState)
+        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
         {
             if (this.Closed)
             {
@@ -290,7 +287,6 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.Writer.WriteStartElement("MonitorState");
-            this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("monitorType", monitorTypeName);
             this.Writer.WriteAttributeString("state", stateName);
             this.Writer.WriteAttributeString("isEntry", isEntry.ToString());
@@ -394,7 +390,8 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteEndElement();
         }
 
-        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
+        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+            Event e, Guid opGroupId, bool isTargetHalted)
         {
             if (this.Closed)
             {
@@ -404,9 +401,9 @@ namespace Microsoft.Coyote.Actors
             var eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Send");
             this.Writer.WriteAttributeString("target", targetActorId.ToString());
-            if (senderId != null)
+            if (senderType != null)
             {
-                this.Writer.WriteAttributeString("sender", senderId.ToString());
+                this.Writer.WriteAttributeString("sender", senderName);
             }
 
             this.Writer.WriteAttributeString("senderState", senderStateName);

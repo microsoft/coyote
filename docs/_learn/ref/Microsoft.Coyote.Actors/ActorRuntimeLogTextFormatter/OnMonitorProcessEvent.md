@@ -9,22 +9,21 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMon
 Invoked when the specified monitor is about to process an event.
 
 ```csharp
-public virtual void OnMonitorProcessEvent(ActorId senderId, string senderStateName, 
-    string monitorTypeName, ActorId id, string stateName, Event e)
+public virtual void OnMonitorProcessEvent(string monitorTypeName, string stateName, 
+    string senderType, string senderName, string senderStateName, Event e)
 ```
 
 | parameter | description |
 | --- | --- |
-| senderId | The sender of the event. |
-| senderStateName | The name of the state the sender is in. |
 | monitorTypeName | Name of type of the monitor that will process the event. |
-| id | The id of the monitor that will process the event. |
 | stateName | The name of the state in which the event is being raised. |
+| senderType | The type of the sender, if any. |
+| senderName | The name of the sender, if any. |
+| senderStateName | The name of the state the sender is in. |
 | e | The event being processed. |
 
 ## See Also
 
-* class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
 * class [ActorRuntimeLogTextFormatter](../ActorRuntimeLogTextFormatterType)
 * namespace [Microsoft.Coyote.Actors](../ActorRuntimeLogTextFormatterType)

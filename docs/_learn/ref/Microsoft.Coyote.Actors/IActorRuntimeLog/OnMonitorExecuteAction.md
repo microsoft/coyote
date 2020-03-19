@@ -9,20 +9,17 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorExecuteA
 Invoked when the specified monitor executes an action.
 
 ```csharp
-public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, 
-    string actionName)
+public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
 ```
 
 | parameter | description |
 | --- | --- |
 | monitorTypeName | Name of type of the monitor that is executing the action. |
-| id | The id of the monitor that is executing the action |
 | stateName | The name of the state in which the action is being executed. |
 | actionName | The name of the action being executed. |
 
 ## See Also
 
-* class [ActorId](../ActorIdType)
 * interface [IActorRuntimeLog](../IActorRuntimeLogType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeLogType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

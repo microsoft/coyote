@@ -868,7 +868,7 @@ namespace Microsoft.Coyote.Actors
             }
             while (action is null && actorType != typeof(StateMachine) && actorType != typeof(Actor));
 
-            this.Assert(action != null, "Cannot detect action declaration '{0}' in '{1}'.", actionName, this.GetType().Name);
+            this.Assert(action != null, "Cannot detect action declaration '{0}' in '{1}'.", actionName, this.GetType().FullName);
             this.AssertActionValidity(action);
             return action;
         }

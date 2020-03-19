@@ -9,14 +9,15 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnSen
 Invoked when the specified event is sent to a target actor.
 
 ```csharp
-public virtual void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, 
-    Event e, Guid opGroupId, bool isTargetHalted)
+public virtual void OnSendEvent(ActorId targetActorId, string senderType, string senderName, 
+    string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
 ```
 
 | parameter | description |
 | --- | --- |
 | targetActorId | The id of the target actor. |
-| senderId | The id of the actor that sent the event, if any. |
+| senderType | The type of the sender, if any. |
+| senderName | The name of the sender, if any. |
 | senderStateName | The state name, if the sender actor is a state machine and a state exists, else null. |
 | e | The event being sent. |
 | opGroupId | The id used to identify the send operation. |

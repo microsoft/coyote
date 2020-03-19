@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(WatchDog));
+                r.RegisterMonitor<WatchDog>();
                 r.CreateActor(typeof(EventHandler));
             },
             configuration: configuration,

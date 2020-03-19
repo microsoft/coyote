@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec));
+                r.RegisterMonitor<Spec>();
                 var m = r.CreateActor(typeof(A1));
                 r.SendEvent(m, UnitEvent.Instance);
                 r.SendEvent(m, new E()); // Dropped silently.
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec));
+                r.RegisterMonitor<Spec>();
                 var m = r.CreateActor(typeof(M1));
                 r.SendEvent(m, UnitEvent.Instance);
                 r.SendEvent(m, new E()); // Dropped silently.
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(Spec));
+                r.RegisterMonitor<Spec>();
                 var m = r.CreateActor(typeof(A2));
                 r.SendEvent(m, UnitEvent.Instance);
             },
@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(Spec));
+                r.RegisterMonitor<Spec>();
                 var m = r.CreateActor(typeof(M2));
                 r.SendEvent(m, UnitEvent.Instance);
             },
@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                r.RegisterMonitor(typeof(Spec));
+                r.RegisterMonitor<Spec>();
                 var m = r.CreateActor(typeof(A3));
                 r.SendEvent(m, UnitEvent.Instance);
             },
@@ -266,7 +266,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                r.RegisterMonitor(typeof(Spec));
+                r.RegisterMonitor<Spec>();
                 var m = r.CreateActor(typeof(M3));
                 r.SendEvent(m, UnitEvent.Instance);
             },

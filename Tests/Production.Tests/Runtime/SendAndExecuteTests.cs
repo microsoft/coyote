@@ -278,7 +278,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
                     tcs.SetResult(false);
                 };
 
-                r.RegisterMonitor(typeof(SafetyMonitor));
+                r.RegisterMonitor<SafetyMonitor>();
                 r.CreateActor(typeof(M3), new Config1(tcs));
 
                 await WaitAsync(tcs.Task);

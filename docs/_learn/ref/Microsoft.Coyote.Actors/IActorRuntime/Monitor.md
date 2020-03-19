@@ -1,24 +1,26 @@
 ---
 layout: reference
 section: learn
-title: RegisterMonitor
-permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterMonitor
+title: Monitor
+permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Monitor
 ---
-# IActorRuntime.RegisterMonitor&lt;T&gt; method
+# IActorRuntime.Monitor&lt;T&gt; method
 
-Registers a new specification monitor of the specified Type.
+Invokes the specified monitor with the specified [`Event`](../../Microsoft.Coyote/EventType).
 
 ```csharp
-public void RegisterMonitor<T>()
+public void Monitor<T>(Event e)
     where T : Monitor
 ```
 
 | parameter | description |
 | --- | --- |
 | T | Type of the monitor. |
+| e | Event |
 
 ## See Also
 
+* class [Event](../../Microsoft.Coyote/EventType)
 * class [Monitor](../../Microsoft.Coyote.Specifications/MonitorType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)

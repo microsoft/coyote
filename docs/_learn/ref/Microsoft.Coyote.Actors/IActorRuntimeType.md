@@ -25,13 +25,12 @@ public interface IActorRuntime : IDisposable
 | [CreateActorId](IActorRuntime/CreateActorId)(…) | Creates a fresh actor id that has not yet been bound to any actor. |
 | [CreateActorIdFromName](IActorRuntime/CreateActorIdFromName)(…) | Creates a actor id that is uniquely tied to the specified unique name. The returned actor id can either be a fresh id (not yet bound to any actor), or it can be bound to a previously created actor. In the second case, this actor id can be directly used to communicate with the corresponding actor. |
 | [GetCurrentOperationGroupId](IActorRuntime/GetCurrentOperationGroupId)(…) | Returns the operation group id of the actor with the specified id. Returns Empty if the id is not set, or if the [`ActorId`](ActorIdType) is not associated with this runtime. During testing, the runtime asserts that the specified actor is currently executing. |
-| [InvokeMonitor](IActorRuntime/InvokeMonitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
-| [InvokeMonitor&lt;T&gt;](IActorRuntime/InvokeMonitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
+| [Monitor&lt;T&gt;](IActorRuntime/Monitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
 | [Random](IActorRuntime/Random)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
 | [Random](IActorRuntime/Random)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |
 | [RandomInteger](IActorRuntime/RandomInteger)(…) | Returns a nondeterministic integer choice, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |
 | [RegisterLog](IActorRuntime/RegisterLog)(…) | Use this method to register an [`IActorRuntimeLog`](IActorRuntimeLogType). |
-| [RegisterMonitor](IActorRuntime/RegisterMonitor)(…) | Registers a new specification monitor of the specified Type. |
+| [RegisterMonitor&lt;T&gt;](IActorRuntime/RegisterMonitor)() | Registers a new specification monitor of the specified Type. |
 | [RemoveLog](IActorRuntime/RemoveLog)(…) | Use this method to unregister a previously registered [`IActorRuntimeLog`](IActorRuntimeLogType). |
 | [SendEvent](IActorRuntime/SendEvent)(…) | Sends an asynchronous [`Event`](../Microsoft.Coyote/EventType) to an actor. |
 | [SendEventAndExecuteAsync](IActorRuntime/SendEventAndExecuteAsync)(…) | Sends an [`Event`](../Microsoft.Coyote/EventType) to an actor. Returns immediately if the target was already running. Otherwise blocks until the target handles the event and reaches quiescense. |

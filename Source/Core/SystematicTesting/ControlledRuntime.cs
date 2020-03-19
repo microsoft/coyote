@@ -393,7 +393,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor));
             this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
-            this.LogWriter.LogCreateActor(id, creator?.Id);
+            this.LogWriter.LogCreateActor(id, creator?.Id.Type, creator?.Id.Name);
 
             return actor;
         }
@@ -483,8 +483,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (target.IsHalted)
             {
-                this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                    e, opGroupId, isTargetHalted: true);
+                this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                    (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to {1} which has halted.", e.GetType().FullName, targetId);
                 this.TryHandleDroppedEvent(e, targetId);
@@ -531,7 +531,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 SendStep = this.Scheduler.ScheduledSteps
             };
 
-            this.LogWriter.LogSendEvent(actor.Id, sender?.Id, stateName, e, opGroupId, isTargetHalted: false);
+            this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Type, sender?.Id.Name, stateName,
+                e, opGroupId, isTargetHalted: false);
             return actor.Enqueue(e, opGroupId, eventInfo);
         }
 
@@ -652,13 +653,11 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Assert(type.IsSubclassOf(typeof(Monitor)), "Type '{0}' is not a subclass of Monitor.", type.FullName);
 
-            ActorId id = new ActorId(type, null, this);
-
             Monitor monitor = Activator.CreateInstance(type) as Monitor;
-            monitor.Initialize(this, id);
+            monitor.Initialize(this);
             monitor.InitializeStateInformation();
 
-            this.LogWriter.LogCreateMonitor(type.FullName, monitor.Id);
+            this.LogWriter.LogCreateMonitor(type.FullName);
 
             if (this.Configuration.ReportActivityCoverage)
             {
@@ -1072,7 +1071,7 @@ namespace Microsoft.Coyote.SystematicTesting
         internal override void NotifyEnteredState(Monitor monitor)
         {
             string monitorState = monitor.CurrentStateName;
-            this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState, true, monitor.GetHotState());
+            this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, true, monitor.GetHotState());
         }
 
         /// <summary>
@@ -1080,7 +1079,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal override void NotifyExitedState(Monitor monitor)
         {
-            this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id,
+            this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName,
                 monitor.CurrentStateName, false, monitor.GetHotState());
         }
 
@@ -1089,17 +1088,16 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
         {
-            this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, stateName, action.Name);
+            this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, stateName, action.Name);
         }
 
         /// <summary>
         /// Notifies that a monitor raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
+        internal override void NotifyRaisedEvent(Monitor monitor, Event e)
         {
             string monitorState = monitor.CurrentStateName;
-            this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
-                monitorState, e);
+            this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitorState, e);
         }
 
         /// <summary>

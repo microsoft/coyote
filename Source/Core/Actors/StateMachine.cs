@@ -532,8 +532,8 @@ namespace Microsoft.Coyote.Actors
 
             if (transition.TypeValue != Transition.Type.None)
             {
-                string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed",
-                    transition.TypeValue, this.GetType().Name, this.CurrentStateName);
+                string prefix = string.Format("{0} transition created by {1} in state {2} was not processed",
+                    transition.TypeValue, this.GetType().FullName, this.CurrentStateName);
                 string suffix = null;
 
                 if (transition.State != null && transition.Event != null)

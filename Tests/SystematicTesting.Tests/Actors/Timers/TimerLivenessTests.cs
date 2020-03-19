@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(Client));
             },
             configuration: configuration);

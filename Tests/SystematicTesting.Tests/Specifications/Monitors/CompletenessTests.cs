@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(P));
+                r.RegisterMonitor<P>();
                 r.CreateActor(typeof(M2));
                 r.CreateActor(typeof(M1));
             },
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(P));
+                r.RegisterMonitor<P>();
                 r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(M2));
             },

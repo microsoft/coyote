@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -153,22 +154,17 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
-        /// <param name="type">Type of the monitor.</param>
-        void RegisterMonitor(Type type);
+        /// <typeparam name="T">Type of the monitor.</typeparam>
+        void RegisterMonitor<T>()
+            where T : Monitor;
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
         /// <param name="e">Event</param>
-        void InvokeMonitor<T>(Event e);
-
-        /// <summary>
-        /// Invokes the specified monitor with the specified <see cref="Event"/>.
-        /// </summary>
-        /// <param name="type">Type of the monitor.</param>
-        /// <param name="e">Event</param>
-        void InvokeMonitor(Type type, Event e);
+        void Monitor<T>(Event e)
+            where T : Monitor;
 
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be controlled

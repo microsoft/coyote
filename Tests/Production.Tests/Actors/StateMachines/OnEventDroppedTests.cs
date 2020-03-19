@@ -225,8 +225,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
                 var tcs = new TaskCompletionSource<bool>();
 
-                r.RegisterMonitor(typeof(Monitor3));
-                r.InvokeMonitor(typeof(Monitor3), new E(tcs));
+                r.RegisterMonitor<Monitor3>();
+                r.Monitor<Monitor3>(new E(tcs));
 
                 r.OnFailure += (ex) =>
                 {
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 r.OnEventDropped += (e, target) =>
                 {
-                    r.InvokeMonitor(typeof(Monitor3), new EventDropped());
+                    r.Monitor<Monitor3>(new EventDropped());
                 };
 
                 var m = r.CreateActor(typeof(M3c));

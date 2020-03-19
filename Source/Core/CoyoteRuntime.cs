@@ -156,27 +156,19 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
-        public void RegisterMonitor(Type type)
-        {
-            this.TryCreateMonitor(type);
-        }
+        public void RegisterMonitor<T>()
+            where T : Monitor =>
+            this.TryCreateMonitor(typeof(T));
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
         /// </summary>
-        public void InvokeMonitor<T>(Event e)
-        {
-            this.InvokeMonitor(typeof(T), e);
-        }
-
-        /// <summary>
-        /// Invokes the specified monitor with the specified <see cref="Event"/>.
-        /// </summary>
-        public void InvokeMonitor(Type type, Event e)
+        public void Monitor<T>(Event e)
+            where T : Monitor
         {
             // If the event is null then report an error and exit.
             this.Assert(e != null, "Cannot monitor a null event.");
-            this.Monitor(type, null, e);
+            this.Monitor(typeof(T), null, e);
         }
 
         /// <summary>
@@ -516,7 +508,7 @@ namespace Microsoft.Coyote.Runtime
         /// Notifies that a monitor raised an <see cref="Event"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
+        internal virtual void NotifyRaisedEvent(Monitor monitor, Event e)
         {
         }
 

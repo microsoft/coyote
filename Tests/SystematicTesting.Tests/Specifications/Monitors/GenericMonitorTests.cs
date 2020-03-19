@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M<int>));
+                r.RegisterMonitor<M<int>>();
                 r.CreateActor(typeof(Program<int>));
             });
         }

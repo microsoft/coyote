@@ -230,7 +230,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             config.IsMonitoringEnabledInInProduction = true;
 
             var runtime = RuntimeFactory.Create(config);
-            runtime.RegisterMonitor(typeof(S));
+            runtime.RegisterMonitor<S>();
             runtime.SetLogger(null);
             var logger = new CustomActorRuntimeLog();
             runtime.RegisterLog(logger);

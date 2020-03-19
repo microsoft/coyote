@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 var m1 = r.CreateActor(typeof(M));
                 var m2 = r.CreateActorIdFromName(typeof(M), "M");
                 r.Assert(!m1.Equals(m2));
@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 var m1 = r.CreateActorIdFromName(typeof(M), "M1");
                 var m2 = r.CreateActorIdFromName(typeof(M), "M2");
                 r.Assert(!m1.Equals(m2));
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(WaitUntilDone));
+                r.RegisterMonitor<WaitUntilDone>();
                 r.CreateActor(typeof(M7));
             });
         }

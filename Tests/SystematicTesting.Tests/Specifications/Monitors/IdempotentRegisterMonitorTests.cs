@@ -70,8 +70,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M));
-                r.RegisterMonitor(typeof(M));
+                r.RegisterMonitor<M>();
+                r.RegisterMonitor<M>();
                 ActorId n = r.CreateActor(typeof(N));
             });
         }

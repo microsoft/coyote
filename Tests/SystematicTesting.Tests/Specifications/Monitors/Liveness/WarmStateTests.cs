@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(WatchDog));
+                r.RegisterMonitor<WatchDog>();
                 r.CreateActor(typeof(EventHandler));
             },
             configuration: Configuration.Create().WithDFSStrategy());

@@ -296,8 +296,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEventAndExecuteAsync
         - name: RegisterMonitor
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterMonitor
-        - name: InvokeMonitor
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/InvokeMonitor
+        - name: Monitor
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Monitor
         - name: Random
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Random
         - name: RandomInteger

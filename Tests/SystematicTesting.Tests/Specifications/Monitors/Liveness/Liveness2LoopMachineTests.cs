@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(EventHandler));
             },
             configuration: configuration,

@@ -120,11 +120,11 @@ namespace Microsoft.Coyote.Coverage
         {
         }
 
-        public void OnCreateActor(ActorId id, ActorId creator)
+        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
         {
         }
 
-        public void OnCreateMonitor(string monitorTypeName, ActorId id)
+        public void OnCreateMonitor(string monitorTypeName)
         {
         }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.Coverage
         {
             if (this.Dequeued != null)
             {
-                this.EventCoverage.AddEventReceived(GetStateId(id, stateName), this.Dequeued.GetType().FullName);
+                this.EventCoverage.AddEventReceived(GetStateId(id.Type, stateName), this.Dequeued.GetType().FullName);
                 this.Dequeued = null;
             }
         }
@@ -182,23 +182,24 @@ namespace Microsoft.Coyote.Coverage
             this.Dequeued = e;
         }
 
-        public void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
+        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
         {
         }
 
-        public void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
-        {
-            string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventReceived(GetStateId(id, stateName), eventName);
-        }
-
-        public void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
+        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
+            string senderName, string senderStateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventSent(GetStateId(id, stateName), eventName);
+            this.EventCoverage.AddEventReceived(GetStateId(monitorTypeName, stateName), eventName);
         }
 
-        public void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName, bool isEntry, bool? isInHotState)
+        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        {
+            string eventName = e.GetType().FullName;
+            this.EventCoverage.AddEventSent(GetStateId(monitorTypeName, stateName), eventName);
+        }
+
+        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
         {
         }
 
@@ -218,7 +219,7 @@ namespace Microsoft.Coyote.Coverage
         public void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventSent(GetStateId(id, stateName), eventName);
+            this.EventCoverage.AddEventSent(GetStateId(id.Type, stateName), eventName);
         }
 
         public void OnRandom(ActorId id, object result)
@@ -228,13 +229,14 @@ namespace Microsoft.Coyote.Coverage
         public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventReceived(GetStateId(id, stateName), eventName);
+            this.EventCoverage.AddEventReceived(GetStateId(id.Type, stateName), eventName);
         }
 
-        public void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
+        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+            Event e, Guid opGroupId, bool isTargetHalted)
         {
             string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventSent(GetStateId(senderId, senderStateName), eventName);
+            this.EventCoverage.AddEventSent(GetStateId(senderType, senderStateName), eventName);
         }
 
         public void OnStateTransition(ActorId id, string stateName, bool isEntry)
@@ -257,12 +259,12 @@ namespace Microsoft.Coyote.Coverage
         {
         }
 
-        private static string GetStateId(ActorId actorId, string stateName)
+        private static string GetStateId(string actorType, string stateName)
         {
-            string id = GetActorTypeName(actorId);
+            string id = ResolveActorTypeName(actorType);
             if (string.IsNullOrEmpty(stateName))
             {
-                if (actorId == null)
+                if (actorType == null)
                 {
                     stateName = "ExternalState";
                 }
@@ -275,15 +277,15 @@ namespace Microsoft.Coyote.Coverage
             return id += "." + stateName;
         }
 
-        private static string GetActorTypeName(ActorId id)
+        private static string ResolveActorTypeName(string actorType)
         {
-            if (id == null)
+            if (actorType == null)
             {
                 // The sender id can be null if an event is fired from non-actor code.
                 return "ExternalCode";
             }
 
-            return id.Type;
+            return actorType;
         }
 
         private static string GetLabel(string actorId, string fullyQualifiedName)

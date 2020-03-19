@@ -327,8 +327,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M1));
-                r.InvokeMonitor<M1>(UnitEvent.Instance);
+                r.RegisterMonitor<M1>();
+                r.Monitor<M1>(UnitEvent.Instance);
             },
             expectedError: "Error reached.");
         }
@@ -338,7 +338,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M2));
+                r.RegisterMonitor<M2>();
             },
             expectedError: "M2 can not declare more than one start states.");
         }
@@ -348,7 +348,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M3));
+                r.RegisterMonitor<M3>();
             },
             expectedError: "Error reached.");
         }
@@ -358,7 +358,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M4));
+                r.RegisterMonitor<M4>();
             });
         }
 
@@ -367,8 +367,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M5));
-                r.InvokeMonitor<M5>(UnitEvent.Instance);
+                r.RegisterMonitor<M5>();
+                r.Monitor<M5>(UnitEvent.Instance);
             },
             expectedError: "Error reached.");
         }
@@ -378,8 +378,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M6));
-                r.InvokeMonitor<M6>(UnitEvent.Instance);
+                r.RegisterMonitor<M6>();
+                r.Monitor<M6>(UnitEvent.Instance);
             });
         }
 
@@ -388,8 +388,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M7));
-                r.InvokeMonitor<M7>(UnitEvent.Instance);
+                r.RegisterMonitor<M7>();
+                r.Monitor<M7>(UnitEvent.Instance);
             });
         }
 
@@ -398,8 +398,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M8));
-                r.InvokeMonitor<M8>(UnitEvent.Instance);
+                r.RegisterMonitor<M8>();
+                r.Monitor<M8>(UnitEvent.Instance);
             });
         }
 
@@ -408,8 +408,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M9));
-                r.InvokeMonitor<M9>(UnitEvent.Instance);
+                r.RegisterMonitor<M9>();
+                r.Monitor<M9>(UnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -419,8 +419,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M10));
-                r.InvokeMonitor<M10>(UnitEvent.Instance);
+                r.RegisterMonitor<M10>();
+                r.Monitor<M10>(UnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -430,8 +430,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M11));
-                r.InvokeMonitor<M11>(UnitEvent.Instance);
+                r.RegisterMonitor<M11>();
+                r.Monitor<M11>(UnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }
@@ -441,8 +441,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M12));
-                r.InvokeMonitor<M12>(UnitEvent.Instance);
+                r.RegisterMonitor<M12>();
+                r.Monitor<M12>(UnitEvent.Instance);
             },
             expectedError: "Done reached.");
         }

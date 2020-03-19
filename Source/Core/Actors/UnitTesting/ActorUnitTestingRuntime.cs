@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             this.Instance.Configure(this, id, actorManager, this.ActorInbox);
             this.Instance.SetupEventHandlers();
 
-            this.LogWriter.LogCreateActor(this.Instance.Id, null);
+            this.LogWriter.LogCreateActor(this.Instance.Id, null, null);
 
             this.IsActorWaitingToReceiveEvent = false;
         }
@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             Actor creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.LogCreateActor(id, creator?.Id);
+            this.LogWriter.LogCreateActor(id, creator?.Id.Type, creator?.Id.Name);
             return id;
         }
 
@@ -189,7 +189,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             Event initialEvent, Actor creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.LogCreateActor(id, creator?.Id);
+            this.LogWriter.LogCreateActor(id, creator?.Id.Type, creator?.Id.Name);
             return Task.FromResult(id);
         }
 
@@ -214,13 +214,13 @@ namespace Microsoft.Coyote.Actors.UnitTesting
 
             if (this.Instance.IsHalted)
             {
-                this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                    e, opGroupId, isTargetHalted: true);
+                this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                    (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: true);
                 return;
             }
 
-            this.LogWriter.LogSendEvent(targetId, sender?.Id, (sender as StateMachine)?.CurrentStateName ?? string.Empty,
-                e, opGroupId, isTargetHalted: false);
+            this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: false);
 
             if (!targetId.Equals(this.Instance.Id))
             {
@@ -495,7 +495,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState,
                     true, monitor.GetHotState());
             }
         }
@@ -508,7 +508,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitor.Id, monitorState,
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState,
                     false, monitor.GetHotState());
             }
         }
@@ -520,20 +520,19 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, monitor.Id, action.Name, stateName);
+                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, action.Name, stateName);
             }
         }
 
         /// <summary>
         /// Notifies that a monitor raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Monitor monitor, Event e, EventInfo eventInfo)
+        internal override void NotifyRaisedEvent(Monitor monitor, Event e)
         {
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitor.Id,
-                    monitorState, e);
+                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitorState, e);
             }
         }
     }

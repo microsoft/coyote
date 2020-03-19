@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.Specifications
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RegisterMonitor<T>()
             where T : Monitor =>
-            CurrentRuntime.RegisterMonitor(typeof(T));
+            CurrentRuntime.RegisterMonitor<T>();
 
         /// <summary>
         /// Invokes the specified monitor with the given event.
@@ -64,6 +64,6 @@ namespace Microsoft.Coyote.Specifications
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Monitor<T>(Event e)
             where T : Monitor =>
-            CurrentRuntime.Monitor(typeof(T), null, e);
+            CurrentRuntime.Monitor<T>(e);
     }
 }

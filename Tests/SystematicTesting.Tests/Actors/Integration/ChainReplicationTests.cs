@@ -1525,8 +1525,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(InvariantMonitor));
-                r.RegisterMonitor(typeof(ServerResponseSeqMonitor));
+                r.RegisterMonitor<InvariantMonitor>();
+                r.RegisterMonitor<ServerResponseSeqMonitor>();
                 r.CreateActor(typeof(Environment));
             },
             configuration: configuration,

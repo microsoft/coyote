@@ -61,8 +61,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(Safety));
-                r.InvokeMonitor<Safety>(UnitEvent.Instance);
+                r.RegisterMonitor<Safety>();
+                r.Monitor<Safety>(UnitEvent.Instance);
             },
             expectedError: "Reached test assertion.",
             replay: true);

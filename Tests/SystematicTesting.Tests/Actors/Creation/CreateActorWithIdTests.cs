@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 var m = r.CreateActor(typeof(M));
                 var mprime = r.CreateActorId(typeof(M));
                 r.Assert(m != mprime);
@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 var m = r.CreateActor(typeof(Harness));
             });
         }

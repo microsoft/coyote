@@ -74,10 +74,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(M1));
-                r.InvokeMonitor<M1>(new E1());
-                r.InvokeMonitor<M1>(new E2());
-                r.InvokeMonitor<M1>(new E3());
+                r.RegisterMonitor<M1>();
+                r.Monitor<M1>(new E1());
+                r.Monitor<M1>(new E2());
+                r.Monitor<M1>(new E3());
             });
         }
 
@@ -86,8 +86,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M2));
-                r.InvokeMonitor<M2>(new E1());
+                r.RegisterMonitor<M2>();
+                r.Monitor<M2>(new E1());
             },
             expectedError: "Check reached.");
         }
@@ -97,8 +97,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(M3));
-                r.InvokeMonitor<M3>(new E1());
+                r.RegisterMonitor<M3>();
+                r.Monitor<M3>(new E1());
             },
             expectedError: "Check reached.");
         }

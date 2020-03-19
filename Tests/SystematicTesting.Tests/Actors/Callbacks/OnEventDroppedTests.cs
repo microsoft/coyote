@@ -234,10 +234,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Monitor3));
+                r.RegisterMonitor<Monitor3>();
                 r.OnEventDropped += (e, target) =>
                 {
-                    r.InvokeMonitor(typeof(Monitor3), new EventDropped());
+                    r.Monitor<Monitor3>(new EventDropped());
                 };
 
                 var m = r.CreateActor(typeof(A3c));
@@ -294,10 +294,10 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Monitor3));
+                r.RegisterMonitor<Monitor3>();
                 r.OnEventDropped += (e, target) =>
                 {
-                    r.InvokeMonitor(typeof(Monitor3), new EventDropped());
+                    r.Monitor<Monitor3>(new EventDropped());
                 };
 
                 var m = r.CreateActor(typeof(M3c));

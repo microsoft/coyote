@@ -9,21 +9,19 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMon
 Invoked when the specified monitor enters or exits a state.
 
 ```csharp
-public virtual void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName, 
+public virtual void OnMonitorStateTransition(string monitorTypeName, string stateName, 
     bool isEntry, bool? isInHotState)
 ```
 
 | parameter | description |
 | --- | --- |
 | monitorTypeName | The name of the type of the monitor entering or exiting the state |
-| id | The id of the monitor entering or exiting the state |
 | stateName | The name of the state being entered or exited; if *isInHotState* is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]". |
 | isEntry | If true, this is called for a state entry; otherwise, exit. |
 | isInHotState | If true, the monitor is in a hot state; if false, the monitor is in a cold state; else no liveness state is available. |
 
 ## See Also
 
-* class [ActorId](../ActorIdType)
 * class [ActorRuntimeLogTextFormatter](../ActorRuntimeLogTextFormatterType)
 * namespace [Microsoft.Coyote.Actors](../ActorRuntimeLogTextFormatterType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

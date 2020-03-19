@@ -474,7 +474,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(GetsDone));
+                r.RegisterMonitor<GetsDone>();
                 r.CreateActor(typeof(A7));
             });
         }
@@ -509,7 +509,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(GetsDone));
+                r.RegisterMonitor<GetsDone>();
                 r.CreateActor(typeof(M7));
             });
         }
@@ -538,7 +538,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(GetsDone));
+                r.RegisterMonitor<GetsDone>();
                 var m = r.CreateActor(typeof(A8));
                 r.SendEvent(m, new E());
             });
@@ -578,7 +578,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(GetsDone));
+                r.RegisterMonitor<GetsDone>();
                 var m = r.CreateActor(typeof(M8));
                 r.SendEvent(m, new E());
             });

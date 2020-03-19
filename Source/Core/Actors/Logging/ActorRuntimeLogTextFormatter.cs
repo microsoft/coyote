@@ -36,24 +36,24 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnCreateActor(ActorId id, ActorId creator)
+        public virtual void OnCreateActor(ActorId id, string creatorType, string creatorName)
         {
-            var source = creator is null ? "the runtime" : creator.Name;
+            var source = creatorType is null ? "the runtime" : creatorName;
             var text = $"<CreateLog> {id} was created by {source}.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnCreateMonitor(string monitorTypeName, ActorId id)
+        public virtual void OnCreateMonitor(string monitorTypeName)
         {
-            var text = $"<CreateLog> {monitorTypeName} with id {id} was created.";
+            var text = $"<CreateLog> {monitorTypeName} was created.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
         public virtual void OnCreateTimer(TimerInfo info)
         {
-            string text = null;
+            string text;
             var source = info.OwnerId is null ? "the runtime" : info.OwnerId.Name;
             if (info.Period.TotalMilliseconds >= 0)
             {
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnDefaultEventHandler(ActorId id, string stateName)
         {
-            string text = null;
+            string text;
             if (stateName is null)
             {
                 text = $"<DefaultLog> {id} is executing the default handler.";
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            string text = null;
+            string text;
             if (stateName is null)
             {
                 text = $"<DequeueLog> {id} dequeued event '{eventName}'.";
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnExceptionHandled(ActorId id, string stateName, string actionName, Exception ex)
         {
-            string text = null;
+            string text;
             if (stateName is null)
             {
                 text = $"<ExceptionLog> {id} running action '{actionName}' chose to handle exception '{ex.GetType().Name}'.";
@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnExceptionThrown(ActorId id, string stateName, string actionName, Exception ex)
         {
-            string text = null;
+            string text;
             if (stateName is null)
             {
                 text = $"<ExceptionLog> {id} running action '{actionName}' threw exception '{ex.GetType().Name}'.";
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
-            string text = null;
+            string text;
             if (currentStateName is null)
             {
                 text = $"<ActionLog> {id} invoked action '{actionName}'.";
@@ -181,34 +181,35 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorExecuteAction(string monitorTypeName, ActorId id, string stateName, string actionName)
+        public virtual void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
         {
-            string text = $"<MonitorLog> {monitorTypeName} with id {id} executed action '{actionName}' in state '{stateName}'.";
+            string text = $"<MonitorLog> {monitorTypeName} executed action '{actionName}' in state '{stateName}'.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorProcessEvent(ActorId senderId, string senderStateName, string monitorTypeName, ActorId id, string stateName, Event e)
-        {
-            string eventName = e.GetType().FullName;
-            string text = $"<MonitorLog> {monitorTypeName} with id {id} is processing event '{eventName}' in state '{stateName}'.";
-            this.Logger.WriteLine(text);
-        }
-
-        /// <inheritdoc/>
-        public virtual void OnMonitorRaiseEvent(string monitorTypeName, ActorId id, string stateName, Event e)
+        public virtual void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
+            string senderName, string senderStateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            string text = $"<MonitorLog> {monitorTypeName} with id {id} raised event '{eventName}' in state '{stateName}'.";
+            string text = $"<MonitorLog> {monitorTypeName} is processing event '{eventName}' in state '{stateName}'.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorStateTransition(string monitorTypeName, ActorId id, string stateName, bool isEntry, bool? isInHotState)
+        public virtual void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        {
+            string eventName = e.GetType().FullName;
+            string text = $"<MonitorLog> {monitorTypeName} raised event '{eventName}' in state '{stateName}'.";
+            this.Logger.WriteLine(text);
+        }
+
+        /// <inheritdoc/>
+        public virtual void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
         {
             var liveness = isInHotState.HasValue ? (isInHotState.Value ? "hot " : "cold ") : string.Empty;
             var direction = isEntry ? "enters" : "exits";
-            var text = $"<MonitorLog> {monitorTypeName} with id {id} {direction} {liveness}state '{stateName}'.";
+            var text = $"<MonitorLog> {monitorTypeName} {direction} {liveness}state '{stateName}'.";
             this.Logger.WriteLine(text);
         }
 
@@ -240,7 +241,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnRaiseEvent(ActorId id, string stateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            string text = null;
+            string text;
             if (stateName is null)
             {
                 text = $"<RaiseLog> {id} raised event '{eventName}'.";
@@ -265,7 +266,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             string eventName = e.GetType().FullName;
-            string text = null;
+            string text;
             var unblocked = wasBlocked ? " and unblocked" : string.Empty;
             if (stateName is null)
             {
@@ -280,11 +281,12 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnSendEvent(ActorId targetActorId, ActorId senderId, string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
+        public virtual void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+            Event e, Guid opGroupId, bool isTargetHalted)
         {
             var opGroupIdMsg = opGroupId != Guid.Empty ? $" (operation group '{opGroupId}')" : string.Empty;
             var isHalted = isTargetHalted ? $" which has halted" : string.Empty;
-            var sender = senderId != null ? $"{senderId} in state '{senderStateName}'" : $"The runtime";
+            var sender = senderType != null ? $"{senderName} in state '{senderStateName}'" : $"The runtime";
             var eventName = e.GetType().FullName;
             var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{opGroupIdMsg}.";
             this.Logger.WriteLine(text);
@@ -317,7 +319,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnWaitEvent(ActorId id, string stateName, Type eventType)
         {
-            string text = null;
+            string text;
             if (stateName is null)
             {
                 text = $"<ReceiveLog> {id} is waiting to dequeue an event of type '{eventType.FullName}'.";
@@ -333,7 +335,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
         {
-            string text = null;
+            string text;
             string eventNames;
             if (eventTypes.Length == 0)
             {

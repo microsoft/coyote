@@ -561,7 +561,7 @@ Event coverage: 100.0%
 
             TestingEngine testingEngine = this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Monitor1));
+                r.RegisterMonitor<Monitor1>();
                 var actor = r.CreateActor(typeof(M7));
                 r.SendEvent(actor, new E1());
                 r.SendEvent(actor, new E2());

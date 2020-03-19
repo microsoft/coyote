@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec1));
+                r.RegisterMonitor<Spec1>();
                 var m = r.CreateActor(typeof(M1));
                 r.SendEvent(m, UnitEvent.Instance);
                 r.SendEvent(m, new E1());
@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec2));
+                r.RegisterMonitor<Spec2>();
                 var m = r.CreateActor(typeof(A2));
                 r.SendEvent(m, UnitEvent.Instance);
             });
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec2));
+                r.RegisterMonitor<Spec2>();
                 var m = r.CreateActor(typeof(M2));
                 r.SendEvent(m, UnitEvent.Instance);
             });
@@ -298,7 +298,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec3));
+                r.RegisterMonitor<Spec3>();
                 var m = r.CreateActor(typeof(A3));
                 r.SendEvent(m, UnitEvent.Instance);
                 r.SendEvent(m, new E1()); // Dropped silently.
@@ -335,7 +335,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.Test(r =>
             {
-                r.RegisterMonitor(typeof(Spec3));
+                r.RegisterMonitor<Spec3>();
                 var m = r.CreateActor(typeof(M3));
                 r.SendEvent(m, UnitEvent.Instance);
                 r.SendEvent(m, new E1()); // Dropped silently.
@@ -367,7 +367,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(Spec3));
+                r.RegisterMonitor<Spec3>();
                 var m = r.CreateActor(typeof(A4));
                 r.SendEvent(m, UnitEvent.Instance);
             },
@@ -406,7 +406,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(Spec3));
+                r.RegisterMonitor<Spec3>();
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
             },
@@ -440,7 +440,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                r.RegisterMonitor(typeof(Spec3));
+                r.RegisterMonitor<Spec3>();
                 var m = r.CreateActor(typeof(A5));
                 r.SendEvent(m, UnitEvent.Instance);
             },
@@ -478,7 +478,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                r.RegisterMonitor(typeof(Spec3));
+                r.RegisterMonitor<Spec3>();
                 var m = r.CreateActor(typeof(M5));
                 r.SendEvent(m, UnitEvent.Instance);
             },

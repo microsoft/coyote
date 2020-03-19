@@ -9,13 +9,14 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor
 Invoked when the specified actor has been created.
 
 ```csharp
-public void OnCreateActor(ActorId id, ActorId creator)
+public void OnCreateActor(ActorId id, string creatorType, string creatorName)
 ```
 
 | parameter | description |
 | --- | --- |
 | id | The id of the actor that has been created. |
-| creator | The id of the creator, or null. |
+| creatorType | The type of the creator, or null. |
+| creatorName | The name of the creator, or null. |
 
 ## See Also
 

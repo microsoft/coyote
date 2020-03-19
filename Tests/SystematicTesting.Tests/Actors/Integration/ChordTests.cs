@@ -842,7 +842,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             this.TestWithError(r =>
             {
-                r.RegisterMonitor(typeof(LivenessMonitor));
+                r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(ClusterManager));
             },
             configuration: configuration,

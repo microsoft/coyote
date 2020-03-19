@@ -63,8 +63,35 @@ recommend using Coyote in early stages of development.
 
 Coyote is currently an Open Source project on GitHub under the MIT license. Microsoft continues to
 invest in Coyote and accepts community contributions as well. Issues can be posted there and will be
-resolved in a timely manner. The Coyote team does not provide official SLAs. Having said that, the
-support is good enough to keep many Azure teams happy.
+resolved in a timely manner. 
+<br/><br/>
+
+#### How do Coyote actors compare against other actor implementations like [Orleans](https://dotnet.github.io/orleans/), [Reliable Actors](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-reliable-actors-introduction), or [Dapr actors](https://github.com/dapr/docs/blob/master/concepts/actors/README.md)?
+
+The design of actors in Coyote is not meant to be a replacement for any of these system. In fact,
+far from it. All of the systems mentioned in the question offer an implementation of distributed
+actors, along with a distributed runtime, storage APIs and so forth so that you have have actors
+that talk over the wire. In contrast, Coyote has in-memory actors. Just like Coyote tasks, Coyote
+actors are meant to be very lightweight programmatic constructs that can be put alongside any
+distributed runtime capable of hosting a .NET application. For instance, it should be possible to
+develop a Coyote application and host it on top of [Dapr](https://dapr.io/). We are aware of at
+least one team in Azure that has done something similar with [Service Fabric](https://azure.microsoft.com/en-us/services/service-fabric/)'s Reliable Actors: each
+Reliable Actor is just used as a wrapper around a Coyote
+[StateMachine](../programming-models/actors/state-machines). In this case, Service Fabric takes care
+of distribution, messaging and managing the actor's lifetime, whereas Coyote StateMachines encodes
+all the business logic, which is also thoroughly vetted by the Coyote tester. It would be
+interesting to see the community develop further ways in which these technologies can be used
+together to get the best of each.
+<br/><br/>
+
+#### How is Coyote different from other similar systems out there?
+
+One comparison point for Coyote would be other offerings that help build reliable systems. It would
+be difficult to give an exhaustive answer here, but Coyote is quite unique in its combination of
+powerful testing and very light run-time requirements (i.e., it requires the .NET framework only).
+Other systems might require a buy-in to a particular distributed runtime or messaging system, or
+might not help much in the way of testing custom business logic. You can adapt Coyote to work with
+whatever platform you are using today.
 <br/><br/>
 
 #### Is Coyote only available with Azure? 
@@ -100,12 +127,4 @@ build reliable cloud services, and Coyote itself is not service-specific. You ca
 and test any kind of asynchronous .NET program that needs to be reliable.
 <br/><br/>
 
-#### How is Coyote different from other similar systems out there?
 
-One comparison point for Coyote would be other offerings that help build reliable systems. It would
-be difficult to give an exhaustive answer here, but Coyote is quite unique in its combination of
-powerful testing and very light run-time requirements (i.e., it requires the .NET framework only).
-Other systems might require a buy-in to a particular distributed runtime or messaging system, or
-might not help much in the way of testing custom business logic. You can adapt Coyote to work with
-whatever platform you are using today.
-<br/><br/>

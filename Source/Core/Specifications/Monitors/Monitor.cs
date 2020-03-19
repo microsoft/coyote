@@ -43,6 +43,13 @@ namespace Microsoft.Coyote.Specifications
             new ConcurrentDictionary<Type, Dictionary<string, MethodInfo>>();
 
         /// <summary>
+        /// A set of lockable objects used to protect static initialization of the ActionCache while
+        /// also enabling multithreaded initialization of different Actor types.
+        /// </summary>
+        private static readonly ConcurrentDictionary<Type, object> ActionCacheLocks =
+            new ConcurrentDictionary<Type, object>();
+
+        /// <summary>
         /// A cached array that contains a single event type.
         /// </summary>
         private static readonly Type[] SingleEventTypeArray = new Type[] { typeof(Event) };
@@ -701,111 +708,129 @@ namespace Microsoft.Coyote.Specifications
         {
             Type monitorType = this.GetType();
 
-            // Caches the available state types for this monitor type.
-            if (StateTypeMap.TryAdd(monitorType, new HashSet<Type>()))
-            {
-                Type baseType = monitorType;
-                while (baseType != typeof(Monitor))
-                {
-                    foreach (var s in baseType.GetNestedTypes(BindingFlags.Instance |
-                        BindingFlags.NonPublic | BindingFlags.Public |
-                        BindingFlags.DeclaredOnly))
-                    {
-                        this.ExtractStateTypes(s);
-                    }
+            // If this type has not already been setup in the MonitorActionMap, then we need to try and grab the ActionCacheLock
+            // for this type.  First make sure we have one and only one lockable object for this type.
+            object syncObject = ActionCacheLocks.GetOrAdd(monitorType, _ => new object());
 
-                    baseType = baseType.BaseType;
+            // Locking this syncObject ensures only one thread enters the initialization code to update
+            // the ActionCache for this specific Actor type.
+            lock (syncObject)
+            {
+                if (MonitorActionMap.ContainsKey(monitorType))
+                {
+                    // Note: even if we won the GetOrAdd, there is a tiny window of opportunity for another thread
+                    // to slip in and lock the syncObject before us, so we have to check the ActionCache again
+                    // here just in case.
                 }
-            }
-
-            // Caches the available state instances for this monitor type.
-            if (StateMap.TryAdd(monitorType, new HashSet<State>()))
-            {
-                foreach (var type in StateTypeMap[monitorType])
+                else
                 {
-                    Type stateType = type;
-                    if (type.IsAbstract)
+                    // Caches the actions declarations for this monitor type.
+                    if (MonitorActionMap.TryAdd(monitorType, new Dictionary<string, MethodInfo>()))
                     {
-                        continue;
-                    }
-
-                    if (type.IsGenericType)
-                    {
-                        // If the state type is generic (only possible if inherited by a
-                        // generic monitor declaration), then iterate through the base
-                        // monitor classes to identify the runtime generic type, and use
-                        // it to instantiate the runtime state type. This type can be
-                        // then used to create the state constructor.
-                        Type declaringType = this.GetType();
-                        while (!declaringType.IsGenericType ||
-                            !type.DeclaringType.FullName.Equals(declaringType.FullName.Substring(
-                            0, declaringType.FullName.IndexOf('['))))
+                        // Caches the available state types for this monitor type.
+                        if (StateTypeMap.TryAdd(monitorType, new HashSet<Type>()))
                         {
-                            declaringType = declaringType.BaseType;
-                        }
-
-                        if (declaringType.IsGenericType)
-                        {
-                            stateType = type.MakeGenericType(declaringType.GetGenericArguments());
-                        }
-                    }
-
-                    ConstructorInfo constructor = stateType.GetConstructor(Type.EmptyTypes);
-                    var lambda = Expression.Lambda<Func<State>>(Expression.New(constructor)).Compile();
-                    State state = lambda();
-
-                    state.InitializeState();
-
-                    this.Assert(
-                        (state.IsCold && !state.IsHot) ||
-                        (!state.IsCold && state.IsHot) ||
-                        (!state.IsCold && !state.IsHot),
-                        "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.GetType().Name);
-
-                    StateMap[monitorType].Add(state);
-                }
-            }
-
-            // Caches the actions declarations for this monitor type.
-            if (MonitorActionMap.TryAdd(monitorType, new Dictionary<string, MethodInfo>()))
-            {
-                foreach (var state in StateMap[monitorType])
-                {
-                    if (state.EntryAction != null &&
-                        !MonitorActionMap[monitorType].ContainsKey(state.EntryAction))
-                    {
-                        MonitorActionMap[monitorType].Add(
-                            state.EntryAction,
-                            this.GetActionWithName(state.EntryAction));
-                    }
-
-                    if (state.ExitAction != null &&
-                        !MonitorActionMap[monitorType].ContainsKey(state.ExitAction))
-                    {
-                        MonitorActionMap[monitorType].Add(
-                            state.ExitAction,
-                            this.GetActionWithName(state.ExitAction));
-                    }
-
-                    foreach (var handler in state.EventHandlers.Values)
-                    {
-                        if (handler is ActionEventHandlerDeclaration action)
-                        {
-                            if (!MonitorActionMap[monitorType].ContainsKey(action.Name))
+                            Type baseType = monitorType;
+                            while (baseType != typeof(Monitor))
                             {
-                                MonitorActionMap[monitorType].Add(
-                                    action.Name,
-                                    this.GetActionWithName(action.Name));
+                                foreach (var s in baseType.GetNestedTypes(BindingFlags.Instance |
+                                    BindingFlags.NonPublic | BindingFlags.Public |
+                                    BindingFlags.DeclaredOnly))
+                                {
+                                    this.ExtractStateTypes(s);
+                                }
+
+                                baseType = baseType.BaseType;
                             }
                         }
-                        else if (handler is GotoStateTransition transition)
+
+                        // Caches the available state instances for this monitor type.
+                        if (StateMap.TryAdd(monitorType, new HashSet<State>()))
                         {
-                            if (transition.Lambda != null &&
-                                !MonitorActionMap[monitorType].ContainsKey(transition.Lambda))
+                            foreach (var type in StateTypeMap[monitorType])
+                            {
+                                Type stateType = type;
+                                if (type.IsAbstract)
+                                {
+                                    continue;
+                                }
+
+                                if (type.IsGenericType)
+                                {
+                                    // If the state type is generic (only possible if inherited by a
+                                    // generic monitor declaration), then iterate through the base
+                                    // monitor classes to identify the runtime generic type, and use
+                                    // it to instantiate the runtime state type. This type can be
+                                    // then used to create the state constructor.
+                                    Type declaringType = this.GetType();
+                                    while (!declaringType.IsGenericType ||
+                                        !type.DeclaringType.FullName.Equals(declaringType.FullName.Substring(
+                                        0, declaringType.FullName.IndexOf('['))))
+                                    {
+                                        declaringType = declaringType.BaseType;
+                                    }
+
+                                    if (declaringType.IsGenericType)
+                                    {
+                                        stateType = type.MakeGenericType(declaringType.GetGenericArguments());
+                                    }
+                                }
+
+                                ConstructorInfo constructor = stateType.GetConstructor(Type.EmptyTypes);
+                                var lambda = Expression.Lambda<Func<State>>(Expression.New(constructor)).Compile();
+                                State state = lambda();
+
+                                state.InitializeState();
+
+                                this.Assert(
+                                    (state.IsCold && !state.IsHot) ||
+                                    (!state.IsCold && state.IsHot) ||
+                                    (!state.IsCold && !state.IsHot),
+                                    "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.GetType().Name);
+
+                                StateMap[monitorType].Add(state);
+                            }
+                        }
+
+                        foreach (var state in StateMap[monitorType])
+                        {
+                            if (state.EntryAction != null &&
+                                !MonitorActionMap[monitorType].ContainsKey(state.EntryAction))
                             {
                                 MonitorActionMap[monitorType].Add(
-                                    transition.Lambda,
-                                    this.GetActionWithName(transition.Lambda));
+                                    state.EntryAction,
+                                    this.GetActionWithName(state.EntryAction));
+                            }
+
+                            if (state.ExitAction != null &&
+                                !MonitorActionMap[monitorType].ContainsKey(state.ExitAction))
+                            {
+                                MonitorActionMap[monitorType].Add(
+                                    state.ExitAction,
+                                    this.GetActionWithName(state.ExitAction));
+                            }
+
+                            foreach (var handler in state.EventHandlers.Values)
+                            {
+                                if (handler is ActionEventHandlerDeclaration action)
+                                {
+                                    if (!MonitorActionMap[monitorType].ContainsKey(action.Name))
+                                    {
+                                        MonitorActionMap[monitorType].Add(
+                                            action.Name,
+                                            this.GetActionWithName(action.Name));
+                                    }
+                                }
+                                else if (handler is GotoStateTransition transition)
+                                {
+                                    if (transition.Lambda != null &&
+                                        !MonitorActionMap[monitorType].ContainsKey(transition.Lambda))
+                                    {
+                                        MonitorActionMap[monitorType].Add(
+                                            transition.Lambda,
+                                            this.GetActionWithName(transition.Lambda));
+                                    }
+                                }
                             }
                         }
                     }

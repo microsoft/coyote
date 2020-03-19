@@ -789,53 +789,50 @@ namespace Microsoft.Coyote.Actors
 
         private void SetupEventHandlers(Type actorType)
         {
-            if (!ActionCache.ContainsKey(actorType))
+            // If this type has not already been setup in the ActionCache, then we need to try and grab the ActionCacheLock
+            // for this type.  First make sure we have one and only one lockable object for this type.
+            object syncObject = ActionCacheLocks.GetOrAdd(actorType, _ => new object());
+
+            // Locking this syncObject ensures only one thread enters the initialization code to update
+            // the ActionCache for this specific Actor type.
+            lock (syncObject)
             {
-                // If this type has not already been setup in the ActionCache, then we need to try and grab the ActionCacheLock
-                // for this type.  First make sure we have one and only one lockable object for this type.
-                object syncObject = ActionCacheLocks.GetOrAdd(actorType, new object());
-
-                // Locking this syncObject ensures only one thread enters the initialization code to update
-                // the ActionCache for this specific Actor type.
-                lock (syncObject)
+                if (ActionCache.ContainsKey(actorType))
                 {
-                    if (ActionCache.ContainsKey(actorType))
+                    // Note: even if we won the GetOrAdd, there is a tiny window of opportunity for another thread
+                    // to slip in and lock the syncObject before us, so we have to check the ActionCache again
+                    // here just in case.
+                }
+                else
+                {
+                    // Events with already declared handlers.
+                    var handledEvents = new HashSet<Type>();
+
+                    // Map containing all action bindings.
+                    var actionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
+                    var doAttributes = actorType.GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
+                        as OnEventDoActionAttribute[];
+
+                    foreach (var attr in doAttributes)
                     {
-                        // Note: even if we won the TryAdd, there is a tiny window of opportunity for another thread
-                        // to slip in and lock the syncObject before us, so we have to check the ActionCache again
-                        // here just in case.
+                        this.Assert(!handledEvents.Contains(attr.Event),
+                            "{0} declared multiple handlers for event '{1}'.",
+                            actorType.FullName, attr.Event);
+                        actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
+                        handledEvents.Add(attr.Event);
                     }
-                    else
+
+                    var map = new Dictionary<Type, MethodInfo>();
+                    foreach (var action in actionBindings)
                     {
-                        // Events with already declared handlers.
-                        var handledEvents = new HashSet<Type>();
-
-                        // Map containing all action bindings.
-                        var actionBindings = new Dictionary<Type, ActionEventHandlerDeclaration>();
-                        var doAttributes = actorType.GetCustomAttributes(typeof(OnEventDoActionAttribute), false)
-                            as OnEventDoActionAttribute[];
-
-                        foreach (var attr in doAttributes)
+                        if (!map.ContainsKey(action.Key))
                         {
-                            this.Assert(!handledEvents.Contains(attr.Event),
-                                "{0} declared multiple handlers for event '{1}'.",
-                                actorType.FullName, attr.Event);
-                            actionBindings.Add(attr.Event, new ActionEventHandlerDeclaration(attr.Action));
-                            handledEvents.Add(attr.Event);
+                            map.Add(action.Key, this.GetActionWithName(action.Value.Name));
                         }
-
-                        var map = new Dictionary<Type, MethodInfo>();
-                        foreach (var action in actionBindings)
-                        {
-                            if (!map.ContainsKey(action.Key))
-                            {
-                                map.Add(action.Key, this.GetActionWithName(action.Value.Name));
-                            }
-                        }
-
-                        // Caches the action declarations for this actor type.
-                        ActionCache.TryAdd(actorType, map);
                     }
+
+                    // Caches the action declarations for this actor type.
+                    ActionCache.TryAdd(actorType, map);
                 }
             }
         }

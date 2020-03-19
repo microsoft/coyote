@@ -35,6 +35,8 @@ learn-toc:
       subfolderitems:
         - name: Overview
           link: /learn/programming-models/async/overview
+        - name: Controlled task completion source
+          link: /learn/programming-models/async/tcs
     - name: Asynchronous actors
       link: /learn/programming-models/actors/overview
       subfolderitems:

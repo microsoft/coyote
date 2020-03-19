@@ -2,11 +2,12 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   {% include head.html %}
-  {% seo %}
 </head>
-{% include scripts.html %}
-{% include awa.html %}
+
 
 <body class="{{ page.title | downcase | slugify }}{% if page.body-class %}{{page.body-class}}{% endif %} ">
   {% include navigation.html %}
@@ -17,6 +18,8 @@
       {% include footer.html %}
     </section>
   </main>
-</body>
 
+  {% include scripts.html %}
+
+</body>
 </html>

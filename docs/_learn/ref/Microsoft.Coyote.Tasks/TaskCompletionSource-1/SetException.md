@@ -16,6 +16,12 @@ public virtual void SetException(Exception exception)
 | --- | --- |
 | exception | The exception to bind to this task. |
 
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| InvalidOperationException | The underlying [`Task`](../Task-1Type) is already in one of the three final states: RanToCompletion, Faulted, or Canceled. |
+
 ## See Also
 
 * class [TaskCompletionSource&lt;TResult&gt;](../TaskCompletionSource-1Type)

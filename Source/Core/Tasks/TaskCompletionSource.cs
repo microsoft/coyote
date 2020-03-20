@@ -127,90 +127,73 @@ namespace Microsoft.Coyote.Tasks
             }
 
             /// <inheritdoc/>
-            public override void SetResult(TResult result)
-            {
-                this.Resource.Runtime.Assert(this.Status is TaskStatus.Created,
-                    "The underlying task is already in the {0} state.", this.Status);
+            public override void SetResult(TResult result) =>
                 this.CompleteWithStatus(TaskStatus.RanToCompletion, result, default);
-            }
 
             /// <inheritdoc/>
-            public override bool TrySetResult(TResult result)
-            {
-                if (this.Status is TaskStatus.Created)
-                {
-                    this.CompleteWithStatus(TaskStatus.RanToCompletion, result, default);
-                    return true;
-                }
-
-                return false;
-            }
+            public override bool TrySetResult(TResult result) =>
+                this.TryCompleteWithStatus(TaskStatus.RanToCompletion, result, default);
 
             /// <summary>
             /// Transitions the underlying task into the <see cref="TaskStatus.Canceled"/> state.
             /// </summary>
-            public override void SetCanceled()
-            {
-                this.Resource.Runtime.Assert(this.Status is TaskStatus.Created,
-                    "The underlying task is already in the {0} state.", this.Status);
+            public override void SetCanceled() =>
                 this.CompleteWithStatus(TaskStatus.Canceled, default, default);
-            }
 
             /// <inheritdoc/>
-            public override bool TrySetCanceled()
-            {
-                if (this.Status is TaskStatus.Created)
-                {
-                    this.CompleteWithStatus(TaskStatus.Canceled, default, default);
-                    return true;
-                }
-
-                return false;
-            }
+            public override bool TrySetCanceled() =>
+                this.TryCompleteWithStatus(TaskStatus.Canceled, default, default);
 
             /// <inheritdoc/>
-            public override void SetException(Exception exception)
-            {
-                this.Resource.Runtime.Assert(this.Status is TaskStatus.Created,
-                    "The underlying task is already in the {0} state.", this.Status);
+            public override void SetException(Exception exception) =>
                 this.CompleteWithStatus(TaskStatus.Faulted, default, exception);
-            }
 
             /// <inheritdoc/>
-            public override bool TrySetException(Exception exception)
-            {
-                if (this.Status is TaskStatus.Created)
-                {
-                    this.CompleteWithStatus(TaskStatus.Faulted, default, exception);
-                    return true;
-                }
-
-                return false;
-            }
+            public override bool TrySetException(Exception exception) =>
+                this.TryCompleteWithStatus(TaskStatus.Faulted, default, exception);
 
             /// <summary>
             /// Completes the task completion source with the specified status.
             /// </summary>
             private void CompleteWithStatus(TaskStatus status, TResult result, Exception exception)
             {
-                this.Status = status;
-                if (status is TaskStatus.RanToCompletion)
+                if (!this.TryCompleteWithStatus(status, result, exception))
                 {
-                    this.Result = result;
+                    throw new InvalidOperationException("The underlying Task<TResult> is already in one " +
+                        "of the three final states: RanToCompletion, Faulted, or Canceled.");
                 }
-                else if (status is TaskStatus.Canceled)
+            }
+
+            /// <summary>
+            /// Tries to complete the task completion source with the specified status.
+            /// </summary>
+            private bool TryCompleteWithStatus(TaskStatus status, TResult result, Exception exception)
+            {
+                if (this.Status is TaskStatus.Created)
                 {
-                    this.CancellationTokenSource.Cancel();
-                    this.Exception = new TaskCanceledException();
-                }
-                else if (status is TaskStatus.Faulted)
-                {
-                    this.Exception = exception;
+                    this.Status = status;
+                    if (status is TaskStatus.RanToCompletion)
+                    {
+                        this.Result = result;
+                    }
+                    else if (status is TaskStatus.Canceled)
+                    {
+                        this.CancellationTokenSource.Cancel();
+                        this.Exception = new TaskCanceledException();
+                    }
+                    else if (status is TaskStatus.Faulted)
+                    {
+                        this.Exception = exception;
+                    }
+
+                    // Release the resource and notify any awaiting asynchronous operations.
+                    this.Resource.NotifyRelease();
+                    this.Resource.Runtime.ScheduleNextOperation();
+
+                    return true;
                 }
 
-                // Release the resource and notify any awaiting asynchronous operations.
-                this.Resource.NotifyRelease();
-                this.Resource.Runtime.ScheduleNextOperation();
+                return false;
             }
         }
     }
@@ -244,6 +227,9 @@ namespace Microsoft.Coyote.Tasks
         /// Transitions the underlying task into the <see cref="TaskStatus.RanToCompletion"/> state.
         /// </summary>
         /// <param name="result">The result value to bind to this task.</param>
+        /// <exception cref="InvalidOperationException">The underlying <see cref="Task{TResult}"/>
+        /// is already in one of the three final states: <see cref="TaskStatus.RanToCompletion"/>,
+        /// <see cref="TaskStatus.Faulted"/>, or <see cref="TaskStatus.Canceled"/>.</exception>
         public virtual void SetResult(TResult result) => this.Instance.SetResult(result);
 
         /// <summary>
@@ -256,6 +242,9 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Transitions the underlying task into the <see cref="TaskStatus.Canceled"/> state.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The underlying <see cref="Task{TResult}"/>
+        /// is already in one of the three final states: <see cref="TaskStatus.RanToCompletion"/>,
+        /// <see cref="TaskStatus.Faulted"/>, or <see cref="TaskStatus.Canceled"/>.</exception>
         public virtual void SetCanceled() => this.Instance.SetCanceled();
 
         /// <summary>
@@ -269,6 +258,9 @@ namespace Microsoft.Coyote.Tasks
         /// and binds it to the specified exception.
         /// </summary>
         /// <param name="exception">The exception to bind to this task.</param>
+        /// <exception cref="InvalidOperationException">The underlying <see cref="Task{TResult}"/>
+        /// is already in one of the three final states: <see cref="TaskStatus.RanToCompletion"/>,
+        /// <see cref="TaskStatus.Faulted"/>, or <see cref="TaskStatus.Canceled"/>.</exception>
         public virtual void SetException(Exception exception) => this.Instance.SetException(exception);
 
         /// <summary>

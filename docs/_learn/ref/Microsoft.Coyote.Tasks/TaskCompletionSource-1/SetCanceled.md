@@ -12,6 +12,12 @@ Transitions the underlying task into the Canceled state.
 public virtual void SetCanceled()
 ```
 
+## Exceptions
+
+| exception | condition |
+| --- | --- |
+| InvalidOperationException | The underlying [`Task`](../Task-1Type) is already in one of the three final states: RanToCompletion, Faulted, or Canceled. |
+
 ## See Also
 
 * class [TaskCompletionSource&lt;TResult&gt;](../TaskCompletionSource-1Type)

@@ -310,5 +310,83 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestInvalidSetResult()
+        {
+            this.TestWithError(() =>
+            {
+                var tcs = TaskCompletionSource.Create<int>();
+                tcs.SetResult(3);
+
+                Exception exception = null;
+                try
+                {
+                    tcs.SetResult(3);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+
+                Specification.Assert(exception is InvalidOperationException,
+                    "Threw unexpected exception {0}.", exception.GetType());
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestInvalidSetCanceled()
+        {
+            this.TestWithError(() =>
+            {
+                var tcs = TaskCompletionSource.Create<int>();
+                tcs.SetResult(3);
+
+                Exception exception = null;
+                try
+                {
+                    tcs.SetCanceled();
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+
+                Specification.Assert(exception is InvalidOperationException,
+                    "Threw unexpected exception {0}.", exception.GetType());
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestInvalidSetException()
+        {
+            this.TestWithError(() =>
+            {
+                var tcs = TaskCompletionSource.Create<int>();
+                tcs.SetResult(3);
+
+                Exception exception = null;
+                try
+                {
+                    tcs.SetException(new InvalidOperationException());
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+
+                Specification.Assert(exception is InvalidOperationException,
+                    "Threw unexpected exception {0}.", exception.GetType());
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
     }
 }

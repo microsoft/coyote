@@ -43,12 +43,11 @@ that works really well in the real world. See our [case
 studies](../../case-studies/azure-batch-service) for some great customer testimonials.
 
  <div class="embed-responsive embed-responsive-16by9">
-    <video class="embed-responsive-item" controls poster="/coyote/assets/images/ShortIntro.png">
+    <video id="shortintro" class="embed-responsive-item" controls poster="/coyote/assets/images/ShortIntro.png">
         <source  class="embed-responsive-item" src="https://github.com/microsoft/coyote-content/raw/master/assets/video/ShortIntro.mp4" type="video/mp4">
         <!-- <source src="/assets/ShortIntro.webm" type="video/webm"> -->
     </video>
 </div>
-
 
 <div id="caption" style="background:#151520; color:white; font-size: 18px; padding:5px;"></div>
 

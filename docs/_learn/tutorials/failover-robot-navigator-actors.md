@@ -260,7 +260,7 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 ..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobot.exe -i 1000 -ms 2000 --sch-pct 10
 ```
 
-Chances are this will find a bug quickly, and you will see that a test output log  is produced ( the
+Chances are this will find a bug quickly, and you will see that a test output log is produced ( the
 file mentioned in the output below:
 `.bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt` ), like this:
 

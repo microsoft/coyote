@@ -11,7 +11,7 @@ Coyote makes it easy to design and express system-level specifications that can 
 testing. Specifications come in two forms. _Safety_ specifications assert that the system never
 enters a _bad_ state. _Liveness_ specifications assert that the system eventually does something
 _good_, that is, it asserts that the system is always able to make progress. These can be written
-using `Monitors`.
+using a `Monitor`.
 
 ## Writing safety properties
 
@@ -24,7 +24,7 @@ _global_ assertions that can describe the relationship across tasks or actors.
 
 Coyote provides the notion of a `Monitor`. It is a special kind of actor that can receive events but
 cannot send events to other actors. So it can only observe the execution of a program but not
-influence it: a desirable property when writing specifications in code. Monitors are declared as
+influence it: a desirable property when writing specifications in code. A `Monitor` is declared as
 follows:
 
 ```c#

@@ -32,8 +32,8 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnGotoState](ActorRuntimeLogTextFormatter/OnGotoState)(…) | Invoked when the specified state machine performs a goto transition to the specified state. |
 | virtual [OnHalt](ActorRuntimeLogTextFormatter/OnHalt)(…) | Invoked when the specified actor has been halted. |
 | virtual [OnHandleRaisedEvent](ActorRuntimeLogTextFormatter/OnHandleRaisedEvent)(…) | Invoked when the specified actor handled a raised event. |
+| virtual [OnMonitorError](ActorRuntimeLogTextFormatter/OnMonitorError)(…) | Invoked when the specified monitor finds an error. |
 | virtual [OnMonitorExecuteAction](ActorRuntimeLogTextFormatter/OnMonitorExecuteAction)(…) | Invoked when the specified monitor executes an action. |
-| virtual [OnMonitorLivenessError](ActorRuntimeLogTextFormatter/OnMonitorLivenessError)(…) | Invoked when the specified monitor finds a liveness error. |
 | virtual [OnMonitorProcessEvent](ActorRuntimeLogTextFormatter/OnMonitorProcessEvent)(…) | Invoked when the specified monitor is about to process an event. |
 | virtual [OnMonitorRaiseEvent](ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent)(…) | Invoked when the specified monitor raised an event. |
 | virtual [OnMonitorStateTransition](ActorRuntimeLogTextFormatter/OnMonitorStateTransition)(…) | Invoked when the specified monitor enters or exits a state. |

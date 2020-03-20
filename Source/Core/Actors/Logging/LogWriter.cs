@@ -514,17 +514,19 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Logs that the specified monitor has found a liveness error.
+        /// Logs that the specified monitor has found an error.
         /// </summary>
         /// <param name="monitorType">The name of the type of the monitor.</param>
-        /// <param name="hotStateName">The name of the current hot state when the error was found.</param>
-        public void LogMonitorLivenessError(string monitorType, string hotStateName)
+        /// <param name="stateName">The name of the current state.</param>
+        /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
+        /// else no liveness state is available.</param>
+        public void LogMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorLivenessError(monitorType, hotStateName);
+                    log.OnMonitorError(monitorType, stateName, isInHotState);
                 }
             }
         }

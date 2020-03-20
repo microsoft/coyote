@@ -30,8 +30,8 @@ public interface IActorRuntimeLog
 | [OnGotoState](IActorRuntimeLog/OnGotoState)(…) | Invoked when the specified state machine performs a goto transition to the specified state. |
 | [OnHalt](IActorRuntimeLog/OnHalt)(…) | Invoked when the specified actor has been halted. |
 | [OnHandleRaisedEvent](IActorRuntimeLog/OnHandleRaisedEvent)(…) | Invoked when the specified actor handled a raised event. |
+| [OnMonitorError](IActorRuntimeLog/OnMonitorError)(…) | Invoked when the specified monitor finds an error. |
 | [OnMonitorExecuteAction](IActorRuntimeLog/OnMonitorExecuteAction)(…) | Invoked when the specified monitor executes an action. |
-| [OnMonitorLivenessError](IActorRuntimeLog/OnMonitorLivenessError)(…) | Invoked when the specified monitor finds a liveness error. |
 | [OnMonitorProcessEvent](IActorRuntimeLog/OnMonitorProcessEvent)(…) | Invoked when the specified monitor is about to process an event. |
 | [OnMonitorRaiseEvent](IActorRuntimeLog/OnMonitorRaiseEvent)(…) | Invoked when the specified monitor raised an event. |
 | [OnMonitorStateTransition](IActorRuntimeLog/OnMonitorStateTransition)(…) | Invoked when the specified monitor enters or exits a state. |

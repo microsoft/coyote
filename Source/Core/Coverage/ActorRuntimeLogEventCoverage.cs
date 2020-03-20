@@ -203,7 +203,7 @@ namespace Microsoft.Coyote.Coverage
         {
         }
 
-        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        public void OnMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
         }
 

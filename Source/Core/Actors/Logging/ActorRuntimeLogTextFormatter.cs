@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorLivenessError(string monitorType, string hotStateName)
+        public virtual void OnMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
         }
 

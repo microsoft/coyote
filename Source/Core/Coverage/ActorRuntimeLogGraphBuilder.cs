@@ -395,9 +395,9 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        public void OnMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
-            var source = this.GetOrCreateChild(monitorType, monitorType, hotStateName);
+            var source = this.GetOrCreateChild(monitorType, monitorType, stateName);
             source.Category = "Error";
         }
 

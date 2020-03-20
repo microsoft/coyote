@@ -666,12 +666,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that a monitor found a liveness error.
         /// </summary>
-        internal virtual void NotifyLivenessError(Monitor monitor)
+        internal void NotifyLivenessError(Monitor monitor)
         {
             if (this.Configuration.IsVerbose)
             {
                 string monitorState = monitor.CurrentStateNameWithTemperature;
-                this.LogWriter.LogMonitorLivenessError(monitor.GetType().FullName, monitorState);
+                this.LogWriter.LogMonitorError(monitor.GetType().FullName, monitorState, monitor.GetHotState());
             }
         }
 

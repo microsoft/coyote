@@ -493,7 +493,7 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteEndElement();
         }
 
-        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        public void OnMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
         }
 

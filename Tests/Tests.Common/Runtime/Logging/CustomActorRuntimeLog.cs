@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        public void OnMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
         }
 

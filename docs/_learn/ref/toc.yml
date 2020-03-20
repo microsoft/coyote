@@ -247,8 +247,8 @@
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent
         - name: OnMonitorStateTransition
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorStateTransition
-        - name: OnMonitorLivenessError
-          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorLivenessError
+        - name: OnMonitorError
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorError
         - name: OnPopState
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState
         - name: OnPopStateUnhandledEvent
@@ -330,8 +330,8 @@
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorRaiseEvent
         - name: OnMonitorStateTransition
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorStateTransition
-        - name: OnMonitorLivenessError
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorLivenessError
+        - name: OnMonitorError
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorError
         - name: OnRandom
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
         - name: OnAssertionFailure

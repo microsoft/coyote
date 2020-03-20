@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Utilities
             var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
-            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (disabled by default).
+            testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
             testingGroup.AddArgument("fail-on-maxsteps", null, "Consider it a bug if the test hits the specified max-steps", typeof(bool));

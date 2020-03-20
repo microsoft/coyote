@@ -85,17 +85,15 @@ namespace Microsoft.Coyote
         internal bool PerformFullExploration;
 
         /// <summary>
-        /// The maximum scheduling steps to explore
-        /// for fair schedulers.
-        /// By default there is no bound.
+        /// The maximum scheduling steps to explore for fair schedulers.
+        /// By default this is set to 100,000 steps.
         /// </summary>
         [DataMember]
         public int MaxFairSchedulingSteps { get; internal set; }
 
         /// <summary>
-        /// The maximum scheduling steps to explore
-        /// for unfair schedulers.
-        /// By default there is no bound.
+        /// The maximum scheduling steps to explore for unfair schedulers.
+        /// By default this is set to 10,000 steps.
         /// </summary>
         [DataMember]
         public int MaxUnfairSchedulingSteps { get; internal set; }
@@ -326,8 +324,8 @@ namespace Microsoft.Coyote
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
             this.PerformFullExploration = false;
-            this.MaxFairSchedulingSteps = 0;
-            this.MaxUnfairSchedulingSteps = 0;
+            this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps
+            this.MaxUnfairSchedulingSteps = 10000;
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
             this.ParallelBugFindingTasks = 0;
             this.ParallelDebug = false;

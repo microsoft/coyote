@@ -28,7 +28,7 @@ class HeroAnimation {
     bugColor = "#F80269";
     activeColor = "#06C1C5";
     testColor = "white";
-    stageTimes = [1, 6000, 5000];
+    stageTimes = [1, 16000, 10000];
     stage = 0;
     labels = ["A typical distributed system", "Coyote tests these systems", "Coyote can find bugs and reproduce them"];
     currentLabel = null;

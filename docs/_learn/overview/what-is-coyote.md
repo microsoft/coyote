@@ -42,38 +42,49 @@ So Coyote brings together elements of design, development and testing into an in
 that works really well in the real world. See our [case
 studies](../../case-studies/azure-batch-service) for some great customer testimonials.
 
-<script src="/coyote/assets/js/animation.js"></script>
+ <div class="embed-responsive embed-responsive-16by9">
+    <video class="embed-responsive-item" controls poster="/coyote/assets/images/ShortIntro.png">
+        <source  class="embed-responsive-item" src="https://github.com/microsoft/coyote-content/raw/master/assets/video/ShortIntro.mp4" type="video/mp4">
+        <!-- <source src="/assets/ShortIntro.webm" type="video/webm"> -->
+    </video>
+</div>
 
-<svg id="animation" viewbox="0,0,1920,1080" width="75%">
-    <style>
-      .title { font: bold 50px sans-serif; fill:white; }
-    </style>
-    <defs>
-        <filter id="glow-filter" x="0" y="0" width="125%">
-            <feGaussianBlur stdDeviation="5" />
-            <feOffset dx="0" dy="0"/>
-            <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-        <filter id="glow-filter-2" x="-25%" y="-25%" width="150%" height="150%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
-            <feOffset dx="0" dy="0"/>
-            <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-    </defs>
-    <rect fill="#151520" width="100%" height="100%"/>
-</svg>
 
-<script>
-    $(document).ready(function () {
-        svg = $("#animation")[0];
-        hero_animation.start(svg);
-    });
+<div id="caption" style="background:#151520; color:white; font-size: 18px; padding:5px;"></div>
+
+<script type="text/javascript">
+
+    var captions = [[0, "This animation shows messages passing through a highly parallel distributed system."],
+                [5, "Each node represents a microservice or a piece of code running on some machine."],
+                [10, "Messages are flying through this system in a way that makes it hard to debug when something goes wrong."],
+                [16, "Coyote tests one async path at a time exploring all possible paths through the system and it does this very quickly"],
+                [23, "It also records this path so that when it finds a bug that bug is 100% reproducible."]
+            ];
+
+      function show_captions(video, caption){
+        var time = video.currentTime;
+        var line = null;
+        for (var i = 0; i < captions.length; i++) {
+          var nextline = captions[i];
+          if (nextline[0] > time) break;
+          line = nextline;
+        }
+        if (line != null) {
+          caption.style.display="block";
+          caption.innerHTML = line[1]
+        } else {
+          caption.style.display="none";
+        }
+      }
+
+      $(document).ready(function () {
+          video  = $("#shortintro")[0];
+          caption = $("#caption")[0];
+          caption.style.display="none";
+          video.ontimeupdate = function() { show_captions(video, caption); };
+      });
+
+
 </script>
 
 ## Supported programming models

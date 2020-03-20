@@ -1207,6 +1207,20 @@ article .btn:first-of-type {
  * End helpers
  */
 
+ /* video player */
+
+.responsive-video {
+  width: 75%;
+
+  @include screen(sm, max) {
+    width: 100%;
+  }
+
+  @include screen(xl, min) {
+    width: 1080px;
+  }
+}
+
 
 /*
  * button styles

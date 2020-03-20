@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
 ---
 # Configuration.MaxUnfairSchedulingSteps property
 
-The maximum scheduling steps to explore for unfair schedulers. By default there is no bound.
+The maximum scheduling steps to explore for unfair schedulers. By default this is set to 10,000 steps.
 
 ```csharp
 public int MaxUnfairSchedulingSteps { get; }

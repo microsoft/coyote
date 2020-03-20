@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Runtime
         /// to replace the logger with a custom one.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
         TextWriter Logger { get; }
 

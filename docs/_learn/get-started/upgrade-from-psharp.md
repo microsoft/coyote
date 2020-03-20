@@ -2,7 +2,7 @@
 layout: reference
 section: learn
 title: Upgrading from P# to Coyote
-permalink: /learn/get-started/upgrade
+permalink: /learn/get-started/upgrade-from-psharp
 ---
 
 ## Upgrading from P# to Coyote

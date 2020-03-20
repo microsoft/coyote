@@ -11,9 +11,8 @@ The Coyote asynchronous tasks programming model provides a
 `Microsoft.Coyote.Tasks.TaskCompletionSource<TResult>` type that is controlled by `coyote test`
 during systematic testing to explore interleavings and find concurrency bugs. In production, this
 type is simply a thin wrapper over the native .NET
-[`System.Threading.Tasks.TaskCompletionSource<TResult>`
-type](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.taskcompletionsource-1),
-providing the same operational semantics that you are familiar with. 
+[`System.Threading.Tasks.TaskCompletionSource<TResult>`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.taskcompletionsource-1)
+type, providing the same operational semantics that you are familiar with. 
  
 ## Why is a task completion source necessary?
  

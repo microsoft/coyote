@@ -1,8 +1,8 @@
 ---
 layout: reference
-title: Shared Objects
+title: Sharing objects
 section: learn
-permalink: /learn/advanced/object-sharing
+permalink: /learn/programming-models/actors/sharing-objects
 ---
 
 ## Safely sharing objects between actors

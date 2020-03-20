@@ -23,11 +23,11 @@ learn-toc:
     - name: Systematic testing
       link: /learn/core/systematic-testing
     - name: Program specifications
-      link: /learn/specifications/overview
+      link: /learn/core/specifications
     - name: Effective liveness checking
-      link: /learn/specifications/liveness-checking
+      link: /learn/core/liveness-checking
     - name: Logging
-      link: /learn/advanced/logging
+      link: /learn/core/logging
 - title: Programming models
   subfolderitems:
     - name: Asynchronous tasks
@@ -37,6 +37,8 @@ learn-toc:
           link: /learn/programming-models/async/overview
         - name: Controlled task completion source
           link: /learn/programming-models/async/tcs
+        - name: Controlled asynchronous lock
+          link: /learn/programming-models/async/async-lock
     - name: Asynchronous actors
       link: /learn/programming-models/actors/overview
       subfolderitems:
@@ -59,7 +61,7 @@ learn-toc:
         - name: Unit-testing in isolation
           link: /learn/programming-models/actors/unit-testing
         - name: Sharing objects
-          link: /learn/advanced/object-sharing
+          link: /learn/programming-models/actors/sharing-objects
         - name: State machine demo
           link: /learn/programming-models/actors/state-machine-demo
 - title: Tutorials and samples

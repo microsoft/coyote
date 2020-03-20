@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps
 ---
 # Configuration.MaxFairSchedulingSteps property
 
-The maximum scheduling steps to explore for fair schedulers. By default there is no bound.
+The maximum scheduling steps to explore for fair schedulers. By default this is set to 100,000 steps.
 
 ```csharp
 public int MaxFairSchedulingSteps { get; }

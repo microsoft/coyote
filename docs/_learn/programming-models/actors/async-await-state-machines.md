@@ -34,7 +34,7 @@ Coyote runtime (at least while testing). In other words, the code executed by a 
 not spawn `Tasks` or `Threads` neither must it do any synchronization operation other than the
 Coyote `SendEvent` or `ReceiveEventAsync` (i.e., no use of `locks`, `mutexes` or similar
 constructs). This goes along with the recommendation that different `Machines` must not share object
-references (use [Shared Objects](/coyote/learn/advanced/object-sharing) if you must).
+references (use [Shared Objects](sharing-objects) if you must).
 
 The reason for all these restrictions is that `coyote` tester needs to be aware of all concurrency
 in the program in order to control it. The `coyote` tester keeps track of all live state machines in

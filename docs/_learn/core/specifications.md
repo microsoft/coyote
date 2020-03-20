@@ -1,8 +1,8 @@
 ---
 layout: reference
-title: Writing specifications
+title: Program specifications
 section: learn
-permalink: /learn/specifications/overview
+permalink: /learn/core/specifications
 ---
 
 ## Program specifications
@@ -183,4 +183,4 @@ exactly when the progress will happen. In practice, of course, we cannot generat
 executions: we only have a finite amount of time available to us for testing. The tester resorts to
 heuristics: it considers a sufficiently long and hot execution as a proxy for a liveness violation.
 The user can configure a bound beyond which executions are considered infinite. [Keep
-reading](../specifications/liveness-checking) to learn more on how this all works.
+reading](liveness-checking) to learn more on how this all works.

@@ -11,7 +11,8 @@ namespace Microsoft.Coyote.Specifications
     /// and interacting with the systematic testing engine.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/learn/specifications/overview">Specifications Overview</see> for more information.
+    /// See <see href="/coyote/learn/core/specifications">Specifications Overview</see>
+    /// for more information.
     /// </remarks>
     public static class Specification
     {

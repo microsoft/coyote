@@ -9,10 +9,10 @@ permalink: /learn/overview/benefits
 
 Coyote helps solve the complexity of developing asynchronous software. It helps you with _design_
 and _implementation_ by providing high-level programming abstractions. It helps with _testing_ by
-providing support for writing detailed system [specifications](../specifications/overview) and a
-very effective high-coverage [testing tool](../tools/testing). The integration of these features
-into the same product helps you iterate faster through the design-implement-test-revise cycle of
-software development.
+providing support for writing detailed system [specifications](../core/specifications) and a very
+effective high-coverage [testing tool](../tools/testing). The integration of these features into the
+same product helps you iterate faster through the design-implement-test-revise cycle of software
+development.
 
 Coyote allows you to develop with confidence! That confidence comes from having your code changes be
 backed by powerful testing. This has allowed teams to move at a faster pace, often finishing

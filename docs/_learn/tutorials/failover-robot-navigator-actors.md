@@ -101,7 +101,7 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 
 There is a `LivenessMonitor` that monitors the execution of the system to make sure it never gets
 stuck, i.e., the `Robot` always gets a valid response to any of its requests from the `Navigator`
-and serves the selected client. See [Liveness Checking](../specifications/liveness-checking).
+and serves the selected client. See [Liveness Checking](../core/liveness-checking).
 
 A number of excellent bugs were found by [coyote test](../tools/testing) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to find bugs quickly, even in
@@ -435,8 +435,8 @@ process.
 
 ### The Liveness monitor
 
-The `LivenessMonitor` (See [Liveness Checking](../specifications/liveness-checking)) monitors the
- `Robot` and the `Navigator` to make sure the `Robot` always finishes the job, by serving a `Drink`.
+The `LivenessMonitor` (See [Liveness Checking](../core/liveness-checking)) monitors the `Robot` and
+ the `Navigator` to make sure the `Robot` always finishes the job, by serving a `Drink`.
 
 This "liveness" property can be enforced using a very simple `LivenessMonitor` as shown below:
 

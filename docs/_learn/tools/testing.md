@@ -9,7 +9,7 @@ permalink: /learn/tools/testing
 
 The `coyote` command line tool can be used to automatically test a Coyote program to find and
 deterministically reproduce bugs in your code while also enforcing your safety and liveness property
-[specifications](../specifications/overview).
+[specifications](../core/specifications).
 
 To invoke the tester use the following command:
 
@@ -83,7 +83,7 @@ run on the iteration lengths that it saw. Use this output for calibrating on wha
 sense for your case. This flag is usually only needed when your test has the potential of generating
 non-terminating executions. In such cases, if you do not provide `max-steps` then the tester can
 appear to can get stuck running one iteration forever. This is related to [liveness
-checking](../specifications/liveness-checking).
+checking](../core/liveness-checking).
 
 ## Parallel and portfolio testing
 

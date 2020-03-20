@@ -256,8 +256,8 @@ data from multiple actors at once could lead to race conditions.
 
 You can reduce race conditions in your code if you use events to _transfer_ data from one actor to
 another. But since it is a reference model without deep copy semantics, you can actually share data
-between actors if you really need to. See [sharing objects](/coyote/learn/advanced/object-sharing)
-for more information in this advanced topic.
+between actors if you really need to. See [sharing objects](sharing-objects) for more information in
+this advanced topic.
 
 ### Assertions
 
@@ -265,7 +265,7 @@ Coyote also supports specifying invariants through assertions. You can do this b
 method, which accepts as input a predicate that must always hold in that specific program point,
 e.g. `this.Assert(k == 0)`, which holds if the integer `k` equals to `0`. These `Assert` statement
 are useful for local invariants, i.e., they are about the state of a single actor. For global
-invariants it is recommended that you use [Monitors](/coyote/learn/specifications/overview).
+invariants it is recommended that you use [Monitors](/coyote/learn/core/specifications).
 
 To see a full working example of an `Actor` based program see the [Hello World
 Actors](/coyote/learn/tutorials/hello-world-actors) tutorial.

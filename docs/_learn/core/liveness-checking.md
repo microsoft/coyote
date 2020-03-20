@@ -2,7 +2,7 @@
 layout: reference
 title: Effective liveness checking
 section: learn
-permalink: /learn/specifications/liveness-checking
+permalink: /learn/core/liveness-checking
 ---
 
 ## Effective liveness checking

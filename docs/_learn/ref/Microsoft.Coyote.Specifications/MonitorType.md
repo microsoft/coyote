@@ -36,7 +36,7 @@ public abstract class Monitor
 
 ## Remarks
 
-See [Specifications Overview](/coyote/learn/specifications/overview) for more information.
+See [Specifications Overview](/coyote/learn/core/specifications) for more information.
 
 ## See Also
 

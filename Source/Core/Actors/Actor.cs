@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Actors
         /// The installed runtime logger.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
         protected TextWriter Logger => this.Runtime.Logger;
 

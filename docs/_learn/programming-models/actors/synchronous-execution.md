@@ -75,9 +75,8 @@ create from our static method via `CreateActorAndExecuteAsync`. The trampoline a
 it can stash the result in an object that can be safely shared with the calling static method
 without any race conditions.
 
-You can use a [SharedRegister](/coyote/learn/advanced/object-sharing), which will rule out race
-conditions as well, but this still requires a separate protocol to know when the result has been
-made available.
+You can use a [SharedRegister](sharing-objects), which will rule out race conditions as well, but
+this still requires a separate protocol to know when the result has been made available.
 
 ## Running an actor synchronously
 

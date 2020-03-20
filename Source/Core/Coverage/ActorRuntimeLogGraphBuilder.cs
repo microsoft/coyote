@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Coverage
         /// Get or set the underlying logging object.
         /// </summary>
         /// <remarks>
-        /// See <see href="/coyote/learn/advanced/logging" >Logging</see> for more information.
+        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
         public TextWriter Logger { get; set; }
 

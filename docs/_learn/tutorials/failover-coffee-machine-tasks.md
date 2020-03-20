@@ -55,7 +55,7 @@ Some safety `Asserts` are placed in the code that verify certain important thing
 There is also a correctness assert in the `CoffeeMachine` to make sure the correct number of
 espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make
 sure it never gets stuck, i.e., it always finishes the job it was given or it goes to an error state
-if the machine needs to be fixed. See [Liveness Checking](../specifications/liveness-checking).
+if the machine needs to be fixed. See [Liveness Checking](../core/liveness-checking).
 
 A number of excellent bugs were found by [coyote test](../tools/testing) during the development of
 this sample, and this illustrates the fact that Coyote can be applied to any type of asynchronous
@@ -328,7 +328,7 @@ computer to find those bugs that are particularly hard to find more quickly.
 
 ### Liveness monitor
 
-As described in the documentation on [Liveness Checking](../specifications/liveness-checking) the
+As described in the documentation on [Liveness Checking](../core/liveness-checking) the
 `CoffeeMachine` must also eventually `finish` what it is doing. It must either make a coffee when
 requested and return to the `Ready` state, or it must find a problem and go to the `Error` state or
 the `RefillRequired` state. This "liveness" property can be enforced using a very simple

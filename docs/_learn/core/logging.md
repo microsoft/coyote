@@ -2,7 +2,7 @@
 layout: reference
 title: Logging
 section: learn
-permalink: /learn/advanced/logging
+permalink: /learn/core/logging
 ---
 
 ## Logging

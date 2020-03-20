@@ -33,6 +33,7 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnHalt](ActorRuntimeLogTextFormatter/OnHalt)(…) | Invoked when the specified actor has been halted. |
 | virtual [OnHandleRaisedEvent](ActorRuntimeLogTextFormatter/OnHandleRaisedEvent)(…) | Invoked when the specified actor handled a raised event. |
 | virtual [OnMonitorExecuteAction](ActorRuntimeLogTextFormatter/OnMonitorExecuteAction)(…) | Invoked when the specified monitor executes an action. |
+| virtual [OnMonitorLivenessError](ActorRuntimeLogTextFormatter/OnMonitorLivenessError)(…) | Invoked when the specified monitor finds a liveness error. |
 | virtual [OnMonitorProcessEvent](ActorRuntimeLogTextFormatter/OnMonitorProcessEvent)(…) | Invoked when the specified monitor is about to process an event. |
 | virtual [OnMonitorRaiseEvent](ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent)(…) | Invoked when the specified monitor raised an event. |
 | virtual [OnMonitorStateTransition](ActorRuntimeLogTextFormatter/OnMonitorStateTransition)(…) | Invoked when the specified monitor enters or exits a state. |
@@ -40,7 +41,7 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnPopStateUnhandledEvent](ActorRuntimeLogTextFormatter/OnPopStateUnhandledEvent)(…) | Invoked when the specified event cannot be handled in the current state, its exit handler is executed and then the state is popped and any previous "current state" is reentered. This handler is called when that pop has been done. |
 | virtual [OnPushState](ActorRuntimeLogTextFormatter/OnPushState)(…) | Invoked when the specified state machine is being pushed to a state. |
 | virtual [OnRaiseEvent](ActorRuntimeLogTextFormatter/OnRaiseEvent)(…) | Invoked when the specified state machine raises an event. |
-| virtual [OnRandom](ActorRuntimeLogTextFormatter/OnRandom)(…) | Invoked when the specified random result has been obtained. |
+| virtual [OnRandom](ActorRuntimeLogTextFormatter/OnRandom)(…) | Invoked when the specified controlled nondeterministic result has been obtained. |
 | virtual [OnReceiveEvent](ActorRuntimeLogTextFormatter/OnReceiveEvent)(…) | Invoked when the specified event is received by an actor. |
 | virtual [OnSendEvent](ActorRuntimeLogTextFormatter/OnSendEvent)(…) | Invoked when the specified event is sent to a target actor. |
 | virtual [OnStateTransition](ActorRuntimeLogTextFormatter/OnStateTransition)(…) | Invoked when the specified state machine enters or exits a state. |

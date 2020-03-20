@@ -6,20 +6,20 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
 ---
 # IActorRuntimeLog.OnRandom method
 
-Invoked when the specified random result has been obtained.
+Invoked when the specified controlled nondeterministic result has been obtained.
 
 ```csharp
-public void OnRandom(ActorId id, object result)
+public void OnRandom(object result, string callerName, string callerType)
 ```
 
 | parameter | description |
 | --- | --- |
-| id | The id of the source actor, if any; otherwise, the runtime itself was the source. |
-| result | The random result (may be bool or int). |
+| result | The nondeterministic result (may be bool or int). |
+| callerName | The name of the caller, if any. |
+| callerType | The type of the caller, if any. |
 
 ## See Also
 
-* class [ActorId](../ActorIdType)
 * interface [IActorRuntimeLog](../IActorRuntimeLogType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeLogType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

@@ -38,7 +38,8 @@ namespace Microsoft.Coyote.Tests.Common
             return Regex.Replace(report, @"\s+", " ");
         }
 
-        protected static string RemoveStackTraceFromReport(string report)
+        protected static string RemoveStackTraceFromReport(string report,
+            string removeUntilContainsText = "Microsoft.Coyote.SystematicTesting.Tests")
         {
             StringBuilder result = new StringBuilder();
             bool strip = false;
@@ -61,7 +62,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     result.AppendLine(trimmed);
                 }
-                else if (strip && trimmed.Contains("Microsoft.Coyote.SystematicTesting.Tests"))
+                else if (strip && trimmed.Contains(removeUntilContainsText))
                 {
                     result.AppendLine(trimmed);
                 }

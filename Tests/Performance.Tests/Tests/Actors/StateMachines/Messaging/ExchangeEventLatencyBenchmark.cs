@@ -155,12 +155,10 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void MeasureExchangeEventLatency()
         {
             var tcs = new TaskCompletionSource<bool>();
-
             var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.Create(configuration);
             runtime.CreateActor(typeof(M1), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
-
             tcs.Task.Wait();
         }
 
@@ -168,12 +166,10 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void MeasureLatencyExchangeEventViaReceive()
         {
             var tcs = new TaskCompletionSource<bool>();
-
             var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.Create(configuration);
             runtime.CreateActor(typeof(M3), null,
                 new SetupTcsEvent(tcs, this.NumMessages));
-
             tcs.Task.Wait();
         }
     }

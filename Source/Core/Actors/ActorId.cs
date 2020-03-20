@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -65,7 +64,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, string name, CoyoteRuntime runtime, bool useNameForHashing = false)
+        internal ActorId(Type type, string name, ActorRuntime runtime, bool useNameForHashing = false)
         {
             this.Runtime = runtime;
             this.Endpoint = string.Empty;
@@ -102,7 +101,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Bind the actor id.
         /// </summary>
-        internal void Bind(CoyoteRuntime runtime)
+        internal void Bind(ActorRuntime runtime)
         {
             this.Runtime = runtime;
         }

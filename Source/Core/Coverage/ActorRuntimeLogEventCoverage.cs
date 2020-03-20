@@ -120,11 +120,11 @@ namespace Microsoft.Coyote.Coverage
         {
         }
 
-        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
+        public void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
         }
 
-        public void OnCreateMonitor(string monitorTypeName)
+        public void OnCreateMonitor(string monitorType)
         {
         }
 
@@ -182,24 +182,32 @@ namespace Microsoft.Coyote.Coverage
             this.Dequeued = e;
         }
 
-        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
+        public void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
         }
 
-        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
-            string senderName, string senderStateName, Event e)
-        {
-            string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventReceived(GetStateId(monitorTypeName, stateName), eventName);
-        }
-
-        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
+            string senderType, string senderStateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            this.EventCoverage.AddEventSent(GetStateId(monitorTypeName, stateName), eventName);
+            this.EventCoverage.AddEventReceived(GetStateId(monitorType, stateName), eventName);
         }
 
-        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
+        public void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
+        {
+            string eventName = e.GetType().FullName;
+            this.EventCoverage.AddEventSent(GetStateId(monitorType, stateName), eventName);
+        }
+
+        public void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
+        {
+        }
+
+        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        {
+        }
+
+        public void OnRandom(object result, string callerName, string callerType)
         {
         }
 
@@ -222,17 +230,13 @@ namespace Microsoft.Coyote.Coverage
             this.EventCoverage.AddEventSent(GetStateId(id.Type, stateName), eventName);
         }
 
-        public void OnRandom(ActorId id, object result)
-        {
-        }
-
         public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             string eventName = e.GetType().FullName;
             this.EventCoverage.AddEventReceived(GetStateId(id.Type, stateName), eventName);
         }
 
-        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+        public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
             Event e, Guid opGroupId, bool isTargetHalted)
         {
             string eventName = e.GetType().FullName;

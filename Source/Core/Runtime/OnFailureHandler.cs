@@ -3,10 +3,10 @@
 
 using System;
 
-namespace Microsoft.Coyote.Actors
+namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
-    /// Handles the <see cref="IActorRuntime.OnFailure"/> event.
+    /// Handles the <see cref="ICoyoteRuntime.OnFailure"/> event.
     /// </summary>
     public delegate void OnFailureHandler(Exception ex);
 }

@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void MeasureCreationThroughput()
         {
             var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
+            var runtime = RuntimeFactory.Create(configuration);
 
             var tcs = new TaskCompletionSource<bool>();
             var e = new SetupEvent(tcs, this.NumMachines, this.DoHalt);

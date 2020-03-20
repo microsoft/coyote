@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
@@ -149,46 +150,65 @@ namespace Microsoft.Coyote.SystematicTesting
             MethodInfo testMethod = filteredTestMethods[0];
             ParameterInfo[] testParams = testMethod.GetParameters();
 
-            bool hasExpectedReturnType = (testMethod.ReturnType == typeof(void) &&
-                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) ||
-                (testMethod.ReturnType == typeof(Task) &&
-                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null);
-            bool hasExpectedParameters = !testMethod.ContainsGenericParameters &&
-                (testParams.Length is 0 ||
-                (testParams.Length is 1 && testParams[0].ParameterType == typeof(IActorRuntime)));
+            bool hasVoidReturnType = testMethod.ReturnType == typeof(void) &&
+                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null;
+            bool hasAsyncReturnType = testMethod.ReturnType == typeof(Task) &&
+                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
 
-            if (testMethod.IsAbstract || testMethod.IsVirtual || testMethod.IsConstructor ||
-                !testMethod.IsPublic || !testMethod.IsStatic ||
-                !hasExpectedReturnType || !hasExpectedParameters)
+            bool hasNoInputParameters = testParams.Length is 0;
+            bool hasActorInputParameters = testParams.Length is 1 && testParams[0].ParameterType == typeof(IActorRuntime);
+            bool hasTaskInputParameters = testParams.Length is 1 && testParams[0].ParameterType == typeof(ICoyoteRuntime);
+
+            if (!((hasVoidReturnType || hasAsyncReturnType) && (hasNoInputParameters || hasActorInputParameters || hasTaskInputParameters) &&
+                !testMethod.IsAbstract && !testMethod.IsVirtual && !testMethod.IsConstructor &&
+                !testMethod.ContainsGenericParameters && testMethod.IsPublic && testMethod.IsStatic))
             {
                 Error.ReportAndExit("Incorrect test method declaration. Please " +
                     "use one of the following supported declarations:\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static void {testMethod.Name}() {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}\n\n" +
+                    $"  public static void {testMethod.Name}(ICoyoteRuntime runtime) {{ ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async {typeof(Task).FullName} {testMethod.Name}() {{ ... }}\n\n" +
+                    $"  public static void {testMethod.Name}(IActorRuntime runtime) {{ ... }}\n\n" +
+                    $"  [{typeof(TestAttribute).FullName}]\n" +
+                    $"  public static async {typeof(Task).FullName} {testMethod.Name}() {{ ... await ... }}\n\n" +
+                    $"  [{typeof(TestAttribute).FullName}]\n" +
+                    $"  public static async {typeof(Task).FullName} {testMethod.Name}(ICoyoteRuntime runtime) {{ ... await ... }}\n\n" +
                     $"  [{typeof(TestAttribute).FullName}]\n" +
                     $"  public static async {typeof(Task).FullName} {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}");
             }
 
             Delegate test;
-            if (testMethod.ReturnType == typeof(void) && testParams.Length == 1)
+            if (hasAsyncReturnType)
             {
-                test = Delegate.CreateDelegate(typeof(Action<IActorRuntime>), testMethod);
-            }
-            else if (testMethod.ReturnType == typeof(void))
-            {
-                test = Delegate.CreateDelegate(typeof(Action), testMethod);
-            }
-            else if (testParams.Length == 1)
-            {
-                test = Delegate.CreateDelegate(typeof(Func<IActorRuntime, Task>), testMethod);
+                if (hasActorInputParameters)
+                {
+                    test = Delegate.CreateDelegate(typeof(Func<IActorRuntime, Task>), testMethod);
+                }
+                else if (hasTaskInputParameters)
+                {
+                    test = Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testMethod);
+                }
+                else
+                {
+                    test = Delegate.CreateDelegate(typeof(Func<Task>), testMethod);
+                }
             }
             else
             {
-                test = Delegate.CreateDelegate(typeof(Func<Task>), testMethod);
+                if (hasActorInputParameters)
+                {
+                    test = Delegate.CreateDelegate(typeof(Action<IActorRuntime>), testMethod);
+                }
+                else if (hasTaskInputParameters)
+                {
+                    test = Delegate.CreateDelegate(typeof(Action<ICoyoteRuntime>), testMethod);
+                }
+                else
+                {
+                    test = Delegate.CreateDelegate(typeof(Action), testMethod);
+                }
             }
 
             return (test, $"{testMethod.DeclaringType}.{testMethod.Name}");

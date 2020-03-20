@@ -108,12 +108,10 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void MeasurePushTransitionThroughput()
         {
             var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.CreateProductionRuntime(configuration);
-
+            var runtime = RuntimeFactory.Create(configuration);
             var tcs = new TaskCompletionSource<bool>();
             var e = new SetupEvent(tcs, this.NumTransitions);
             runtime.CreateActor(typeof(M), null, e);
-
             tcs.Task.Wait();
         }
     }

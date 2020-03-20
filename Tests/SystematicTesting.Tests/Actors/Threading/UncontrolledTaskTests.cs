@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 await Task.Run(() =>
                 {
-                    this.Random();
+                    this.RandomBoolean();
                 });
             }
         }
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 await Task.Run(() =>
                 {
-                    this.Random();
+                    this.RandomBoolean();
                 });
             }
         }

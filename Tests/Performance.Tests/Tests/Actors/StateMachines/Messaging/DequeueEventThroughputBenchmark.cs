@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 
         private static int NumMessages => 1000000;
 
-        private ActorRuntime Runtime;
+        private IActorRuntime Runtime;
         private ActorId[] ProducerMachines;
         private TaskCompletionSource<bool> ExperimentAwaiter;
 
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void IterationSetup()
         {
             var configuration = Configuration.Create();
-            this.Runtime = RuntimeFactory.CreateProductionRuntime(configuration);
+            this.Runtime = RuntimeFactory.Create(configuration);
             this.ExperimentAwaiter = new TaskCompletionSource<bool>();
 
             var consumer = this.Runtime.CreateActor(typeof(Consumer), null,

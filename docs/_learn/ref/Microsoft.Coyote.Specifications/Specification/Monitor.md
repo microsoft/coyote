@@ -13,6 +13,11 @@ public static void Monitor<T>(Event e)
     where T : Monitor
 ```
 
+| parameter | description |
+| --- | --- |
+| T | Type of the monitor. |
+| e | Event to send to the monitor. |
+
 ## See Also
 
 * class [Event](../../Microsoft.Coyote/EventType)

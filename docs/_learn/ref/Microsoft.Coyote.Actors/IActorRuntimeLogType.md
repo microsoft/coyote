@@ -31,6 +31,7 @@ public interface IActorRuntimeLog
 | [OnHalt](IActorRuntimeLog/OnHalt)(…) | Invoked when the specified actor has been halted. |
 | [OnHandleRaisedEvent](IActorRuntimeLog/OnHandleRaisedEvent)(…) | Invoked when the specified actor handled a raised event. |
 | [OnMonitorExecuteAction](IActorRuntimeLog/OnMonitorExecuteAction)(…) | Invoked when the specified monitor executes an action. |
+| [OnMonitorLivenessError](IActorRuntimeLog/OnMonitorLivenessError)(…) | Invoked when the specified monitor finds a liveness error. |
 | [OnMonitorProcessEvent](IActorRuntimeLog/OnMonitorProcessEvent)(…) | Invoked when the specified monitor is about to process an event. |
 | [OnMonitorRaiseEvent](IActorRuntimeLog/OnMonitorRaiseEvent)(…) | Invoked when the specified monitor raised an event. |
 | [OnMonitorStateTransition](IActorRuntimeLog/OnMonitorStateTransition)(…) | Invoked when the specified monitor enters or exits a state. |
@@ -38,7 +39,7 @@ public interface IActorRuntimeLog
 | [OnPopStateUnhandledEvent](IActorRuntimeLog/OnPopStateUnhandledEvent)(…) | Invoked when the specified event cannot be handled in the current state, its exit handler is executed and then the state is popped and any previous "current state" is reentered. This handler is called when that pop has been done. |
 | [OnPushState](IActorRuntimeLog/OnPushState)(…) | Invoked when the specified state machine is being pushed to a state. |
 | [OnRaiseEvent](IActorRuntimeLog/OnRaiseEvent)(…) | Invoked when the specified state machine raises an event. |
-| [OnRandom](IActorRuntimeLog/OnRandom)(…) | Invoked when the specified random result has been obtained. |
+| [OnRandom](IActorRuntimeLog/OnRandom)(…) | Invoked when the specified controlled nondeterministic result has been obtained. |
 | [OnReceiveEvent](IActorRuntimeLog/OnReceiveEvent)(…) | Invoked when the specified event is received by an actor. |
 | [OnSendEvent](IActorRuntimeLog/OnSendEvent)(…) | Invoked when the specified event is sent to a target actor. |
 | [OnStateTransition](IActorRuntimeLog/OnStateTransition)(…) | Invoked when the specified state machine enters or exits a state. |

@@ -9,13 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMon
 Invoked when the specified monitor executes an action.
 
 ```csharp
-public virtual void OnMonitorExecuteAction(string monitorTypeName, string stateName, 
-    string actionName)
+public virtual void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
 ```
 
 | parameter | description |
 | --- | --- |
-| monitorTypeName | Name of type of the monitor that is executing the action. |
+| monitorType | Name of type of the monitor that is executing the action. |
 | stateName | The name of the state in which the action is being executed. |
 | actionName | The name of the action being executed. |
 

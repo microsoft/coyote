@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
 
@@ -36,17 +37,17 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnCreateActor(ActorId id, string creatorType, string creatorName)
+        public virtual void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
-            var source = creatorType is null ? "the runtime" : creatorName;
+            var source = creatorName ?? $"task '{Task.CurrentId}'";
             var text = $"<CreateLog> {id} was created by {source}.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnCreateMonitor(string monitorTypeName)
+        public virtual void OnCreateMonitor(string monitorType)
         {
-            var text = $"<CreateLog> {monitorTypeName} was created.";
+            var text = $"<CreateLog> {monitorType} was created.";
             this.Logger.WriteLine(text);
         }
 
@@ -54,7 +55,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void OnCreateTimer(TimerInfo info)
         {
             string text;
-            var source = info.OwnerId is null ? "the runtime" : info.OwnerId.Name;
+            var source = info.OwnerId?.Name ?? $"task '{Task.CurrentId}'";
             if (info.Period.TotalMilliseconds >= 0)
             {
                 text = $"<TimerLog> Timer '{info}' (due-time:{info.DueTime.TotalMilliseconds}ms; " +
@@ -181,36 +182,41 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
+        public virtual void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
-            string text = $"<MonitorLog> {monitorTypeName} executed action '{actionName}' in state '{stateName}'.";
+            string text = $"<MonitorLog> {monitorType} executed action '{actionName}' in state '{stateName}'.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
-            string senderName, string senderStateName, Event e)
-        {
-            string eventName = e.GetType().FullName;
-            string text = $"<MonitorLog> {monitorTypeName} is processing event '{eventName}' in state '{stateName}'.";
-            this.Logger.WriteLine(text);
-        }
-
-        /// <inheritdoc/>
-        public virtual void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        public virtual void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
+            string senderType, string senderStateName, Event e)
         {
             string eventName = e.GetType().FullName;
-            string text = $"<MonitorLog> {monitorTypeName} raised event '{eventName}' in state '{stateName}'.";
+            string text = $"<MonitorLog> {monitorType} is processing event '{eventName}' in state '{stateName}'.";
             this.Logger.WriteLine(text);
         }
 
         /// <inheritdoc/>
-        public virtual void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
+        public virtual void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
+        {
+            string eventName = e.GetType().FullName;
+            string text = $"<MonitorLog> {monitorType} raised event '{eventName}' in state '{stateName}'.";
+            this.Logger.WriteLine(text);
+        }
+
+        /// <inheritdoc/>
+        public virtual void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
         {
             var liveness = isInHotState.HasValue ? (isInHotState.Value ? "hot " : "cold ") : string.Empty;
             var direction = isEntry ? "enters" : "exits";
-            var text = $"<MonitorLog> {monitorTypeName} {direction} {liveness}state '{stateName}'.";
+            var text = $"<MonitorLog> {monitorType} {direction} {liveness}state '{stateName}'.";
             this.Logger.WriteLine(text);
+        }
+
+        /// <inheritdoc/>
+        public virtual void OnMonitorLivenessError(string monitorType, string hotStateName)
+        {
         }
 
         /// <inheritdoc/>
@@ -255,14 +261,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnRandom(ActorId id, object result)
-        {
-            var source = id != null ? id.Name : "Runtime";
-            var text = $"<RandomLog> {source} nondeterministically chose '{result}'.";
-            this.Logger.WriteLine(text);
-        }
-
-        /// <inheritdoc/>
         public virtual void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
             string eventName = e.GetType().FullName;
@@ -281,12 +279,12 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public virtual void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+        public virtual void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
             Event e, Guid opGroupId, bool isTargetHalted)
         {
             var opGroupIdMsg = opGroupId != Guid.Empty ? $" (operation group '{opGroupId}')" : string.Empty;
             var isHalted = isTargetHalted ? $" which has halted" : string.Empty;
-            var sender = senderType != null ? $"{senderName} in state '{senderStateName}'" : $"The runtime";
+            var sender = senderName != null ? $"{senderName} in state '{senderStateName}'" : $"task '{Task.CurrentId}'";
             var eventName = e.GetType().FullName;
             var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{opGroupIdMsg}.";
             this.Logger.WriteLine(text);
@@ -303,7 +301,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnStopTimer(TimerInfo info)
         {
-            var source = info.OwnerId is null ? "the runtime" : info.OwnerId.Name;
+            var source = info.OwnerId?.Name ?? $"task '{Task.CurrentId}'";
             var text = $"<TimerLog> Timer '{info}' was stopped and disposed by {source}.";
             this.Logger.WriteLine(text);
         }
@@ -373,6 +371,14 @@ namespace Microsoft.Coyote.Actors
                 text = $"<ReceiveLog> {id} is waiting to dequeue an event of type {eventNames} in state '{stateName}'.";
             }
 
+            this.Logger.WriteLine(text);
+        }
+
+        /// <inheritdoc/>
+        public virtual void OnRandom(object result, string callerName, string callerType)
+        {
+            var source = callerName ?? $"Task '{Task.CurrentId}'";
+            var text = $"<RandomLog> {source} nondeterministically chose '{result}'.";
             this.Logger.WriteLine(text);
         }
 

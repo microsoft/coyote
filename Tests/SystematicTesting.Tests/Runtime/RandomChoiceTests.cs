@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
             this.Test(r =>
             {
-                if (r.Random())
+                if (r.RandomBoolean())
                 {
                     r.CreateActor(typeof(M));
                 }

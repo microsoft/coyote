@@ -1083,7 +1083,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void Tick()
             {
-                if (this.Random())
+                if (this.RandomBoolean())
                 {
                     this.SendEvent(this.Target, new Timeout());
                 }
@@ -1156,7 +1156,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void Tick()
             {
-                if (this.Random())
+                if (this.RandomBoolean())
                 {
                     this.SendEvent(this.Target, new Timeout());
                 }

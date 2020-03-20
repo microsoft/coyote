@@ -10,8 +10,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Runtime;
-using EventInfo = Microsoft.Coyote.Actors.EventInfo;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -56,7 +54,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// The runtime that executes this monitor.
         /// </summary>
-        private CoyoteRuntime Runtime;
+        private ActorRuntime Runtime;
 
         /// <summary>
         /// The active monitor state.
@@ -162,7 +160,7 @@ namespace Microsoft.Coyote.Specifications
         /// Initializes this monitor.
         /// </summary>
         /// <param name="runtime">The runtime that executes this monitor.</param>
-        internal void Initialize(CoyoteRuntime runtime)
+        internal void Initialize(ActorRuntime runtime)
         {
             this.Runtime = runtime;
         }
@@ -255,28 +253,10 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Notifies the monitor to handle the received event.
         /// </summary>
-        /// <param name="sender">The sender of this event</param>
-        /// <param name="e">The event to monitor.</param>
-        internal void MonitorEvent(Actor sender, Event e)
+        internal void MonitorEvent(Event e, string senderName, string senderType, string senderState)
         {
-            string senderType = null;
-            string senderName = null;
-            string senderState = null;
-            if (sender is null)
-            {
-                // Then this might be from a controlled Task so create a dummy sender.
-                senderType = "Task";
-                senderName = Task.CurrentId.ToString();
-            }
-            else if (sender is StateMachine machine)
-            {
-                senderType = sender.Id.Type;
-                senderName = sender.Id.Name;
-                senderState = machine.CurrentStateName;
-            }
-
             this.Runtime.LogWriter.LogMonitorProcessEvent(this.GetType().FullName, this.CurrentStateName,
-                senderType, senderName, senderState, e);
+                senderName, senderType, senderState, e);
             this.HandleEvent(e);
         }
 
@@ -588,11 +568,14 @@ namespace Microsoft.Coyote.Specifications
                 this.Runtime.Configuration.LivenessTemperatureThreshold > 0)
             {
                 this.LivenessTemperature++;
-                this.Runtime.Assert(
-                    this.LivenessTemperature <= this.Runtime.
-                    Configuration.LivenessTemperatureThreshold,
-                    "{0} detected potential liveness bug in hot state '{1}'.",
-                    this.GetType().FullName, this.CurrentStateName);
+                if (this.LivenessTemperature > this.Runtime.
+                    Configuration.LivenessTemperatureThreshold)
+                {
+                    this.Runtime.NotifyLivenessError(this);
+                    this.Runtime.Assert(false,
+                        "{0} detected potential liveness bug in hot state '{1}'.",
+                        this.GetType().FullName, this.CurrentStateName);
+                }
             }
         }
 

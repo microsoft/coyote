@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Coyote.Tests.Common.Actors
+namespace Microsoft.Coyote.Tests.Common.Events
 {
     /// <summary>
     /// Basic event that contains no payload.

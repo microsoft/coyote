@@ -8,7 +8,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 {
     public class CustomActorRuntimeLogSubclass : ActorRuntimeLogTextFormatter
     {
-        public override void OnCreateActor(ActorId id, string creatorType, string creatorName)
+        public override void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
             this.Logger.WriteLine("<CreateLog>.");
         }
@@ -17,8 +17,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
         }
 
-        public override void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
-            Event e, Guid opGroupId, bool isTargetHalted)
+        public override void OnSendEvent(ActorId targetActorId, string senderName, string senderType,
+            string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
         {
         }
 
@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             this.Logger.WriteLine("<StateLog>.");
         }
 
-        public override void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        public override void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
         {
         }
     }

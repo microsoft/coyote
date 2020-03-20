@@ -13,6 +13,10 @@ public static void RegisterMonitor<T>()
     where T : Monitor
 ```
 
+| parameter | description |
+| --- | --- |
+| T | Type of the monitor. |
+
 ## See Also
 
 * class [Monitor](../MonitorType)

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
 
             private void DoneOnEntry()
             {
-                if (this.Random())
+                if (this.RandomBoolean())
                 {
                     this.SendEvent(this.Master, new FinishedProcessing());
                 }

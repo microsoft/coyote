@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             CustomLogger logger = new CustomLogger();
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
-            var runtime = RuntimeFactory.Create(config);
+            IActorRuntime runtime = RuntimeFactory.Create(config);
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             await WaitAsync(tcs.Task);
             await Task.Delay(200);
 
-            string expected = @"<CreateLog> M() was created by the runtime.
+            string expected = @"<CreateLog> M() was created by task ''.
 <StateLog> M() enters state 'Init'.
 <ActionLog> M() invoked action 'InitOnEntry' in state 'Init'.
 <CreateLog> N() was created by M().
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
             var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-            var runtime = RuntimeFactory.Create(config);
+            IActorRuntime runtime = RuntimeFactory.Create(config);
             runtime.RegisterLog(graphBuilder);
             runtime.SetLogger(logger);
 
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
         {
             var logger = TextWriter.Null;
 
-            var runtime = RuntimeFactory.Create();
+            IActorRuntime runtime = RuntimeFactory.Create();
             runtime.SetLogger(logger);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
         [Fact(Timeout = 5000)]
         public async Task TestNullCustomLogger()
         {
-            var runtime = RuntimeFactory.Create();
+            IActorRuntime runtime = RuntimeFactory.Create();
             runtime.SetLogger(null);
 
             var tcs = new TaskCompletionSource<bool>();
@@ -229,7 +229,7 @@ namespace Microsoft.Coyote.Production.Tests.Runtime
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             config.IsMonitoringEnabledInInProduction = true;
 
-            var runtime = RuntimeFactory.Create(config);
+            IActorRuntime runtime = RuntimeFactory.Create(config);
             runtime.RegisterMonitor<S>();
             runtime.SetLogger(null);
             var logger = new CustomActorRuntimeLog();

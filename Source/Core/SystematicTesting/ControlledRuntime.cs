@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Mocks;
@@ -26,27 +25,12 @@ namespace Microsoft.Coyote.SystematicTesting
     /// <summary>
     /// Runtime for controlling asynchronous operations.
     /// </summary>
-    internal sealed class ControlledRuntime : CoyoteRuntime
+    internal sealed class ControlledRuntime : ActorRuntime
     {
-        /// <summary>
-        /// Provides access to the runtime associated with each asynchronous control flow.
-        /// </summary>
-        /// <remarks>
-        /// In testing mode, each testing iteration uses a unique runtime instance. To safely
-        /// retrieve it from static methods, we store it in each asynchronous control flow.
-        /// </remarks>
-        private static readonly AsyncLocal<ControlledRuntime> AsyncLocalInstance = new AsyncLocal<ControlledRuntime>();
-
         /// <summary>
         /// The currently executing runtime.
         /// </summary>
-        internal static ControlledRuntime Current =>
-            AsyncLocalInstance.Value ?? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
-                "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
-                "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
-                "you will need to mock them during testing.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
+        internal static new ControlledRuntime Current => CoyoteRuntime.Current as ControlledRuntime;
 
         /// <summary>
         /// The asynchronous operation scheduler.
@@ -69,11 +53,6 @@ namespace Microsoft.Coyote.SystematicTesting
         internal CoverageInfo CoverageInfo;
 
         /// <summary>
-        /// List of monitors in the program.
-        /// </summary>
-        private readonly List<Monitor> Monitors;
-
-        /// <summary>
         /// Map that stores all unique names and their corresponding actor ids.
         /// </summary>
         internal readonly ConcurrentDictionary<string, ActorId> NameValueToActorId;
@@ -86,12 +65,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlledRuntime"/> class.
         /// </summary>
-        internal ControlledRuntime(Configuration configuration, ISchedulingStrategy strategy)
-            : base(configuration)
+        internal ControlledRuntime(Configuration configuration, ISchedulingStrategy strategy,
+            IRandomValueGenerator valueGenerator)
+            : base(configuration, valueGenerator)
         {
             IsExecutionControlled = true;
 
-            this.Monitors = new List<Monitor>();
             this.RootTaskId = Task.CurrentId;
             this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
 
@@ -109,15 +88,10 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Update the current asynchronous control flow with this runtime instance,
             // allowing future retrieval in the same asynchronous call stack.
-            SetRuntimeToAsynchronousControlFlow(this);
+            AssignAsyncControlFlowRuntime(this);
         }
 
-        /// <summary>
-        /// Creates a actor id that is uniquely tied to the specified unique name. The
-        /// returned actor id can either be a fresh id (not yet bound to any actor), or
-        /// it can be bound to a previously created actor. In the second case, this actor
-        /// id can be directly used to communicate with the corresponding actor.
-        /// </summary>
+        /// <inheritdoc/>
         public override ActorId CreateActorIdFromName(Type type, string name)
         {
             // It is important that all actor ids use the monotonically incrementing
@@ -126,77 +100,44 @@ namespace Microsoft.Coyote.SystematicTesting
             return this.NameValueToActorId.GetOrAdd(name, id);
         }
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled.
-        /// </summary>
+        /// <inheritdoc/>
         public override ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default) =>
             this.CreateActor(null, type, null, initialEvent, opGroupId);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled.
-        /// </summary>
+        /// <inheritdoc/>
         public override ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
             this.CreateActor(null, type, name, initialEvent, opGroupId);
 
-        /// <summary>
-        /// Creates a new actor of the specified type, using the specified <see cref="ActorId"/>.
-        /// This method optionally passes an <see cref="Event"/> to the new actor, which can only
-        /// be used to access its payload, and cannot be handled.
-        /// </summary>
+        /// <inheritdoc/>
         public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Guid opGroupId = default)
         {
             this.Assert(id != null, "Cannot create an actor using a null actor id.");
             return this.CreateActor(id, type, null, initialEvent, opGroupId);
         }
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled. The method returns only when the actor is initialized and
-        /// the <see cref="Event"/> (if any) is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event e = null, Guid opGroupId = default) =>
             this.CreateActorAndExecuteAsync(null, type, null, e, opGroupId);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled. The method returns only when the actor is
-        /// initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event e = null, Guid opGroupId = default) =>
             this.CreateActorAndExecuteAsync(null, type, name, e, opGroupId);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
-        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
-        /// be used to access its payload, and cannot be handled. The method returns only when
-        /// the actor is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default)
         {
             this.Assert(id != null, "Cannot create an actor using a null actor id.");
             return this.CreateActorAndExecuteAsync(id, type, null, e, opGroupId);
         }
 
-        /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to an actor.
-        /// </summary>
+        /// <inheritdoc/>
         public override void SendEvent(ActorId targetId, Event e, Guid opGroupId = default, SendOptions options = null)
         {
             var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
             this.SendEvent(targetId, e, senderOp?.Actor, opGroupId, options);
         }
 
-        /// <summary>
-        /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
-        /// running. Otherwise blocks until the target handles the event and reaches quiescense.
-        /// </summary>
+        /// <inheritdoc/>
         public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Guid opGroupId = default,
             SendOptions options = null)
         {
@@ -204,11 +145,7 @@ namespace Microsoft.Coyote.SystematicTesting
             return this.SendEventAndExecuteAsync(targetId, e, senderOp?.Actor, opGroupId, options);
         }
 
-        /// <summary>
-        /// Returns the operation group id of the actor with the specified id. Returns <see cref="Guid.Empty"/>
-        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
-        /// testing, the runtime asserts that the specified actor is currently executing.
-        /// </summary>
+        /// <inheritdoc/>
         public override Guid GetCurrentOperationGroupId(ActorId currentActorId)
         {
             var callerOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
@@ -239,7 +176,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Update the current asynchronous control flow with the current runtime instance,
                     // allowing future retrieval in the same asynchronous call stack.
-                    SetRuntimeToAsynchronousControlFlow(this);
+                    AssignAsyncControlFlowRuntime(this);
 
                     OperationScheduler.StartOperation(op);
 
@@ -293,9 +230,7 @@ namespace Microsoft.Coyote.SystematicTesting
             return this.CreateActor(id, type, name, initialEvent, creatorOp?.Actor, opGroupId);
         }
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/>.
-        /// </summary>
+        /// <inheritdoc/>
         internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator,
             Guid opGroupId)
         {
@@ -319,10 +254,7 @@ namespace Microsoft.Coyote.SystematicTesting
             return this.CreateActorAndExecuteAsync(id, type, name, initialEvent, creatorOp?.Actor, opGroupId);
         }
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/>. The method returns only
-        /// when the actor is initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
+        /// <inheritdoc/>
         internal override async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
             Event initialEvent, Actor creator, Guid opGroupId)
         {
@@ -393,14 +325,12 @@ namespace Microsoft.Coyote.SystematicTesting
 
             bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor));
             this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
-            this.LogWriter.LogCreateActor(id, creator?.Id.Type, creator?.Id.Name);
+            this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
 
             return actor;
         }
 
-        /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to an actor.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
             if (e is null)
@@ -429,10 +359,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to an actor. Returns immediately if the target was
-        /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
-        /// </summary>
+        /// <inheritdoc/>
         internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
             Guid opGroupId, SendOptions options)
         {
@@ -483,7 +410,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (target.IsHalted)
             {
-                this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to {1} which has halted.", e.GetType().FullName, targetId);
@@ -531,7 +458,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 SendStep = this.Scheduler.ScheduledSteps
             };
 
-            this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Type, sender?.Id.Name, stateName,
+            this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
                 e, opGroupId, isTargetHalted: false);
             return actor.Enqueue(e, opGroupId, eventInfo);
         }
@@ -555,7 +482,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Update the current asynchronous control flow with this runtime instance,
                     // allowing future retrieval in the same asynchronous call stack.
-                    SetRuntimeToAsynchronousControlFlow(this);
+                    AssignAsyncControlFlowRuntime(this);
 
                     OperationScheduler.StartOperation(op);
 
@@ -630,9 +557,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner actor.
-        /// </summary>
+        /// <inheritdoc/>
         internal override IActorTimer CreateActorTimer(TimerInfo info, Actor owner)
         {
             var id = this.CreateActorId(typeof(MockStateMachineTimer));
@@ -640,9 +565,7 @@ namespace Microsoft.Coyote.SystematicTesting
             return this.Scheduler.GetOperationWithId<ActorOperation>(id.Value).Actor as MockStateMachineTimer;
         }
 
-        /// <summary>
-        /// Tries to create a new monitor of the given type.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void TryCreateMonitor(Type type)
         {
             if (this.Monitors.Any(m => m.GetType() == type))
@@ -669,25 +592,20 @@ namespace Microsoft.Coyote.SystematicTesting
             monitor.GotoStartState();
         }
 
-        /// <summary>
-        /// Invokes the specified monitor with the given event.
-        /// </summary>
-        internal override void Monitor(Type type, Actor sender, Event e)
+        /// <inheritdoc/>
+        internal override void Monitor(Type type, Event e, string senderName, string senderType, string senderStateName)
         {
-            this.AssertExpectedCallerActor(sender, "Monitor");
-            foreach (var m in this.Monitors)
+            foreach (var monitor in this.Monitors)
             {
-                if (m.GetType() == type)
+                if (monitor.GetType() == type)
                 {
-                    m.MonitorEvent(sender, e);
+                    monitor.MonitorEvent(e, senderName, senderType, senderStateName);
                     break;
                 }
             }
         }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
+        /// <inheritdoc/>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -699,9 +617,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
+        /// <inheritdoc/>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -714,9 +630,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
+        /// <inheritdoc/>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -729,9 +643,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
+        /// <inheritdoc/>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -744,9 +656,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
+        /// <inheritdoc/>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -810,15 +720,10 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        internal override bool GetNondeterministicBooleanChoice(Actor caller, int maxValue)
+        /// <inheritdoc/>
+        internal override bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
         {
-            caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
-            this.AssertExpectedCallerActor(caller, "Random");
-
+            var caller = this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
             if (caller is StateMachine callerStateMachine)
             {
                 (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
@@ -829,35 +734,25 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
-            this.LogWriter.LogRandom(this.GetOrCreateFakeId(caller), choice);
-
+            this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
             return choice;
         }
 
-        internal ActorId GetOrCreateFakeId(Actor caller)
+        /// <inheritdoc/>
+        internal override int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
         {
-            if (caller == null)
+            var caller = this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
+            if (caller is StateMachine callerStateMachine)
             {
-                // Then this might be from a controlled Task so use a fake id equal to the task id.
-                return new ActorId(typeof(CoyoteTasks.Task), Task.CurrentId.ToString(), this);
+                (callerStateMachine.Manager as MockStateMachineManager).ProgramCounter++;
             }
-            else
+            else if (caller is Actor callerActor)
             {
-                return caller.Id;
+                (callerActor.Manager as MockActorManager).ProgramCounter++;
             }
-        }
-
-        /// <summary>
-        /// Returns a nondeterministic integer, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        internal override int GetNondeterministicIntegerChoice(Actor caller, int maxValue)
-        {
-            caller = caller ?? this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
-            this.AssertExpectedCallerActor(caller, "RandomInteger");
 
             var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
-            this.LogWriter.LogRandom(this.GetOrCreateFakeId(caller), choice);
+            this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
             return choice;
         }
 
@@ -879,18 +774,14 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Notifies that an actor invoked an action.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName,
             string currentStateName, Event receivedEvent)
         {
             this.LogWriter.LogExecuteAction(actor.Id, handlingStateName, currentStateName, action.Name);
         }
 
-        /// <summary>
-        /// Notifies that an actor dequeued an <see cref="Event"/>.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyDequeuedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
@@ -911,54 +802,40 @@ namespace Microsoft.Coyote.SystematicTesting
             this.LogWriter.LogDequeueEvent(actor.Id, stateName, e);
         }
 
-        /// <summary>
-        /// Notifies that an actor dequeued the default <see cref="Event"/>.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyDefaultEventDequeued(Actor actor)
         {
             this.Scheduler.ScheduleNextEnabledOperation();
             ResetProgramCounter(actor);
         }
 
-        /// <summary>
-        /// Notifies that the inbox of the specified actor is about to be
-        /// checked to see if the default event handler should fire.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyDefaultEventHandlerCheck(Actor actor)
         {
             this.Scheduler.ScheduleNextEnabledOperation();
         }
 
-        /// <summary>
-        /// Notifies that an actor raised an <see cref="Event"/>.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogRaiseEvent(actor.Id, stateName, e);
         }
 
-        /// <summary>
-        /// Notifies that an actor is handling a raised event.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyHandleRaisedEvent(Actor actor, Event e)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
         }
 
-        /// <summary>
-        /// Notifies that an actor called <see cref="Actor.ReceiveEventAsync(Type[])"/>
-        /// or one of its overloaded methods.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyReceiveCalled(Actor actor)
         {
             this.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
         }
 
-        /// <summary>
-        /// Notifies that an actor enqueued an event that it was waiting to receive.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
@@ -967,10 +844,7 @@ namespace Microsoft.Coyote.SystematicTesting
             op.OnReceivedEvent();
         }
 
-        /// <summary>
-        /// Notifies that an actor received an event without waiting because the event
-        /// was already in the inbox when the actor invoked the receive statement.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
@@ -979,9 +853,7 @@ namespace Microsoft.Coyote.SystematicTesting
             ResetProgramCounter(actor);
         }
 
-        /// <summary>
-        /// Notifies that an actor is waiting for the specified task to complete.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyWaitTask(Actor actor, Task task)
         {
             this.Assert(task != null, "{0} is waiting for a null task to complete.", actor.Id);
@@ -998,9 +870,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Notifies that an actor is waiting to receive an event of one of the specified types.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
@@ -1021,79 +891,61 @@ namespace Microsoft.Coyote.SystematicTesting
             ResetProgramCounter(actor);
         }
 
-        /// <summary>
-        /// Notifies that a state machine entered a state.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyEnteredState(StateMachine stateMachine)
         {
             string stateName = stateMachine.CurrentStateName;
             this.LogWriter.LogStateTransition(stateMachine.Id, stateName, isEntry: true);
         }
 
-        /// <summary>
-        /// Notifies that a state machine exited a state.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyExitedState(StateMachine stateMachine)
         {
             this.LogWriter.LogStateTransition(stateMachine.Id, stateMachine.CurrentStateName, isEntry: false);
         }
 
-        /// <summary>
-        /// Notifies that a state machine invoked pop.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyPopState(StateMachine stateMachine)
         {
             this.AssertExpectedCallerActor(stateMachine, "Pop");
             this.LogWriter.LogPopState(stateMachine.Id, string.Empty, stateMachine.CurrentStateName);
         }
 
-        /// <summary>
-        /// Notifies that a state machine invoked an action.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             string stateName = stateMachine.CurrentStateName;
             this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
         }
 
-        /// <summary>
-        /// Notifies that a state machine invoked an action.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             string stateName = stateMachine.CurrentStateName;
             this.LogWriter.LogExecuteAction(stateMachine.Id, stateName, stateName, action.Name);
         }
 
-        /// <summary>
-        /// Notifies that a monitor entered a state.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyEnteredState(Monitor monitor)
         {
             string monitorState = monitor.CurrentStateName;
             this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, true, monitor.GetHotState());
         }
 
-        /// <summary>
-        /// Notifies that a monitor exited a state.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyExitedState(Monitor monitor)
         {
             this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName,
                 monitor.CurrentStateName, false, monitor.GetHotState());
         }
 
-        /// <summary>
-        /// Notifies that a monitor invoked an action.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
         {
             this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, stateName, action.Name);
         }
 
-        /// <summary>
-        /// Notifies that a monitor raised an <see cref="Event"/>.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void NotifyRaisedEvent(Monitor monitor, Event e)
         {
             string monitorState = monitor.CurrentStateName;
@@ -1236,15 +1088,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Sets the specified runtime to the current asynchronous control flow.
-        /// </summary>
-        internal static void SetRuntimeToAsynchronousControlFlow(ControlledRuntime runtime) => AsyncLocalInstance.Value = runtime;
-
-        /// <summary>
-        /// Throws an <see cref="AssertionFailureException"/> exception
-        /// containing the specified exception.
-        /// </summary>
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         internal override void WrapAndThrowException(Exception exception, string s, params object[] args)
         {
@@ -1268,9 +1112,20 @@ namespace Microsoft.Coyote.SystematicTesting
             this.IsRunning = false;
         }
 
-        /// <summary>
-        /// Disposes runtime resources.
-        /// </summary>
+        /// <inheritdoc/>
+        protected internal override void RaiseOnFailureEvent(Exception exception)
+        {
+            if (exception is ExecutionCanceledException ||
+                (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException))
+            {
+                // Internal exception used during testing.
+                return;
+            }
+
+            base.RaiseOnFailureEvent(exception);
+        }
+
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         protected override void Dispose(bool disposing)
         {

@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
             return this.Log.ToString();
         }
 
-        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
+        public void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
             this.Log.AppendLine("CreateActor");
         }
@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+        public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
             Event e, Guid opGroupId, bool isTargetHalted)
         {
         }
@@ -52,10 +52,6 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         }
 
         public void OnWaitEvent(ActorId id, string stateName, params Type[] eventTypes)
-        {
-        }
-
-        public void OnRandom(ActorId id, object result)
         {
         }
 
@@ -108,24 +104,32 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
         {
         }
 
-        public void OnCreateMonitor(string monitorTypeName)
+        public void OnCreateMonitor(string monitorType)
         {
         }
 
-        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
+        public void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
         }
 
-        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
-            string senderName, string senderStateName, Event e)
+        public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
+            string senderType, string senderStateName, Event e)
         {
         }
 
-        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        public void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
         {
         }
 
-        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
+        public void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
+        {
+        }
+
+        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        {
+        }
+
+        public void OnRandom(object result, string callerName, string callerType)
         {
         }
 

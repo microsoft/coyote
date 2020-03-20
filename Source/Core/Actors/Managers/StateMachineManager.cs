@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -16,7 +15,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The runtime that executes the state machine being managed.
         /// </summary>
-        private readonly CoyoteRuntime Runtime;
+        private readonly ActorRuntime Runtime;
 
         /// <summary>
         /// The state machine being managed.
@@ -32,7 +31,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="StateMachineManager"/> class.
         /// </summary>
-        internal StateMachineManager(CoyoteRuntime runtime, StateMachine instance, Guid operationGroupId)
+        internal StateMachineManager(ActorRuntime runtime, StateMachine instance, Guid operationGroupId)
         {
             this.Runtime = runtime;
             this.Instance = instance;

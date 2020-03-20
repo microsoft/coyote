@@ -21,7 +21,8 @@ namespace Microsoft.Coyote.Actors
     /// Type that implements an actor. Inherit from this class to declare a custom actor.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/learn/programming-models/actors/overview">Programming model: asynchronous actors</see> for more information.
+    /// See <see href="/coyote/learn/programming-models/actors/overview">Programming
+    /// model: asynchronous actors</see> for more information.
     /// </remarks>
     public abstract class Actor
     {
@@ -46,7 +47,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The runtime that executes this actor.
         /// </summary>
-        internal CoyoteRuntime Runtime { get; private set; }
+        internal ActorRuntime Runtime { get; private set; }
 
         /// <summary>
         /// Unique id that identifies this actor.
@@ -79,6 +80,11 @@ namespace Microsoft.Coyote.Actors
         /// the runtime can read it concurrently.
         /// </summary>
         private protected volatile Status CurrentStatus;
+
+        /// <summary>
+        /// Gets the name of the current state, if there is one.
+        /// </summary>
+        internal string CurrentStateName { get; private protected set; }
 
         /// <summary>
         /// Checks if the actor is halted.
@@ -129,13 +135,14 @@ namespace Microsoft.Coyote.Actors
             this.ActionMap = new Dictionary<Type, CachedDelegate>();
             this.Timers = new Dictionary<TimerInfo, IActorTimer>();
             this.CurrentStatus = Status.Active;
+            this.CurrentStateName = default;
             this.IsDefaultHandlerAvailable = false;
         }
 
         /// <summary>
         /// Configures the actor.
         /// </summary>
-        internal void Configure(CoyoteRuntime runtime, ActorId id, IActorManager manager, IEventQueue inbox)
+        internal void Configure(ActorRuntime runtime, ActorId id, IActorManager manager, IEventQueue inbox)
         {
             this.Runtime = runtime;
             this.Id = id;
@@ -303,8 +310,7 @@ namespace Microsoft.Coyote.Actors
         /// controlled during analysis or testing.
         /// </summary>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool Random() =>
-            this.Runtime.GetNondeterministicBooleanChoice(this, 2);
+        protected bool RandomBoolean() => this.Runtime.GetNondeterministicBooleanChoice(2, this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be
@@ -314,8 +320,8 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool Random(int maxValue) =>
-            this.Runtime.GetNondeterministicBooleanChoice(this, maxValue);
+        protected bool RandomBoolean(int maxValue) =>
+            this.Runtime.GetNondeterministicBooleanChoice(maxValue, this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Returns a nondeterministic integer, that can be controlled during
@@ -325,13 +331,13 @@ namespace Microsoft.Coyote.Actors
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic integer.</returns>
         protected int RandomInteger(int maxValue) =>
-            this.Runtime.GetNondeterministicIntegerChoice(this, maxValue);
+            this.Runtime.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
         /// </summary>
         /// <typeparam name="T">Type of the monitor.</typeparam>
-        /// <param name="e">The event to send.</param>
+        /// <param name="e">Event to send to the monitor.</param>
         protected void Monitor<T>(Event e) => this.Monitor(typeof(T), e);
 
         /// <summary>
@@ -342,7 +348,7 @@ namespace Microsoft.Coyote.Actors
         protected void Monitor(Type type, Event e)
         {
             this.Assert(e != null, "{0} is sending a null event.", this.Id);
-            this.Runtime.Monitor(type, this, e);
+            this.Runtime.Monitor(type, e, this.Id.Name, this.Id.Type, this.CurrentStateName);
         }
 
         /// <summary>
@@ -477,8 +483,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 else if (status is DequeueStatus.Default)
                 {
-                    this.Runtime.LogWriter.LogDefaultEventHandler(this.Id,
-                        this is StateMachine stateMachine ? stateMachine.CurrentStateName : default);
+                    this.Runtime.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
 
                     // If the default event was dequeued, then notify the runtime.
                     // This is only used during bug-finding, because the runtime must
@@ -931,8 +936,7 @@ namespace Microsoft.Coyote.Actors
                 return false;
             }
 
-            string stateName = this is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
-            this.Runtime.LogWriter.LogExceptionThrown(this.Id, stateName, methodName, ex);
+            this.Runtime.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
 
             OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
             if (outcome is OnExceptionOutcome.ThrowException)
@@ -944,7 +948,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentStatus = Status.Halting;
             }
 
-            this.Runtime.LogWriter.LogExceptionHandled(this.Id, stateName, methodName, ex);
+            this.Runtime.LogWriter.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
             return true;
         }
 
@@ -995,7 +999,6 @@ namespace Microsoft.Coyote.Actors
             this.Inbox.Close();
 
             this.Runtime.LogWriter.LogHalt(this.Id, this.Inbox.Size);
-            this.Runtime.NotifyHalted(this);
 
             // Dispose any held resources.
             this.Inbox.Dispose();

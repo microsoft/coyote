@@ -70,7 +70,7 @@ namespace Microsoft.Coyote.Actors.Timers.Mocks
             int delay = (int)this.Delay > 0 ? (int)this.Delay : 1;
 
             // TODO: do we need some normalization of delay here ... ?
-            if ((this.RandomInteger(delay) == 0) && this.Random())
+            if ((this.RandomInteger(delay) == 0) && this.RandomBoolean())
             {
                 // The probability of sending a timeout event is at most 1/N.
                 this.SendEvent(this.Owner.Id, this.TimeoutEvent);

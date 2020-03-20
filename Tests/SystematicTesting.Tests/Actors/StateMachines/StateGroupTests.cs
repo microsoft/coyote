@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -17,8 +17,7 @@ permalink: /learn/ref/MicrosoftCoyoteActorsNamespace
 | interface [IActorRuntimeLog](Microsoft.Coyote.Actors/IActorRuntimeLogType) | Interface that allows an external module to track what is happening in the [`IActorRuntime`](Microsoft.Coyote.Actors/IActorRuntimeType). |
 | delegate [OnEventDroppedHandler](Microsoft.Coyote.Actors/OnEventDroppedHandlerType) | Handles the [`OnEventDropped`](Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped) event. |
 | enum [OnExceptionOutcome](Microsoft.Coyote.Actors/OnExceptionOutcomeType) | The outcome when an [`Actor`](Microsoft.Coyote.Actors/ActorType) throws an exception. |
-| delegate [OnFailureHandler](Microsoft.Coyote.Actors/OnFailureHandlerType) | Handles the [`OnFailure`](Microsoft.Coyote.Actors/IActorRuntime/OnFailure) event. |
-| static class [RuntimeFactory](Microsoft.Coyote.Actors/RuntimeFactoryType) | Creates a runtime for executing actors. |
+| static class [RuntimeFactory](Microsoft.Coyote.Actors/RuntimeFactoryType) | Provides methods for creating a [`IActorRuntime`](Microsoft.Coyote.Actors/IActorRuntimeType) runtime. |
 | class [SendOptions](Microsoft.Coyote.Actors/SendOptionsType) | Represents a send event configuration that is used during testing. |
 | abstract class [StateMachine](Microsoft.Coyote.Actors/StateMachineType) | Type that implements a state machine actor. Inherit from this class to declare a custom actor with states, state transitions and event handlers. |
 | class [UnhandledEventException](Microsoft.Coyote.Actors/UnhandledEventExceptionType) | Signals that an [`Actor`](Microsoft.Coyote.Actors/ActorType) received an unhandled event. |

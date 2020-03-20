@@ -9,12 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateMonitor
 Invoked when the specified monitor has been created.
 
 ```csharp
-public void OnCreateMonitor(string monitorTypeName)
+public void OnCreateMonitor(string monitorType)
 ```
 
 | parameter | description |
 | --- | --- |
-| monitorTypeName | The name of the type of the monitor that has been created. |
+| monitorType | The name of the type of the monitor that has been created. |
 
 ## See Also
 

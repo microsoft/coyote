@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
                 // No-ops, but no failure.
                 this.SendEvent(this.Id, new E());
-                this.Random();
+                this.RandomBoolean();
                 this.Assert(true);
                 this.CreateActor(typeof(Dummy));
                 this.tcs.TrySetResult(true);

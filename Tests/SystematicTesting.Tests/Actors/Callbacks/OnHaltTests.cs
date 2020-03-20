@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 // No-ops but no failure.
                 this.SendEvent(this.Receiver, new E());
-                this.Random();
+                this.RandomBoolean();
                 this.Assert(true);
                 this.CreateActor(typeof(Dummy));
                 return Task.CompletedTask;
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 // No-ops but no failure.
                 this.SendEvent(this.Receiver, new E());
-                this.Random();
+                this.RandomBoolean();
                 this.Assert(true);
                 this.CreateActor(typeof(Dummy));
                 return Task.CompletedTask;

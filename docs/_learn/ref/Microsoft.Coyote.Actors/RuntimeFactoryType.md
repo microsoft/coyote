@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactoryType
 ---
 # RuntimeFactory class
 
-Creates a runtime for executing actors.
+Provides methods for creating a [`IActorRuntime`](IActorRuntimeType) runtime.
 
 ```csharp
 public static class RuntimeFactory

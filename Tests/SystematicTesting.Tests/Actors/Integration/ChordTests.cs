@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 {
                     for (int i = 0; i < this.NumOfIds; i++)
                     {
-                        if (this.Random())
+                        if (this.RandomBoolean())
                         {
                             newId = i;
                         }
@@ -143,7 +143,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 {
                     for (int i = 0; i < this.ChordNodes.Count; i++)
                     {
-                        if (this.Random())
+                        if (this.RandomBoolean())
                         {
                             endId = i;
                         }
@@ -726,14 +726,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 if (this.QueryCounter < 5)
                 {
-                    if (this.Random())
+                    if (this.RandomBoolean())
                     {
                         var key = this.GetNextQueryKey();
                         this.Logger.WriteLine($"<ChordLog> Client is searching for successor of key '{key}'.");
                         this.SendEvent(this.ClusterManager, new ChordNode.FindSuccessor(this.Id, key));
                         this.Monitor<LivenessMonitor>(new LivenessMonitor.NotifyClientRequest(key));
                     }
-                    else if (this.Random())
+                    else if (this.RandomBoolean())
                     {
                         this.SendEvent(this.ClusterManager, new ClusterManager.CreateNewNode());
                     }
@@ -755,7 +755,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 {
                     for (int i = 0; i < this.Keys.Count; i++)
                     {
-                        if (this.Random())
+                        if (this.RandomBoolean())
                         {
                             keyIndex = i;
                             break;

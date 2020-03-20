@@ -3,7 +3,7 @@
 
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -214,7 +214,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 ActorId id = r.CreateActorId(typeof(M2));
                 r.SendEvent(id, UnitEvent.Instance);
             },
-            expectedError: "Cannot send event 'Actors.UnitEvent' to actor id '' that is not bound to an actor instance.",
+            expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
             replay: true);
         }
 
@@ -292,7 +292,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 r.CreateActor(id, typeof(M4));
             },
             configuration: Configuration.Create().WithTestingIterations(100),
-            expectedError: "Cannot send event 'Actors.UnitEvent' to actor id '' that is not bound to an actor instance.",
+            expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
             replay: true);
         }
     }

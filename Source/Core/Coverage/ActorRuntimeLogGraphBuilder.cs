@@ -26,8 +26,8 @@ namespace Microsoft.Coyote.Coverage
 
         private class EventInfo
         {
-            public string Type;
             public string Name;
+            public string Type;
             public string State;
             public string Event;
             public string HandlingState;
@@ -99,19 +99,19 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
+        public void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
-            var resolvedId = this.GetResolveActorId(id?.Type, id?.Name);
+            var resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
             GraphNode node = this.Graph.GetOrCreateNode(resolvedId);
             node.Category = "Actor";
         }
 
         /// <inheritdoc/>
-        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName, Event e,
-            Guid opGroupId, bool isTargetHalted)
+        public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
+            Event e, Guid opGroupId, bool isTargetHalted)
         {
             string eventName = e.GetType().FullName;
-            this.AddEvent(targetActorId.Type, targetActorId.Name, senderType, senderName, senderStateName, eventName);
+            this.AddEvent(targetActorId.Name, targetActorId.Type, senderName, senderType, senderStateName, eventName);
         }
 
         /// <inheritdoc/>
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Coverage
         {
             string eventName = e.GetType().FullName;
             // Raising event to self.
-            this.AddEvent(id.Type, id.Name, id.Type, id.Name, stateName, eventName);
+            this.AddEvent(id.Name, id.Type, id.Name, id.Type, stateName, eventName);
         }
 
         /// <inheritdoc/>
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Coverage
         /// <inheritdoc/>
         public void OnDequeueEvent(ActorId id, string stateName, Event e)
         {
-            var resolvedId = this.GetResolveActorId(id?.Type, id?.Name);
+            var resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
             string eventName = e.GetType().FullName;
             EventInfo info = this.PopEvent(resolvedId, eventName);
             if (info != null)
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Coverage
         /// <inheritdoc/>
         public void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked)
         {
-            string resolvedId = this.GetResolveActorId(id?.Type, id?.Name);
+            string resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
                 string eventName = e.GetType().FullName;
@@ -170,8 +170,8 @@ namespace Microsoft.Coyote.Coverage
                     if (info.Event == eventName)
                     {
                         // Yay, found it so we can draw the complete link connecting the Sender state to this state!
-                        var source = this.GetOrCreateChild(info.Type, info.Name, info.State);
-                        var target = this.GetOrCreateChild(id?.Type, id?.Name, stateName);
+                        var source = this.GetOrCreateChild(info.Name, info.Type, info.State);
+                        var target = this.GetOrCreateChild(id?.Name, id?.Type, stateName);
                         this.GetOrCreateEventLink(source, target, info);
                         inbox.RemoveAt(i);
                         break;
@@ -191,36 +191,31 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnRandom(ActorId id, object result)
-        {
-        }
-
-        /// <inheritdoc/>
         public void OnStateTransition(ActorId id, string stateName, bool isEntry)
         {
             if (isEntry)
             {
                 // record the fact we have entered this state
-                this.GetOrCreateChild(id?.Type, id?.Name, stateName);
+                this.GetOrCreateChild(id?.Name, id?.Type, stateName);
             }
         }
 
         /// <inheritdoc/>
         public void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
-            this.LinkTransition(typeof(DoActionEvent), id.Type, id.Name, handlingStateName, currentStateName, null);
+            this.LinkTransition(typeof(DoActionEvent), id.Name, id.Type, handlingStateName, currentStateName, null);
         }
 
         /// <inheritdoc/>
         public void OnGotoState(ActorId id, string currentStateName, string newStateName)
         {
-            this.LinkTransition(typeof(GotoStateEvent), id.Type, id.Name, currentStateName, currentStateName, newStateName);
+            this.LinkTransition(typeof(GotoStateEvent), id.Name, id.Type, currentStateName, currentStateName, newStateName);
         }
 
         /// <inheritdoc/>
         public void OnPushState(ActorId id, string currentStateName, string newStateName)
         {
-            this.LinkTransition(typeof(PushStateEvent), id.Type, id.Name, currentStateName, currentStateName, newStateName);
+            this.LinkTransition(typeof(PushStateEvent), id.Name, id.Type, currentStateName, currentStateName, newStateName);
         }
 
         /// <inheritdoc/>
@@ -228,7 +223,7 @@ namespace Microsoft.Coyote.Coverage
         {
             if (!string.IsNullOrEmpty(currentStateName))
             {
-                this.LinkTransition(typeof(PopStateEvent), id.Type, id.Name, currentStateName,
+                this.LinkTransition(typeof(PopStateEvent), id.Name, id.Type, currentStateName,
                     currentStateName, restoredStateName);
             }
         }
@@ -243,8 +238,8 @@ namespace Microsoft.Coyote.Coverage
             }
 
             // Transition to the Halt state.
-            var source = this.GetOrCreateChild(id?.Type, id?.Name, stateName);
-            var target = this.GetOrCreateChild(id?.Type, id?.Name, "Halt", "Halt");
+            var source = this.GetOrCreateChild(id?.Name, id?.Type, stateName);
+            var target = this.GetOrCreateChild(id?.Name, id?.Type, "Halt", "Halt");
             this.GetOrCreateEventLink(source, target, new EventInfo() { Event = typeof(HaltEvent).FullName });
         }
 
@@ -261,9 +256,9 @@ namespace Microsoft.Coyote.Coverage
         /// <inheritdoc/>
         public void OnDefaultEventHandler(ActorId id, string stateName)
         {
-            string resolvedId = this.GetResolveActorId(id?.Type, id?.Name);
+            string resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
             string eventName = typeof(DefaultEvent).FullName;
-            this.AddEvent(id.Type, id.Name, id.Type, id.Name, stateName, eventName);
+            this.AddEvent(id.Name, id.Type, id.Name, id.Type, stateName, eventName);
             this.Dequeued = this.PopEvent(resolvedId, eventName);
         }
 
@@ -272,7 +267,7 @@ namespace Microsoft.Coyote.Coverage
         {
             // We used the inbox to store raised event, but it should be the first one handled since
             // raised events are highest priority.
-            string resolvedId = this.GetResolveActorId(id?.Type, id?.Name);
+            string resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
             if (this.Inbox.TryGetValue(resolvedId, out List<EventInfo> inbox))
             {
                 string eventName = e.GetType().FullName;
@@ -319,79 +314,96 @@ namespace Microsoft.Coyote.Coverage
         }
 
         /// <inheritdoc/>
-        public void OnCreateMonitor(string monitorTypeName)
+        public void OnCreateMonitor(string monitorType)
         {
-            GraphNode node = this.Graph.GetOrCreateNode(monitorTypeName, monitorTypeName);
+            GraphNode node = this.Graph.GetOrCreateNode(monitorType, monitorType);
             node.Category = "Monitor";
         }
 
         /// <inheritdoc/>
-        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
+        public void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
             // Monitors process actions immediately, so this state transition is a result of the only event in the inbox.
-            if (this.Inbox.TryGetValue(monitorTypeName, out List<EventInfo> inbox) && inbox.Count > 0)
+            if (this.Inbox.TryGetValue(monitorType, out List<EventInfo> inbox) && inbox.Count > 0)
             {
                 var e = inbox[inbox.Count - 1];
                 inbox.RemoveAt(inbox.Count - 1);
                 // Draw the link connecting the Sender state to this state!
-                var source = this.GetOrCreateChild(e.Type, e.Name, e.State);
-                var target = this.GetOrCreateChild(monitorTypeName, monitorTypeName, stateName);
+                var source = this.GetOrCreateChild(e.Name, e.Type, e.State);
+                var target = this.GetOrCreateChild(monitorType, monitorType, stateName);
                 this.GetOrCreateEventLink(source, target, e);
             }
         }
 
         /// <inheritdoc/>
-        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType, string senderName,
+        public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName, string senderType,
             string senderStateName, Event e)
         {
             string eventName = e.GetType().FullName;
 
             // Now add a fake event for internal monitor state transition that might now happen as a result of this event,
             // storing the monitor's current state in this event.
-            var info = this.AddEvent(monitorTypeName, monitorTypeName, monitorTypeName, monitorTypeName, stateName, eventName);
+            var info = this.AddEvent(monitorType, monitorType, monitorType, monitorType, stateName, eventName);
 
             // Draw the link connecting the Sender state to this state!
-            var source = this.GetOrCreateChild(senderType, senderName, senderStateName);
-            var target = this.GetOrCreateChild(monitorTypeName, monitorTypeName, stateName);
+            var source = this.GetOrCreateChild(senderName, senderType, senderStateName);
+            var target = this.GetOrCreateChild(monitorType, monitorType, stateName);
             this.GetOrCreateEventLink(source, target, info);
         }
 
         /// <inheritdoc/>
-        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        public void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
         {
             // Raising event to self.
             string eventName = e.GetType().FullName;
-            this.AddEvent(monitorTypeName, monitorTypeName, monitorTypeName, monitorTypeName, stateName, eventName);
+            this.AddEvent(monitorType, monitorType, monitorType, monitorType, stateName, eventName);
         }
 
         /// <inheritdoc/>
-        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
+        public void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
         {
             if (isEntry)
             {
                 // Monitors process events immediately (and does not call OnDequeue), so this state transition is a result of
                 // the fake event we created in OnMonitorProcessEvent.
-                if (this.Inbox.TryGetValue(monitorTypeName, out List<EventInfo> inbox) && inbox.Count > 0)
+                if (this.Inbox.TryGetValue(monitorType, out List<EventInfo> inbox) && inbox.Count > 0)
                 {
                     var info = inbox[inbox.Count - 1];
                     inbox.RemoveAt(inbox.Count - 1);
 
                     // draw the link connecting the current state to this new state!
-                    var source = this.GetOrCreateChild(monitorTypeName, monitorTypeName, info.State);
+                    var source = this.GetOrCreateChild(monitorType, monitorType, info.State);
 
-                    var shortStateName = this.GetLabel(monitorTypeName, monitorTypeName, stateName);
+                    var shortStateName = this.GetLabel(monitorType, monitorType, stateName);
                     string suffix = string.Empty;
                     if (isInHotState.HasValue)
                     {
                         suffix = (isInHotState == true) ? "[hot]" : "[cold]";
+                        shortStateName += suffix;
                     }
 
-                    string label = shortStateName + suffix;
-                    var target = this.GetOrCreateChild(monitorTypeName, monitorTypeName, stateName, label);
+                    string label = shortStateName;
+                    var target = this.GetOrCreateChild(monitorType, monitorType, shortStateName, label);
+
+                    // In case this node was already created, we may need to override the label here now that
+                    // we know this is a hot state. This is because, unfortunately, other OnMonitor* methods
+                    // do not provide the isInHotState parameter.
                     target.Label = label;
                     this.GetOrCreateEventLink(source, target, info);
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        {
+            var source = this.GetOrCreateChild(monitorType, monitorType, hotStateName);
+            source.Category = "Error";
+        }
+
+        /// <inheritdoc/>
+        public void OnRandom(object result, string callerName, string callerType)
+        {
         }
 
         /// <inheritdoc/>
@@ -426,7 +438,7 @@ namespace Microsoft.Coyote.Coverage
             return result;
         }
 
-        private string GetResolveActorId(string type, string name)
+        private string GetResolveActorId(string name, string type)
         {
             if (type == null)
             {
@@ -442,28 +454,30 @@ namespace Microsoft.Coyote.Coverage
             return name;
         }
 
-        private EventInfo AddEvent(string targetType, string targetName, string senderType, string senderName,
+        private EventInfo AddEvent(string targetName, string targetType, string senderName, string senderType,
             string senderStateName, string eventName)
         {
-            string targetId = this.GetResolveActorId(targetType, targetName);
+            string targetId = this.GetResolveActorId(targetName, targetType);
             if (!this.Inbox.TryGetValue(targetId, out List<EventInfo> inbox))
             {
                 inbox = new List<EventInfo>();
                 this.Inbox[targetId] = inbox;
             }
 
-            if (senderType is null)
+            var info = new EventInfo()
             {
-                senderStateName = "ExternalCode";
-            }
+                Name = senderName ?? "ExternalCode",
+                Type = senderType ?? "ExternalCode",
+                State = senderStateName ?? "ExternalState",
+                Event = eventName
+            };
 
-            var info = new EventInfo() { Type = senderType, Name = senderName, State = senderStateName, Event = eventName };
             inbox.Add(info);
 
             return info;
         }
 
-        private void LinkTransition(Type transitionType, string type, string name, string handlingStateName,
+        private void LinkTransition(Type transitionType, string name, string type, string handlingStateName,
             string currentStateName, string newStateName)
         {
             if (this.Dequeued != null)
@@ -472,8 +486,8 @@ namespace Microsoft.Coyote.Coverage
                 // Event was dequeued, but now we know what state is handling this event, so connect the dots...
                 if (info.Type != type || info.Name != name || info.State != currentStateName)
                 {
-                    var source = this.GetOrCreateChild(info.Type, info.Name, info.State);
-                    var target = this.GetOrCreateChild(type, name, currentStateName);
+                    var source = this.GetOrCreateChild(info.Name, info.Type, info.State);
+                    var target = this.GetOrCreateChild(name, type, currentStateName);
                     this.Dequeued.HandlingState = handlingStateName;
                     this.GetOrCreateEventLink(source, target, info);
                 }
@@ -482,8 +496,8 @@ namespace Microsoft.Coyote.Coverage
             if (newStateName != null)
             {
                 // Then this is a goto or push and we can draw that link also.
-                var source = this.GetOrCreateChild(type, name, currentStateName);
-                var target = this.GetOrCreateChild(type, name, newStateName);
+                var source = this.GetOrCreateChild(name, type, currentStateName);
+                var target = this.GetOrCreateChild(name, type, newStateName);
                 EventInfo e = this.Dequeued;
                 if (e == null)
                 {
@@ -496,40 +510,33 @@ namespace Microsoft.Coyote.Coverage
             this.Dequeued = null;
         }
 
-        // Should we remove? seems dead code
-        private string GetStateId(string type, string name, string stateName)
-        {
-            string id = this.GetResolveActorId(type, name);
-            if (string.IsNullOrEmpty(stateName))
-            {
-                stateName = this.GetLabel(type, name, null);
-            }
-
-            return id += "." + stateName;
-        }
-
-        private GraphNode GetOrCreateChild(string type, string name, string stateName, string label = null)
+        private GraphNode GetOrCreateChild(string name, string type, string stateName, string label = null)
         {
             this.AddNamespace(type);
 
-            // make label relative to fully qualified actor id (it's usually a nested class).
-            stateName = this.GetLabel(type, name, stateName);
+            var initalStateName = stateName;
 
-            string id = this.GetResolveActorId(type, name);
+            // make label relative to fully qualified actor id (it's usually a nested class).
+            stateName = this.GetLabel(name, type, stateName);
+
+            string id = this.GetResolveActorId(name, type);
             GraphNode parent = this.Graph.GetOrCreateNode(id);
             parent.AddAttribute("Group", "Expanded");
 
-            if (!string.IsNullOrEmpty(stateName) && parent.Category == "Actor")
+            if (!string.IsNullOrEmpty(initalStateName) && parent.Category == "Actor")
             {
                 parent.Category = "StateMachine";
             }
 
-            if (label == null)
+            if (string.IsNullOrEmpty(label))
             {
-                label = stateName;
+                label = stateName ?? "ExternalState";
             }
 
-            id += "." + stateName;
+            if (!string.IsNullOrEmpty(stateName))
+            {
+                id += "." + stateName;
+            }
 
             GraphNode child = this.Graph.GetOrCreateNode(id, label);
             this.Graph.GetOrCreateLink(parent, child, null, null, "Contains");
@@ -577,7 +584,7 @@ namespace Microsoft.Coyote.Coverage
             }
         }
 
-        private string GetLabel(string type, string name, string fullyQualifiedName)
+        private string GetLabel(string name, string type, string fullyQualifiedName)
         {
             if (type == null)
             {
@@ -586,7 +593,7 @@ namespace Microsoft.Coyote.Coverage
             }
 
             this.AddNamespace(type);
-            if (fullyQualifiedName == null)
+            if (string.IsNullOrEmpty(fullyQualifiedName))
             {
                 // then this is probably an Actor, not a StateMachine.  For Actors we can invent a state
                 // name equal to the short name of the class, this then looks like a Constructor which is fine.
@@ -870,6 +877,10 @@ namespace Microsoft.Coyote.Coverage
             {
                 writer.WriteLine(
 @"  <Styles>
+    <Style TargetType=""Node"" GroupLabel=""Error"" ValueLabel=""True"">
+      <Condition Expression=""HasCategory('Error')"" />
+      <Setter Property=""Background"" Value=""#FFC15656"" />
+    </Style>
     <Style TargetType=""Node"" GroupLabel=""Actor"" ValueLabel=""True"">
       <Condition Expression=""HasCategory('Actor')"" />
       <Setter Property=""Background"" Value=""#FF57AC56"" />

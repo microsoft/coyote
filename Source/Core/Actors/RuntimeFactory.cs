@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Runtime;
+
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
-    /// Creates a runtime for executing actors.
+    /// Provides methods for creating a <see cref="IActorRuntime"/> runtime.
     /// </summary>
     public static class RuntimeFactory
     {
@@ -12,21 +14,20 @@ namespace Microsoft.Coyote.Actors
         /// Creates a new actor runtime.
         /// </summary>
         /// <returns>The created actor runtime.</returns>
-        public static IActorRuntime Create() => CreateProductionRuntime(default);
+        /// <remarks>
+        /// Only one runtime can be created per async local context. This is not a thread-safe operation.
+        /// </remarks>
+        public static IActorRuntime Create() => Create(default);
 
         /// <summary>
         /// Creates a new actor runtime with the specified <see cref="Configuration"/>.
         /// </summary>
         /// <param name="configuration">The runtime configuration to use.</param>
         /// <returns>The created actor runtime.</returns>
-        public static IActorRuntime Create(Configuration configuration) => CreateProductionRuntime(configuration);
-
-        /// <summary>
-        /// Creates a new production actor runtime with the specified <see cref="Configuration"/>.
-        /// </summary>
-        /// <param name="configuration">The runtime configuration to use.</param>
-        /// <returns>The created production actor runtime.</returns>
-        internal static ActorRuntime CreateProductionRuntime(Configuration configuration)
+        /// <remarks>
+        /// Only one runtime can be created per async local context. This is not a thread-safe operation.
+        /// </remarks>
+        public static IActorRuntime Create(Configuration configuration)
         {
             if (configuration is null)
             {
@@ -34,7 +35,11 @@ namespace Microsoft.Coyote.Actors
             }
 
             var valueGenerator = new RandomValueGenerator(configuration);
-            return new ActorRuntime(configuration ?? Configuration.Create(), valueGenerator);
+            var runtime = new ActorRuntime(configuration ?? Configuration.Create(), valueGenerator);
+
+            // Assign the runtime to the currently executing asynchronous control flow.
+            CoyoteRuntime.AssignAsyncControlFlowRuntime(runtime);
+            return runtime;
         }
     }
 }

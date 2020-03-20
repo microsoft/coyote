@@ -47,15 +47,15 @@ namespace Microsoft.Coyote.Actors
         /// Logs that the specified actor has been created.
         /// </summary>
         /// <param name="id">The id of the actor that has been created.</param>
-        /// <param name="creatorType">The type of the creator, or null.</param>
         /// <param name="creatorName">The name of the creator, or null.</param>
-        public void LogCreateActor(ActorId id, string creatorType, string creatorName)
+        /// <param name="creatorType">The type of the creator, or null.</param>
+        public void LogCreateActor(ActorId id, string creatorName, string creatorType)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnCreateActor(id, creatorType, creatorName);
+                    log.OnCreateActor(id, creatorName, creatorType);
                 }
             }
         }
@@ -82,20 +82,20 @@ namespace Microsoft.Coyote.Actors
         /// Logs that the specified event is sent to a target actor.
         /// </summary>
         /// <param name="targetActorId">The id of the target actor.</param>
-        /// <param name="senderType">The type of the sender, if any.</param>
         /// <param name="senderName">The name of the sender, if any.</param>
-        /// <param name="senderStateName">The state name, if the sender actor is a state machine and a state exists, else null.</param>
+        /// <param name="senderType">The type of the sender, if any.</param>
+        /// <param name="senderState">The state name, if the sender is a state machine, else null.</param>
         /// <param name="e">The event being sent.</param>
         /// <param name="opGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
-        public void LogSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+        public void LogSendEvent(ActorId targetActorId, string senderName, string senderType, string senderState,
             Event e, Guid opGroupId, bool isTargetHalted)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnSendEvent(targetActorId, senderType, senderName, senderStateName, e, opGroupId, isTargetHalted);
+                    log.OnSendEvent(targetActorId, senderName, senderType, senderState, e, opGroupId, isTargetHalted);
                 }
             }
         }
@@ -206,15 +206,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified random result has been obtained.
         /// </summary>
-        /// <param name="id">The id of the source actor, if any; otherwise, the runtime itself was the source.</param>
         /// <param name="result">The random result (may be bool or int).</param>
-        public void LogRandom(ActorId id, object result)
+        /// <param name="callerName">The name of the caller, if any.</param>
+        /// <param name="callerType">The type of the caller, if any.</param>
+        public void LogRandom(object result, string callerName, string callerType)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnRandom(id, result);
+                    log.OnRandom(result, callerName, callerType);
                 }
             }
         }
@@ -425,14 +426,14 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified monitor has been created.
         /// </summary>
-        /// <param name="monitorTypeName">The name of the type of the monitor that has been created.</param>
-        public void LogCreateMonitor(string monitorTypeName)
+        /// <param name="monitorType">The name of the type of the monitor that has been created.</param>
+        public void LogCreateMonitor(string monitorType)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnCreateMonitor(monitorTypeName);
+                    log.OnCreateMonitor(monitorType);
                 }
             }
         }
@@ -440,16 +441,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified monitor executes an action.
         /// </summary>
-        /// <param name="monitorTypeName">Name of type of the monitor that is executing the action.</param>
+        /// <param name="monitorType">Name of type of the monitor that is executing the action.</param>
         /// <param name="stateName">The name of the state in which the action is being executed.</param>
         /// <param name="actionName">The name of the action being executed.</param>
-        public void LogMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
+        public void LogMonitorExecuteAction(string monitorType, string stateName, string actionName)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorExecuteAction(monitorTypeName, stateName, actionName);
+                    log.OnMonitorExecuteAction(monitorType, stateName, actionName);
                 }
             }
         }
@@ -457,20 +458,20 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified monitor is about to process an event.
         /// </summary>
-        /// <param name="monitorTypeName">Name of type of the monitor that will process the event.</param>
+        /// <param name="monitorType">Name of type of the monitor that will process the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
-        /// <param name="senderType">The type of the sender, if any.</param>
         /// <param name="senderName">The name of the sender, if any.</param>
+        /// <param name="senderType">The type of the sender, if any.</param>
         /// <param name="senderStateName">The name of the state the sender is in.</param>
         /// <param name="e">The event being processed.</param>
-        public void LogMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
-            string senderName, string senderStateName, Event e)
+        public void LogMonitorProcessEvent(string monitorType, string stateName, string senderName,
+            string senderType, string senderStateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorProcessEvent(monitorTypeName, stateName, senderType, senderName, senderStateName, e);
+                    log.OnMonitorProcessEvent(monitorType, stateName, senderName, senderType, senderStateName, e);
                 }
             }
         }
@@ -478,16 +479,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified monitor raised an event.
         /// </summary>
-        /// <param name="monitorTypeName">Name of type of the monitor raising the event.</param>
+        /// <param name="monitorType">Name of type of the monitor raising the event.</param>
         /// <param name="stateName">The name of the state in which the event is being raised.</param>
         /// <param name="e">The event being raised.</param>
-        public void LogMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
+        public void LogMonitorRaiseEvent(string monitorType, string stateName, Event e)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorRaiseEvent(monitorTypeName, stateName, e);
+                    log.OnMonitorRaiseEvent(monitorType, stateName, e);
                 }
             }
         }
@@ -495,19 +496,35 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified monitor enters or exits a state.
         /// </summary>
-        /// <param name="monitorTypeName">The name of the type of the monitor entering or exiting the state</param>
+        /// <param name="monitorType">The name of the type of the monitor entering or exiting the state</param>
         /// <param name="stateName">The name of the state being entered or exited; if <paramref name="isInHotState"/>
         /// is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]".</param>
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>
         /// <param name="isInHotState">If true, the monitor is in a hot state; if false, the monitor is in a cold state;
         /// else no liveness state is available.</param>
-        public void LogMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
+        public void LogMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnMonitorStateTransition(monitorTypeName, stateName, isEntry, isInHotState);
+                    log.OnMonitorStateTransition(monitorType, stateName, isEntry, isInHotState);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logs that the specified monitor has found a liveness error.
+        /// </summary>
+        /// <param name="monitorType">The name of the type of the monitor.</param>
+        /// <param name="hotStateName">The name of the current hot state when the error was found.</param>
+        public void LogMonitorLivenessError(string monitorType, string hotStateName)
+        {
+            if (this.Logs.Count > 0)
+            {
+                foreach (var log in this.Logs)
+                {
+                    log.OnMonitorLivenessError(monitorType, hotStateName);
                 }
             }
         }

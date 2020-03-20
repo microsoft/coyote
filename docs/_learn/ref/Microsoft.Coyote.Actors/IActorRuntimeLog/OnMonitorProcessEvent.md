@@ -9,16 +9,16 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorProcessE
 Invoked when the specified monitor is about to process an event.
 
 ```csharp
-public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType, 
-    string senderName, string senderStateName, Event e)
+public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName, 
+    string senderType, string senderStateName, Event e)
 ```
 
 | parameter | description |
 | --- | --- |
-| monitorTypeName | Name of type of the monitor that will process the event. |
+| monitorType | Name of type of the monitor that will process the event. |
 | stateName | The name of the state in which the event is being raised. |
-| senderType | The type of the sender, if any. |
 | senderName | The name of the sender, if any. |
+| senderType | The type of the sender, if any. |
 | senderStateName | The name of the state the sender is in. |
 | e | The event being processed. |
 

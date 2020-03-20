@@ -184,8 +184,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/StartPeriodicTimer
         - name: StopTimer
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/StopTimer
-        - name: Random
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/Random
+        - name: RandomBoolean
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/RandomBoolean
         - name: RandomInteger
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/RandomInteger
         - name: Monitor
@@ -270,8 +270,6 @@ learn-toc:
         link: /learn/ref/Microsoft.Coyote.Actors/OnEventDroppedHandlerType
       - name: OnExceptionOutcome
         link: /learn/ref/Microsoft.Coyote.Actors/OnExceptionOutcomeType
-      - name: OnFailureHandler
-        link: /learn/ref/Microsoft.Coyote.Actors/OnFailureHandlerType
       - name: UnhandledEventException
         link: /learn/ref/Microsoft.Coyote.Actors/UnhandledEventExceptionType
         subfolderitems:
@@ -294,30 +292,12 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
         - name: SendEventAndExecuteAsync
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEventAndExecuteAsync
-        - name: RegisterMonitor
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterMonitor
-        - name: Monitor
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Monitor
-        - name: Random
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Random
-        - name: RandomInteger
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RandomInteger
-        - name: Assert
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Assert
         - name: GetCurrentOperationGroupId
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperationGroupId
-        - name: SetLogger
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SetLogger
         - name: RegisterLog
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog
         - name: RemoveLog
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RemoveLog
-        - name: Stop
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Stop
-        - name: Logger
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/Logger
-        - name: OnFailure
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/OnFailure
         - name: OnEventDropped
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/OnEventDropped
       - name: ActorRuntimeLogTextFormatter
@@ -357,6 +337,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorRaiseEvent
         - name: OnMonitorStateTransition
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorStateTransition
+        - name: OnMonitorLivenessError
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnMonitorLivenessError
         - name: OnPopState
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPopState
         - name: OnPopStateUnhandledEvent
@@ -365,8 +347,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnPushState
         - name: OnRaiseEvent
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRaiseEvent
-        - name: OnRandom
-          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRandom
         - name: OnReceiveEvent
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnReceiveEvent
         - name: OnSendEvent
@@ -379,6 +359,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnStrategyDescription
         - name: OnWaitEvent
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnWaitEvent
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnRandom
         - name: OnCompleted
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCompleted
         - name: ActorRuntimeLogTextFormatter
@@ -404,8 +386,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnReceiveEvent
         - name: OnWaitEvent
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnWaitEvent
-        - name: OnRandom
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
         - name: OnStateTransition
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStateTransition
         - name: OnGotoState
@@ -440,6 +420,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorRaiseEvent
         - name: OnMonitorStateTransition
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorStateTransition
+        - name: OnMonitorLivenessError
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnMonitorLivenessError
+        - name: OnRandom
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnRandom
         - name: OnAssertionFailure
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnAssertionFailure
         - name: OnStrategyDescription
@@ -791,6 +775,37 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Random/Generator/NextBoolean
         - name: NextInteger
           link: /learn/ref/Microsoft.Coyote.Random/Generator/NextInteger
+    - name: Microsoft.Coyote.Runtime
+      link: /learn/ref/MicrosoftCoyoteRuntimeNamespace
+      subfolderitems:
+      - name: ICoyoteRuntime
+        link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntimeType
+        subfolderitems:
+        - name: RegisterMonitor
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RegisterMonitor
+        - name: Monitor
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Monitor
+        - name: RandomBoolean
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RandomBoolean
+        - name: RandomInteger
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RandomInteger
+        - name: Assert
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Assert
+        - name: SetLogger
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/SetLogger
+        - name: Stop
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Stop
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Logger
+        - name: OnFailure
+          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/OnFailure
+      - name: OnFailureHandler
+        link: /learn/ref/Microsoft.Coyote.Runtime/OnFailureHandlerType
+      - name: RuntimeFactory
+        link: /learn/ref/Microsoft.Coyote.Runtime/RuntimeFactoryType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Runtime/RuntimeFactory/Create
     - name: Microsoft.Coyote.Specifications
       link: /learn/ref/MicrosoftCoyoteSpecificationsNamespace
       subfolderitems:

@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Runtime;
@@ -16,7 +18,7 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// Runtime for creating and executing actors.
     /// </summary>
-    internal sealed class ActorRuntime : CoyoteRuntime
+    internal class ActorRuntime : CoyoteRuntime, IActorRuntime
     {
         /// <summary>
         /// Map from unique actor ids to actors.
@@ -24,25 +26,35 @@ namespace Microsoft.Coyote.Actors
         private readonly ConcurrentDictionary<ActorId, Actor> ActorMap;
 
         /// <summary>
-        /// List of monitors in the program.
+        /// Responsible for writing to all registered <see cref="IActorRuntimeLog"/> objects.
         /// </summary>
-        private readonly List<Monitor> Monitors;
+        protected internal LogWriter LogWriter { get; private set; }
 
         /// <summary>
-        /// Responsible for generating random values.
+        /// Used to log text messages. Use <see cref="ICoyoteRuntime.SetLogger"/>
+        /// to replace the logger with a custom one.
         /// </summary>
-        private readonly IRandomValueGenerator ValueGenerator;
+        public override TextWriter Logger => this.LogWriter.Logger;
+
+        /// <summary>
+        /// Callback that is fired when a Coyote event is dropped.
+        /// </summary>
+        public event OnEventDroppedHandler OnEventDropped;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorRuntime"/> class.
         /// </summary>
         internal ActorRuntime(Configuration configuration, IRandomValueGenerator valueGenerator)
-            : base(configuration)
+            : base(configuration, valueGenerator)
         {
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
-            this.Monitors = new List<Monitor>();
-            this.ValueGenerator = valueGenerator;
+            this.LogWriter = new LogWriter(configuration);
         }
+
+        /// <summary>
+        /// Creates a fresh actor id that has not yet been bound to any actor.
+        /// </summary>
+        public ActorId CreateActorId(Type type, string name = null) => new ActorId(type, name, this);
 
         /// <summary>
         /// Creates a actor id that is uniquely tied to the specified unique name. The
@@ -50,14 +62,14 @@ namespace Microsoft.Coyote.Actors
         /// it can be bound to a previously created actor. In the second case, this actor
         /// id can be directly used to communicate with the corresponding actor.
         /// </summary>
-        public override ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, name, this, true);
+        public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, name, this, true);
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and with the specified
         /// optional <see cref="Event"/>. This event can only be used to access its payload,
         /// and cannot be handled.
         /// </summary>
-        public override ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default) =>
+        public virtual ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default) =>
             this.CreateActor(null, type, null, initialEvent, null, opGroupId);
 
         /// <summary>
@@ -65,7 +77,7 @@ namespace Microsoft.Coyote.Actors
         /// specified optional <see cref="Event"/>. This event can only be used to access
         /// its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
+        public virtual ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
             this.CreateActor(null, type, name, initialEvent, null, opGroupId);
 
         /// <summary>
@@ -73,7 +85,7 @@ namespace Microsoft.Coyote.Actors
         /// This method optionally passes an <see cref="Event"/> to the new actor, which can only
         /// be used to access its payload, and cannot be handled.
         /// </summary>
-        public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Guid opGroupId = default) =>
+        public virtual ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Guid opGroupId = default) =>
             this.CreateActor(id, type, null, initialEvent, null, opGroupId);
 
         /// <summary>
@@ -82,7 +94,7 @@ namespace Microsoft.Coyote.Actors
         /// and cannot be handled. The method returns only when the actor is initialized and
         /// the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Guid opGroupId = default) =>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Guid opGroupId = default) =>
             this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, opGroupId);
 
         /// <summary>
@@ -91,7 +103,7 @@ namespace Microsoft.Coyote.Actors
         /// its payload, and cannot be handled. The method returns only when the actor is
         /// initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
-        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
             Guid opGroupId = default) =>
             this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, opGroupId);
 
@@ -102,14 +114,14 @@ namespace Microsoft.Coyote.Actors
         /// the actor is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
             Guid opGroupId = default) =>
             this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, opGroupId);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        public override void SendEvent(ActorId targetId, Event initialEvent, Guid opGroupId = default,
+        public virtual void SendEvent(ActorId targetId, Event initialEvent, Guid opGroupId = default,
             SendOptions options = null) =>
             this.SendEvent(targetId, initialEvent, null, opGroupId, options);
 
@@ -117,7 +129,7 @@ namespace Microsoft.Coyote.Actors
         /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
         /// running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
-        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
+        public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
             Guid opGroupId = default, SendOptions options = null) =>
             this.SendEventAndExecuteAsync(targetId, initialEvent, null, opGroupId, options);
 
@@ -126,7 +138,7 @@ namespace Microsoft.Coyote.Actors
         /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
         /// testing, the runtime asserts that the specified actor is currently executing.
         /// </summary>
-        public override Guid GetCurrentOperationGroupId(ActorId currentActorId)
+        public virtual Guid GetCurrentOperationGroupId(ActorId currentActorId)
         {
             Actor actor = this.GetActorWithId<Actor>(currentActorId);
             return actor is null ? Guid.Empty : actor.OperationGroupId;
@@ -135,11 +147,11 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
+        internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
             Actor creator, Guid opGroupId)
         {
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Type, creator?.Id.Name);
+            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
             this.RunActorEventHandler(actor, initialEvent, true);
             return actor.Id;
         }
@@ -149,11 +161,11 @@ namespace Microsoft.Coyote.Actors
         /// returns only when the actor is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>
-        internal override async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
+        internal virtual async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
             Event initialEvent, Actor creator, Guid opGroupId)
         {
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Type, creator?.Id.Name);
+            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
             await this.RunActorEventHandlerAsync(actor, initialEvent, true);
             return actor.Id;
         }
@@ -224,7 +236,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        internal override void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
+        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
         {
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
@@ -237,7 +249,7 @@ namespace Microsoft.Coyote.Actors
         /// Sends an asynchronous <see cref="Event"/> to an actor. Returns immediately if the target was
         /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
-        internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
+        internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
             Guid opGroupId, SendOptions options)
         {
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, out Actor target);
@@ -284,13 +296,13 @@ namespace Microsoft.Coyote.Actors
             target = this.GetActorWithId<Actor>(targetId);
             if (target is null || target.IsHalted)
             {
-                this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+                this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
 
-            this.LogWriter.LogSendEvent(targetId, sender?.Id.Type, sender?.Id.Name,
+            this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: false);
 
             EnqueueStatus enqueueStatus = target.Enqueue(e, opGroupId, null);
@@ -359,11 +371,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Creates a new timer that sends a <see cref="TimerElapsedEvent"/> to its owner actor.
         /// </summary>
-        internal override IActorTimer CreateActorTimer(TimerInfo info, Actor owner) => new ActorTimer(info, owner);
+        internal virtual IActorTimer CreateActorTimer(TimerInfo info, Actor owner) => new ActorTimer(info, owner);
 
-        /// <summary>
-        /// Tries to create a new <see cref="Coyote.Specifications.Monitor"/> of the specified <see cref="Type"/>.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void TryCreateMonitor(Type type)
         {
             // Check if monitors are enabled in production.
@@ -397,45 +407,8 @@ namespace Microsoft.Coyote.Actors
             monitor.GotoStartState();
         }
 
-        /// <summary>
-        /// Invokes the specified <see cref="Coyote.Specifications.Monitor"/> with the specified <see cref="Event"/>.
-        /// </summary>
-        internal override void Monitor(Type type, Actor sender, Event e)
-        {
-            // Check if monitors are enabled in production.
-            if (!this.Configuration.IsMonitoringEnabledInInProduction)
-            {
-                return;
-            }
-
-            Monitor monitor = null;
-
-            lock (this.Monitors)
-            {
-                foreach (var m in this.Monitors)
-                {
-                    if (m.GetType() == type)
-                    {
-                        monitor = m;
-                        break;
-                    }
-                }
-            }
-
-            if (monitor != null)
-            {
-                lock (monitor)
-                {
-                    monitor.MonitorEvent(sender, e);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        internal override bool GetNondeterministicBooleanChoice(Actor caller, int maxValue)
+        /// <inheritdoc/>
+        internal override bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
         {
             bool result = false;
             if (this.ValueGenerator.Next(maxValue) == 0)
@@ -443,18 +416,15 @@ namespace Microsoft.Coyote.Actors
                 result = true;
             }
 
-            this.LogWriter.LogRandom(caller?.Id, result);
+            this.LogWriter.LogRandom(result, callerName, callerType);
             return result;
         }
 
-        /// <summary>
-        /// Returns a nondeterministic integer choice, that can be
-        /// controlled during analysis or testing.
-        /// </summary>
-        internal override int GetNondeterministicIntegerChoice(Actor caller, int maxValue)
+        /// <inheritdoc/>
+        internal override int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
         {
             var result = this.ValueGenerator.Next(maxValue);
-            this.LogWriter.LogRandom(caller?.Id, result);
+            this.LogWriter.LogRandom(result, callerName, callerType);
             return result;
         }
 
@@ -470,7 +440,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that an actor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName,
+        internal virtual void NotifyInvokedAction(Actor actor, MethodInfo action, string handlingStateName,
             string currentStateName, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
@@ -482,7 +452,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that an actor dequeued an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyDequeuedEvent(Actor actor, Event e, EventInfo eventInfo)
+        internal virtual void NotifyDequeuedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -492,9 +462,26 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Notifies that an actor dequeued the default <see cref="Event"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyDefaultEventDequeued(Actor actor)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that the inbox of the specified actor is about to be
+        /// checked to see if the default event handler should fire.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyDefaultEventHandlerCheck(Actor actor)
+        {
+        }
+
+        /// <summary>
         /// Notifies that an actor raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
+        internal virtual void NotifyRaisedEvent(Actor actor, Event e, EventInfo eventInfo)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -504,9 +491,59 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Notifies that an actor is handling a raised <see cref="Event"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyHandleRaisedEvent(Actor actor, Event e)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor called <see cref="Actor.ReceiveEventAsync(Type[])"/>
+        /// or one of its overloaded methods.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyReceiveCalled(Actor actor)
+        {
+        }
+
+        /// <summary>
+        /// Notifies that an actor enqueued an event that it was waiting to receive.
+        /// </summary>
+        internal virtual void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
+        {
+            if (this.Configuration.IsVerbose)
+            {
+                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
+            }
+        }
+
+        /// <summary>
+        /// Notifies that an actor received an event without waiting because the event
+        /// was already in the inbox when the actor invoked the receive statement.
+        /// </summary>
+        internal virtual void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
+        {
+            if (this.Configuration.IsVerbose)
+            {
+                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
+                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
+            }
+        }
+
+        /// <summary>
+        /// Notifies that an actor is waiting for the specified task to complete.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyWaitTask(Actor actor, Task task)
+        {
+        }
+
+        /// <summary>
         /// Notifies that an actor is waiting to receive an event of one of the specified types.
         /// </summary>
-        internal override void NotifyWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
+        internal virtual void NotifyWaitEvent(Actor actor, IEnumerable<Type> eventTypes)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -524,34 +561,9 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Notifies that an actor enqueued an event that it was waiting to receive.
-        /// </summary>
-        internal override void NotifyReceivedEvent(Actor actor, Event e, EventInfo eventInfo)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: true);
-            }
-        }
-
-        /// <summary>
-        /// Notifies that an actor received an event without waiting because the event
-        /// was already in the inbox when the actor invoked the receive statement.
-        /// </summary>
-        internal override void NotifyReceivedEventWithoutWaiting(Actor actor, Event e, EventInfo eventInfo)
-        {
-            if (this.Configuration.IsVerbose)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : string.Empty;
-                this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
-            }
-        }
-
-        /// <summary>
         /// Notifies that a state machine entered a state.
         /// </summary>
-        internal override void NotifyEnteredState(StateMachine stateMachine)
+        internal virtual void NotifyEnteredState(StateMachine stateMachine)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -562,7 +574,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that a state machine exited a state.
         /// </summary>
-        internal override void NotifyExitedState(StateMachine stateMachine)
+        internal virtual void NotifyExitedState(StateMachine stateMachine)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -571,31 +583,41 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Notifies that a state machine invoked pop.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void NotifyPopState(StateMachine stateMachine)
+        {
+        }
+
+        /// <summary>
         /// Notifies that a state machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedOnEntryAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName, stateMachine.CurrentStateName, action.Name);
+                this.LogWriter.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
+                    stateMachine.CurrentStateName, action.Name);
             }
         }
 
         /// <summary>
         /// Notifies that a state machine invoked an action.
         /// </summary>
-        internal override void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
+        internal virtual void NotifyInvokedOnExitAction(StateMachine stateMachine, MethodInfo action, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName, stateMachine.CurrentStateName, action.Name);
+                this.LogWriter.LogExecuteAction(stateMachine.Id, stateMachine.CurrentStateName,
+                    stateMachine.CurrentStateName, action.Name);
             }
         }
 
         /// <summary>
         /// Notifies that a monitor entered a state.
         /// </summary>
-        internal override void NotifyEnteredState(Monitor monitor)
+        internal virtual void NotifyEnteredState(Monitor monitor)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -608,7 +630,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that a monitor exited a state.
         /// </summary>
-        internal override void NotifyExitedState(Monitor monitor)
+        internal virtual void NotifyExitedState(Monitor monitor)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -621,7 +643,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that a monitor invoked an action.
         /// </summary>
-        internal override void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
+        internal virtual void NotifyInvokedAction(Monitor monitor, MethodInfo action, string stateName, Event receivedEvent)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -632,7 +654,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies that a monitor raised an <see cref="Event"/>.
         /// </summary>
-        internal override void NotifyRaisedEvent(Monitor monitor, Event e)
+        internal virtual void NotifyRaisedEvent(Monitor monitor, Event e)
         {
             if (this.Configuration.IsVerbose)
             {
@@ -642,8 +664,36 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Disposes runtime resources.
+        /// Notifies that a monitor found a liveness error.
         /// </summary>
+        internal virtual void NotifyLivenessError(Monitor monitor)
+        {
+            if (this.Configuration.IsVerbose)
+            {
+                string monitorState = monitor.CurrentStateNameWithTemperature;
+                this.LogWriter.LogMonitorLivenessError(monitor.GetType().FullName, monitorState);
+            }
+        }
+
+        /// <summary>
+        /// Tries to handle the specified dropped <see cref="Event"/>.
+        /// </summary>
+        internal void TryHandleDroppedEvent(Event e, ActorId id) => this.OnEventDropped?.Invoke(e, id);
+
+        /// <inheritdoc/>
+        public override TextWriter SetLogger(TextWriter logger) => this.LogWriter.SetLogger(logger);
+
+        /// <summary>
+        /// Use this method to register an <see cref="IActorRuntimeLog"/>.
+        /// </summary>
+        public void RegisterLog(IActorRuntimeLog log) => this.LogWriter.RegisterLog(log);
+
+        /// <summary>
+        /// Use this method to unregister a previously registered <see cref="IActorRuntimeLog"/>.
+        /// </summary>
+        public void RemoveLog(IActorRuntimeLog log) => this.LogWriter.RemoveLog(log);
+
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             if (disposing)

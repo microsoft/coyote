@@ -18,7 +18,8 @@ namespace Microsoft.Coyote.Actors
     /// a custom actor with states, state transitions and event handlers.
     /// </summary>
     /// <remarks>
-    /// See <see href="/coyote/learn/programming-models/actors/state-machines">State machines</see> for more information.
+    /// See <see href="/coyote/learn/programming-models/actors/state-machines">State machines</see>
+    /// for more information.
     /// </remarks>
     public abstract class StateMachine : Actor
     {
@@ -85,11 +86,6 @@ namespace Microsoft.Coyote.Actors
         /// Gets the <see cref="Type"/> of the current state.
         /// </summary>
         protected internal Type CurrentState { get; private set; }
-
-        /// <summary>
-        /// Gets the name of the current state.
-        /// </summary>
-        internal string CurrentStateName { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StateMachine"/> class.
@@ -343,7 +339,7 @@ namespace Microsoft.Coyote.Actors
                     bool hasWildCard = this.TryGetInheritedHandler(typeof(WildCardEvent), out HandlerInfo wildInfo);
                     if (this.EventHandlerMap.ContainsKey(typeof(WildCardEvent)))
                     {
-                        // a non-inherited wildcard handler cannot beat a "specific" event handler if that
+                        // A non-inherited wildcard handler cannot beat a "specific" event handler if that
                         // "specific" event handler is also at the top of the stack.
                         wildInfo = new HandlerInfo(this.StateStack.Peek(), this.StateStack.Count,
                             this.EventHandlerMap[typeof(WildCardEvent)]);
@@ -355,7 +351,7 @@ namespace Microsoft.Coyote.Actors
                     if ((hasWildCard && hasSpecific && wildInfo.StackDepth > info.StackDepth) ||
                         (!hasSpecific && hasWildCard))
                     {
-                        // then wild card takes precedence over earlier specific event handlers.
+                        // Then wild card takes precedence over earlier specific event handlers.
                         await this.HandleEventAsync(e, wildInfo.State, wildInfo.Handler);
                     }
                     else if (hasSpecific)
@@ -365,7 +361,7 @@ namespace Microsoft.Coyote.Actors
                     }
                     else if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate handler))
                     {
-                        // allow StateMachine to have class level OnEventDoActions the same way Actor allows.
+                        // Allow StateMachine to have class level OnEventDoActions the same way Actor allows.
                         this.Runtime.NotifyInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName, e);
                         await this.InvokeActionAsync(handler, e);
                     }

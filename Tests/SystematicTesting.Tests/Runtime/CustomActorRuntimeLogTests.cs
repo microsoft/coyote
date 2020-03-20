@@ -175,16 +175,16 @@ StateTransition
 
                 string expected = @"<?xml version='1.0' encoding='utf-16'?>
 <Log>
-  <CreateActor id='M()' creator='external' />
+  <CreateActor id='M()' creatorName='' creatorType='task' />
   <State id='M()' state='Init' isEntry='True' />
   <Action id='M()' state='Init' action='InitOnEntry' />
-  <CreateActor id='N()' creator='M()' />
-  <Send target='N()' sender='M()' senderState='Init' event='E' isTargetHalted='False' />
+  <CreateActor id='N()' creatorName='M()' creatorType='M' />
+  <Send target='N()' senderName='M()' senderType='M' senderState='Init' event='E' isTargetHalted='False' />
   <EnqueueEvent id='N()' event='E' />
   <State id='N()' state='Init' isEntry='True' />
   <DequeueEvent id='N()' state='Init' event='E' />
   <Action id='N()' state='Init' action='Act' />
-  <Send target='M()' sender='N()' senderState='Init' event='E' isTargetHalted='False' />
+  <Send target='M()' senderName='N()' senderType='N' senderState='Init' event='E' isTargetHalted='False' />
   <EnqueueEvent id='M()' event='E' />
   <DequeueEvent id='M()' state='Init' event='E' />
   <Action id='M()' state='Init' action='Act' />
@@ -196,7 +196,8 @@ StateTransition
 </Log>
 ";
 
-                string actual = RemoveNonDeterministicValuesFromReport(builder.ToString()).Replace("\"", "'");
+                string actual = builder.ToString().Replace("\"", "'");
+                actual = RemoveNonDeterministicValuesFromReport(actual);
                 actual = RemoveStackTraceFromXmlReport(actual);
                 Assert.Equal(expected, actual);
             }

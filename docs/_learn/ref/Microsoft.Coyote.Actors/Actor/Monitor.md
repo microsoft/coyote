@@ -37,7 +37,7 @@ protected void Monitor<T>(Event e)
 | parameter | description |
 | --- | --- |
 | T | Type of the monitor. |
-| e | The event to send. |
+| e | Event to send to the monitor. |
 
 ## See Also
 

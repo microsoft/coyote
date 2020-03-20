@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
                     if (this.Servers.Count > 1)
                     {
-                        if (this.Random())
+                        if (this.RandomBoolean())
                         {
                             this.SendEvent(this.Id, new InjectFailure());
                         }

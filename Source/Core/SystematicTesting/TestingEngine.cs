@@ -16,6 +16,7 @@ using System.Xml;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
@@ -149,6 +150,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
+        public static TestingEngine Create(Configuration configuration, Action<ICoyoteRuntime> test) =>
+            new TestingEngine(configuration, test);
+
+        /// <summary>
+        /// Creates a new systematic testing engine.
+        /// </summary>
         public static TestingEngine Create(Configuration configuration, Action<IActorRuntime> test) =>
             new TestingEngine(configuration, test);
 
@@ -156,6 +163,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Creates a new systematic testing engine.
         /// </summary>
         public static TestingEngine Create(Configuration configuration, Func<CoyoteTasks.Task> test) =>
+            new TestingEngine(configuration, test);
+
+        /// <summary>
+        /// Creates a new systematic testing engine.
+        /// </summary>
+        public static TestingEngine Create(Configuration configuration, Func<ICoyoteRuntime, CoyoteTasks.Task> test) =>
             new TestingEngine(configuration, test);
 
         /// <summary>
@@ -422,7 +435,7 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 // Creates a new instance of the controlled runtime.
-                runtime = new ControlledRuntime(this.Configuration, this.Strategy);
+                runtime = new ControlledRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.

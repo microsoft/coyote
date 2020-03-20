@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             private void InitOnEntry(Event e)
             {
                 this.tcs = (e as ConfigEvent).Tcs;
-                this.tcs.SetResult(this.Random());
+                this.tcs.SetResult(this.RandomBoolean());
             }
         }
 

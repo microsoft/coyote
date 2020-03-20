@@ -3,6 +3,7 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Coyote.Actors.Timers;
 
@@ -44,7 +45,7 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteElementString("AssertionFailure", error);
         }
 
-        public void OnCreateActor(ActorId id, string creatorType, string creatorName)
+        public void OnCreateActor(ActorId id, string creatorName, string creatorType)
         {
             if (this.Closed)
             {
@@ -53,20 +54,18 @@ namespace Microsoft.Coyote.Actors
 
             this.Writer.WriteStartElement("CreateActor");
             this.Writer.WriteAttributeString("id", id.ToString());
-            var creatorId = creatorType is null ? "external" : creatorName;
-            this.Writer.WriteAttributeString("creator", creatorId);
-            this.Writer.WriteEndElement();
-        }
 
-        public void OnCreateMonitor(string monitorTypeName)
-        {
-            if (this.Closed)
+            if (creatorName != null && creatorType != null)
             {
-                return;
+                this.Writer.WriteAttributeString("creatorName", creatorName);
+                this.Writer.WriteAttributeString("creatorType", creatorType);
+            }
+            else
+            {
+                this.Writer.WriteAttributeString("creatorName", Task.CurrentId.ToString());
+                this.Writer.WriteAttributeString("creatorType", "task");
             }
 
-            this.Writer.WriteStartElement("CreateMonitor");
-            this.Writer.WriteAttributeString("type", monitorTypeName);
             this.Writer.WriteEndElement();
         }
 
@@ -77,9 +76,8 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            var ownerId = info.OwnerId is null ? "external" : info.OwnerId.Name;
             this.Writer.WriteStartElement("CreateTimer");
-            this.Writer.WriteAttributeString("owner", ownerId);
+            this.Writer.WriteAttributeString("owner", info.OwnerId?.Name ?? Task.CurrentId.ToString());
             this.Writer.WriteAttributeString("due", info.DueTime.ToString());
             this.Writer.WriteAttributeString("period", info.Period.ToString());
             this.Writer.WriteEndElement();
@@ -109,7 +107,6 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("DequeueEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -117,7 +114,7 @@ namespace Microsoft.Coyote.Actors
                 this.Writer.WriteAttributeString("state", stateName);
             }
 
-            this.Writer.WriteAttributeString("event", eventName);
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
             this.Writer.WriteEndElement();
         }
 
@@ -128,10 +125,9 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("EnqueueEvent");
             this.Writer.WriteAttributeString("id", id.ToString());
-            this.Writer.WriteAttributeString("event", eventName);
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
             this.Writer.WriteEndElement();
         }
 
@@ -216,7 +212,7 @@ namespace Microsoft.Coyote.Actors
 
             this.Writer.WriteStartElement("Halt");
             this.Writer.WriteAttributeString("id", id.ToString());
-            this.Writer.WriteAttributeString("inBoxSize", inboxSize.ToString());
+            this.Writer.WriteAttributeString("inboxSize", inboxSize.ToString());
             this.Writer.WriteEndElement();
         }
 
@@ -226,73 +222,6 @@ namespace Microsoft.Coyote.Actors
             {
                 return;
             }
-        }
-
-        public void OnMonitorExecuteAction(string monitorTypeName, string stateName, string actionName)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            this.Writer.WriteStartElement("MonitorAction");
-            this.Writer.WriteAttributeString("monitorType", monitorTypeName);
-            this.Writer.WriteAttributeString("state", stateName);
-            this.Writer.WriteAttributeString("action", actionName);
-            this.Writer.WriteEndElement();
-        }
-
-        public void OnMonitorProcessEvent(string monitorTypeName, string stateName, string senderType,
-            string senderName, string senderStateName, Event e)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            string eventName = e.GetType().FullName;
-            this.Writer.WriteStartElement("MonitorEvent");
-            if (senderType != null)
-            {
-                this.Writer.WriteAttributeString("sender", senderName);
-            }
-
-            this.Writer.WriteAttributeString("senderState", senderStateName);
-            this.Writer.WriteAttributeString("monitorType", monitorTypeName);
-            this.Writer.WriteAttributeString("state", stateName);
-            this.Writer.WriteAttributeString("event", eventName);
-            this.Writer.WriteEndElement();
-        }
-
-        public void OnMonitorRaiseEvent(string monitorTypeName, string stateName, Event e)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            string eventName = e.GetType().FullName;
-            this.Writer.WriteStartElement("MonitorRaise");
-            this.Writer.WriteAttributeString("monitorType", monitorTypeName);
-            this.Writer.WriteAttributeString("state", stateName);
-            this.Writer.WriteAttributeString("event", eventName);
-            this.Writer.WriteEndElement();
-        }
-
-        public void OnMonitorStateTransition(string monitorTypeName, string stateName, bool isEntry, bool? isInHotState)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            this.Writer.WriteStartElement("MonitorState");
-            this.Writer.WriteAttributeString("monitorType", monitorTypeName);
-            this.Writer.WriteAttributeString("state", stateName);
-            this.Writer.WriteAttributeString("isEntry", isEntry.ToString());
-            bool hot = isInHotState == true;
-            this.Writer.WriteAttributeString("isInHotState", hot.ToString());
-            this.Writer.WriteEndElement();
         }
 
         public void OnPopState(ActorId id, string currentStateName, string restoredStateName)
@@ -316,11 +245,10 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("PopUnhandled");
             this.Writer.WriteAttributeString("id", id.ToString());
             this.Writer.WriteAttributeString("state", stateName);
-            this.Writer.WriteAttributeString("event", eventName);
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
             this.Writer.WriteEndElement();
         }
 
@@ -345,7 +273,6 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            string eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Raise");
             this.Writer.WriteAttributeString("id", id.ToString());
             if (!string.IsNullOrEmpty(stateName))
@@ -353,20 +280,7 @@ namespace Microsoft.Coyote.Actors
                 this.Writer.WriteAttributeString("state", stateName);
             }
 
-            this.Writer.WriteAttributeString("event", eventName);
-            this.Writer.WriteEndElement();
-        }
-
-        public void OnRandom(ActorId id, object result)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            this.Writer.WriteStartElement("Random");
-            this.Writer.WriteAttributeString("id", id.ToString());
-            this.Writer.WriteAttributeString("result", result.ToString());
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
             this.Writer.WriteEndElement();
         }
 
@@ -390,7 +304,7 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteEndElement();
         }
 
-        public void OnSendEvent(ActorId targetActorId, string senderType, string senderName, string senderStateName,
+        public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
             Event e, Guid opGroupId, bool isTargetHalted)
         {
             if (this.Closed)
@@ -398,16 +312,19 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            var eventName = e.GetType().FullName;
             this.Writer.WriteStartElement("Send");
             this.Writer.WriteAttributeString("target", targetActorId.ToString());
-            if (senderType != null)
+
+            if (senderName != null && senderType != null)
             {
-                this.Writer.WriteAttributeString("sender", senderName);
+                this.Writer.WriteAttributeString("senderName", senderName);
+                this.Writer.WriteAttributeString("senderType", senderType);
             }
 
+            // TODO: should this be guarded as above?
             this.Writer.WriteAttributeString("senderState", senderStateName);
-            this.Writer.WriteAttributeString("event", eventName);
+
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
             if (opGroupId != Guid.Empty)
             {
                 this.Writer.WriteAttributeString("event", opGroupId.ToString());
@@ -438,26 +355,8 @@ namespace Microsoft.Coyote.Actors
                 return;
             }
 
-            var ownerId = info.OwnerId is null ? "external" : info.OwnerId.Name;
             this.Writer.WriteStartElement("StopTimer");
-            this.Writer.WriteAttributeString("owner", ownerId);
-            this.Writer.WriteEndElement();
-        }
-
-        public void OnStrategyDescription(string strategyName, string description)
-        {
-            if (this.Closed)
-            {
-                return;
-            }
-
-            this.Writer.WriteStartElement("Strategy");
-            this.Writer.WriteAttributeString("strategy", strategyName);
-            if (!string.IsNullOrEmpty(description))
-            {
-                this.Writer.WriteString(description);
-            }
-
+            this.Writer.WriteAttributeString("owner", info.OwnerId?.Name ?? Task.CurrentId.ToString());
             this.Writer.WriteEndElement();
         }
 
@@ -503,6 +402,137 @@ namespace Microsoft.Coyote.Actors
             if (!string.IsNullOrEmpty(stateName))
             {
                 this.Writer.WriteAttributeString("state", stateName);
+            }
+
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnCreateMonitor(string monitorType)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("CreateMonitor");
+            this.Writer.WriteAttributeString("type", monitorType);
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnMonitorExecuteAction(string monitorType, string stateName, string actionName)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("MonitorAction");
+            this.Writer.WriteAttributeString("monitorType", monitorType);
+            this.Writer.WriteAttributeString("state", stateName);
+            this.Writer.WriteAttributeString("action", actionName);
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnMonitorProcessEvent(string monitorType, string stateName, string senderName,
+            string senderType, string senderStateName, Event e)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("MonitorEvent");
+            this.Writer.WriteAttributeString("monitorType", monitorType);
+            this.Writer.WriteAttributeString("state", stateName);
+
+            if (senderName != null && senderType != null)
+            {
+                this.Writer.WriteAttributeString("senderName", senderName);
+                this.Writer.WriteAttributeString("senderType", senderType);
+            }
+            else
+            {
+                this.Writer.WriteAttributeString("senderName", Task.CurrentId.ToString());
+                this.Writer.WriteAttributeString("senderType", "task");
+            }
+
+            // TODO: should this be guarded as above?
+            this.Writer.WriteAttributeString("senderState", senderStateName);
+
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnMonitorRaiseEvent(string monitorType, string stateName, Event e)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("MonitorRaise");
+            this.Writer.WriteAttributeString("monitorType", monitorType);
+            this.Writer.WriteAttributeString("state", stateName);
+            this.Writer.WriteAttributeString("event", e.GetType().FullName);
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnMonitorStateTransition(string monitorType, string stateName, bool isEntry, bool? isInHotState)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("MonitorState");
+            this.Writer.WriteAttributeString("monitorType", monitorType);
+            this.Writer.WriteAttributeString("state", stateName);
+            this.Writer.WriteAttributeString("isEntry", isEntry.ToString());
+            bool hot = isInHotState == true;
+            this.Writer.WriteAttributeString("isInHotState", hot.ToString());
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnMonitorLivenessError(string monitorType, string hotStateName)
+        {
+        }
+
+        public void OnRandom(object result, string callerName, string callerType)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("Random");
+            this.Writer.WriteAttributeString("result", result.ToString());
+
+            if (callerName != null && callerType != null)
+            {
+                this.Writer.WriteAttributeString("creatorName", callerName);
+                this.Writer.WriteAttributeString("creatorType", callerType);
+            }
+            else
+            {
+                this.Writer.WriteAttributeString("creatorName", Task.CurrentId.ToString());
+                this.Writer.WriteAttributeString("creatorType", "task");
+            }
+
+            this.Writer.WriteEndElement();
+        }
+
+        public void OnStrategyDescription(string strategyName, string description)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("Strategy");
+            this.Writer.WriteAttributeString("strategy", strategyName);
+            if (!string.IsNullOrEmpty(description))
+            {
+                this.Writer.WriteString(description);
             }
 
             this.Writer.WriteEndElement();

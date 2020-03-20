@@ -6,7 +6,7 @@ using System.IO;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -177,8 +177,8 @@ Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
-		Events received: Actors.UnitEvent
-		Events sent: Actors.UnitEvent
+		Events received: Events.UnitEvent
+		Events sent: Events.UnitEvent
 		Next states: Done
 
 	State: Done
@@ -263,7 +263,7 @@ Event coverage: 100.0%
 
 	State: Init
 		State event coverage: 100.0%
-		Events received: HelloEvent, Actors.UnitEvent
+		Events received: HelloEvent, Events.UnitEvent
 		Next states: Done
 
 	State: Done
@@ -276,7 +276,7 @@ Event coverage: 100.0%
 
 	State: Init
 		State has no expected events, so coverage is 100%
-		Events sent: HelloEvent, Actors.UnitEvent
+		Events sent: HelloEvent, Events.UnitEvent
 ";
 
             expected = RemoveExcessiveEmptySpaceFromReport(expected);
@@ -599,14 +599,12 @@ Event coverage: 100.0%
 	State: Idle
 		State event coverage: 100.0%
 		Events received: E1
-		Previous states: Busy
-		Next states: Busy
+		Next states: Busy[hot]
 
 	State: Busy
 		State event coverage: 100.0%
 		Events received: E2
-		Previous states: Idle
-		Next states: Idle
+		Next states: Idle[cold]
 
 StateMachine: ExternalCode
 ==========================

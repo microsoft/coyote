@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 var m = r.CreateActor(typeof(A3));
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            expectedError: "A3() received event 'Actors.UnitEvent' that cannot be handled.");
+            expectedError: "A3() received event 'Events.UnitEvent' that cannot be handled.");
         }
 
         private class M3 : StateMachine
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 var m = r.CreateActor(typeof(M3));
                 r.SendEvent(m, UnitEvent.Instance);
             },
-            expectedError: "M3() received event 'Actors.UnitEvent' that cannot be handled.");
+            expectedError: "M3() received event 'Events.UnitEvent' that cannot be handled.");
         }
 
         [OnEventDoAction(typeof(UnitEvent), nameof(HandleE))]

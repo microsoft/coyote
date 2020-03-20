@@ -15,7 +15,7 @@ type is simply a thin wrapper over the native .NET
 type](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.taskcompletionsource-1),
 providing the same operational semantics that you are familiar with. 
  
-### Why is a task completion source necessary?
+## Why is a task completion source necessary?
  
 In many asynchronous scenarios, it is useful to create a `Task<TResult>` and pass it to one or more
 consumers, which can then `await` for this task to complete to get its result. The controlled
@@ -25,14 +25,14 @@ owner of the `TaskCompletionSource<TResult>` is able to control the state of the
 task completion source in the .NET documentation of the native [`TaskCompletionSource<T>`
 type](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.taskcompletionsource-1).
 
-### How does it work?
+## How does it work?
 
 1. First, create a new controlled `TaskCompletionSource<TResult>` using the static method
    `TaskCompletionSource.Create<TResult>()`.
 2. Then, you can get the controlled `Task<TResult>` associated with this task completion source,
    using the `TaskCompletionSource.Task` property, and share it with one or more consumers.
 3. Finally, you can use the `TaskCompletionSource` to complete the produced `Task<TResult>`. You can
-   do this using the methods of the methods of the controlled task completion source:
+   do this using the methods of the controlled task completion source:
    - `SetResult()`
    - `SetException()`
    - `SetCanceled()`, or their `TrySet*` variants:
@@ -48,7 +48,7 @@ throw. However, as we're dealing with concurrency here, and there are some situa
 may be expected between multiple threads trying to resolve the completion source, the `TrySet*`
 variants return `bool` indicating success rather than throwing an exception.
 
-### How to use?
+## How to use?
 
 The code below demonstrates a controlled `TaskCompletionSource<TResult>` in action. This represents
 the most typical scenario in which programmers need and use a task completion source, namely to know
@@ -63,35 +63,29 @@ public void StartLongOperation(TaskCompletionSource<bool> tcs)
     ...
     Console.WriteLine("Completed the long operation.");
     tcs.SetResult(true);
+    Console.WriteLine("Completed the task completion source.");
 }
 ```
 
 The above `StartLongOperation` method is responsible for running some long operation. Although the
 method is not awaitable, as it returns `void`, it can signal its completion by setting the result of
-the input controlled `TaskCompletionSource<bool>` to `true`.
+the controlled `TaskCompletionSource<bool>` to `true`.
 
-A consumer of this task completion source can await on the result using the following code:
+A consumer of the task produced by this task completion source can await on its completion using the
+following code:
 
 ```c#
 using Microsoft.Coyote.Tasks;
 
-public static async Task Main()
+// The input task is the task produced by the task completion source.
+public static async Task Consumer(Task<bool> task)
 {
-    Console.WriteLine("Creating task completion source...");
-    var tcs = TaskCompletionSource.Create<bool>();
-    StartLongOperation(tcs);
-    await tcs.Task;
-    Console.WriteLine("We are done!");
+    ...
+    Console.WriteLine("Waiting the long operation to complete...");
+    await task;
+    Console.WriteLine("The long operation has completed so we can proceed with other work.");
+    ...
 }
-```
-
-The result of running this example is as expected:
-
-```
-Creating task completion source...
-Running a long operation...
-Completed the long operation.
-We are done!
 ```
 
 **Note**: You must be careful to specify the namespace `Microsoft.Coyote.Tasks` to use the

@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
@@ -58,7 +59,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Update the current asynchronous control flow with the current runtime instance,
                     // allowing future retrieval in the same asynchronous call stack.
-                    ControlledRuntime.SetRuntimeToAsynchronousControlFlow(this.Runtime);
+                    CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
                     OperationScheduler.StartOperation(op);
                     if (predecessor != null)
@@ -119,7 +120,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Update the current asynchronous control flow with the current runtime instance,
                     // allowing future retrieval in the same asynchronous call stack.
-                    ControlledRuntime.SetRuntimeToAsynchronousControlFlow(this.Runtime);
+                    CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
                     OperationScheduler.StartOperation(op);
                     if (predecessor != null)
@@ -179,7 +180,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Update the current asynchronous control flow with the current runtime instance,
                     // allowing future retrieval in the same asynchronous call stack.
-                    ControlledRuntime.SetRuntimeToAsynchronousControlFlow(this.Runtime);
+                    CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
                     OperationScheduler.StartOperation(op);
                     if (predecessor != null)
@@ -238,7 +239,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     // Update the current asynchronous control flow with the current runtime instance,
                     // allowing future retrieval in the same asynchronous call stack.
-                    ControlledRuntime.SetRuntimeToAsynchronousControlFlow(this.Runtime);
+                    CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
                     OperationScheduler.StartOperation(op);
                     if (predecessor != null)

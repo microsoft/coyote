@@ -3,7 +3,6 @@
 
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Random
 {
@@ -29,7 +28,7 @@ namespace Microsoft.Coyote.Random
         /// </summary>
         private Generator()
         {
-            this.Runtime = CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current : CoyoteRuntime.Default;
+            this.Runtime = CoyoteRuntime.Current;
         }
 
         /// <summary>
@@ -42,18 +41,18 @@ namespace Microsoft.Coyote.Random
         /// Returns a random boolean, that can be controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool NextBoolean() => this.Runtime.GetNondeterministicBooleanChoice(null, 2);
+        public bool NextBoolean() => this.Runtime.GetNondeterministicBooleanChoice(2, null, null);
 
         /// <summary>
         /// Returns a random boolean, that can be controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool NextBoolean(int maxValue) => this.Runtime.GetNondeterministicBooleanChoice(null, maxValue);
+        public bool NextBoolean(int maxValue) => this.Runtime.GetNondeterministicBooleanChoice(maxValue, null, null);
 
         /// <summary>
         /// Returns a random integer, that can be controlled during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int NextInteger(int maxValue) => this.Runtime.GetNondeterministicIntegerChoice(null, maxValue);
+        public int NextInteger(int maxValue) => this.Runtime.GetNondeterministicIntegerChoice(maxValue, null, null);
     }
 }

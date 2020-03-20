@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -357,7 +357,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M6));
             },
-            expectedError: "There are more than 1 instances of 'Actors.UnitEvent' in the input queue of M6().",
+            expectedError: "There are more than 1 instances of 'Events.UnitEvent' in the input queue of M6().",
             replay: true);
         }
 
@@ -772,7 +772,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M14));
             },
-            expectedError: "There are more than 1 instances of 'Actors.UnitEvent' in the input queue of M14().",
+            expectedError: "There are more than 1 instances of 'Events.UnitEvent' in the input queue of M14().",
             replay: true);
         }
 

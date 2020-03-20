@@ -16,6 +16,10 @@ public static IActorRuntime Create()
 
 The created actor runtime.
 
+## Remarks
+
+Only one runtime can be created per async local context. This is not a thread-safe operation.
+
 ## See Also
 
 * interface [IActorRuntime](../IActorRuntimeType)
@@ -40,6 +44,10 @@ public static IActorRuntime Create(Configuration configuration)
 ## Return Value
 
 The created actor runtime.
+
+## Remarks
+
+Only one runtime can be created per async local context. This is not a thread-safe operation.
 
 ## See Also
 

@@ -27,24 +27,16 @@ namespace Microsoft.Coyote.Runtime
         private static readonly AsyncLocal<CoyoteRuntime> AsyncLocalInstance = new AsyncLocal<CoyoteRuntime>();
 
         /// <summary>
-        /// Provides access to the runtime associated with each asynchronous control flow.
-        /// </summary>
-        /// <remarks>
-        /// In testing mode, each testing iteration uses a unique runtime instance. To safely
-        /// retrieve it from static methods, we store it in each asynchronous control flow.
-        /// </remarks>
-        private static CoyoteRuntime DefaultInstance;
-
-        /// <summary>
         /// The currently executing runtime.
         /// </summary>
-        internal static CoyoteRuntime Current => AsyncLocalInstance.Value ?? DefaultInstance ??
-            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+        internal static CoyoteRuntime Current => AsyncLocalInstance.Value ??
+            (IsExecutionControlled ? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                 "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
                 "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
                 "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
                 "you will need to mock them during testing.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
+                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>")) :
+            RuntimeFactory.InstalledRuntime);
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -263,11 +255,6 @@ namespace Microsoft.Coyote.Runtime
         /// Assigns the specified runtime as the default for the current asynchronous control flow.
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
-
-        /// <summary>
-        /// Assigns the specified runtime as the default global runtime.
-        /// </summary>
-        internal static void AssignGlobalRuntime(CoyoteRuntime runtime) => DefaultInstance = runtime;
 
         /// <summary>
         /// Use this method to override the default <see cref="TextWriter"/> for logging messages.

@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             var valueGenerator = new RandomValueGenerator(configuration);
-            var runtime = new ActorRuntime(configuration ?? Configuration.Create(), valueGenerator);
+            var runtime = new ActorRuntime(configuration, valueGenerator);
 
             // Assign the runtime to the currently executing asynchronous control flow.
             CoyoteRuntime.AssignAsyncControlFlowRuntime(runtime);

@@ -4,7 +4,8 @@
 </div>
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
-[![Build status](https://dev.azure.com/foundry99/Coyote/_apis/build/status/Coyote-Windows-CI)](https://dev.azure.com/foundry99/Coyote/_build/latest?definitionId=49) [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build status](https://dev.azure.com/foundry99/Coyote/_apis/build/status/Coyote-Windows-CI)](https://dev.azure.com/foundry99/Coyote/_build/latest?definitionId=49)
+[![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Coyote is a programming framework for building reliable asynchronous software. Coyote ensures design
 and code remain in sync, dramatically simplifying the addition of new features. Coyote comes with

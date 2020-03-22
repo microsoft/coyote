@@ -506,11 +506,6 @@ namespace Microsoft.Coyote.SystematicTesting
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
                         $"[task-{this.Configuration.TestingProcessId}]");
                 }
-                else if (this.Strategy.HasReachedMaxSchedulingSteps())
-                {
-                    this.Logger.WriteLine($"..... Iteration #{iteration + 1} " +
-                        $"exceeded max-steps [task-{this.Configuration.TestingProcessId}]");
-                }
 
                 // Cleans up the runtime before the next iteration starts.
                 runtimeLogger?.Dispose();

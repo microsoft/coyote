@@ -18,7 +18,7 @@ The created task runtime.
 
 ## Remarks
 
-Only one runtime can be created per async local context. This is not a thread-safe operation.
+Only one task runtime can be created per process. If you create a new task runtime it replaces the previously installed one.
 
 ## See Also
 
@@ -47,7 +47,7 @@ The created task runtime.
 
 ## Remarks
 
-Only one runtime can be created per async local context. This is not a thread-safe operation.
+Only one task runtime can be created per process. If you create a new task runtime it replaces the previously installed one.
 
 ## See Also
 

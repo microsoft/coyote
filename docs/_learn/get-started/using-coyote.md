@@ -26,16 +26,33 @@ right?  But there is a bug that happens rarely, the kind of pesky bug that would
 night scratching your head.
 
 Ok then, let's see if Coyote can find the bug. To make it easier to use the `coyote` command line go
-ahead and add it to your `PATH` environment as follows:
+ahead and add it to your `PATH` environment as follows.  First you must decide what .NET platform
+you want to use.  Coyote supports .NET 4.6, 4.7 and .NET core 2.2.  The `coyote` tool that you use
+must match the platform of the sample app you are testing.  Pick one of the following locations:
 
 ```
-set PATH=%PATH%;d:\git\Coyote\bin\net46
+set COYOTE_PATH=d:\git\coyote\bin\net46
+set COYOTE_PATH=d:\git\coyote\bin\net47
+set COYOTE_PATH=d:\git\coyote\bin\netcoreapp2.2
 ```
 
-Type `coyote -?` to see the help page to make sure it is working. Here we are choosing to use the
-.NET 4.6 version, but you can also use .NET 4.7 or the .NET core 2.2 version. You just need to make
-sure you are testing the same platform version of the sample that the `coyote` test tool was build
-for.
+If you did not build the coyote source code then you can find the coyote tool inside the NuGet
+package location here:
+
+```
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.0\lib\net46\coyote.exe
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.0\lib\net47\coyote.exe
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.0\lib\netcoreapp2.2\coyote.dll
+```
+
+And based on what you decide you can now add this to your PATH environment:
+
+```
+set PATH=%PATH%;%COYOTE_PATH%
+```
+
+Type `coyote -?` to see the help page to make sure it is working.  Now you are ready to run a
+`coyote` test as follows:
 
 ```
 cd coyote-samples

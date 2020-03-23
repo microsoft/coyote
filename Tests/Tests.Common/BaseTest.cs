@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xunit.Abstractions;
@@ -25,6 +26,13 @@ namespace Microsoft.Coyote.Tests.Common
 
             // Match a namespace.
             return RemoveNamespaceReferencesFromReport(report);
+        }
+
+        protected static string SortLines(string text)
+        {
+            var list = new List<string>(text.Split('\n'));
+            list.Sort();
+            return string.Join("\n", list);
         }
 
         protected static string RemoveNamespaceReferencesFromReport(string report)

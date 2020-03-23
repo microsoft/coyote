@@ -37,6 +37,7 @@ You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Setup Azure
 
@@ -53,9 +54,9 @@ set CONNECTION_STRING=...
 ```
 
 If you need to find this connection string again later you can get it from your [Azure
-Portal](http://portal.azure.com), find the message bus resource you created above, click on 'Shared
-access policies' and select the 'RootManageSharedAccessKey' and wait for the keys to load, then copy
-the contents of the field named 'Primary Connection String'.
+Portal](http://portal.azure.com), find the message bus resource you created above, click on `Shared
+access policies` and select the `RootManageSharedAccessKey` and wait for the keys to load, then copy
+the contents of the field named `Primary Connection String`.
 
 ## Build the sample
 
@@ -67,7 +68,7 @@ powershell -f build.ps1
 
 ## Run the Raft.Azure application
 
-Now you can run the Raft.Azure application
+Now you can run the Raft.Azure application:
 
 ```
 dotnet ./bin/netcoreapp2.2/Raft.Azure.dll --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
@@ -79,11 +80,11 @@ complete the [mocking](raft-mocking) of the Azure Message Bus calls.
 ## Design
 
 The `Raft.dll` library contains a `Server` [state
-machine](../programming-models/actors/state-machines), a `Client` actor, and a `ClusterManager`
-state machine. It also contains an interface named `IServerManager` and some Coyote `Event`
-declarations which describe the message types that are sent between the Server instances and the Client.
+machine](../programming-models/actors/state-machines), and a `ClusterManager` state machine. It also
+contains an interface named `IServerManager` and some Coyote `Event` declarations which describe the
+message types that are sent between the Server instances and the Client.
 
-![image](../../assets/images/cloudmessaging.svg)
+{% include cloudmessaging.svg %}
 
 The `ClusterManager` is an abstract state machine that models the concept of being able to broadcast
 messages to all `Servers` registered in a cluster. Sending an event to this cluster will result in
@@ -142,7 +143,9 @@ The startup sequence for all this can be found in `Program.cs` and goes like thi
 7. `RunServer` creates the `AzureServer` object and an `AzureMessageReceiver`, telling the
    `AzureMessageReceiver` to run forever asynchronously. Each server terminates when the client
    terminates which is done by `MonitorClientProcess`. The `AzureServer` object creates a
-   `StateMachine` of type `Server`.
+   `StateMachine` of type `Server`.  **Note:** `MonitorClientProcess` doesn't work when you run the
+   project from Visual Studio debugger, in that case you may have to kill the spawned `dotnet`
+   processes by hand.
 
 ## Processing
 
@@ -176,9 +179,9 @@ setup. The Azure Service Bus code would be the same in either case.
 The `AzureServer` code is a bit more complicated than you might expect, where it uses
 `CreateActorIdFromName`, then a `Initialize` method to create the `Server` state machines and a
 `Start` that sends a `NotifyJoinedServiceEvent` to kick things off. The reason for all this will
-become more apparent when you look a the Mocking implementation. In the `Mocking` case all `Server`
-state machines run in the same process and in that case the servers must not start until all
-server instances have been created. This is an example of how the issue of testability can
+become more apparent when you look at the [mocked implementation](raft-mocking). In the mocking
+case all `Server` state machines run in the same process and in that case the servers must not start
+until all server instances have been created. This is an example of how the issue of testability can
 sometimes affect how you do things in your production code.
 
 `CreateActorIdFromName` creates only the `ActorId` object and does not actually create the actor.
@@ -238,10 +241,12 @@ In this tutorial you learned:
    (like Azure Service Bus).
 2. What it looks like to implement a real production ready algorithm like Raft in a Coyote
    `StateMachine`.
-3. How how the Coyote `StateMachine` declarations embedded in the code show that high level state
+3. How the Coyote `StateMachine` declarations embedded in the code show that high level state
    machine design can be continually maintained in your code, and this way Coyote is ensuring design
    and implementation remain in sync over time.
 4. How to reserve an `ActorId` before creating an `Actor` using `CreateActorIdFromName`.
+5. How to great [DGML diagram](/coyote/learn/tools/dgml) of production runs by registering the
+   `ActorRuntimeLogGraphBuilder`.
 
 Now you need to be sure this `Server` protocol implementation is trustworthy, and for that you can
 move on to the next tutorial: [Raft actor service (mocked)](raft-mocking).

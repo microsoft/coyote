@@ -5,10 +5,10 @@ section: learn
 permalink: /learn/tools/coverage
 ---
 
-## Code and activity coverage
+## Code and Actor activity coverage
 
 Standard code coverage tools record the percentage of code lines that are actually executed by test
-cases. Coyote additionally defines the higher-level metric _Machine Activity Coverage_ that reports
+cases. Coyote additionally defines the higher-level metric _Actor Activity Coverage_ that reports
 state transitions and the percentage of possible events that are actually executed during a run of
 `coyote` tester.
 
@@ -20,22 +20,19 @@ options to report code and activity coverage:
 `````
 Code and activity coverage options:
 -----------------------------------
-  -c, --coverage string       : Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
+  -c, --coverage string       : Generate code coverage statistics (via VS instrumentation) with zero
+                                or more values equal to:
                                  code: Generate code coverage statistics (via VS instrumentation)
-                                 activity: Generate activity (actor, state, event, etc.) coverage statistics
+                                 activity: Generate activity (state machine, event, etc.) coverage
+                                statistics
                                  activity-debug: Print activity coverage statistics with debug info
   -instr, --instrument string
-                              : Additional file spec(s) to instrument for code coverage (wildcards supported)
+                              : Additional file spec(s) to instrument for code coverage (wildcards
+                                supported)
   -instr-list, --instrument-list string
-                              : File containing the paths to additional file(s) to instrument for code coverage, one per line,
-                                wildcards supported, lines starting with '//' are skipped
-`````
-
-The following options from the "basic" section are also relevant:
-
-```
-  path                        : Path to the Coyote program to test
-  -o, --outdir string         : Dump output to directory x (absolute path or relative to current directory)
+                              : File containing the paths to additional file(s) to instrument for
+                                code coverage, one per line, wildcards supported, lines starting
+                                with '//' are skipped
 ```
 
 Detailed descriptions are provided in subsequent sections. The following provides a quick overview.
@@ -49,7 +46,7 @@ Detailed descriptions are provided in subsequent sections. The following provide
   the assembly being tested (specified by the `path` argument).
 * `--coverage activity` and `--coverage activity-debug` do not instrument assemblies. In this case
   Coyote maintains the history of events and state transitions for reporting the coverage of the
-  state machines being tested.
+  actors and state machines being tested.
 
 ## Output file locations
 
@@ -65,9 +62,9 @@ By default, at the end of testing the report files are written to a directory na
 Details of the report files that are created for the separate coverage types are provided in
 subsequent sections.
 
-## Activity coverage
+## Actor activity coverage
 
-Activity coverage includes event coverage, which is defined in the following section, as well as a
+Actor activity coverage includes event coverage, which is defined in the following section, as well as a
 summary of states that were entered and exited and which state transitions occurred.
 
 ## Definition of event coverage
@@ -103,7 +100,7 @@ activity`, you must specify `--coverage activity-debug` explicitly.
 ## Activity coverage visualization example
 
 The activity coverage can additionally be displayed in [DGML diagram](dgml) format. Run `coyote` as
-described in the [`coyote` examples](#coyote test-examples) section below. This produces a file in
+described in the [`coyote` examples](#coyote-test-examples) section below. This produces a file in
 the DGML format as described in the [activity coverage output
 files](#activity-coverage-output-files) section. Open the file using Visual Studio. It captures
 machines, states and transitions witnessed during the testing of the program. The file also contains
@@ -156,7 +153,7 @@ of changes over time.
 
 ## Coyote test examples
 
-First build the coyote-samples repo by running the following command:
+First build the [coyote-samples](https://github.com/microsoft/coyote-samples) repo by running the following command:
 
 ```
 powershell -f build.ps1
@@ -166,21 +163,21 @@ Then run `coyote` with one of the coverage flags, as well as the other options y
 some minimal examples:
 
 ```
-coyote test .\bin\net46\PingPong.exe -i 10 --coverage
+coyote test .\bin\net46\Monitors.exe -i 10 --coverage
 ```
 
-This will create the directory `.\bin\net46\Output\PingPong.exe\CoyoteOutput`, then it generates
-coverage files for both activity and code coverage.
+This will create the directory `.\bin\net46\Output\Monitors.exe\CoyoteOutput\`, then it generates
+coverage files for code coverage.
 
 ```
-coyote test .\bin\net46\PingPong.exe --i 10 -coverage activity  -o C:\Coyote_Coverage\PingPongAsLanguage
+coyote test .\bin\net46\Monitors.exe -i 10 -coverage activity  -o C:\Coyote_Coverage\Monitors
 ```
 
-This will create the directory `C:\Coyote_Coverage\PingPongAsLanguage\CoyoteOutput`, then it
+This will create the directory `C:\Coyote_Coverage\Monitors\CoyoteOutput`, then it
 generates only activity coverage.
 
 ```
-coyote test .\bin\net46\PingPong.exe -i 10 --coverage code activity-debug
+coyote test .\bin\net46\Monitors.exe -i 10 --coverage code activity-debug
 ```
 
 This generates code and activity coverage, including debug activity output.

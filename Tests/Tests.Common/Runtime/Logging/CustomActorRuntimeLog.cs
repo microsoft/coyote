@@ -22,6 +22,11 @@ namespace Microsoft.Coyote.Tests.Common.Runtime
             this.Log.AppendLine("CreateActor");
         }
 
+        public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        {
+            this.Log.AppendLine("CreateStateMachine");
+        }
+
         public void OnExecuteAction(ActorId id, string handlingStateName, string currentStateName, string actionName)
         {
         }

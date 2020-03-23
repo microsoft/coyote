@@ -20,6 +20,7 @@ public interface IActorRuntimeLog
 | [OnCompleted](IActorRuntimeLog/OnCompleted)() | Invoked when a log is complete (and is about to be closed). |
 | [OnCreateActor](IActorRuntimeLog/OnCreateActor)(…) | Invoked when the specified actor has been created. |
 | [OnCreateMonitor](IActorRuntimeLog/OnCreateMonitor)(…) | Invoked when the specified monitor has been created. |
+| [OnCreateStateMachine](IActorRuntimeLog/OnCreateStateMachine)(…) | Invoked when the specified state machine has been created. |
 | [OnCreateTimer](IActorRuntimeLog/OnCreateTimer)(…) | Invoked when the specified actor timer has been created. |
 | [OnDefaultEventHandler](IActorRuntimeLog/OnDefaultEventHandler)(…) | Invoked when the specified actor is idle (there is nothing to dequeue) and the default event handler is about to be executed. |
 | [OnDequeueEvent](IActorRuntimeLog/OnDequeueEvent)(…) | Invoked when the specified event is dequeued by an actor. |

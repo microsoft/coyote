@@ -9,6 +9,9 @@ namespace Microsoft.Coyote.Actors.SharedObjects
     /// <summary>
     /// A thread-safe counter that can be shared in-memory by actors.
     /// </summary>
+    /// <remarks>
+    /// See also <see href="/coyote/learn/programming-models/actors/sharing-objects">Sharing Objects</see>.
+    /// </remarks>
     public class SharedCounter
     {
         /// <summary>

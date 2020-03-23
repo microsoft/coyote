@@ -44,7 +44,7 @@ This test is setup by the `FailoverDriver`. The FailoverDriver lets the first `C
 instance run for a bit then it randomly kills it by using the `TerminateAsync` method, then it
 starts a new `CoffeeMachine`. The new `CoffeeMachine` instance needs to figure out the state of the
 sensors such that when a `MakeCoffeeEvent` arrives, it doesn't do something silly that breaks the
-machine. The `MockSensors` class is not killed so that it acts as a persist store for sensor state
+machine. The `MockSensors` class is not killed so that it acts as a persistent store for sensor state
 across all instances of the `CoffeeMachine`.
 
 Some safety `Asserts` are placed in the code that verify certain important things, including:
@@ -70,6 +70,7 @@ To run the `CoffeeMachine` example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Build the sample
 

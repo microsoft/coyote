@@ -18,7 +18,7 @@ Task<bool> SendEventAndExecuteAsync(ActorId target, Event e, Guid opGroupId = de
 Both of these are `async` methods and must be `awaited` by the caller. The method
 `CreateActorAndExecuteAsync` when awaited, returns only when the newly created actor becomes idle.
 That is, it creates the actor, passes it the initial event `e`, starts executing the actor, and then
-waits for the actor to become idle. A actor is idle when no events can be received from its inbox.
+waits for the actor to become idle. An actor is idle when no events can be received from its inbox.
 The method `SendEventAndExecuteAsync` when awaited has two possible executions. If the `target`
 actor is running (i.e., it is not idle) then the method only enqueues the event and returns
 immediately with the return value `false`. If the `target` actor was idle then the method enqueues
@@ -27,7 +27,7 @@ idle again. In this case, the method returns `true` indicating that the event ha
 the `target` actor.
 
 Note that this is only one level deep. If the event handler invoked by the actor creation or event
-handling decodes to send more events to other actors, then the above synchronous methods do **not**
+handling decides to send more events to other actors, then the above synchronous methods do **not**
 wait for that additional work to be completed, unless those events are sent to `this.Id` which does
 stop the actor from becoming idle.
 
@@ -51,6 +51,8 @@ HandlePong(e);
 A second overload of `ReceiveEventAsync` allows you to provide a list of event types each with their
 own predicates. This version of the method receives the first matching event.
 
+A `ReceiveEventAsync` call blocks all non-matching events from being dequeued from the actor's inbox.
+
 ## Potential deadlocks with ReceiveEventAsync
 
 You should be careful with the use of `ReceiveEventAsync` when using `CreateActorAndExecuteAsync`
@@ -64,12 +66,12 @@ the event `e`, expecting another event from `A` then the program deadlocks. (Blo
 
 ## Extracting information from an actor
 
-Suppose there is a Coyote actor `M1` that holds some information that we are interested in grabbing.
+Suppose there is a Coyote actor `M1` that holds some information that you are interested in grabbing.
 The usual way of getting this information would be to `SendEvent` a "get" message to `M1` and then
 wait for its response via `ReceiveEventAsync`. However, a `ReceiveEventAsync` can only be executed
 by an actor. How do you get the result outside the context of an actor, from, say, a static method?
-One option is to use these `*AndExecuteAsync` methods. We define a trampoline actor `T` that we
-create from our static method via `CreateActorAndExecuteAsync`. The trampoline actor, in its
+One option is to use these `*AndExecuteAsync` methods. First define a trampoline actor `T` that you
+create from your static method via `CreateActorAndExecuteAsync`. The trampoline actor, in its
 `OnEntry` method of the start state (which is called immediately when a actor is created), sends the
 "get" message to `M1` and waits for its response via `ReceiveEventAsync`. Once it gets the response,
 it can stash the result in an object that can be safely shared with the calling static method
@@ -86,14 +88,14 @@ make the actor process events one after another. Let's consider an example. Supp
 define a actor `M` that is easily decomposed into two smaller actors `M1` and `M2`. For each
 incoming event, `M` decides to run one of the two actors; there is no need to run them in parallel.
 In this case, you only need to code up the smaller actors `M1` and `M2`. The actor `M` can be a
-simple wrapper. On instantiation, `M` creates the two sub-state actors as follows.
+simple wrapper. On instantiation, `M` creates the two child actors as follows:
 
 ```c#
 ActorId m1 = this.CreateActorAndExecuteAsync(typeof(M1), ...);
 ActorId m2 = this.CreateActorAndExecuteAsync(typeof(M2), ...);
 ```
 
-When `M` receives an event `e`, it will choose to run the appropriate actor as follows.
+When `M` receives an event `e`, it will choose to run the appropriate actor as follows:
 
 ```c#
 if (SomeCondition(e))
@@ -110,4 +112,5 @@ else
 
 Note that the two assertions above are guaranteed to never fail because the `m1` and `m2` actors are
 always left in an idle state by `M`, provided that `M` never gives out the `ActorId` of `m1` or `m2`
-to any other actors.
+to any other actors and does not so long as `M1` and `M2` do not queue other events on themselves
+using `SendEvent`.

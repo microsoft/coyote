@@ -51,7 +51,9 @@ lost, and the `Robot` will not stop doing its job.
 
 The following diagram depicts the Failover workflow in this sample:
 
-![image](../../assets/images/DSR-Failover.svg)
+<div>
+{% include DSR-Failover.svg %}
+</div>
 
 Do note:
  1. This is a general diagram that can be used not only in this scenario, but for any other
@@ -79,7 +81,12 @@ request is completely processed and the response is sent to the `Robot` and at t
 `Navigator` deletes the pending request record from the `MockStorage`. Note that this is going one
 step further than the Coffee Machine example. In this example, not only are we testing that the
 Navigator can restart successfully, but we are also testing that the Robot is also able to handle
-that failover condition.
+that failover condition.  The following diagram shows the overall plan where Navigator2 is able
+to complete the request started by Navigator1:
+
+<div>
+{% include DSR-Plan.svg %}
+</div>
 
 The `MockStorage` is an `Actor` that provides simple key-value storage for persisting data and its
 instance lives across all instances of the `Navigator`. MockStorage makes `Navigator` failover
@@ -114,6 +121,7 @@ To run the `DrinksServingRobot` example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Build the sample
 
@@ -123,7 +131,7 @@ Build the `coyote-samples` repo by running the following command:
 powershell -f build.ps1
 ```
 
-## Run the Drinks Serving Robot application
+## Running and testing the Drink Serving Robot
 
 Now you can run the `DrinksServingRobot` application:
 - in .Net Core:
@@ -144,11 +152,9 @@ dotnet ./bin/netcoreapp2.2/DrinksServingRobot.dll
 .\bin\net47\DrinksServingRobot.exe
 ```
 
-## Running and testing the Drink Serving Robot
-
-When you run the executable without using `coyote test` (this is called running in `production
-mode`), you will get infinite console output, that you can to terminate by pressing ENTER, similar
-to this:
+When you run the executable like this without using `coyote test` (this is called running in
+_production mode_), you will get infinite console output, that you can to terminate by pressing
+ENTER, similar to this:
 
 ```xml
 <FailoverDriver> #################################################################
@@ -251,7 +257,7 @@ to this:
 You can leave this running and you will see the `FailoverDriver` halting a `Navigator` instance at
 random times. Each halted machine is terminated and discarded, then a new `Navigator` instance is
 started. Each new `Navigator` instance figures out the exact state it should continue from, and you
-see that serving continues without incident.
+see that the `Robot` continues without incident.
 
 You can now use `coyote test` to test the code and see if any bugs can be found. From the
 `CoyoteSamples` folder enter this command:
@@ -260,15 +266,13 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 ..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobot.exe -i 1000 -ms 2000 --sch-pct 10
 ```
 
-Chances are this will find a bug quickly, and you will see that a test output log is produced ( the
-file mentioned in the output below:
-`.bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt` ), like this:
+Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```
 . Testing .\bin\net46\DrinksServingRobot.exe
-Starting TestingProcessScheduler in process 10840
+Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
-... Task 0 is using 'PCT' strategy (seed:3058632895).
+... Task 0 is using 'pct' strategy (seed:324932188).
 ..... Iteration #1
 ..... Iteration #2
 ..... Iteration #3
@@ -278,21 +282,26 @@ Starting TestingProcessScheduler in process 10840
 ..... Iteration #7
 ..... Iteration #8
 ..... Iteration #9
+..... Iteration #10
+..... Iteration #20
+..... Iteration #30
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_6.txt
-..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_6.schedule
-... Elapsed 4.1210814 sec.
+..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_0.txt
+..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_0.schedule
+... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
 ... Scheduling statistics:
-..... Explored 9 schedules: 0 fair and 9 unfair.
-..... Found 11.11% buggy schedules.
-... Elapsed 4.3550025 sec.
+..... Explored 34 schedules: 0 fair and 34 unfair.
+..... Found 2.94% buggy schedules.
+... Elapsed 0.6310144 sec.
 . Done
 ```
 
-The log can be pretty big, it contains the test iteration that failed, and towards the end you will
+Notice that a log file is produced
+`.bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
+pretty big, it contains the test iteration that failed, and towards the end of this file you will
 see something like this:
 
 ```xml
@@ -305,9 +314,9 @@ see something like this:
 <StrategyLog> Found 11.11% buggy schedules.
 ```
 
-So the `DrinksServingRobot` has a liveness bug. Just 4 seconds were enough for coyote test to find
-this liveness bug, and this bug is extremely rare to see in a production run of the
-DrinksServingRobot.
+So the `DrinksServingRobot` has a liveness bug. Just 0.6 seconds were enough for coyote test to find
+this liveness bug, with 30 test iterations each doing up to 2000 async operations.  This bug is hard
+to reproduce in a production run of the DrinksServingRobot.
 
 A bug exists in the code somewhere. Can you find it? You can find an explanation and fix at the end
 of this tutorial.
@@ -315,11 +324,8 @@ of this tutorial.
 ## How the sample works
 
 You already know the main components of the Drinks Serving Robot sample. Now is the time to
-understand the details.
-
-### Starting the program
-
-Here is the code that starts the program:
+understand the details.   As with other tutorials the code that starts the program consists
+of a `[Test]` method that takes an `IActorRuntime`:
 
 ```c#
 public static class Program
@@ -338,31 +344,27 @@ public static class Program
     [Microsoft.Coyote.SystematicTesting.Test]
     public static void Execute(IActorRuntime runtime)
     {
-        runtime.RegisterMonitor(typeof(LivenessMonitor));
+        runtime.RegisterMonitor<LivenessMonitor>();
         ActorId driver = runtime.CreateActor(typeof(FailoverDriver), new FailoverDriver.ConfigEvent(RunForever));
     }
 }
 ```
 
 You already know from the Hello World tutorials how the two main entry points are used in a Coyote
-program.
-
-What is new here is that the `Execute()` method registers a `LivenessMonitor` used by Coyote to find
-liveness bugs.
-
-The rest of the execution is controlled by the `FailoverDriver`
+program. What is new here is that the `Execute()` method registers a `LivenessMonitor` used by
+Coyote to find liveness bugs.  The rest of the execution is controlled by the `FailoverDriver`.
 
 ### The FailoverDriver
 
 The `FailoverDriver` state machine has two states:
 
- - `Init`. This is the initial state of the machine where it creates everything, including the
+ - `Init`: This is the initial state of the machine where it creates everything, including the
    `MockStorage`, `Navigator` and `Robot` machines.
 
-  - `Active`. When the robot is ready, a timer is started to begin the failover process by going to
+  - `Active`: When the robot is ready, a timer is started to begin the failover process by going to
     the next state.
 
-  - `TerminatingNavigator`. This state performs the failover of the `Navigator`. It does this by
+  - `TerminatingNavigator`: This state performs the failover of the `Navigator`. It does this by
     sending a special termination event to the `Navigator`, and once that is confirmed, it goes back
     to the `Active` state where a new `Navigator` will be created. This happens once during a coyote
     test run, and it happens forever when running in production mode.
@@ -377,36 +379,38 @@ The `Init` and `Active` states perform processing that is relevant from the pers
 while the remaining states do simple serving-related processing and aren't described in detail here.
 You can review the code of the sample to see exactly what the `Robot` does to serve the client.
 
- - `Init`. This is the initial state of the machine. The `Robot` is initialized and then waits for a
+ - `Init`: This is the initial state of the machine. The `Robot` is initialized and then waits for a
    `Navigator` to present itself. If a previous `Navigator` has been killed, the `Robot` cleans up
    its own state. The `Robot`confirms to the `FailoverDriver` that it has started using the new
    `Navigator`.
 
- - `Active`. In this state the `Robot` asks the `Navigator` for a `DrinkOrder`, sending it a new
+ - `Active`: In this state the `Robot` asks the `Navigator` for a `DrinkOrder`, sending it a new
    `Picture` of the room. Then the `Robot` waits for the `Navigator` to confirm that this request
    has been recorded. Having received this confirmation the `Robot` itself informs the
    `FailoverDriver` that the handshake with the `Navigator` is complete and now it is safe to do
-   termination of the `Navigator`. After the `Robot` receives the requested `DrinkOrder` it goes to
-   state `ExecutingOrder`
+   termination of the `Navigator`. Think of this as a type of distributed transaction.  There is no
+   point terminating the `Navigator` before the order is stored because it would not be an
+   interesting test. After the `Robot` receives the requested `DrinkOrder` it goes to state
+   `ExecutingOrder`
 
 ### The Navigator
 
 The Navigator receives a drink request from the robot, and coordinates that with 2 back end
-services, a Cognitive service that can recognize people in an image, and a route planning service
-that can figure out how to drive the robot around your house. The Navigator uses a Storage service
+services, a cognitive service that can recognize people in an image, and a route planning service
+that can figure out how to drive the robot around your house. The `Navigator` uses a `Storage` service
 to persist any state it needs in order to survive the failover test.
 
 The `Navigator` has these states: the Start state `Init`, `Paused`, and `Active`:
 
- - `Init`. This is the initial state of the `Navigator`. After initialization, it pushes the state
+ - `Init`: This is the initial state of the `Navigator`. After initialization, it pushes the state
    `Paused`.
 
-  - `Paused`. In this state the `Navigator` is woken up by the `FailoverDriver`. Then it says
+  - `Paused`: In this state the `Navigator` is woken up by the `FailoverDriver`. Then it says
     "Hello" to the `Robot` and then the `Navigator` checks for any existing pending request that was
     already saved in the `Storage`. If a pending request exists, the `Navigator` restarts processing
     this request. Finally, when all this is done, the `Navigator` goes to state `Active`.
 
- - `Active`. In this state the `Navigator` receives two types of requests from the `Robot`: a drink
+ - `Active`: In this state the `Navigator` receives two types of requests from the `Robot`: a drink
    order request and a request for driving instructions. It first saves the request in the `Storage`
    and confirms to the `Robot` that its request has been recorded, then asks the `CognitiveService`
    to find a client in the picture of the room, whom the `Robot` can serve. For
@@ -430,8 +434,8 @@ processing as you can see when reviewing the code of the sample. Besides the usu
 note that the `ConfirmedEvent` has a boolean `Existing` member to show if a write operation replaced
 an existing value under the same key. This can be used by the client of the `MockStorage` to
 determine if a key was replaced. For example, the `Navigator` does actually use this to write a
-safety Assert checking to make sure a drink order request isn't getting lost in the failover
-process.
+safety `Assert` checking to make sure a pending drink order request isn't getting lost in the
+failover process.
 
 ### The Liveness monitor
 
@@ -476,7 +480,8 @@ this.Monitor<LivenessMonitor>(new LivenessMonitor.IdleEvent());
 
 The `Busy` state is marked as a `[Hot]` state and the `Idle` state is marked as a `[Cold]` state.
 During testing if `coyote test` finds the `LivenessMonitor` to be stuck in the `[Hot]` state for too
-long it raises an exception and the test fails.
+long it raises an exception and the test fails.  This is in fact the failure that is detected during
+the test.
 
 ### Explanation of the bug
 
@@ -498,7 +503,10 @@ you'll see in the output of the tester that a DGML diagram has been produced:
 ..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.dgml
 ```
 
-Open this with Visual Studio 2019 and you will see something like this:
+Open this with Visual Studio 2019 and you will see a diagram like this.  Here the diagram is also
+animated using the contents of the `--xml-trace` output so you can see the sequence of events
+leading up to the bug.  `MockStateMachineTimer` information was removed from this graph just to
+simplify the diagram:
 
 <div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml"
      svg="/coyote/assets/images/DSR-Bug-01.svg">
@@ -509,9 +517,9 @@ This is the exact snapshot at the time when the bug manifested.
 This diagram shows that the first `Navigator` (Navigator(6)) was terminated by the `FailoverDriver`,
 which then created a second `Navigator` (Navigator(13)).
 
-The link from this `Navigator` to the `Robot` shows that the `Navigator` registered itself. What
-looks bad is that there is no link from the `Robot` to this `Navigator`. The `Robot` never sent any
-request and remained waiting. This is in fact the liveness bug!
+The link from this `Navigator` to the `Robot` shows that the `Navigator` registered itself with the
+`Robot`. What looks bad is that there is no link from the `Robot` to this `Navigator`. The `Robot`
+never sent any request and remained waiting. This is in fact the liveness bug!
 
 But who sent it in the `Active` state? The diagram clearly shows that `MovingOnRoute` was the state
 from which the transition occurred.
@@ -597,13 +605,13 @@ private void OnInitActive()
 The `Robot` didn't send a request to the `Navigator`, because `this.DrinkOrderPending` was `true`
 (when in fact it should have been `false`). The `Robot` just informed the `LivenessMonitor` that it
 is busy, and then waited (forever) to receive the `Navigator`'s response to the pending order it
-believed was coming.
+believed was coming.  But it was out of sync with the `Navigator` because there was no pending
+order in the `Storage` service.
 
 Thus, the reason for the bug is the incorrect value of `this.DrinkOrderPending` in state
-`MovingOnRoute` at the time of the registration event.
-
-Look at the code of `Robot.cs` where `this.DrinkOrderPending` is being modified. The only place
-where this is set to `false` is in the `NextMove()` method:
+`MovingOnRoute` at the time of the registration event. Look at the code of `Robot.cs` where
+`this.DrinkOrderPending` is being modified. The only place where this is set to `false` is in the
+`NextMove()` method:
 
 ```c#
 private void NextMove()
@@ -621,7 +629,7 @@ This is a classic timing bug then, and the coyote tester was able to uncover thi
 takes control of all the timing and ordering of messages between the actors. The problem is the
 Navigator considers the drink request complete (and clears the Storage of that request) when it
 returns the DrivingInstructionsEvent. This event is handled by the robot in the method ReachClient.
-So this is where the Robot should be clearing its internal DrinkOrderPending state:
+So this is where the Robot should be clearing its internal `DrinkOrderPending` state:
 
 ```c#
 private void ReachClient(Event e)

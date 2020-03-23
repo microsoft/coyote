@@ -19,7 +19,7 @@ To make use of timers, you must include the `Microsoft.Coyote.Actors.Timers` nam
 start a non-periodic timer using the function `StartTimer`.
 
 ```c#
-TimerInfo StartTimer(TimeSpan startDelay, Event customEvent = null)
+TimerInfo StartTimer(TimeSpan startDelay, TimerElapsedEvent customEvent)
 ```
 
 `StartTimer` takes as argument:
@@ -38,7 +38,7 @@ object can be used to distinguish the sources of the different `TimerElapsedEven
 You can start a periodic timer using the function `StartPeriodicTimer`.
 
 ```c#
-TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, Event customEvent = null)
+TimerInfo StartPeriodicTimer(TimeSpan startDelay, TimeSpan period, TimerElapsedEvent customEvent)
 ```
 
 `StartPeriodicTimer` takes as argument:

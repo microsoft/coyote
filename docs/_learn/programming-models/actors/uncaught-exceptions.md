@@ -17,10 +17,11 @@ In test mode (i.e., when running a test with `coyote test ...`), all unhandled e
 error and the test will fail. The `coyote` tester will stop the execution at that point and report
 an error.
 
-In production mode (i.e., when running a Coyote program in production), the Coyote runtime
-intercepts any unhandled exception in an actor. The exception is then delivered to the `OnFailure`
-delegate of the runtime. At this point, it is your responsibility to take the appropriate action.
-For instance, you can cause the program to crash and create a dump (for debugging later) as follows:
+In production mode (i.e., when running a Coyote program outside of `coyote test`), the Coyote
+runtime intercepts any unhandled exception in an actor. The exception is then delivered to the
+`OnFailure` delegate of the runtime. At this point, it is your responsibility to take the
+appropriate action. For instance, you can cause the program to crash and create a dump (for
+debugging later) as follows:
 
 ```c#
 runtime.OnFailure += delegate (Exception exception)
@@ -36,7 +37,22 @@ running their current action, but no additional work will take place. The runtim
 already-received messages will not be dequeued. If you wish to suppress an exception and have the
 rest of the program continue normal operation, then it is best to catch the exception in the action
 itself using a usual `try { } catch { }` block, or override the actor's `OnException` method to
-handle exceptions in one place.
+handle exceptions in one place.  This override can return one of the following outcomes:
+
+```c#
+// The outcome when an Microsoft.Coyote.Actors.Actor throws an exception.
+public enum OnExceptionOutcome
+{
+   // The actor throws the exception causing the runtime to fail.
+   ThrowException = 0,
+
+   // The actor handles the exception and resumes execution.
+   HandledException = 1,
+
+   // The actor handles the exception and halts.
+   Halt = 2
+}
+```
 
 ## Call Stack and debugging
 

@@ -22,6 +22,7 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | virtual [OnCompleted](ActorRuntimeLogTextFormatter/OnCompleted)() | Invoked when a log is complete (and is about to be closed). |
 | virtual [OnCreateActor](ActorRuntimeLogTextFormatter/OnCreateActor)(…) | Invoked when the specified actor has been created. |
 | virtual [OnCreateMonitor](ActorRuntimeLogTextFormatter/OnCreateMonitor)(…) | Invoked when the specified monitor has been created. |
+| [OnCreateStateMachine](ActorRuntimeLogTextFormatter/OnCreateStateMachine)(…) | Invoked when the specified state machine has been created. |
 | virtual [OnCreateTimer](ActorRuntimeLogTextFormatter/OnCreateTimer)(…) | Invoked when the specified actor timer has been created. |
 | virtual [OnDefaultEventHandler](ActorRuntimeLogTextFormatter/OnDefaultEventHandler)(…) | Invoked when the specified actor is idle (there is nothing to dequeue) and the default event handler is about to be executed. |
 | virtual [OnDequeueEvent](ActorRuntimeLogTextFormatter/OnDequeueEvent)(…) | Invoked when the specified event is dequeued by an actor. |

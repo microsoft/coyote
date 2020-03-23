@@ -80,6 +80,7 @@ your C# process (typically in the `Main` method). An example of this is the foll
 using Microsoft.Coyote;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.SystematicTesting;
+using System;
 
 class Program
 {
@@ -166,6 +167,8 @@ events, updating some private state or invoking some 3rd party library.
 To complete this Coyote program, you can provide the following implementation of the `Client` actor:
 
 ```c#
+using System.Threading.Tasks;
+
 class SetupEvent : Event
 {
     public readonly ActorId ServerId;
@@ -208,8 +211,8 @@ takes no `Event` argument.  The `Event` argument is optional on Coyote event han
 Note that `HandlePong` could also be defined as an `async Task` method. Async handlers are allowed
 so that you can call external async systems in your production code, but this has some restrictions.
 You are not allowed to directly create parallel tasks inside an actor (e.g. by using `Task.Run`) as
-that can introduce race conditions (if you need to parallelize a workload, you can create more
-actors). Also, during testing, you should not use `Task.Delay` or `Task.Yield` in your event
+that can introduce race conditions (if you need to parallelize a workload, you can simply create
+more actors). Also, during testing, you should not use `Task.Delay` or `Task.Yield` in your event
 handlers. It is ok to have truly async behavior in production, but at test time the `coyote test`
 tool wants to know about, so that it can control, all async behavior of your actor. If it detects
 some uncontrolled async behavior an error will be reported.
@@ -219,13 +222,13 @@ need to create the `Client` actor in the `Execute` method, in fact, you can crea
 actors as you want to make this an interesting test:
 
 ```c#
-    public static void Execute(IActorRuntime runtime)
-    {
-        ActorId serverId = runtime.CreateActor(typeof(Server));
-        runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
-        runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
-        runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
-    }
+public static void Execute(IActorRuntime runtime)
+{
+    ActorId serverId = runtime.CreateActor(typeof(Server));
+    runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+    runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+    runtime.CreateActor(typeof(Client), new SetupEvent(serverId));
+}
 ```
 
 The output of the program will be something like this:

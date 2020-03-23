@@ -12,7 +12,7 @@ means that it must understand the concurrency and nondeterminism in your test co
 the following restrictions must be kept in mind when writing Coyote tests. Note that these
 restrictions only apply to your test code (in order to run `coyote test`). There are no such
 restrictions when running in production. If you find that your test must call some code that
-potentially violates these restrictions, then you must mocking the call for the purpose of the test.
+potentially violates these restrictions, then you must mock the call for the purpose of the test.
 
 ### Stick to your programming model
 
@@ -27,6 +27,7 @@ using SystemTasks = System.Threading.Tasks;
 [Microsoft.Coyote.SystematicTesting.Test]
 public static async CoyoteTasks.Task MyTest()
 {
+    // bad: do not do this.
     var t1 = CoyoteTasks.Task.Run(() => { foo(); });
     var t2 = SystemTasks.Task.Run(() => { bar(); });
     ...
@@ -81,7 +82,7 @@ The code executed by the test should not catch exceptions of the type
 tester for multiple purposes. For instance, it is thrown when an assertion fails in a monitor, or
 when a test iteration hits `max-steps`. In these cases, the test needs to fully unwind its stack.
 
-The following code will confuse the tester because the catch block will catch Coyote exception that
+The following code will confuse the tester because the catch block will catch Coyote exceptions that
 the tester might throw when inside `RunTheTest` and then attempt to continue to the test, which the
 tester does not expect.
 
@@ -102,7 +103,7 @@ public static async Microsoft.Coyote.Tasks.Task MyTest()
 ```
 
 Essentially, what this means is that you should not have an unconditional `catch(Exception e)` in
-your test code. The above code can be "fixed" as follows:
+your test code. The above code can be fixed by adding an exception filter as follows:
 
 ```c#
 [Microsoft.Coyote.SystematicTesting.Test]
@@ -119,3 +120,6 @@ public static async Microsoft.Coyote.Tasks.Task MyTest()
   SomeMoreTesting();
 }
 ```
+
+This allows the special Coyote runtime exceptions to pass through this try/catch block so the Coyote
+test engine can handle it and continue to run normally.

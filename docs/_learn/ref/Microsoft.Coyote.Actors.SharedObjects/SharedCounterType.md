@@ -24,6 +24,10 @@ public class SharedCounter
 | virtual [GetValue](SharedCounter/GetValue)() | Gets the current value of the shared counter. |
 | virtual [Increment](SharedCounter/Increment)() | Increments the shared counter. |
 
+## Remarks
+
+See also [Sharing Objects](/coyote/learn/programming-models/actors/sharing-objects).
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Actors.SharedObjects](../MicrosoftCoyoteActorsSharedObjectsNamespace)

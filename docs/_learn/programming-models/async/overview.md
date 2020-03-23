@@ -92,8 +92,9 @@ Say that you have the following simple C# program:
 ```c#
 // Use the Coyote controlled task type.
 using Microsoft.Coyote.Tasks;
+using Microsoft.Coyote.Specifications;
 
-private class SharedEntry
+public class SharedEntry
 {
     public int Value = 0;
 }
@@ -137,3 +138,8 @@ after `Task.WhenAll(...)` completes.
 Using `Specification.Assert`, Coyote allows you to write assertions that check these kinds of safety
 properties. In this case, the assertion will check if the value is `5` or not, and if not it will
 throw an exception, or report an error together with a reproducible trace during testing.
+
+To try out more samples built using the _asynchronous tasks_ programming model see the following:
+
+- [Hello world tasks](/coyote/learn/tutorials/hello-world-tasks)
+- [Coffee machine failover (tasks)](/coyote/learn/tutorials/failover-coffee-machine-tasks)

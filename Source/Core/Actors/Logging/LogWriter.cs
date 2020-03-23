@@ -61,6 +61,23 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Logs that the specified state machine has been created.
+        /// </summary>
+        /// <param name="id">The id of the state machine that has been created.</param>
+        /// <param name="creatorName">The name of the creator, or null.</param>
+        /// <param name="creatorType">The type of the creator, or null.</param>
+        public void LogCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        {
+            if (this.Logs.Count > 0)
+            {
+                foreach (var log in this.Logs)
+                {
+                    log.OnCreateStateMachine(id, creatorName, creatorType);
+                }
+            }
+        }
+
+        /// <summary>
         /// Logs that the specified actor executes an action.
         /// </summary>
         /// <param name="id">The id of the actor executing the action.</param>

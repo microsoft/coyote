@@ -18,8 +18,6 @@ class ReadyEvent : Event { }
 
 class Server : StateMachine
 {
-    ActorId ClientId;
-
     [Start]
     [OnEntry(nameof(InitOnEntry))]
     [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
@@ -27,19 +25,17 @@ class Server : StateMachine
 
     void InitOnEntry()
     {
-        Console.WriteLine("Server Creating client");
-        this.ClientId = this.CreateActor(typeof(Client));
-        Console.WriteLine("Server sending ping event to client");
-        this.SendEvent(this.ClientId, new PingEvent(this.Id));
         this.RaiseEvent(new ReadyEvent());
     }
 
-    [OnEventDoAction(typeof(PongEvent), nameof(HandlePong))]
+    [OnEventDoAction(typeof(PingEvent), nameof(HandlePing))]
     class Active : State { }
 
-    void HandlePong()
+    void HandlePing(Event e)
     {
-        Console.WriteLine("Server received pong event while in the {0} state", this.CurrentState.Name);
+        var pe = (PingEvent)e;
+        Console.WriteLine("Server received ping event from {0}", pe.Caller.Name);
+        this.SendEvent(pe.Caller, new PongEvent());
     }
 }
 ```
@@ -48,8 +44,8 @@ The above class declares a state machine named `Server`. The `StateMachine` clas
 from `Actor` so state machines are also actors and, of course, state machines are also normal C#
 classes. `Actors` and `StateMachines` can talk to each other by sending events. State machines in
 Coyote must also declare one or more _states_ where a state is a nested class that inherits from the
-coyote `State` class which lives in the `Microsoft.Coyote.Actors` namespace. The nested state
-classes can be private.
+coyote `State` class which is a nested class inside `StateMachine`. The nested state classes can be
+private.
 
 The above code snippet declares two states in the `Server` machine: `Init` and `Active`. You must
 use the `Start` attribute to declare one of the states the _initial_ state, which will be the first
@@ -65,7 +61,7 @@ a number of state-specific attributes, as seen in the `[Init]` state:
 The `OnEntry` attribute denotes an action that will be executed when the machine transitions to the
 `Init` state, while the `OnExit` attribute denotes an action that will be executed when the machine
 leaves the state. Actions in Coyote are C# methods that take either no input parameters or a single
-input parameter of type `Event`, and return either `void`, `async Task`. `OnExit` actions cannot
+input parameter of type `Event`, and return either `void` or `async Task`. `OnExit` actions cannot
 receive an Event argument. Note that Coyote actions are also referred to as event handlers, however
 these should not be confused with the `System.EventHandler`, which have a different prototype.
 
@@ -84,12 +80,12 @@ raises an event on itself, it is also queued so that the method can continue exe
 the next event from the inbox (if there is one), the machine immediately handles the raised event
 (so raised events are prioritized over any events in the inbox). This prioritization is important in
 the above case, because it guarantees that the Server will transition to the `Active` state before
-the `PongEvent` is received from the `Client`.
+the `PingEvent` is received from the `Client`.
 
 The attribute `OnEventGotoState` indicates that if the state machine receives the `ReadyEvent` event
 while it is currently in the `Init` state, it will automatically handle the `ReadyEvent` by exiting
 the `Init` state and transitioning to the `Active` state. This saves you from having to write that
-trivial event handler.
+trivial event handler logic.
 
 All this happens as a result of the simple `RaiseEvent` call and the `OnEventGotoState` attribute.
 The Coyote state machine programming model takes a lot of tedium out of managing explicit state
@@ -101,11 +97,18 @@ When you run this new `StateMachine` based `Server` you will see the same output
 addition of the state information from `HandlePong`:
 
 ```
-Server Creating client
-Server sending ping event to client
-Client handling ping
-Client sending pong to server
-Server received pong event while in the Active state
+Program+Client(2) initializing
+Program+Client(2) sending ping event to server
+Program+Client(1) initializing
+Program+Client(1) sending ping event to server
+Program+Client(3) initializing
+Program+Client(3) sending ping event to server
+Server received ping event from Program+Client(2)
+Server received ping event from Program+Client(1)
+Server received ping event from Program+Client(3)
+Program+Client(2) received pong event
+Program+Client(3) received pong event
+Program+Client(1) received pong event
 ```
 
 Unlike Actors which declare the events they can receive at the class level, `StateMachines` can also
@@ -118,31 +121,6 @@ runtime; the Coyote runtime will report an error if an event is received on a `S
 keeping code you need to write, and keeps your code even cleaner.
 
 For an example of a state machine in action see the [state machine demo](state-machine-demo).
-
-### Only one Raise* operation per action
-
-There is an important restriction on the use of the following. Only one of these operations can be
-queued up per event handling action:
-
-```c#
-RaiseEvent
-RaiseGotoStateEvent
-RaisePushStateEvent
-RaisePopStateEvent
-RaiseHaltEvent
-```
-
-A runtime `Assert` will be raised if you accidentally try and do two of these operations in a single
-action. For example, this would be an error because you are trying to do two `Raise` operations in
-the `InitOnEntry` action:
-
-```c#
-void InitOnEntry()
-{
-    this.RaiseGotoStateEvent<Active>();
-    this.RaiseEvent(new TestEvent());
-}
-```
 
 ### Goto, push and pop states
 
@@ -172,13 +150,13 @@ this.RaisePushStateEvent<Active>();
 ```
 
 This will push the `Active` state on the stack, but it will also inherit some actions declared on
-the `Init` state. The `Active` state pop itself off the stack, returning to the `Init` state using
-a `RaisePopStateEvent` call:
+the `Init` state. The `Active` state can pop itself off the stack, returning to the `Init` state
+using a `RaisePopStateEvent` call:
 
 ```c#
-void HandlePong()
+void HandlePing()
 {
-    Console.WriteLine("Server received pong event while in the {0} state", this.CurrentState.Name);
+    Console.WriteLine("Server received ping event while in the {0} state", this.CurrentState.Name);
     this.RaisePopStateEvent();  // pop the current state off the stack of active states.
 }
 ```
@@ -186,12 +164,37 @@ void HandlePong()
 Note that this does not result in the `OnEntry` method being called again, because you never
 actually exited the `Init` state in this case. But if you used `RaiseGotoStateEvent` instead of
 `RaisePushStateEvent` and `RaisePopStateEvent` then `InitOnEntry` will be called again, and that
-would creates an infinite series of ping-pong events.
+would make our `Server` toggle back and forth between the `Init` and `Active` states.
 
 The push and pop feature is considered an advanced feature of state machines. It is designed to help
 you reuse some of your event handling code, where you can put "common event handling" in lower
 states and more specific event handling in pushed states. If an event handler is defined more than
 once in the stack, the one closest to the top of the stack is used.
+
+### Only one Raise* operation per action
+
+There is an important restriction on the use of the following. Only one of these operations can be
+queued up per event handling action:
+
+```c#
+RaiseEvent
+RaiseGotoStateEvent
+RaisePushStateEvent
+RaisePopStateEvent
+RaiseHaltEvent
+```
+
+A runtime `Assert` will be raised if you accidentally try and do two of these operations in a single
+action. For example, this would be an error because you are trying to do two `Raise` operations in
+the `InitOnEntry` action:
+
+```c#
+void InitOnEntry()
+{
+    this.RaiseGotoStateEvent<Active>();
+    this.RaiseEvent(new TestEvent());
+}
+```
 
 ### Deferring and ignoring events
 
@@ -234,7 +237,7 @@ public void OnIdle()
 The Coyote runtime will invoke this action handler when `Idle` is the current active state and the
 state machine has nothing else to do (the inbox has no events that can be processed). If nothing
 else happens, (no other actionable events are queued on this state machine) then the `OnIdle` method
-will be called over and over until something else changes. It us more efficient to use
+will be called over and over until something else changes. It is more efficient to use
 `CreatePeriodicTimer` for low priority work.
 
 Default events can also invoke goto, and push state transitions, which brings up an interesting case
@@ -356,8 +359,8 @@ class B : State { }
 In state `B` the `OnEventDoAction` takes precedence over the inherited `DeferEvents` for event `E1`.
 
 On a given state actions defined for a specific event type take precedence over actions involving
-`WildcardEvent` but a pushed state can override a specific event type actions with a
-`WildcardEvent`.
+`WildcardEvent` but a pushed state can override a specific event type action with a
+`WildcardEvent` action.
 
 If an event cannot be handled by a pushed state then that state is automatically popped so handling
 can be attempted again on the lower states. If this auto-popping pops all states then an unhandled

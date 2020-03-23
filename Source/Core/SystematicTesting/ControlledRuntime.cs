@@ -325,7 +325,14 @@ namespace Microsoft.Coyote.SystematicTesting
 
             bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor));
             this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
-            this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            if (actor is StateMachine)
+            {
+                this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            }
 
             return actor;
         }

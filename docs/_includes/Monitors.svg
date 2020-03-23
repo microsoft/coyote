@@ -1,260 +1,248 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,1040,838" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI"
+  viewbox="0,0,1094,838" width="100%" style="max-width:1920" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="1040.7449951171875" height="838.50250000000051" fill="#FFFFFF" />
-  <g transform="translate(19.9999999999999,20)">
-    <g id="Microsoft.Coyote.Samples.Monitors.Driver(3)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6)">
-      <path d="M 514.896691178907,157.88 C 513.166552106183,165.370589450268 510.853030562718,173.130133178073 507.956126548512,181.158631183415" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 504.748179350466,189.5675 L 512.049840155666,181.650066736259 C 509.20188489171,181.633882620162 506.710368205314,180.683379746667 504.575290096479,178.798558115773 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+  <rect width="1094.2966666666666" height="838.50250000000051" fill="#FFFFFF" />
+  <g transform="translate(20,20)">
+    <g id="Microsoft.Coyote.Samples.Monitors.Driver(1)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4)">
+      <path d="M 553.896691178907,157.88 C 552.166552106183,165.370589450268 549.853030562718,173.130133178073 546.956126548512,181.158631183414" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 543.748179350466,189.5675 L 551.049840155666,181.650066736259 C 548.20188489171,181.633882620162 545.710368205314,180.683379746667 543.575290096479,178.798558115773 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Driver(3)-&gt;Microsoft.Coyote.Samples.Monitors.Liveness(2)">
-      <path d="M 628.652483566306,157.88 L 688.303430145411,200.72372246694" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
-      <path d="M 695.613333333333,205.973990591826 L 689.824671180035,196.891513480653 C 689.081247645394,199.640773846507 687.525612645427,201.806671087373 685.157766180136,203.389205203251 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.Driver(1)-&gt;Microsoft.Coyote.Samples.Monitors.Liveness">
+      <path d="M 675.703031725621,157.88 L 769.307345442829,220.521978818569" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+      <path d="M 776.786968274379,225.5275 L 770.70095231996,216.641532984388 C 770.048904136374,219.413886547228 768.565786749284,221.63007108991 766.251600158687,223.290086612432 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Driver(3)-&gt;Microsoft.Coyote.Samples.Monitors.Timer(7)">
-      <path d="M 656.66,106.060541247406 L 880.245,150.0278125 C 960.578333333333,165.825104166667 1000.745,195.514375 1000.745,239.095625 L 1000.745,304.4675 C 1000.745,369.323548843203 981.090139273105,422.115042770151 941.780417819314,462.841981780846" stroke-dasharray="4,2" fill="none" stroke="#FF6C6C" stroke-width="1" />
-      <path d="M 935.39625,469.18567165779 L 945.309187522324,464.97453526977 C 942.720223727009,463.787784420745 940.840611911619,461.896179140948 939.670352076152,459.29971943038 z" fill="#FF6C6C" stroke="#FF6C6C" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)-&gt;Microsoft.Coyote.Samples.Monitors.Timer(5)">
+      <path d="M 681.154019048993,419.3675 C 693.127560004219,427.944194288812 704.087682297961,436.520888577624 714.034385930219,445.097582866436" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
+      <path d="M 720.780435225674,451.055 L 715.932565845641,441.43740349806 C 714.916966246302,444.098168155998 713.151805614135,446.096997576874 710.637083949139,447.433891760687 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6)-&gt;Microsoft.Coyote.Samples.Monitors.Timer(7)">
-      <path d="M 665.26622488696,416.020499092185 C 680.468033546839,425.747895545002 693.926181775641,435.47529199782 705.640669573366,445.202688450638" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
-      <path d="M 712.478099611706,451.055 L 707.481982479934,441.513573817002 C 706.50767869179,444.189735852365 704.773660454942,446.21564104891 702.279927769389,447.591289406637 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)-&gt;Microsoft.Coyote.Samples.Monitors.Driver(1)">
+      <path d="M 486.013841650573,189.5675 C 488.194060052413,181.457462045243 490.942966324917,173.609603780603 494.260560468084,166.023925206078" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 498.091550188485,157.880000000001 L 490.215372629783,165.226143686575 C 493.054053030147,165.456371173426 495.467067906022,166.59147923873 497.454417257408,168.631467882487 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6)-&gt;Microsoft.Coyote.Samples.Monitors.Driver(3)">
-      <path d="M 447.013841650573,189.5675 C 449.194060052413,181.457462045243 451.942966324917,173.609603780603 455.260560468084,166.023925206078" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 459.091550188485,157.880000000001 L 451.215372629783,165.226143686575 C 454.054053030147,165.456371173426 456.467067906022,166.59147923873 458.454417257408,168.631467882487 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)-&gt;Microsoft.Coyote.Samples.Monitors.Node(2)">
+      <path d="M 384.911601343993,419.3675 C 357.63595688421,442.663235260532 323.121858456714,465.958970521064 281.369306061504,489.254705781597" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 273.49,493.604020209083 L 284.177813147221,492.2733624281 C 282.01364893965,490.422010383301 280.724963183358,488.087401179892 280.311755878344,485.269534817874 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6)-&gt;Microsoft.Coyote.Samples.Monitors.Node(4)">
-      <path d="M 361.577928186733,419.367500000001 C 339.824996400963,440.581519902456 312.227434333916,461.795539804911 278.785241985594,483.009559707366" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 271.157156215637,487.785782847691 L 281.75557291129,485.869128589533 C 279.492830598976,484.1396464881 278.077653372213,481.879472926631 277.510041231001,479.088607905127 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)-&gt;Microsoft.Coyote.Samples.Monitors.Node(3)">
+      <path d="M 505.623970396232,419.3675 C 504.816399297742,439.207787941156 499.96743424184,459.048075882311 491.077075228525,478.888363823466" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 487.209545725827,487.015 L 495.118639029507,479.704306249494 C 492.281021328753,479.461331157199 489.873129128298,478.315396489733 487.894962428143,476.266502247096 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6)-&gt;Microsoft.Coyote.Samples.Monitors.Node(5)">
-      <path d="M 469.422284819822,419.3675 C 470.840502552053,438.98448237861 469.624765040525,458.60146475722 465.775072285236,478.218447135829" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 463.87226969226,487.015 L 469.896073846309,478.086742414466 C 467.07826530215,478.50034381627 464.471879268321,477.936550455388 462.076915744823,476.395362331821 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)-&gt;Microsoft.Coyote.Samples.Monitors.Safety">
+      <path d="M 579.42322951591,419.3675 C 598.971076505303,458.323958062715 608.745,507.186458062715 608.745,565.955 C 608.745,633.011630947078 592.172724875091,680.076598662931 559.028174625273,707.149903147559" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 551.82262820692,712.5425 L 562.225500606175,709.753190794334 C 559.827077862672,708.217391505834 558.229271387875,706.082414789285 557.432081181783,703.348260644687 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6)-&gt;Microsoft.Coyote.Samples.Monitors.Safety(1)">
-      <path d="M 570.558508206766,419.3675 C 596.016169402255,458.323958062715 608.745,507.186458062715 608.745,565.955 C 608.745,633.011630947078 592.172724875091,680.076598662931 559.028174625273,707.149903147559" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 551.82262820692,712.5425 L 562.225500606176,709.753190794334 C 559.827077862672,708.217391505834 558.229271387875,706.082414789285 557.432081181783,703.348260644687 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.Node(2)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4)">
+      <path d="M 240.292664802333,487.015 L 321.870327298379,424.823924134301" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 329.02766169511,419.3675 L 318.649990527942,422.249155972898 C 321.061968167372,423.763578297748 322.678686429387,425.884269970854 323.500145313987,428.611230992215 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Node(4)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6)">
-      <path d="M 226.146995954151,487.015 C 249.595199141905,466.416319267872 273.341266444097,445.817638535743 297.385197860727,425.218957803615" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 304.22335854709,419.367500000001 L 294.024754316191,422.829937254521 C 296.518315223155,424.20589696119 298.2520804983,426.232018646039 299.226050141626,428.908302309066 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-    </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Node(4)-&gt;Microsoft.Coyote.Samples.Monitors.Safety(1)">
+    <g id="Microsoft.Coyote.Samples.Monitors.Node(2)-&gt;Microsoft.Coyote.Samples.Monitors.Safety">
       <path d="M 263.337163741148,644.895000000001 L 364.183241314874,707.7803250344" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 371.820105173619,712.542500000001 L 365.451223093058,703.857032767669 C 364.888748717185,706.648937796067 363.477733912563,708.911712272732 361.218178679191,710.645356197664 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 371.820105173619,712.542500000001 L 365.451223093058,703.857032767669 C 364.888748717185,706.648937796067 363.477733912563,708.911712272733 361.218178679191,710.645356197664 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Node(5)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6)">
-      <path d="M 417.61773030774,487.015 C 412.995715154951,467.461818213714 410.990550206099,447.908636427428 411.602235461183,428.355454641141" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 412.067715180178,419.367500000001 L 407.555868985232,429.147236392826 C 410.270686625458,428.286494682772 412.933784296907,428.424414599511 415.545161999579,429.560996143044 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.Node(3)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4)">
+      <path d="M 440.955006341307,487.015 C 441.561560187783,467.420833564398 443.482029960741,447.826667128797 446.716415660181,428.232500693195" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 448.269400756589,419.3675 L 442.603861452494,428.527285171813 C 445.403082224153,428.00242882706 448.02974909621,428.462572559329 450.483862068667,429.90771636862 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Node(5)-&gt;Microsoft.Coyote.Samples.Monitors.Safety(1)">
-      <path d="M 440.745,644.895000000001 L 440.745,703.542500000001" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 440.745,712.542500000001 L 444.745,702.542500000001 C 442.078333333333,703.542500000001 439.411666666667,703.542500000001 436.745,702.542500000001 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.Node(3)-&gt;Microsoft.Coyote.Samples.Monitors.Safety">
+      <path d="M 440.745,644.895 L 440.745,703.5425" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 440.745,712.5425 L 444.745,702.5425 C 442.078333333333,703.5425 439.411666666667,703.5425 436.745,702.5425 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Timer(7)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6)">
-      <path d="M 656.594159962823,451.055000000001 C 645.39542979465,442.259714816922 633.802988915766,433.464429633844 621.816837326173,424.669144450766" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
-      <path d="M 614.544109769219,419.367500000001 L 620.268631743272,428.490539415052 C 621.031408518652,425.746585570315 622.602266133693,423.591703331217 624.981204588396,422.025892697761 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.Monitors.Timer(5)-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4)">
+      <path d="M 663.425865586031,451.055 C 652.567242663508,442.365396932073 641.701993774084,433.675793864146 630.830118917759,424.986190796219" fill="none" stroke="#A0A0A0" stroke-width="1.792481250360578" />
+      <path d="M 623.799449409349,419.3675 L 629.114108509263,428.735231777314 C 629.997720281283,426.027771464132 631.662517554236,423.944610128306 634.108500328124,422.485747769839 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Driver(3)">
-      <rect x="380.8300000000001" rx="5" ry="5" width="275.83" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="399.8300000000001" y="17.950000000000003" fill="#000000">Microsoft.Coyote.Samples.Monitors.Driver(3)</text>
-      <rect x="385.8300000000001" y="27.96" width="265.83" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.Driver(3).Init-&gt;Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures">
-        <path d="M 518.745,65.96 L 518.745,102.92" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 518.745,111.92 L 522.745,101.92 C 520.078333333333,102.92 517.411666666667,102.92 514.745,101.92 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="493.55166666666685" y="93.910000000000039" fill="#A0A0A0">goto</text>
+    <g id="Microsoft.Coyote.Samples.Monitors.Driver(1)">
+      <rect x="419.8300000000001" rx="5" ry="5" width="275.83" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="438.8300000000001" y="17.950000000000003" fill="#000000">Microsoft.Coyote.Samples.Monitors.Driver(1)</text>
+      <rect x="424.8300000000001" y="27.96" width="265.83" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.Driver(1).Init-&gt;Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures">
+        <path d="M 557.745,65.96 L 557.745,102.92" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 557.745,111.92 L 561.745,101.92 C 559.078333333333,102.92 556.411666666667,102.92 553.745,101.92 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="532.55166666666673" y="93.910000000000039" fill="#A0A0A0">goto</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Driver(3).Init">
-        <rect x="493.74500000000012" y="40" rx="3" ry="3" width="50" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="509.74500000000012" y="57.95" fill="#3D3D3D">Init</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Driver(1).Init">
+        <rect x="532.74500000000012" y="40" rx="3" ry="3" width="50" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="548.74500000000012" y="57.95" fill="#3D3D3D">Init</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Driver(3).InjectFailures">
-        <rect x="474.50500000000011" y="111.92000000000007" rx="3" ry="3" width="88.480000000000018" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="484.50500000000011" y="129.87000000000006" fill="#3D3D3D">InjectFailures</text>
-      </g>
-    </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6)">
-      <rect x="215.94263027094002" y="189.56750000000011" rx="5" ry="5" width="449.60473945812015" height="229.80000000000018" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="297.94263027094" y="207.5175000000001" fill="#000000">Microsoft.Coyote.Samples.Monitors.FailureDetector(6)</text>
-      <rect x="220.94263027094002" y="217.52750000000012" width="439.60473945812015" height="196.84000000000017" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Init-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing">
-        <path d="M 492.301964633464,255.5275 L 492.301964633464,292.4875" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 492.301964633464,301.4875 L 496.301964633464,291.4875 C 493.635297966797,292.4875 490.96863130013,292.4875 488.301964633464,291.4875 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="470.29529796679697" y="283.47750000000013" fill="#A0A0A0">Unit</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing">
-        <path d="M 318.78083003947,373.4075 L 312.801964633464,368.4075 C 298.46863130013,356.420833333334 324.801964633464,344.434166666667 391.801964633464,332.4475 L 448.447629053034,322.313280634191" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 457.306964633464,320.728297014926 L 446.758821268869,318.551907445029 C 448.212816664995,321.000786474127 448.682441441074,323.625774794254 448.167695597104,326.426872405411 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="235.94263027094002" y="358.14076138065133" fill="#A0A0A0">TimeoutEvent</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset">
-        <path d="M 470.644567525566,327.4475 L 462.301964633464,332.4475 C 442.301964633464,344.434166666667 415.96863130013,356.420833333334 383.301964633464,368.4075 L 367.751108139777,374.113712239928" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 359.301964633464,377.214030612245 L 370.067821139286,377.524407312477 C 368.210414565305,375.365437203827 367.291801714249,372.86198727603 367.311982586115,370.014057529087 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="369.28863130013036" y="355.39750000000021" fill="#A0A0A0">RoundDone</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing">
-        <path d="M 457.306964633464,307.987577792561 C 455.930094131516,307.980859264187 454.512594131516,307.9775 453.054464633464,307.9775 C 426.889464633464,307.9775 413.806964633464,310.140833333333 413.806964633464,314.4675 C 413.806964633464,318.524052184165 425.306968921641,320.678953872623 448.306977497996,320.932205065373" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 457.306964633464,320.947422207439 L 447.31374210164,316.93051998938 C 448.309231889413,319.598873637897 448.304723106579,322.26553649285 447.300215753137,324.930508554241 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="388.61363130013029" y="319.43750000000017" fill="#A0A0A0">goto</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse">
-        <path d="M 523.241962779552,327.4475 L 535.160297966797,332.4475 C 563.087165136046,344.163426230677 570.564522397001,355.879352461354 557.592369749661,367.595278692031" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 550.720828185559,373.4075 L 560.939083838103,370.003494797414 C 558.453439573064,368.613284849676 556.731299926258,366.577272534386 555.772664897686,363.895457851545 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="564.26403639572675" y="355.39750000000021" fill="#A0A0A0">TimerCancelled</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing">
-        <path d="M 519.78083003947,373.4075 L 513.801964633464,368.4075 C 501.061434110766,357.752860986135 493.983268169457,347.09822197227 492.567466809535,336.443582958405" stroke-dasharray="4,2" fill="none" stroke="#7380F5" stroke-width="1" />
-        <path d="M 492.301964633464,327.4475 L 488.598707958696,337.561148698704 C 491.23471377866,336.482916614119 493.90021984041,336.404249302691 496.595226143945,337.325146764418 z" fill="#7380F5" stroke="#7380F5" stroke-width="1" stroke-linejoin="round" />
-        <text x="472.19630476304241" y="355.07102824080977" fill="#7380F5">pop</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Init">
-        <rect x="467.30196463346368" y="229.56750000000014" rx="3" ry="3" width="50.000000000000057" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="483.30196463346368" y="247.51750000000013" fill="#3D3D3D">Init</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).Reset">
-        <rect x="309.30196463346368" y="373.40750000000025" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="319.30196463346368" y="391.35750000000024" fill="#3D3D3D">Reset</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).SendPing">
-        <rect x="457.30696463346368" y="301.48750000000018" rx="3" ry="3" width="69.989999999999952" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="467.30696463346368" y="319.43750000000017" fill="#3D3D3D">SendPing</text>
-      </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(6).WaitForCancelResponse">
-        <rect x="462.11363130013041" y="373.40750000000025" rx="3" ry="3" width="146.37666666666672" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="472.11363130013041" y="391.35750000000024" fill="#3D3D3D">WaitForCancelResponse</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Driver(1).InjectFailures">
+        <rect x="513.50500000000011" y="111.92000000000007" rx="3" ry="3" width="88.480000000000018" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="523.50500000000011" y="129.87000000000006" fill="#3D3D3D">InjectFailures</text>
       </g>
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2)">
-      <rect x="695.61333333333346" y="189.56750000000011" rx="5" ry="5" width="274.26333333333332" height="229.80000000000018" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="714.61333333333346" y="207.5175000000001" fill="#000000">Microsoft.Coyote.Samples.Monitors.Liveness</text>
-      <rect x="700.61333333333346" y="217.52750000000012" width="264.26333333333332" height="196.84000000000017" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Init-&gt;Microsoft.Coyote.Samples.Monitors.Liveness(2).Init">
-        <path d="M 863.323333333333,236.126331940104 C 860.482166815467,236.080443980035 857.398833482134,236.0575 854.073333333333,236.0575 C 831.24,236.0575 819.823333333333,238.220833333333 819.823333333333,242.5475 C 819.823333333333,246.874166666667 831.24,249.0375 854.073333333333,249.0375 C 854.156907242265,249.0375 854.24032820379,249.037485509071 854.323596217908,249.037456527212" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 863.323333333333,248.968668059896 L 853.293052775165,245.045216527835 C 854.313405333861,247.704162139741 854.333787101955,250.370750914682 853.354198079446,253.044982852658 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="742.69333333333338" y="247.5175000000001" fill="#A0A0A0">RegisterNodes</text>
+    <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4)">
+      <rect x="254.94263027093996" y="189.56750000000011" rx="5" ry="5" width="449.60473945812021" height="229.80000000000018" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="336.94263027093996" y="207.5175000000001" fill="#000000">Microsoft.Coyote.Samples.Monitors.FailureDetector(4)</text>
+      <rect x="259.94263027093996" y="217.52750000000012" width="439.60473945812021" height="196.84000000000017" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Init-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing">
+        <path d="M 531.301964633464,255.5275 L 531.301964633464,292.4875" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 531.301964633464,301.4875 L 535.301964633464,291.4875 C 532.635297966797,292.4875 529.96863130013,292.4875 527.301964633464,291.4875 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="509.29529796679685" y="283.47750000000013" fill="#A0A0A0">Unit</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Init-&gt;Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait">
-        <path d="M 888.323333333333,255.5275 L 888.323333333333,292.4875" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 888.323333333333,301.4875 L 892.323333333333,291.4875 C 889.656666666667,292.4875 886.99,292.4875 884.323333333333,291.4875 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="863.13000000000011" y="283.47750000000013" fill="#A0A0A0">goto</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing">
+        <path d="M 357.78083003947,373.4075 L 351.801964633464,368.4075 C 337.46863130013,356.420833333334 363.801964633464,344.434166666667 430.801964633464,332.4475 L 487.447629053034,322.313280634191" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 496.306964633464,320.728297014926 L 485.758821268869,318.551907445029 C 487.212816664995,321.000786474127 487.682441441073,323.625774794254 487.167695597104,326.426872405411 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="274.94263027093996" y="358.14076138065133" fill="#A0A0A0">TimeoutEvent</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait-&gt;Microsoft.Coyote.Samples.Monitors.Liveness(2).Done">
-        <path d="M 854.804964072626,326.642455137526 L 838.823333333333,332.4475 C 809.475320591518,343.107646850462 793.177396514759,353.767793700923 789.929561103058,364.427940551385" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 789.323333333333,373.4075 L 793.987835054634,363.699646288083 C 791.259866206556,364.517752072826 788.599255999559,364.338129029944 786.006004433643,363.160777159439 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="766.35490530118443" y="356.81386798311843" fill="#A0A0A0">goto</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset">
+        <path d="M 509.644567525566,327.4475 L 501.301964633464,332.4475 C 481.301964633464,344.434166666667 454.96863130013,356.420833333334 422.301964633464,368.4075 L 406.751108139777,374.113712239928" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 398.301964633464,377.214030612245 L 409.067821139286,377.524407312477 C 407.210414565305,375.365437203827 406.291801714249,372.86198727603 406.311982586115,370.014057529087 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="408.28863130013031" y="355.39750000000021" fill="#A0A0A0">RoundDone</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait-&gt;Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait[hot]">
-        <path d="M 888.323333333333,327.4475 L 888.323333333333,364.4075" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 888.323333333333,373.4075 L 892.323333333333,363.4075 C 889.656666666667,364.4075 886.99,364.4075 884.323333333333,363.4075 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="828.2600000000001" y="355.39750000000021" fill="#A0A0A0">NodeFailed</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing">
+        <path d="M 496.306964633464,307.987577792561 C 494.930094131516,307.980859264187 493.512594131516,307.9775 492.054464633464,307.9775 C 465.889464633464,307.9775 452.806964633464,310.140833333333 452.806964633464,314.4675 C 452.806964633464,318.524052184165 464.306968921641,320.678953872623 487.306977497996,320.932205065373" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 496.306964633464,320.947422207439 L 486.31374210164,316.93051998938 C 487.309231889413,319.598873637897 487.304723106579,322.26553649285 486.300215753137,324.930508554241 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="427.61363130013029" y="319.43750000000017" fill="#A0A0A0">goto</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Done">
-        <rect x="764.32333333333349" y="373.40750000000025" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="774.32333333333349" y="391.35750000000024" fill="#3D3D3D">Done</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse">
+        <path d="M 562.241962779552,327.4475 L 574.160297966797,332.4475 C 602.087165136046,344.163426230677 609.564522397001,355.879352461354 596.592369749661,367.595278692031" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 589.720828185559,373.4075 L 599.939083838103,370.003494797414 C 597.453439573064,368.613284849676 595.731299926258,366.577272534386 594.772664897686,363.895457851545 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="603.26403639572675" y="355.39750000000021" fill="#A0A0A0">TimerCancelled</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Init">
-        <rect x="863.32333333333349" y="229.56750000000014" rx="3" ry="3" width="50" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="879.32333333333349" y="247.51750000000013" fill="#3D3D3D">Init</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse-&gt;Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing">
+        <path d="M 558.78083003947,373.4075 L 552.801964633464,368.4075 C 540.061434110766,357.752860986135 532.983268169457,347.09822197227 531.567466809535,336.443582958405" stroke-dasharray="4,2" fill="none" stroke="#7380F5" stroke-width="1" />
+        <path d="M 531.301964633464,327.4475 L 527.598707958696,337.561148698704 C 530.23471377866,336.482916614119 532.90021984041,336.404249302691 535.595226143945,337.325146764418 z" fill="#7380F5" stroke="#7380F5" stroke-width="1" stroke-linejoin="round" />
+        <text x="511.19630476304224" y="355.07102824080977" fill="#7380F5">pop</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait">
-        <rect x="853.85" y="301.48750000000018" rx="3" ry="3" width="68.9466666666666" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="863.85" y="319.43750000000017" fill="#3D3D3D">Wait[hot]</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Init">
+        <rect x="506.30196463346363" y="229.56750000000014" rx="3" ry="3" width="50" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="522.30196463346363" y="247.51750000000013" fill="#3D3D3D">Init</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Liveness(2).Wait[hot]">
-        <rect x="853.85000000000014" y="373.40750000000025" rx="3" ry="3" width="68.9466666666666" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="863.85000000000014" y="391.35750000000024" fill="#3D3D3D">Wait[hot]</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).Reset">
+        <rect x="348.30196463346363" y="373.40750000000025" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="358.30196463346363" y="391.35750000000024" fill="#3D3D3D">Reset</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).SendPing">
+        <rect x="496.30696463346362" y="301.48750000000018" rx="3" ry="3" width="69.990000000000009" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="506.30696463346362" y="319.43750000000017" fill="#3D3D3D">SendPing</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.FailureDetector(4).WaitForCancelResponse">
+        <rect x="501.11363130013024" y="373.40750000000025" rx="3" ry="3" width="146.37666666666678" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="511.11363130013024" y="391.35750000000024" fill="#3D3D3D">WaitForCancelResponse</text>
       </g>
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Node(4)">
-      <rect x="5.6843418860808015E-14" y="487.01500000000044" rx="5" ry="5" width="273.49" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="20.000000000000057" y="504.96500000000043" fill="#000000">Microsoft.Coyote.Samples.Monitors.Node(4)</text>
-      <rect x="5.0000000000000568" y="514.97500000000036" width="263.49" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing-&gt;Microsoft.Coyote.Samples.Monitors.Node(4).Halt">
+    <g id="Microsoft.Coyote.Samples.Monitors.Liveness">
+      <rect x="735.19333333333338" y="225.52750000000015" rx="5" ry="5" width="319.10333333333324" height="157.88000000000011" fill="#558FDA" stroke="#A5A6A9" stroke-width="1" />
+      <text x="777.19333333333338" y="243.47750000000013" fill="#000000">Microsoft.Coyote.Samples.Monitors.Liveness</text>
+      <rect x="740.19333333333338" y="253.48750000000015" width="309.10333333333324" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.Liveness.Init-&gt;Microsoft.Coyote.Samples.Monitors.Liveness.Init">
+        <path d="M 875.823333333333,272.086331940105 C 872.982166815467,272.040443980035 869.898833482134,272.0175 866.573333333333,272.0175 C 843.74,272.0175 832.323333333333,274.180833333333 832.323333333333,278.5075 C 832.323333333333,282.834166666667 843.74,284.9975 866.573333333333,284.9975 C 866.656907242265,284.9975 866.74032820379,284.997485509071 866.823596217908,284.997456527212" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 875.823333333333,284.928668059896 L 865.793052775165,281.005216527835 C 866.813405333861,283.664162139741 866.833787101955,286.330750914682 865.854198079446,289.004982852658 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="755.19333333333338" y="283.47750000000013" fill="#A0A0A0">RegisterNodes</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.Liveness.Init-&gt;Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]">
+        <path d="M 900.823333333333,291.4875 L 900.823333333333,296.4875 C 900.823333333333,308.474166666667 917.323333333333,320.460833333334 950.323333333333,332.4475 L 957.845726088582,335.179876196755" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 966.304964072626,338.252544862475 L 958.271441275119,331.078807240988 C 958.300936261281,333.926655754674 957.390515915882,336.433096638836 955.540180238923,338.598129893473 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="877.85490530118443" y="318.02113201688195" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.Liveness.Wait-&gt;Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]">
+        <path d="M 999.823333333333,291.4875 L 999.823333333333,328.4475" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 999.823333333333,337.4475 L 1003.82333333333,327.4475 C 1001.15666666667,328.4475 998.49,328.4475 995.823333333333,327.4475 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="939.7600000000001" y="319.43750000000017" fill="#A0A0A0">NodeFailed</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.Liveness.Init">
+        <rect x="875.82333333333349" y="265.52750000000015" rx="3" ry="3" width="50" height="25.95999999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="891.82333333333349" y="283.47750000000013" fill="#3D3D3D">Init</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.Liveness.Wait">
+        <rect x="974.82333333333349" y="265.52750000000015" rx="3" ry="3" width="50" height="25.95999999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="987.82333333333349" y="283.47750000000013" fill="#3D3D3D">Wait</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.Monitors.Liveness.Wait[hot]">
+        <rect x="965.35000000000014" y="337.44750000000022" rx="3" ry="3" width="68.946666666666715" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="975.35000000000014" y="355.39750000000021" fill="#3D3D3D">Wait[hot]</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.Monitors.Node(2)">
+      <rect y="487.01500000000044" rx="5" ry="5" width="273.49" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="20" y="504.96500000000043" fill="#000000">Microsoft.Coyote.Samples.Monitors.Node(2)</text>
+      <rect x="5" y="514.97500000000036" width="263.49" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing-&gt;Microsoft.Coyote.Samples.Monitors.Node(2).Halt">
         <path d="M 136.745,552.975 L 136.745,589.935000000001" stroke-dasharray="4,2" fill="none" stroke="#FF6C6C" stroke-width="1" />
         <path d="M 136.745,598.935000000001 L 140.745,588.935000000001 C 138.078333333333,589.935000000001 135.411666666667,589.935000000001 132.745,588.935000000001 z" fill="#FF6C6C" stroke="#FF6C6C" stroke-width="1" stroke-linejoin="round" />
-        <text x="116.87500000000006" y="580.92500000000052" fill="#FF6C6C">halt</text>
+        <text x="116.875" y="580.92500000000052" fill="#FF6C6C">halt</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Node(4).Halt">
-        <rect x="111.74500000000006" y="598.93500000000051" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="125.74500000000006" y="616.88500000000056" fill="#3D3D3D">Halt</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Node(2).Halt">
+        <rect x="111.745" y="598.93500000000051" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="125.745" y="616.88500000000056" fill="#3D3D3D">Halt</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Node(4).WaitPing">
-        <rect x="103.09333333333339" y="527.01500000000044" rx="3" ry="3" width="67.303333333333342" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="113.09333333333339" y="544.96500000000049" fill="#3D3D3D">WaitPing</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Node(2).WaitPing">
+        <rect x="103.09333333333333" y="527.01500000000044" rx="3" ry="3" width="67.303333333333342" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="113.09333333333333" y="544.96500000000049" fill="#3D3D3D">WaitPing</text>
       </g>
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Node(5)">
-      <rect x="304.00000000000006" y="487.01500000000033" rx="5" ry="5" width="273.48999999999995" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="323.00000000000006" y="504.96500000000032" fill="#000000">Microsoft.Coyote.Samples.Monitors.Node(5)</text>
-      <rect x="309.00000000000006" y="514.97500000000036" width="263.48999999999995" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing-&gt;Microsoft.Coyote.Samples.Monitors.Node(5).Halt">
+    <g id="Microsoft.Coyote.Samples.Monitors.Node(3)">
+      <rect x="304" y="487.01500000000033" rx="5" ry="5" width="273.49" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="324" y="504.96500000000032" fill="#000000">Microsoft.Coyote.Samples.Monitors.Node(3)</text>
+      <rect x="309" y="514.97500000000036" width="263.49" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing-&gt;Microsoft.Coyote.Samples.Monitors.Node(3).Halt">
         <path d="M 440.745,552.975 L 440.745,589.935" stroke-dasharray="4,2" fill="none" stroke="#FF6C6C" stroke-width="1" />
         <path d="M 440.745,598.935 L 444.745,588.935 C 442.078333333333,589.935 439.411666666667,589.935 436.745,588.935 z" fill="#FF6C6C" stroke="#FF6C6C" stroke-width="1" stroke-linejoin="round" />
-        <text x="420.87500000000011" y="580.92500000000041" fill="#FF6C6C">halt</text>
+        <text x="420.87500000000006" y="580.92500000000041" fill="#FF6C6C">halt</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Node(5).Halt">
-        <rect x="415.74500000000012" y="598.9350000000004" rx="3" ry="3" width="49.999999999999943" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="429.74500000000012" y="616.88500000000045" fill="#3D3D3D">Halt</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Node(3).Halt">
+        <rect x="415.74500000000006" y="598.9350000000004" rx="3" ry="3" width="49.999999999999943" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="429.74500000000006" y="616.88500000000045" fill="#3D3D3D">Halt</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Node(5).WaitPing">
-        <rect x="407.09333333333342" y="527.01500000000033" rx="3" ry="3" width="67.303333333333342" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="417.09333333333342" y="544.96500000000037" fill="#3D3D3D">WaitPing</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Node(3).WaitPing">
+        <rect x="407.09333333333336" y="527.01500000000033" rx="3" ry="3" width="67.303333333333342" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="417.09333333333336" y="544.96500000000037" fill="#3D3D3D">WaitPing</text>
       </g>
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Safety(1)">
-      <rect x="309.33666666666664" y="712.54250000000047" rx="5" ry="5" width="262.81666666666678" height="85.960000000000036" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="329.33666666666664" y="730.49250000000052" fill="#000000">Microsoft.Coyote.Samples.Monitors.Safety</text>
-      <rect x="314.33666666666664" y="740.50250000000051" width="252.81666666666678" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.Safety(1).Init-&gt;Microsoft.Coyote.Samples.Monitors.Safety(1).Init">
+    <g id="Microsoft.Coyote.Samples.Monitors.Safety">
+      <rect x="309.33666666666659" y="712.54250000000047" rx="5" ry="5" width="262.81666666666672" height="85.960000000000036" fill="#558FDA" stroke="#A5A6A9" stroke-width="1" />
+      <text x="329.33666666666659" y="730.49250000000052" fill="#000000">Microsoft.Coyote.Samples.Monitors.Safety</text>
+      <rect x="314.33666666666659" y="740.50250000000051" width="252.81666666666672" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.Safety.Init-&gt;Microsoft.Coyote.Samples.Monitors.Safety.Init">
         <path d="M 484.568333333333,759.101331940105 C 481.727166815467,759.055443980035 478.643833482134,759.0325 475.318333333333,759.0325 C 452.485,759.0325 441.068333333333,761.195833333334 441.068333333333,765.5225 C 441.068333333333,769.849166666667 452.485,772.012500000001 475.318333333333,772.012500000001 C 475.401907242265,772.012500000001 475.48532820379,772.012485509071 475.568596217908,772.012456527212" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 484.568333333333,771.943668059896 L 474.538052775165,768.020216527836 C 475.558405333861,770.679162139741 475.578787101955,773.345750914682 474.599198079446,776.019982852658 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="417.58500000000009" y="770.49250000000052" fill="#A0A0A0">Ping</text>
+        <path d="M 484.568333333333,771.943668059896 L 474.538052775165,768.020216527836 C 475.558405333861,770.679162139741 475.578787101955,773.345750914682 474.599198079445,776.019982852658 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="417.58500000000004" y="770.49250000000052" fill="#A0A0A0">Ping</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Safety(1).Init-&gt;Microsoft.Coyote.Samples.Monitors.Safety(1).Init">
+      <g id="Microsoft.Coyote.Samples.Monitors.Safety.Init-&gt;Microsoft.Coyote.Samples.Monitors.Safety.Init">
         <path d="M 484.568333333333,759.532427556402 C 473.799891376465,759.199142518801 459.552669154242,759.0325 441.826666666667,759.0325 C 396.665555555556,759.0325 374.085,761.195833333334 374.085,765.5225 C 374.085,769.849166666667 396.665555555556,772.012500000001 441.826666666667,772.012500000001 C 454.994530440644,772.012500000001 466.242682408335,771.92054086882 475.57112256974,771.736622606458" fill="none" stroke="#A0A0A0" stroke-width="1" />
         <path d="M 484.568333333333,771.512572443599 L 474.471854634737,767.762756729623 C 475.53792995302,770.403702493333 475.60431518646,773.069542719583 474.671010335056,775.760277408373 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="346.92166666666668" y="770.49250000000052" fill="#A0A0A0">Pong</text>
+        <text x="346.92166666666662" y="770.49250000000052" fill="#A0A0A0">Pong</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Safety(1).Init">
-        <rect x="484.56833333333344" y="752.54250000000047" rx="3" ry="3" width="49.999999999999943" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="500.56833333333344" y="770.49250000000052" fill="#3D3D3D">Init</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Safety.Init">
+        <rect x="484.56833333333338" y="752.54250000000047" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="500.56833333333338" y="770.49250000000052" fill="#3D3D3D">Init</text>
       </g>
     </g>
-    <g id="Microsoft.Coyote.Samples.Monitors.Timer(7)">
-      <rect x="640.09375" y="451.05500000000029" rx="5" ry="5" width="295.3025" height="229.80000000000018" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="670.09375" y="469.00500000000028" fill="#000000">Microsoft.Coyote.Samples.Monitors.Timer(7)</text>
-      <rect x="645.09375" y="479.01500000000027" width="285.3025" height="196.84000000000017" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).Init-&gt;Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq">
-        <path d="M 796.56375,517.015 L 796.56375,553.975" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 796.56375,562.975 L 800.56375,552.975 C 797.897083333333,553.975 795.230416666667,553.975 792.56375,552.975 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="771.37041666666676" y="544.96500000000037" fill="#A0A0A0">goto</text>
+    <g id="Microsoft.Coyote.Samples.Monitors.Timer(5)">
+      <rect x="639.82375" y="451.05500000000029" rx="5" ry="5" width="333.8425" height="229.80000000000018" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="688.82375" y="469.00500000000028" fill="#000000">Microsoft.Coyote.Samples.Monitors.Timer(5)</text>
+      <rect x="644.82375" y="479.01500000000027" width="323.8425" height="196.84000000000017" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).Init-&gt;Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq">
+        <path d="M 837.83375,517.015 L 837.83375,553.975" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 837.83375,562.975 L 841.83375,552.975 C 839.167083333333,553.975 836.500416666667,553.975 833.83375,552.975 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="812.64041666666674" y="544.96500000000037" fill="#A0A0A0">goto</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel-&gt;Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq">
-        <path d="M 796.56375,634.895 L 796.56375,597.935" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 796.56375,588.935 L 792.56375,598.935 C 795.230416666667,597.935 797.897083333333,597.935 800.56375,598.935 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="702.58041666666679" y="616.88500000000045" fill="#A0A0A0">CancelTimerEvent</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel-&gt;Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq">
+        <path d="M 822.312615406007,634.895 L 816.33375,629.895 C 802.31279154858,618.169565908999 802.007224438773,606.444131817997 815.417048670578,594.718697726996" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 822.312615406007,588.935 L 812.080342265755,592.296634480916 C 814.560204562875,593.69713228471 816.273892778281,595.740263169281 817.221406911973,598.42602713463 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="768.11375" y="616.88500000000045" fill="#A0A0A0">default</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel-&gt;Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq">
-        <path d="M 750.193615610056,635.24265126771 L 730.56375,629.895 C 686.56375,617.908333333334 686.56375,605.921666666667 730.56375,593.935 L 747.529562588762,589.313101358395" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 756.213104599244,586.94749400463 L 745.513343541479,585.716594615266 C 747.179102240056,588.026650690176 747.880022937468,590.599552026615 747.616105633715,593.435298624584 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="660.09375000000011" y="616.88500000000045" fill="#A0A0A0">default</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq-&gt;Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel">
+        <path d="M 853.2357689099,588.935 L 859.16875,593.935 C 873.071513319148,605.651507357783 873.384858224311,617.368014715565 860.108784715489,629.084522073347" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 853.2357689099,634.895 L 863.4548877724,631.493587106203 C 860.969596260178,630.102746637138 859.247973170799,628.066297509556 858.290018504264,625.384239723457 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="870.33625000000006" y="616.88500000000045" fill="#A0A0A0">StartTimerEvent</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq-&gt;Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel">
-        <path d="M 813.40959538376,588.935 L 819.89875,593.935 C 835.240205785845,605.755843155325 835.452439439976,617.576686310649 820.535450962391,629.397529465974" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 813.40959538376,634.895 L 823.770532930695,631.953746330474 C 821.349891041506,630.453211773919 819.721010883276,628.341847158028 818.883892456005,625.619652482802 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="832.06625000000008" y="616.88500000000045" fill="#A0A0A0">StartTimerEvent</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq-&gt;Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq">
+        <path d="M 797.307083333333,569.466034178575 C 796.815990981597,569.465344726192 796.320435426042,569.465 795.820416666667,569.465 C 767.811527777778,569.465 753.807083333333,571.628333333334 753.807083333333,575.955 C 753.807083333333,579.875762315767 765.3071415853,582.020055779061 788.307258089232,582.38788038988" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 797.307083333333,582.443965821426 L 787.332204365019,578.381726344552 C 788.315567042053,581.05457294631 788.29894913641,583.721187833451 787.282350648089,586.381571005976 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="659.82375" y="580.92500000000041" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).Init">
-        <rect x="771.56375" y="491.05500000000029" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="787.56375" y="509.00500000000028" fill="#3D3D3D">Init</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).Init">
+        <rect x="812.83375" y="491.05500000000029" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="828.83375" y="509.00500000000028" fill="#3D3D3D">Init</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForCancel">
-        <rect x="748.59541666666667" y="634.89500000000044" rx="3" ry="3" width="95.936666666666724" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="758.59541666666667" y="652.84500000000048" fill="#3D3D3D">WaitForCancel</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForCancel">
+        <rect x="789.86541666666676" y="634.89500000000044" rx="3" ry="3" width="95.936666666666611" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="799.86541666666676" y="652.84500000000048" fill="#3D3D3D">WaitForCancel</text>
       </g>
-      <g id="Microsoft.Coyote.Samples.Monitors.Timer(7).WaitForReq">
-        <rect x="756.03708333333338" y="562.97500000000036" rx="3" ry="3" width="81.053333333333285" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="766.03708333333338" y="580.92500000000041" fill="#3D3D3D">WaitForReq</text>
+      <g id="Microsoft.Coyote.Samples.Monitors.Timer(5).WaitForReq">
+        <rect x="797.30708333333337" y="562.97500000000036" rx="3" ry="3" width="81.0533333333334" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="807.30708333333337" y="580.92500000000041" fill="#3D3D3D">WaitForReq</text>
       </g>
     </g>
   </g>

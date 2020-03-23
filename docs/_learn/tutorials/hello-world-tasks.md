@@ -18,6 +18,7 @@ To run the Hello World Tasks  example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Build the sample
 
@@ -86,32 +87,25 @@ Unhandled Exception: Microsoft.Coyote.AssertionFailureException: Value is 'Good 
 ```
 
 Although this is one of the simplest Async Tasks programs, you may need to perform many executions
-before getting this exception. Even in this simplest example, reproducing the bug may take you
-considerable, significant amount of time.
+before getting this exception. Even in this simplest example, reproducing the bug may take you a
+significant amount of time.
 
-**Here is where Coyote really shines**:
+**Here is where Coyote really shines**.
 
-The second way to reproduce the bug is to run the code under `coyote test`
-
-From the command line you enter:
+The second way to reproduce the bug is to run the code under `coyote test`.  From the command line you enter:
 
 ```
 coyote test .\bin\net47\HelloWorldTasks.exe --iterations 30
 ```
 
-And in just 3 seconds `coyote test` has found the bug in this simple program&mdash;something that
-would take many minutes if testing manually. So, even in this simple case Coyote finds the bug tens
-or even hundreds of times quicker. But when using Coyote for testing much more complex, real-world
-systems the time savings can be even more impressive! This will give you the possibility to find out
-and fix even the trickiest and almost impossible to reproduce concurrency bugs **before pushing to
-production** such a system:
+You will see output like this:
 
 ```
 C:\git\CoyoteSamples>coyote test .\bin\net47\HelloWorldTasks.exe --iterations 30
-. Testing .\bin\net47\HelloWorldTasks.exe
-Starting TestingProcessScheduler in process 29056
+. Testing bin\net46\HelloWorldTasks.exe
+Starting TestingProcessScheduler in process 36352
 ... Created '1' testing task.
-... Task 0 is using 'Random' strategy (seed:476).
+... Task 0 is using 'random' strategy (seed:914718657).
 ..... Iteration #1
 ..... Iteration #2
 ..... Iteration #3
@@ -121,23 +115,26 @@ Starting TestingProcessScheduler in process 29056
 ..... Iteration #7
 ..... Iteration #8
 ..... Iteration #9
-..... Iteration #10
-..... Iteration #20
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net47\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_19.txt
-..... Writing .\bin\net47\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_19.pstrace
-..... Writing .\bin\net47\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_19.schedule
-... Elapsed 3.0564874 sec.
+..... Writing bin\net46\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.txt
+..... Writing bin\net46\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.schedule
+... Elapsed 0.07038 sec.
 ... Testing statistics:
 ..... Found 1 bug.
 ... Scheduling statistics:
-..... Explored 24 schedules: 24 fair and 0 unfair.
-..... Found 4.17% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 9 (min), 14 (avg), 19 (max).
-... Elapsed 3.2118672 sec.
+..... Explored 9 schedules: 9 fair and 0 unfair.
+..... Found 11.11% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 12 (min), 15 (avg), 19 (max).
+... Elapsed 0.3880718 sec.
 . Done
 ```
+
+So in just 0.38 seconds `coyote test` has found the bug in this simple program&mdash;something that
+would take much longer if testing manually. So, even in this simple case Coyote finds the bug tens
+or even hundreds of times quicker. When using Coyote for testing much more complex, real-world
+systems the time savings can be even more impressive! This will give you the ability to find and fix
+even the most difficult to reproduce concurrency bugs **before pushing to production**.
 
 To learn more about testing with Coyote read [Testing Coyote programs end-to-end and reproducing
 bugs](/coyote/learn/tools/testing).
@@ -153,7 +150,7 @@ familiar with `async` and `await`, you can learn more in the C#
 
 The program consists of two code files:
 1. `Program.cs` contains the `Main()` entry point of the application.
-2. `Greeter.cs` defines the `Greeter` class. Its `RunAsync()` method is where "all the work" is done
+2. `Greeter.cs` defines the `Greeter` class. Its `RunAsync()` method is where "all the work" is done.
 
 Here is the code for `Greeter.cs`:
 
@@ -162,7 +159,7 @@ using System;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 
-namespace Microsoft.Coyote.Samples.HelloWorld
+namespace Microsoft.Coyote.Samples.HelloWorldTasks
 {
     internal class Greeter
     {
@@ -206,7 +203,7 @@ to `await` on the completion of all three tasks.
 Because the `WriteWithDelayAsync()` method awaits a `Task.Delay` to complete, it will yield control
 to the caller of the method, which is the `RunAsync()` method. However, the `RunAsync()` method is
 not doing any awaiting immediately after invoking the `WriteWithDelayAsync()` method calls. This
-means that the three calls will be executed _asynchronously_, and thus the value in the `Value`
+means that the three calls will be executed _asynchronously_, and thus the string in the `Value`
 member can be either `"Good Morning"` or `"Hello World!"` after `Task.WhenAll(...)` completes.
 
 Using `Specification.Assert`, Coyote allows you to write assertions that check these kinds of safety
@@ -268,8 +265,8 @@ static `Execute()` method which must have a specific, signature. In this code on
 signatures for the method is specified.
 
 Do note the `[Microsoft.Coyote.SystematicTesting.Test]` attribute of the `Execute()` method, and its
-return type: `Task`. When these are specified, then `coyote test` can find the `Execute()` method in
-the executable assembly and can control its execution.
+return type: `Microsoft.Coyote.Tasks.Task`. When these are specified, then `coyote test` can find
+the `Execute()` method in the executable assembly and can control its execution.
 
 The Coyote `Task` type uses a C# 7 feature known as `async task types` (see
 [here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types)) that allows framework
@@ -279,10 +276,11 @@ uses regular `Task` objects. However, during testing, Coyote uses dependency inj
 another custom implementation of an asynchronous state machine that allows controlling the
 scheduling of `Task` objects, and thus systematically explore their interleavings.
 
-Also note that **with `coyote test` the `Main()` method is not executed**! This is why it is
-recommended that the `Main()` method should not contain any other code except awaiting the
-`Execute()` method. If it did contain other actions, their code would never be executed (and tested)
-with `coyote test`.
+Also note that with `coyote test` the `Main()` method is not executed! This is why it is recommended
+that the `Main()` method should not contain any other code except awaiting the `Execute()` method.
+If it does contain other actions, those actions would not be executed by `coyote test`.  If you need
+to pass information from `Main` to `Execute` you can use a static variable with a default value. This
+way the `Execute` will run with the default value during `coyote test`.
 
 ## Summary
 

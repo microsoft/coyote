@@ -217,6 +217,8 @@
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnAssertionFailure
         - name: OnCreateActor
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateActor
+        - name: OnCreateStateMachine
+          link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateStateMachine
         - name: OnCreateMonitor
           link: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/OnCreateMonitor
         - name: OnCreateTimer
@@ -282,6 +284,8 @@
         subfolderitems:
         - name: OnCreateActor
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateActor
+        - name: OnCreateStateMachine
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCreateStateMachine
         - name: OnExecuteAction
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnExecuteAction
         - name: OnSendEvent

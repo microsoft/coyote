@@ -10,7 +10,7 @@ permalink: /learn/core/liveness-checking
 The presence of monitors that have `Hot` and `Cold` states implicitly specifies two assertions.
 Monitor states that are marked neither `Hot` nor `Cold` are called _warm_ states. First, any
 terminated execution of the program must not have a monitor in a hot state. Second, the program
-should not have infinite executions that remain in hot (or warm) states infinitely often without
+should not have infinite executions that remain in hot (or warm) states infinitely without
 transitioning to a cold state.
 
 While the former is a safety property and easily checked, the latter requires generation of infinite
@@ -19,15 +19,16 @@ maintains a _temperature_ for each monitor. The temperature goes up by a unit if
 transitions to a hot state, it goes to zero on a transition to a cold state and stays the same on
 transition to a warm state. The Coyote tester looks for executions where the temperature of a
 monitor exceeds a particular large threshold because it indicates a long suffix stuck in hot/warm
-states without transitioning to a cold state. The definition of what is _large_ is where the
-programmer can help the tester.
+states without transitioning to a cold state. The definition of what is _large_ is where you can
+help the tester.
 
 The tester accepts a flag `--max-steps N`. Using this flag, you can say that the program is expected
-to execute around N steps. Executions substantially longer than N are treated as potential infinite
-executions. But what is a step and how does one estimate N? This can be done using a few iterations
-of the tester. For example, consider the [failover coffee machine using
-actors](../tutorials/failover-coffee-machine-actors) sample program. Let's compile and test it with
-[coyote test](/coyote/learn/tools/testing) as follows, setting N steps as 200.
+to execute around N steps per test iteration. Executions substantially longer than N are treated as
+potential infinite executions. But what is a step and how does one estimate N? This can be done
+using a few iterations of the tester. For example, consider the [failover coffee machine using
+actors](../tutorials/failover-coffee-machine-actors) sample program. Assuming you have
+[built the samples](/coyote/learn/get-started/install#building-the-samples) you can test it with
+the [coyote test](/coyote/learn/tools/testing) tool as follows, setting N steps as 200.
 
 From the `coyote-samples` folder:
 

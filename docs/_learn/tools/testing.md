@@ -8,7 +8,7 @@ permalink: /learn/tools/testing
 ## Testing Coyote programs end-to-end and reproducing bugs
 
 The `coyote` command line tool can be used to automatically test a Coyote program to find and
-deterministically reproduce bugs in your code while also enforcing your safety and liveness property
+deterministically reproduce bugs in your code while also enforcing your safety and liveness
 [specifications](../core/specifications).
 
 To invoke the tester use the following command:
@@ -17,7 +17,9 @@ To invoke the tester use the following command:
 coyote test ${YOUR_PROGRAM}
 ```
 
-Where `${YOUR_PROGRAM}` is the path to you application or library that contains a method annotated
+See [Using coyote](/learn/get-started/using-coyote) for information on where to find the `coyote` tool.
+
+`${YOUR_PROGRAM}` is the path to your application or library that contains a method annotated
 with the `[Microsoft.Coyote.SystematicTesting.Test]` attribute. This method is the entry point to the
 test.
 
@@ -38,11 +40,11 @@ would be very hard to discover using traditional testing techniques.
 During testing, the `coyote` tester executes a program from start to finish for a given number of
 testing iterations. During each iteration, the tester is exploring a potentially different
 serialized execution path. If a bug is discovered, the tester will terminate and dump a reproducible
-trace (including a human readable version of it). Make sure to follow the
-[requirements](./tester-requirements) of effectively using the tester.
+trace (including a human readable version of it). If you get unexpected errors, please check that
+your test code is adhering to the [Tester requirements](./tester-requirements).
 
 See [below](#reproducing-and-debugging-traces) to learn how to reproduce traces and debug them using
-the Visual Studio IDE.
+a supported version of Visual Studio.
 
 ## Test entry point
 
@@ -58,7 +60,7 @@ public static void Execute(IActorRuntime runtime)
 ```
 
 This method acts as the entry point to each testing iteration. Note that the `coyote` tester will
-internally create a special machine, which invokes the test method and executes it. This allows us
+internally create a `TestingEngine`, which invokes the test method and executes it. This allows it
 to capture and report any errors that occur outside the scope of an actor (e.g. before the very
 first actor is created).
 
@@ -68,35 +70,34 @@ tester](#parallel-and-portfolio-testing) run in separate processes, which provid
 
 ## Testing options
 
-To see the **list of available command line options** use the flag `-?`. You can optionally give the
-**number of testing iterations** to perform using `--iterations N` (where N is an integer > 1). If
+To see the list of available command line options use the flag `-?`. You can optionally give the
+number of testing iterations to perform using `--iterations N` (where N is an integer > 1). If
 this option is not provided, the tester will perform 1 iteration by default.
 
-You can also provide a **timeout**, by providing the flag `--timeout N` (where N > 0, specifying how
-many seconds before the timeout). If no iterations are specified (thus the default number of
+You can also provide a timeout, by providing the flag `--timeout N` (where N > 0), specifying how
+many seconds before the timeout. If no iterations are specified (thus the default number of
 iterations is used), then the tester will perform testing iterations until the timeout is reached.
 
 Another important flag is `--max-steps N`. This limits each test iteration to be `N` steps, after
 which the iteration is killed and a new one is started. Here, steps are counted as the number of
-times a synchronization point is hit in the program. The tester provides output at the end of a test
-run on the iteration lengths that it saw. Use this output for calibrating on what `N` makes most
-sense for your case. This flag is usually only needed when your test has the potential of generating
-non-terminating executions. In such cases, if you do not provide `max-steps` then the tester can
-appear to can get stuck running one iteration forever. This is related to [liveness
-checking](../core/liveness-checking).
+times a synchronization point is reached in the program. The tester provides output at the end of a
+test run on the iteration lengths that it saw. Use this output for calibrating the best value of `N`
+for your case. This flag is usually only needed when your test has the potential of generating
+non-terminating executions (like an infinite series of ping pong events, for example). In such
+cases, if you do not provide `max-steps` then the tester can appear to can get stuck running one
+iteration forever. This is related to [liveness checking](../core/liveness-checking).
 
 ## Parallel and portfolio testing
 
-The Coyote tester supports **parallel** and **portfolio** testing.
+The Coyote tester supports parallel testing, often used with a portfolio of different schedulers.
 
-To enable parallel testing, you must run `coyote`, and provide the flag `--parallel N` (where N > 0,
-with N specifying the number of parallel testing processes to be spawned). By default, the tester
+To enable parallel testing, you must run `coyote`, and provide the flag `--parallel N` (where N > 0),
+with N specifying the number of parallel testing processes to be spawned. By default, the tester
 spawns the same testing process multiple times (using different random seeds).
 
-To enable portfolio testing, you must run `coyote` in parallel mode (as specified above), and also
-provide the flag `--sch-portfolio`. Portfolio testing currently spawns N (depending on `--parallel
-N`) testing processes that use a collection of different exploration strategies (including fuzzing
-with different seeds, and probabilistic prioritized exploration).
+When doing parallel testing it is often useful to provide the `--sch-portfolio` flag. This option
+allocates different exploration strategies to each spawned test process which increases the chance
+that one of the test processes will find a particularly difficult bug.
 
 ## Reproducing and debugging traces
 
@@ -109,10 +110,9 @@ coyote replay ${YOUR_PROGRAM} ${SCHEDULE_TRACE}.schedule
 
 Where `${SCHEDULE_TRACE}}.schedule` is the trace file dumped by `coyote test`.
 
-You can attach the Visual Studio debugger on this trace, to get the familiar VS debugging
-experience, by using `--break`. When using this flag, Coyote will automatically instrument a
-breakpoint when the bug is found. You can also insert your own breakpoints in the source code as
-usual.
+You can attach the Visual Studio debugger on this trace by using `--break`. When using this flag,
+Coyote will automatically instrument a breakpoint when the bug is found. You can also insert your
+own breakpoints in the source code as usual.
 
 See the replay options section of the help output from invoking `coyote -?`.
 
@@ -125,14 +125,6 @@ bug. These graphs are different from the graph generated by `--coverage activity
 coverage graph collapses all machine instances into one group, so you can more easily see the whole
 coverage of that machine type. The `--graph` options are handy when you need to see the difference
 in state that happened in different machine instances.
-
-The following picture shows the DGML output from the command:
-
-```
-coyote test ..\coyote-samples\StateMachineExamples\bin\net46\Raft.exe -i 1000 -ms 200 -sch-pct 10 --graph-bug
-```
-This looks for bugs in the sample implementation of the [Raft Concensus
-Algorithm](https://raft.github.io/).
 
 See [animating state machine demo](/coyote/learn/programming-models/actors/state-machine-demo) for a
 visual explanation of what `coyote test` does when it is looking for bugs. In the animation you will

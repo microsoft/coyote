@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,1237 577" width="100%" style='max-width:1600' xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <rect width="1237.6266666666666" height="577.01500000000033" fill="#FFFFFF" />
+  <g transform="translate(20,20)">
+    <g id="ExternalCode-&gt;Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring" />
+    <g id="ExternalCode-&gt;Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager">
+      <path d="M 758.751696561082,85.5584170762047 L 667.373099265655,148.502084717717" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+      <path d="M 659.961302263887,153.6075 L 670.465705724645,151.228948353805 C 668.129457085253,149.600128717979 666.616741446058,147.404040717455 665.927558807059,144.640684352232 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ExternalCode-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server">
+      <path d="M 820.565,85.96 L 820.565,167.175625 C 820.565,218.86210398453 811.147392829361,262.907493730385 792.312178488083,299.311794237566" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 788.00644525475,307.215 L 796.303129186202,300.347319478776 C 793.483023786221,299.949680642504 791.141333189944,298.673907832627 789.278057397371,296.520001049147 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ExternalCode-&gt;Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor">
+      <path d="M 877.645025389385,85.96 L 960.295264705793,148.193807038212" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 967.484974610615,153.6075 L 961.902493810497,144.396858973648 C 961.097293292725,147.12866483009 959.493236118862,149.258949246333 957.090322288907,150.787712222378 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer-&gt;Microsoft.Coyote.Samples.CloudMessaging.MockClient">
+      <path d="M 207.516358481782,275.5275 L 222.40831975354,334.449373609062" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 224.613641518218,343.175 L 226.04134017566,332.499716559101 C 223.70100514479,334.122659273554 221.11563436229,334.77608794457 218.285227828159,334.460002572148 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server">
+      <path d="M 319.776682397067,275.5275 C 350.961136206276,291.319138589212 388.319033659488,308.306143067931 431.850374756703,326.488513436155" fill="none" stroke="#A0A0A0" stroke-width="1.5" />
+      <path d="M 440.160921492205,329.943193299332 L 432.462393947503,322.411083791135 C 432.362179180877,325.257321327192 431.338570332529,327.719705545119 429.391567402458,329.798236444914 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClient-&gt;Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager">
+      <path d="M 322.963226622229,343.175 C 364.334548973416,305.312214241887 418.475580659064,272.247005908554 485.386321679174,243.979375 L 487.538909828371,243.069975905446" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 495.829426249667,239.5675 L 485.06108537914,239.77446592992 C 487.020024509046,241.84175125044 488.057795147696,244.298200560453 488.174397295092,247.143813859961 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager-&gt;Microsoft.Coyote.Samples.CloudMessaging.MockClient">
+      <path d="M 530.291873662857,239.5675 L 375.70768209987,338.329500744254" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 368.12341305384,343.175 L 378.703933885316,341.16189818074 C 376.425533841462,339.453096158481 374.989830358278,337.205905330027 374.396823435764,334.42032569538 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server">
+      <path d="M 632.934353924064,239.5675 L 636.565,243.979375 C 650.190271281239,260.536481497476 660.245388380029,278.739520615477 666.73035129637,298.588492354001" fill="none" stroke="#A0A0A0" stroke-width="2.8502198590705463" />
+      <path d="M 669.296158349427,307.215 L 670.27926502203,296.489632814198 C 668.00835242911,298.208372790585 665.452350163629,298.968611917417 662.611258225586,298.770350194693 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.Server-&gt;Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager">
+      <path d="M 611.561820649534,307.215 C 602.977710942109,285.84536540009 598.342012519333,266.296049643718 597.654725381207,248.567052730884" fill="none" stroke="#A0A0A0" stroke-width="2.5" />
+      <path d="M 597.565,239.5675 L 593.664893654281,249.606880981519 C 596.321458309964,248.580345379952 598.987992452449,248.553760081817 601.664496081734,249.527125087113 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ExternalCode">
+      <rect x="755.71499999999992" rx="5" ry="5" width="129.70000000000005" height="85.960000000000036" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="785.71499999999992" y="17.950000000000003" fill="#000000">ExternalCode</text>
+      <rect x="760.71499999999992" y="27.96" width="119.70000000000005" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="ExternalCode.ExternalCode">
+        <rect x="775.71499999999992" y="40" rx="3" ry="3" width="89.700000000000045" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="785.71499999999992" y="57.95" fill="#3D3D3D">ExternalCode</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer">
+      <rect y="117.64750000000015" rx="5" ry="5" width="375.13" height="157.88000000000011" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="20" y="135.59750000000014" fill="#000000">Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer</text>
+      <rect x="5" y="145.60750000000016" width="365.13" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active-&gt;Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Halt">
+        <path d="M 187.565,183.6075 L 187.565,220.5675" stroke-dasharray="4,2" fill="none" stroke="#FF6C6C" stroke-width="1" />
+        <path d="M 187.565,229.5675 L 191.565,219.5675 C 188.898333333333,220.5675 186.231666666667,220.5675 183.565,219.5675 z" fill="#FF6C6C" stroke="#FF6C6C" stroke-width="1" stroke-linejoin="round" />
+        <text x="167.69500000000002" y="211.55750000000018" fill="#FF6C6C">halt</text>
+      </g>
+      <g id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Active">
+        <rect x="161.425" y="157.64750000000015" rx="3" ry="3" width="52.28" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="171.425" y="175.59750000000014" fill="#3D3D3D">Active</text>
+      </g>
+      <g id="Microsoft.Coyote.Actors.Timers.Mocks.MockStateMachineTimer.Halt">
+        <rect x="162.56500000000003" y="229.56750000000022" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="176.56500000000003" y="247.51750000000021" fill="#3D3D3D">Halt</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClient">
+      <rect x="79.23833333333323" y="343.1750000000003" rx="5" ry="5" width="330.65333333333336" height="157.88000000000011" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="99.23833333333323" y="361.12500000000028" fill="#FFFFFF">Microsoft.Coyote.Samples.CloudMessaging.MockClient</text>
+      <rect x="84.23833333333323" y="371.13500000000028" width="320.65333333333336" height="124.9200000000001" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.null-&gt;Microsoft.Coyote.Samples.CloudMessaging.MockClient.Halt">
+        <path d="M 189.72,409.135 L 189.72,446.095" stroke-dasharray="4,2" fill="none" stroke="#FF6C6C" stroke-width="1" />
+        <path d="M 189.72,455.095 L 193.72,445.095 C 191.053333333333,446.095 188.386666666667,446.095 185.72,445.095 z" fill="#FF6C6C" stroke="#FF6C6C" stroke-width="1" stroke-linejoin="round" />
+        <text x="169.84999999999991" y="437.08500000000032" fill="#FF6C6C">halt</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.Halt">
+        <rect x="164.71999999999991" y="455.09500000000037" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="178.71999999999991" y="473.04500000000036" fill="#3D3D3D">Halt</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.MockClient">
+        <rect x="244.71999999999991" y="383.1750000000003" rx="3" ry="3" width="79.690000000000055" height="25.95999999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="254.71999999999991" y="401.12500000000028" fill="#3D3D3D">MockClient</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClient.null">
+        <rect x="164.71999999999991" y="383.1750000000003" rx="3" ry="3" width="50" height="25.95999999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="179.71999999999991" y="401.12500000000028" fill="#3D3D3D">null</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager">
+      <rect x="405.40999999999997" y="153.60750000000007" rx="5" ry="5" width="384.31000000000006" height="85.960000000000036" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="425.40999999999997" y="171.55750000000006" fill="#000000">Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager</text>
+      <rect x="410.40999999999997" y="181.56750000000008" width="374.31000000000006" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.MockClusterManager.Init">
+        <rect x="572.56499999999994" y="193.60750000000007" rx="3" ry="3" width="50" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="588.56499999999994" y="211.55750000000006" fill="#3D3D3D">Init</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor">
+      <rect x="851.50333333333333" y="153.60750000000007" rx="5" ry="5" width="346.12333333333322" height="85.960000000000036" fill="#558FDA" stroke="#A5A6A9" stroke-width="1" />
+      <text x="870.50333333333333" y="171.55750000000006" fill="#000000">Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor</text>
+      <rect x="856.50333333333333" y="181.56750000000008" width="336.12333333333322" height="53.000000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring-&gt;Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring">
+        <path d="M 1059.69666666667,200.099166862723 C 1059.0818509783,200.098055620908 1058.45990653386,200.0975 1057.83083333333,200.0975 C 1030.07472222222,200.0975 1016.19666666667,202.260833333333 1016.19666666667,206.5875 C 1016.19666666667,210.526073373923 1027.6967139873,212.672001113588 1050.69680862858,213.025283218996" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1059.69666666667,213.075833137277 L 1049.71929103247,209.019729655592 C 1050.70429750536,211.691970917057 1050.68931975179,214.358595520935 1049.67435777178,217.019603467227 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="909.89666666666653" y="211.55750000000006" fill="#A0A0A0">NotifyLeaderElected</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.SafetyMonitor.Monitoring">
+        <rect x="1059.6966666666667" y="193.60750000000007" rx="3" ry="3" width="79.536666666666861" height="25.960000000000008" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1069.6966666666667" y="211.55750000000006" fill="#3D3D3D">Monitoring</text>
+      </g>
+    </g>
+    <g id="Microsoft.Coyote.Samples.CloudMessaging.Server">
+      <rect x="440.16092149220492" y="307.21500000000015" rx="5" ry="5" width="470.80815701559015" height="229.80000000000018" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="543.16092149220492" y="325.16500000000013" fill="#000000">Microsoft.Coyote.Samples.CloudMessaging.Server</text>
+      <rect x="445.16092149220492" y="335.17500000000013" width="460.80815701559015" height="196.84000000000017" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate">
+        <path d="M 528.854254825538,353.710687452922 C 527.779132086813,353.706895817641 526.680520975702,353.705 525.558421492205,353.705 C 498.755643714427,353.705 485.354254825538,355.868333333333 485.354254825538,360.195 C 485.354254825538,364.203000413008 496.854270960998,366.354598594429 519.854303231918,366.649794544261" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 528.854254825538,366.679312547078 L 518.867427722768,362.646536280117 C 519.858676269372,365.316468382243 519.849930194463,367.983120706279 518.841189498041,370.646493252224 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="460.16092149220492" y="365.16500000000013" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 565.762588158871,373.175 L 565.762588158871,414.135 C 565.762588158871,450.095 585.762588158871,474.068333333334 625.762588158871,486.055 L 644.713027723447,491.733815056185" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 653.334254825538,494.317309444445 L 644.903333329108,487.615103634338 C 645.095767632819,490.456596226245 644.330287814075,493.011033886124 642.606893872877,495.278416613974 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="540.61556119968111" y="437.07976733934225" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Leader">
+        <path d="M 579.770111332768,373.175 L 585.165921492205,378.175 C 597.32146825429,389.438875491271 607.767848142461,400.702750982542 616.505061156717,411.966626473813" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 621.946974514081,419.135 L 619.086347906427,408.75151236763 C 617.567042419856,411.160417087537 615.443079893578,412.772835860089 612.714460327593,413.588768685287 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="604.56925482553822" y="401.12500000000017" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate">
+        <path d="M 653.334254825538,497.697375724638 L 593.762588158871,486.055 C 532.429254825538,474.068333333334 501.762588158871,456.088333333334 501.762588158871,432.115 C 501.762588158871,408.141666666667 512.429254825538,390.161666666667 533.762588158871,378.175 L 534.815090183358,377.583625424992" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 542.661364577114,373.175 L 531.983892839611,374.586239630544 C 534.161960490766,376.421214403695 535.468219875949,378.746036446289 535.902670995159,381.560705758327 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="476.56925482553822" y="437.08500000000021" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 744.231985637552,445.095 L 750.190921492205,450.095 C 764.47647704776,462.081666666667 757.309810381094,474.068333333334 728.690921492205,486.055 L 724.573220017578,487.779648193046" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 716.271940068683,491.256536343401 L 727.040868078723,491.082785042516 C 725.088314558371,489.009467444734 724.058125476784,486.549828941358 723.950300833964,483.703869532387 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="757.82574517446164" y="473.04500000000024" fill="#A0A0A0">NotifyJoinedServiceEvent</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 713.241453564878,445.095 L 707.262588158871,450.095 C 694.522057636174,460.749639013865 687.443891694865,471.40427802773 686.028090334943,482.058917041596" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 685.762588158871,491.055 L 690.055849669353,481.177353235582 C 687.360843365818,482.09825069731 684.695337304068,482.019583385881 682.059331484104,480.941351301297 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="661.6002616217836" y="473.37147175919068" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader-&gt;Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <path d="M 628.153021974222,445.095 L 626.762588158871,450.095 C 623.429254825538,462.081666666667 632.429254825538,474.068333333334 653.762588158871,486.055 L 654.815090183358,486.646374575008" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 662.661364577114,491.055 L 655.902670995159,482.669294241673 C 655.468219875949,485.483963553711 654.161960490766,487.808785596306 651.983892839611,489.643760369457 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="600.8721550014194" y="472.05153352835856" fill="#A0A0A0">goto</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Candidate">
+        <rect x="528.85425482553831" y="347.21500000000015" rx="3" ry="3" width="73.81666666666672" height="25.95999999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="538.85425482553831" y="365.16500000000013" fill="#3D3D3D">Candidate</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Follower">
+        <rect x="653.33425482553821" y="491.05500000000029" rx="3" ry="3" width="64.85666666666657" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="663.33425482553821" y="509.00500000000028" fill="#3D3D3D">Follower</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Init">
+        <rect x="703.76258815887149" y="419.13500000000022" rx="3" ry="3" width="50" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="719.76258815887149" y="437.08500000000021" fill="#3D3D3D">Init</text>
+      </g>
+      <g id="Microsoft.Coyote.Samples.CloudMessaging.Server.Leader">
+        <rect x="603.98758815887163" y="419.13500000000022" rx="3" ry="3" width="55.549999999999955" height="25.960000000000036" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="613.98758815887163" y="437.08500000000021" fill="#3D3D3D">Leader</text>
+      </g>
+    </g>
+  </g>
+</svg>

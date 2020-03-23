@@ -29,6 +29,7 @@ You will also need to:
   `c:\git\coyote\bin\netcoreapp2.2\coyote.dll`. Set this path in a new environment variable named
   `coyote`
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Build the samples
 
@@ -48,28 +49,31 @@ dotnet %coyote% test ./bin/netcoreapp2.2/Raft.Mocking.dll -i 1000 -ms 200 --cove
 
 You should see the test succeed with output like this, including a coverage report and graph:
 ```
-Starting TestingProcessScheduler in process 11652
+. Testing ./bin/netcoreapp2.2/Raft.Mocking.dll
+Starting TestingProcessScheduler in process 34068
 ... Created '1' testing task.
-... Task 0 is using 'Random' strategy (seed:3725268040).
+... Task 0 is using 'random' strategy (seed:1388735316).
 ..... Iteration #1
 ..... Iteration #2
 ..... Iteration #3
-..... Iteration #4
-..... Iteration #5
-...
+.....
+..... Iteration #900
+..... Iteration #1000
 ... Emitting coverage reports:
-..... Writing bin\netcoreapp2.2\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
-..... Writing bin\netcoreapp2.2\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
-..... Writing bin\netcoreapp2.2\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
+..... Writing .\bin\netcoreapp2.2\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.dgml
+..... Writing .\bin\netcoreapp2.2\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.coverage.txt
+..... Writing .\bin\netcoreapp2.2\Output\Raft.Mocking.dll\CoyoteOutput\Raft.Mocking.sci
 ... Testing statistics:
 ..... Found 0 bugs.
 ... Scheduling statistics:
-..... Explored 1000 schedules: 1000 fair and 0 unfair.
-..... Number of scheduling points in fair terminating schedules: 2000 (min), 2000 (avg), 2000 (max).
-..... Exceeded the max-steps bound of '200' in 100.00% of the fair schedules.
-... Elapsed 101.3353842 sec.
+..... Explored 1000 schedules: 0 fair and 1000 unfair.
+..... Hit the max-steps bound of '200' in 100.00% of the unfair schedules.
+... Elapsed 61.3283634 sec.
 . Done
 ```
+
+Now you are seeing a longer more realistic test run.  But if you create a `--verbose` log you will
+see that in these 61 seconds the test actually tested over 2.4 million async operations!!
 
 In this case you should see `Total event coverage: 100.0%` which is a great sign, this means every
 possible event has been sent and received by every state of every state machine that you tested here.
@@ -111,12 +115,12 @@ The `--coverage` report also generates a [DGML diagram](/coyote/learn/tools/dgml
 messages sent during the test. You can browse these graphs using Visual Studio. The file name in
 this case is `Raft.Mocking.dgml` and it will look something like this:
 
-![mock_coverage](/coyote/assets/images/RaftMockCoverage.svg)
+{% include RaftMockCoverage.svg %}
 
-Here you see all the mock objects in green, and the production server code in gray. You can see that
-all the states were explored in the `Server`, including the `Leader` state.  The `MockStateMachineTimer`
-is a helper `Actor` provided in the `Microsoft.Coyote.Actors.Timers.Mocks` framework and is the testing
-implementation behind the Coyote `CreateTimer` and `CreatePeriodicTimer` API's.
+Here you see all the `Actor` objects in green, and `Monitor` in blue and `StateMachine` and
+`ExternalCode` objects in gray. You can see that all the states were explored in the `Server`,
+including the `Leader` state. The `MockStateMachineTimer` is a helper `Actor` provided as a mock
+implementation `CreateTimer` and `CreatePeriodicTimer` API's.
 
 There are many different `coyote test` command line options you can play with to test different things
 and really increase your confidence level in the code you are testing. For example there are 4 different
@@ -182,9 +186,21 @@ The following diagram illustrates how the `MockClient` actor sends `ClientReques
 the `MockClusterManager` subclasses from `ClusterManager`. There is also a `MockServerHost` that
 implements the `IServerManager` interface and a `RaftTestScenario` class which sets everything up.
 Notice that the `Server` code you are testing here is the exact same production ready code you used
-in the [Raft actor service (on Azure)](raft-azure) tutorial.
+in the [Raft actor service (on Azure)](raft-azure) tutorial.  You should now see that this is **very
+cool**. You have switched the `Server` from running on Azure to running locally with a bunch of
+mocks and didn't have to change one line of `Server` code.
 
- ![Mocking](../../assets/images/RaftMocking.svg)
+ {% include RaftMocking.svg %}
+
+For this test we also inject a `SafetyMonitor` into the process by simply registering it on the
+runtime like this:
+
+```c#
+runtime.RegisterMonitor<SafetyMonitor>();
+```
+
+This enables the monitor so that when the `MockServerHost` sends the `NotifyLeaderElected`
+it can keep track and make sure there is only one leader per term.
 
 The `MockClusterManager` implementation is very simple, since at test time all `Server` instances
 are in the same process, a broadcast operation is simply a for-loop over those servers, sending the

@@ -25,7 +25,7 @@ Testing with Coyote is designed to be easy and effective. It removes the mystery
 finding concurrency bugs and the pain associated with debugging them. Any bugs reported by the
 tester can be replayed: something that does not come for free otherwise for programs with
 concurrency. Coyote testing can be integrated with standard unit-testing frameworks, or easily
-[parallelized](../tools/distributed-testing) for boosting coverage. It also makes it easy to
+[parallelized](../tools/testing) for boosting coverage. It also makes it easy to
 [visualize](../tools/coverage) the coverage obtained for a test.
 
 Coyote is designed to be lightweight, adding minimal runtime overhead. It is easy to get started:

@@ -7,7 +7,7 @@ permalink: /learn/tutorials/hello-world-actors
 
 ## Hello world example with actors
 
-The [HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you
+[HelloWorldActors](http://github.com/microsoft/coyote-samples/) is a simple program to get you
 started using the Coyote [actors programming
 model](/coyote/learn/programming-models/actors/overview).
 
@@ -18,6 +18,7 @@ To run the Hello World Actors  example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Build the sample
 
@@ -48,7 +49,7 @@ dotnet .\bin\netcoreapp2.2\HelloWorldActors.dll
 .\bin\net47\HelloWorldActors.exe
 ```
 
-**Note that in the code there is a bug** (put intentionally) that should be caught by a Coyote
+Note that in the code there is a bug (put intentionally) that should be caught by a Coyote
 assertion. The program should display the English greeting `Hello World!` exactly once (as the
 first of several greetings displayed in different languages), however sometimes it displays the
 English greeting `Hello World!` for a second time during the execution of `HelloWorldActors`.
@@ -101,7 +102,7 @@ Although this is one of the simplest programs you can write with Actors, you may
 many executions before getting this exception. Even in this modest example, reproducing the bug may
 take you significant amount of time.
 
-**This is where Coyote really shines**:
+**This is where Coyote really shines**.
 
 The second way to reproduce the bug is to run the code under `coyote test`.
 
@@ -114,35 +115,42 @@ coyote test .\bin\net46\HelloWorldActors.exe --iterations 30
 The result is:
 
 ```
-C:\git\CoyoteSamples>coyote test .\bin\net46\HelloWorldActors.exe --iterations 30
 . Testing .\bin\net46\HelloWorldActors.exe
-Starting TestingProcessScheduler in process 16040
+Starting TestingProcessScheduler in process 39204
 ... Created '1' testing task.
-... Task 0 is using 'Random' strategy (seed:102).
+... Task 0 is using 'random' strategy (seed:1490088538).
 ..... Iteration #1
 ..... Iteration #2
+..... Iteration #3
+..... Iteration #4
+..... Iteration #5
+..... Iteration #6
+..... Iteration #7
+..... Iteration #8
+..... Iteration #9
+..... Iteration #10
+..... Iteration #20
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_1.txt
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_1.pstrace
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_1.schedule
-... Elapsed 0.2155411 sec.
+..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_0.txt
+..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_0.schedule
+... Elapsed 0.163194 sec.
 ... Testing statistics:
 ..... Found 1 bug.
 ... Scheduling statistics:
-..... Explored 2 schedules: 2 fair and 0 unfair.
-..... Found 50.00% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 38 (min), 38 (avg), 39 (max).
-... Elapsed 0.4192499 sec.
+..... Explored 28 schedules: 28 fair and 0 unfair.
+..... Found 3.57% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 19 (min), 37 (avg), 38 (max).
+... Elapsed 0.2555573 sec.
 . Done
 ```
 
-Thus in less than a half-second the Coyote tester has found the bug in this simple
-program&mdash;something that would take many minutes if testing manually. So, even in this simple
-case Coyote finds the bug tens or even hundreds of times faster. But when using Coyote for testing
-much more complex, real-world systems the time savings can be even more impressive! This will give
-you the ability to find out and fix even the trickiest and almost impossible to reproduce
-concurrency bugs **before pushing your code to production**.
+Thus in about a quarter-second the Coyote tester has found the bug in this simple
+program&mdash;something that would take much longer if testing manually. So, even in this simple
+case Coyote finds the bug tens or even hundreds of times faster. When using Coyote for testing much
+more complex, real-world systems the time savings can be even more impressive! This will give you
+the ability to find and fix even the most difficult to reproduce concurrency bugs **before pushing
+to production**.
 
 To learn more about testing with Coyote read [Testing Coyote programs end-to-end and reproducing
 bugs](/coyote/learn/tools/testing).
@@ -171,8 +179,7 @@ World!" greetings in 53 languages.
 * `Client.cs` defines the `Client` class. This is a Coyote
   [`StateMachine`](/coyote/learn/programming-models/actors/state-machines). A Coyote state machine
   is a special type of `Actor` that inherits from `StateMachine` and adds `State` semantics with
-  explicit information about how `Events` can trigger `State` changes in that `StateMachine`. State
-  machines are actors, but also have explicit states, and state transitions.
+  explicit information about how `Events` can trigger `State` changes in that `StateMachine`.
 
 Let's study the code in detail. You can find the full code in the [Coyote Samples git
 repo](http://github.com/microsoft/coyote-samples).
@@ -208,8 +215,7 @@ internal class Server : Actor
 
 The `Server` class inherits from the standard Coyote `Actor` type. Internally it defines a
 `GreetMeEvent` type that inherits from the standard Coyote `Event` type. The `GreetMeEvent` event
-has a `Requestor` property which contains the `ActorId` of the `Actor` that is the sender of the
-event.
+has a `Requestor` property which contains the `ActorId` of the `Actor` that sends the event.
 
 The `[OnEventDoAction(typeof(GreetMeEvent), nameof(SendGreeting))]` attribute on the `Server` class
 specifies that any `GreetMeEvent` in the `Server`'s input queue must be processed by a call to its

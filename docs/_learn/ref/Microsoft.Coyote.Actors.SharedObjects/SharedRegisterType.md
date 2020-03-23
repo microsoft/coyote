@@ -18,6 +18,10 @@ public static class SharedRegister
 | --- | --- |
 | static [Create&lt;T&gt;](SharedRegister/Create)(…) | Creates a new shared register. |
 
+## Remarks
+
+See also [Sharing Objects](/coyote/learn/programming-models/actors/sharing-objects).
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Actors.SharedObjects](../MicrosoftCoyoteActorsSharedObjectsNamespace)

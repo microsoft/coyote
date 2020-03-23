@@ -151,7 +151,15 @@ namespace Microsoft.Coyote.Actors
             Actor creator, Guid opGroupId)
         {
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            if (actor is StateMachine)
+            {
+                this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            }
+
             this.RunActorEventHandler(actor, initialEvent, true);
             return actor.Id;
         }
@@ -165,7 +173,15 @@ namespace Microsoft.Coyote.Actors
             Event initialEvent, Actor creator, Guid opGroupId)
         {
             Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
-            this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            if (actor is StateMachine)
+            {
+                this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            }
+
             await this.RunActorEventHandlerAsync(actor, initialEvent, true);
             return actor.Id;
         }
@@ -664,9 +680,9 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Notifies that a monitor found a liveness error.
+        /// Notifies that a monitor found an error.
         /// </summary>
-        internal void NotifyLivenessError(Monitor monitor)
+        internal void NotifyMonitorError(Monitor monitor)
         {
             if (this.Configuration.IsVerbose)
             {

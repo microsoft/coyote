@@ -5,12 +5,14 @@ section: learn
 permalink: /learn/programming-models/actors/actor-semantics
 ---
 
+## Actor semantics
+
 An `Actor` in Coyote is an in-memory object. The main APIs that define the semantics of programming
 with actors are `CreateActor`, which is used to create a new `Actor` instance, and `SendEvent` that
 is used to pass an event to an existing `Actor`. It is useful to understand both the synchronous and
 asynchronous guarantees of these methods.
 
-## Semantics of actor creation 
+## Semantics of actor creation
 
 Suppose you create an `Actor` as follows:
 
@@ -40,7 +42,13 @@ Then it is guaranteed that `e1` will be delivered to the inbox of `id` before `e
 _in-order_ part of the message-delivery semantics. To explain causal delivery, we need to consider
 three actors `A`, `B` and `C`. Suppose that `A` first sends a message `e1` to `C` and then it sends
 a message `e2` to `B`. Next, `B` is programmed so that whenever it receives a message `e2`, it will
-forward it to `C`. For this program, the message `e1` is guaranteed to reach the inbox of `C` before
+forward it to `C`.
+
+<div>
+{% include abc.svg %}
+</div>
+
+For this program, the message `e1` is guaranteed to reach the inbox of `C` before
 `e2`. There is a simple way of thinking about this guarantee. The call to `SendEvent` ensures that
 the message is delivered to the inbox of the target before it returns. (It does not wait for the
 message to be processed---that can happen asynchronously.) Thus, when `A` sent message `e1` to `C`,
@@ -68,3 +76,5 @@ if(this.Random())
    this.SendEvent(destination, message);
 }
 ```
+
+See also [State machine semantics](/coyote/learn/programming-models/actors/state-machines#precise-semantics).

@@ -45,6 +45,14 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
+        public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        {
+            var source = creatorName ?? $"task '{Task.CurrentId}'";
+            var text = $"<CreateLog> {id} was created by {source}.";
+            this.Logger.WriteLine(text);
+        }
+
+        /// <inheritdoc/>
         public virtual void OnCreateMonitor(string monitorType)
         {
             var text = $"<CreateLog> {monitorType} was created.";

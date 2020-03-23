@@ -124,6 +124,10 @@ namespace Microsoft.Coyote.Coverage
         {
         }
 
+        public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        {
+        }
+
         public void OnCreateMonitor(string monitorType)
         {
         }

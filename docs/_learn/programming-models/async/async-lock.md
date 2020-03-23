@@ -15,7 +15,7 @@ interleavings and find concurrency bugs.
 ## Why is an asynchronous lock necessary?
 
 Although it is recommended that asynchronous code should be as lock-free as possible, in some
-scenarios it is still useful to synchronize asynchronous access on a shared resource. Using the C#
+scenarios it is still useful to serialize asynchronous access to a shared resource. Using the C#
 [`lock`](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/lock-statement)
 statement might not be an option as C# forbids the use of `await` inside the `lock` scope. This is
 because using `await` inside `lock` (which is implemented using
@@ -27,18 +27,18 @@ free to `await` while holding an instance of this lock type. Awaiting on an `Asy
 not block the underlying thread allowing for a more efficient execution.
 
 Note that the C# lock statement is still supported by `coyote test`. However&mdash;besides not using
-`await` in the body of `lock`&mdash;you should make sure to not call any Coyote API that can
+`await` in the body of `lock`&mdash;you should also make sure to not call any Coyote API that can
 introduce a scheduling decision during systematic testing (such as `Task.Run`, `Task.Delay` or
 `Task.Yield`), while holding a `lock`, as this can lead to deadlocks.
 
-## How does it work?
+## How do you use it?
 
 1. You create an instance of an `AsyncLock` by calling the static method `AsyncLock.Create()`.
 2. The only instance-level method that `AsyncLock` provides is `AcquireAsync()`. This method tries
    to acquire the lock asynchronously, and returns a task that completes when the lock has been
    acquired. The returned task's result is of type `AsyncLock.Releaser`. This `Releaser` implements
    the `IDisposable` interface. It releases the lock when disposed. Note that `AcquireAsync()` is
-   not a reentrant operation. 
+   not a reentrant operation.
 3. `AsyncLock` exposes the `IsAcquired` boolean property, which is true if the lock has been
    acquired, else false.
 4. Finally, when the `AsyncLock` is acquired, your code can enter the scope of this lock and perform
@@ -49,10 +49,10 @@ introduce a scheduling decision during systematic testing (such as `Task.Run`, `
 During systematic testing, `coyote test` injects scheduling points upon acquiring or releasing the
 lock, which allows it to explore interleavings and expose bugs (including deadlocks).
 
-## How to use?
+## Example usage
 
-The code below demonstrates `AsyncLock` in action.
- 
+The code below demonstrates `AsyncLock` in action:
+
 ```c#
 using Microsoft.Coyote.Tasks;
 
@@ -86,7 +86,7 @@ public class LockExample
 
             if (reenter)
             {
-                // This causes a deadlock ...
+                // This causes a deadlock ... so don't do this!
                 await this.SecondOperationAsync(reenter);
             }
         }
@@ -95,7 +95,7 @@ public class LockExample
 ```
 
 In the above example, the `FirstOperationAsync` and `SecondOperationAsync` methods use an
-`AsyncLock` to avoid a race condition while testing and updating `Value`.
+`AsyncLock` to avoid a race condition while testing and updating `IsRunning` and `Value`.
 
 You can write a test for this code as follows:
 

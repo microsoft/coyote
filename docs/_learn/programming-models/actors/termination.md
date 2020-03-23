@@ -8,7 +8,7 @@ permalink: /learn/programming-models/actors/termination
 ## Explicit termination of an actor
 
 Coyote actors and state machines continue running unless they are explicitly terminated. The runtime
-will mark a actor as idle if it has no work to do, but it will not reclaim any resources held by the
+will mark an actor as idle if it has no work to do, but it will not reclaim any resources held by the
 actor unless it is terminated. An actor is terminated when it performs the `Halt` operation, as seen
 in the following example:
 
@@ -39,3 +39,10 @@ be restarted; it remains halted forever.
 
 The Coyote runtime implements actor termination efficiently by cleaning up resources allocated to a
 halted actor and recording that the actor has halted.
+
+Actor termination via `Halt` is an asynchronous operation.  So in failover scenarios where you need
+to be sure an actor is fully terminated before creating it's replacement actor, you will need to
+create a handshake callback event sent from `OnHaltAsync` telling the caller that the actor has
+officially halted, otherwise there will be a brief period of time where both actors are alive which
+may not be what you want when modeling a failover situation.  This is shown in the [Coffee machine
+failover](/coyote/learn/tutorials/failover-coffee-machine-actors) tutorial.

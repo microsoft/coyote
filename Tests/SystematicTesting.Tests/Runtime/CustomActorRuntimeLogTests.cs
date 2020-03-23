@@ -86,9 +86,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 
-                string expected = @"CreateActor
+                string expected = @"CreateStateMachine
 StateTransition
-CreateActor
+CreateStateMachine
 StateTransition
 ";
 
@@ -123,10 +123,10 @@ StateTransition
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 
                 string expected = @"<TestLog> Running test.
-<CreateLog>.
+<CreateLog> M() was created by task ''.
 <StateLog>.
 <ActionLog> M() invoked action 'InitOnEntry' in state 'Init'.
-<CreateLog>.
+<CreateLog> N() was created by M().
 <StateLog>.
 <DequeueLog> N() dequeued event 'E' in state 'Init'.
 <ActionLog> N() invoked action 'Act' in state 'Init'.
@@ -175,10 +175,10 @@ StateTransition
 
                 string expected = @"<?xml version='1.0' encoding='utf-16'?>
 <Log>
-  <CreateActor id='M()' creatorName='' creatorType='task' />
+  <CreateStateMachine id='M()' creatorName='' creatorType='task' />
   <State id='M()' state='Init' isEntry='True' />
   <Action id='M()' state='Init' action='InitOnEntry' />
-  <CreateActor id='N()' creatorName='M()' creatorType='M' />
+  <CreateStateMachine id='N()' creatorName='M()' creatorType='M' />
   <Send target='N()' senderName='M()' senderType='M' senderState='Init' event='E' isTargetHalted='False' />
   <EnqueueEvent id='N()' event='E' />
   <State id='N()' state='Init' isEntry='True' />

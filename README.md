@@ -18,8 +18,8 @@ architect:
 > Coyote found several issues early in the dev process, this sort of issues that would usually bleed
 > through into production and become very expensive to fix later.
 
-See our [documentation](docs/_learn) for more information about the project, case studies, and
-reference documentation.
+See our [documentation](https://microsoft.github.io/coyote/) for more information about the project,
+case studies, tutorials and reference documentation.
 
 Coyote is made with :heart: by Microsoft Research and is the evolution of the [P#
 project](https://github.com/p-org/PSharp).

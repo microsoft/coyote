@@ -18,4 +18,4 @@ it is checked.
 The Enterprise version of Visual Studio can also produce `DGML` diagrams of your code, this is how
 the following diagrams were produced for the [Raft Mocking Example](../tutorials/raft-mocking):
 
-![diagram](../../assets/images/RaftMocking.svg)
+{% include RaftMocking.svg %}

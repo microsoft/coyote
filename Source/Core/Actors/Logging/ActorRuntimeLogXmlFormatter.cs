@@ -69,6 +69,31 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteEndElement();
         }
 
+        /// <inheritdoc/>
+        public void OnCreateStateMachine(ActorId id, string creatorName, string creatorType)
+        {
+            if (this.Closed)
+            {
+                return;
+            }
+
+            this.Writer.WriteStartElement("CreateStateMachine");
+            this.Writer.WriteAttributeString("id", id.ToString());
+
+            if (creatorName != null && creatorType != null)
+            {
+                this.Writer.WriteAttributeString("creatorName", creatorName);
+                this.Writer.WriteAttributeString("creatorType", creatorType);
+            }
+            else
+            {
+                this.Writer.WriteAttributeString("creatorName", Task.CurrentId.ToString());
+                this.Writer.WriteAttributeString("creatorType", "task");
+            }
+
+            this.Writer.WriteEndElement();
+        }
+
         public void OnCreateTimer(TimerInfo info)
         {
             if (this.Closed)

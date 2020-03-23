@@ -240,7 +240,11 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         protected void Assert(bool predicate)
         {
-            this.Runtime.Assert(predicate);
+            if (!predicate)
+            {
+                this.Runtime.NotifyMonitorError(this);
+                this.Runtime.Assert(false);
+            }
         }
 
         /// <summary>
@@ -248,7 +252,11 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         protected void Assert(bool predicate, string s, params object[] args)
         {
-            this.Runtime.Assert(predicate, s, args);
+            if (!predicate)
+            {
+                this.Runtime.NotifyMonitorError(this);
+                this.Runtime.Assert(false, s, args);
+            }
         }
 
         /// <summary>
@@ -572,7 +580,7 @@ namespace Microsoft.Coyote.Specifications
                 if (this.LivenessTemperature > this.Runtime.
                     Configuration.LivenessTemperatureThreshold)
                 {
-                    this.Runtime.NotifyLivenessError(this);
+                    this.Runtime.NotifyMonitorError(this);
                     this.Runtime.Assert(false,
                         "{0} detected potential liveness bug in hot state '{1}'.",
                         this.GetType().FullName, this.CurrentStateName);

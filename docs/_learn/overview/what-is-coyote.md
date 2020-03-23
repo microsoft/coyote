@@ -53,36 +53,35 @@ studies](../../case-studies/azure-batch-service) for some great customer testimo
 
 <script type="text/javascript">
 
-    var captions = [[0, "This animation shows messages passing through a highly parallel distributed system."],
-                [5, "Each node represents a microservice or a piece of code running on some machine."],
-                [10, "Messages are flying through this system in a way that makes it hard to debug when something goes wrong."],
-                [16, "Coyote tests one async path at a time exploring all possible paths through the system and it does this very quickly"],
-                [23, "It also records this path so that when it finds a bug that bug is 100% reproducible."]
-            ];
+  var captions = [[0, "This animation shows messages passing through a highly parallel distributed system."],
+              [5, "Each node represents a microservice or a piece of code running on some machine."],
+              [10, "Messages are flying through this system in a way that makes it hard to debug when something goes wrong."],
+              [16, "Coyote tests one async path at a time exploring all possible paths through the system and it does this very quickly"],
+              [23, "It also records this path so that when it finds a bug that bug is 100% reproducible."]
+          ];
 
-      function show_captions(video, caption){
-        var time = video.currentTime;
-        var line = null;
-        for (var i = 0; i < captions.length; i++) {
-          var nextline = captions[i];
-          if (nextline[0] > time) break;
-          line = nextline;
-        }
-        if (line != null) {
-          caption.style.display="block";
-          caption.innerHTML = line[1]
-        } else {
-          caption.style.display="none";
-        }
-      }
+  function show_captions(video, caption){
+    var time = video.currentTime;
+    var line = null;
+    for (var i = 0; i < captions.length; i++) {
+      var nextline = captions[i];
+      if (nextline[0] > time) break;
+      line = nextline;
+    }
+    if (line != null) {
+      caption.style.display="block";
+      caption.innerHTML = line[1]
+    } else {
+      caption.style.display="none";
+    }
+  }
 
-      $(document).ready(function () {
-          video  = $("#shortintro")[0];
-          caption = $("#caption")[0];
-          caption.style.display="none";
-          video.ontimeupdate = function() { show_captions(video, caption); };
-      });
-
+  $(document).ready(function () {
+      video  = $("#shortintro")[0];
+      caption = $("#caption")[0];
+      caption.style.display="none";
+      video.ontimeupdate = function() { show_captions(video, caption); };
+  });
 
 </script>
 
@@ -113,3 +112,28 @@ Coyote provides two main programming models:
   simply an `Actor` with explicit `States` and event-driven state transitions.
 
 Note that you cannot use the above two programming models at the same time in the same process.
+
+<div class="embed-responsive embed-responsive-16by9">
+{% include architecture.svg %}
+</div>
+
+<script type="text/javascript">
+
+  function click_link(g){
+    var href = g.attributes.href.value;
+    if (href) {
+      window.location.href = href;
+    }
+  }
+
+  $(document).ready(function () {
+      $(".node").on('click', function(e) {
+        click_link(e.target.parentNode);
+      });
+
+      $(".nodetext").on('click', function(e) {
+        click_link(e.target.parentNode);
+      });
+  });
+
+</script>

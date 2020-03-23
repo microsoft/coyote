@@ -70,6 +70,7 @@ To run the `CoffeeMachine` example, you will need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
+- Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
 ## Build the sample
 
@@ -236,12 +237,11 @@ the resulting DGML diagram you will see exactly what happened:
 </div>
 
 The `Timer` machines were removed from this diagram just for simplicity. The `FailoverDriver`
-started the first `CoffeeMachine` on the left which ran to completion but it went to the
-`RefillRequired` state which means it detected the coffee beans empty state. Then this first
-machine was halted. The `FailoverDriver` then started a new `CoffeeMachine`, which made it all the
-way to `GrindingBeans` where it tripped the safety assertion in `MockSensors`. So the bug here is
-that somehow, the second `CoffeeMachine` instance missed the fact that it was low on coffee beans. A
-bug exists in the code somewhere. Can you find it?
+started the first `CoffeeMachine` on the left which ran to completion but it ran low on coffee
+beans. Then this first machine was halted. The `FailoverDriver` then started a new `CoffeeMachine`,
+which made it all the way to `GrindingBeans` where it tripped the safety assertion in `MockSensors`.
+So the bug here is that somehow, the second `CoffeeMachine` instance missed the fact that it was low
+on coffee beans. A bug exists in the code somewhere. Can you find it?
 
 It is not a trivial bug because the `CheckSensors` state is clearly checking the coffee level by
 sending the `ReadHopperLevelEvent` to the `MockSensors` actor and `CheckInitialState` does not
@@ -301,7 +301,7 @@ machine can run way ahead of another.
 You need to take this into account when using this kind of [timer based async
 events](../programming-models/actors/timers). One way to improve the design in a firmware based
 system like a coffee machine is to switch from a polling based system to an interrupt based system
-where the `MockSensors` can send important events to the `CoffeeMachine`. This style of `interrupt`
+where the `MockSensors` can send important events to the `CoffeeMachine`. This style of interrupt
 based eventing is used to model the `ShotCompleteEvent`, `WaterHotEvent`, `WaterEmptyEvent` and
 `HopperEmptyEvent`.
 

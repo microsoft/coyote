@@ -24,6 +24,14 @@ namespace Microsoft.Coyote.Actors
         void OnCreateActor(ActorId id, string creatorName, string creatorType);
 
         /// <summary>
+        /// Invoked when the specified state machine has been created.
+        /// </summary>
+        /// <param name="id">The id of the state machine that has been created.</param>
+        /// <param name="creatorName">The name of the creator, or null.</param>
+        /// <param name="creatorType">The type of the creator, or null.</param>
+        void OnCreateStateMachine(ActorId id, string creatorName, string creatorType);
+
+        /// <summary>
         /// Invoked when the specified actor executes an action.
         /// </summary>
         /// <param name="id">The id of the actor executing the action.</param>

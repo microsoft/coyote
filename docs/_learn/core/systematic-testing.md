@@ -52,8 +52,8 @@ tester. This simple API can be used to build more complex
 [mocks](https://en.wikipedia.org/wiki/Mock_object) of external dependencies in the system. As an
 example, suppose that our code calls into an external service. Either this call returns successfully
 and the external service does the work that we requested, or it may timeout, or return an error code
-if the external service is unable to perform the work at the time. For testing our code, we will
-write a mock for it as follows.
+if the external service is unable to perform the work at the time. For testing your code, you will
+write a mock for it as follows:
 
 ```c#
 Status CallExternalServiceMock(WorkItem work)

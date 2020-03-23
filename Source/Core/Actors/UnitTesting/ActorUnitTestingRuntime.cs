@@ -59,8 +59,14 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             this.ActorInbox = new EventQueue(actorManager);
             this.Instance.Configure(this, id, actorManager, this.ActorInbox);
             this.Instance.SetupEventHandlers();
-
-            this.LogWriter.LogCreateActor(this.Instance.Id, null, null);
+            if (this.Instance is StateMachine)
+            {
+                this.LogWriter.LogCreateStateMachine(this.Instance.Id, null, null);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(this.Instance.Id, null, null);
+            }
 
             this.IsActorWaitingToReceiveEvent = false;
         }
@@ -120,7 +126,15 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             Actor creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            if (typeof(StateMachine).IsAssignableFrom(type))
+            {
+                this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            }
+
             return id;
         }
 
@@ -129,7 +143,15 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             Event initialEvent, Actor creator, Guid opGroupId)
         {
             id = id ?? new ActorId(type, null, this);
-            this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            if (typeof(StateMachine).IsAssignableFrom(type))
+            {
+                this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            }
+
             return Task.FromResult(id);
         }
 

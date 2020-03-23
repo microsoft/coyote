@@ -18,6 +18,10 @@ public static class SharedDictionary
 | --- | --- |
 | static [Create&lt;TKey,TValue&gt;](SharedDictionary/Create)(…) | Creates a new shared dictionary. (2 methods) |
 
+## Remarks
+
+See also [Sharing Objects](/coyote/learn/programming-models/actors/sharing-objects).
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Actors.SharedObjects](../MicrosoftCoyoteActorsSharedObjectsNamespace)

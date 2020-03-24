@@ -1,5 +1,6 @@
-## v1.0.2*
+## v1.0.2
 - Make ActorRuntimeLogGraphBuilder public.
+- Add CreateStateMachine to IActorRuntimeLog.
 
 ## v1.0.1
 - Fixes an issue in the runtime (there should always be a default task runtime instance).

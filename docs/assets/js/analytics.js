@@ -4,6 +4,7 @@ var awaInitialized = false;
 function addTelemetryTag() {
     if (!awaInitialized) {
         awaInitialized = true;
+        // awaConfig is defined in awa.html.
         awaConfig.userConsented = true;
         awa.init(awaConfig);
     }

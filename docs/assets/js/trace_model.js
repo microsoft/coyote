@@ -125,13 +125,9 @@ function handleRaiseEvent(model, step)
 function getStateName(sender, senderState)
 {
     // actors have no sender state, so we make on up to match the DGML diagram.
-    if (senderState == null)
+    if (!senderState)
     {
         var type = sender;
-        var pos = type.lastIndexOf('(');
-        if (pos > 0) {
-            type = type.substr(0, pos);
-        }
         pos = type.lastIndexOf(".");
         if (pos > 0){
             return type.substr(pos + 1);
@@ -146,10 +142,10 @@ function handleSendEvent(model, step)
     // event needs to capture transition on receiver side also, so for now this Event is incomplete,
     // so store it in the actor inbox for now.
     var eventName = step.getAttribute("event");
-    var senderState = step.getAttribute("senderState");
-    var sender = step.getAttribute("sender");
+    var sender = getSender(step);
     if (sender) {
         var source = getOrCreateActor(model, sender);
+        var senderState = step.getAttribute("senderState");
         var target = getOrCreateActor(model, step.getAttribute("target"));
         var e = new Event();
         e.name = eventName;
@@ -176,13 +172,36 @@ function handleDequeueEvent(model, step){
     }
 }
 
+function getMonitorId(step)
+{
+    var id = step.getAttribute("id");
+    if (!id) {
+        id = step.getAttribute("monitorType");
+    }
+    if (!id){
+        console.log("error with monitor step: " + step.outerHTML);
+    }
+    return id;
+}
+
+function getSender(step){
+    var name = step.getAttribute("sender");
+    if (!name) {
+        name = step.getAttribute("senderName");
+    }
+    if (!name) {
+        name = "ExternalCode";
+    }
+    return name;
+}
+
 function handleMonitorState(model, step)
 {
     // These seem to come in pairs, and show the state transitions that happen in the monitor.
     // In this case from  idle state to busy state.  We can use the inbox to unravel this.
     // <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Idle" isEntry="False" isInHotState="False" />
     // <MonitorState id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor" state="Busy" isEntry="True" isInHotState="True" />
-    var monitor = getOrCreateActor(model, step.getAttribute("id"));
+    var monitor = getOrCreateActor(model, getMonitorId(step));
     var state = step.getAttribute("state");
     e = monitor.dequeue();
     if (e == null) {
@@ -201,9 +220,9 @@ function handleMonitorState(model, step)
 function handleMonitorEvent(model, step)
 {
     // <MonitorEvent sender="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)" senderState="Active" id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)" monitorType="LivenessMonitor" state="Idle" event="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor+BusyEvent" />
-    var source = getOrCreateActor(model, step.getAttribute("sender"));
+    var source = getOrCreateActor(model, getSender(step));
     var senderState = step.getAttribute("senderState");
-    var monitor = getOrCreateActor(model, step.getAttribute("id"));
+    var monitor = getOrCreateActor(model, getMonitorId(step));
     var state = step.getAttribute("state");
     var eventName = step.getAttribute("event");
     var e = new Event();

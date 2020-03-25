@@ -29,10 +29,13 @@ reliable software.
 
 The `CoffeeMachine` is modeled as an asynchronous [state
 machine](../programming-models/actors/state-machines). This example is not providing real firmware,
-instead it `mocks` the hardware sensor platform built into the machine. This is done in the
-`MockSensors` actor. This actor provides async ways of reading sensor values like
-Water Temperature and setting things like the power button, or turning on and off the coffee grinder
-and so on.
+instead it `mocks` the hardware sensor platform built into the machine. This is done in
+`MockSensors.cs` where you will find three actors that model various hardware components:
+`MockDoorSensor`, `MockWaterTank` and `MockCoffeeGrinder`. This actor provides async ways of reading
+sensor values like Water temperature and water levels, or turning on and off the coffee grinder and
+so on.  The `CoffeeMachine` does not know the sensors are mocks, all it knows is the public
+interface defined in `SensorEvents.cs`.  In this way the `CoffeeMachine` is production code, while
+the mocks are only for testing.
 
 The reason we are using an asynchronous model is that even in the smallest of devices, often times
 there is a message passing architecture where different hardware components are connected via some
@@ -44,13 +47,14 @@ This test is setup by the `FailoverDriver`. The FailoverDriver lets the first `C
 instance run for a bit then it randomly kills it by using the `HaltEvent`, then it starts a new
 `CoffeeMachine`. The new `CoffeeMachine` instance needs to figure out the state of the sensors such
 that when a `MakeCoffeeEvent` arrives, it doesn't do something silly that breaks the machine. The
-`MockSensors` class is not killed so that it acts as a persistent store for sensor state across all
+mock sensors are not killed so that it acts as a persistent store for sensor state across all
 instances of the `CoffeeMachine`.
 
 Some safety `Asserts` are placed in the code that verify certain important things, including:
 - do not turn on heater if there is no water
 - do not turn on grinder if there are no beans in the hopper
 - do not turn on shot maker if there is no water
+- do not do anything if the door is open
 
 There is also a correctness assert in the `CoffeeMachine` to make sure the correct number of
 espresso shots are made and there is a `LivenessMonitor` that monitors the `CoffeeMachine` to make
@@ -187,7 +191,7 @@ grinds so you have the freshest possible coffee each time.
 
 The test will continue on making coffee until it runs out of either water or coffee beans and the
 `FailoverDriver` halts each `CoffeeMachine` instance at random times until the machine is out of
-resources, at which point the test is complete. The `MockSensors` also randomly choose some error
+resources, at which point the test is complete. The mock sensors also randomly choose some error
 conditions, so instead of the above you may see some errors like:
 
 ```xml
@@ -225,7 +229,7 @@ This log contains only the one iteration that failed, and towards the end you wi
 like this:
 
 ```
-<ActionLog> 'Microsoft.Coyote.Samples.CoffeeMachine.MockSensors(3)' invoked action 'OnGrinderButton'
+<ActionLog> Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3) invoked action 'OnGrinderButton'.
 <ErrorLog> Please do not turn on grinder if there are no beans in the hopper
 ```
 
@@ -239,12 +243,12 @@ the resulting DGML diagram you will see exactly what happened:
 The `Timer` machines were removed from this diagram just for simplicity. The `FailoverDriver`
 started the first `CoffeeMachine` on the left which ran to completion but it ran low on coffee
 beans. Then this first machine was halted. The `FailoverDriver` then started a new `CoffeeMachine`,
-which made it all the way to `GrindingBeans` where it tripped the safety assertion in `MockSensors`.
+which made it all the way to `GrindingBeans` where it tripped the safety assertion in `MockCoffeeGrinder`.
 So the bug here is that somehow, the second `CoffeeMachine` instance missed the fact that it was low
 on coffee beans. A bug exists in the code somewhere. Can you find it?
 
 It is not a trivial bug because the `CheckSensors` state is clearly checking the coffee level by
-sending the `ReadHopperLevelEvent` to the `MockSensors` actor and `CheckInitialState` does not
+sending the `ReadHopperLevelEvent` to the `MockCoffeeGrinder` actor and `CheckInitialState` does not
 advance to the `HeatingWater` state until this reading is returned. So what happened?
 
 Hint: if you search backwards in the output log you will find the following situation reported in
@@ -272,7 +276,7 @@ using the Coyote state machine programming model together with the `coyote test`
 This raises a bigger design question, how did the coffee level become negative?  In firmware it is
 common to poll sensor readings and do something based on that. In this case we are polling a
 `PortaFilterCoffeeLevelEvent` in a tight loop while in the `GrindingBeans` state. Meanwhile the
-`MockSensors` class has a [timer](../programming-models/actors/timers) running and when
+`MockCoffeeGrinder` class has a [timer](../programming-models/actors/timers) running and when
 `HandleTimer` calls `MonitorGrinder` it decreases the coffee level by 10 percent during every time
 interval. So we have an asynchronous operation going on here. Coffee level is decreasing based on a
 timer, and the `CoffeeMachine` is monitoring that coffee level using async events. This all seems
@@ -301,7 +305,7 @@ machine can run way ahead of another.
 You need to take this into account when using this kind of [timer based async
 events](../programming-models/actors/timers). One way to improve the design in a firmware based
 system like a coffee machine is to switch from a polling based system to an interrupt based system
-where the `MockSensors` can send important events to the `CoffeeMachine`. This style of interrupt
+where the `MockCoffeeGrinder` can send important events to the `CoffeeMachine`. This style of interrupt
 based eventing is used to model the `ShotCompleteEvent`, `WaterHotEvent`, `WaterEmptyEvent` and
 `HopperEmptyEvent`.
 
@@ -402,7 +406,7 @@ This may seem a bit convoluted compared to just `this.SendEvent(this.CoffeeMachi
 HaltEvent.Instance)` followed by `this.RaiseGotoStateEvent<Test>()`. The reason a direct halt event
 was not used in this case is because a `HaltEvent` is processed asynchronously, which means the
 `RaiseGotoStateEvent` would end up creating the new `CoffeeMachine` instance before the old one was
-fully halted. This can lead to confusion in the `MockSensors` class which was written to expect one
+fully halted. This can lead to confusion in the mock sensors which are written to expect one
 and only one client `CoffeeMachine` at a time. The `TerminateEvent` handshake solves that problem.
 
 Since the `TerminateEvent` could be sent to the `CoffeeMachine` at any time we need an easy way to

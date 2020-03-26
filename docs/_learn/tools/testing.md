@@ -51,7 +51,7 @@ a supported version of Visual Studio.
 A Coyote test method can be declared as follows:
 
 ```c#
-[Microsoft.Coyote.Test]
+[Microsoft.Coyote.SystematicTesting.Test]
 public static void Execute(IActorRuntime runtime)
 {
   runtime.RegisterMonitor(typeof(SomeMonitor));
@@ -59,10 +59,26 @@ public static void Execute(IActorRuntime runtime)
 }
 ```
 
-This method acts as the entry point to each testing iteration. Note that the `coyote` tester will
+This method acts as the entry point to each testing iteration. Note that the `coyote` test tool will
 internally create a `TestingEngine`, which invokes the test method and executes it. This allows it
 to capture and report any errors that occur outside the scope of an actor (e.g. before the very
 first actor is created).
+
+The `coyote` test tool supports calling the following test method signatures:
+
+```c#
+[Microsoft.Coyote.SystematicTesting.Test]
+public static void Execute();
+
+[Microsoft.Coyote.SystematicTesting.Test]
+public static void Execute(IActorRuntime runtime);
+
+[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task Execute();
+
+[Microsoft.Coyote.SystematicTesting.Test]
+public static async Task Execute(IActorRuntime runtime);
+```
 
 Note that similar to unit-testing, static state should be appropriately reset before each test
 iteration because the iterations run in shared memory. However, [parallel instances of the

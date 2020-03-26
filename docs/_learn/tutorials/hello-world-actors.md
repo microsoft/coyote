@@ -151,7 +151,7 @@ public class Greeter : Actor
 ```
 
 Notice the `OnEventDoAction` custom attribute decorating the class.  This tells the Coyote runtime
-that this class expects to receive `RequestGreetingEvent`s.  These events will be queued in the
+that this class expects to receive `RequestGreetingEvents`.  These events will be queued in the
 inbox for this `Actor` until the right time to dequeue them and process them. The custom attribute
 tells the `Coyote` runtime to call the `HandleGreeting` method.  The Coyote runtime will also report
 an error if a different type of event is sent to the `Greeter`.
@@ -202,8 +202,8 @@ one `GreetingEvent`.
 ## A TestActor
 
 To test this `Greeter` you will need to setup a `TestActor` which is done in `Program.cs`. The
-`TestActor` creates the `Greeter` and sends between 1 and 5 `RequestGreetingEvent`s. The `TestActor`
-is declared in a way that tells the `Coyote` runtime it is expecting to receive `GreetingEvent`s as
+`TestActor` creates the `Greeter` and sends between 1 and 5 `RequestGreetingEvents`. The `TestActor`
+is declared in a way that tells the `Coyote` runtime it is expecting to receive `GreetingEvents` as
 follows:
 
 ```c#
@@ -280,7 +280,7 @@ using `coyote replay`.
 ## Summary
 
 In this tutorial you learned:
-1. How to create an `Actor` and `SendEvent`s to it.
+1. How to create an `Actor` and use `SendEvent` to send messages to it.
 2. How an `Actor` can handle events using `OnEventDoAction`.
 3. The importance of the inbox to simplify parallel programming.
 4. How to run the HelloWorldActors sample from the command-line.

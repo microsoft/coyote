@@ -49,64 +49,39 @@ dotnet .\bin\netcoreapp2.2\HelloWorldActors.dll
 .\bin\net47\HelloWorldActors.exe
 ```
 
-Note that in the code there is a bug (put intentionally) that should be caught by a Coyote
-assertion. The program should display the English greeting `Hello World!` exactly once (as the
-first of several greetings displayed in different languages), however sometimes it displays the
-English greeting `Hello World!` for a second time during the execution of `HelloWorldActors`.
-
-With good luck you will need to run the program only a few times in order to get the buggy result,
-but on average this bug happens rarely and may need many manual runs, sometimes 20 - 30, in order to
-be reproduced.
+Press the ENTER key to terminate the program when it is done. Note that a bug has been inserted into
+the code intentionally and will be caught by a Coyote `Assert`. The program should display 1 to 5
+greetings like `Hello World!` or `Good Morning`. The intentional bug is hard to reproduce when you
+run the program manually.
 
 The typical "normal" run will look like this:
 
 ```
 C:\git\CoyoteSamples\bin\net46>HelloWorldActors
-Greeting in English             : Hello World!
-Greeting in Belarussian         : Прывітанне Сусвет!
-Greeting in German              : Hallo Welt!
-Greeting in Polish              : Witaj świecie!
-Greeting in Indonesian          : Halo Dunia!
-Greeting in German              : Hallo Welt!
-Greeting in Bulgarian           : Здравей свят!
+press ENTER to terminate...
+Requesting 5 greetings
+Received greeting: Good Morning
+Received greeting: Hello World!
+Received greeting: Hello World!
+Received greeting: Hello World!
+Received greeting: Good Morning
 
 C:\git\CoyoteSamples\bin\net46>
 ```
 
-When the error is caught, the run may look like this:
+When the error is caught, an extra line of output is written saying:
 
 ```
-C:\git\CoyoteSamples\bin\net46>HelloWorldActors
-Greeting in English             : Hello World!
-Greeting in German              : Hallo Welt!
-Greeting in Finnish             : Hei maailma!
-Greeting in English             : Hello World!
-Exception of type Microsoft.Coyote.AssertionFailureException { ... Exception text here }
+Exception 'Microsoft.Coyote.AssertionFailureException' was thrown in 0 (action '1'):
+Too many greetings returned!
 ```
 
-## How to reproduce the bug
+## Finding the bug using Coyote test tool
 
-There are two ways to reproduce the bug:
+See [Using Coyote](/learn/get-started/using-coyote) for information on how to
+find the `coyote` test tool and setup your environment to use it.
 
-The first way is to run `HelloWorldActors.exe` from the command prompt repeatedly, until you finally
-get this exception:
-
-```
-Greeting in English             : Hello World!
-Greeting in Mongolian           : Сайн уу дэлхий!
-Greeting in English             : Hello World!
-Exception of type Microsoft.Coyote.AssertionFailureException: Message: The starting Greeting in English was duplicated but this should never happen.
-```
-
-Although this is one of the simplest programs you can write with Actors, you may need to perform
-many executions before getting this exception. Even in this modest example, reproducing the bug may
-take you significant amount of time.
-
-**This is where Coyote really shines**.
-
-The second way to reproduce the bug is to run the code under `coyote test`.
-
-From the command line you enter:
+Enter the following from the command line:
 
 ```
 coyote test .\bin\net46\HelloWorldActors.exe --iterations 30
@@ -116,430 +91,199 @@ The result is:
 
 ```
 . Testing .\bin\net46\HelloWorldActors.exe
-Starting TestingProcessScheduler in process 39204
+Starting TestingProcessScheduler in process 16432
 ... Created '1' testing task.
-... Task 0 is using 'random' strategy (seed:1490088538).
+... Task 0 is using 'random' strategy (seed:308255541).
 ..... Iteration #1
 ..... Iteration #2
-..... Iteration #3
-..... Iteration #4
-..... Iteration #5
-..... Iteration #6
-..... Iteration #7
-..... Iteration #8
-..... Iteration #9
-..... Iteration #10
-..... Iteration #20
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_0.txt
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_0.schedule
-... Elapsed 0.163194 sec.
+..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
+..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
+... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.
 ... Scheduling statistics:
-..... Explored 28 schedules: 28 fair and 0 unfair.
-..... Found 3.57% buggy schedules.
-..... Number of scheduling points in fair terminating schedules: 19 (min), 37 (avg), 38 (max).
-... Elapsed 0.2555573 sec.
+..... Explored 2 schedules: 2 fair and 0 unfair.
+..... Found 50.00% buggy schedules.
+..... Number of scheduling points in fair terminating schedules: 23 (min), 30 (avg), 37 (max).
+... Elapsed 0.1819877 sec.
 . Done
+
 ```
 
-Thus in about a quarter-second the Coyote tester has found the bug in this simple
-program&mdash;something that would take much longer if testing manually. So, even in this simple
-case Coyote finds the bug tens or even hundreds of times faster. When using Coyote for testing much
-more complex, real-world systems the time savings can be even more impressive! This will give you
-the ability to find and fix even the most difficult to reproduce concurrency bugs **before pushing
-to production**.
+The Coyote tester has found the bug very quickly&mdash;something that takes much longer if testing
+manually. When using Coyote for testing more complex, real-world systems the time savings can be
+huge! This will give you the ability to find and fix even the most difficult to reproduce
+concurrency bugs **before pushing to production**.
 
 To learn more about testing with Coyote read [Testing Coyote programs end-to-end and reproducing
 bugs](/coyote/learn/tools/testing).
 
-## The code
+## The Greeter
 
-This section shows how to write a program using the Coyote Actors programming model. It is
-recommended that you read [Programming model: asynchronous
-actors](/coyote/learn/programming-models/actors/overview) section to gain a basic understanding of
-the Actors programming model before proceeding with the code below. Prior experience writing
-asynchronous code using `async` and `await` is also useful and relevant. If you are not already
-familiar with `async` and `await`, you can learn more in the C#
-[docs](https://docs.microsoft.com/en-us/dotnet/standard/async-in-depth).
+Please read [Programming model: asynchronous
+actors](/coyote/learn/programming-models/actors/overview) to gain a basic understanding of the
+Actors programming model.
 
-The program consists of three code files and an additional file containing the text of the "Hello
-World!" greetings in 53 languages.
-
-* `Program.cs` contains the `Main()` entry point of the application.
-
-* `Server.cs` defines the `Server` class. This is a Coyote
-  [`Actor`](/coyote/learn/programming-models/actors/overview). Every `Actor` runs concurrently with
-  respect to other Actors, but individually it handles its input queue in a sequential way. When an
-  event arrives, the actor dequeues that event from the input queue and handles it by executing a
-  sequence of operations.
-
-* `Client.cs` defines the `Client` class. This is a Coyote
-  [`StateMachine`](/coyote/learn/programming-models/actors/state-machines). A Coyote state machine
-  is a special type of `Actor` that inherits from `StateMachine` and adds `State` semantics with
-  explicit information about how `Events` can trigger `State` changes in that `StateMachine`.
-
-Let's study the code in detail. You can find the full code in the [Coyote Samples git
-repo](http://github.com/microsoft/coyote-samples).
-
-Here is the code for `Server.cs`:
+The core of an `Actor` based Coyote program, is, well, an `Actor` class! The following `Actor` named
+`Greeter` is able to receive a `RequestGreetingEvent` to which it responds with a `GreetingEvent`:
 
 ```c#
-[OnEventDoAction(typeof(GreetMeEvent), nameof(SendGreeting))]
-internal class Server : Actor
+[OnEventDoAction(typeof(RequestGreetingEvent), nameof(HandleGreeting))]
+public class Greeter : Actor
 {
-    internal class GreetMeEvent : Event
+    /// This method is called when this actor receives a RequestGreetingEvent.
+    private void HandleGreeting(Event e)
     {
-        public ActorId Requestor;
-
-        public GreetMeEvent(ActorId requestor)
+        if (e is RequestGreetingEvent ge)
         {
-            this.Requestor = requestor;
+            string greeting = this.RandomBoolean() ? "Hello World!" : "Good Morning";
+            this.SendEvent(ge.Caller, new GreetingEvent(greeting));
+            if (this.RandomBoolean(10))
+            {
+                // bug: a 1 in 10 chance of sending too many greetings.
+                this.SendEvent(ge.Caller, new GreetingEvent(greeting));
+            }
         }
     }
+}
+```
 
-    private void SendGreeting(Event e)
+Notice the `OnEventDoAction` custom attribute decorating the class.  This tells the Coyote runtime
+that this class expects to receive `RequestGreetingEvent`s.  These events will be queued in the
+inbox for this `Actor` until the right time to dequeue them and process them. The custom attribute
+tells the `Coyote` runtime to call the `HandleGreeting` method.  The Coyote runtime will also report
+an error if a different type of event is sent to the `Greeter`.
+
+The `HandleGreeting` method is called with an `Event` parameter, and you know in this case the
+event will be of type `RequestGreetingEvent`.  This event is defined in `Events.cs` like this:
+
+```c#
+internal class RequestGreetingEvent : Event
+{
+    public readonly ActorId Caller;
+
+    public RequestGreetingEvent(ActorId caller)
     {
-        ActorId client = (e as GreetMeEvent).Requestor;
-
-        var index = this.RandomInteger(Translations.LanguagesCount);
-        string language = Translations.Languages[index];
-        string greeting = Translations.HelloWorldTexts[language];
-
-        this.SendEvent(client, new Client.GreetingProducedEvent() { Language = language, Greeting = greeting });
+        this.Caller = caller;
     }
 }
 ```
 
-The `Server` class inherits from the standard Coyote `Actor` type. Internally it defines a
-`GreetMeEvent` type that inherits from the standard Coyote `Event` type. The `GreetMeEvent` event
-has a `Requestor` property which contains the `ActorId` of the `Actor` that sends the event.
+## The inbox is crucial to the Actor model
 
-The `[OnEventDoAction(typeof(GreetMeEvent), nameof(SendGreeting))]` attribute on the `Server` class
-specifies that any `GreetMeEvent` in the `Server`'s input queue must be processed by a call to its
-`SendGreeting()` method.
+You can think of an `Event` declaration as a type of **interface** definition for `Actors`.  Events
+really define the interface of an `Actor` because the caller will never get to see the `Greeter`
+class, so the caller can't just call `HandleGreeting` directly. The caller only gets to see an
+`ActorId`, which is like a Coyote runtime handle to the actor.
 
-The `SendGreeting()` method performs a sequence of operations:
+**There is a really important reason for this**.
 
-1. Retrieves the `ActorId` of the sender from the `GreetMeEvent` object passed as parameter.
+Events are queued in an inbox managed by the `Actor` base class.  This serializes the incoming
+events so that at any given time, only one event is being handled in the `Greeter`.  This greatly
+simplifies concurrent programming. For example, there is no need to use `lock` to protect against
+data race conditions, and therefore no need to worry about deadlocks.  Each `Actor` instance can run
+in a separate thread, so all actors in the system can be hugely parallel, but at the same time the
+processing inside an `Actor` is incredibly simple.  So you get the best of both worlds, code that
+scales but is also easy to write.  An `Actor` receives messages, and can create other `Actor`
+objects, and can send events.
 
-2. Gets a random number with which to index the list of all languages for which there are "Hello
-   World!" translations.
-
-3. Using this index, determines the language of the translation of the greeting that will be sent in
-   response to the sender of the `GreetMeEvent`.
-
-4. Gets the greeting using the language as a key into  `Translations.HelloWorldTexts`.
-
-5. Finally, the `Server` sends a `GreetingProducedEvent` back to the `Client` who sent the
-   `GreetMeEvent` being processed. The properties of the generated `GreetingProducedEvent` are set
-   to the `language` and `greeting` determined in the steps above.
-
-Here is the code for `Client.cs` with details elided:
+Notice the `Greeter` gets an `ActorId` from the `RequestGreetingEvent` and uses that to send a
+greeting back to the caller using `SendEvent`:
 
 ```c#
-internal class Client : StateMachine
-{
-    private TaskCompletionSource<bool> CompletionSource;
-    private ActorId Server;
-    private long MaxRequests = long.MaxValue;
-
-    private long GreetMeCounter = 0;
-
-    private const string English = "English";
-    private const string HelloWorldEnglish = "Hello World!";
-
-    internal class ConfigEvent : Event . . .
-
-    internal class GreetingProducedEvent : Event . . .
-
-    private class ReadyEvent : Event { }
-
-    [Start]
-    [OnEntry(nameof(InitOnEntry))]
-    [OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
-    private class Init : State { }
-
-    private void InitOnEntry(Event e) . . .
-
-    [OnEntry(nameof(ClientActiveEntry))]
-    [OnEventDoAction(typeof(GreetingProducedEvent), nameof(HandleGreeting))]
-    private class Active : State { }
-
-    private void ClientActiveEntry() . . .
-
-    private void HandleGreeting(Event e) . . .
-
-    private void RequestGreeting() . . .
-
-    private void TerminateMachines() . . .
-}
+this.SendEvent(ge.Caller, new GreetingEvent(greeting));
 ```
 
-The `Client` has two states: `Init` and `Active`.
+You can also see the bug which has been injected deliberately, namely, it randomly returns more than
+one `GreetingEvent`.
 
-It defines a number of events: `ConfigEvent`, `ReadyEvent` and `GreetingProducedEvent`. The client
-also uses the `GreetMeEvent` that is defined by the `Server`
+## A TestActor
 
-The `Client` has three members:
-
-* `ActorId Server` - the id of the `Server` to which to send events.
-* `long MaxRequests` - how many requests for greetings (`GreetMeEvent` events) to send to the
-  `Server` before finishing work.
-* `TaskCompletionSource<bool> CompletionSource` - a standard .NET
-  [`TaskCompletionSource`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.taskcompletionsource-1?view=netframework-4.7.2)
-  that is used to indicate when all asynchronous work instigated by the Client has completed, so
-  that the external creator of the `Client` can wait for the completion of the work of the system.
-
-Upon creation of the `Client` (by code in `Program.cs`), its first, initial, starting state is
-`Init`, as marked by the `[Start]` attribute, and the first method to be executed is `InitOnEntry()`
-as specified on another attribute of the `Init` state:
-
-`[OnEntry(nameof(InitOnEntry))]`
-
-The `InitOnEntry()` method receives as payload a `ConfigEvent`, and it uses `ConfigEvent`'s members
-to set the members of the `Client` object:
+To test this `Greeter` you will need to setup a `TestActor` which is done in `Program.cs`. The
+`TestActor` creates the `Greeter` and sends between 1 and 5 `RequestGreetingEvent`s. The `TestActor`
+is declared in a way that tells the `Coyote` runtime it is expecting to receive `GreetingEvent`s as
+follows:
 
 ```c#
-private void InitOnEntry(Event e)
-{
-    ConfigEvent configEvent = e as ConfigEvent;
-    this.CompletionSource = configEvent.CompletionSource;
-    this.Server = configEvent.OtherParty;
-    this.MaxRequests = configEvent.MaxRequests;
+ [OnEventDoAction(typeof(GreetingEvent), nameof(HandleGreeting))]
+ ```
 
-    this.RaiseEvent(new ReadyEvent());
-}
-```
+ To make this a good test, the `TestActor` keeps track of how many greetings were sent and how many
+ were received, and it writes an `Assert` to ensure it doesn't receive too many as follows:
 
-The method above raises a `ReadyEvent`. As specified by this attribute of the `Init` state:
-
-```c#
-[OnEventGotoState(typeof(ReadyEvent), typeof(Active))]
-```
-
-receiving the `ReadyEvent` causes a transition to a new state, the `Active` state:
-
-```c#
-[OnEntry(nameof(ClientActiveEntry))]
-[OnEventDoAction(typeof(GreetingProducedEvent), nameof(HandleGreeting))]
-private class Active : State { }
-```
-
-This code specifies that on entry to the `Active` state the method `ClientActiveEntry()` is
-executed. Then the only event that is expected and acted upon in the `Active` state is the
-`GreetingProducedEvent`, handled by the `HandleGreeting()` method.
-
-Here is the code of these two methods:
-
-```c#
-private void ClientActiveEntry()
-{
-    Console.WriteLine($"Greeting in {English, -20}: {HelloWorldEnglish}");
-    this.RequestGreeting();
-}
-```
-
-The only thing that the `ClientActiveEntry()` method does is to print the well-known English "Hello
-World!" greeting and then call the `RequestGreeting()` method which, as its name suggests, sends a
-`Server.GreetMeEvent` to the Server. The `Server` is then expected to send back to the `Client` a
-`GreetingProducedEvent` that contains the language and greeting as selected from one of 53
-languages. However, the `Server` must not return a greeting in English, if it does so it is a bug.
-
-Note that your Console window may have a limited ability to display some UTF-8 characters depending
-on your default Operating System language setting. For example, greetings in some non-Latin
-alphabets might be displayed incorrectly on a system not setup for that. In order to see all
-greetings displayed correctly, you can redirect the output to a file and then view it with your
-favorite text editor that supports UTF-8 with automatic font substitution, like Visual Studio Code.
-
-Here is the code for the `HandleGreeting()` method which is invoked when a `GreetingProducedEvent`
-is received in the `Active` state:
-
-```c#
+ ```c#
 private void HandleGreeting(Event e)
 {
-    try
-    {
-        var greeting = (GreetingProducedEvent)e;
-        Console.WriteLine($"Greeting in {greeting.Language, -20}: {greeting.Greeting}");
-
-        Specification.Assert(greeting.Language != English, $"The starting Greeting in {English} was duplicated but this should never happen.");
-
-        this.RequestGreeting();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Exception of type {ex.GetType()}: Message: {ex.Message}");
-
-        this.TerminateMachines();
-    }
+    // this is perfectly thread safe, because all message handling in actors is
+    // serialized within the Actor class.
+    this.Count--;
+    string greeting = ((GreetingEvent)e).Greeting;
+    Console.WriteLine("Received greeting: {0}", greeting);
+    this.Assert(this.Count >= 0, "Too many greetings returned!");
 }
 ```
 
-This method simply "unpacks" the `Language` and `Greeting` from the `GreetingProducedEvent` and then
-writes them on the `Console`. At this point, a Coyote `Specification.Assert()` is invoked to assert
-that the language of the received greeting is not English.
-
-If this is positive (no exception is thrown), then the `RequestGreeting()` method is called.
-
-If the `Specification.Assert()` fails, which means that you have reproduced the bug, this raises an
-exception, which is caught in the `catch` clause of the `try`/`catch` block. In the `catch` clause
-the type of the exception and its `Message` are output to the `Console`. Then the
-`TerminateMachines()` method is called, which terminates both the `Server` and the `Client` and
-completes the `TaskCompletionSource` so that whoever waits on its `Task` is notified.
-
-Using `Specification.Assert`, Coyote allows you to write assertions that check various kinds of
-safety properties. In this case, the assertion will check whether the value of `greeting.Language`
-is "English"  or not, and if it is, in production it will throw an exception, or during testing it
-will report an error together with a reproducible trace.
-
-Definitely, this `Assert` will fire sometimes because calling
-`this.RandomInteger(Translations.LanguagesCount)` in the `Server` must produce a random integer in
-the interval [0, `Translations.LanguagesCount`). A value of `0` for the index will cause English to
-be selected as the language. Despite having this assertion here on purpose, imagine if in a real
-project the programmer who wrote the code didn't read and understand the Assert properly and
-violated the specification. This is a demonstration showing that Coyote assertions can be very
-useful in finding some pretty tricky bugs.
-
-The `RequestGreeting()` method is called by the `OnInitEntry` of the `Active` state to send the
-first request for greeting. It is also called by the `HandleGreeting()` method to send the next
-requests for greeting to the `Server`. Here is the code of `RequestGreeting()`:
+Lastly, to test the `TestActor` you need to fire up the Coyote runtime which is done in the `HostProgram`
+`Main` entry point as follows:
 
 ```c#
-private void RequestGreeting()
+public static void Main()
 {
-   this.GreetMeCounter++;
-   if (this.GreetMeCounter >= this.MaxRequests)
-    {
-        // terminate the client and the server
-        this.TerminateMachines();
-    }
-    else
-    {
-        this.SendEvent(this.Server, new Server.GreetMeEvent(this.Id));
-    }
+    var config = Configuration.Create();
+    IActorRuntime runtime = RuntimeFactory.Create(config);
+    Execute(runtime);
+
+    runtime.OnFailure += OnRuntimeFailure;
+
+    Console.WriteLine("press ENTER to terminate...");
+    Console.ReadLine();
 }
 ```
 
-This simply increments the `GreetMeCounter` and checks if the specified maximum number of greetings
-have already been received. If there are still some greetings to be received, a new `GreetMeEvent`
-is sent to the `Server`. Notice the `GreetMeEvent` is created with the `ActorId` of the sender which
-is the `Client` in this case. Thus the `Server` doesn't actually care what Actor the request comes
-from, all it needs is any ActorId so it can correctly return the expected `GreetingProducedEvent`.
-
-In case the specified maximum number of greeting requests have already been made, both the `Client`
-and the `Server` are terminated by calling the `TerminateMachines()` method:
+Notice that Coyote actors run in parallel, so you have to stop the program from terminating
+prematurely, which can be done with a `Console.ReadLine` call.  In order for this program to also be
+testable using the `coyote test` tool, you need to declare a test method as follows:
 
 ```c#
-private void TerminateMachines()
+[Microsoft.Coyote.SystematicTesting.Test]
+public static void Execute(IActorRuntime runtime)
 {
-    this.SendEvent(this.Server, HaltEvent.Instance);
-    this.SendEvent(this.Id, HaltEvent.Instance);
-    this.CompletionSource.SetResult(true);
+    runtime.CreateActor(typeof(TestActor));
 }
 ```
 
-This method sends a `HaltEvent.Instance` event both to the `Server` and to the `Client` itself.
-Sending an instance of the `HaltEvent` to an actor (including one that is a state machine) puts them
-in the `Halted` state. You can read more about the ways to terminate an actor in the [Explicit
-termination of an actor](/coyote/learn/programming-models/actors/termination) documentation.
+The `coyote test` tool will call this method.  But it will **not** call your `Main` entry point. So
+this `Execute` method needs to be standalone.  It cannot depend on anything except statically
+initialized variables.  There is no way to get command line arguments from `coyote` test through to
+this method.
 
-The `TerminateMachines()` method above finally sets the result (completes) the
-`TaskCompletionSource` that has been provided to the `Client` by its creator, thus awakening the
-`HostProgram` that is waiting on this TaskCompletionSource.
+This `Execute` method is very simple, it just creates the `TestActor`.  In Coyote once an actor is
+created it lives forever until it is halted.  Note that Coyote programs can run forever, the `coyote test`
+tool has ways of interrupting and restarting this `Execute` method based on `--iterations` and
+`--max-steps` arguments provided to the test tool.
 
-The last code file in this sample is `Program.cs`. It contains the `Main()` entry point to the
-sample and an `Execute()`. This separate `Execute()` method makes Coyote testing possible:
+So now you know what happened when you ran the following command line:
 
-```c#
-public static class HostProgram
-{
-    private static long MaxGreetings = 7;
-
-    private static readonly TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-    public static async Task Main(string[] args)
-    {
-        if (args != null && args.Length > 0)
-        {
-            MaxGreetings = long.Parse(args[0]);
-        }
-
-        IActorRuntime runtime = RuntimeFactory.Create();
-        Execute(runtime);
-
-        await CompletionSource.Task;
-    }
-
-    [Microsoft.Coyote.SystematicTesting.Test]
-    public static void Execute(IActorRuntime runtime)
-    {
-        ActorId serverId = runtime.CreateActor(typeof(Server));
-        runtime.CreateActor(typeof(Client), new Client.ConfigEvent(CompletionSource, serverId, MaxGreetings));
-    }
-}
+```
+coyote test .\bin\net46\HelloWorldActors.exe --iterations 30
 ```
 
-The `Main()` entry point of the sample obtains from the command prompt the value for `MaxGreetings`,
-creates an `ActorRuntime` instance and then calls the `Execute()` method passing this runtime to it.
-Then it awaits on the `Task` of the (`TaskCompletionSource`) `CompletionSource` static member, which
-must be completed when the sample finishes work or if any exception is caught.
-
-The `Execute()` method creates both the `Server` actor and the `Client` state machine, then passes
-to the created `Client` a `ConfigEvent` with payload containing the `Server` id, the value for
-`MaxGreetings`, and the `TaskCompletionSource` on whose `Task`'s property to wait for completion.
-
-The intent is that the code must be testable with the Coyote tester. This is done by including the
-`Execute()` method and the only thing the `Main()` method does is to call this `async Execute()`
-method and await its execution.
-
-It is a rule in Coyote that for any executable to be testable with the `coyote test` tool, it must
-contain a static method which must have a specific, predefined signature, such as one of these:
-
-```c#
-[Microsoft.Coyote.SystematicTesting.Test]
-public static void Execute() { ... }
-
-[Microsoft.Coyote.SystematicTesting.Test]
-public static void Execute(IActorRuntime runtime) { ... }
-
-[Microsoft.Coyote.SystematicTesting.Test]
-public static async Task Execute() { ... await ... }
-
-[Microsoft.Coyote.SystematicTesting.Test]
-public static async Task Execute(IActorRuntime runtime) { ... await ... }
-```
-
-In this code one of these allowed signatures for the `Execute()` method is specified.
-
-Do note the `[Microsoft.Coyote.SystematicTesting.Test]` attribute of the `Execute()` method. When this
-is specified, then the Coyote tester can find the `Execute()` method in the executable assembly and
-can control its execution.
-
-Also note that **when running under the Coyote tester the `Main()` method is not executed**! This
-means in our example, the test does not run with any command line arguments specifying
-`MaxGreetings`. This is why we statically initialize `MaxGreetings` to an interesting number, 7 in
-this example. This is a similar restriction that other unit testing frameworks have where test
-parameters are either specified declaratively in custom attributes or in a config file that the test
-loads.
+A special coyote `TestEngine` was created, it invoked the `Execute` method 30 times, and during
+those executions the test engine took over all concurrent activity and the non-determinism (like
+`RandomInteger`) to ensure the program covered lots of async non-deterministic choices, and recorded
+all this in a way that when a bug was found, it is able to reproduce that bug.  See also [Using
+Coyote](/learn/get-started/using-coyote) for information on how to replay a test that found a bug
+using `coyote replay`.
 
 ## Summary
 
 In this tutorial you learned:
-1. [How to install and build Coyote](#what-you-will-need)
-2. [How to build the samples used in the tutorials](#build-the-sample)
-3. [How to run the HelloWorldActors sample from the
-   command-line](#run-the-helloworldtasks-application)
-4. [How Actors behave: run concurrently, but handle their input queues in a sequential
-   way](#the-code)
-5. [What are State Machines: actors that also have explicit states and state
-   transitions](/coyote/learn/programming-models/actors/state-machines)
-6. [How Specification.Assert helps find violations of safety properties by Coyote in an automated
-   way](#specification-assert)
-7. [What is one way to terminate an actor or a state machine: send a HaltEvent to
-   it](#terminate-actors)
-8. [How to write code that is Coyote-testable](#coyote-testable)
-9. [How testing with Coyote results in finding even the trickiest concurrency bugs quickly, even
-   before pushing code to production.](#how-to-reproduce-the-bug)
+1. How to create an `Actor` and `SendEvent`s to it.
+2. How an `Actor` can handle events using `OnEventDoAction`.
+3. The importance of the inbox to simplify parallel programming.
+4. How to run the HelloWorldActors sample from the command-line.
+5. How to use `Assert` in Coyote code.
+6. How to write a `[Test]` method for use in `coyote test` runs.
+7. How to run that test using the `coyote test` tool.

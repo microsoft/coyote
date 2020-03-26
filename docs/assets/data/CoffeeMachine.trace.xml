@@ -592,6 +592,7 @@
   <DequeueEvent id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" event="Microsoft.Coyote.Samples.CoffeeMachineActors.GrinderButtonEvent" />
   <Action id="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" action="OnGrinderButton" />
   <MonitorEvent monitorType="Microsoft.Coyote.Samples.CoffeeMachineActors.DoorSafetyMonitor" state="Init" senderName="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder(3)" senderType="Microsoft.Coyote.Samples.CoffeeMachineActors.MockCoffeeGrinder" senderState="" event="Microsoft.Coyote.Samples.CoffeeMachineActors.BusyEvent" />
+  <ErrorState id="Microsoft.Coyote.Samples.CoffeeMachineActors.CoffeeMachine(9)" state="GrindingBeans"/>
   <AssertionFailure>&lt;ErrorLog&gt; Please do not turn on grinder if there are no beans in the hopper</AssertionFailure>
   <AssertionFailure>&lt;StackTrace&gt;    at Microsoft.Coyote.SystematicTesting.OperationScheduler.NotifyAssertionFailure(String text, Boolean killTasks, Boolean cancelExecution)
    at Microsoft.Coyote.SystematicTesting.ControlledRuntime.Assert(Boolean predicate, String s, Object[] args)

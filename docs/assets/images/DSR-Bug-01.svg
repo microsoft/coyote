@@ -1,115 +1,115 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0 0 1260 984" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,1305,959" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="1260.71508515196" height="984.474609183753" fill="#FFFFFF" />
-  <g transform="translate(-121.064477861824,-385.90090897135)">
+  <rect width="1305.0647182386501" height="959.72832851981" fill="#FFFFFF" />
+  <g transform="translate(-123.52,-407.941671480191)">
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)">
-      <rect x="141.064477861824" y="405.90090897135" rx="5" ry="5" width="373.24" height="229.800303149193" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="161.064477861824" y="423.85090897135" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)</text>
-      <rect x="146.064477861824" y="433.86090897135" width="363.24" height="196.840303149193" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="199.193795522921" y="427.941671480191" rx="5" ry="5" width="373.24" height="229.800303149193" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="219.193795522921" y="445.891671480191" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2)</text>
+      <rect x="204.193795522921" y="455.901671480191" width="363.24" height="196.840303149193" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator">
-        <path d="M 324.666454496277,543.781025390625 L 324.659820092113,548.568741191533 A 12662.5588421801,12662.5588421801 3.14159265358979 0 0 324.647675692202,565.543309757255 A 12662.5588423873,12662.5588423873 3.14159265358979 0 0 324.65610947496,580.741198796379" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 324.667643000593,589.74119140625 L 328.654824687611,579.736073606108 C 325.989441713459,580.739490125914 323.32277723646,580.742907466843 320.654831256612,579.746325628894 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="295.46128052686322" y="557.81541214173683" fill="#A0A0A0">goto</text>
+        <path d="M 388.857502896015,565.821857910156 L 388.891393804256,575.858435209398 A 4324.34416982865,4324.34416982865 0 0 1 388.915847595978,591.775351657461 A 4324.34416986568,4324.34416986568 0 0 1 388.898493621534,602.78196263288" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 388.865418106327,611.781901855469 L 392.902141666596,601.796669614906 C 390.231817950806,602.786862709207 387.565169292261,602.777062556553 384.902195690962,601.767269156945 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="392.8913383895146" y="580.8052710255555" fill="#A0A0A0">goto</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active">
-        <path d="M 327.684431437626,471.860966186523 L 327.68443927919,508.821025390625" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 327.684441188659,517.821025390625 L 331.684439067027,507.821024541972 C 329.017772612523,508.821025107741 326.351105945857,508.821025673509 323.684439067027,507.821026239278 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="331.68443535840811" y="495.31099536424779" fill="#A0A0A0">goto</text>
+        <path d="M 385.813668217119,493.901798706055 L 385.813660375555,530.861857910156" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 385.813658466086,539.861857910156 L 389.813660587718,529.861858758809 C 387.146993708888,530.86185819304 384.480327042222,530.861857627272 381.813660587718,529.861857061503 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="389.81366429633687" y="517.35182873243184" fill="#A0A0A0">goto</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active">
-        <path d="M 330.66764803441,589.74119140625 L 330.65828122679,582.510107238708 A 12656.5588424787,12656.5588424787 0 0 1 330.647675686079,565.543580838935 A 12656.5588421685,12656.5588421685 0 0 1 330.654687031825,552.78101769013" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 330.666460256882,543.781025390625 L 326.653382318149,553.775784290051 C 329.321354839306,552.77927350864 331.988019224345,552.78276187162 334.653375473266,553.786249378991 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="334.65283613339341" y="582.527111481499" fill="#A0A0A0">goto</text>
+        <path d="M 382.865370469494,611.781901855469 L 382.881762379443,607.668341398778 A 4318.34416985932,4318.34416985932 3.14159265358979 0 0 382.915847873317,591.77352735947 A 4318.3441698434,4318.3441698434 3.14159265358979 0 0 382.891428011076,575.878695531625 L 382.887859172343,574.821806599927" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 382.857468689001,565.821857910156 L 378.891258697261,575.835307780276 C 381.554533440525,574.826308893756 384.221184904161,574.817304306099 386.891213088169,575.808294017306 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="353.72251453998365" y="596.74291926010892" fill="#A0A0A0">goto</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active">
-        <rect x="301.544443942537" y="517.821025390625" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="311.544443942537" y="535.771025390625" fill="#3D3D3D">Active</text>
+        <rect x="359.673655712208" y="539.861857910156" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="369.673655712208" y="557.811857910156" fill="#3D3D3D">Active</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init">
-        <rect x="302.684428683748" y="445.900966186523" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="318.684428683748" y="463.850966186523" fill="#3D3D3D">Init</text>
+        <rect x="360.813670970997" y="467.941798706055" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="376.813670970997" y="485.891798706055" fill="#3D3D3D">Init</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator">
-        <rect x="260.326125867993" y="589.74119140625" rx="3" ry="3" width="134.716666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="270.326125867993" y="607.69119140625" fill="#3D3D3D">TerminatingNavigator</text>
+        <rect x="318.455337637663" y="611.781901855469" rx="3" ry="3" width="134.716666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="328.455337637663" y="629.731901855469" fill="#3D3D3D">TerminatingNavigator</text>
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1)">
-      <rect x="519.792148926906" y="1192.49344315536" rx="5" ry="5" width="373.85" height="157.882074999743" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="539.792148926906" y="1210.44344315536" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor</text>
-      <rect x="524.792148926906" y="1220.45344315536" width="363.85" height="124.92207499974299" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="537.230944225235" y="1113.43757113627" rx="5" ry="5" width="373.85" height="157.882074999743" fill="#558FDA" stroke="#A5A6A9" stroke-width="1" />
+      <text x="557.230944225235" y="1131.38757113627" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor</text>
+      <rect x="542.230944225235" y="1141.39757113627" width="363.85" height="124.92207499974299" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle">
-        <path d="M 724.807140584303,1258.45448065523 L 730.731315593573,1263.45448065523 C 744.611406005565,1275.16926827568 744.926231289989,1286.88405589613 731.675791446846,1298.59884351658" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 724.807140584303,1304.41448065523 L 735.023702493197,1301.00539532897 C 732.537367319239,1299.61642142214 730.814215574452,1297.58126561102 729.854247258837,1294.8999278956 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="741.88298226023926" y="1286.4044806552315" fill="#A0A0A0">IdleEvent</text>
+        <path d="M 742.245935882632,1179.39860863614 L 748.170110891902,1184.39860863614 C 762.050201303894,1196.11339625659 762.365026588318,1207.82818387704 749.114586745175,1219.54297149749" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 742.245935882632,1225.35860863614 L 752.462497791526,1221.94952330988 C 749.976162617568,1220.56054940305 748.253010872781,1218.52539359193 747.293042557166,1215.84405587651 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="759.32177755856833" y="1207.3486086361415" fill="#A0A0A0">IdleEvent</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy">
-        <path d="M 693.906847666246,1304.41448065523 L 687.927982260239,1299.41448065523 C 673.907023808819,1287.68904656423 673.601456699012,1275.96361247323 687.011280930817,1264.23817838223" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 693.906847666246,1258.45448065523 L 683.674574525994,1261.81611513615 C 686.154436823114,1263.21661293994 687.86812503852,1265.25974382451 688.815639172212,1267.94550778986 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="623.15798226023935" y="1286.4044806552315" fill="#A0A0A0">BusyEvent</text>
+        <path d="M 711.345642964575,1225.35860863614 L 705.366777558568,1220.35860863614 C 691.345819107148,1208.63317454514 691.040251997341,1196.90774045414 704.450076229146,1185.18230636314" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 711.345642964575,1179.39860863614 L 701.113369824323,1182.76024311706 C 703.593232121443,1184.16074092085 705.306920336849,1186.20387180542 706.254434470541,1188.88963577077 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="640.59677755856842" y="1207.3486086361415" fill="#A0A0A0">BusyEvent</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy">
-        <rect x="674.579645182292" y="1232.49354315536" rx="3" ry="3" width="69.6966666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="684.579645182292" y="1250.44354315536" fill="#3D3D3D">Busy[hot]</text>
+        <rect x="692.018537687857" y="1153.43736970147" rx="3" ry="3" width="69.6966666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="702.018537687857" y="1171.38736970147" fill="#3D3D3D">Busy[hot]</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle">
-        <rect x="674.812978515625" y="1304.4154181551" rx="3" ry="3" width="69.23" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="684.812978515625" y="1322.3654181551" fill="#3D3D3D">Idle[cold]</text>
+        <rect x="692.251871021191" y="1225.35924470147" rx="3" ry="3" width="69.23" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="702.251871021191" y="1243.30924470147" fill="#3D3D3D">Idle[cold]</text>
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)">
-      <rect x="943.996229680451" y="959.473726904297" rx="5" ry="5" width="417.783333333333" height="229.801417041015" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="962.996229680451" y="977.423726904297" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)</text>
-      <rect x="948.996229680451" y="987.433726904297" width="407.783333333333" height="196.84141704101498" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="952.134334153005" y="979.23769490907" rx="5" ry="5" width="417.783333333333" height="229.801417041015" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="971.134334153005" y="997.18769490907" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4)</text>
+      <rect x="957.134334153005" y="1007.19769490907" width="407.783333333333" height="196.84141704101498" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Halt">
-        <path d="M 1152.88789634712,1097.3544354248 L 1152.88789634712,1134.3144354248" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1152.88789634712,1143.3144354248 L 1156.88789634712,1133.3144354248 C 1154.22122968045,1134.3144354248 1151.55456301378,1134.3144354248 1148.88789634712,1133.3144354248 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1133.0178963471174" y="1125.3044354248045" fill="#A0A0A0">halt</text>
+        <path d="M 1161.02600081967,1117.11840342958 L 1161.02600081967,1154.07840342958" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1161.02600081967,1163.07840342958 L 1165.02600081967,1153.07840342958 C 1162.359334153,1154.07840342958 1159.69266748634,1154.07840342958 1157.02600081967,1153.07840342958 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1141.1560008196714" y="1145.0684034295775" fill="#A0A0A0">halt</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Init-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active">
-        <path d="M 1152.88789634712,1025.4344354248 L 1152.88789634712,1062.3944354248" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1152.88789634712,1071.3944354248 L 1156.88789634712,1061.3944354248 C 1154.22122968045,1062.3944354248 1151.55456301378,1062.3944354248 1148.88789634712,1061.3944354248 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1127.6945630137841" y="1053.3844354248045" fill="#A0A0A0">goto</text>
+        <path d="M 1161.02600081967,1045.19840342958 L 1161.02600081967,1082.15840342958" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1161.02600081967,1091.15840342958 L 1165.02600081967,1081.15840342958 C 1162.359334153,1082.15840342958 1159.69266748634,1082.15840342958 1157.02600081967,1081.15840342958 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1135.8326674863381" y="1073.1484034295775" fill="#A0A0A0">goto</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active">
-        <rect x="1126.74789634712" y="1071.39377929687" rx="3" ry="3" width="52.2799999999997" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1136.74789634712" y="1089.34377929687" fill="#3D3D3D">Active</text>
+        <rect x="1134.88611174385" y="1091.15779477676" rx="3" ry="3" width="52.2799999999997" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1144.88611174385" y="1109.10779477676" fill="#3D3D3D">Active</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Halt">
-        <rect x="1127.88789634712" y="1143.31504394531" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1141.88789634712" y="1161.26504394531" fill="#3D3D3D">Halt</text>
+        <rect x="1136.02611174385" y="1163.07905942519" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1150.02611174385" y="1181.02905942519" fill="#3D3D3D">Halt</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Init">
-        <rect x="1127.88789634712" y="999.473826904297" rx="3" ry="3" width="50" height="25.9600000000002" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1143.88789634712" y="1017.423826904297" fill="#3D3D3D">Init</text>
+        <rect x="1136.02611174385" y="1019.2378118666" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1152.02611174385" y="1037.1878118666002" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)">
-      <rect x="506.49" y="999.25755657036" rx="5" ry="5" width="401.02" height="157.879450488281" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="525.49" y="1017.20755657036" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)</text>
-      <rect x="511.49" y="1027.21755657036" width="391.02" height="124.919450488281" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="1007.56471823865" y="642.343546131225" rx="5" ry="5" width="401.02" height="157.879656895705" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1026.5647182386501" y="660.29354613122507" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5)</text>
+      <rect x="1012.56471823865" y="670.30354613122506" width="391.02" height="124.919656895705" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Halt">
-        <path d="M 707,1065.2172818145 L 707,1102.1772818145" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 707,1111.1772818145 L 711,1101.1772818145 C 708.333333333333,1102.1772818145 705.666666666667,1102.1772818145 703,1101.1772818145 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="687.13" y="1093.1672818145005" fill="#A0A0A0">halt</text>
+        <path d="M 1208.07471823865,708.303374579078 L 1208.07471823865,745.263374579078" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1208.07471823865,754.263374579078 L 1212.07471823865,744.263374579078 C 1209.40805157198,745.263374579078 1206.74138490532,745.263374579078 1204.07471823865,744.263374579078 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1188.2047182386502" y="736.25337457907756" fill="#A0A0A0">halt</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active">
-        <rect x="680.86" y="1039.25765657036" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="690.86" y="1057.20765657036" fill="#3D3D3D">Active</text>
+        <rect x="1181.93471823866" y="682.343852539063" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1191.93471823866" y="700.2938525390631" fill="#3D3D3D">Active</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Halt">
-        <rect x="682" y="1111.17690705864" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="696" y="1129.12690705864" fill="#3D3D3D">Halt</text>
+        <rect x="1183.0745961656" y="754.263103026931" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1197.0745961656" y="772.21310302693109" fill="#3D3D3D">Halt</text>
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)">
-      <rect x="566.108548177083" y="511.792950223585" rx="5" ry="5" width="370.973333333333" height="85.9602" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="585.108548177083" y="529.742950223585" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)</text>
-      <rect x="571.108548177083" y="539.752950223585" width="360.973333333333" height="53.0002" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null">
-        <rect x="706.58521484375" y="551.793050223585" rx="3" ry="3" width="90.02" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="716.58521484375" y="569.7430502235851" fill="#3D3D3D">MockStorage</text>
+      <rect x="536.44047284316" y="986.128182338135" rx="5" ry="5" width="370.973333333333" height="85.9602" fill="#57AC56" stroke="#A5A6A9" stroke-width="1" />
+      <text x="555.44047284316" y="1004.0781823381351" fill="#FFFFFF">Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3)</text>
+      <rect x="541.44047284316" y="1014.0881823381351" width="360.973333333333" height="53.0002" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage">
+        <rect x="676.917160189541" y="1026.12824472708" rx="3" ry="3" width="90.02" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="686.917160189541" y="1044.0782447270801" fill="#3D3D3D">MockStorage</text>
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13)">
@@ -140,39 +140,39 @@
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)">
-      <rect x="630.74101155599" y="627.753250223585" rx="5" ry="5" width="353.133333333333" height="301.720392871094" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="649.74101155599" y="645.70325022358509" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)</text>
-      <rect x="635.74101155599" y="655.71325022358508" width="343.133333333333" height="268.76039287109404" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="624.431163469121" y="627.753250223585" rx="5" ry="5" width="353.133333333333" height="301.720392871094" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="643.431163469121" y="645.70325022358509" fill="#000000">Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6)</text>
+      <rect x="629.431163469121" y="655.71325022358508" width="343.133333333333" height="268.76039287109404" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Halt">
-        <path d="M 807.307703232472,837.553560184523 L 807.30768754936,874.51354309468" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 807.307683730418,883.513543094679 L 811.307687973686,873.513544791987 C 808.641020882693,874.513543660449 805.974354216026,874.513542528911 803.307687973687,873.513541397373 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="811.30769539091568" y="861.00355248825508" fill="#A0A0A0">halt</text>
+        <path d="M 800.997855145603,837.553560184523 L 800.997839462491,874.51354309468" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 800.997835643549,883.513543094679 L 804.997839886817,873.513544791987 C 802.331172795824,874.513543660449 799.664506129157,874.513542528911 796.997839886818,873.513541397373 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="804.99784730404667" y="861.00355248825508" fill="#A0A0A0">halt</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Init-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused">
-        <path d="M 807.307678222656,693.713350223585 L 807.307678222657,730.673546756788" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 807.307678222657,739.673546756788 L 811.307678222657,729.673546756788 C 808.64101155599,730.673546756788 805.974344889323,730.673546756788 803.307678222657,729.673546756788 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="811.30767822265636" y="717.16344849018651" fill="#A0A0A0">push(push)</text>
+        <path d="M 800.997830135787,693.713350223585 L 800.997830135787,730.673546756788" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 800.997830135788,739.673546756788 L 804.997830135787,729.673546756788 C 802.331163469121,730.673546756788 799.664496802454,730.673546756788 796.997830135787,729.673546756788 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="804.99783013578735" y="717.16344849018651" fill="#A0A0A0">push(push)</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-        <path d="M 807.307683730416,765.633546756788 L 807.307699413535,802.593560184524" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 807.307703232474,811.593560184523 L 811.307698989208,801.593558487217 C 808.641032746868,802.593559618755 805.974366080201,802.593560750293 803.307698989208,801.59356188183 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="811.30769157197551" y="789.08355262200268" fill="#A0A0A0">goto</text>
+        <path d="M 800.997835643547,765.633546756788 L 800.997851326666,802.593560184524" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 800.997855145605,811.593560184523 L 804.997850902339,801.593558487217 C 802.331184659999,802.593559618755 799.664517993332,802.593560750293 796.997850902339,801.59356188183 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="804.9978434851065" y="789.08355262200268" fill="#A0A0A0">goto</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-        <rect x="781.167708740234" y="811.593560184523" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="791.167708740234" y="829.543560184523" fill="#3D3D3D">Active</text>
+        <rect x="774.857860653365" y="811.593560184523" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="784.857860653365" y="829.543560184523" fill="#3D3D3D">Active</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Halt">
-        <rect x="782.307678222656" y="883.513543094679" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="796.307678222656" y="901.463543094679" fill="#3D3D3D">Halt</text>
+        <rect x="775.997830135787" y="883.513543094679" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="789.997830135787" y="901.463543094679" fill="#3D3D3D">Halt</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Init">
-        <rect x="782.307678222656" y="667.753350223585" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="798.307678222656" y="685.70335022358506" fill="#3D3D3D">Init</text>
+        <rect x="775.997830135787" y="667.753350223585" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="791.997830135787" y="685.70335022358506" fill="#3D3D3D">Init</text>
       </g>
       <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused">
-        <rect x="778.48601155599" y="739.673546756788" rx="3" ry="3" width="57.6433333333334" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="788.48601155599" y="757.62354675678807" fill="#3D3D3D">Paused</text>
+        <rect x="772.176163469121" y="739.673546756788" rx="3" ry="3" width="57.6433333333334" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="782.176163469121" y="757.62354675678807" fill="#3D3D3D">Paused</text>
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7)">
@@ -226,104 +226,104 @@
       </g>
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Init-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused">
-      <path d="M 348.876024464846,471.860966186523 L 778.441316514538,734.972699177315" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 786.116082441559,739.673546756788 L 779.677830335745,731.03937570092 C 779.137738378163,733.835696817757 777.744894650912,736.109701536874 775.499299153992,737.861389858272 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 405.701069310404,493.901798706055 L 416.264557122776,500.976947085685 A 356.386528513711,356.386528513711 3.14159265358979 0 0 430.554133607501,510.063517972837 A 822.696000074508,822.696000074508 3.14159265358979 0 0 445.148148358736,518.660264026845 L 540.406240555886,573.460006927194 A 1773.04344457914,1773.04344457914 3.14159265358979 0 0 563.656549116871,586.603294642931 A 459.545850915461,459.545850915461 0 0 1 586.60961259629,600.238480226357 L 588.951607300061,601.723427024784 A 1396.42912303584,1396.42912303584 0 0 1 611.811126379699,616.532073362543 A 731.68860250626,731.68860250626 0 0 1 634.238661457505,631.981115349872 L 719.991353721393,693.435308757209 A 1418.28727525641,1418.28727525641 0 0 1 743.324202670466,710.51937977078 A 2049.23160471395,2049.23160471395 3.14159265358979 0 0 766.603942373285,727.677069850878 L 775.841329811294,734.385162742544" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 783.123705420797,739.673546756788 L 777.382569861013,730.560953136737 C 776.6247941097,733.306292281877 775.057865512887,735.464033203211 772.681784070574,737.03417590074 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused">
-      <path d="M 331.616935405599,615.70119140625 L 386.889527259214,798.140500633487" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 389.499072867994,806.75387811945 L 390.427745518666,796.023660642255 C 388.16558318306,797.753901284038 385.613471335367,798.527099982935 382.771409975588,798.343256738948 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 381.156627264449,637.741901855469 L 376.520069927523,650.664802739714 A 709.474408173145,709.474408173145 0 0 1 373.41746843362,659.142234836174 A 731.034034801971,731.034034801971 3.14159265358979 0 0 370.313272772931,667.619094630119 L 369.935840081993,668.669825360381 A 1504.70826782154,1504.70826782154 3.14159265358979 0 0 366.953313812807,677.050630089181 A 106.132230759655,106.132230759655 3.14159265358979 0 0 364.351728452886,685.549280172995 L 360.595754942189,699.947587133501 A 190.656481078003,190.656481078003 3.14159265358979 0 0 357.163772765838,715.855502709529 A 85.2145566026201,85.2145566026201 3.14159265358979 0 0 355.956773425572,732.025383068707 L 356.78807069593,772.026630915133 A 21.0553972210532,21.0553972210532 3.14159265358979 0 0 357.536970775304,777.171315910107 A 24.2776447484179,24.2776447484179 3.14159265358979 0 0 359.448707795566,782.016559232344 L 360.330477355481,783.696764961925 A 32.1564615520549,32.1564615520549 3.14159265358979 0 0 365.529844867762,790.942741924538 A 519.630501146646,519.630501146646 3.14159265358979 0 0 371.799835882204,797.406348802399 L 374.703699638336,800.34843965638" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 381.025911126085,806.75387811945 L 376.848093234395,796.826852499262 C 375.652653484717,799.411815732269 373.754745791955,801.285063580491 371.154370156111,802.446596043927 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-      <path d="M 355.745957094266,615.70119140625 L 773.618136299449,808.990263385836" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 781.786606951808,812.768634357769 L 774.389804436712,804.940012987906 C 774.177894961957,807.780119585487 773.05837763694,810.200407186186 771.031252461661,812.200875790003 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 444.128416459611,637.741901855469 L 468.646049424897,643.285184844522 A 202.143185124685,202.143185124685 0 0 1 482.994638129863,647.088087143785 A 321.205354562218,321.205354562218 3.14159265358979 0 0 497.295978741693,651.087495494788 L 499.887406701509,651.748004551934 A 262.519885253448,262.519885253448 3.14159265358979 0 0 514.960046718044,655.120859825738 A 114.186037272345,114.186037272345 0 0 1 529.865512174409,659.058654853281 L 572.136418231024,673.34141795184 A 351.526089547605,351.526089547605 3.14159265358979 0 0 586.697770566766,677.911799399186 A 93.2191476619137,93.2191476619137 0 0 1 600.914716915814,683.330078120565 L 602.770223755466,684.216836223118 A 229.509709920167,229.509709920167 0 0 1 616.426075726216,691.314978402349 A 157.736867725807,157.736867725807 0 0 1 629.443941731177,699.506681284288 L 743.304110447164,779.159478104705 A 176.0477236869,176.0477236869 0 0 1 757.561680255163,790.265731905144 A 98.5218302685761,98.5218302685761 0 0 1 770.055726223789,803.252249012527 L 771.241008255861,804.734616487958" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 776.861494117879,811.763851060432 L 773.740614081181,801.455596707898 C 772.282376340672,803.901951915808 770.19964017105,805.567281060109 767.492405572316,806.451584140803 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-      <path d="M 1135.62224691084,1071.3944354248 L 831.767201070794,842.961759923106" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 824.573358176514,837.553560184523 L 830.162872619677,846.75993451374 C 830.965986294708,844.027514425963 832.568415846881,841.89600542025 834.970161276196,840.365407496602 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1145.30092922045,1091.15779477676 L 1131.69447911061,1081.39116036019 A 2575.6484583234,2575.6484583234 0 0 1 1115.30569341833,1069.5295776931 A 2575.64845830867,2575.64845830867 0 0 1 1099.01058154521,1057.53963320289 L 966.118410471077,958.950748893616 A 1284.52873416357,1284.52873416357 0 0 1 950.318222236083,947.039281564207 A 1284.52873416647,1284.52873416647 0 0 1 934.703389359449,934.885845982625 L 932.855790883469,933.424821952941 A 1701.68031949189,1701.68031949189 0 0 1 917.880411103722,921.4449847156 A 1701.68031949332,1701.68031949332 0 0 1 903.040990229222,909.297141784022 L 858.495134161222,872.409852125665 A 1387.0476314796,1387.0476314796 0 0 1 843.66435678588,859.953298109321 A 1387.04763147875,1387.04763147875 0 0 1 829.008957341854,847.290874855649 L 824.66573637456,843.485002534446" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 817.896837523968,837.553560184523 L 822.781639646882,847.15245117359 C 823.787004174571,844.487802364164 825.544468574548,842.482202704729 828.054032846813,841.135652195286 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-      <path d="M 712.718935147535,1039.2572818145 L 797.960014519193,845.78958517152" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 801.588773592699,837.553560184523 L 793.896363516804,845.091917248517 C 796.739862669267,845.251991234705 799.180166369118,846.327179108336 801.217274616358,848.317480869412 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1181.93471823866,701.573436446409 L 1173.22942403948,704.307428654727 A 5390.87247252785,5390.87247252785 0 0 1 1153.08857160535,710.589609414496 A 2828.93759549411,2828.93759549411 3.14159265358979 0 0 1132.95898493273,716.907440319611 L 1032.71683557971,748.780336418415 A 3109.33578296677,3109.33578296677 3.14159265358979 0 0 985.347675135735,764.260848932839 A 6329.50109583545,6329.50109583545 0 0 1 938.040869627775,779.93473764353 L 870.629677785424,801.975561060431 A 1649.88026079856,1649.88026079856 0 0 1 852.317364417653,807.845067014973 A 19888.6625906252,19888.6625906252 0 0 1 835.726819089413,813.048320989557" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 827.137860653365,815.737148426179 L 837.8761822208,816.566877245954 C 836.125163894838,814.320759276379 835.328474283988,811.775882702736 835.486113388249,808.932247525026 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused">
-      <path d="M 733.361180933205,577.753050223585 L 418.997601822958,801.534539106919" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 411.665582982811,806.75387811945 L 422.131976810766,804.213287590037 C 419.770837232222,802.620764120274 418.224366413695,800.448314093564 417.492564355183,797.695937509906 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused">
+      <path d="M 702.940442761771,1026.12824472708 L 649.702341345117,984.854378813743 A 1941.0280596599,1941.0280596599 3.14159265358979 0 0 642.092880222203,978.985098633716 A 4497.2040942318,4497.2040942318 0 0 1 634.475149257865,973.126516562447 L 633.080658654174,972.051680018192 A 508.803851166769,508.803851166769 0 0 1 625.143990148954,965.807779822019 A 565.013348813241,565.013348813241 3.14159265358979 0 0 617.213415647114,959.555989400773 L 612.083552129581,955.585855816498 A 872.836390707559,872.836390707559 0 0 1 598.159494138308,944.581512350351 A 120.15918458392,120.15918458392 3.14159265358979 0 0 583.603543414005,934.510615304808 L 460.701270522506,862.246935687328 A 1079.47082964838,1079.47082964838 3.14159265358979 0 0 443.368982789192,852.270845518016 A 402.058705317451,402.058705317451 0 0 1 426.199024458295,842.028278833346 L 419.044474324111,837.515408379857" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 411.432292826117,832.71387811945 L 417.756258819262,841.432103519011 C 418.333136507754,838.643138972152 419.755812140467,836.387677787562 422.024285717402,834.665719965238 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-      <path d="M 754.378689637102,577.753050223585 L 802.637145814553,802.793622776744" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 804.524233946882,811.593560184523 L 806.338552647751,800.977146117067 C 803.940840245335,802.514054164547 801.333451383771,803.073191388941 798.516386063059,802.654557790248 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
+      <path d="M 728.675396720718,1026.12824472708 L 729.918000856609,1019.79000125399 A 861.902768686054,861.902768686054 3.14159265358979 0 0 733.417603292358,1000.81693153871 A 819.20165891428,819.20165891428 3.14159265358979 0 0 736.480523980823,981.768621350683 L 738.143384692863,970.588940184141 A 546.938097962118,546.938097962118 3.14159265358979 0 0 741.831776445014,939.826442472262 A 251.549789565399,251.549789565399 0 0 1 746.532336688701,909.249028179086 L 753.059288772566,879.225428910395 A 35.5183384824307,35.5183384824307 0 0 1 755.006650305778,873.04787157887 A 22.4148237736987,22.4148237736987 0 0 1 758.320319811191,867.529399418585 L 759.445802405227,866.151333491663 A 41.7023675226845,41.7023675226845 0 0 1 765.005017119192,860.529373269348 A 127.429663999243,127.429663999243 0 0 1 771.252213523777,855.631467744741 L 788.599179424684,842.883211100625" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 795.851408124366,837.553560184523 L 785.424642495341,840.252181780333 C 787.809601511188,841.808806848821 789.388757338181,843.95761535243 790.162109976321,846.698607291162 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused">
-      <path d="M 755.444192188402,577.753050223585 L 800.900041208885,731.044916465854" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 803.458700878005,739.673546756788 L 804.450692486064,728.948997691697 C 802.178356807542,730.665855774133 799.621725610228,731.423977157576 796.780798894123,731.223361842026 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused">
+      <path d="M 723.070696811278,1026.12824472708 L 724.520744894866,1018.73187645822 A 843.411714501591,843.411714501591 3.14159265358979 0 0 727.994473337304,999.880971450291 A 851.072306582298,851.072306582298 3.14159265358979 0 0 731.040845267705,980.95628182927 L 732.754594599012,969.48851239259 A 513.211820809743,513.211820809743 3.14159265358979 0 0 736.374486710402,939.086549149397 A 243.853910879019,243.853910879019 0 0 1 740.985113304232,908.866130761639 L 748.134915527726,875.986663441271 A 717.721302494237,717.721302494237 3.14159265358979 0 0 749.287080217084,870.588362941795 A 218.994041870521,218.994041870521 0 0 1 750.486385662718,865.200746590863 L 763.387968886433,810.50259539737 A 75.1368330568635,75.1368330568635 0 0 1 766.598612434697,800.241469654489 A 65.8464307135288,65.8464307135288 0 0 1 771.334612020871,790.598298305079 L 781.624678187528,773.361277868144" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 786.237938625719,765.633546756788 L 777.677546533793,772.169576685766 C 780.479829133994,772.677831877301 782.769527241063,774.044723858987 784.546640854999,776.270252630824 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null">
-      <path d="M 411.665582982811,806.75387811945 L 726.029162093057,582.972389236116" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 733.361180933205,577.753050223585 L 722.89478710525,580.293640752998 C 725.255926683794,581.886164222761 726.802397502321,584.058614249471 727.534199560832,586.810990833129 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage">
+      <path d="M 416.586899515589,832.71387811945 L 427.66615870453,839.702334486737 A 400.039753978184,400.039753978184 3.14159265358979 0 0 444.759119720438,849.898662593732 A 1070.03742281728,1070.03742281728 0 0 1 462.013413988693,859.830165213299 L 585.142227978452,932.235813077826 A 121.246046034202,121.246046034202 0 0 1 599.795077140006,942.370969222106 A 899.042833187854,899.042833187854 3.14159265358979 0 0 613.811292291292,953.446366640641 L 618.969495950403,957.439699730524 A 565.737608674041,565.737608674041 0 0 1 626.844378885091,963.648608692648 A 500.903037266405,500.903037266405 3.14159265358979 0 0 634.726293666974,969.848413033767 L 636.146234699287,970.942489674456 A 5096.28535343484,5096.28535343484 3.14159265358979 0 0 643.771139701473,976.806084544015 A 1975.98389316714,1975.98389316714 0 0 1 651.387279069223,982.681020843714 L 700.315931306551,1020.61390308455" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 707.428739208464,1026.12824472708 L 701.976437825239,1016.8399505012 C 701.132870809148,1019.56015376575 699.498991803955,1021.66765240336 697.074800809661,1023.16244641401 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(13).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute">
-      <path d="M 393.288038323566,832.71387811945 L 388.202178016447,1292.71055003734" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 388.102677415367,1301.71 L 392.212989177749,1291.75483364197 C 389.535429862767,1292.72529086713 386.868926170128,1292.69580920755 384.213478099831,1291.66638866323 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 404.773693411419,832.71387811945 L 415.157997680548,842.200072225589 A 170.975397639722,170.975397639722 0 0 1 421.45725964853,848.257012554676 A 34.4745979240422,34.4745979240422 0 0 1 426.728604741694,855.143313177234 L 427.594728250016,856.630998194293 A 25.6714318166545,25.6714318166545 0 0 1 429.959120947559,862.041977570291 A 29.5257543286832,29.5257543286832 0 0 1 431.113083912896,867.84286925792 L 436.242850878811,921.092698716042 A 65.3393636738888,65.3393636738888 0 0 1 436.542263152786,926.890111965406 A 271.99482521568,271.99482521568 0 0 1 436.521814877862,932.700620718907 L 436.508953407722,933.606250700466 A 121.69907398573,121.69907398573 0 0 1 436.346085998819,938.404779331529 A 298.388896673386,298.388896673386 3.14159265358979 0 0 436.127145719602,943.201856397531 L 435.963787486674,947.548845965353 A 617.16339507379,617.16339507379 3.14159265358979 0 0 435.671742831123,957.427271347743 A 1833.62246855717,1833.62246855717 0 0 1 435.432166687207,967.307389438416 L 435.236386156847,974.573314954049 A 7592.02453512486,7592.02453512486 3.14159265358979 0 0 434.750030823566,993.499645784783 A 531.593566678653,531.593566678653 0 0 1 433.950488321796,1012.4123452699 L 428.170325366255,1108.54317038343 A 158.026952702306,158.026952702306 0 0 1 426.314935217008,1124.97877598125 A 582.348872873046,582.348872873046 0 0 1 423.366497645874,1141.27522195825 L 398.874920226968,1266.45632135608 A 444.721606446832,444.721606446832 0 0 1 395.932160457314,1280.32102351039 A 673.93171620639,673.93171620639 0 0 1 392.904576577963,1292.98095830183" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 390.712812213,1301.71 L 397.027680039925,1292.98518227534 C 394.197767940655,1293.30566413367 391.61138521527,1292.65625246998 389.26853186377,1291.03694728427 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator">
-      <path d="M 781.786606951808,812.768634357769 L 363.914427746625,619.479562378183" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 355.745957094266,615.70119140625 L 363.142759609362,623.529812776113 C 363.354669084116,620.689706178532 364.474186409133,618.269418577833 366.501311584413,616.268949974015 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 775.417262833662,812.849002279935 L 768.55991122241,805.72448510254 A 406.180391540752,406.180391540752 3.14159265358979 0 0 755.366130989945,792.630039630838 A 125.111549880371,125.111549880371 3.14159265358979 0 0 741.001375800809,780.90499434685 L 628.231083306994,702.021933076277 A 159.596485034386,159.596485034386 3.14159265358979 0 0 615.044669354167,693.725941944282 A 240.26628203323,240.26628203323 3.14159265358979 0 0 601.219068807517,686.523078293453 L 599.278051839782,685.590618647954 A 82.9506100217751,82.9506100217751 3.14159265358979 0 0 585.968792197618,680.551243392542 A 286.063105804078,286.063105804078 0 0 1 572.331351484366,676.317309196508 L 529.236525831595,661.749067391988 A 114.914834922497,114.914834922497 3.14159265358979 0 0 514.306278304738,657.797428316428 A 266.453135652722,266.453135652722 0 0 1 499.208195767685,654.412807078834 L 496.61676780787,653.752298021688 A 320.677977772391,320.677977772391 0 0 1 482.272562879599,649.739229917672 A 200.977980465684,200.977980465684 3.14159265358979 0 0 467.880256357563,645.926408231141 L 440.386946642197,639.722849591837" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 431.607661587833,637.741901855469 L 440.482001543185,643.844859364484 C 440.093472903476,641.023484414706 440.680420380918,638.422214768968 442.242843975512,636.041050427272 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockCognitiveService(4).Active">
-      <path d="M 824.573358176514,837.553560184523 L 1128.42840401656,1065.98623568622" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1135.62224691084,1071.3944354248 L 1130.03273246767,1062.18806109559 C 1129.22961879264,1064.92048118336 1127.62718924047,1067.05199018908 1125.22544381116,1068.58258811272 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 813.724159355678,837.553560184523 L 827.196572179377,849.359149504441 A 1389.79763147826,1389.79763147826 3.14159265358979 0 0 841.881027834276,862.046677637828 A 1389.79763147968,1389.79763147968 3.14159265358979 0 0 856.741209129756,874.527928371695 L 901.287065197755,911.415218030051 A 1704.430319492,1704.430319492 3.14159265358979 0 0 916.15046731417,923.58269247977 A 1704.43031949344,1704.43031949344 3.14159265358979 0 0 931.150048052183,935.581889729696 L 932.997646528164,937.042913759381 A 1287.27873416513,1287.27873416513 3.14159265358979 0 0 948.645908622276,949.222368181151 A 1287.27873416372,1287.27873416372 3.14159265358979 0 0 964.479922895171,961.159336329876 L 1097.3720939693,1059.74822063915 A 2578.39845832655,2578.39845832655 3.14159265358979 0 0 1113.68460400773,1071.75096670065 A 2578.39845830679,2578.39845830679 3.14159265358979 0 0 1130.09088788014,1083.6252138881 L 1133.27350391206,1085.90967802247" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1140.58495182156,1091.15779477676 L 1134.79361714624,1082.07702153444 C 1134.05100269047,1084.8265005544 1132.49600513364,1086.99285549054 1130.12862447576,1088.57608634288 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockRoutePlanner(5).Active">
-      <path d="M 801.588773592699,837.553560184523 L 716.347694221041,1031.0212568275" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 712.718935147535,1039.2572818145 L 720.41134522343,1031.71892475051 C 717.567846070967,1031.55885076432 715.127542371116,1030.48366289069 713.090434123876,1028.49336112961 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 827.137860653365,818.615420078452 L 834.88152471041,816.1928375557 A 15418.1518501003,15418.1518501003 3.14159265358979 0 0 853.148222160127,810.465702534451 A 1656.62360875945,1656.62360875945 3.14159265358979 0 0 871.377599495445,804.621900629663 L 938.799805983336,782.577939415661 A 6291.26550194453,6291.26550194453 3.14159265358979 0 0 986.206166423215,766.869693431198 A 3083.40573437717,3083.40573437717 0 0 1 1033.67580170544,751.35771570166 L 1133.44909413421,719.646041747087 A 2809.59136054962,2809.59136054962 0 0 1 1153.91385949919,713.227474695099 A 4221.97635400019,4221.97635400019 3.14159265358979 0 0 1173.35055698891,707.161343837062" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1181.93471823866,704.457240355633 L 1171.19493752497,703.646617001776 C 1172.94994906573,705.889616244506 1173.75116491208,708.433071429617 1173.59858506402,711.27698255711 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null">
-      <path d="M 804.524233946882,811.593560184523 L 756.265777769431,586.552987631364" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 754.378689637102,577.753050223585 L 752.564370936233,588.369464291041 C 754.962083338649,586.832556243561 757.569472200213,586.273419019167 760.386537520925,586.69205261786 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage">
+      <path d="M 791.255906301453,837.553560184523 L 769.705675959751,853.357545678561 A 129.443769490385,129.443769490385 3.14159265358979 0 0 763.175323177433,858.476404082576 A 43.9209641773031,43.9209641773031 3.14159265358979 0 0 757.364579644435,864.3538319423 L 756.249445578994,865.717509371792 A 26.8337221531532,26.8337221531532 3.14159265358979 0 0 752.721521065372,871.322983478808 A 29.6826584411541,29.6826584411541 3.14159265358979 0 0 750.597102150146,877.606046175833 L 743.758724996466,909.057579470363 A 247.668173715807,247.668173715807 3.14159265358979 0 0 739.103169353828,939.456500224787 A 529.625546118991,529.625546118991 0 0 1 735.448989645937,970.038726288365 L 733.760684624264,981.362451589976 A 835.019303063739,835.019303063739 0 0 1 730.706012147765,1000.34894787866 A 852.504237447264,852.504237447264 0 0 1 727.602216911474,1017.29591940427" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 725.873046765998,1026.12824472708 L 731.719824848888,1017.08306998861 C 728.910709551891,1017.55209275915 726.293724271057,1017.03974604938 723.868869006388,1015.5460298593 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active">
-      <path d="M 787.468028360303,837.553560184523 L 415.330199454813,1081.0226547814" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 407.798847046598,1085.95 L 418.356947597326,1083.82243971632 C 416.060176524235,1082.13841069373 414.600222385391,1079.90689886907 413.977085180792,1077.12790424235 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 775.776981300976,836.714564839955 L 733.644630517662,864.783393966153 A 371.684958041549,371.684958041549 0 0 1 690.760971411712,889.400588777326 A 2016.44545091791,2016.44545091791 3.14159265358979 0 0 646.510256200717,911.702699631915 L 610.094283192977,930.620793151977 A 264.038118198793,264.038118198793 0 0 1 596.816749935068,937.053954580907 A 272.471286646232,272.471286646232 0 0 1 583.205205669939,942.747343197059 L 530.738328279852,963.042027661229 A 70.331530349788,70.331530349788 3.14159265358979 0 0 522.822517288449,966.68259083216 A 43.7877075280895,43.7877075280895 3.14159265358979 0 0 515.616110989205,971.53275527326 L 509.653506548237,976.471490522729 A 582.839186577262,582.839186577262 3.14159265358979 0 0 499.06849828329,985.453569505643 A 157.672122649031,157.672122649031 3.14159265358979 0 0 489.010957468207,995.004510567401 L 450.917986618564,1034.50736727218 A 1710.06956602544,1710.06956602544 3.14159265358979 0 0 437.091300871876,1049.01498349895 A 375.122109207228,375.122109207228 0 0 1 422.969993758164,1063.22639519921 L 405.663105277501,1079.7375095682" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 399.15119598492,1085.95 L 409.147757613032,1081.94141476137 C 406.583474230361,1080.70223687081 404.742736324642,1078.7727822656 403.625543895878,1076.15305094574 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder">
-      <path d="M 788.514908168579,837.553560184523 L 332.157298854769,1152.75521127998" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 324.751967238322,1157.87 L 335.253352909939,1155.4781599184 C 332.915045331809,1153.85229744538 331.399552377729,1151.65812511458 330.706874047699,1148.895642926 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 786.911088663161,837.553560184523 L 736.264137309691,872.982652148063 A 280.261567753774,280.261567753774 0 0 1 694.731400944783,897.022203648471 A 1193.29765875738,1193.29765875738 3.14159265358979 0 0 651.563687105661,918.364088006792 L 615.466189603957,937.126198117101 A 265.204585138123,265.204585138123 0 0 1 599.760275759465,944.645272808566 A 367.449806865149,367.449806865149 0 0 1 583.650411115728,951.266535331571 L 527.184209865823,972.924835833338 A 8.90104276764706,8.90104276764706 3.14159265358979 0 0 526.057702442223,973.449853926992 A 7.65887607866782,7.65887607866782 3.14159265358979 0 0 525.023893110017,974.137796920771 L 514.376941958211,982.543701433987 A 87.8251863137528,87.8251863137528 3.14159265358979 0 0 505.605170865467,990.484652477595 A 43.2325152225907,43.2325152225907 3.14159265358979 0 0 498.670375879479,999.968988112956 L 441.900789554708,1105.12028064674 A 50.3673965140672,50.3673965140672 0 0 1 431.751157084616,1118.19511476138 A 73.162588039639,73.162588039639 0 0 1 418.295038220882,1128.03616943067 L 395.381388870854,1141.07292492626 A 97.3311247802255,97.3311247802255 0 0 1 379.807586845011,1148.1999324084 A 373.233393394626,373.233393394626 0 0 1 363.480469623901,1153.57529355058 L 357.959238147594,1155.25314606228" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 349.348078210126,1157.87 L 360.079079890742,1158.78956670808 C 358.346920212441,1156.52887346043 357.571556082748,1153.97741866414 357.752987501662,1151.13520231922 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
-    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).null">
-      <path d="M 803.458700878005,739.673546756788 L 758.002851857522,586.381680514519" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 755.444192188402,577.753050223585 L 754.452200580342,588.477599288676 C 756.724536258865,586.76074120624 759.281167456179,586.002619822797 762.122094172283,586.203235138347 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.MockStorage(3).MockStorage">
+      <path d="M 783.0252631377,765.633546756788 L 769.961571867975,787.504276153967 A 79.5622336627631,79.5622336627631 3.14159265358979 0 0 764.124716587017,799.439302672092 A 95.2940900113857,95.2940900113857 3.14159265358979 0 0 760.176284324236,812.139584345322 L 747.229655494152,867.042185073283 A 105.23033512533,105.23033512533 3.14159265358979 0 0 746.435275044457,870.701125615321 A 206.325655046258,206.325655046258 0 0 1 745.672728905307,874.367280706709 L 738.211501611997,908.674682052915 A 240.103750451283,240.103750451283 3.14159265358979 0 0 733.645729365685,938.716589099706 A 497.621318226264,497.621318226264 0 0 1 730.060199552087,968.938298496814 L 728.321005911146,980.550112068563 A 867.367542334904,867.367542334904 0 0 1 725.282984901531,999.413002008899 A 834.607237209609,834.607237209609 0 0 1 721.999322191312,1017.29627301118" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 720.268346856559,1026.12824472708 L 726.116973546685,1017.08426519152 C 723.30776244552,1017.55271380151 720.690881937105,1017.03983222085 718.26633202144,1015.54562044952 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Paused-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Init">
-      <path d="M 787.468000257541,765.633546756788 L 415.330196765232,1009.10265436143" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 407.798844631783,1014.03 L 418.356945063871,1011.90243912756 C 416.060173896872,1010.21841023305 414.600219633591,1007.9868984898 413.977082274026,1005.20790389783 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 779.812587649681,765.633546756788 L 768.588531715079,784.410254002855 A 382.123341217486,382.123341217486 0 0 1 759.295725169794,799.179656589959 A 131.867736141157,131.867736141157 0 0 1 748.74839846286,813.038794620952 L 720.067270330745,845.964278475162 A 416.474728693167,416.474728693167 0 0 1 685.311575871566,881.364800264381 A 193.120513036626,193.120513036626 0 0 1 644.825779232401,909.48223684029 L 608.30364772265,928.452324830269 A 268.033798265692,268.033798265692 0 0 1 595.83578029753,934.524047582602 A 242.500105119004,242.500105119004 0 0 1 583.056803854676,939.907612485555 L 531.923034417862,959.747758270526 A 98.9284436634165,98.9284436634165 3.14159265358979 0 0 521.71311518787,964.391276999278 A 49.3983473699157,49.3983473699157 3.14159265358979 0 0 512.480183615601,970.664408057423 L 508.079028078246,974.447420218977 A 221.028741897882,221.028741897882 0 0 1 497.565064721366,982.939812643124 A 57.8426149807074,57.8426149807074 0 0 1 485.994383246378,989.758186581078 L 474.943251989186,994.642305968137 A 461.610435908016,461.610435908016 0 0 1 449.522025092832,1004.98539602329 A 1654.3096657774,1654.3096657774 0 0 1 423.715408536958,1014.3582894723 L 421.443704293861,1015.1620916334" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 412.959166666667,1018.16419443856 L 423.720698610285,1018.59943026714 C 421.888460264995,1016.41906017077 420.998948322727,1013.90512309604 421.05216278348,1011.05761904297 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).Active">
-      <path d="M 386.582074604962,1085.95 L 330.011047611071,552.730797885415" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 329.061536004242,543.781025390625 L 326.138872236368,554.147222210093 C 328.685155389621,552.871466271612 331.336939832521,552.590129499218 334.09422556507,553.303211892912 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 371.78935848753,1085.95 L 349.142525373593,1067.77069381638 A 534.648894786655,534.648894786655 3.14159265358979 0 0 320.843084213995,1046.55410350465 A 413.667557765847,413.667557765847 0 0 1 292.760320612628,1025.07286835359 L 224.076109705223,967.720049817053 A 74.8206414947501,74.8206414947501 0 0 1 215.00814726267,958.728322024876 A 53.0047377705679,53.0047377705679 0 0 1 207.993915659565,948.111859001059 L 207.283622175994,946.690875125749 A 37.1567366538793,37.1567366538793 0 0 1 204.223952052454,938.031089881571 A 42.6811032443971,42.6811032443971 0 0 1 203.234696188861,928.88297823937 L 203.301606335747,693.004613547447 A 31.5747561553138,31.5747561553138 0 0 1 204.40081816918,684.754847380099 A 31.4232473746451,31.4232473746451 0 0 1 207.62196608138,677.08155038976 L 212.806499515682,668.23812549083 A 89.6451046336125,89.6451046336125 0 0 1 226.881290612512,650.059429078464 A 159.312333298681,159.312333298681 0 0 1 244.404007902257,634.975465334066 L 290.008362954984,601.154393560054 A 126.726395402241,126.726395402241 0 0 1 300.52338314635,594.140979636244 A 278.747499847266,278.747499847266 0 0 1 311.530203574657,587.902444004078 L 312.758261649866,587.242759624904 A 250.981747176682,250.981747176682 0 0 1 323.390050699697,581.852922191061 A 887.281894899187,887.281894899187 0 0 1 334.183896724818,576.788149366166 L 352.179679696983,568.491099762407" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 360.352816295795,564.722832503154 L 349.596767959669,565.277290969519 C 351.621417880797,567.280264710731 352.737941513169,569.701934814083 352.946338856783,572.542301279574 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Idle">
-      <path d="M 407.059137581342,1111.91 L 682.884226962677,1299.35581738703" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 690.328011345564,1304.41448065523 L 684.305434594893,1295.48539507594 C 683.633658557967,1298.25303451549 682.134795367387,1300.45860025856 679.808845023154,1302.10209230517 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 411.27320612583,1111.90494745641 L 420.527268127205,1117.11470508438 A 495.447299537604,495.447299537604 3.14159265358979 0 0 440.235547088612,1127.63193507704 A 826.836638815639,826.836638815639 3.14159265358979 0 0 460.313428231354,1137.43344976969 L 491.361343080749,1152.07416087118 A 820.202661091198,820.202661091198 3.14159265358979 0 0 503.075460034071,1157.48575587602 A 438.501356160591,438.501356160591 3.14159265358979 0 0 514.907854887688,1162.63110225067 L 516.241342730712,1163.18779008205 A 2728.65703257363,2728.65703257363 3.14159265358979 0 0 528.178388204411,1168.13795846077 A 321.000884395475,321.000884395475 3.14159265358979 0 0 540.221348450232,1172.81744892411 L 639.031195687981,1208.94017955879 A 782.544776327621,782.544776327621 3.14159265358979 0 0 662.075383078494,1216.95961989393 A 1203.8663022764,1203.8663022764 0 0 1 683.9191444431,1224.41457263807" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 692.405457392577,1227.41165330491 L 684.308256633976,1220.30986903087 C 684.363156393743,1223.15734109 683.475132492457,1225.67180418614 681.644184930118,1227.8532583193 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).Active-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-      <path d="M 407.798847046598,1085.95 L 779.936675952088,842.480905403124" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 787.468028360303,837.553560184523 L 776.909927809574,839.681120468207 C 779.206698882666,841.365149490796 780.66665302151,843.596661315452 781.289790226109,846.375655942176 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 403.142337114732,1085.95 L 424.827134757959,1065.25457845199 A 380.307609588499,380.307609588499 3.14159265358979 0 0 439.059611116828,1050.93043632422 A 1752.46320843245,1752.46320843245 0 0 1 452.995947748687,1036.30863836274 L 490.976782565802,996.916794218459 A 196.726557316978,196.726557316978 0 0 1 500.818192370827,987.396320062826 A 257.437222174965,257.437222174965 0 0 1 511.227985018229,978.495560826482 L 518.752038362809,972.401102489097 A 34.1715586925478,34.1715586925478 0 0 1 523.909846086579,968.948665942827 A 47.5695113850858,47.5695113850858 0 0 1 529.553622141843,966.336297051932 L 583.353607485202,945.587073908563 A 303.385946599074,303.385946599074 3.14159265358979 0 0 597.797826894314,939.584139285256 A 262.744549753587,262.744549753587 3.14159265358979 0 0 611.884918663303,932.789261473685 L 648.194733169031,913.923162423541 A 1621.30370591964,1621.30370591964 0 0 1 692.091321368429,891.952510938072 A 332.728136754768,332.728136754768 3.14159265358979 0 0 734.517799448338,867.51648002679 L 771.226538251128,842.607061453586" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 778.673828021479,837.553560184523 L 768.153061045949,839.858655029993 C 770.477871396452,841.503759265386 771.975205105804,843.710363641786 772.645062174006,846.478468159194 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy">
-      <path d="M 356.835833333333,1180.26000811149 L 665.729749918993,1237.3921759814" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 674.579648926906,1239.02902892218 L 665.473918002904,1233.27701498446 C 665.97224665096,1236.08107983208 665.487253187025,1238.70327213072 664.018937611101,1241.14359188039 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 356.835833333333,1170.84167073319 L 362.907905487455,1170.84067664469 A 2136.37406135752,2136.37406135752 0 0 1 376.17314275769,1170.87968873747 A 1205.95327205851,1205.95327205851 3.14159265358979 0 0 389.438298719369,1170.88692700248 L 471.964418144633,1170.47807013505 A 1038.28302094812,1038.28302094812 3.14159265358979 0 0 490.879336112597,1170.212033051 A 8057.29488568224,8057.29488568224 0 0 1 509.792319010604,1169.79588326571 L 515.217834103455,1169.6828756802 A 1081.46007392809,1081.46007392809 3.14159265358979 0 0 528.104736100747,1169.3376022329 A 1035.81214415501,1035.81214415501 0 0 1 540.991707723637,1168.99571423203 L 658.75562078913,1166.6047099892 A 807.766298453259,807.766298453259 0 0 1 672.351205214428,1166.44312778757 A 3972.92678045285,3972.92678045285 0 0 1 683.018537811422,1166.42045327107" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 692.018537687857,1166.41896189803 L 682.017874992693,1162.4206190341 C 683.018316867269,1165.08711995604 683.018758755576,1167.7537865861 682.019200657612,1170.42061892427 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).ExecutingOrder-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.Navigator(6).Active">
-      <path d="M 324.751967238322,1157.87 L 781.109576552132,842.668348904543" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 788.514908168579,837.553560184523 L 778.013522496962,839.945400266124 C 780.351830075092,841.571262739143 781.867323029172,843.765435069943 782.560001359202,846.527917258522 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 339.874534107315,1157.87 L 362.818613942097,1150.90612756539 A 361.193901120042,361.193901120042 3.14159265358979 0 0 378.805114608282,1145.64421105241 A 95.4341210587759,95.4341210587759 3.14159265358979 0 0 394.053400504453,1138.66482465868 L 418.400942635348,1124.81390712096 A 65.6678139969669,65.6678139969669 3.14159265358979 0 0 429.92809128738,1116.48458115061 A 41.4621251717049,41.4621251717049 3.14159265358979 0 0 438.635290686277,1105.39754244914 L 495.988107315246,999.131901730917 A 45.377760309408,45.377760309408 0 0 1 503.423236000492,989.013488521134 A 101.481501815184,101.481501815184 0 0 1 512.80246348822,980.519631130234 L 521.887965736413,973.269449704934 A 21.8686560718263,21.8686560718263 0 0 1 524.986645345811,971.202549514148 A 27.4794870768249,27.4794870768249 0 0 1 528.368916003833,969.630566442635 L 583.502009300465,948.426804620067 A 335.092503965372,335.092503965372 3.14159265358979 0 0 598.779004243104,942.114584019129 A 263.308731099281,263.308731099281 3.14159265358979 0 0 613.67555413363,934.957729795393 L 649.879210137346,916.143625215166 A 1369.27400066426,1369.27400066426 0 0 1 693.414440073395,894.492365075463 A 303.348707131198,303.348707131198 3.14159265358979 0 0 735.390968379015,870.249566087426 L 775.394195034259,842.662931199211" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 782.803265680046,837.553560184523 L 772.300133400421,839.937718802716 C 774.637251180231,841.565291103539 776.151138888287,843.760571294884 776.841796524589,846.523559376749 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.FailoverDriver(2).TerminatingNavigator">
-      <path d="M 386.86029029251,1301.71 L 329.542552482092,624.669111437602" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 328.783335575483,615.70119140625 L 325.641167680003,626.002976732911 C 328.213971736706,624.781588016359 330.871133227477,624.556634858845 333.612652152316,625.32811726037 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 393.603114032252,1301.71 L 395.229717533345,1295.05038747725 A 1264.5443907904,1264.5443907904 3.14159265358979 0 0 398.594571009309,1280.92258368866 A 415.779031569557,415.779031569557 3.14159265358979 0 0 401.630289349005,1266.72243827142 L 425.69259144025,1143.69538893267 A 527.45042307656,527.45042307656 3.14159265358979 0 0 429.129747380728,1124.18309633876 A 57.8597342920216,57.8597342920216 0 0 1 435.369791817845,1105.67480425153 L 493.305838751013,998.294815348879 A 71.1982564676553,71.1982564676553 3.14159265358979 0 0 498.941087357407,984.611597446231 A 27.0024908508574,27.0024908508574 0 0 1 506.504549608255,972.423349915224 L 509.344256241997,969.796060841586 A 48.5828314222505,48.5828314222505 0 0 1 520.545247856002,962.036278481222 A 146.389382354659,146.389382354659 0 0 1 533.107740555872,956.453488879823 L 582.908402039413,937.067881774051 A 16.5908429024574,16.5908429024574 3.14159265358979 0 0 588.631497919527,933.328662645325 A 7.95249427775191,7.95249427775191 3.14159265358979 0 0 590.948552409942,927.366716609417 L 580.667268173993,689.524892333574 A 10.5983482635952,10.5983482635952 3.14159265358979 0 0 578.216743231904,683.19297964515 A 12.717025136471,12.717025136471 3.14159265358979 0 0 572.526284737708,679.293200441176 L 528.607539488781,664.439479930694 A 115.655008620544,115.655008620544 3.14159265358979 0 0 513.652503730286,660.474015281578 A 270.490558120117,270.490558120117 0 0 1 498.528984833862,657.077609605735 L 495.937556874046,656.417100548589 A 320.881774995628,320.881774995628 0 0 1 481.550315210348,652.391134808474 A 200.685231706271,200.685231706271 3.14159265358979 0 0 467.11446329023,648.56763161776 L 427.866589430212,639.720907973001" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 419.08686649684,637.741901855469 L 427.962555926128,643.842896623114 C 427.573403338725,641.021607666834 428.159775521698,638.420208279168 429.721672475045,636.038698460117 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Microsoft.Coyote.Samples.DrinksServingRobot.Robot(7).MovingOnRoute-&gt;Microsoft.Coyote.Samples.DrinksServingRobot.LivenessMonitor(1).Busy">
-      <path d="M 441.145163474722,1303.23851166779 L 665.781278175463,1254.87206183379" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 674.579648926906,1252.97768274814 L 663.961735165014,1251.17216139822 C 665.500629422033,1253.56859950024 666.061926928892,1256.17552416734 665.645627685591,1258.9929353995 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 441.530833333333,1313.31523869272 L 447.668718215515,1311.54006417279 A 886.853868096701,886.853868096701 0 0 1 459.398125634058,1308.23488789047 A 173.333842426457,173.333842426457 3.14159265358979 0 0 471.022522294671,1304.60166527692 L 482.834568553694,1300.44893454356 A 156.654438975216,156.654438975216 3.14159265358979 0 0 495.009922140161,1295.58697216694 A 705.748614266498,705.748614266498 3.14159265358979 0 0 506.930682627468,1290.10427374675 L 508.248275835728,1289.48337146882 A 222.104346985159,222.104346985159 3.14159265358979 0 0 519.775881351894,1283.63529099979 A 1181.14284083794,1181.14284083794 3.14159265358979 0 0 531.099049690541,1277.38963772985 L 658.403172864639,1206.25933860578 A 1739.67839270362,1739.67839270362 3.14159265358979 0 0 673.588443103629,1197.67449158265 A 1361.16280674682,1361.16280674682 3.14159265358979 0 0 688.674554655816,1188.91684214973 L 697.07918912137,1183.96558860997" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 704.833631461345,1179.39736970147 L 694.187264902038,1181.02674967093 C 696.40241594974,1182.81678233738 697.755962293,1185.11439488256 698.247903931819,1187.91958730646 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
   </g>
 </svg>

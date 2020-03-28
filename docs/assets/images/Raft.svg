@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewBox="0 0 1567 1368" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,1615,1066" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <rect width="1568.7025613751916" height="1367.6457423112711" fill="#FFFFFF" />
-  <g transform="translate(61.8426734068247,-371.180109030479)">
+  <rect width="1615.8701506940804" height="1066.7860245119582" fill="#FFFFFF" />
+  <g transform="translate(85.5767864336873,-359.579132714602)">
     <g id="Coyote.Examples.Raft.Client(8)">
       <rect x="573.246471614229" y="391.180109030479" rx="5" ry="5" width="199.983333333333" height="157.880201983643" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
       <text x="592.246471614229" y="409.130109030479" fill="#000000">Coyote.Examples.Raft.Client(8)</text>
@@ -22,39 +22,39 @@
       </g>
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2)">
-      <rect x="75.1859626150528" y="400.578784345435" rx="5" ry="5" width="383.613354085286" height="357.680309765625" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="159.1859626150528" y="418.528784345435" fill="#000000">Coyote.Examples.Raft.ClusterManager(2)</text>
-      <rect x="80.1859626150528" y="428.538784345435" width="373.613354085286" height="324.720309765625" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="69.8344778365226" y="400.579612343664" rx="5" ry="5" width="458.377593651176" height="219.092840779163" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="191.83447783652258" y="418.529612343664" fill="#000000">Coyote.Examples.Raft.ClusterManager(2)</text>
+      <rect x="74.8344778365226" y="428.539612343664" width="448.377593651176" height="186.132840779163" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable-&gt;Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Available">
-        <path d="M 188.470972991029,666.338939228248 L 188.470972991029,703.298939228248" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 188.470972991029,712.298939228248 L 192.470972991029,702.298939228248 C 189.804306324363,703.298939228248 187.137639657696,703.298939228248 184.470972991029,702.298939228248 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="132.28430632436266" y="694.28893922824761" fill="#A0A0A0">LocalEvent</text>
+        <path d="M 369.960587748692,526.146295101976 L 399.920953868078,566.487053697176" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 405.287055638421,573.712353122827 L 402.535964527218,563.299308529728 C 400.991368597804,565.692075657125 398.850539138352,567.282031737226 396.113476148861,568.069176770034 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="386.54639290297428" y="542.11420733949944" fill="#A0A0A0">LocalEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Unavailable">
-        <path d="M 195.287639657696,538.458939228247 L 195.287639657696,575.418939228248" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 195.287639657696,584.418939228248 L 199.287639657696,574.418939228248 C 196.620972991029,575.418939228248 193.954306324362,575.418939228248 191.287639657696,574.418939228248 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="139.10097299102898" y="566.4089392282475" fill="#A0A0A0">LocalEvent</text>
+        <path d="M 194.094799772134,538.458884503583 L 191.950733601563,561.790367773783" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 191.127141317054,570.752604980469 L 196.025460391702,561.160604655045 C 193.278472446998,561.912381445562 190.622994756128,561.668354102004 188.059027319093,560.42852262437 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="197.02280204579176" y="555.27764664635185" fill="#A0A0A0">LocalEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Init-&gt;Coyote.Examples.Raft.ClusterManager(2).Configuring">
-        <path d="M 195.287639657696,466.538939228247 L 195.287639657696,503.498939228247" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 195.287639657696,512.498939228247 L 199.287639657696,502.498939228247 C 196.620972991029,503.498939228247 193.954306324362,503.498939228247 191.287639657696,502.498939228247 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="139.10097299102898" y="494.48893922824738" fill="#A0A0A0">LocalEvent</text>
+        <path d="M 195.287607729165,466.538886334638 L 195.287607729165,503.498884503583" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 195.287607729165,512.498884503583 L 199.287607729165,502.498884503583 C 196.620941062498,503.498884503583 193.954274395831,503.498884503583 191.287607729165,502.498884503583 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="199.28760772916473" y="489.98888541911049" fill="#A0A0A0">LocalEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Available">
-        <rect x="95.1859954855123" y="712.299116437177" rx="3" ry="3" width="186.57" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="105.18599548551229" y="730.249116437177" fill="#3D3D3D">Availability.Availability.Available</text>
+        <rect x="321.642071487699" y="573.712353122827" rx="3" ry="3" width="186.57" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="331.642071487699" y="591.66235312282708" fill="#3D3D3D">Availability.Availability.Available</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Availability.Availability.Unavailable">
-        <rect x="95.1859639506816" y="584.418989484052" rx="3" ry="3" width="200.203333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="105.1859639506816" y="602.368989484052" fill="#3D3D3D">Availability.Availability.Unavailable</text>
+        <rect x="89.8326666933576" y="570.752604980469" rx="3" ry="3" width="200.203333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="99.8326666933576" y="588.702604980469" fill="#3D3D3D">Availability.Availability.Unavailable</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Availability.Available">
-        <rect x="311.755992332029" y="640.379133527021" rx="3" ry="3" width="127.043333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="321.755992332029" y="658.3291335270211" fill="#3D3D3D">Availability.Available</text>
+        <rect x="302.119568684896" y="444.226195101976" rx="3" ry="3" width="127.043333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="312.119568684896" y="462.17619510197596" fill="#3D3D3D">Availability.Available</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable">
-        <rect x="118.13260493172" y="640.379133527021" rx="3" ry="3" width="140.676666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="128.13260493171998" y="658.3291335270211" fill="#3D3D3D">Availability.Unavailable</text>
+        <rect x="289.982238566081" y="500.186295101976" rx="3" ry="3" width="140.676666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="299.982238566081" y="518.136295101976" fill="#3D3D3D">Availability.Unavailable</text>
       </g>
       <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring">
         <rect x="153.934274395831" y="512.498884503583" rx="3" ry="3" width="82.7066666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
@@ -66,191 +66,191 @@
       </g>
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(10)">
-      <rect x="74.5893365182571" y="1454.38965631567" rx="5" ry="5" width="247.646666666667" height="229.800165819941" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="94.5893365182571" y="1472.33965631567" fill="#000000">Coyote.Examples.Raft.ElectionTimer(10)</text>
-      <rect x="79.5893365182571" y="1482.34965631567" width="237.646666666667" height="196.84016581994098" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="249.709046899646" y="1165.99426523437" rx="5" ry="5" width="247.646666666667" height="229.800287890625" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="269.709046899646" y="1183.94426523437" fill="#000000">Coyote.Examples.Raft.ElectionTimer(10)</text>
+      <rect x="254.709046899646" y="1193.95426523437" width="237.646666666667" height="196.84028789062498" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.ElectionTimer(10).Active-&gt;Coyote.Examples.Raft.ElectionTimer(10).Active">
-        <path d="M 216.760169851591,1572.85762457125 C 214.073879942402,1572.81903434084 211.180546609069,1572.79973922564 208.080169851591,1572.79973922564 C 184.866836518257,1572.79973922564 173.260169851591,1574.96307255897 173.260169851591,1579.28973922564 C 173.260169851591,1583.5964902729 184.76023160802,1585.7597777705 207.760355120877,1585.77960171843" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 216.760169851591,1585.72185388003 L 206.734710000398,1581.78610048683 C 207.751799885559,1584.4462958324 207.768910356196,1587.11290760447 206.78604141231,1589.78593580302 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="123.61016985159056" y="1584.2597392256405" fill="#A0A0A0">TickEvent</text>
+        <path d="M 391.87988023298,1284.46229452529 C 389.193590323791,1284.42370429488 386.300256990458,1284.40440917968 383.19988023298,1284.40440917968 C 359.986546899646,1284.40440917968 348.37988023298,1286.56774251302 348.37988023298,1290.89440917968 C 348.37988023298,1295.20116022694 359.879941989409,1297.36444772454 382.880065502266,1297.38427167248" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 391.87988023298,1297.32652383407 L 381.854420381787,1293.39077044087 C 382.871510266948,1296.05096578644 382.888620737585,1298.71757755851 381.905751793699,1301.39060575706 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="298.72988023297944" y="1295.8644091796823" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(10).Active-&gt;Coyote.Examples.Raft.ElectionTimer(10).Inactive">
-        <path d="M 242.900169851591,1592.26973922564 L 242.900169851591,1629.22973922564" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 242.900169851591,1638.22973922564 L 246.900169851591,1628.22973922564 C 244.233503184924,1629.22973922564 241.566836518257,1629.22973922564 238.900169851591,1628.22973922564 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="148.91683651825727" y="1620.2197392256405" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 418.01988023298,1303.87440917968 L 418.01988023298,1340.83440917968" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 418.01988023298,1349.83440917968 L 422.01988023298,1339.83440917968 C 419.353213566313,1340.83440917968 416.686546899646,1340.83440917968 414.01988023298,1339.83440917968 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="324.03654689964617" y="1331.8244091796823" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(10).Init-&gt;Coyote.Examples.Raft.ElectionTimer(10).Active">
-        <path d="M 242.900169851591,1520.34973922564 L 242.900169851591,1557.30973922564" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 242.900169851591,1566.30973922564 L 246.900169851591,1556.30973922564 C 244.233503184924,1557.30973922564 241.566836518257,1557.30973922564 238.900169851591,1556.30973922564 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="159.57016985159058" y="1548.2997392256405" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 418.01988023298,1231.95440917968 L 418.01988023298,1268.91440917968" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 418.01988023298,1277.91440917968 L 422.01988023298,1267.91440917968 C 419.353213566313,1268.91440917968 416.686546899646,1268.91440917968 414.01988023298,1267.91440917968 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="334.68988023297948" y="1259.9044091796823" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(10).Active">
-        <rect x="216.760169372559" y="1566.30967819046" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="226.760169372559" y="1584.2596781904601" fill="#3D3D3D">Active</text>
+        <rect x="391.879697127511" y="1277.91428710937" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="401.879697127511" y="1295.86428710937" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(10).Inactive">
-        <rect x="212.585184631348" y="1638.22972213561" rx="3" ry="3" width="60.63" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="222.585184631348" y="1656.17972213561" fill="#3D3D3D">Inactive</text>
+        <rect x="387.704880232979" y="1349.834453125" rx="3" ry="3" width="60.63" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="397.704880232979" y="1367.784453125" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(10).Init">
-        <rect x="217.900199890137" y="1494.38975631567" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="233.900199890137" y="1512.33975631567" fill="#3D3D3D">Init</text>
+        <rect x="393.019956526925" y="1205.99436523437" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="409.019956526925" y="1223.94436523437" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(12)">
-      <rect x="1127.95857313478" y="1449.06184656436" rx="5" ry="5" width="247.646666666667" height="229.8" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="1147.95857313478" y="1467.01184656436" fill="#000000">Coyote.Examples.Raft.ElectionTimer(12)</text>
-      <rect x="1132.95857313478" y="1477.02184656436" width="237.646666666667" height="196.84" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="1240.38368570964" y="1176.56511347656" rx="5" ry="5" width="247.646666666667" height="229.80004375" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1260.38368570964" y="1194.5151134765602" fill="#000000">Coyote.Examples.Raft.ElectionTimer(12)</text>
+      <rect x="1245.38368570964" y="1204.5251134765601" width="237.646666666667" height="196.84004374999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.ElectionTimer(12).Active-&gt;Coyote.Examples.Raft.ElectionTimer(12).Active">
-        <path d="M 1270.12940646811,1567.52973190997 C 1267.44311655893,1567.49114167956 1264.54978322559,1567.47184656436 1261.44940646811,1567.47184656436 C 1238.23607313478,1567.47184656436 1226.62940646811,1569.63517989769 1226.62940646811,1573.96184656436 C 1226.62940646811,1578.26859761162 1238.12946822454,1580.43188510922 1261.1295917374,1580.45170905715" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1270.12940646811,1580.39396121875 L 1260.10394661692,1576.45820782555 C 1261.12103650208,1579.11840317112 1261.13814697272,1581.78501494319 1260.15527802883,1584.45804314174 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1176.9794064681134" y="1578.9318465643596" fill="#A0A0A0">TickEvent</text>
+        <path d="M 1382.55451904297,1295.03302069717 C 1379.86822913379,1294.99443046676 1376.97489580045,1294.97513535156 1373.87451904297,1294.97513535156 C 1350.66118570964,1294.97513535156 1339.05451904297,1297.13846868489 1339.05451904297,1301.46513535156 C 1339.05451904297,1305.77188639882 1350.5545807994,1307.93517389642 1373.55470431226,1307.95499784435" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1382.55451904297,1307.89725000595 L 1372.52905919178,1303.96149661275 C 1373.54614907694,1306.62169195832 1373.56325954758,1309.28830373039 1372.58039060369,1311.96133192894 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1289.4045190429736" y="1306.4351353515601" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(12).Active-&gt;Coyote.Examples.Raft.ElectionTimer(12).Inactive">
-        <path d="M 1296.26940646811,1586.94184656436 L 1296.26940646811,1623.90184656436" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1296.26940646811,1632.90184656436 L 1300.26940646811,1622.90184656436 C 1297.60273980145,1623.90184656436 1294.93607313478,1623.90184656436 1292.26940646811,1622.90184656436 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1202.28607313478" y="1614.8918465643596" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 1408.69451904297,1314.44513535156 L 1408.69451904297,1351.40513535156" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1408.69451904297,1360.40513535156 L 1412.69451904297,1350.40513535156 C 1410.02785237631,1351.40513535156 1407.36118570964,1351.40513535156 1404.69451904297,1350.40513535156 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1314.7111857096402" y="1342.3951353515602" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(12).Init-&gt;Coyote.Examples.Raft.ElectionTimer(12).Active">
-        <path d="M 1296.26940646811,1515.02184656436 L 1296.26940646811,1551.98184656436" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1296.26940646811,1560.98184656436 L 1300.26940646811,1550.98184656436 C 1297.60273980145,1551.98184656436 1294.93607313478,1551.98184656436 1292.26940646811,1550.98184656436 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1212.9394064681135" y="1542.9718465643596" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 1408.69451904297,1242.52513535156 L 1408.69451904297,1279.48513535156" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1408.69451904297,1288.48513535156 L 1412.69451904297,1278.48513535156 C 1410.02785237631,1279.48513535156 1407.36118570964,1279.48513535156 1404.69451904297,1278.48513535156 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1325.3645190429736" y="1270.47513535156" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(12).Active">
-        <rect x="1270.12940917969" y="1560.98177658398" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1280.12940917969" y="1578.93177658398" fill="#3D3D3D">Active</text>
+        <rect x="1382.55458007813" y="1288.48513535156" rx="3" ry="3" width="52.2799999999997" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1392.55458007813" y="1306.4351353515601" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(12).Inactive">
-        <rect x="1265.95434814453" y="1632.90182052929" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1275.95434814453" y="1650.85182052929" fill="#3D3D3D">Inactive</text>
+        <rect x="1378.37951904297" y="1360.40505722656" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1388.37951904297" y="1378.3550572265601" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(12).Init">
-        <rect x="1271.26928710938" y="1489.06185470898" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1287.26928710938" y="1507.01185470898" fill="#3D3D3D">Init</text>
+        <rect x="1383.69445800781" y="1216.56521347656" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1399.69445800781" y="1234.5152134765601" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(14)">
-      <rect x="1037.1698096227" y="595.206528535423" rx="5" ry="5" width="247.646769210474" height="229.800165820312" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="1057.1698096227" y="613.156528535423" fill="#000000">Coyote.Examples.Raft.ElectionTimer(14)</text>
-      <rect x="1042.1698096227" y="623.166528535423" width="237.646769210474" height="196.840165820312" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="1227.08014390608" y="379.579132714602" rx="5" ry="5" width="247.646666666667" height="229.800165820312" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1247.08014390608" y="397.529132714602" fill="#000000">Coyote.Examples.Raft.ElectionTimer(14)</text>
+      <rect x="1232.08014390608" y="407.539132714602" width="237.646666666667" height="196.840165820312" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.ElectionTimer(14).Active-&gt;Coyote.Examples.Raft.ElectionTimer(14).Active">
-        <path d="M 1179.34069422794,713.674496791186 C 1176.65440431875,713.635906560781 1173.76107098542,713.616611445579 1170.66069422794,713.616611445579 C 1147.4473608946,713.616611445579 1135.84069422794,715.779944778912 1135.84069422794,720.106611445579 C 1135.84069422794,724.413362492839 1147.34075598437,726.576649990437 1170.34087949722,726.596473938373" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1179.34069422794,726.538726099972 L 1169.31523437674,722.602972706767 C 1170.33232426191,725.263168052341 1170.34943473254,727.929779824405 1169.36656578866,730.602808022957 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1086.1906942279372" y="725.076611445579" fill="#A0A0A0">TickEvent</text>
+        <path d="M 1369.25097723941,498.047100970365 C 1366.56468733023,498.00851073996 1363.67135399689,497.989215624758 1360.57097723941,497.989215624758 C 1337.35764390608,497.989215624758 1325.75097723941,500.152548958091 1325.75097723941,504.479215624758 C 1325.75097723941,508.785966672018 1337.25103899584,510.949254169616 1360.2511625087,510.969078117552" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1369.25097723941,510.911330279151 L 1359.22551738822,506.975576885946 C 1360.24260727338,509.63577223152 1360.25971774402,512.302384003584 1359.27684880013,514.975412202136 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1276.1009772394134" y="509.449215624758" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(14).Active-&gt;Coyote.Examples.Raft.ElectionTimer(14).Inactive">
-        <path d="M 1205.48069422794,733.086611445579 L 1205.48069422794,770.046611445579" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1205.48069422794,779.046611445579 L 1209.48069422794,769.046611445579 C 1206.81402756127,770.046611445579 1204.1473608946,770.046611445579 1201.48069422794,769.046611445579 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1111.4973608946036" y="761.03661144557907" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 1395.39097723941,517.459215624758 L 1395.39097723941,554.419215624758" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1395.39097723941,563.419215624758 L 1399.39097723941,553.419215624758 C 1396.72431057275,554.419215624758 1394.05764390608,554.419215624758 1391.39097723941,553.419215624758 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1301.4076439060798" y="545.40921562475808" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(14).Init-&gt;Coyote.Examples.Raft.ElectionTimer(14).Active">
-        <path d="M 1205.48069422794,661.166611445579 L 1205.48069422794,698.126611445579" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1205.48069422794,707.126611445579 L 1209.48069422794,697.126611445579 C 1206.81402756127,698.126611445579 1204.1473608946,698.126611445579 1201.48069422794,697.126611445579 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1122.1506942279373" y="689.116611445579" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 1395.39097723941,445.539215624758 L 1395.39097723941,482.499215624758" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1395.39097723941,491.499215624758 L 1399.39097723941,481.499215624758 C 1396.72431057275,482.499215624758 1394.05764390608,482.499215624758 1391.39097723941,481.499215624758 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1312.0609772394134" y="473.48921562475795" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(14).Active">
-        <rect x="1179.3407994069" y="707.126605604494" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1189.3407994069" y="725.076605604494" fill="#3D3D3D">Active</text>
+        <rect x="1369.25135742188" y="491.499223793104" rx="3" ry="3" width="52.2799999999997" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1379.25135742188" y="509.449223793104" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(14).Inactive">
-        <rect x="1175.16561630143" y="779.04658851465" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1185.16561630143" y="796.99658851465" fill="#3D3D3D">Inactive</text>
+        <rect x="1365.07593017578" y="563.419206703261" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1375.07593017578" y="581.369206703261" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(14).Init">
-        <rect x="1180.48043319596" y="635.206622694338" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1196.48043319596" y="653.156622694338" fill="#3D3D3D">Init</text>
+        <rect x="1370.39099121094" y="419.579240882948" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1386.39099121094" y="437.529240882948" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(16)">
-      <rect x="-41.8426734068247" y="824.861239111328" rx="5" ry="5" width="285.285833333333" height="229.800013232422" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-3.8426734068247015" y="842.81123911132806" fill="#000000">Coyote.Examples.Raft.ElectionTimer(16)</text>
-      <rect x="-36.8426734068247" y="852.821239111328" width="275.285833333333" height="196.840013232422" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="-38.6305304848079" y="675.496593237545" rx="5" ry="5" width="285.285833333333" height="229.800013232422" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-0.630530484807899" y="693.446593237545" fill="#000000">Coyote.Examples.Raft.ElectionTimer(16)</text>
+      <rect x="-33.6305304848079" y="703.456593237545" width="275.285833333333" height="196.840013232422" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Active-&gt;Coyote.Examples.Raft.ElectionTimer(16).Active">
-        <path d="M 71.3073265931752,943.329131073147 C 68.621036683987,943.290540842742 65.7277033506537,943.271245727539 62.6273265931752,943.271245727539 C 39.4139932598418,943.271245727539 27.8073265931752,945.434579060872 27.8073265931752,949.761245727539 C 27.8073265931752,954.067996774799 39.3073883496042,956.231284272397 62.3075118624621,956.251108220333" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 71.3073265931752,956.193360381931 L 61.2818667419821,952.257606988728 C 62.2989566271433,954.917802334302 62.3160670977809,957.584414106365 61.3331981538947,960.257442304917 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="-21.842673406824929" y="954.73124572753909" fill="#A0A0A0">TickEvent</text>
+        <path d="M 74.519469515192,793.964485199363 C 71.8331796060038,793.925894968958 68.9398462726705,793.906599853756 65.839469515192,793.906599853756 C 42.6261361818586,793.906599853756 31.019469515192,796.069933187089 31.019469515192,800.396599853756 C 31.019469515192,804.703350901016 42.519531271621,806.866638398614 65.5196547844789,806.88646234655" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 74.519469515192,806.828714508148 L 64.494009663999,802.892961114944 C 65.5110995491601,805.553156460518 65.5282100197976,808.219768232582 64.5453410759115,810.892796431134 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="-18.630530484808105" y="805.366599853756" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Active-&gt;Coyote.Examples.Raft.ElectionTimer(16).Inactive">
-        <path d="M 112.613520512345,962.741245727539 L 118.455659926509,967.741245727539 C 132.124707726384,979.439911944521 132.453130299782,991.138578161502 119.440927646702,1002.83724437848" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 112.613520512345,1008.70124572754 L 122.805751261211,1005.22009184386 C 120.309668587303,1003.84871210209 118.572186706102,1001.82577665488 117.593305617607,999.151285502208 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="129.45982659317519" y="990.69124572753913" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 115.825663434361,813.376599853756 L 121.667802848525,818.376599853756 C 135.336850648401,830.075266070738 135.665273221798,841.773932287719 122.653070568719,853.472598504701" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 115.825663434361,859.336599853756 L 126.017894183228,855.855445970076 C 123.52181150932,854.48406622831 121.784329628118,852.461130781092 120.805448539623,849.786639628425 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="132.671969515192" y="841.32659985375608" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Inactive-&gt;Coyote.Examples.Raft.ElectionTimer(16).Active">
-        <path d="M 81.9261919991819,1008.70124572754 L 75.9473265931752,1003.70124572754 C 61.926368141755,991.975811636538 61.6208010319477,980.250377545536 75.0306252637532,968.524943454534" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 81.9261919991819,962.741245727539 L 71.6939188589299,966.102880208454 C 74.1737811560502,967.503378012249 75.8874693714562,969.54650889682 76.8349835051478,972.232272862169 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="-18.632673406824892" y="990.69124572753913" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 85.1383349211987,859.336599853756 L 79.159469515192,854.336599853756 C 65.1385110637718,842.611165762754 64.8329439539645,830.885731671753 78.24276818577,819.160297580751" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 85.1383349211987,813.376599853756 L 74.9060617809467,816.738234334671 C 77.385924078067,818.138732138465 79.099612293473,820.181863023037 80.0471264271646,822.867626988386 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="-15.420530484808097" y="841.32659985375608" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Init-&gt;Coyote.Examples.Raft.ElectionTimer(16).Active">
-        <path d="M 97.4473265931752,890.821245727539 L 97.4473265931752,927.781245727539" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 97.4473265931752,936.781245727539 L 101.447326593175,926.781245727539 C 98.7806599265085,927.781245727539 96.1139932598418,927.781245727539 93.4473265931752,926.781245727539 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="14.117326593175108" y="918.771245727539" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 100.659469515192,741.456599853756 L 100.659469515192,778.416599853756" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 100.659469515192,787.416599853756 L 104.659469515192,777.416599853756 C 101.992802848525,778.416599853756 99.3261361818586,778.416599853756 96.659469515192,777.416599853756 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="17.329469515191903" y="769.406599853756" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Active">
-        <rect x="71.3073532960562" y="936.781444091796" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="81.3073532960562" y="954.731444091796" fill="#3D3D3D">Active</text>
+        <rect x="74.5195001220703" y="787.416827708914" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="84.5195001220703" y="805.366827708914" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Inactive">
-        <rect x="67.1323265931753" y="1008.70115234375" rx="3" ry="3" width="60.63" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="77.1323265931753" y="1026.65115234375" fill="#3D3D3D">Inactive</text>
+        <rect x="70.3444696044922" y="859.336413890554" rx="3" ry="3" width="60.63" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="80.3444696044922" y="877.28641389055406" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(16).Init">
-        <rect x="72.4472770021109" y="864.861339111328" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="88.4472770021109" y="882.811339111328" fill="#3D3D3D">Init</text>
+        <rect x="75.6593627929688" y="715.496722728445" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="91.6593627929688" y="733.446722728445" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(9)">
-      <rect x="1196.09824462891" y="898.471236205563" rx="5" ry="5" width="285.285833333333" height="229.800013232422" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="1238.09824462891" y="916.421236205563" fill="#000000">Coyote.Examples.Raft.ElectionTimer(9)</text>
-      <rect x="1201.09824462891" y="926.431236205563" width="275.285833333333" height="196.840013232422" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="1225.00753092706" y="641.500160657494" rx="5" ry="5" width="285.285833333333" height="229.800013232422" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1267.00753092706" y="659.450160657494" fill="#000000">Coyote.Examples.Raft.ElectionTimer(9)</text>
+      <rect x="1230.00753092706" y="669.460160657494" width="275.285833333333" height="196.840013232422" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Active-&gt;Coyote.Examples.Raft.ElectionTimer(9).Active">
-        <path d="M 1309.24824462891,1016.93912816738 C 1306.56195471972,1016.90053793698 1303.66862138639,1016.88124282177 1300.56824462891,1016.88124282177 C 1277.35491129558,1016.88124282177 1265.74824462891,1019.04457615511 1265.74824462891,1023.37124282177 C 1265.74824462891,1027.67799386903 1277.24830638534,1029.84128136663 1300.2484298982,1029.86110531457" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1309.24824462891,1029.80335747617 L 1299.22278477772,1025.86760408296 C 1300.23987466288,1028.52779942854 1300.25698513352,1031.1944112006 1299.27411618963,1033.86743939915 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1216.0982446289097" y="1028.3412428217739" fill="#A0A0A0">TickEvent</text>
+        <path d="M 1338.15753092706,759.968052619313 C 1335.47124101787,759.929462388908 1332.57790768454,759.910167273705 1329.47753092706,759.910167273705 C 1306.26419759373,759.910167273705 1294.65753092706,762.073500607038 1294.65753092706,766.400167273705 C 1294.65753092706,770.706918320965 1306.15759268349,772.870205818563 1329.15771619635,772.890029766499" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1338.15753092706,772.832281928097 L 1328.13207107587,768.896528534893 C 1329.14916096103,771.556723880467 1329.16627143167,774.22333565253 1328.18340248778,776.896363851083 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1245.0075309270599" y="771.37016727370485" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Active-&gt;Coyote.Examples.Raft.ElectionTimer(9).Inactive">
-        <path d="M 1350.55443854808,1036.35124282177 L 1356.39657796224,1041.35124282177 C 1370.06562576212,1053.04990903876 1370.39404833552,1064.74857525574 1357.38184568244,1076.44724147272" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1350.55443854808,1082.31124282177 L 1360.74666929695,1078.83008893809 C 1358.25058662304,1077.45870919633 1356.51310474184,1075.43577374911 1355.53422365334,1072.76128259644 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1367.4007446289093" y="1064.3012428217737" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 1379.46372484623,779.380167273705 L 1385.30586426039,784.380167273705 C 1398.97491206027,796.078833490686 1399.30333463367,807.777499707668 1386.29113198059,819.47616592465" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1379.46372484623,825.340167273705 L 1389.6559555951,821.859013390025 C 1387.15987292119,820.487633648258 1385.42239103999,818.464698201041 1384.44350995149,815.790207048373 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1396.3100309270594" y="807.33016727370477" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Inactive-&gt;Coyote.Examples.Raft.ElectionTimer(9).Active">
-        <path d="M 1319.86711003492,1082.31124282177 L 1313.88824462891,1077.31124282177 C 1299.86728617749,1065.58580873077 1299.56171906768,1053.86037463977 1312.97154329949,1042.13494054877" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1319.86711003492,1036.35124282177 L 1309.63483689466,1039.71287730269 C 1312.11469919178,1041.11337510648 1313.82838740719,1043.15650599105 1314.77590154088,1045.8422699564 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1219.3082446289095" y="1064.3012428217737" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 1348.77639633307,825.340167273705 L 1342.79753092706,820.340167273705 C 1328.77657247564,808.614733182703 1328.47100536583,796.889299091701 1341.88082959764,785.1638650007" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1348.77639633307,779.380167273705 L 1338.54412319281,782.74180175462 C 1341.02398548993,784.142299558414 1342.73767370534,786.185430442986 1343.68518783903,788.871194408334 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1248.2175309270597" y="807.33016727370477" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Init-&gt;Coyote.Examples.Raft.ElectionTimer(9).Active">
-        <path d="M 1335.38824462891,964.431242821774 L 1335.38824462891,1001.39124282177" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1335.38824462891,1010.39124282177 L 1339.38824462891,1000.39124282177 C 1336.72157796224,1001.39124282177 1334.05491129558,1001.39124282177 1331.38824462891,1000.39124282177 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1252.0582446289095" y="992.38124282177421" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 1364.29753092706,707.460167273705 L 1364.29753092706,744.420167273705" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1364.29753092706,753.420167273705 L 1368.29753092706,743.420167273705 C 1365.63086426039,744.420167273705 1362.96419759373,744.420167273705 1360.29753092706,743.420167273705 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1280.9675309270597" y="735.41016727370516" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Active">
-        <rect x="1309.24830566406" y="1010.39122756298" rx="3" ry="3" width="52.28" height="25.9599999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1319.24830566406" y="1028.34122756298" fill="#3D3D3D">Active</text>
+        <rect x="1338.15759196222" y="753.42009097976" rx="3" ry="3" width="52.2799999999997" height="25.9599999999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1348.15759196222" y="771.37009097976" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Inactive">
-        <rect x="1305.07324462891" y="1082.31114943798" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1315.07324462891" y="1100.26114943798" fill="#3D3D3D">Inactive</text>
+        <rect x="1333.98253092706" y="825.34001285476" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1343.98253092706" y="843.29001285476" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.ElectionTimer(9).Init">
-        <rect x="1310.38830566406" y="938.471336205563" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1326.38830566406" y="956.42133620556308" fill="#3D3D3D">Init</text>
+        <rect x="1339.29759196222" y="681.500260657494" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1355.29759196222" y="699.450260657494" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.PeriodicTimer(11)">
-      <rect x="422.887815723036" y="1575.59189651523" rx="5" ry="5" width="248.236666666667" height="85.96" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="442.887815723036" y="1593.54189651523" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(11)</text>
-      <rect x="427.887815723036" y="1603.55189651523" width="238.236666666667" height="52.999999999999993" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="588.313176206903" y="1268.83224746262" rx="5" ry="5" width="248.236666666667" height="85.96" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="608.313176206903" y="1286.78224746262" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(11)</text>
+      <rect x="593.313176206903" y="1296.79224746262" width="238.236666666667" height="52.999999999999993" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.PeriodicTimer(11).Init">
-        <rect x="522.006149056369" y="1615.59199651523" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="538.006149056369" y="1633.54199651523" fill="#3D3D3D">Init</text>
+        <rect x="687.431509540236" y="1308.83234746262" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="703.431509540236" y="1326.78234746262" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.PeriodicTimer(13)">
-      <rect x="839.007953632172" y="1632.86585134175" rx="5" ry="5" width="248.236666666667" height="85.96" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="859.007953632172" y="1650.81585134175" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(13)</text>
-      <rect x="844.007953632172" y="1660.82585134175" width="238.236666666667" height="52.999999999999993" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="945.008670058727" y="1271.49977261486" rx="5" ry="5" width="248.236666666667" height="85.96" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="965.008670058727" y="1289.44977261486" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(13)</text>
+      <rect x="950.008670058727" y="1299.45977261486" width="238.236666666667" height="52.999999999999993" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.PeriodicTimer(13).Init">
-        <rect x="938.126286965506" y="1672.86595134175" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="954.126286965506" y="1690.81595134175" fill="#3D3D3D">Init</text>
+        <rect x="1044.12700339206" y="1311.49987261486" rx="3" ry="3" width="50.0000000000002" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1060.12700339206" y="1329.44987261486" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.PeriodicTimer(15)">
@@ -263,397 +263,397 @@
       </g>
     </g>
     <g id="Coyote.Examples.Raft.PeriodicTimer(17)">
-      <rect x="-41.8426734068247" y="1140.64516707056" rx="5" ry="5" width="285.285833333333" height="229.800165820312" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-3.8426734068247015" y="1158.5951670705601" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(17)</text>
-      <rect x="-36.8426734068247" y="1168.6051670705601" width="275.285833333333" height="196.840165820312" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="-65.5767864336873" y="951.194033300781" rx="5" ry="5" width="285.285833333333" height="229.800104785156" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-27.576786433687303" y="969.14403330078108" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(17)</text>
+      <rect x="-60.5767864336873" y="979.15403330078107" width="275.285833333333" height="196.840104785156" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Active-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Active">
-        <path d="M 71.3073265931751,1259.11313532632 C 68.621036683987,1259.07454509592 65.7277033506536,1259.05524998072 62.6273265931751,1259.05524998072 C 39.4139932598418,1259.05524998072 27.8073265931751,1261.21858331405 27.8073265931751,1265.54524998072 C 27.8073265931751,1269.85200102798 39.3073883496041,1272.01528852557 62.3075118624621,1272.03511247351" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 71.3073265931752,1271.97736463511 L 61.2818667419821,1268.0416112419 C 62.2989566271434,1270.70180658748 62.3160670977809,1273.36841835954 61.3331981538947,1276.04144655809 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="-21.842673406824872" y="1270.5152499807161" fill="#A0A0A0">TickEvent</text>
+        <path d="M 47.5732135663125,1069.66197103897 C 44.8869236571244,1069.62338080856 41.993590323791,1069.60408569336 38.8932135663125,1069.60408569336 C 15.6798802329792,1069.60408569336 4.07321356631252,1071.76741902669 4.07321356631255,1076.09408569336 C 4.07321356631252,1080.40083674062 15.5732753227415,1082.56412423822 38.5733988355995,1082.58394818615" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 47.5732135663126,1082.52620034775 L 37.5477537151196,1078.59044695455 C 38.5648436002808,1081.25064230012 38.5819540709183,1083.91725407218 37.5990851270321,1086.59028227074 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="-45.57678643368746" y="1081.0640856933587" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Active-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Inactive">
-        <path d="M 112.613520512345,1278.52524998072 L 118.455659926508,1283.52524998072 C 132.124707726384,1295.2239161977 132.453130299782,1306.92258241468 119.440927646702,1318.62124863166" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 112.613520512345,1324.48524998072 L 122.805751261211,1321.00409609704 C 120.309668587303,1319.63271635527 118.572186706102,1317.60978090805 117.593305617606,1314.93528975538 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="129.45982659317508" y="1306.4752499807162" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 88.879407485482,1089.07408569336 L 94.7215468996458,1094.07408569336 C 108.390594699521,1105.77275191034 108.719017272919,1117.47141812732 95.7068146198397,1129.1700843443" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 88.879407485482,1135.03408569336 L 99.0716382343485,1131.55293180968 C 96.5755555604405,1130.18155206791 94.838073679239,1128.1586166207 93.8591925907439,1125.48412546803 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="105.72571356631249" y="1117.0240856933588" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Inactive-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Active">
-        <path d="M 81.9261919991818,1324.48524998072 L 75.9473265931751,1319.48524998072 C 61.9263681417549,1307.75981588971 61.6208010319476,1296.03438179871 75.0306252637532,1284.30894770771" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 81.9261919991818,1278.52524998072 L 71.6939188589298,1281.88688446163 C 74.1737811560502,1283.28738226543 75.8874693714561,1285.33051315 76.8349835051478,1288.01627711535 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="-18.632673406824836" y="1306.4752499807162" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 58.1920789723192,1135.03408569336 L 52.2132135663126,1130.03408569336 C 38.1922551148924,1118.30865160236 37.886688005085,1106.58321751136 51.2965122368906,1094.85778342035" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 58.1920789723192,1089.07408569336 L 47.9598058320672,1092.43572017427 C 50.4396681291876,1093.83621797807 52.1533563445936,1095.87934886264 53.1008704782852,1098.56511282799 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="-42.366786433687423" y="1117.0240856933588" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Active">
-        <path d="M 97.4473265931751,1206.60524998072 L 97.4473265931751,1243.56524998072" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 97.4473265931751,1252.56524998072 L 101.447326593175,1242.56524998072 C 98.7806599265084,1243.56524998072 96.1139932598418,1243.56524998072 93.4473265931751,1242.56524998072 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="14.117326593175164" y="1234.5552499807161" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 73.7132135663125,1017.15408569336 L 73.7132135663125,1054.11408569336" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 73.7132135663125,1063.11408569336 L 77.7132135663125,1053.11408569336 C 75.0465468996459,1054.11408569336 72.3798802329792,1054.11408569336 69.7132135663125,1053.11408569336 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="-9.6167864336874231" y="1045.1040856933587" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Active">
-        <rect x="71.3072656458757" y="1252.56541015625" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="81.3072656458757" y="1270.51541015625" fill="#3D3D3D">Active</text>
+        <rect x="47.5731487164592" y="1063.11411621094" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="57.5731487164592" y="1081.06411621094" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Inactive">
-        <rect x="67.1323304957292" y="1324.48533203125" rx="3" ry="3" width="60.63" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="77.1323304957292" y="1342.43533203125" fill="#3D3D3D">Inactive</text>
+        <rect x="43.3982135663127" y="1135.03403808594" rx="3" ry="3" width="60.63" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="53.3982135663127" y="1152.98403808594" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(17).Init">
-        <rect x="72.4472923487566" y="1180.64536621094" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="88.4472923487566" y="1198.59536621094" fill="#3D3D3D">Init</text>
+        <rect x="48.7132250104045" y="991.194133300781" rx="3" ry="3" width="50" height="25.9599999999996" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="64.7132250104045" y="1009.1441333007811" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.PeriodicTimer(18)">
-      <rect x="1238.6232213017" y="1158.27139293219" rx="5" ry="5" width="248.236666666667" height="229.800165819981" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="1258.6232213017" y="1176.2213929321902" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(18)</text>
-      <rect x="1243.6232213017" y="1186.2313929321902" width="238.236666666667" height="196.840165819981" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="1249.50225992839" y="904.764969726562" rx="5" ry="5" width="248.236666666667" height="229.80004375" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="1269.50225992839" y="922.714969726562" fill="#000000">Coyote.Examples.Raft.PeriodicTimer(18)</text>
+      <rect x="1254.50225992839" y="932.724969726562" width="238.236666666667" height="196.84004374999998" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.PeriodicTimer(18).Active-&gt;Coyote.Examples.Raft.PeriodicTimer(18).Active">
-        <path d="M 1381.08905463503,1276.73936118779 C 1378.40276472585,1276.70077095738 1375.50943139251,1276.68147584218 1372.40905463503,1276.68147584218 C 1349.1957213017,1276.68147584218 1337.58905463503,1278.84480917551 1337.58905463503,1283.17147584218 C 1337.58905463503,1287.47822688944 1349.08911639146,1289.64151438704 1372.08923990432,1289.66133833497" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1381.08905463503,1289.60359049657 L 1371.06359478384,1285.66783710337 C 1372.080684669,1288.32803244894 1372.09779513964,1290.99464422101 1371.11492619575,1293.66767241956 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1287.9390546350337" y="1288.1414758421806" fill="#A0A0A0">TickEvent</text>
+        <path d="M 1391.96809326172,1023.23287694717 C 1389.28180335254,1023.19428671676 1386.3884700192,1023.17499160156 1383.28809326172,1023.17499160156 C 1360.07475992839,1023.17499160156 1348.46809326172,1025.3383249349 1348.46809326172,1029.66499160156 C 1348.46809326172,1033.97174264882 1359.96815501815,1036.13503014642 1382.96827853101,1036.15485409436" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1391.96809326172,1036.09710625595 L 1381.94263341053,1032.16135286275 C 1382.95972329569,1034.82154820832 1382.97683376633,1037.48815998039 1381.99396482244,1040.16118817894 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1298.8180932617238" y="1034.634991601562" fill="#A0A0A0">TickEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(18).Active-&gt;Coyote.Examples.Raft.PeriodicTimer(18).Inactive">
-        <path d="M 1407.22905463503,1296.15147584218 L 1407.22905463503,1333.11147584218" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1407.22905463503,1342.11147584218 L 1411.22905463503,1332.11147584218 C 1408.56238796837,1333.11147584218 1405.8957213017,1333.11147584218 1403.22905463503,1332.11147584218 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1313.2457213016996" y="1324.1014758421807" fill="#A0A0A0">CancelTimerEvent</text>
+        <path d="M 1418.10809326172,1042.64499160156 L 1418.10809326172,1079.60499160156" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1418.10809326172,1088.60499160156 L 1422.10809326172,1078.60499160156 C 1419.44142659506,1079.60499160156 1416.77475992839,1079.60499160156 1414.10809326172,1078.60499160156 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1324.1247599283897" y="1070.594991601562" fill="#A0A0A0">CancelTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(18).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(18).Active">
-        <path d="M 1407.22905463503,1224.23147584218 L 1407.22905463503,1261.19147584218" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1407.22905463503,1270.19147584218 L 1411.22905463503,1260.19147584218 C 1408.56238796837,1261.19147584218 1405.8957213017,1261.19147584218 1403.22905463503,1260.19147584218 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="1323.8990546350333" y="1252.1814758421806" fill="#A0A0A0">StartTimerEvent</text>
+        <path d="M 1418.10809326172,970.724991601562 L 1418.10809326172,1007.68499160156" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1418.10809326172,1016.68499160156 L 1422.10809326172,1006.68499160156 C 1419.44142659506,1007.68499160156 1416.77475992839,1007.68499160156 1414.10809326172,1006.68499160156 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1334.7780932617234" y="998.67499160156194" fill="#A0A0A0">StartTimerEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(18).Active">
-        <rect x="1381.08923774039" y="1270.19153687506" rx="3" ry="3" width="52.28" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1391.08923774039" y="1288.14153687506" fill="#3D3D3D">Active</text>
+        <rect x="1391.96827636719" y="1016.68497802734" rx="3" ry="3" width="52.2799999999997" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1401.96827636719" y="1034.63497802734" fill="#3D3D3D">Active</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(18).Inactive">
-        <rect x="1376.91405463504" y="1342.11145875006" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1386.91405463504" y="1360.06145875006" fill="#3D3D3D">Inactive</text>
+        <rect x="1387.79309326172" y="1088.60489990234" rx="3" ry="3" width="60.6300000000001" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1397.79309326172" y="1106.5548999023401" fill="#3D3D3D">Inactive</text>
       </g>
       <g id="Coyote.Examples.Raft.PeriodicTimer(18).Init">
-        <rect x="1382.22899359976" y="1198.27149293219" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1398.22899359976" y="1216.2214929321901" fill="#3D3D3D">Init</text>
+        <rect x="1393.10803222656" y="944.765086669922" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1409.10803222656" y="962.715086669922" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.SafetyMonitor(1)">
-      <rect x="582.955299705201" y="975.791193128722" rx="5" ry="5" width="231.056666666667" height="157.88" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
-      <text x="602.955299705201" y="993.741193128722" fill="#000000">Coyote.Examples.Raft.SafetyMonitor</text>
-      <rect x="587.955299705201" y="1003.751193128722" width="221.056666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="618.288871847386" y="826.426547254939" rx="5" ry="5" width="231.056666666667" height="157.88" fill="#EEEEEE" stroke="#A5A6A9" stroke-width="1" />
+      <text x="638.288871847386" y="844.376547254939" fill="#000000">Coyote.Examples.Raft.SafetyMonitor</text>
+      <rect x="623.288871847386" y="854.386547254939" width="221.056666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.SafetyMonitor(1).Init-&gt;Coyote.Examples.Raft.SafetyMonitor(1).Monitoring">
-        <path d="M 714.076966371868,1041.75119312872 L 714.076966371868,1078.71119312872" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 714.076966371868,1087.71119312872 L 718.076966371868,1077.71119312872 C 715.410299705201,1078.71119312872 712.743633038534,1078.71119312872 710.076966371868,1077.71119312872 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="657.89029970520141" y="1069.7011931287218" fill="#A0A0A0">LocalEvent</text>
+        <path d="M 749.410538514053,892.386547254939 L 749.410538514053,929.346547254939" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 749.410538514053,938.346547254939 L 753.410538514053,928.346547254939 C 750.743871847386,929.346547254939 748.077205180719,929.346547254939 745.410538514053,928.346547254939 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="693.22387184738636" y="920.33654725493886" fill="#A0A0A0">LocalEvent</text>
       </g>
       <g id="Coyote.Examples.Raft.SafetyMonitor(1).Init">
-        <rect x="689.076990813152" y="1015.79133178711" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="705.076990813152" y="1033.74133178711" fill="#3D3D3D">Init</text>
+        <rect x="724.410461425781" y="866.42665436907" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="740.410461425781" y="884.37665436907" fill="#3D3D3D">Init</text>
       </g>
       <g id="Coyote.Examples.Raft.SafetyMonitor(1).Monitoring">
-        <rect x="689.076990813152" y="1087.71140625" rx="3" ry="3" width="75" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="699.076990813152" y="1105.66140625" fill="#3D3D3D">Monitoring</text>
+        <rect x="724.410461425781" y="938.346850902273" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="734.410461425781" y="956.296850902273" fill="#3D3D3D">[cold]</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(3)">
-      <rect x="633.194618308262" y="678.831432836952" rx="5" ry="5" width="202.626666666667" height="157.88" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
-      <text x="653.194618308262" y="696.781432836952" fill="#FFFFFF">Coyote.Examples.Raft.Server(3)</text>
-      <rect x="638.194618308262" y="706.791432836952" width="192.626666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="629.982475386245" y="601.740002708548" rx="5" ry="5" width="202.626666666667" height="157.88" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
+      <text x="649.982475386245" y="619.690002708548" fill="#FFFFFF">Coyote.Examples.Raft.Server(3)</text>
+      <rect x="634.982475386245" y="629.700002708548" width="192.626666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.Server(3).Init-&gt;Coyote.Examples.Raft.Server(3).Follower">
-        <path d="M 761.893784974929,744.791432836952 L 761.893784974929,781.751432836952" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 761.893784974929,790.751432836952 L 765.893784974929,780.751432836952 C 763.227118308262,781.751432836952 760.560451641595,781.751432836952 757.893784974929,780.751432836952 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="674.6937849749288" y="772.74143283695207" fill="#A0A0A0">BecomeFollower</text>
+        <path d="M 758.681642052912,667.700002708548 L 758.681642052912,704.660002708548" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 758.681642052912,713.660002708548 L 762.681642052912,703.660002708548 C 760.014975386245,704.660002708548 757.348308719579,704.660002708548 754.681642052912,703.660002708548 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="671.48164205291187" y="695.65000270854807" fill="#A0A0A0">BecomeFollower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(3).Follower">
-        <rect x="729.465465494792" y="790.751613308597" rx="3" ry="3" width="64.8566666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="739.465465494792" y="808.70161330859708" fill="#3D3D3D">Follower</text>
+        <rect x="726.253307291667" y="713.659976490305" rx="3" ry="3" width="64.8566666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="736.253307291667" y="731.609976490305" fill="#3D3D3D">Follower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(3).Init">
-        <rect x="736.893737792969" y="718.83163039844" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="752.893737792969" y="736.78163039844" fill="#3D3D3D">Init</text>
+        <rect x="733.681640625" y="641.739993580149" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="749.681640625" y="659.689993580149" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(4)">
-      <rect x="924.418860896517" y="914.104706266532" rx="5" ry="5" width="202.626666666667" height="301.720230499669" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
-      <text x="944.418860896517" y="932.05470626653209" fill="#FFFFFF">Coyote.Examples.Raft.Server(4)</text>
-      <rect x="929.418860896517" y="942.06470626653208" width="192.626666666667" height="268.76023049966904" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="951.722133880918" y="594.407012770345" rx="5" ry="5" width="202.626666666666" height="301.720179248047" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
+      <text x="970.722133880918" y="612.357012770345" fill="#FFFFFF">Coyote.Examples.Raft.Server(4)</text>
+      <rect x="956.722133880918" y="622.367012770345" width="192.626666666666" height="268.760179248047" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.Server(4).Leader">
-        <path d="M 1055.35802756318,1123.90482151637 L 1055.35802756318,1160.86482151637" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1055.35802756318,1169.86482151637 L 1059.35802756318,1159.86482151637 C 1056.69136089652,1160.86482151637 1054.02469422985,1160.86482151637 1051.35802756318,1159.86482151637 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="977.46469422985047" y="1151.8548215163667" fill="#A0A0A0">BecomeLeader</text>
+        <path d="M 1082.66130054758,804.207102394369 L 1082.66130054758,841.167102394369" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1082.66130054758,850.167102394369 L 1086.66130054758,840.167102394369 C 1083.99463388092,841.167102394369 1081.32796721425,841.167102394369 1078.66130054758,840.167102394369 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="1004.7679672142513" y="832.15710239436874" fill="#A0A0A0">BecomeLeader</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Follower-&gt;Coyote.Examples.Raft.Server(4).Candidate">
-        <path d="M 1055.35802756318,1051.98482151637 L 1055.35802756318,1088.94482151637" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1055.35802756318,1097.94482151637 L 1059.35802756318,1087.94482151637 C 1056.69136089652,1088.94482151637 1054.02469422985,1088.94482151637 1051.35802756318,1087.94482151637 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="959.19802756318381" y="1079.9348215163666" fill="#A0A0A0">BecomeCandidate</text>
+        <path d="M 1082.66130054758,732.287102394369 L 1082.66130054758,769.247102394369" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1082.66130054758,778.247102394369 L 1086.66130054758,768.247102394369 C 1083.99463388092,769.247102394369 1081.32796721425,769.247102394369 1078.66130054758,768.247102394369 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="986.50130054758449" y="760.23710239436866" fill="#A0A0A0">BecomeCandidate</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Init-&gt;Coyote.Examples.Raft.Server(4).Follower">
-        <path d="M 1055.35802756318,980.064821516366 L 1055.35802756318,1017.02482151637" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 1055.35802756318,1026.02482151637 L 1059.35802756318,1016.02482151637 C 1056.69136089652,1017.02482151637 1054.02469422985,1017.02482151637 1051.35802756318,1016.02482151637 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="968.15802756318385" y="1008.0148215163665" fill="#A0A0A0">BecomeFollower</text>
+        <path d="M 1082.66130054758,660.367102394368 L 1082.66130054758,697.327102394368" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1082.66130054758,706.327102394368 L 1086.66130054758,696.327102394368 C 1083.99463388092,697.327102394368 1081.32796721425,697.327102394368 1078.66130054758,696.327102394368 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="995.46130054758441" y="688.31710239436859" fill="#A0A0A0">BecomeFollower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Candidate">
-        <rect x="1018.44969889323" y="1097.94476142936" rx="3" ry="3" width="73.8166666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1028.44969889323" y="1115.89476142936" fill="#3D3D3D">Candidate</text>
+        <rect x="1045.75304361979" y="778.246753246023" rx="3" ry="3" width="73.8166666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1055.75304361979" y="796.196753246023" fill="#3D3D3D">Candidate</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Follower">
-        <rect x="1022.92972941081" y="1026.02471748405" rx="3" ry="3" width="64.8566666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1032.92972941081" y="1043.97471748405" fill="#3D3D3D">Follower</text>
+        <rect x="1050.23298258464" y="706.32670930071" rx="3" ry="3" width="64.8566666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1060.23298258464" y="724.27670930071008" fill="#3D3D3D">Follower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Init">
-        <rect x="1030.35791015625" y="954.104826126627" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1046.35791015625" y="972.05482612662706" fill="#3D3D3D">Init</text>
+        <rect x="1057.66125488281" y="634.406878978445" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1073.66125488281" y="652.356878978445" fill="#3D3D3D">Init</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Leader">
-        <rect x="1027.58303222656" y="1169.86480537467" rx="3" ry="3" width="55.55" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1037.58303222656" y="1187.81480537467" fill="#3D3D3D">Leader</text>
+        <rect x="1054.88637695312" y="850.166797191335" rx="3" ry="3" width="55.5500000000002" height="25.96" fill="#C15656" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1064.88637695312" y="868.11679719133508" fill="#FFFFFF">Leader</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(5)">
-      <rect x="318.729562385663" y="897.701886469124" rx="5" ry="5" width="202.626666666666" height="301.720118212655" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
-      <text x="337.729562385663" y="915.65188646912407" fill="#FFFFFF">Coyote.Examples.Raft.Server(5)</text>
-      <rect x="323.729562385663" y="925.661886469124" width="192.626666666666" height="268.760118212655" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="313.911348002638" y="680.882239232988" rx="5" ry="5" width="202.626666666666" height="301.720118212655" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
+      <text x="332.911348002638" y="698.83223923298806" fill="#FFFFFF">Coyote.Examples.Raft.Server(5)</text>
+      <rect x="318.911348002638" y="708.842239232988" width="192.626666666666" height="268.760118212655" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.Server(5).Leader">
-        <path d="M 449.668729052329,1107.50194557545 L 449.668729052329,1144.46194557545" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 449.668729052329,1153.46194557545 L 453.668729052329,1143.46194557545 C 451.002062385663,1144.46194557545 448.335395718996,1144.46194557545 445.668729052329,1143.46194557545 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="371.77539571899581" y="1135.4519455754519" fill="#A0A0A0">BecomeLeader</text>
+        <path d="M 444.850514669304,890.682298339316 L 444.850514669304,927.642298339316" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 444.850514669304,936.642298339316 L 448.850514669304,926.642298339316 C 446.183848002638,927.642298339316 443.517181335971,927.642298339316 440.850514669304,926.642298339316 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="366.95718133597086" y="918.63229833931575" fill="#A0A0A0">BecomeLeader</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Follower-&gt;Coyote.Examples.Raft.Server(5).Candidate">
-        <path d="M 449.668729052329,1035.58194557545 L 449.668729052329,1072.54194557545" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 449.668729052329,1081.54194557545 L 453.668729052329,1071.54194557545 C 451.002062385663,1072.54194557545 448.335395718996,1072.54194557545 445.668729052329,1071.54194557545 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="353.50872905232927" y="1063.5319455754518" fill="#A0A0A0">BecomeCandidate</text>
+        <path d="M 444.850514669304,818.762298339316 L 444.850514669304,855.722298339316" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 444.850514669304,864.722298339316 L 448.850514669304,854.722298339316 C 446.183848002638,855.722298339316 443.517181335971,855.722298339316 440.850514669304,854.722298339316 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="348.69051466930432" y="846.71229833931591" fill="#A0A0A0">BecomeCandidate</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Init-&gt;Coyote.Examples.Raft.Server(5).Follower">
-        <path d="M 449.668729052329,963.661945575451 L 449.668729052329,1000.62194557545" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 449.668729052329,1009.62194557545 L 453.668729052329,999.621945575451 C 451.002062385663,1000.62194557545 448.335395718996,1000.62194557545 445.668729052329,999.621945575451 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="362.46872905232937" y="991.61194557545127" fill="#A0A0A0">BecomeFollower</text>
+        <path d="M 444.850514669304,746.842298339315 L 444.850514669304,783.802298339315" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 444.850514669304,792.802298339315 L 448.850514669304,782.802298339315 C 446.183848002638,783.802298339315 443.517181335971,783.802298339315 440.850514669304,782.802298339315 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="357.65051466930441" y="774.79229833931538" fill="#A0A0A0">BecomeFollower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Candidate">
-        <rect x="412.760395718996" y="1081.5418607367" rx="3" ry="3" width="73.8166666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="422.760395718996" y="1099.4918607367001" fill="#3D3D3D">Candidate</text>
+        <rect x="407.94219156901" y="864.722034007742" rx="3" ry="3" width="73.8166666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="417.94219156901" y="882.672034007742" fill="#3D3D3D">Candidate</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Follower">
-        <rect x="417.240441495363" y="1009.62169472108" rx="3" ry="3" width="64.8566666666667" height="25.9600000000003" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="427.240441495363" y="1027.57169472108" fill="#3D3D3D">Follower</text>
+        <rect x="412.422237345378" y="792.801867992116" rx="3" ry="3" width="64.8566666666667" height="25.9600000000005" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="422.422237345378" y="810.751867992116" fill="#3D3D3D">Follower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Init">
-        <rect x="424.668790087485" y="937.701986469125" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="440.668790087485" y="955.65198646912506" fill="#3D3D3D">Init</text>
+        <rect x="419.8505859375" y="720.88222077532" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="435.8505859375" y="738.83222077532" fill="#3D3D3D">Init</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Leader">
-        <rect x="421.893790087485" y="1153.46166054139" rx="3" ry="3" width="55.55" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="431.893790087485" y="1171.4116605413901" fill="#3D3D3D">Leader</text>
+        <rect x="417.0755859375" y="936.641833812429" rx="3" ry="3" width="55.55" height="25.96" fill="#C15656" stroke="#A5A6A9" stroke-width="1" />
+        <text x="427.0755859375" y="954.59183381242906" fill="#FFFFFF">Leader</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(6)">
-      <rect x="404.780349656068" y="1336.75030377957" rx="5" ry="5" width="202.626666666667" height="157.88" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
-      <text x="424.780349656068" y="1354.70030377957" fill="#FFFFFF">Coyote.Examples.Raft.Server(6)</text>
-      <rect x="409.780349656068" y="1364.71030377957" width="192.626666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="527.355713566313" y="1070.14282480469" rx="5" ry="5" width="202.626666666667" height="157.88036601412" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
+      <text x="547.355713566313" y="1088.09282480469" fill="#FFFFFF">Coyote.Examples.Raft.Server(6)</text>
+      <rect x="532.355713566313" y="1098.10282480469" width="192.626666666667" height="124.92036601411999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.Server(6).Init-&gt;Coyote.Examples.Raft.Server(6).Follower">
-        <path d="M 533.479516322735,1402.71030377957 L 533.479516322735,1439.67030377957" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 533.479516322735,1448.67030377957 L 537.479516322735,1438.67030377957 C 534.812849656068,1439.67030377957 532.146182989401,1439.67030377957 529.479516322735,1438.67030377957 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="446.27951632273488" y="1430.66030377957" fill="#A0A0A0">BecomeFollower</text>
+        <path d="M 656.05488023298,1136.10300781175 L 656.05488023298,1173.06300781175" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 656.05488023298,1182.06300781175 L 660.05488023298,1172.06300781175 C 657.388213566313,1173.06300781175 654.721546899646,1173.06300781175 652.05488023298,1172.06300781175 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="568.85488023298" y="1164.0530078117502" fill="#A0A0A0">BecomeFollower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(6).Follower">
-        <rect x="501.051191889974" y="1448.67023300065" rx="3" ry="3" width="64.8566666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="511.051191889974" y="1466.62023300065" fill="#3D3D3D">Follower</text>
+        <rect x="623.626546899646" y="1182.06309081881" rx="3" ry="3" width="64.8566666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="633.626546899646" y="1200.01309081881" fill="#3D3D3D">Follower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(6).Init">
-        <rect x="508.479448929362" y="1376.75018905534" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="524.479448929362" y="1394.70018905534" fill="#3D3D3D">Init</text>
+        <rect x="631.055215925919" y="1110.14292480469" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="647.055215925919" y="1128.09292480469" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(7)">
-      <rect x="793.505319797407" y="1331.42249402827" rx="5" ry="5" width="202.626666666667" height="157.88" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
-      <text x="813.505319797407" y="1349.37249402827" fill="#FFFFFF">Coyote.Examples.Raft.Server(7)</text>
-      <rect x="798.505319797407" y="1359.38249402827" width="192.626666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <rect x="930.021393983122" y="986.117129911461" rx="5" ry="5" width="202.626666666667" height="157.88" fill="#5FAE4B" stroke="#A5A6A9" stroke-width="1" />
+      <text x="950.021393983122" y="1004.0671299114611" fill="#FFFFFF">Coyote.Examples.Raft.Server(7)</text>
+      <rect x="935.021393983122" y="1014.077129911461" width="192.626666666667" height="124.91999999999999" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <g id="Coyote.Examples.Raft.Server(7).Init-&gt;Coyote.Examples.Raft.Server(7).Follower">
-        <path d="M 922.204486464074,1397.38249402827 L 922.204486464074,1434.34249402827" fill="none" stroke="#A0A0A0" stroke-width="1" />
-        <path d="M 922.204486464074,1443.34249402827 L 926.204486464074,1433.34249402827 C 923.537819797407,1434.34249402827 920.87115313074,1434.34249402827 918.204486464074,1433.34249402827 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-        <text x="835.00448646407381" y="1425.3324940282698" fill="#A0A0A0">BecomeFollower</text>
+        <path d="M 1058.72056064979,1052.07712991146 L 1058.72056064979,1089.03712991146" fill="none" stroke="#A0A0A0" stroke-width="1" />
+        <path d="M 1058.72056064979,1098.03712991146 L 1062.72056064979,1088.03712991146 C 1060.05389398312,1089.03712991146 1057.38722731646,1089.03712991146 1054.72056064979,1088.03712991146 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+        <text x="971.52056064978888" y="1080.0271299114609" fill="#A0A0A0">BecomeFollower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(7).Follower">
-        <rect x="889.776421838868" y="1443.34263183594" rx="3" ry="3" width="64.8566666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="899.776421838868" y="1461.29263183594" fill="#3D3D3D">Follower</text>
+        <rect x="1026.29248422143" y="1098.03710512486" rx="3" ry="3" width="64.8566666666666" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1036.29248422143" y="1115.9871051248601" fill="#3D3D3D">Follower</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(7).Init">
-        <rect x="897.204266890951" y="1371.42258789062" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-        <text x="913.204266890951" y="1389.37258789062" fill="#3D3D3D">Init</text>
+        <rect x="1033.72032927351" y="1026.11718324986" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1049.72032927351" y="1044.0671832498601" fill="#3D3D3D">Init</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Client(8).PumpRequest-&gt;Coyote.Examples.Raft.ClusterManager(2).Availability.Available">
-      <path d="M 651.087612296551,529.060263898115 L 628.696847678722,539.856513756974 L 585.854131653048,560.759536283726 L 488.242685317282,608.250982550059 L 467.353240637807,618.15627264552 L 421.985892169926,637.207691289228" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 413.563187489579,640.379133527021 L 424.331278128984,640.598733120739 C 422.455735464414,638.45549939002 421.516048875438,635.959883188436 421.512218362056,633.111884515985 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 631.3590083636,511.84409844383 L 625.241261432588,511.186836609143 A 4126.37457137459,4126.37457137459 0 0 1 612.1297000275,509.756992347728 A 533.83897014469,533.83897014469 0 0 1 599.040343343525,508.144497227687 L 563.401485240536,503.306480345431 A 189.061326166949,189.061326166949 0 0 1 558.100730492155,502.510213667405 A 25417.1344134106,25417.1344134106 3.14159265358979 0 0 552.811172835348,501.639354299336 L 551.929733055378,501.494331758446 A 300.209164254896,300.209164254896 0 0 1 547.193089270182,500.676016162301 A 2570.1402217592,2570.1402217592 0 0 1 542.463801793216,499.815356245532 L 454.925358817827,483.800075118719 A 262.607033830319,262.607033830319 0 0 1 444.385396873437,481.647781946571 A 127.172153384142,127.172153384142 0 0 1 434.008283201756,478.84057205924 L 415.240113762611,472.901487877428" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 406.659485280759,470.186195101976 L 414.986720138171,477.016799733302 C 414.837848166248,474.172692096962 415.642379358974,471.630283657895 417.400313716351,469.3895744161 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.Client(8).Init">
-      <path d="M 236.640941062498,516.010285562219 L 244.122507133846,514.683676285106 L 439.910679710126,479.804977143606 L 516.897772604059,467.60846155538 L 620.988162795387,451.135817056143 L 644.933805985317,448" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 653.007250144199,446.409615831967 L 642.566176606676,443.766893110219 C 643.909973774054,446.277932792115 644.262550025379,448.921188568258 643.623905360649,451.696660438648 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 221.793836257126,512.498884503583 L 240.487203910255,503.344812965958 A 536.833467129524,536.833467129524 0 0 1 250.950786224749,498.360148942639 A 80.2413724263884,80.2413724263884 0 0 1 261.763635968139,494.269406533111 L 267.764596131754,492.481386771979 A 77.6445201269155,77.6445201269155 0 0 1 277.115993673854,490.31424304056 A 84.8022658902854,84.8022658902854 0 0 1 286.66096575609,489.26752417578 L 433.521699445479,481.538480079553 A 183.319409012309,183.319409012309 3.14159265358979 0 0 444.130883535541,480.670663100482 A 263.843982009144,263.843982009144 3.14159265358979 0 0 454.686830921044,479.281673677356 L 535.414802965711,466.997431202569 A 755.050680707884,755.050680707884 0 0 1 541.191300688101,466.141272894618 A 505.562195638161,505.562195638161 3.14159265358979 0 0 546.966100959039,465.274100857293 L 547.890113096369,465.129885100891 A 495.220305977114,495.220305977114 0 0 1 554.29201671576,464.173519645405 A 528.690780229708,528.690780229708 3.14159265358979 0 0 560.694332235608,463.219800483517 L 618.924273988682,454.180878159365 A 1446.66010845801,1446.66010845801 3.14159265358979 0 0 632.838065995297,451.951616825069 A 1685.76289609194,1685.76289609194 3.14159265358979 0 0 644.139851176142,450.044857963192" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 653.007250144199,448.505625836031 L 642.470481456508,446.274817547073 C 643.911816786933,448.731169227183 644.367885565351,451.358546699201 643.838687791762,454.156949963125 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.Server(3).Init">
-      <path d="M 232.745165467948,538.458884503583 L 282.38050580519,549.522878660663 L 301.891136467526,556.094656290009 L 447.239670965322,617.592663257422 L 468.754931942849,628.949371534078 L 574.84801000328,675.610945653033 L 728.481770138316,729" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 736.893737792969,730.39307328107 L 728.155075308333,724.097378086762 C 728.481770138316,726.926579670102 727.838039057752,729.51438209823 726.223882066642,731.860785371148 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 236.640941062498,527.249432138605 L 277.162381919611,539.656877492378 A 132.65489831542,132.65489831542 0 0 1 284.972616932177,542.316671788834 A 220.931898597004,220.931898597004 3.14159265358979 0 0 292.751610459475,545.074145779538 L 298.738302856585,547.071224518977 A 50.8009852936216,50.8009852936216 3.14159265358979 0 0 307.383134752374,549.135418796116 A 94.1526773932325,94.1526773932325 3.14159265358979 0 0 316.25115802665,550.020302958244 L 519.779180261062,560.635571910012 A 70.7282218110386,70.7282218110386 0 0 1 525.139889392913,561.12025809035 A 83.3055883798856,83.3055883798856 0 0 1 530.454318511526,561.980886577994 L 532.441835886029,562.369036678114 A 79.1819365404663,79.1819365404663 0 0 1 537.616401952671,563.561013332218 A 318.296629505986,318.296629505986 3.14159265358979 0 0 542.762016356921,564.883649558712 L 545.077227442632,565.458199245341 A 257.167466779163,257.167466779163 0 0 1 552.468911141012,567.409620496328 A 303.584640472281,303.584640472281 0 0 1 559.804466091609,569.563294852515 L 581.843699211975,576.336449738164 A 5145.30920202702,5145.30920202702 0 0 1 611.865267779717,585.663227108394 A 424.389529831591,424.389529831591 0 0 1 641.468890392639,596.178178722162 L 698.460731469602,618.830055069118 A 203.33261355775,203.33261355775 0 0 1 714.084098142028,625.814676619581 A 198.809827329393,198.809827329393 0 0 1 729.056254963538,634.10232884175 L 733.873372663533,637.046502736066" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 741.552639796308,641.739993580149 L 735.106116690595,633.111996138824 C 734.568704640435,635.908833531211 733.178040686632,638.184171940922 730.934124829188,639.938011367957 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.Server(4).Init">
-      <path d="M 220.108938962357,538.458884503583 L 281.362988676544,552.114975707481 L 301.029418549124,558.802886744174 L 446.923437316249,620.176200467046 L 468.417222067752,639.908450918949 L 614.864469917022,837.670620111209 L 852.807312770492,911.105225324819 L 1020,954.169811428321" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1030.35791015625,958.137968706465 L 1022.27567746181,951.019154572574 C 1022.32458282374,953.866735893043 1021.43126763842,956.379324019019 1019.59573190587,958.556918950504 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 236.640941062498,524.371107285618 L 278.564669278249,537.216845662884 A 57.9308086863923,57.9308086863923 0 0 1 285.795336033936,539.972900845182 A 41.2222171708995,41.2222171708995 3.14159265358979 0 0 293.081830544913,542.527525150128 L 299.155145018327,544.03576217509 A 679.753361745122,679.753361745122 3.14159265358979 0 0 307.483992241563,546.048488688576 A 47.820432063312,47.820432063312 3.14159265358979 0 0 315.933326391404,547.251717682265 L 518.697154645691,557.825195407259 A 98.9233206315989,98.9233206315989 0 0 1 525.022537230675,558.358990257921 A 81.2549735830429,81.2549735830429 0 0 1 531.292410780183,559.34087434826 L 533.042930144968,559.685534173574 A 59.992019388428,59.992019388428 0 0 1 538.255080091558,560.956234968557 A 66.7564087530255,66.7564087530255 3.14159265358979 0 0 543.462425655665,562.250767400768 L 545.891731997681,562.751962979201 A 94.5799004950667,94.5799004950667 3.14159265358979 0 0 553.084558906755,563.948928911508 A 101.625144513251,101.625144513251 3.14159265358979 0 0 560.347211294938,564.607672832138 L 913.383782075587,583.891485525778 A 110.431519917016,110.431519917016 0 0 1 929.008960597315,585.869788289938 A 108.189493759875,108.189493759875 0 0 1 944.185998994114,590.072713300146 L 1014.40331001336,615.148560498942 A 203.448607271787,203.448607271787 0 0 1 1032.56460521393,622.641541670193 A 6253.23755492349,6253.23755492349 0 0 1 1050.35048360292,631.040404874325 L 1050.67363738973,631.193626867031" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1058.80582530216,635.049469155935 L 1051.48376863898,627.150894207183 C 1051.24487328439,629.988858287411 1050.10240149508,632.39839544665 1048.05635327106,634.379505684899 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.Server(5).Init">
-      <path d="M 182.20167197206,538.458884503583 L 278.310437290606,559.891266847936 L 298.444264793919,566.927578106666 L 304.359386080831,621.968163943783 L 301.766920892407,627.476417517863 L 299.123947872717,670.429033584741 L 318.695248731997,730.54686117142 L 387.136953339761,849.579656759421 L 421.991414252217,906.00832736461 L 436.604906082951,930.130190725577" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 441.46987362837,937.701986469125 L 439.429596686148,927.12667228944 C 437.726653600514,929.409454792922 435.483158565388,930.850926658231 432.699111580772,931.451087885369 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 236.611910644289,535.875225402453 L 272.955519843698,546.976972980859 A 80.4137084074459,80.4137084074459 3.14159265358979 0 0 282.608581807384,549.285201406891 A 26.4965964337101,26.4965964337101 0 0 1 291.760950203159,552.714007667771 L 297.48777637136,556.177611550635 A 3.38736890687935,3.38736890687935 0 0 1 298.60209111529,557.272572264453 A 3.90112437319397,3.90112437319397 0 0 1 299.153889781977,558.745158626407 L 306.010612476407,602.462266026525 A 22.9389059696899,22.9389059696899 3.14159265358979 0 0 310.574965786219,613.003073785565 A 39.1072478660229,39.1072478660229 3.14159265358979 0 0 319.089264970844,621.071942401562 L 340.35396161231,635.871029693543 A 386.554904663248,386.554904663248 0 0 1 354.767931535925,646.404645754916 A 299.134064320554,299.134064320554 0 0 1 368.601916448468,657.684124692308 L 373.555493841777,661.97529372535 A 276.29250222653,276.29250222653 0 0 1 380.923550513197,668.592902943873 A 982.078894476871,982.078894476871 0 0 1 388.138763555588,675.378971843307 L 388.98957086234,676.187299609363 A 756.370939821416,756.370939821416 0 0 1 395.828809070883,682.767193376758 A 376.986695940125,376.986695940125 0 0 1 402.542337053971,689.474502735692 L 426.91125141148,714.441575313096" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 433.197592639088,720.88222077532 L 429.075278147178,710.932018605023 C 427.865421109587,713.510265501598 425.957081713372,715.372885124593 423.350259958534,716.519877474008 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.Server(6).Init">
-      <path d="M 194.837282565454,538.458884503583 L 279.327954419252,557.299169801118 L 299.305982712321,564.219347652502 L 446.290970018105,625.343274886294 L 458.311423612635,637.425210546842 L 480.795231567992,685.573817953818 L 527.13734701743,862.953737119641 L 541.016592155109,1074.09929750688 L 537.705002293732,1283.3409742389 L 534.390128804801,1367.75790936395" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 534.017427916942,1376.75018905534 L 538.428108766292,1366.92441201507 C 535.722318388711,1367.8131243103 533.057939220892,1367.7026944176 530.434971262834,1366.59312233697 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 236.640941062498,533.005930438787 L 274.357807202336,544.536941151365 A 140.836096460942,140.836096460942 3.14159265358979 0 0 283.378943931873,546.970820289195 A 38.3433511995285,38.3433511995285 0 0 1 292.091170288598,550.16738703836 L 297.904618533102,553.142149206749 A 7.33568167055332,7.33568167055332 0 0 1 300.935189974011,556.038321914186 A 11.5523076056306,11.5523076056306 0 0 1 302.332788414185,560.102659594334 L 308.538337331592,602.870666479777 A 17.2427908352286,17.2427908352286 3.14159265358979 0 0 312.510837474132,611.616283576622 A 39.1371384138342,39.1371384138342 3.14159265358979 0 0 319.869808505062,618.269535406358 L 342.039879766833,633.698432175306 A 42.7878811971798,42.7878811971798 3.14159265358979 0 0 356.901449925161,640.279968939563 A 561.161280692879,561.161280692879 3.14159265358979 0 0 373.087402670112,643.747706800536 L 521.382271606407,673.238290880847 A 6.5743523865863,6.5743523865863 0 0 1 524.600897085353,674.894320087959 A 6.47851946092888,6.47851946092888 0 0 1 526.440904605439,678.00668727587 L 605.625314346901,986.675949100537 A 339.543878489383,339.543878489383 3.14159265358979 0 0 609.785075635404,1001.48837006288 A 230.759312476187,230.759312476187 3.14159265358979 0 0 614.765753786347,1016.04044202101 L 623.424862148192,1038.83073031914 A 279.568348408773,279.568348408773 3.14159265358979 0 0 631.087974112011,1057.03515291362 A 510.899649236037,510.899649236037 0 0 1 639.044708779864,1075.12260735975 L 641.284620902007,1080.49393170807 A 1049.64243242486,1049.64243242486 0 0 1 646.081976157823,1092.195985849 A 1196.98313715934,1196.98313715934 3.14159265358979 0 0 650.01278128841,1101.83032079692" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 653.462508032664,1110.14292480469 L 653.323968986945,1099.37348624306 C 651.24427817845,1101.31925016814 648.78128439837,1102.3413914257 645.934987646706,1102.43991001573 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ClusterManager(2).Configuring-&gt;Coyote.Examples.Raft.Server(7).Init">
-      <path d="M 207.473016947884,538.458884503583 L 280.345471547898,554.7070727543 L 300.167700630722,561.511117198338 L 446.607203667177,622.75973767667 L 461.241814801961,636.821759258502 L 483.758587551311,685.585780380325 L 529.536380028069,861.120862090098 L 543.745276641331,1073.42912639638 L 560.549796713572,1145.03346013122 L 581.876639751556,1178.02824640221 L 729.800400104748,1290.08740760915 L 888.560411353849,1372" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 897.204266890951,1375.63759557921 L 889.806080306047,1367.81028216687 C 889.59467299635,1370.65042618796 888.475583622011,1373.07091169367 886.44881218303,1375.071738684 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 236.640941062498,530.127708184151 L 275.760094560973,542.096909321871 A 1968.89518395396,1968.89518395396 3.14159265358979 0 0 284.166957372454,544.64864009299 A 82.5685208211328,82.5685208211328 0 0 1 292.421390374036,547.620766408949 L 298.321460694844,550.106686862863 A 27.8902210274211,27.8902210274211 3.14159265358979 0 0 307.26557291168,552.231132325592 A 600.410854192152,600.410854192152 3.14159265358979 0 0 316.568989661896,552.788888234223 L 520.861205876433,563.445948412765 A 3.19310570996545,3.19310570996545 0 0 1 522.568594819344,564.049172620679 A 4.49231557259744,4.49231557259744 0 0 1 523.809900268105,565.418136939089 L 541.217853381766,595.171453890349 A 191.644206426293,191.644206426293 0 0 1 557.623738756975,631.373741830777 A 296.825434260465,296.825434260465 3.14159265358979 0 0 572.73878397653,668.269036495215 L 618.810858963002,762.194741459807 A 17.9454443908868,17.9454443908868 3.14159265358979 0 0 622.359164367893,767.105974708039 A 18.8946699374049,18.8946699374049 3.14159265358979 0 0 627.317478057678,770.602912357773 L 670.405444125872,791.576205711805 A 55.5668618557638,55.5668618557638 3.14159265358979 0 0 691.813470848065,797.104354430483 A 197.642786999276,197.642786999276 3.14159265358979 0 0 714.337861121173,797.000853654083 L 785.105497586073,792.635399850593 A 176.711135363036,176.711135363036 0 0 1 805.512734631659,792.557143322676 A 49.569423484293,49.569423484293 0 0 1 824.874120639466,797.65135013931 L 846.696423933274,808.48007648299 A 56.519350914499,56.519350914499 0 0 1 856.384509237024,814.582195361214 A 66.7002362422553,66.7002362422553 0 0 1 864.777303492907,822.394762688689 L 932.34254616865,897.119007670054 A 1796.14418915891,1796.14418915891 3.14159265358979 0 0 941.378850552344,907.038042182632 A 417.364920616897,417.364920616897 3.14159265358979 0 0 950.60872332989,916.774956068275 L 983.019651790342,949.883919275155 A 1647.74139242654,1647.74139242654 3.14159265358979 0 0 1001.54154862847,968.505488978647 A 405.737881727537,405.737881727537 0 0 1 1019.59499473055,987.563779657589 L 1027.80002100944,996.806895208903 A 206.333934951902,206.333934951902 0 0 1 1036.43361926204,1007.1991084945 A 425.609720094625,425.609720094625 0 0 1 1044.55522283132,1018.00311091376 L 1045.16244460909,1018.83816977083" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1050.45545535649,1026.11718324986 L 1047.80944940562,1015.67694127431 C 1046.24081697636,1018.05402003047 1044.08407224183,1019.62231951118 1041.33921520204,1020.38183971645 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(16).Active-&gt;Coyote.Examples.Raft.Server(5).Follower">
-      <path d="M 123.587353296056,950.904602110875 L 129.666925541942,951.274252368011 L 238.502609031379,960.402590789649 L 284.310825419102,966.060428068932 L 406.052700798112,1008.684246094084" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 417.240441495363,1012.8407697384 L 409.559363860694,1005.29086600589 C 409.452563169741,1008.13686402479 408.423259105685,1010.59687301966 406.471451668526,1012.67089299049 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 126.79950012207,800.3976258132 L 132.871369155631,800.601652091539 A 1092.37192759706,1092.37192759706 0 0 1 146.434750052656,801.141792987999 A 56239.7472172354,56239.7472172354 3.14159265358979 0 0 159.994850069652,801.764570294799 L 248.845513563216,805.834486362279 A 1614.49238613991,1614.49238613991 3.14159265358979 0 0 264.339103454853,806.469643991999 A 596.421247084047,596.421247084047 3.14159265358979 0 0 279.840413636713,806.828880835238 L 281.493576431955,806.845696294428 A 3722.93100395417,3722.93100395417 3.14159265358979 0 0 296.428286243494,806.967648343829 A 1438.38380158221,1438.38380158221 3.14159265358979 0 0 311.363315730734,806.98210590003 L 330.548269364674,806.901075904525 A 11429.3106387893,11429.3106387893 3.14159265358979 0 0 365.105349995047,806.702875154991 A 32279.6539189204,32279.6539189204 3.14159265358979 0 0 399.661987024506,806.43393329213 L 403.422548677323,806.402653088872" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 412.422237345378,806.327794034085 L 402.389312578745,802.411109131379 C 403.411458446984,805.06936587879 403.433638907662,807.735940298954 402.455853960778,810.410832391873 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.ElectionTimer(9).Active-&gt;Coyote.Examples.Raft.Server(4).Follower">
-      <path d="M 1309.24830566406,1023.36957275791 L 1303.17699079164,1023.20611351636 L 1210.76379209854,1021.0277858167 L 1125.70748857034,1028.48907864491 L 1116.35656187445,1030.1868608294 L 1096.66283141816,1033.48295033175" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1087.78639607748,1034.96918572452 L 1098.30965107502,1037.26289543952 C 1096.88301443931,1034.79797778963 1096.442648397,1032.16792287387 1096.98855294811,1029.37273069225 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1338.15759196222,761.17900471623 L 1331.86895412076,759.724114335182 A 716.702966885179,716.702966885179 0 0 1 1319.24759950836,756.683447025555 A 4892.71503233938,4892.71503233938 0 0 1 1306.65799365824,753.511759040722 L 1235.5630365404,735.500524199673 A 964.688865663045,964.688865663045 3.14159265358979 0 0 1211.13530861631,729.649344251411 A 419.040491858462,419.040491858462 3.14159265358979 0 0 1186.48769072413,724.855011715274 L 1173.5897968636,722.745083836574 A 141.675038765062,141.675038765062 3.14159265358979 0 0 1162.11240023184,721.345618368376 A 264.566697086067,264.566697086067 3.14159265358979 0 0 1150.56301842149,720.667473365341 L 1148.70474091089,720.599088860695 A 194.303199572706,194.303199572706 3.14159265358979 0 0 1136.71973913449,720.527933913083 A 483.149453232199,483.149453232199 0 0 1 1124.73068187024,720.677816964156 L 1124.08964921279,720.677876273788" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1115.08964925131,720.678708971905 L 1125.09001929656,724.677783734655 C 1124.08977257547,722.011209601415 1124.0895258501,719.344542946162 1125.08927912045,716.677783768896 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.PeriodicTimer(17).Active-&gt;Coyote.Examples.Raft.Server(5).Candidate">
-      <path d="M 122.434809918933,1253.20181540268 L 130.637204006381,1248.93573200157 L 284.691492507843,1174.3035990173 L 301.835062056897,1166.43571543383 L 373.087571913585,1133.96967457544 L 417.64832774855,1111.7699800749" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 425.571910102188,1107.5018607367 L 414.870987781168,1108.72262339975 C 417.016013772521,1110.59611602251 418.28064172458,1112.94384412729 418.664871637346,1115.7658077141 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 94.9421579098694,1063.11411621094 L 104.983356220928,1055.39087874356 A 272.701488655927,272.701488655927 0 0 1 118.635099653491,1045.54586820119 A 405.979527142775,405.979527142775 0 0 1 132.780160725213,1036.41571362825 L 183.576653224594,1005.10098053537 A 1137.92198043946,1137.92198043946 0 0 1 224.745366452407,980.898738303438 A 2097.91907514432,2097.91907514432 0 0 1 266.682296888112,958.037978895164 L 271.792738577667,955.327163774892 A 692.53909359211,692.53909359211 0 0 1 308.302115215293,937.315401198607 A 507.204799849502,507.204799849502 0 0 1 345.960487024839,921.889170863696 L 377.238866971364,910.519232816773 A 298.052740847413,298.052740847413 3.14159265358979 0 0 384.824797872776,907.644215649742 A 97.4766524872472,97.4766524872472 3.14159265358979 0 0 392.234821209067,904.357574170499 L 411.834209341207,894.669992552469" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 419.902430126828,890.682034007742 L 409.165314345148,891.527223152718 C 411.243400667914,893.474700584229 412.425018014499,895.865284520709 412.710166384905,898.69897496216 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(3).Follower-&gt;Coyote.Examples.Raft.ElectionTimer(14).Init">
-      <path d="M 786.476178049297,790.751613308597 L 799.796134512793,783.718403327552 L 832.578229890057,768.229726835949 L 977.509144781875,714.687995791507 L 1062.6726105012,686.299986249684 L 1171.31226920833,655.004109141626" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1180.48043319596,655.492712533481 L 1169.82936669018,653.89434389967 C 1171.41464558748,656.260353605673 1172.02661293656,658.855851067581 1171.66526873743,661.680836285394 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 776.37471834749,713.659976490305 L 824.132568242526,678.504494838437 A 184.753191542115,184.753191542115 3.14159265358979 0 0 831.157335974907,673.068285237482 A 981.258961974428,981.258961974428 3.14159265358979 0 0 838.025867576314,667.432062004781 L 838.861795050988,666.739754738722 A 1752.56164092348,1752.56164092348 3.14159265358979 0 0 845.134667245738,661.519951783221 A 392.95830793884,392.95830793884 0 0 1 851.44905770625,656.351110220642 L 927.555624832366,595.360368055476 A 55.7198150293771,55.7198150293771 0 0 1 936.998028890273,589.248231607752 A 55.6398821221506,55.6398821221506 0 0 1 947.476016516671,585.158576879699 L 1172.57434868256,522.648798853487 A 609.209625685599,609.209625685599 3.14159265358979 0 0 1187.81335376368,518.202277930068 A 363.291640612024,363.291640612024 3.14159265358979 0 0 1202.88573059082,513.227864191316 L 1204.87315722921,512.523438603621 A 305.022254629304,305.022254629304 3.14159265358979 0 0 1220.53337697519,506.482842040191 A 1498.32292589679,1498.32292589679 3.14159265358979 0 0 1235.99058386126,499.924592832159 L 1329.05333782519,459.822733213681 A 65896.7735383992,65896.7735383992 0 0 1 1346.01113045783,452.518233213137 A 1222.43929327528,1222.43929327528 3.14159265358979 0 0 1362.17930091438,445.41768105173" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1370.39099121094,441.734185093622 L 1359.62978156672,442.177318248604 C 1361.63359780948,444.201134341129 1362.72500401929,446.634227762331 1362.90400019614,449.476598512213 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(3).Follower-&gt;Coyote.Examples.Raft.Server(5).Candidate">
-      <path d="M 741.648076540816,816.711613308597 L 704.302048279437,843.787866120587 L 695.972344045018,850.112518211087 L 581.302545923638,944.0502103162 L 554.407252298013,970.909556916525 L 528.13790935346,1010.24366451894 L 503.129643996597,1047.64225259622 L 495.035689111605,1057.32553728868 L 473.563032367865,1075.83358933472" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 466.60489773268,1081.5418607367 L 476.873167950432,1078.29184123903 C 474.408702205195,1076.86442409549 472.717362530535,1074.80275457395 471.799148926451,1072.10683267442 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 739.012881993122,739.619976490305 L 720.776814664687,747.57267545516 A 623.194002795994,623.194002795994 0 0 1 702.952131800461,755.019336062077 A 1057.28976000088,1057.28976000088 3.14159265358979 0 0 685.079024360544,762.35299895042 L 678.476003349295,765.133090419804 A 27353.239800275,27353.239800275 0 0 1 652.457056936164,776.072131965982 A 2719.61197748436,2719.61197748436 3.14159265358979 0 0 626.489860612199,787.132497173149 L 575.713635067254,809.071899518617 A 757.393585530886,757.393585530886 3.14159265358979 0 0 557.864414123573,817.059190379218 A 1190.88602866316,1190.88602866316 0 0 1 540.052038081553,825.130665867418 L 535.832698522584,827.001008119886 A 72.1043233217687,72.1043233217687 3.14159265358979 0 0 531.504827604132,829.0947860112 A 387.297087610674,387.297087610674 3.14159265358979 0 0 527.260862606342,831.359286144545 L 518.197335163021,836.26796682013 A 803.874850966128,803.874850966128 3.14159265358979 0 0 505.972071345167,843.027033596921 A 301.490541795924,301.490541795924 0 0 1 493.653094858351,849.60692078523 L 471.739771562462,860.666849411981" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 463.705129199899,864.722034007742 L 474.43481386753,863.787225506925 C 472.340539650723,861.857166799027 471.139003474202,859.476532024934 470.830205337965,856.645321184646 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(3).Init-&gt;Coyote.Examples.Raft.ElectionTimer(14).Init">
-      <path d="M 786.893737792969,727.853051412541 L 793.196309555727,726.951125616854 L 835.433526252198,720.784841505385 L 996.554271808463,691.301342143248 L 1060.88970884278,679.001629185121 L 1171.66796394962,652.330652440348" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1180.48043319596,652.667334803337 L 1169.82939777146,651.068759066619 C 1171.41463066291,653.434799596913 1172.02654754407,656.030308957646 1171.66514841496,658.855287148818 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 783.681640625,645.875393809749 L 818.049876401484,632.895698774793 A 305.712454846307,305.712454846307 3.14159265358979 0 0 827.379918201007,629.195946873135 A 714.559408928301,714.559408928301 0 0 1 836.675823136692,625.408312092331 L 837.82784821254,624.948325528244 A 598.170993271692,598.170993271692 3.14159265358979 0 0 847.911812850722,620.815048442103 A 806.890136540898,806.890136540898 0 0 1 857.986198404853,616.657943961141 L 919.399154155793,591.800463813756 A 239.541351158423,239.541351158423 0 0 1 933.912447100349,586.464499363163 A 314.498618702589,314.498618702589 0 0 1 948.708823020598,581.961158055768 L 1171.97344580105,519.965253488305 A 602.885834148038,602.885834148038 3.14159265358979 0 0 1186.99901172272,515.582108982908 A 355.223320870689,355.223320870689 3.14159265358979 0 0 1201.85959159524,510.676484415243 L 1203.85956464015,509.96704855838 A 306.693560506291,306.693560506291 3.14159265358979 0 0 1219.50085779498,503.932533531048 A 1484.14871295863,1484.14871295863 3.14159265358979 0 0 1234.94014978551,497.383119194187 L 1328.072161117,457.253727128191 A 76949.6116943909,76949.6116943909 0 0 1 1344.91481441943,449.998822802081 A 1217.51699569882,1217.51699569882 3.14159265358979 0 0 1361.70275703299,442.61949216524 L 1362.17933218238,442.405711265377" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1370.39099121094,438.722145601686 L 1359.62978532868,439.165370104207 C 1361.63361875073,441.189169187073 1362.72504561404,443.622253343682 1362.90406591863,446.464622574035 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(3).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(15).Init">
-      <path d="M 778.583770866482,718.83163039844 L 798.505537817601,703.338279733012 L 833.894347423941,673.512838375977 L 997.136777045369,521.913697173552 L 1011.97124253195,507.019315030043 L 1028.0203406117,487.185298080328" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1033.36027958258,479.940641305345 L 1024.20716660383,485.616953734936 C 1026.94705812652,486.394196010568 1029.09362309688,487.976400150088 1030.64686151493,490.363566153494 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 776.417653515272,641.739993580149 L 796.059227894138,627.365419259811 A 1921.52231073299,1921.52231073299 0 0 1 813.874541078001,614.483235743988 A 1921.52231073765,1921.52231073765 0 0 1 831.836075997914,601.805724186303 L 833.747244096198,600.473108314654 A 749.022110501675,749.022110501675 0 0 1 852.674190452382,587.700056154422 A 963.729333213783,963.729333213783 0 0 1 871.941062363961,575.44380173996 L 932.007242930663,538.226007132118 A 5444.3453027531,5444.3453027531 0 0 1 954.345555746385,524.459282256042 A 1294.91866610643,1294.91866610643 3.14159265358979 0 0 976.57582514678,510.521155363711 L 983.791889699064,505.894260189188 A 1868.54719004057,1868.54719004057 3.14159265358979 0 0 998.182243173375,496.573817335532 A 1868.54719004803,1868.54719004803 3.14159265358979 0 0 1012.48647104823,487.121727989357 L 1015.76033398774,484.936748419555" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1023.24624834093,479.940641305345 L 1012.70807367551,482.164798386382 C 1015.02016997082,483.827724070934 1016.50049800466,486.045772768177 1017.14905777703,488.818944478109 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.ElectionTimer(9).Inactive">
-      <path d="M 1092.2663655599,1107.47023809847 L 1129.7537571555,1104.05219632294 L 1167.4126436813,1101.44982832946 L 1295.09216727572,1095.51452563049" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1305.07324462891,1095.29246850815 L 1294.96803486846,1091.56624579643 C 1296.04027584763,1094.20469427872 1296.11288761601,1096.87037217415 1295.18587017361,1099.56327948273 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1112.97689146139,804.206753246023 L 1126.31310583955,809.064209315031 A 153.908438427527,153.908438427527 3.14159265358979 0 0 1140.97212427111,813.589697700988 A 273.842910390684,273.842910390684 3.14159265358979 0 0 1155.95159997474,816.963543424827 L 1175.48035190458,820.790139294867 A 301.004487781512,301.004487781512 3.14159265358979 0 0 1187.21829465107,822.849752706529 A 520.001469754248,520.001469754248 3.14159265358979 0 0 1199.01640921554,824.541738538271 L 1200.34419917399,824.716653478279 A 438.952682183822,438.952682183822 3.14159265358979 0 0 1211.74324374403,826.066911187516 A 438.95268218496,438.95268218496 3.14159265358979 0 0 1223.17369737233,827.118644443816 L 1301.2305814563,833.272679492202 A 17810.5186401822,17810.5186401822 0 0 1 1314.54970971024,834.327791719021 A 17810.5186374234,17810.5186374234 0 0 1 1325.01142525504,835.163596656665" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1333.98253092706,835.884195727875 L 1324.3349019898,831.096372016743 C 1325.118180673,833.834543964513 1324.90466983709,836.492649348816 1323.69436948205,839.07068816965 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.PeriodicTimer(18).Init">
-      <path d="M 1092.2663655599,1119.94170414392 L 1120.74003603964,1128.32599708957 L 1137.68668558992,1132.70085480562 L 1169.93750072202,1139.39956483391 L 1203.53758918471,1150.97298000302 L 1371.29371493616,1201.57" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1382.22899359976,1205.25989309608 L 1373.65871383618,1198.73683363184 C 1373.91098194474,1201.57364027181 1373.19949974731,1204.14364108773 1371.5242672439,1206.44683607962 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1104.94337510389,804.206753246023 L 1125.24502527933,811.598317425764 A 56.9868004619608,56.9868004619608 0 0 1 1138.71848794937,818.665204924809 A 230.081474115415,230.081474115415 0 0 1 1150.93017685891,827.954303141616 L 1156.98147092361,832.884347588436 A 284.308815059754,284.308815059754 0 0 1 1175.66229787918,849.523440251103 A 879.576977419786,879.576977419786 3.14159265358979 0 0 1193.85524448927,866.726233088586 L 1204.40218475761,876.418565024939 A 610.843917961028,610.843917961028 3.14159265358979 0 0 1212.72667293991,883.928789140661 A 135.711448578201,135.711448578201 3.14159265358979 0 0 1221.41234623138,891.003821901335 L 1223.08290026041,892.253535114973 A 84.0088443354682,84.0088443354682 3.14159265358979 0 0 1233.19059698394,898.742571157342 A 71.5278856643125,71.5278856643125 3.14159265358979 0 0 1244.17082472521,903.582870585727 L 1344.86188134425,938.20859114809 A 272.70925734469,272.70925734469 3.14159265358979 0 0 1364.42424103463,944.125860503665 A 1542.68818154022,1542.68818154022 3.14159265358979 0 0 1384.24197677865,949.178215484152 L 1384.37243701927,949.210555722727" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1393.10803222656,951.376052518929 L 1384.3642583501,945.087458208797 C 1384.69325135945,947.916393469795 1384.05162267909,950.504717975659 1382.43937230904,952.852431726389 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.Server(3).Follower">
-      <path d="M 1041.61572168142,1097.94476142936 L 1029.06230766356,1087.4199738534 L 1013.94281856534,1074.35087545791 L 948.008715677649,1010.20162455289 L 805.355099261741,855.345066119616 L 795.656278116067,844.100557586986 L 778.486780898177,823.62268366455" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 772.721617714444,816.711613308597 L 776.055767760391,826.952875119092 C 777.462918623221,824.476781913992 779.510643173133,822.768585415108 782.198941410126,821.828285622441 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1045.75304361979,784.900571774723 L 1039.47612797783,784.220789295006 A 5334.47441838946,5334.47441838946 0 0 1 1020.94525241229,782.181150918181 A 1730.01413587662,1730.01413587662 3.14159265358979 0 0 1002.40731491966,780.209015258213 L 981.587078028621,778.107465130616 A 352.457075733203,352.457075733203 0 0 1 942.466876669981,771.922144207213 A 891.49793884088,891.49793884088 0 0 1 903.900435394152,762.677303741304 L 861.160115452557,751.420997713266 A 1578.70941756356,1578.70941756356 0 0 1 845.765803091635,747.283451347844 A 1883.07818076664,1883.07818076664 3.14159265358979 0 0 830.374813898416,743.133328556583 L 828.729074486689,742.697024879067 A 683.500740477471,683.500740477471 3.14159265358979 0 0 813.619720984066,738.875194210461 A 1382.14902460848,1382.14902460848 3.14159265358979 0 0 799.882804535154,735.640790091085" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 791.109973958334,733.631450978244 L 799.964523882428,739.763085804432 C 799.585124666585,736.940468695058 800.180484403723,734.341111487111 801.750603093842,731.965014180591 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.Server(5).Candidate">
-      <path d="M 1028.48112893692,1123.90476142936 L 1012.21632507146,1131.03866517332 L 938.816436609576,1149.80680207608 L 860.739814958552,1155.39820733353 L 566.934256883549,1153.7491737116 L 530.680540155537,1142.49474114183 L 478.074742165281,1112.21982182409" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 470.410484655393,1107.5018607367 L 476.829454738651,1116.15037639375 C 477.375784967149,1113.35526738111 478.773699363413,1111.08437626707 481.023197927442,1109.33770305163 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1045.75304361979,787.663358904365 L 1039.22261202023,786.959078844934 A 4470.69635989357,4470.69635989357 0 0 1 1020.64919252327,784.916737938287 A 1692.59440328703,1692.59440328703 3.14159265358979 0 0 1002.06911966646,782.938140387389 L 981.281638927098,780.84045012056 A 418.341927558123,418.341927558123 3.14159265358979 0 0 941.501827551639,778.732479374816 A 949.153746549931,949.153746549931 3.14159265358979 0 0 901.63468412828,779.358182638278 L 879.509390970163,780.170522783488 A 389.757815973098,389.757815973098 3.14159265358979 0 0 855.250371826277,781.820161706943 A 1124.38402148594,1124.38402148594 0 0 1 831.019634291258,783.964743558982 L 827.212346998478,784.260244205288 A 1996.88120236962,1996.88120236962 0 0 1 805.827381673725,785.804576200989 A 4015.93955102389,4015.93955102389 0 0 1 784.430461814724,787.176981883141 L 715.764812176282,791.397195519985 A 355.70493110145,355.70493110145 3.14159265358979 0 0 693.72479082335,793.441774846645 A 280.304409444116,280.304409444116 3.14159265358979 0 0 671.890353670595,797.034946708621 L 577.397869703421,816.4438972296 A 203.987778083494,203.987778083494 3.14159265358979 0 0 559.107132778132,821.092062472616 A 168.205757513497,168.205757513497 3.14159265358979 0 0 541.396096888028,827.581849674375 L 537.073853619661,829.446738540112 A 57.7372184308626,57.7372184308626 3.14159265358979 0 0 532.745948357819,831.531732729857 A 828.104230215141,828.104230215141 3.14159265358979 0 0 528.511469676815,833.809224956266 L 519.488179775508,838.696180193459 A 805.238382471305,805.238382471305 3.14159265358979 0 0 507.284914125449,845.442690680691 A 301.986065876201,301.986065876201 0 0 1 494.988415601487,852.010962904859 L 477.844410310162,860.666008520978" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 469.810192411031,864.722034007742 L 480.539779181961,863.786102533174 C 478.445302974868,861.856263024553 477.243517645456,859.475754017403 476.934423193726,856.644575511724 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.Server(6).Follower">
-      <path d="M 1035.30090220777,1123.90476142936 L 1012.69960396563,1133.82646639793 L 930.301053196091,1179.34287986946 L 668.456222891356,1350.29460904599 L 576.14998935767,1416.61392750442 L 565.341939833144,1425.59468091052 L 548.524455982351,1442.23010638951" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 542.23758321185,1448.67023300065 L 552.085275895136,1444.30870244183 C 549.478548813631,1443.1614949481 547.570363151071,1441.29871783092 546.360718907455,1438.72037109027 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1069.40073704136,804.206753246023 L 1048.31398716938,821.223998110412 A 10.6289858092009,10.6289858092009 0 0 1 1047.3250195062,821.932629117544 A 19.8928091094272,19.8928091094272 3.14159265358979 0 0 1046.31634399538,822.615462239225 L 1041.99374210702,825.738858041074 A 55.8357787621257,55.8357787621257 3.14159265358979 0 0 1037.07842991225,829.733768748776 A 75.445733269918,75.445733269918 3.14159265358979 0 0 1032.57773688714,834.197156421198 L 1001.96422072637,867.22104283326 A 999.168160775821,999.168160775821 3.14159265358979 0 0 971.882343117607,901.186723207255 A 1018.93654570494,1018.93654570494 0 0 1 941.815128562629,935.165984402379 L 923.507471829219,954.950025426194 A 597.301057303396,597.301057303396 0 0 1 911.476927021301,967.575890374726 A 717.788706895135,717.788706895135 0 0 1 899.112600006838,979.875883391089 L 752.346826232645,1122.37259836303 A 589.349657845294,589.349657845294 0 0 1 737.054014568395,1136.70125394867 A 374.029270367944,374.029270367944 0 0 1 721.125055445418,1150.31165317477 L 718.9656665856,1152.05450016527 A 684.226695561207,684.226695561207 0 0 1 705.506319875631,1162.64218028574 A 197.82549562973,197.82549562973 0 0 1 691.489729597424,1172.45470300853 L 684.006035944715,1177.22527710473" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 676.416862177576,1182.06309081881 L 686.999416902878,1180.06070836634 C 684.722749087542,1178.3495991443 683.289322801888,1176.10095506515 682.699138045916,1173.31477612888 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Candidate-&gt;Coyote.Examples.Raft.Server(7).Follower">
-      <path d="M 1040.33499013041,1123.90476142936 L 1025.28583222389,1146.36939159197 L 1001.46862754574,1206.29015360775 L 996.760170575531,1224.86589464026 L 985.555901790103,1297.85833803719 L 980.741105847705,1330.82454928477 L 963.927164713086,1413.93701210774 L 947.704556661692,1436.32001682817" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 942.075802052313,1443.34263183594 L 951.451136066189,1438.04139498703 C 948.744944070251,1437.15390639993 946.664169253133,1435.48612725641 945.208811614835,1433.03805755647 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1078.26316595291,804.206753246023 L 1054.78133905978,822.751860122523 A 45.5132064235851,45.5132064235851 0 0 1 1050.34598004705,825.845391793215 A 61.4668007496221,61.4668007496221 3.14159265358979 0 0 1045.85991693471,828.872647922728 L 1041.83636864724,831.853740995833 A 4.96813449189628,4.96813449189628 3.14159265358979 0 0 1040.89018862175,832.772684645839 A 3.04416782612271,3.04416782612271 3.14159265358979 0 0 1040.32274814424,833.942378059508 L 1031.69344241705,869.750051595339 A 88.7333865925207,88.7333865925207 3.14159265358979 0 0 1029.45923049954,884.079921671791 A 263.586817295099,263.586817295099 0 0 1 1028.0005235657,898.552724539008 L 1027.74899265734,900.506348927977 A 3622.65157254794,3622.65157254794 3.14159265358979 0 0 1026.02247351475,914.11963781061 A 5024.488120621,5024.488120621 3.14159265358979 0 0 1024.34033468643,927.738493703936 L 1023.03479217266,938.428333965026 A 3430.83317418352,3430.83317418352 0 0 1 1020.37468620077,959.659025027221 A 333.070618420985,333.070618420985 3.14159265358979 0 0 1018.33215786729,980.947028106675 L 1018.17737266483,983.379580489925 A 1224.58800118442,1224.58800118442 0 0 1 1016.69965691698,1003.88525232448 A 108.833304143365,108.833304143365 3.14159265358979 0 0 1016.9829586503,1024.35176039637 L 1021.61570456254,1067.074132727 A 6.80179047462141,6.80179047462141 3.14159265358979 0 0 1022.06963712906,1068.88462476979 A 9.46116048052352,9.46116048052352 3.14159265358979 0 0 1022.93976168961,1070.54558847553 L 1025.5094449658,1074.45227408101 A 48.8706350275733,48.8706350275733 3.14159265358979 0 0 1029.85477916574,1080.1108261983 A 108.265943577523,108.265943577523 3.14159265358979 0 0 1034.78531110925,1085.28845712233 L 1041.33638352763,1091.72800915464" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1047.7547406413,1098.03710512486 L 1043.42727539065,1088.17439532965 C 1042.27106441211,1090.7771414341 1040.40170264315,1092.67887687518 1037.81919008379,1093.87960165291 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Follower-&gt;Coyote.Examples.Raft.ElectionTimer(9).Init">
-      <path d="M 1087.78639607748,1032.18090427481 L 1101.08375985504,1029.95444602684 L 1119.52779721592,1026.82398830402 L 1151.69376500791,1021.31236453877 L 1310.08056267664,963.307233426298" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1310.79295037027,962.936039132725 L 1300.03423354664,963.436051441545 C 1302.04871998361,965.449246788843 1303.15297263609,967.87653688082 1303.34699150407,970.717921717476 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1115.08964925131,717.928708960135 L 1124.7304274347,717.927816975927 A 582.099417254027,582.099417254027 0 0 1 1136.71485225952,718.050090332483 A 181.783110431198,181.783110431198 3.14159265358979 0 0 1148.69309855426,717.900859267934 L 1150.55071675103,717.816441367483 A 151.370722338383,151.370722338383 3.14159265358979 0 0 1162.04215668366,716.854521499419 A 406.982790845134,406.982790845134 3.14159265358979 0 0 1173.47478397097,715.292480725708 L 1214.32183179562,709.120480328926 A 1165.45792454542,1165.45792454542 3.14159265358979 0 0 1248.84057086242,703.373364496985 A 264.463824449231,264.463824449231 0 0 1 1283.5356851532,699.403652791711 L 1302.5009453236,698.495464325642 A 1888.3383043638,1888.3383043638 0 0 1 1317.79780611947,697.825092080233 A 4981.93179434639,4981.93179434639 3.14159265358979 0 0 1330.30580641137,697.311997921159" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1339.29759196222,696.927559879982 L 1329.13585777631,693.358364125356 C 1330.24885262749,695.979881543255 1330.36276019525,698.644114299063 1329.47758047957,701.351062392779 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Init-&gt;Coyote.Examples.Raft.ElectionTimer(9).Init">
-      <path d="M 1080.35791015625,964.840800715812 L 1086.49257309886,964.392638321187 L 1121.31920798728,961.948426794592 L 1164.08644144834,959.294280990191 L 1300.2566480624,953.012425677457 L 1290.78068279392,953.436674082558" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1310.38830566406,952.572766066179 L 1300.21938733471,949.024090255248 C 1301.33767176367,951.643355619251 1301.45695717075,954.307353010911 1300.57724355596,957.016082430226 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1102.39637482059,660.366878978445 L 1123.7698225623,672.509909867626 A 45.0125060811831,45.0125060811831 3.14159265358979 0 0 1128.86674241592,674.994873725429 A 47.7495692228021,47.7495692228021 3.14159265358979 0 0 1134.23021388464,676.839059926604 L 1149.21165345514,681.013591613094 A 303.342505931046,303.342505931046 3.14159265358979 0 0 1171.55307493003,686.336405065932 A 426.82820521151,426.82820521151 3.14159265358979 0 0 1194.20024656691,690.20311619145 L 1213.42896593007,692.95581728526 A 419.005021588618,419.005021588618 3.14159265358979 0 0 1248.36043142034,696.470642304768 A 330.424645359354,330.424645359354 3.14159265358979 0 0 1283.44908103877,696.655016815929 L 1302.38476650532,695.747919515783 A 1882.27996104701,1882.27996104701 0 0 1 1317.68086051384,695.077515249436 A 4967.84062237398,4967.84062237398 3.14159265358979 0 0 1330.30580908652,694.559537974066" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1339.29759196222,694.175037367787 L 1329.13583294198,690.605912318896 C 1330.24884603374,693.227421992481 1330.3627721393,695.891653955652 1329.47761125867,698.598608208409 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(18).Init">
-      <path d="M 1070.63081993098,980.064826126627 L 1118.72065335269,1021.66451547896 L 1121.11233749864,1024.43630270021 L 1180.9447040106,1130.52570423965 L 1204.31758831684,1148.41821925942 L 1373.81563130872,1198.73118755861" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1382.22899359976,1202.40720594735 L 1373.65069657046,1195.89469336946 C 1373.90645392828,1198.73118755861 1373.19813352227,1201.30206159549 1371.52573535242,1203.60731548012 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1096.83059990015,660.366878978445 L 1122.54454393966,674.981694043653 A 28.9041195655074,28.9041195655074 0 0 1 1126.8864344385,678.006628553898 A 22.974945384406,22.974945384406 0 0 1 1130.50586257162,681.849272192289 L 1131.08472210199,682.62616183116 A 38.2702152264365,38.2702152264365 0 0 1 1134.20028105195,687.549951212783 A 48.663597760814,48.663597760814 0 0 1 1136.62128177521,692.856965219023 L 1182.56198538102,812.002041910665 A 691.113786829851,691.113786829851 3.14159265358979 0 0 1186.94996132204,823.095843553917 A 139.427409451847,139.427409451847 3.14159265358979 0 0 1191.89765213217,833.940088967333 L 1212.75291845251,874.915559312946 A 61.2521644632167,61.2521644632167 3.14159265358979 0 0 1216.88799247195,881.863507549301 A 33.9368193308396,33.9368193308396 3.14159265358979 0 0 1222.20369405346,887.903333749345 L 1223.92298608326,889.442760314031 A 45.851749166906,45.851749166906 3.14159265358979 0 0 1234.35313308653,896.467168680795 A 102.299847242141,102.299847242141 3.14159265358979 0 0 1246.05689820193,901.321497232693 L 1345.13391678843,935.391042465885 A 279.994643214622,279.994643214622 3.14159265358979 0 0 1365.16758332705,941.452722470195 A 1709.67344248618,1709.67344248618 3.14159265358979 0 0 1384.37509915457,946.370162118661" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1393.10803222656,948.546369820162 L 1384.37197668057,942.247057675386 C 1384.69750029553,945.076394256144 1384.0526980136,947.663929981179 1382.43756983479,950.009664850492 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(4).Leader-&gt;Coyote.Examples.Raft.SafetyMonitor(1).Monitoring">
-      <path d="M 1027.58303222656,1177.28038205007 L 1021.01475843027,1175.96449884883 L 938.253776017026,1159.61269187563 L 860.782341307582,1149.51393723847 L 747.420951617972,1115" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 739.076990813152,1110.63103769978 L 746.935040823062,1117.99656891224 C 746.974285138675,1115.14883806211 747.944931393502,1112.66509955753 749.846979587544,1110.54535339852 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1054.89317710708,873.328675079395 L 1041.9856211116,878.114105029799 A 6375.33138805096,6375.33138805096 0 0 1 1028.21232243329,883.202472751892 A 378.940828012001,378.940828012001 0 0 1 1014.34009656892,888.006219675528 L 949.880893781947,908.938228171823 A 403.203915585103,403.203915585103 0 0 1 933.19627917187,913.960431518645 A 464.649282045174,464.649282045174 0 0 1 916.321634966555,918.305576718354 L 901.894341192533,921.733415882353 A 631.724773029307,631.724773029307 0 0 1 869.682074229204,928.505420907875 A 12958.8603197973,12958.8603197973 3.14159265358979 0 0 837.300906899361,934.479060054755 L 806.88575957007,940.129976021655 A 2161.81381612961,2161.81381612961 0 0 1 793.805611512028,942.518583243395 A 619.340240190462,619.340240190462 3.14159265358979 0 0 783.23384310902,944.510472668166" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 774.410461425781,946.284714949221 L 785.002770976515,948.234837607266 C 783.496693817324,945.817640324942 782.970992400715,943.20330501139 783.425666726689,940.391831666609 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.ElectionTimer(16).Inactive">
-      <path d="M 412.760395718996,1089.01921972494 L 406.534040451891,1088.09093619782 L 316.611073175428,1071.72615112256 L 287.921038754918,1065.40891182132 L 136.169405867387,1025.1310518004" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 127.762326593175,1023.47207754332 L 136.521132479596,1029.73971820341 C 136.185366962148,1026.91157877467 136.82079645767,1024.32172540675 138.427420966162,1021.97015809965 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 407.94219156901,874.694313167134 L 401.823981898457,874.195730189486 A 2115.94263625684,2115.94263625684 0 0 1 378.809967950499,872.193759449683 A 1160.82529977252,1160.82529977252 3.14159265358979 0 0 355.787991475519,870.295235481213 L 342.657364989021,869.343844048353 A 1589.03594195383,1589.03594195383 3.14159265358979 0 0 317.598527753188,867.727112772027 A 521.893441174417,521.893441174417 3.14159265358979 0 0 292.507306498599,866.912037073382 L 289.90619498836,866.890136668116 A 566.504000132849,566.504000132849 3.14159265358979 0 0 264.598337269741,867.242481844812 A 6050.59577643442,6050.59577643442 3.14159265358979 0 0 239.300383483588,868.213246644076 L 164.197060592382,871.252571461394 A 1730.80172756467,1730.80172756467 0 0 1 150.622976354977,871.748552238616 A 2374.53554550376,2374.53554550376 0 0 1 139.971170176545,872.071983315219" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 130.974469604492,872.315661005709 L 141.079104769212,876.043441603854 C 140.007270575136,873.404827844412 139.935069777954,870.739138786026 140.862502377665,868.046374428697 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Inactive">
-      <path d="M 431.370717033026,1107.5018607367 L 409.704917224727,1119.17236720868 L 317.599915836522,1162.37627085344 L 300.217870503491,1170.35624172406 L 148.281268352612,1286.80269170058 L 129.641777024515,1301.80120520903 L 110.917376582149,1318.57324393495" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 104.131566804271,1324.48533203125 L 114.298950155826,1320.93226071441 C 111.793241485305,1319.57854908722 110.041511678992,1317.56793878267 109.043760736889,1314.90042980074 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 426.107332178216,890.682034007742 L 392.715512889481,907.18712941049 A 43.4415043226999,43.4415043226999 3.14159265358979 0 0 387.264710975209,910.394960154712 A 66.4832405262005,66.4832405262005 3.14159265358979 0 0 382.23145695805,914.240686759624 L 326.90611312176,960.849810117675 A 1341.34107094389,1341.34107094389 3.14159265358979 0 0 291.221201074694,992.00657472721 A 755.934166995633,755.934166995633 0 0 1 255.125848585453,1022.66240500171 L 251.39682315258,1025.63352922709 A 755.664495812359,755.664495812359 0 0 1 213.696417884733,1053.79802036951 A 3382.35275828791,3382.35275828791 0 0 1 174.932642398843,1080.51824978041 L 141.541758863204,1103.19370988093 A 1308.97655985967,1308.97655985967 0 0 1 124.53258615628,1114.55134674591 A 12403.9663350944,12403.9663350944 3.14159265358979 0 0 107.443945992227,1125.79018551628 L 100.929307882069,1130.08242426985" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 93.4138890237287,1135.03403808594 L 103.965071673481,1132.87243111621 C 101.662880299268,1131.19581965627 100.195735464871,1128.96902888343 99.5636371702887,1126.19205879769 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Init">
-      <path d="M 419.77310317135,1107.5018607367 L 407.096622073605,1114.33017799257 L 315.330943975504,1157.36610451948 L 297.892345144347,1165.00141242026 L 131.147130953947,1189.50625733175" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 122.447292348757,1191.37791421659 L 132.816232345402,1194.29083085562 C 131.53808306857,1191.74574823668 131.254253330725,1189.09422946605 131.964743131868,1186.33627454372 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 413.697527645571,890.682034007742 L 391.754129528652,901.528018930507 A 109.270626597589,109.270626597589 0 0 1 384.011765447061,904.987778890815 A 258.086962106421,258.086962106421 0 0 1 376.085251218951,908.01655679394 L 345.047171646424,919.29526357554 A 329.391778812271,329.391778812271 0 0 1 305.995542835282,930.808840971829 A 917.301232896154,917.301232896154 3.14159265358979 0 0 266.452783230688,940.783577643741 L 248.791917793853,945.65858810098 A 1022.63076786975,1022.63076786975 3.14159265358979 0 0 227.450499267851,951.799704244004 A 347.147695185427,347.147695185427 3.14159265358979 0 0 206.40115369083,958.845873402529 L 146.953782214838,980.883136656338 A 1169.67558840405,1169.67558840405 0 0 1 127.137262006127,988.026868404193 A 8388.46963088463,8388.46963088463 0 0 1 107.247698510181,994.967179784989 L 107.214465142507,994.978729525609" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 98.7132250104045,997.933203457857 L 109.472146904851,998.428783591849 C 107.652164984321,996.238172508143 106.776765300692,993.719286543075 106.845947853964,990.872125696647 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.Server(3).Follower">
-      <path d="M 470.946429078145,1081.5418607367 L 489.313496025482,1066.47054560374 L 497.816562260533,1058.39031336714 L 512.114009726179,1039.85018300163 L 532.41389504884,1008.71423577196 L 558.408136148894,970.407778580563 L 689.440514144507,858.841373329741 L 699.288897174082,851.009647052855 L 739.046671622408,821.994370345464" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 746.333130164762,816.711613308597 L 735.889173101317,819.342917330737 C 738.26404095028,820.914895005856 739.829302294537,823.073845685072 740.584957134088,825.819769368384 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 457.600064219982,864.722034007742 L 492.317774115216,847.2028786656 A 301.277855214902,301.277855214902 3.14159265358979 0 0 504.659183877539,840.611288031825 A 803.185515675844,803.185515675844 0 0 1 516.906490550535,833.8397534468 L 526.010255535869,828.909347332825 A 250.193958098954,250.193958098954 0 0 1 530.264018949437,826.65823974136 A 97.1171548881795,97.1171548881795 0 0 1 534.591543425506,824.555277699661 L 538.707979275081,822.679482060461 A 14860.45401837,14860.45401837 0 0 1 556.52880010849,814.572984247285 A 1071.98718519973,1071.98718519973 0 0 1 574.427386733833,806.641668724662 L 625.475157350008,784.576547782081 A 2672.92974401634,2672.92974401634 0 0 1 651.384997522751,773.53879490379 A 29566.3656230119,29566.3656230119 3.14159265358979 0 0 677.347789507967,762.625176241003 L 683.928392144192,759.855290900488 A 1065.50510502255,1065.50510502255 0 0 1 701.90167787107,752.482184318662 A 621.122793739956,621.122793739956 3.14159265358979 0 0 719.825051371289,744.992627658443 L 723.888712894656,743.219424241029" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 732.137590144913,739.619976490305 L 721.372416422083,739.953195213217 C 723.35546137603,741.997368352102 724.421964413282,744.441480129956 724.571925533838,747.285530546779 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.Server(4).Candidate">
-      <path d="M 475.655855965734,1107.5018607367 L 502.665305895769,1124.12097909116 L 553.39147032941,1148.34398412755 L 816.272173344196,1152.66371067682 L 871.360285111934,1152.86379645087 L 973.593555238392,1140.15994091171 L 1013.41508209335,1127.51441742074" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1021.65949739244,1123.90476142936 L 1010.89474439729,1124.2513057313 C 1012.88031824278,1126.29302256162 1013.94984594393,1128.73581227987 1014.10332750074,1131.57967488605 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 475.915252617208,864.722034007742 L 496.323736344623,854.415005024488 A 302.96759476185,302.96759476185 3.14159265358979 0 0 508.597680878155,847.858197296422 A 807.757523350207,807.757523350207 0 0 1 520.779024387993,841.124393566789 L 529.762076747285,836.259163767987 A 7790.98132652116,7790.98132652116 3.14159265358979 0 0 533.987357774479,833.969061726535 A 48.4111986051028,48.4111986051028 0 0 1 538.315008716739,831.892468960337 L 542.740155694502,830.033033481332 A 191.195021261658,191.195021261658 0 0 1 559.754570410968,823.814487614756 A 180.434560877744,180.434560877744 0 0 1 577.291581600638,819.284209114843 L 673.096366638616,799.605441706108 A 270.300797371678,270.300797371678 0 0 1 693.975586852044,796.162372288455 A 337.20799296603,337.20799296603 0 0 1 715.051336648728,794.199024587034 L 784.767979700398,789.906190866867 A 4294.31082199836,4294.31082199836 3.14159265358979 0 0 806.102485439974,788.539194868434 A 1946.45255568968,1946.45255568968 3.14159265358979 0 0 827.425146843346,787.001998429508 L 831.232434136125,786.706497783201 A 1129.83249610995,1129.83249610995 3.14159265358979 0 0 855.464942824449,784.563015203949 A 391.723677324546,391.723677324546 0 0 1 879.725642912933,782.912006888356 L 901.931305302284,782.092138724087 A 929.142175672698,929.142175672698 0 0 1 941.496987400088,781.474503765362 A 416.93804765261,416.93804765261 0 0 1 980.976199825575,783.573435110505 L 1001.73092441325,785.667265516566 A 1659.35386808884,1659.35386808884 0 0 1 1020.35314934747,787.652177997474 A 3890.16974887303,3890.16974887303 3.14159265358979 0 0 1036.80459579915,789.464230444511" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1045.75304361979,790.426146034007 L 1036.23784185886,785.380263014283 C 1036.94710181241,788.138534471083 1036.66208978589,790.789926417938 1035.38280577931,793.33443885485 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.Server(6).Follower">
-      <path d="M 449.690158552423,1107.5018607367 L 467.663508262382,1118.81134207534 L 501.222608484182,1141.71334062811 L 503.941959598093,1195.9127410025 L 503.254976795576,1210.22381382268 L 493.158061638012,1301.33555012897 L 489.368126842076,1339.01575989114 L 491.338197612201,1411.31548032491 L 498.002116673486,1426.92827494809 L 514.033321303671,1442.66136969625" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 520.733587103548,1448.67023300065 L 515.959453238975,1439.01582230692 C 514.923523274694,1441.66873772589 513.143119332649,1443.6540016666 510.618241412839,1444.97161412904 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 459.689233629877,890.682034007742 L 472.57863422509,909.547782934663 A 1303.90286686627,1303.90286686627 3.14159265358979 0 0 479.613380101403,919.740032714257 A 588.190921392349,588.190921392349 0 0 1 486.588808123882,929.972308690494 L 515.785158055602,973.784470845904 A 1033.18408119048,1033.18408119048 0 0 1 533.193955072507,1000.81005258654 A 541.885720279505,541.885720279505 0 0 1 549.358251061085,1028.58603278356 L 551.019050331031,1031.6450832358 A 580.001236264867,580.001236264867 0 0 1 565.988989089237,1061.20171928229 A 765.7865882225,765.7865882225 3.14159265358979 0 0 580.756379947271,1090.86651128188 L 607.784398282436,1142.33797369942 A 93.8993573889484,93.8993573889484 3.14159265358979 0 0 611.103503851769,1148.14622113373 A 63.8583220149007,63.8583220149007 3.14159265358979 0 0 614.917387757345,1153.6362658812 L 616.100162041836,1155.16176932449 A 74.080250714004,74.080250714004 3.14159265358979 0 0 621.247217548655,1161.11770898499 A 180.660653922313,180.660653922313 3.14159265358979 0 0 626.832469033803,1166.67794391633 L 636.461079224041,1175.85406127715" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 642.976288518511,1182.06309081881 L 638.496735765395,1172.26852053053 C 637.380935452436,1174.88884508537 635.541222995647,1176.81927746892 632.977598395027,1178.05981768117 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Candidate-&gt;Coyote.Examples.Raft.Server(7).Follower">
-      <path d="M 459.993252916068,1107.5018607367 L 473.443790463802,1115.95322582393 L 500.648003464793,1133.77733589357 L 535.419830550474,1153.04272671954 L 578.054865018669,1183.54471537021 L 726.818710449719,1294.70904441888 L 870.895890919815,1407.43222663879 L 886.971249016442,1420.94992678955 L 905.713689340613,1437.45449589001" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 912.520293125337,1443.34263183594 L 907.574349340502,1433.77510132503 C 906.586005777047,1436.44611014412 904.841372904179,1438.46288163589 902.340450721896,1439.82541580034 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 467.896305348912,890.682034007742 L 509.607140150304,925.065778693236 A 507.830314916417,507.830314916417 3.14159265358979 0 0 520.092568510122,933.478697615952 A 4459.49771489624,4459.49771489624 0 0 1 530.676863458616,941.768774139999 L 532.191390257005,942.958704769949 L 542.929877917649,951.395447840215 A 166.560133180003,166.560133180003 3.14159265358979 0 0 553.995748916299,959.378389401971 L 595.212805653868,986.617205197472 A 76.2447997657492,76.2447997657492 3.14159265358979 0 0 605.54891030347,992.349855969108 A 70.4634762878452,70.4634762878452 3.14159265358979 0 0 616.666661082244,996.343693674464 L 865.037558779614,1062.66839050081 A 1152.13853729213,1152.13853729213 3.14159265358979 0 0 910.165801395018,1073.74944637994 A 2082.08227164466,2082.08227164466 0 0 1 955.398397374004,1084.4251093222 L 979.341084242046,1090.35885824003 A 2131.28927896988,2131.28927896988 0 0 1 999.543369029803,1095.47057801519 A 3981.6931293855,3981.6931293855 3.14159265358979 0 0 1017.56684383044,1100.07998619779" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1026.29248422143,1102.28525256881 L 1017.57744661856,1095.95689420502 C 1017.89354995948,1098.78729873246 1017.2401377014,1101.37267366312 1015.61720984432,1103.71301899701 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Follower-&gt;Coyote.Examples.Raft.ElectionTimer(16).Init">
-      <path d="M 418.325313514988,1010.31252066554 L 410.187968077506,1006.91021562304 L 326.729808606376,974.039276034077 L 234.026780294022,929.111070640152 L 133.850714191778,887.252523256904" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 122.447277002111,885.987103171325 L 130.820393017273,892.761387502281 C 130.652341699938,889.918348658748 131.439706740143,887.370571705289 133.182488137888,885.118056641905 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 412.422237345378,797.030775070547 L 405.328149413933,794.711044775928 A 1318.63923418919,1318.63923418919 3.14159265358979 0 0 383.869650375234,787.896448886839 A 1122.1986258023,1122.1986258023 3.14159265358979 0 0 362.28861956205,781.481548929369 L 313.764326464691,767.586063364897 A 444.007484870964,444.007484870964 3.14159265358979 0 0 298.373237738278,763.475918187878 A 7944.56994825297,7944.56994825297 0 0 1 282.912263805624,759.626420411532 L 281.289778645171,759.220723232457 A 553.0542901079,553.0542901079 3.14159265358979 0 0 266.751152975585,755.793312231216 A 902.788669229231,902.788669229231 3.14159265358979 0 0 252.140506292606,752.683134122023 L 160.504668029109,733.967666793278 A 178.641902269486,178.641902269486 3.14159265358979 0 0 146.271269956715,731.654689607842 A 157.306018347908,157.306018347908 3.14159265358979 0 0 134.654830247739,730.680551323477" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 125.659362792969,730.394954982164 L 135.527394924352,734.710269785743 C 134.612519678656,732.013213168628 134.697140816822,729.347889478326 135.781258338852,726.714298714836 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Init-&gt;Coyote.Examples.Raft.ElectionTimer(16).Init">
-      <path d="M 424.668790087485,946.091186266545 L 403.238553684186,942.155908921681 L 333.507738641899,928.958135897866 L 238.783767449282,913.744951139158 L 133.7867326916,884.666721762592" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 122.447277002111,883.10423887703 L 130.814216254013,889.886150669068 C 130.648755817925,887.042959863793 131.43844227569,884.49590148018 133.183275627307,882.244975518228 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 427.091020878131,720.88222077532 L 412.594425347201,715.925737768052 A 88.1008037329898,88.1008037329898 3.14159265358979 0 0 399.684962358519,712.578670384676 A 81.9049099024781,81.9049099024781 3.14159265358979 0 0 386.416616131646,711.294830356718 L 312.677123240251,710.189209784296 A 130.282719847134,130.282719847134 3.14159265358979 0 0 296.762882423896,710.924758733187 A 642.979262200714,642.979262200714 0 0 1 280.874916690118,712.437945338147 L 279.193676866173,712.577036716161 A 416.55805913335,416.55805913335 3.14159265358979 0 0 264.031573368586,714.111135694007 A 7671.05371785488,7671.05371785488 0 0 1 248.895751850227,715.907591991307 L 160.856285164976,726.268225710393 A 270.667489682907,270.667489682907 0 0 1 146.42447112245,727.576002405003 A 156.458141911555,156.458141911555 0 0 1 134.656231936785,727.881678910928" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 125.659362792969,727.644306610424 L 135.550385263652,731.906662119346 C 134.621065670044,729.214548413715 134.691398203526,726.54880940814 135.7613828641,723.909445102621 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(17).Init">
-      <path d="M 431.71065827543,963.661986469125 L 420.430657133551,971.815084817769 L 328.222466276125,1029.40100818706 L 286.455595597936,1055.1817773475 L 196.163037840882,1118.69459816846 L 165.685576828956,1141.03970146471 L 121.242926017994,1175.12041483372" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 114.138356201368,1180.64536621094 L 124.487856609719,1177.66411793253 C 122.061437333138,1176.17294369544 120.42441470285,1174.06788597199 119.576788718853,1171.34894476219 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 427.996608879466,746.84222077532 L 413.710419545871,759.982087382407 A 338.385660964908,338.385660964908 3.14159265358979 0 0 401.286667774122,772.00922259151 A 354.874197076835,354.874197076835 3.14159265358979 0 0 389.478178503483,784.641676379663 L 333.440537056311,847.596501423513 A 1331.08706677141,1331.08706677141 3.14159265358979 0 0 316.928099904786,866.503200756452 A 357.500504834139,357.500504834139 0 0 1 299.945607393383,884.969358524508 L 275.516595146175,909.729633738928 A 254.900509742702,254.900509742702 0 0 1 263.116099067014,921.482991192915 A 169.671007775607,169.671007775607 0 0 1 249.784161180647,932.148899439332 L 245.626526036356,935.14492047536 A 154.084773868628,154.084773868628 0 0 1 226.080796278802,947.127401690744 A 191.124949923027,191.124949923027 0 0 1 205.084127724858,956.388913417906 L 146.228970062133,978.230374446246 A 1149.23825862066,1149.23825862066 0 0 1 126.221590812188,985.445299634251 A 8729.31328148179,8729.31328148179 0 0 1 107.214642642742,992.076766406039" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 98.7132250104045,995.03072954742 L 109.472117109167,995.526956115812 C 107.652266811835,993.336235684903 106.777018473648,990.817297127174 106.846372094607,987.970140442626 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Leader-&gt;Coyote.Examples.Raft.ClusterManager(2).Availability.Unavailable">
-      <path d="M 427.618251705003,1153.46166054139 L 410.115459766954,1132.32040619352 L 342.669763044597,931.733619204975 L 313.485198732622,784.117079453698 L 310.626621711064,767.625904475022 L 297.00600885365,705.404233551668 L 287.838921986707,688.820534058746 L 241.130965496141,669.301433923319" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 232.63244936907,666.339133527021 L 240.758667111905,673.407696690495 C 240.692106178171,670.560473349552 241.569824814111,668.042394497086 243.391823019726,665.853460133098 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 424.203775777698,936.641833812429 L 404.500955867784,922.398487621573 A 269.475586536195,269.475586536195 0 0 1 397.999783723874,917.548101180412 A 31.2250552448926,31.2250552448926 0 0 1 392.310381393833,911.860822049259 L 391.602283941033,910.941655913606 A 38.065915203129,38.065915203129 0 0 1 387.453883541278,904.211382139382 A 44.6178022842684,44.6178022842684 0 0 1 384.668415753196,896.799840234897 L 325.747351596132,684.441214125098 A 1028.4517757976,1028.4517757976 0 0 1 322.114232978319,670.994206854423 L 318.57323792073,657.522317372141 L 318.191764266609,656.070517707306 A 277.925666741099,277.925666741099 3.14159265358979 0 0 314.545718262683,643.421307058705 A 109.937367904408,109.937367904408 0 0 1 311.363795067979,630.667910234639 L 311.057722124082,629.029549544779 A 37.5754068546632,37.5754068546632 0 0 1 310.89243355513,616.18137156256 A 44.4976961246481,44.4976961246481 3.14159265358979 0 0 311.066062186777,603.279066933028 L 305.511687046392,561.46016056226 A 13.6226358211866,13.6226358211866 0 0 1 307.755970552334,551.998832229981 A 49.1598576354695,49.1598576354695 0 0 1 314.450948842468,544.103778702519 L 326.758387568645,532.359534407067" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 333.269582339013,526.146295101976 L 323.273481791897,530.156029987469 C 325.837907671594,531.394912959605 327.678867465695,533.324155854529 328.7963611742,535.943758672241 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(5).Leader-&gt;Coyote.Examples.Raft.SafetyMonitor(1).Monitoring">
-      <path d="M 477.443790087485,1163.4939591631 L 483.589902647755,1162.84168537498 L 535.40326780729,1156.67796747383 L 551.807271846635,1153.4883204137 L 680.002456094408,1108.93503635917" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 689.076990813152,1106.05985017775 L 678.336284016165,1105.26159113386 C 680.093876563373,1107.50256849856 680.898019936913,1110.04509962834 680.748714136787,1112.8891845232 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 472.6255859375,950.79418952112 L 478.708298123742,951.050934880467 A 1062.35620100369,1062.35620100369 3.14159265358979 0 0 492.231793865808,951.535486075839 A 1148.16370118358,1148.16370118358 3.14159265358979 0 0 505.760253844279,951.85418080159 L 527.95802234711,952.24623377875 A 683.213876522088,683.213876522088 3.14159265358979 0 0 541.880541374182,952.350244342295 A 6445.53819228424,6445.53819228424 3.14159265358979 0 0 555.804063115643,952.297348399464 L 569.941560142245,952.228369386823 A 37346.7907315715,37346.7907315715 0 0 1 598.648905959123,952.099335438543 A 6428.6054878126,6428.6054878126 3.14159265358979 0 0 627.355894780197,951.917237743269 L 691.146353524103,951.370154906135 A 1403.94248487598,1403.94248487598 0 0 1 704.743108870094,951.319389307379 A 12240.9773331524,12240.9773331524 3.14159265358979 0 0 715.410461431915,951.326568854523" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 724.410461425781,951.32690129309 L 714.410609183077,947.326531919634 C 715.410510682073,949.9932355221 715.410412181757,952.659902186947 714.410313682129,955.326531914176 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(6).Follower-&gt;Coyote.Examples.Raft.ElectionTimer(10).Init">
-      <path d="M 501.051191889974,1462.89654774335 L 494.972904495815,1463.1966634767 L 405.88225593456,1469.77511642486 L 364.755282334856,1475.89871204719 L 276.922016582998,1498.35242370355" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 267.900199890137,1501.77281944308 L 278.609391399951,1502.91877633848 C 276.925354604776,1500.6220109644 276.204039729255,1498.05475251199 276.445446773387,1495.21700098126 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 623.626546899646,1196.28949931692 L 617.545943452576,1196.5232120931 A 1518.91955907837,1518.91955907837 3.14159265358979 0 0 604.013292888683,1197.10378956116 A 1673.34802193507,1673.34802193507 3.14159265358979 0 0 590.486046629386,1197.7994563623 L 523.257855412919,1201.52967815999 A 439.868017084523,439.868017084523 3.14159265358979 0 0 507.359073359538,1202.70116822026 A 551.969039652585,551.969039652585 3.14159265358979 0 0 491.505912767557,1204.38978266279 L 489.773740000343,1204.59962780312 A 199.140374609951,199.140374609951 3.14159265358979 0 0 473.828530235446,1207.19134380664 A 455.139793969931,455.139793969931 3.14159265358979 0 0 458.051034389077,1210.71056723258 L 451.767911230823,1212.22965372172" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 443.019956526925,1214.34466873314 L 453.679912869666,1215.88263192218 C 452.081246788071,1213.52564701118 451.454575673576,1210.93366043225 451.79989952618,1208.10667218538 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(6).Follower-&gt;Coyote.Examples.Raft.Server(5).Candidate">
-      <path d="M 524.850324287052,1448.67023300065 L 511.779129091873,1436.95024834135 L 497.317365890244,1420.90949494163 L 490.608913842958,1375.09203223506 L 492.275454759288,1336.99421818645 L 504.528072663778,1225.42154490422 L 506.119284790084,1208.84300711409 L 505.594664811264,1147.85644896927 L 494.56298710238,1132.34656725131 L 462.460485388085,1112.29291454419" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 454.841705734246,1107.5018607367 L 461.177659212961,1116.21137814673 C 461.750699638827,1113.42162264105 463.170271137343,1111.16420644732 465.436373708506,1109.43912956554 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 638.988921928122,1182.06309081881 L 624.68239507082,1168.4259034905 A 179.536758197483,179.536758197483 0 0 1 619.22981196179,1163.0007965974 A 73.3885187444502,73.3885187444502 0 0 1 614.197778443887,1157.19510361333 L 613.115946472983,1155.8062469847 A 70.5861909559727,70.5861909559727 0 0 1 608.796807459225,1149.60268289344 A 106.41283492653,106.41283492653 0 0 1 605.043951581326,1143.0340354491 L 578.289712902044,1092.08226359547 A 771.808163024505,771.808163024505 0 0 1 563.526515765138,1062.43842242445 A 590.378466214358,590.378466214358 3.14159265358979 0 0 548.570714008722,1032.89734089812 L 546.880341332875,1029.77870347526 A 528.724632375577,528.724632375577 3.14159265358979 0 0 530.861494790916,1002.23921743527 A 1027.70552370143,1027.70552370143 3.14159265358979 0 0 513.597119982954,975.450300786998 L 482.615623621843,928.975440386847 A 349.672767878327,349.672767878327 3.14159265358979 0 0 477.36833979815,921.3258989156 A 560.790311799079,560.790311799079 0 0 1 472.08264041202,913.702244373305 L 461.469042855756,898.120388943082" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 456.402399405116,890.682034007742 L 458.726067712342,901.198714358404 C 460.367064346817,898.871002787621 462.571021364695,897.369775098543 465.337938765978,896.695031291169 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(6).Init-&gt;Coyote.Examples.Raft.ElectionTimer(10).Init">
-      <path d="M 515.190933946182,1402.71018905534 L 496.432847860832,1415.24108342228 L 403.32519136887,1459.35010588857 L 364.094131163631,1473.29065880623 L 276.220066614102,1495.69352050088" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 267.900199890137,1498.91630485849 L 278.609328416913,1500.06285018991 C 276.925417824603,1497.76599228655 276.204244013271,1495.19869420394 276.445806982918,1492.36095594208 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 633.563262511636,1136.0623135656 L 615.29882937893,1146.4017213189 A 168.12801613044,168.12801613044 0 0 1 608.349319264367,1150.12342646336 A 160.02321782865,160.02321782865 0 0 1 601.229172209902,1153.50672935201 L 555.269730116102,1173.97343210939 A 584.032343444439,584.032343444439 0 0 1 527.70721264985,1185.4129974333 A 836.349971345044,836.349971345044 0 0 1 499.669681529401,1195.64778126773 L 488.617312483969,1199.46024000867 A 201.16228026311,201.16228026311 0 0 1 473.118977955447,1204.11772972346 A 1118.90849072867,1118.90849072867 0 0 1 457.404779802253,1208.03758107305 L 451.767911230823,1209.40042096529" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 443.019956526925,1211.51543597671 L 453.679912869666,1213.05339916576 C 452.081246788071,1210.69641425476 451.454575673576,1208.10442767583 451.79989952618,1205.27743942896 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(6).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(11).Init">
-      <path d="M 552.995108106356,1402.71018905534 L 570.571629225573,1416.80775212319 L 578.602973071283,1426.44733952419 L 583.203192290262,1483.53903496056 L 581.779741346695,1503.37599534766 L 570.95146414328,1547.30134626241 L 564.698647678675,1569.56472453497 L 553.643403912529,1606.98658592834" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 551.007705023974,1615.59199651523 L 557.760886272095,1607.20185092472 C 554.91827955503,1607.37705983776 552.368528270028,1606.59611201893 550.111632417086,1604.85900746822 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 675.501376554505,1136.10292480469 L 689.17803897302,1160.03685087101 A 85.4582032010831,85.4582032010831 0 0 1 693.350659020291,1168.36138547593 A 43.2850404391886,43.2850404391886 0 0 1 696.115716812441,1177.21144855823 L 706.673462918436,1230.52125312104 A 88.1732271627314,88.1732271627314 0 0 1 707.95536213377,1239.28257185844 A 2853.9345728699,2853.9345728699 0 0 1 708.78307701762,1248.10962349195 L 708.888804275723,1249.25629556724 A 207.985007573075,207.985007573075 0 0 1 709.561517517913,1259.10257709316 A 2002.45212495254,2002.45212495254 3.14159265358979 0 0 710.024861186427,1268.9636816619 L 711.55209793172,1299.84333460062" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 711.996673872194,1308.83234746262 L 715.497817432555,1298.64696608686 C 712.883803540905,1299.77747149833 710.220392322535,1299.90919770292 707.507583777446,1299.04214470061 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(7).Follower-&gt;Coyote.Examples.Raft.ElectionTimer(12).Init">
-      <path d="M 954.633088505535,1458.77035836551 L 960.732854141419,1459.35006296859 L 992.803452303073,1462.78445417498 L 1065.5655783387,1473.9041223888 L 1262.64398486446,1500.58301472551" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1271.26928710938,1499.79270231148 L 1261.66896358689,1494.91071621322 C 1262.42541474699,1497.65642063167 1262.1859074621,1500.31230981829 1260.95044173223,1502.87838377307 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1091.1491508881,1117.23488675244 L 1097.45751645773,1118.44444751327 A 2171.12584955874,2171.12584955874 0 0 1 1110.39758391687,1120.9663209086 A 650.76495176401,650.76495176401 0 0 1 1123.302727819,1123.65820186216 L 1131.5217086706,1125.45965587466 A 924.478846034452,924.478846034452 0 0 1 1153.87756931306,1130.65130816923 A 714.085977783189,714.085977783189 0 0 1 1176.07535205489,1136.47722753696 L 1215.22744278555,1147.42830532386 A 266.427350756423,266.427350756423 0 0 1 1230.20488250283,1152.09720823494 A 202.218728139682,202.218728139682 0 0 1 1244.82447667046,1157.77461331049 L 1268.84114927164,1168.19028970624 A 6141.90567832172,6141.90567832172 0 0 1 1298.51274254637,1181.15145005551 A 1806.79061871683,1806.79061871683 0 0 1 1328.03096371532,1194.45531643538 L 1338.98321401143,1199.51004666979 A 765.841767384864,765.841767384864 0 0 1 1357.09872706359,1208.160578873 A 4864.19333780151,4864.19333780151 3.14159265358979 0 0 1375.11911809559,1217.01137265004 L 1375.60806255954,1217.25026866839" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1383.69445800781,1221.20124432691 L 1376.46556335796,1213.21731784044 C 1376.19339228673,1216.05228415754 1375.02273283235,1218.44825317925 1372.95358499484,1220.40522490557 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(7).Follower-&gt;Coyote.Examples.Raft.Server(4).Candidate">
-      <path d="M 945.603462771331,1443.34263183594 L 962.738005805479,1421.96312185962 L 978.871260979455,1360.37621542204 L 983.740496958794,1329.27007617091 L 996.877314892124,1240.1430661797 L 999.879616619618,1223.42453311534 L 1017.5580295949,1166.90329237873 L 1038.5868463132,1131.38998357813" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1043.58399043596,1123.90476142936 L 1034.70484267789,1130.00072198454 C 1037.47792451338,1130.64966593031 1039.69576811302,1132.13030122594 1041.35837347679,1134.44262787144 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1043.86007530679,1098.03710512486 L 1030.65796145828,1085.08958401845 A 157.869642232092,157.869642232092 0 0 1 1027.77979486186,1082.19295210724 A 21.9343738772585,21.9343738772585 0 0 1 1025.23426650254,1079.02212969528 L 1022.53873783807,1074.94020184972 A 27.9043300691793,27.9043300691793 0 0 1 1019.93315765255,1069.97069224798 A 20.431570219586,20.431570219586 0 0 1 1018.57779568364,1064.55081566236 L 1014.23502339943,1024.45830549009 A 110.509193163936,110.509193163936 0 0 1 1013.93955892961,1003.80475595421 A 1506.42144528874,1506.42144528874 3.14159265358979 0 0 1015.44031069351,983.113137690812 L 1015.60627263947,980.583641639143 A 347.731518127247,347.731518127247 0 0 1 1017.65419263666,959.357644395901 A 3901.80270303288,3901.80270303288 3.14159265358979 0 0 1020.29538009907,938.187249973213 L 1021.61044118999,927.406557719071 A 4659.18023568076,4659.18023568076 0 0 1 1023.29327668258,913.778024725421 A 3695.52329888208,3695.52329888208 0 0 1 1025.02150623253,900.155182582054 L 1025.2730371409,898.201558193083 A 251.427711070846,251.427711070846 3.14159265358979 0 0 1026.71243582258,883.726634629429 A 85.273483923773,85.273483923773 0 0 1 1028.95527549551,869.401432201714 L 1037.37419386812,835.062210709477 A 9.32705420654578,9.32705420654578 0 0 1 1039.07669393189,831.549107502051 A 14.3100621214483,14.3100621214483 0 0 1 1041.91505537713,828.796299518454 L 1046.08813046504,825.744055080976 A 42.1212907069075,42.1212907069075 0 0 1 1048.83903484868,823.893654804038 A 27.4545288221293,27.4545288221293 3.14159265358979 0 0 1051.54766311458,821.987929116467 L 1066.79701482356,809.820100375751" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1073.83195149713,804.206753246023 L 1063.52053424662,807.3171670908 C 1065.96540784138,808.777887535222 1067.62862180574,810.86231321628 1068.51017613971,813.570444133975 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(7).Follower-&gt;Coyote.Examples.Raft.Server(5).Candidate">
-      <path d="M 916.721976536673,1443.34263183594 L 901.941642764489,1430.55515362215 L 886.374396871865,1416.80214174827 L 807.266619784142,1352.86355629785 L 633.891171993697,1224.44034738764 L 549.141239586142,1158.78390428737 L 528.472203322889,1145.70912735322 L 494.639877166589,1126.2133810906 L 472.767861206785,1112.2860993731" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 465.144800097891,1107.5018607367 L 471.488539713815,1116.20570860333 C 472.059085112503,1113.41544175961 473.476637301067,1111.1567569866 475.741196279509,1109.42965428431 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1026.29248422143,1105.12499297345 L 1019.00756905827,1103.28050286057 A 4678.11982971728,4678.11982971728 0 0 1 998.866420058874,1098.13325626403 A 2208.61373243857,2208.61373243857 3.14159265358979 0 0 978.712719276323,1093.03610635514 L 954.632879676984,1087.06641253378 A 2066.87887208712,2066.87887208712 3.14159265358979 0 0 909.523162881148,1076.41856853173 A 1148.90495177645,1148.90495177645 0 0 1 864.516953454002,1065.36866272689 L 617.878499350124,999.51264389915 A 85.3539701172243,85.3539701172243 0 0 1 604.475969035715,994.704699043246 A 91.3832711100646,91.3832711100646 0 0 1 592.015618967431,987.80078857834 L 552.446303460308,961.650331033904 A 168.52609048856,168.52609048856 0 0 1 541.275143880962,953.592880564618 A 24607.4143123418,24607.4143123418 0 0 1 530.435916727225,945.075497789177 L 528.904190126563,943.871184484776 A 4087.06477094394,4087.06477094394 3.14159265358979 0 0 518.387165980851,935.630002969776 A 517.195767923211,517.195767923211 0 0 1 507.964640007156,927.271383662345 L 470.476731899641,896.402960635615" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 463.528998562897,890.682034007742 L 468.706068213558,900.12650063282 C 469.62918721403,897.43225446328 471.324276585251,895.373666807949 473.791336327222,893.950737666825 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(7).Init-&gt;Coyote.Examples.Raft.ElectionTimer(12).Init">
-      <path d="M 947.204266890951,1386.5232502014 L 953.304753611049,1387.52849164852 L 988.607840554346,1394.62693477081 L 1140.04013494194,1443.61236448063 L 1262.6646896872,1490" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 1271.26928710938,1493.30246630196 L 1263.51590015474,1485.82683985787 C 1263.43649611161,1488.6737339741 1262.43091641914,1491.14353570566 1260.49916107734,1493.23624505254 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1078.325146558,1052.07718324986 L 1104.32997608161,1070.59390108893 A 684.794196684459,684.794196684459 0 0 1 1105.49587848054,1071.42591984824 A 33.0810694376032,33.0810694376032 3.14159265358979 0 0 1106.67839519354,1072.23355777022 L 1123.45706107422,1083.168172486 A 3781.30627111241,3781.30627111241 3.14159265358979 0 0 1142.73049892454,1095.64542388958 A 693.2705968971,693.2705968971 3.14159265358979 0 0 1162.24210948826,1107.74106834003 L 1217.97612650852,1141.0271268833 A 222.879409337628,222.879409337628 3.14159265358979 0 0 1231.70686074663,1148.58562121835 A 266.503443489415,266.503443489415 3.14159265358979 0 0 1245.8994304908,1155.24341314374 L 1269.90053924816,1165.65253619622 A 6163.83669265146,6163.83669265146 0 0 1 1299.62798730836,1178.63818208496 A 1810.2917305127,1810.2917305127 0 0 1 1329.20183885836,1191.96703361395 L 1340.14907979594,1197.01941282024 A 771.996667765843,771.996667765843 0 0 1 1358.29814120024,1205.68409548465 A 5540.7652437883,5540.7652437883 3.14159265358979 0 0 1375.89664317795,1214.33050487284" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1383.98171397224,1218.28419052693 L 1376.75549560263,1210.29784166937 C 1376.48237438597,1213.13271660702 1375.31091196994,1215.52829313866 1373.24110835455,1217.48457126429 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Coyote.Examples.Raft.Server(7).Init-&gt;Coyote.Examples.Raft.PeriodicTimer(13).Init">
-      <path d="M 939.535607357778,1397.38258789062 L 961.590284435298,1414.81533517865 L 969.146764678323,1422.1851177373 L 977.420502789347,1473.42123097097 L 969.115726573755,1600.96402590157 L 962.867513305221,1663.81146872892" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M 963.758648756045,1672.86595134175 L 968.243407234661,1663.0737635684 C 965.530982538507,1663.9420166299 962.867513305221,1663.81146872892 960.252999534804,1662.68211986545 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M 1073.57508033903,1052.07718324986 L 1101.17407685171,1071.64838274976 A 99.7229388314581,99.7229388314581 0 0 1 1103.82784335879,1073.59686405661 A 7.71780983182047,7.71780983182047 0 0 1 1105.92884002119,1076.03734115981 L 1106.58346548851,1077.23387181474 A 5.92158694829135,5.92158694829135 0 0 1 1107.08225899007,1078.44916733593 A 5.16351045689252,5.16351045689252 0 0 1 1107.27950024446,1079.74538012374 L 1108.5657003792,1133.99641237562 A 72.1567773959857,72.1567773959857 0 0 1 1108.2314862044,1142.8502655979 A 518.750113021919,518.750113021919 0 0 1 1107.27715232733,1151.67539556443 L 1107.14770551056,1152.78365086118 A 142.636169732497,142.636169732497 0 0 1 1105.82544742131,1161.66691398465 A 345.971333121876,345.971333121876 0 0 1 1104.10885392403,1170.48623653235 L 1089.39174080649,1241.18984669206 A 8929.3538173882,8929.3538173882 0 0 1 1086.96940161613,1252.78861355143 A 1620.1351795264,1620.1351795264 0 0 1 1084.49699138199,1264.37673211457 L 1084.2184910781,1265.6590587379 A 480.128779791534,480.128779791534 0 0 1 1081.78163980386,1276.29508213583 A 480.128779798048,480.128779798048 0 0 1 1079.10371466329,1286.8729814923 L 1074.87823713906,1302.80078263582" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M 1072.57046038718,1311.49987261486 L 1079.00091899107,1302.85989563899 C 1076.16699121003,1303.14267548795 1073.58948306809,1302.45888978369 1071.26839456525,1300.8085385262 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
   </g>
 </svg>

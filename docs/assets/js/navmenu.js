@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 function expand_nav(item)
 {
     // we could use this JQuery collapse function: item.parents(".panel-collapse").collapse("show");

@@ -511,6 +511,7 @@ simplify the diagram:
 <div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml"
      svg="/coyote/assets/images/DSR-Bug-01.svg">
 </div>
+{% include player-controls.html %}
 
 This is the exact snapshot at the time when the bug manifested.
 

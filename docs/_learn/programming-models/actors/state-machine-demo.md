@@ -7,8 +7,11 @@ permalink: /learn/programming-models/actors/state-machine-demo
 
 ## State machine demo
 
-<div class="animated_svg" trace="/coyote/assets/data/Raft.xml" svg="/coyote/assets/images/Raft.svg">
+<div class="animated_svg" trace="/coyote/assets/data/Raft.xml" svg="/coyote/assets/images/Raft.svg"
+     fullscreenhref="/coyote/learn/programming-models/actors/state-machine-demo-fs">
 </div>
+
+{% include player-controls.html %}
 
 This graph was generated from a `coyote test` with the `--xml-trace` and `--graph-bug` options on a
 `StateMachine` based coyote application that implements the `Raft` protocol. The fact that coyote

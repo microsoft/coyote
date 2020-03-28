@@ -1,378 +1,345 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 // Include this script in an HTML page to animate the trace contained in the
 // javascript json data element named "events", and display the results in the
 // embedded SVG diagram.  This depends on progress_bar.js to show a progress UI.
 
-var animate_events = null; // list of events to animate
-var nodes = null;
-var links = null;
-var crossGroupLinks = null;
-var position = 0;
-var currentStates = new Array();
-var progressBar = null;
-var playing = false;
-var svg = null;
+class CometPath {
+    animatingEvent = null;
+    animatingPath = null;
+    pathLength = 0;
+    pathPosition = 0.0;
+    pathStarts = [];
+    pathEnd = 0.0;
+    pathStep = 0.0;
+    comets = null;
+    svgNS = "http://www.w3.org/2000/svg";
+    completed = null; // event callback.
+    progress = null; // event callback (given progress between 0 and 1)
+    comet_color = "#409050";
 
-const linkSeparator = "-\u003E";
-const comet_color = "#409050";
-const selected_node_color = "lightgreen";
-const selected_node_foreground = "#3D3D3D";
-const error_node_color = "#C15656";
-const error_node_foreground = "#FFFFFF";
-const comet_speed = 5; // 5 ms per step
-const svgNS = "http://www.w3.org/2000/svg";
-const restart_timeout = 5000; // 5 seconds
-var normal_foreground = "#3D3D3D";
-
-// see: http://owl3d.com/svg/vsw/articles/vsw_article.html
-function start_trace(events, parentDiv) {
-    position = 0;
-    animate_events = events;
-    svg = $(parentDiv).children("svg");
-    if (svg.length > 0)
-    {
-        svg = svg[0];
-        start_animation(svg);
-    }
-}
-
-ProgressBar = function(svg, options) {
-    this.settings = {
-        barColor : "#4F87AD",
-        height: 12
-    };
-    if (options) {
-        $(this.settings).extend(options);
-    }
-    var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    this.rect = rect;
-    svg.appendChild(rect);
-    rect.setAttribute("width", 0);
-    rect.setAttribute("height", this.settings.height);
-    var height = svg.height.baseVal.value;
-    var width =  svg.width.baseVal.value;
-    var scaleX = 1;
-    var scaleY = 1;
-    if (svg.viewBox){
-        viewBoxHeight = svg.viewBox.baseVal.height;
-        viewBoxWidth = svg.viewBox.baseVal.width;
-        scaleX = viewBoxWidth / width;
-        width = viewBoxWidth;
-        scaleY = viewBoxHeight / height;
-        height = viewBoxHeight;
-    }
-    rect.setAttribute("y", height - this.settings.height);
-    rect.setAttribute("fill", this.settings.barColor);
-
-    var buttonSize = 16 * scaleX;
-    var button = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
-    svg.appendChild(button);
-    var penWidth = 2 / scaleX;
-    var centerX = width - buttonSize - penWidth;
-    var centerY = height - buttonSize - penWidth
-    button.setAttribute("cx", centerX);
-    button.setAttribute("cy", centerY);
-    button.setAttribute("rx", buttonSize);
-    button.setAttribute("ry", buttonSize);
-    button.setAttribute("fill", "white");
-    button.setAttribute("stroke", this.settings.barColor);
-    button.setAttribute("stroke-width", 2 * scaleX);
-    button.progress = this;
-
-    var triangleSize = 10 * scaleX;
-    var triangle = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    svg.appendChild(triangle);
-    var points = [[centerX - triangleSize / 2, centerY - triangleSize / 2],
-                [centerX + triangleSize / 2, centerY],
-                [centerX - triangleSize / 2, centerY + triangleSize / 2]]
-    triangle.setAttribute("points", points.toString());
-    triangle.setAttribute("fill", this.settings.barColor);
-    triangle.setAttribute("stroke", this.settings.barColor);
-    triangle.setAttribute("stroke-width", 2 * scaleX);
-    triangle.setAttribute("opacity", 0);
-    triangle.progress = this;
-
-    var pauseHeight = 14 * scaleX;
-    var pauseWidth = 4 * scaleX;
-    var pauseGap = 2 * scaleX;
-    var pause = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    svg.appendChild(pause);
-    var leftRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    pause.appendChild(leftRect);
-    var rightRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    pause.appendChild(rightRect);
-
-    leftRect.setAttribute("x", centerX - pauseWidth - pauseGap);
-    leftRect.setAttribute("y", centerY - pauseHeight / 2);
-    leftRect.setAttribute("width", pauseWidth);
-    leftRect.setAttribute("height", pauseHeight);
-    leftRect.setAttribute("fill", this.settings.barColor);
-    leftRect.setAttribute("stroke", this.settings.barColor);
-    leftRect.setAttribute("stroke-width", 2 * scaleX);
-    leftRect.setAttribute("opacity", 0);
-    leftRect.progress = this;
-
-    rightRect.setAttribute("x", centerX + pauseGap);
-    rightRect.setAttribute("y", centerY - pauseHeight / 2);
-    rightRect.setAttribute("width", pauseWidth);
-    rightRect.setAttribute("height", pauseHeight);
-    rightRect.setAttribute("fill", this.settings.barColor);
-    rightRect.setAttribute("stroke", this.settings.barColor);
-    rightRect.setAttribute("stroke-width", 2 * scaleX);
-    rightRect.setAttribute("opacity", 0);
-    rightRect.progress = this;
-
-    this.setProgress = function (percent) {
-        this.rect.setAttribute("width", "" + percent + "%");
-    }
-
-    this.handleClick = function(e) {
-        if (this.progress.onclick) {
-            this.progress.onclick();
-        }
-    };
-
-    button.onclick = this.handleClick;
-    triangle.onclick = this.handleClick;
-    leftRect.onclick = this.handleClick;
-    rightRect.onclick = this.handleClick;
-
-    this.setState = function (state) {
-        if (state) {
-            // playing, so show pause button
-            leftRect.setAttribute("opacity", 1);
-            rightRect.setAttribute("opacity", 1);
-            triangle.setAttribute("opacity", 0);
-        } else {
-            // stopped, so show play button
-            leftRect.setAttribute("opacity", 0);
-            rightRect.setAttribute("opacity", 0);
-            triangle.setAttribute("opacity", 1);
-        }
-    }
-
-    this.setState(1);
-}
-
-function start_animation(svg) {
-    playing = true;
-    if (!progressBar) {
-        progressBar = new ProgressBar(svg);
-        progressBar.onclick = function (state) {
-            if (playing) {
-                stop_animation();
-            } else {
-                start_animation(svg);
-            }
-        }
-    }
-    progressBar.setState(1);
-    if (!crossGroupLinks) {
-        nodes = new Array();
-        links = new Array();
-        crossGroupLinks = new Array();
-        find_nodes(svg.children, 0);
-        hide_crossGroupLinks_links(crossGroupLinks);
-        trim_bad_events();
-    }
-
-    if (position >= animate_events.length) {
-        deselectAll();
-        position = 0;
-        hide_crossGroupLinks_links(crossGroupLinks);
-    }
-    window.setTimeout(animate, 100);
-}
-
-function stop_animation() {
-    playing = false;
-    if (progressBar) {
-        progressBar.setState(0);
-    }
-}
-
-function find_nodes(children, depth) {
-    if (children != null && children.length > 0) {
-        for (var i = 0; i < children.length; i++) {
-            c = children[i];
-            if (c.tagName == "g") {
-                newDepth = depth;
-                if (c.id) {
-                    if (c.id.includes(linkSeparator)) {
-                        links[c.id] = c;
-                        if (depth == 0) {
-                            crossGroupLinks[c.id] = c;
-                        }
-                    }
-                    else {
-                        nodes[c.id] = c;
-                    }
-                    newDepth++;
-                }
-                if (c.children.length > 0) {
-                    find_nodes(c.children, newDepth);
-                }
-            }
-        }
-    }
-}
-
-function hide_crossGroupLinks_links(map) {
-    pos = 0;
-    for (var i in map) {
-        g = map[i]
-        if (g.id.includes(linkSeparator)) {
-            g.style.display = "none";
-        }
-    }
-}
-
-var animatingEvent = null;
-
-function trim_bad_events() {
-    // remove events for which we have no SVG geometry to animate.
-    var trimmed = new Array();
-    for (var i = 0; i < animate_events.length; i++)
-    {
-        e = animate_events[i];
-        if (e.sender) {
-            linkId = e.sender + "." + e.senderState + "->" + e.receiver + "." + e.receiverState;
-            link = links[linkId];
-            if (link || e.name == "<error>"){
-                trimmed.push(e);
-            } else {
-                console.log("???" + linkId);
-            }
-        }
-    }
-    animate_events = trimmed;
-}
-
-function animate() {
-    if (position < animate_events.length && playing) {
-        e = animate_events[position++];
-        progressBar.setProgress(position * 100 / animate_events.length);
-        animatingLink = false;
-        if (e.sender)
+    start_animate_path(svg, e, path) {
+        this.animatingEvent = e;
+        this.svg = svg;
+        this.comets = new Array();
+        this.animatingPath = path;
+        this.pathLength = path.getTotalLength();
+        this.pathPosition = 0.0;
+        this.pathStep = this.pathLength / 50;
+        for (var i = 0; i < 8; i += 1)
         {
-            // then we can animate a link.
-            linkId = e.sender + "." + e.senderState + "->" + e.receiver + "." + e.receiverState;
-            link = links[linkId];
-            if (link) {
-                if (link.children[0]) {
-                    animatingEvent = e;
-                    link.style.display = "";
-                    start_animate_path(link.children[0]);
-                    animatingLink = true;
-                    if (currentStates[e.sender] == undefined) {
-                        selectNode(e.sender, e.senderState, selected_node_color, selected_node_foreground);
-                    }
-                } else {
-                    console.log("??? no children: " + linkId);
+            var comet = document.createElementNS(this.svgNS, "path");
+            var points = path.getAttribute("d");
+            comet.setAttribute("d", points);
+            comet.style.strokeWidth = i + 1;
+            comet.style.stroke = this.comet_color;
+            comet.style.fill = "none";
+            comet.style.strokeDasharray =  [ 15 - i, this.pathLength + 15];
+            this.pathEnd =  (this.pathLength + 15);
+            this.pathStarts[i] = (15 - i);
+            comet.style.strokeDashoffset = this.pathStarts[i];
+            var root = this.svg.children[2];
+            root.appendChild(comet);
+            this.comets[i] = comet;
+        }
+
+        var foo = this;
+        window.setTimeout(function() { foo.animate_path() }, this.comet_speed);
+    }
+
+    animate_path() {
+        this.pathPosition += this.pathStep;
+        if (this.pathPosition > this.pathEnd) {
+            var root = this.svg.children[2];
+            for (var i in this.comets) {
+                root.removeChild(this.comets[i]);
+            }
+            this.comets = null;
+            if (this.completed) {
+                this.completed();
+            }
+        } else {
+            if (this.progress != null)
+            {
+                this.progress(this.pathPosition / this.pathEnd);
+            }
+
+            for (var i in this.comets) {
+                var comet = this.comets[i];
+                comet.style.strokeDashoffset = this.pathStarts[i] - this.pathPosition - i;
+            }
+
+            var foo = this;
+            window.setTimeout(function() { foo.animate_path() }, this.comet_speed);
+        }
+    }
+
+}
+
+class AnimateTrace {
+    animate_events = null; // list of events to animate
+    nodes = null;
+    links = null;
+    crossGroupLinks = null;
+    position = 0;
+    currentStates = new Array();
+    progressBar = null;
+    playing = false;
+    svg = null;
+    parallel = false;
+
+    linkSeparator = "-\u003E";
+    selected_node_color = "lightgreen";
+    selected_node_foreground = "#3D3D3D";
+    error_node_color = "#C15656";
+    error_node_foreground = "#FFFFFF";
+    comet_speed = 5; // 5 ms per step
+    restart_timeout = 5000; // 5 seconds
+    normal_foreground = "#3D3D3D";
+
+    constructor(parentDiv){
+        this.parentDiv = parentDiv;
+        if (!this.progressBar) {
+            this.progressBar = new ProgressBar(parentDiv);
+            var foo = this;
+            this.progressBar.onplay = function (e) { foo.handle_start_stop(e); };
+            this.progressBar.onpause = function (e) { foo.handle_start_stop(e); };
+            this.progressBar.onfullscreen = function (e) { foo.handle_fullscreen(e); };
+            this.progressBar.onnormalscreen = function (e) { foo.handle_normalscreen(e); };
+            var fs = $(parentDiv).attr("isfullscreen");
+            if (fs) {
+                this.progressBar.setFullscreen(true);
+            } else {
+                var url = $(this.parentDiv).attr("fullscreenhref");
+                if (!url){
+                    this.progressBar.hideFullScreenControls();
                 }
             }
-            else {
-                console.log("???" + linkId);
+            document.addEventListener('keydown', function(e) { foo.handle_key_down(e); });
+        }
+    }
+
+    handle_key_down(e) {
+        if (e.code == "F8"){
+            this.progressBar.play(e);
+        }
+    }
+
+    // see: http://owl3d.com/svg/vsw/articles/vsw_article.html
+    start_trace(events) {
+        this.position = 0;
+        this.animate_events = events;
+        this.svg = $(this.parentDiv).children("svg");
+        if (this.svg.length > 0)
+        {
+            this.svg = this.svg[0];
+            this.start_animation(this.svg);
+        }
+    }
+
+    handle_fullscreen(e) {
+        var url = $(this.parentDiv).attr("fullscreenhref");
+        if (url) {
+            window.location.href = url;
+        }
+
+    }
+
+    handle_normalscreen(e) {
+        var url = $(this.parentDiv).attr("normalscreenhref");
+        if (url) {
+            window.location.href = url;
+        }
+    }
+
+    handle_start_stop(e){
+        if (this.playing) {
+            this.stop_animation();
+        } else {
+            if (e.ctrlKey) {
+                this.parallel = !this.parallel;
             }
-            if (e.name == "<error>")
+            this.start_animation(this.svg);
+        }
+    }
+
+    start_animation(svg) {
+        this.playing = true;
+        this.progressBar.setPlaying(1); // play automatically
+
+        if (!this.crossGroupLinks) {
+            this.nodes = new Array();
+            this.links = new Array();
+            this.crossGroupLinks = new Array();
+            this.find_nodes(svg.children, 0);
+            this.hide_crossGroupLinks_links(this.crossGroupLinks);
+            this.trim_bad_events();
+        }
+
+        if (this.position >= this.animate_events.length) {
+            this.deselectAll();
+            this.position = 0;
+            this.hide_crossGroupLinks_links(this.crossGroupLinks);
+        }
+
+        var foo = this;
+        window.setTimeout(function() { foo.animate() }, 100);
+    }
+
+    stop_animation() {
+        this.playing = false;
+        if (this.progressBar) {
+            this.progressBar.setPlaying(0);
+        }
+    }
+
+    find_nodes(children, depth) {
+        if (children != null && children.length > 0) {
+            for (var i = 0; i < children.length; i++) {
+                var c = children[i];
+                if (c.tagName == "g") {
+                    var newDepth = depth;
+                    if (c.id) {
+                        if (c.id.includes(this.linkSeparator)) {
+                            this.links[c.id] = c;
+                            if (depth == 0) {
+                                this.crossGroupLinks[c.id] = c;
+                            }
+                        }
+                        else {
+                            this.nodes[c.id] = c;
+                        }
+                        newDepth++;
+                    }
+                    if (c.children.length > 0) {
+                        this.find_nodes(c.children, newDepth);
+                    }
+                }
+            }
+        }
+    }
+
+    hide_crossGroupLinks_links(map) {
+        // this.pos = 0;??
+        for (var i in map) {
+            var g = map[i]
+            if (g.id.includes(this.linkSeparator)) {
+                g.style.display = "none";
+            }
+        }
+    }
+
+    trim_bad_events() {
+        // remove events for which we have no SVG geometry to animate.
+        var trimmed = new Array();
+        for (var i = 0; i < this.animate_events.length; i++)
+        {
+            var e = this.animate_events[i];
+            if (e.sender) {
+                var linkId = e.sender + "." + e.senderState + "->" + e.receiver + "." + e.receiverState;
+                var link = this.links[linkId];
+                if (link || e.name == "<error>"){
+                    trimmed.push(e);
+                } else {
+                    console.log("???" + linkId);
+                }
+            }
+        }
+        this.animate_events = trimmed;
+    }
+
+    animate() {
+        if (this.position < this.animate_events.length && this.playing) {
+            var e = this.animate_events[this.position++];
+            this.progressBar.setProgress(this.position * 100 / this.animate_events.length);
+            var animatingLink = false;
+            if (e.sender)
             {
-                // then this event is about showing an error
-                selectNode(e.sender, e.senderState, error_node_color, error_node_foreground);
+                // then we can animate a link.
+                var linkId = e.sender + "." + e.senderState + "->" + e.receiver + "." + e.receiverState;
+                var link = this.links[linkId];
+                if (link) {
+                    if (link.children[0]) {
+                        var animatingPath = new CometPath();
+                        animatingPath.start_animate_path(this.svg, e, link.children[0]);
+                        link.style.display = "";
+                        if (!this.parallel) {
+                            animatingLink = true;
+                        }
+                        if (this.currentStates[e.sender] == undefined) {
+                            this.selectNode(e.sender, e.senderState, this.selected_node_color, this.selected_node_foreground);
+                        }
+
+                        var foo = this;
+                        animatingPath.completed = function() { foo.onPathCompleted(animatingPath.animatingEvent); };
+                        animatingPath.progress = function (p) { foo.showProgress(p); };
+                    } else {
+                        console.log("??? no children: " + linkId);
+                    }
+                }
+                else {
+                    console.log("???" + linkId);
+                }
+                if (e.name == "<error>")
+                {
+                    // then this event is about showing an error
+                    this.selectNode(e.sender, e.senderState, this.error_node_color, this.error_node_foreground);
+                }
             }
-        }
-        if (!animatingLink){
-            window.setTimeout(animate, 100);
-        }
-    } else {
-        stop_animation();
-    }
-}
 
-function deselectAll()
-{
-    for(var groupId in currentStates){
-        selected = currentStates[groupId];
-        if (selected){
-            selected[0].setAttribute("fill", "white");
-            selected[1].setAttribute("fill", normal_foreground);
+            if (!animatingLink) {
+                var foo = this;
+                window.setTimeout(function() { foo.animate() }, 100);
+            }
+        } else {
+            this.stop_animation();
         }
     }
-}
 
-function selectNode(groupId, nodeId, node_color, foreground)
-{
-    if (groupId) {
-        nodeId = groupId + "." + nodeId;
-        n = nodes[nodeId]
-        if (n){
-            rect = n.children[0];
-            text = n.children[1];
-            selected = currentStates[groupId];
+    onPathCompleted(e) {
+        console.log(e.receiver + "." + e.receiverState);
+        this.selectNode(e.receiver, e.receiverState, this.selected_node_color, this.selected_node_foreground);
+
+        // start the next one when this link finishes.
+        var foo = this;
+        window.setTimeout(function() { foo.animate() }, 30);
+    }
+
+    showProgress(percent){
+        var x = this.position * 100 / this.animate_events.length;
+        var y = (this.position + 1) * 100 / this.animate_events.length;
+        var offset = (y - x) * percent;
+        this.progressBar.setProgress(x + offset);
+    }
+
+    deselectAll() {
+        for(var groupId in this.currentStates){
+            var selected = this.currentStates[groupId];
             if (selected){
                 selected[0].setAttribute("fill", "white");
-                selected[1].setAttribute("fill", normal_foreground);
+                selected[1].setAttribute("fill", this.normal_foreground);
             }
-            currentStates[groupId] = [rect, text];
-            rect.setAttribute("fill", node_color);
-            text.setAttribute("fill", foreground);
         }
     }
-}
 
-var animatingPath = null;
-var pathLength = 0;
-var pathPosition = 0.0;
-var pathStarts = [];
-var pathEnd = 0.0;
-var pathStep = 0.0;
-var comets = null;
-
-function start_animate_path(path) {
-    comets = new Array();
-    animatingPath = path;
-    pathLength = path.getTotalLength();
-    pathPosition = 0.0;
-    pathStep = pathLength / 50;
-    for (var i = 0; i < 8; i += 1)
-    {
-        var comet = document.createElementNS(svgNS, "path");
-        var points = path.getAttribute("d");
-        comet.setAttribute("d", points);
-        comet.style.strokeWidth = i + 1;
-        comet.style.stroke = comet_color;
-        comet.style.fill = "none";
-        comet.style.strokeDasharray =  [ 15 - i, pathLength + 15];
-        pathEnd =  (pathLength + 15);
-        pathStarts[i] = (15 - i);
-        comet.style.strokeDashoffset = pathStarts[i];
-        root = svg.children[2];
-        root.appendChild(comet);
-        comets[i] = comet;
-    }
-    window.setTimeout(animate_path, comet_speed);
-}
-
-function animate_path() {
-    pathPosition += pathStep;
-    if (pathPosition > pathEnd) {
-        root = svg.children[2];
-        for (var i in comets) {
-            root.removeChild(comets[i]);
+    selectNode(groupId, nodeId, node_color, foreground) {
+        if (groupId) {
+            var nodeId = groupId + "." + nodeId;
+            var n = this.nodes[nodeId]
+            if (n) {
+                var rect = n.children[0];
+                var text = n.children[1];
+                var selected = this.currentStates[groupId];
+                if (selected) {
+                    selected[0].setAttribute("fill", "white");
+                    selected[1].setAttribute("fill", this.normal_foreground);
+                }
+                this.currentStates[groupId] = [rect, text];
+                rect.setAttribute("fill", node_color);
+                text.setAttribute("fill", foreground);
+            }
         }
-        comets = null;
-        console.log(animatingEvent.receiver + "." + animatingEvent.receiverState);
-        selectNode(animatingEvent.receiver, animatingEvent.receiverState, selected_node_color, selected_node_foreground);
-        window.setTimeout(animate, 30);
-    } else {
-        var x = position * 100 / animate_events.length;
-        var y = (position + 1) * 100 / animate_events.length;
-        var offset = (y - x) * pathPosition / pathEnd;
-        progressBar.setProgress(x + offset);
-
-        for (var i in comets) {
-            comet = comets[i];
-            comet.style.strokeDashoffset = pathStarts[i] - pathPosition - i;
-        }
-        window.setTimeout(animate_path, comet_speed);
     }
+
 }

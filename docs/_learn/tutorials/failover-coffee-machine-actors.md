@@ -239,6 +239,7 @@ the resulting DGML diagram you will see exactly what happened:
 <div class="animated_svg" trace="/coyote/assets/data/CoffeeMachine.trace.xml"
      svg="/coyote/assets/images/FailoverCoffeeMachineBug.svg">
 </div>
+{% include player-controls.html %}
 
 The `Timer` machines were removed from this diagram just for simplicity. The `FailoverDriver`
 started the first `CoffeeMachine` on the left which ran to completion but it ran low on coffee

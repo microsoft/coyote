@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Coyote.SystematicTesting;
 using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Tasks
@@ -18,7 +19,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ITaskController TaskController;
+        private readonly TaskController TaskController;
 
         /// <summary>
         /// Gets an awaiter for this awaitable.
@@ -32,7 +33,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="YieldAwaitable"/> struct.
         /// </summary>
-        internal YieldAwaitable(ITaskController taskController)
+        internal YieldAwaitable(TaskController taskController)
         {
             this.TaskController = taskController;
         }
@@ -47,7 +48,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Responsible for controlling the execution of tasks during systematic testing.
             /// </summary>
-            private readonly ITaskController TaskController;
+            private readonly TaskController TaskController;
 
             /// <summary>
             /// The internal yield awaiter.
@@ -64,7 +65,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Initializes a new instance of the <see cref="YieldAwaiter"/> struct.
             /// </summary>
-            internal YieldAwaiter(ITaskController taskController, SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
+            internal YieldAwaiter(TaskController taskController, SystemCompiler.YieldAwaitable.YieldAwaiter awaiter)
             {
                 this.TaskController = taskController;
                 this.Awaiter = awaiter;

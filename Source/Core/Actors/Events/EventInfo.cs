@@ -41,11 +41,6 @@ namespace Microsoft.Coyote.Actors
         internal int HashedState { get; set; }
 
         /// <summary>
-        /// The step from which this event was sent.
-        /// </summary>
-        internal int SendStep { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="EventInfo"/> class.
         /// </summary>
         internal EventInfo(Event e)

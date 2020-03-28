@@ -16,9 +16,9 @@ using SystemTasks = System.Threading.Tasks;
 namespace Microsoft.Coyote.Tasks
 {
     /// <summary>
-    /// Represents an asynchronous operation. Each <see cref="Task"/> is a thin wrapper
-    /// over <see cref="System.Threading.Tasks.Task"/> and each call simply invokes the wrapped task. During testing, a
-    /// <see cref="Task"/> is controlled by the runtime and systematically interleaved
+    /// Represents an asynchronous operation. Each <see cref="Task"/> is a thin wrapper over
+    /// <see cref="SystemTasks.Task"/> and each call simply invokes the wrapped task. During
+    /// testing, a <see cref="Task"/> is controlled by the runtime and systematically interleaved
     /// with other asynchronous operations to find bugs.
     /// </summary>
     /// <remarks>
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.WaitAllTasksComplete(tasks, millisecondsTimeout, cancellationToken);
+                return ControlledRuntime.Current.TaskController.WaitAllTasksComplete(tasks);
             }
 
             return SystemTasks.Task.WaitAll(tasks.Select(t => t.UncontrolledTask).ToArray(), millisecondsTimeout, cancellationToken);
@@ -613,7 +613,7 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.WaitAnyTaskCompletes(tasks, millisecondsTimeout, cancellationToken);
+                return ControlledRuntime.Current.TaskController.WaitAnyTaskCompletes(tasks);
             }
 
             return SystemTasks.Task.WaitAny(tasks.Select(t => t.UncontrolledTask).ToArray(), millisecondsTimeout, cancellationToken);
@@ -690,7 +690,7 @@ namespace Microsoft.Coyote.Tasks
                 return this.InternalTask.Wait(millisecondsTimeout, cancellationToken);
             }
 
-            return this.TaskController.WaitTaskCompletes(this, millisecondsTimeout, cancellationToken);
+            return this.TaskController.WaitTaskCompletes(this);
         }
 
         /// <summary>
@@ -740,10 +740,10 @@ namespace Microsoft.Coyote.Tasks
     }
 
     /// <summary>
-    /// Represents an asynchronous operation that can return a value. Each <see cref="Task{TResult}"/>
-    /// is a thin wrapper over <see cref="System.Threading.Tasks.Task{TResult}"/> and each call simply invokes the wrapped task. During
-    /// testing, a <see cref="Task"/> is controlled by the runtime and systematically interleaved with
-    /// other asynchronous operations to find bugs.
+    /// Represents an asynchronous operation that can return a value. Each <see cref="Task{TResult}"/> is a thin
+    /// wrapper over <see cref="SystemTasks.Task{TResult}"/> and each call simply invokes the wrapped task. During
+    /// testing, a <see cref="Task"/> is controlled by the runtime and systematically interleaved with other
+    /// asynchronous operations to find bugs.
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     [AsyncMethodBuilder(typeof(AsyncTaskMethodBuilder<>))]

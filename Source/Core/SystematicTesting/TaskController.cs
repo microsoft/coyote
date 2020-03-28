@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.SystematicTesting
     /// <summary>
     /// Responsible for controlling the execution of tasks during systematic testing.
     /// </summary>
-    internal sealed class TaskController : CoyoteTasks.ITaskController
+    internal sealed class TaskController
     {
         /// <summary>
         /// The executing runtime.
@@ -39,7 +39,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler = scheduler;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified action to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -75,7 +77,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // way of terminating async task operations at the end of the test iteration.
                     if (!(ex is ExecutionCanceledException))
                     {
-                        this.ReportUnhandledExceptionInOperation(op, ex);
+                        ReportUnhandledExceptionInOperation(op, ex);
                     }
 
                     // and rethrow it
@@ -86,7 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
-            });
+            }, cancellationToken);
 
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
             task.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
@@ -100,7 +102,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return new CoyoteTasks.Task(this, task);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified function to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -135,7 +139,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 catch (Exception ex)
                 {
                     // Report the unhandled exception and rethrow it.
-                    this.ReportUnhandledExceptionInOperation(op, ex);
+                    ReportUnhandledExceptionInOperation(op, ex);
                     throw;
                 }
                 finally
@@ -143,7 +147,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
-            });
+            }, cancellationToken);
 
             Task innerTask = task.Unwrap();
 
@@ -159,7 +163,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return new CoyoteTasks.Task(this, innerTask);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified function to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -195,7 +201,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 catch (Exception ex)
                 {
                     // Report the unhandled exception and rethrow it.
-                    this.ReportUnhandledExceptionInOperation(op, ex);
+                    ReportUnhandledExceptionInOperation(op, ex);
                     throw;
                 }
                 finally
@@ -203,7 +209,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
                 }
-            });
+            }, cancellationToken);
 
             Task<TResult> innerTask = task.Unwrap();
 
@@ -219,7 +225,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return new CoyoteTasks.Task<TResult>(this, innerTask);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified delegate to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -272,7 +280,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 catch (Exception ex)
                 {
                     // Report the unhandled exception and rethrow it.
-                    this.ReportUnhandledExceptionInOperation(op, ex);
+                    ReportUnhandledExceptionInOperation(op, ex);
                     throw;
                 }
                 finally
@@ -294,7 +302,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return new CoyoteTasks.Task<TResult>(this, task);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified delay to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -311,7 +321,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return this.ScheduleAction(() => { }, null, cancellationToken);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified task awaiter continuation to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -345,7 +357,9 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Schedules the specified yield awaiter continuation to be executed asynchronously.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -366,7 +380,10 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates a controlled task that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -405,7 +422,10 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates a controlled task that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -431,7 +451,10 @@ namespace Microsoft.Coyote.SystematicTesting
             return CoyoteTasks.Task.FromResult(result);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates a controlled task that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -459,7 +482,10 @@ namespace Microsoft.Coyote.SystematicTesting
             return CoyoteTasks.Task.FromResult(result);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates a controlled task that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -487,8 +513,11 @@ namespace Microsoft.Coyote.SystematicTesting
             return CoyoteTasks.Task.FromResult(result);
         }
 
-        /// <inheritdoc/>
-        public bool WaitAllTasksComplete(CoyoteTasks.Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
+        /// <summary>
+        /// Waits for all of the provided controlled task objects to complete execution within
+        /// a specified number of milliseconds or until a cancellation token is cancelled.
+        /// </summary>
+        public bool WaitAllTasksComplete(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -504,11 +533,14 @@ namespace Microsoft.Coyote.SystematicTesting
             return true;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Waits for any of the provided controlled task objects to complete execution within
+        /// a specified number of milliseconds or until a cancellation token is cancelled.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        public int WaitAnyTaskCompletes(CoyoteTasks.Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken)
+        public int WaitAnyTaskCompletes(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -534,8 +566,11 @@ namespace Microsoft.Coyote.SystematicTesting
             return result;
         }
 
-        /// <inheritdoc/>
-        public bool WaitTaskCompletes(CoyoteTasks.Task task, int millisecondsTimeout, CancellationToken cancellationToken)
+        /// <summary>
+        /// Waits for the task to complete execution. The wait terminates if a timeout interval
+        /// elapses or a cancellation token is canceled before the task completes.
+        /// </summary>
+        public bool WaitTaskCompletes(CoyoteTasks.Task task)
         {
             // TODO: return immediately if completed without errors.
             // TODO: support timeouts and cancellation tokens.
@@ -546,7 +581,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return true;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Waits for the task to complete execution and returns the result.
+        /// </summary>
         public TResult WaitTaskCompletes<TResult>(CoyoteTasks.Task<TResult> task)
         {
             // TODO: return immediately if completed without errors.
@@ -557,7 +594,9 @@ namespace Microsoft.Coyote.SystematicTesting
             return task.UncontrolledTask.Result;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Callback invoked when the <see cref="CoyoteTasks.AsyncTaskMethodBuilder.Start"/> is called.
+        /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -574,7 +613,9 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Callback invoked when the <see cref="CoyoteTasks.AsyncTaskMethodBuilder.Task"/> is accessed.
+        /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -588,7 +629,10 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler.CheckNoExternalConcurrencyUsed();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Callback invoked when the <see cref="CoyoteTasks.AsyncTaskMethodBuilder.AwaitOnCompleted"/>
+        /// or <see cref="CoyoteTasks.AsyncTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
+        /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -616,7 +660,9 @@ namespace Microsoft.Coyote.SystematicTesting
             callerOp.SetExecutingAsyncTaskStateMachineType(stateMachineType);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Callback invoked when the currently executing task operation gets a controlled awaiter.
+        /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
@@ -626,7 +672,9 @@ namespace Microsoft.Coyote.SystematicTesting
             callerOp.OnGetAwaiter();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Callback invoked when the <see cref="CoyoteTasks.YieldAwaitable.YieldAwaiter.GetResult"/> is called.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -635,7 +683,9 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler.ScheduleNextEnabledOperation();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Callback invoked when the executing operation is waiting for the specified task to complete.
+        /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -664,7 +714,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Reports an unhandled exception in the specified asynchronous operation.
         /// </summary>
-        private void ReportUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
+        private static void ReportUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
         {
             string message = string.Format(CultureInfo.InvariantCulture,
                 $"Exception '{ex.GetType()}' was thrown in operation '{op.Name}', " +

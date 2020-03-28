@@ -43,11 +43,6 @@ namespace Microsoft.Coyote.SystematicTesting
         internal TaskController TaskController { get; private set; }
 
         /// <summary>
-        /// The intercepting task scheduler.
-        /// </summary>
-        private readonly InterceptingTaskScheduler TaskScheduler;
-
-        /// <summary>
         /// Data structure containing information regarding testing coverage.
         /// </summary>
         internal CoverageInfo CoverageInfo;
@@ -84,7 +79,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, this.Configuration);
             this.TaskController = new TaskController(this, this.Scheduler);
-            this.TaskScheduler = new InterceptingTaskScheduler(this.Scheduler.ControlledTaskMap);
 
             // Update the current asynchronous control flow with this runtime instance,
             // allowing future retrieval in the same asynchronous call stack.
@@ -462,7 +456,6 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 MustHandle = options?.MustHandle ?? false,
                 Assert = options?.Assert ?? -1,
-                SendStep = this.Scheduler.ScheduledSteps
             };
 
             this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
@@ -522,7 +515,7 @@ namespace Microsoft.Coyote.SystematicTesting
             });
 
             this.Scheduler.ScheduleOperation(op, task.Id);
-            task.Start(this.TaskScheduler);
+            task.Start();
             this.Scheduler.WaitOperationStart(op);
         }
 

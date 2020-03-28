@@ -399,8 +399,8 @@
         <text x="1073.66125488281" y="652.356878978445" fill="#3D3D3D">Init</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(4).Leader">
-        <rect x="1054.88637695312" y="850.166797191335" rx="3" ry="3" width="55.5500000000002" height="25.96" fill="#C15656" stroke="#A5A6A9" stroke-width="1" />
-        <text x="1064.88637695312" y="868.11679719133508" fill="#FFFFFF">Leader</text>
+        <rect x="1054.88637695312" y="850.166797191335" rx="3" ry="3" width="55.5500000000002" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="1064.88637695312" y="868.11679719133508" fill="#3D3D3D">Leader</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(5)">
@@ -435,8 +435,8 @@
         <text x="435.8505859375" y="738.83222077532" fill="#3D3D3D">Init</text>
       </g>
       <g id="Coyote.Examples.Raft.Server(5).Leader">
-        <rect x="417.0755859375" y="936.641833812429" rx="3" ry="3" width="55.55" height="25.96" fill="#C15656" stroke="#A5A6A9" stroke-width="1" />
-        <text x="427.0755859375" y="954.59183381242906" fill="#FFFFFF">Leader</text>
+        <rect x="417.0755859375" y="936.641833812429" rx="3" ry="3" width="55.55" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+        <text x="427.0755859375" y="954.59183381242906" fill="#3D3D3D">Leader</text>
       </g>
     </g>
     <g id="Coyote.Examples.Raft.Server(6)">

@@ -215,13 +215,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
                 this.Strategy = new ReplayStrategy(configuration, schedule, isFair);
             }
-            else if (configuration.SchedulingStrategy is "interactive")
-            {
-                configuration.TestingIterations = 1;
-                configuration.PerformFullExploration = false;
-                configuration.IsVerbose = true;
-                this.Strategy = new InteractiveStrategy(configuration, this.Logger);
-            }
             else if (configuration.SchedulingStrategy is "random")
             {
                 this.Strategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);

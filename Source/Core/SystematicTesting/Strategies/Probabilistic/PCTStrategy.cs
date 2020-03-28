@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             {
                 var mIndex = this.RandomValueGenerator.Next(this.PrioritizedOperations.Count) + 1;
                 this.PrioritizedOperations.Insert(mIndex, op);
-                Debug.WriteLine($"<PCTLog> Detected new operation from '{op.Name}' at index '{mIndex}'.");
+                Debug.WriteLine("<PCTLog> Detected new operation '{0}' at index '{1}'.", op.Id, mIndex);
             }
 
             if (this.PriorityChangePoints.Contains(this.ScheduledSteps))
@@ -186,22 +186,25 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     var priority = this.GetHighestPriorityEnabledOperation(ops);
                     this.PrioritizedOperations.Remove(priority);
                     this.PrioritizedOperations.Add(priority);
-                    Debug.WriteLine($"<PCTLog> Operation '{priority}' changes to lowest priority.");
+                    Debug.WriteLine("<PCTLog> Operation '{0}' changes to lowest priority.", priority);
                 }
             }
 
             var prioritizedSchedulable = this.GetHighestPriorityEnabledOperation(ops);
-            Debug.WriteLine($"<PCTLog> Prioritized schedulable '{prioritizedSchedulable}'.");
-            Debug.Write("<PCTLog> Priority list: ");
-            for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)
+            if (Debug.IsEnabled)
             {
-                if (idx < this.PrioritizedOperations.Count - 1)
+                Debug.WriteLine("<PCTLog> Prioritized schedulable '{0}'.", prioritizedSchedulable);
+                Debug.Write("<PCTLog> Priority list: ");
+                for (int idx = 0; idx < this.PrioritizedOperations.Count; idx++)
                 {
-                    Debug.Write($"'{this.PrioritizedOperations[idx]}', ");
-                }
-                else
-                {
-                    Debug.WriteLine($"'{this.PrioritizedOperations[idx]}({1})'.");
+                    if (idx < this.PrioritizedOperations.Count - 1)
+                    {
+                        Debug.Write("'{0}', ", this.PrioritizedOperations[idx]);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("'{0}'.", this.PrioritizedOperations[idx]);
+                    }
                 }
             }
 
@@ -258,7 +261,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             }
 
             this.PriorityChangePoints.Add(newPriorityChangePoint);
-            Debug.WriteLine($"<PCTLog> Moving priority change to '{newPriorityChangePoint}'.");
+            Debug.WriteLine("<PCTLog> Moving priority change to '{0}'.", newPriorityChangePoint);
         }
 
         /// <inheritdoc/>

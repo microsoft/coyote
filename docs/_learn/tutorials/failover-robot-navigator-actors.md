@@ -116,7 +116,7 @@ the design stage, before coding and pushing to production.
 
 ## What you will need
 
-To run the `DrinksServingRobot` example, you will need to:
+To run the `DrinksServingRobotActors` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
 - Build the [Coyote project](/coyote/learn/get-started/install).
@@ -133,23 +133,23 @@ powershell -f build.ps1
 
 ## Running and testing the Drink Serving Robot
 
-Now you can run the `DrinksServingRobot` application:
+Now you can run the `DrinksServingRobotActors` application:
 - in .Net Core:
 
 ```shell
-dotnet ./bin/netcoreapp2.2/DrinksServingRobot.dll
+dotnet ./bin/netcoreapp2.2/DrinksServingRobotActors.dll
 ```
 
 - in .Net 4.6:
 
 ```
-.\bin\net46\DrinksServingRobot.exe
+.\bin\net46\DrinksServingRobotActors.exe
 ```
 
 - in .Net 4.7:
 
 ```
-.\bin\net47\DrinksServingRobot.exe
+.\bin\net47\DrinksServingRobotActors.exe
 ```
 
 When you run the executable like this without using `coyote test` (this is called running in
@@ -263,13 +263,13 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobot.exe -i 1000 -ms 2000 --sch-pct 10
+..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobotActors.exe -i 1000 -ms 2000 --sch-pct 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```
-. Testing .\bin\net46\DrinksServingRobot.exe
+. Testing .\bin\net46\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
 ... Task 0 is using 'pct' strategy (seed:324932188).
@@ -287,8 +287,8 @@ Starting TestingProcessScheduler in process 26236
 ..... Iteration #30
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_0.txt
-..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_0.schedule
+..... Writing .\bin\net46\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.txt
+..... Writing .\bin\net46\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.schedule
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -494,13 +494,13 @@ Remember the last lines of the coyote test execution log file:
 If you add to the coyote test command line `--graph-bug`, and test again:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobot.exe -i 1000 -ms 2000 --sch-pct 10 --graph-bug
+..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobotActors.exe -i 1000 -ms 2000 --sch-pct 10 --graph-bug
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
 
 ```
-..... Writing .\bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.dgml
+..... Writing .\bin\net46\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.dgml
 ```
 
 Open this with Visual Studio 2019 and you will see a diagram like this.  Here the diagram is also
@@ -508,7 +508,7 @@ animated using the contents of the `--xml-trace` output so you can see the seque
 leading up to the bug.  `MockStateMachineTimer` information was removed from this graph just to
 simplify the diagram:
 
-<div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobot.trace.xml"
+<div style="width:400" class="animated_svg" trace="/coyote/assets/data/DrinksServingRobotActors.trace.xml"
      svg="/coyote/assets/images/DSR-Bug-01.svg">
 </div>
 {% include player-controls.html %}
@@ -660,7 +660,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobot.exe -i 1000 -ms 2000 --sch-pct 10
+..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobotActors.exe -i 1000 -ms 2000 --sch-pct 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

@@ -317,31 +317,17 @@ namespace Microsoft.Coyote
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
             this.RandomGeneratorSeed = null;
-            this.IncrementalSchedulingSeed = false;
-            this.PerformFullExploration = false;
+            this.IncrementalSchedulingSeed = this.PerformFullExploration  = this.UserExplicitlySetMaxFairSchedulingSteps = this.ParallelDebug = this.ConsiderDepthBoundHitAsBug = this.IsProgramStateHashingEnabled =  this.DebugActivityCoverage = this.IsVerbose = this.EnableDebugging = this.EnableColoredConsoleOutput = false;
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps
             this.MaxUnfairSchedulingSteps = 10000;
-            this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ParallelDebug = false;
-            this.RunAsParallelBugFindingTask = false;
+            this.RunAsParallelBugFindingTask = this.IsMonitoringEnabledInInProduction = this.AttachDebugger = this.ReportCodeCoverage = this.ReportActivityCoverage =  false;
             this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
             this.TestingSchedulerIpAddress = null;
-            this.ConsiderDepthBoundHitAsBug = false;
             this.TimeoutDelay = 10;  
             this.IsLivenessCheckingEnabled = true;
-            this.IsProgramStateHashingEnabled = false;
-            this.IsMonitoringEnabledInInProduction = false;
-            this.AttachDebugger = false;
             this.ScheduleFile = string.Empty;
             this.ScheduleTrace = string.Empty;
-            this.ReportCodeCoverage = false;
-            this.ReportActivityCoverage = false;
-            this.DebugActivityCoverage = false;
-            this.IsVerbose = false;
-            this.EnableDebugging = false;
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
-
-            this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = true;
         }
 

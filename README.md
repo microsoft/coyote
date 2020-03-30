@@ -7,13 +7,12 @@
 [![Build status](https://dev.azure.com/foundry99/Coyote/_apis/build/status/Coyote-Windows-CI)](https://dev.azure.com/foundry99/Coyote/_build/latest?definitionId=49)
 [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Coyote is a programming framework for building reliable asynchronous software. Coyote ensures design
-and code remain in sync, dramatically simplifying the addition of new features. Coyote comes with
+Coyote is a programming framework for building reliable asynchronous software. Coyote ensures that both the design and code remain in sync, dramatically simplifying the addition of new features. Coyote comes with
 with a systematic testing engine that allows finding and deterministically reproducing hard-to-find
 safety and liveness bugs.
 
 Coyote is used by several teams in [Azure](https://azure.microsoft.com/) to design, implement and
-systematically test production distributed systems and services. In the words of an Azure service
+systematically test production distributed systems and services. In the words of an Azure solution
 architect:
 > Coyote found several issues early in the dev process, this sort of issues that would usually bleed
 > through into production and become very expensive to fix later.

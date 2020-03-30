@@ -107,8 +107,7 @@ namespace Microsoft.Coyote
         {
             set
             {
-                this.MaxUnfairSchedulingSteps = value;
-                this.MaxFairSchedulingSteps = value;
+                this.MaxUnfairSchedulingSteps = this.MaxFairSchedulingSteps = value;
             }
         }
 
@@ -312,13 +311,9 @@ namespace Microsoft.Coyote
         protected Configuration()
         {
             this.OutputFilePath = string.Empty;
-
-            this.Timeout = 0;
-            this.RuntimeGeneration = 0;
-
+            this.Timeout = this.RuntimeGeneration = this.ParallelBugFindingTasks= this.TestingProcessId = this.StrategyBound = this.SafetyPrefixBound = this.LivenessTemperatureThreshold =  0;
             this.AssemblyToBeAnalyzed = string.Empty;
             this.TestMethodName = string.Empty;
-
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
             this.RandomGeneratorSeed = null;
@@ -327,33 +322,23 @@ namespace Microsoft.Coyote
             this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps
             this.MaxUnfairSchedulingSteps = 10000;
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
-            this.ParallelBugFindingTasks = 0;
             this.ParallelDebug = false;
             this.RunAsParallelBugFindingTask = false;
             this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
             this.TestingSchedulerIpAddress = null;
-            this.TestingProcessId = 0;
             this.ConsiderDepthBoundHitAsBug = false;
-            this.StrategyBound = 0;
-            this.TimeoutDelay = 10;
-            this.SafetyPrefixBound = 0;
-
+            this.TimeoutDelay = 10;  
             this.IsLivenessCheckingEnabled = true;
-            this.LivenessTemperatureThreshold = 0;
             this.IsProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledInInProduction = false;
             this.AttachDebugger = false;
-
             this.ScheduleFile = string.Empty;
             this.ScheduleTrace = string.Empty;
-
             this.ReportCodeCoverage = false;
             this.ReportActivityCoverage = false;
             this.DebugActivityCoverage = false;
-
             this.IsVerbose = false;
             this.EnableDebugging = false;
-
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
             this.EnableColoredConsoleOutput = false;

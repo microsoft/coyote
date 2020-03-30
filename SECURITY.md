@@ -26,7 +26,7 @@ This information will help us triage your report more quickly.
 
 ## Preferred Languages
 
-We prefer all communications to be in English.
+We prefer all communications to be done in English.
 
 ## Policy
 

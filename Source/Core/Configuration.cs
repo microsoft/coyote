@@ -310,10 +310,8 @@ namespace Microsoft.Coyote
         /// </summary>
         protected Configuration()
         {
-            this.OutputFilePath = string.Empty;
             this.Timeout = this.RuntimeGeneration = this.ParallelBugFindingTasks= this.TestingProcessId = this.StrategyBound = this.SafetyPrefixBound = this.LivenessTemperatureThreshold =  0;
-            this.AssemblyToBeAnalyzed = string.Empty;
-            this.TestMethodName = string.Empty;
+            this.OutputFilePath = this.AssemblyToBeAnalyzed = this.TestMethodName = this.ScheduleFile = this.ScheduleTrace = string.Empty;
             this.SchedulingStrategy = "random";
             this.TestingIterations = 1;
             this.RandomGeneratorSeed = this.TestingSchedulerIpAddress = null;
@@ -324,8 +322,6 @@ namespace Microsoft.Coyote
             this.TestingSchedulerEndPoint = "CoyoteTestScheduler.4723bb92-c413-4ecb-8e8a-22eb2ba22234";
             this.TimeoutDelay = 10;  
             this.IsLivenessCheckingEnabled = true;
-            this.ScheduleFile = string.Empty;
-            this.ScheduleTrace = string.Empty;
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
             this.DisableEnvironmentExit = true;
         }

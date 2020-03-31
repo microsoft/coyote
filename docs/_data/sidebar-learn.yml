@@ -39,6 +39,8 @@ learn-toc:
           link: /learn/programming-models/async/tcs
         - name: Controlled asynchronous lock
           link: /learn/programming-models/async/async-lock
+        - name: Controlled semaphore
+          link: /learn/programming-models/async/semaphore
     - name: Asynchronous actors
       link: /learn/programming-models/actors/overview
       subfolderitems:

@@ -12,9 +12,9 @@ of tasks that can access a resource. During testing, the semaphore is automatica
 a controlled mocked version so that Coyote can perform any desired scheduling and interleaving
 of asynchronous operations.
 
-## Why is the Coyote Semaphore type necessary
+## Why is a semaphore necessary?
 
-A `Semaphore` is used in scenarios where you have to limit the number of tasks that can use a resource
+A semaphore is used in scenarios where you have to limit the number of tasks that can use a resource
 simultaneously. There are two semaphore types provided in C#:
 [`Semaphore`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.semaphore)
 and [`SemaphoreSlim`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.semaphoreslim).

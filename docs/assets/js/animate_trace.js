@@ -100,6 +100,9 @@ class AnimateTrace {
 
     constructor(parentDiv){
         this.parentDiv = parentDiv;
+        if (window.location.search == "?parallel") {
+            this.parallel = true;
+        }
         if (!this.progressBar) {
             this.progressBar = new ProgressBar(parentDiv);
             var foo = this;

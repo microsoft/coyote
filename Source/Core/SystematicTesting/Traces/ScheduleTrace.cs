@@ -95,16 +95,6 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Adds a fair nondeterministic boolean choice.
-        /// </summary>
-        internal void AddFairNondeterministicBooleanChoice(string uniqueId, bool choice)
-        {
-            var scheduleStep = ScheduleStep.CreateFairNondeterministicBooleanChoice(
-                this.Count, uniqueId, choice);
-            this.Push(scheduleStep);
-        }
-
-        /// <summary>
         /// Adds a nondeterministic integer choice.
         /// </summary>
         internal void AddNondeterministicIntegerChoice(int choice)

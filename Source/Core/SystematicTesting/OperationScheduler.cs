@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Returns the next nondeterministic boolean choice.
         /// </summary>
-        internal bool GetNextNondeterministicBooleanChoice(int maxValue, string uniqueId = null)
+        internal bool GetNextNondeterministicBooleanChoice(int maxValue)
         {
             if (!this.IsRunning)
             {
@@ -244,15 +244,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 throw new ExecutionCanceledException();
             }
 
-            if (uniqueId is null)
-            {
-                this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
-            }
-            else
-            {
-                this.ScheduleTrace.AddFairNondeterministicBooleanChoice(uniqueId, choice);
-            }
-
+            this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
             return choice;
         }
 
@@ -287,7 +279,6 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
-
             return choice;
         }
 

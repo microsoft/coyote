@@ -243,15 +243,6 @@ namespace Microsoft.Coyote.Runtime
         internal abstract int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType);
 
         /// <summary>
-        /// Schedules the next controlled asynchronous operation. This method
-        /// is only used during testing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void ScheduleNextOperation()
-        {
-        }
-
-        /// <summary>
         /// Assigns the specified runtime as the default for the current asynchronous control flow.
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;

@@ -455,7 +455,7 @@ namespace Microsoft.Coyote.SystematicTesting
             EventInfo eventInfo = new EventInfo(e, originInfo)
             {
                 MustHandle = options?.MustHandle ?? false,
-                Assert = options?.Assert ?? -1,
+                Assert = options?.Assert ?? -1
             };
 
             this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
@@ -764,8 +764,11 @@ namespace Microsoft.Coyote.SystematicTesting
             where TAsyncOperation : IAsyncOperation =>
             this.Scheduler.GetExecutingOperation<TAsyncOperation>();
 
-        /// <inheritdoc/>
-        internal override void ScheduleNextOperation()
+        /// <summary>
+        /// Schedules the next controlled asynchronous operation. This method
+        /// is only used during testing.
+        /// </summary>
+        internal void ScheduleNextOperation()
         {
             var callerOp = this.Scheduler.GetExecutingOperation<AsyncOperation>();
             if (callerOp != null)

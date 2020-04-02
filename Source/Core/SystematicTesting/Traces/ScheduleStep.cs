@@ -25,12 +25,6 @@ namespace Microsoft.Coyote.SystematicTesting
         internal ulong ScheduledOperationId;
 
         /// <summary>
-        /// The non-deterministic choice id. Only relevant if
-        /// this is a choice schedule step.
-        /// </summary>
-        internal string NondetId;
-
-        /// <summary>
         /// The non-deterministic boolean choice value. Only relevant if
         /// this is a choice schedule step.
         /// </summary>
@@ -83,27 +77,6 @@ namespace Microsoft.Coyote.SystematicTesting
             scheduleStep.Index = index;
             scheduleStep.Type = ScheduleStepType.NondeterministicChoice;
 
-            scheduleStep.BooleanChoice = choice;
-            scheduleStep.IntegerChoice = null;
-
-            scheduleStep.Previous = null;
-            scheduleStep.Next = null;
-
-            return scheduleStep;
-        }
-
-        /// <summary>
-        /// Creates a fair nondeterministic boolean choice schedule step.
-        /// </summary>
-        internal static ScheduleStep CreateFairNondeterministicBooleanChoice(
-            int index, string uniqueId, bool choice)
-        {
-            var scheduleStep = new ScheduleStep();
-
-            scheduleStep.Index = index;
-            scheduleStep.Type = ScheduleStepType.FairNondeterministicChoice;
-
-            scheduleStep.NondetId = uniqueId;
             scheduleStep.BooleanChoice = choice;
             scheduleStep.IntegerChoice = null;
 

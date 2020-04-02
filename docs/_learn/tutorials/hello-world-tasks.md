@@ -179,8 +179,10 @@ namespace Microsoft.Coyote.Samples.HelloWorldTasks
             Task task1 = this.WriteWithDelayAsync(GoodMorning);
             Task task2 = this.WriteWithDelayAsync(HelloWorld);
             Task task3 = this.WriteWithDelayAsync(HelloWorld);
+            Task task4 = this.WriteWithDelayAsync(HelloWorld);
+            Task task5 = this.WriteWithDelayAsync(HelloWorld);
 
-            await Task.WhenAll(task1, task2, task3);
+            await Task.WhenAll(task1, task2, task3, task4, task5);
 
             Console.WriteLine(this.Value);
 
@@ -190,21 +192,21 @@ namespace Microsoft.Coyote.Samples.HelloWorldTasks
 }
 ```
 
-`WriteWithDelayAsync()` is a C# `async` method that asynchronously waits for a `Task` to complete
-after `100`ms delay (created via the `Task.Delay(100)` call), and then modifies the value of the
-`SharedEntry` object.
+`WriteWithDelayAsync()` is a C# `async` method that asynchronously waits for a 100ms delay (created
+via the `Task.Delay(100)` call), and then modifies the value of the private `string Value`.
 
-The `RunAsync()` asynchronous method is invoking the `WriteWithDelayAsync()` method three times,
-first passing the value `"Good Morning"` and then twice passing the value `"Hello World!"`
-respectively. Each method call returns a `Task` object, which can be awaited upon using `await`.
-After invoking the three asynchronous method calls The `RunAsync` method calls `Task.WhenAll(...)`
-to `await` on the completion of all three tasks.
+The `RunAsync()` asynchronous method is invoking the `WriteWithDelayAsync()` method five times,
+first passing the value `"Good Morning"` and the value `"Hello World!"` for the others. Each method
+call returns a `Task` object, which can be awaited upon using `await`. After invoking these
+asynchronous method calls The `RunAsync` method calls `Task.WhenAll(...)` to `await` on the
+completion of all the async tasks.
 
 Because the `WriteWithDelayAsync()` method awaits a `Task.Delay` to complete, it will yield control
 to the caller of the method, which is the `RunAsync()` method. However, the `RunAsync()` method is
 not doing any awaiting immediately after invoking the `WriteWithDelayAsync()` method calls. This
-means that the three calls will be executed _asynchronously_, and thus the string in the `Value`
-member can be either `"Good Morning"` or `"Hello World!"` after `Task.WhenAll(...)` completes.
+means that the five calls will be executed in _parallel_, and thus depending entirely on the thread
+scheduling the `Value` member will be set to either `"Good Morning"` or `"Hello World!"` after
+`Task.WhenAll(...)` completes.
 
 Using `Specification.Assert`, Coyote allows you to write assertions that check these kinds of safety
 properties. In this case, the assertion will check if the value is `"Hello World!"` or not, and if

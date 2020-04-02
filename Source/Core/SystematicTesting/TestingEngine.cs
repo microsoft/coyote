@@ -87,9 +87,9 @@ namespace Microsoft.Coyote.SystematicTesting
         public TestReport TestReport { get; set; }
 
         /// <summary>
-        /// A graph of the machines, states and events of a single test iteration.
+        /// A graph of the actors, state machines and events of a single test iteration.
         /// </summary>
-        internal Graph Graph { get; private set; }
+        private Graph Graph;
 
         /// <summary>
         /// Contains a single iteration of XML log output in the case where the IsXmlLogEnabled

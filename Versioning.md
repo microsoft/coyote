@@ -12,18 +12,13 @@ We adopt everything listed in [Semantic Versioning 2.0.0](https://semver.org/)
 but to summarize the major points here:
 
 **Incrementing the MAJOR version number** should be done when:
-
 - a major new feature is added to the Coyote framework or tools and is showcased by a new tutorial demonstrating this feature
 - a breaking change has been made to Coyote API or serialization format, or  tool command line arguments.
-
-
 **Incrementing the MINOR version number** should be done when:
 - new features are added to the Coyote API or tools that are backwards compatible
 **Incrementing the PATCH version number** should be done when
-
 - anything else changes in the the Coyote framework.
 Not all changes to the repository warrant a version change. For example,
-
 - test code changes
 - documentation only fixing typos and grammar
 - automation script updates

@@ -436,8 +436,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 await WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.Equal(
-                    "Microsoft.Coyote.Production.Tests.Runtime.SendAndExecuteTests+N5(1) received event " +
-                    "'Microsoft.Coyote.Production.Tests.Runtime.SendAndExecuteTests+E3' that cannot be handled.", message);
+                    "Microsoft.Coyote.Production.Tests.Actors.SendAndExecuteTests+N5(1) received event " +
+                    "'Microsoft.Coyote.Production.Tests.Actors.SendAndExecuteTests+E3' that cannot be handled.", message);
             });
         }
     }

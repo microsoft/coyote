@@ -398,10 +398,10 @@ StateTransition
 
             string actual = graphBuilder.Graph.ToString();
 
-            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Runtime.CustomActorRuntimeLogTests+Client(1).Client(1)' Label='Client(1)'/>", actual);
-            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Runtime.CustomActorRuntimeLogTests+Client(2).Client(2)' Label='Client(2)'/>", actual);
-            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Runtime.CustomActorRuntimeLogTests+Client(3).Client(3)' Label='Client(3)'/>", actual);
-            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Runtime.CustomActorRuntimeLogTests+Server(0).Complete' Label='Complete'/>", actual);
+            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client(1).Client(1)' Label='Client(1)'/>", actual);
+            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client(2).Client(2)' Label='Client(2)'/>", actual);
+            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client(3).Client(3)' Label='Client(3)'/>", actual);
+            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server(0).Complete' Label='Complete'/>", actual);
 
             logger.Dispose();
         }
@@ -429,8 +429,8 @@ StateTransition
 
             string actual = graphBuilder.Graph.ToString();
 
-            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Runtime.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
-            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Runtime.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
+            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
+            Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
 
             logger.Dispose();
         }

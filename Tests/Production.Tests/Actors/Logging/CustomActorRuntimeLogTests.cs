@@ -11,7 +11,7 @@ using Microsoft.Coyote.Tests.Common.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Production.Tests.Runtime
+namespace Microsoft.Coyote.Production.Tests.Actors
 {
     public class CustomActorRuntimeLogTests : BaseProductionTest
     {

@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Production.Tests.Runtime
+namespace Microsoft.Coyote.Production.Tests.Tasks
 {
     public class CustomTaskRuntimeLogTests : BaseProductionTest
     {

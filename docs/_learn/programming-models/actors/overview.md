@@ -21,13 +21,15 @@ events are both non-blocking operations. In the case of a send operation the mes
 simply enqueued into the input queue of the target actor and, most importantly, it does not wait for
 the message to be processed at the target before returning control to the sender.
 
-The actor model also provides a specialized type of actor called a
-[StateMachine](state-machines). State machines are actors that have explicitly declared states and state transitions. Every object oriented class that has member
-variables is really also just a state machine where that state is updated as methods are called, but
-sometimes this gets really complicated and hard to test. Formal state machines help you model your
-states more explicitly and [coyote tester](/coyote/learn/tools/testing) can help you find bugs
-by exploring different state transitions using information you provide declaring how various types
-of events causes those state transitions.
+The actor model also provides a specialized type of actor called a [StateMachine](state-machines).
+State machines are actors that have explicitly declared states and state transitions. Every object
+oriented class that has member variables is really also just a state machine where that state is
+updated as methods are called, but sometimes this gets really complicated and hard to test. Formal
+state machines help you model your states more explicitly and [coyote
+tester](../../tools/testing) can help you find bugs by exploring different state transitions
+using information you provide declaring how various types of events causes those state transitions.
+
+See also: [how are Coyote Actors different from existing Microsoft Actor frameworks?](why-actors).
 
 ### Declaring and creating actors
 

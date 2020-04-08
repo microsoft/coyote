@@ -66,6 +66,8 @@ learn-toc:
           link: /learn/programming-models/actors/sharing-objects
         - name: State machine demo
           link: /learn/programming-models/actors/state-machine-demo
+        - name: Why Coyote actors?
+          link: /learn/programming-models/actors/why-actors
 - title: Tutorials and samples
   subfolderitems:
     - name: Hello world tasks

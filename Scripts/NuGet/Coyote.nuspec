@@ -4,7 +4,7 @@
     <id>Microsoft.Coyote</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
-    <description>Coyote is a framework for building reliable asynchronous software.</description>
+    <description>Coyote is a set of libraries and tools for building reliable asynchronous software.</description>
     <projectUrl>https://microsoft.github.io/coyote/</projectUrl>
     <repository type="git" url="https://github.com/microsoft/coyote"/>
     <license type="expression">MIT</license>

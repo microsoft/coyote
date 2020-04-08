@@ -2,7 +2,7 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
-    <Description>The Coyote framework core libraries and runtime.</Description>
+    <Description>The Coyote core libraries and runtime.</Description>
     <AssemblyName>Microsoft.Coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

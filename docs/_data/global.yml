@@ -5,7 +5,6 @@ description: 'Coyote - for rapid development of reliable asynchronous software'
 
 #Global content
 footer-join: 'Join our community'
-footer-join-descrip: 'Coyote welcomes new developers and contributors. We depend on you to help make Coyote the framework of choice for highly reliable asynchronous software.'
 footer-join-i: github
 footer-join-social:
 - p: <strong>Keep up to date with what's happening in Coyote.<br> Help us build!</strong>

@@ -1,7 +1,7 @@
 # Guidance on Coyote versioning
 #### v1.0.0
 
-The Coyote framework versioning follows [Semantic Versioning 2.0.0](https://semver.org/) and has the pattern of MAJOR.MINOR.PATCH.
+The Coyote versioning follows [Semantic Versioning 2.0.0](https://semver.org/) and has the pattern of MAJOR.MINOR.PATCH.
 
 1. MAJOR version when you make incompatible API changes,
 2. MINOR version when you add functionality in a backwards compatible manner, and
@@ -11,7 +11,7 @@ We adopt everything listed in [Semantic Versioning 2.0.0](https://semver.org/)
 but to summarize the major points here:
 
 **Incrementing the MAJOR version number** should be done when:
- - a major new feature is added to the Coyote framework or tools and is showcased by a new tutorial demonstrating this feature
+ - a major new feature is added to Coyote and is showcased by a new tutorial demonstrating this feature
  - a breaking change has been made to Coyote API or serialization format, or
  tool command line arguments.
 
@@ -20,7 +20,7 @@ but to summarize the major points here:
  compatible
 
 **Incrementing the PATCH version number** should be done when
- - anything else changes in the the Coyote framework.
+ - anything else changes in Coyote.
 
 Not all changes to the repository warrant a version change. For example,
  - test code changes

@@ -25,9 +25,9 @@ row-1:
     that got us started on this journey, building over years of research in concurrency design and
     implementation bugs.</p>
 
-    <p>From the moment various Azure teams began using our framework, we've been
-    receiving enthusiastic feedback. What started as one service using Coyote has now expanded to
-    more than ten and growing. </p>
+    <p>From the moment various Azure teams began using Coyote, we've been receiving enthusiastic
+    feedback. What started as one service built with Coyote has now expanded to more than ten and
+    growing.</p>
 
     <p>We would love to make you a part of our story&mdash;<a
     href="https://github.com/microsoft/coyote" target="_blank">join our developer community</a>

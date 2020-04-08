@@ -7,10 +7,10 @@ permalink: /learn/overview/what-is-coyote
 
 ## What is Coyote?
 
-Coyote is a .NET programming framework designed to help ensure that your code is free of bugs. Too
-often developers are drowning in the complexity of their own code and many hours are wasted trying
-to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or various
-other sources of _non-determinism_ (like message ordering, failures, timeouts and so on).
+Coyote is a set of .NET libraries and tools designed to help ensure that your code is free of bugs.
+Too often developers are drowning in the complexity of their own code and many hours are wasted
+trying to track down impossible-to-find bugs, especially when dealing with _concurrent_ code or
+various other sources of _non-determinism_ (like message ordering, failures, timeouts and so on).
 
 Coyote provides programming models to express concurrent systems. These programming models offer
 convenient ways to program at a high-level of abstraction. As mentioned below, Coyote currently

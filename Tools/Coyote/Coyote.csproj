@@ -2,7 +2,7 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
-    <Description>The Coyote framework command line tool.</Description>
+    <Description>The Coyote command line tool.</Description>
     <AssemblyName>coyote</AssemblyName>
     <RootNamespace>Coyote</RootNamespace>
     <PackageTags>systematic;tester;coyote</PackageTags>

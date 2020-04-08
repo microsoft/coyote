@@ -15,7 +15,7 @@ template: basic
 <br/>
 </div>
 
-The Coyote framework can be easily installed by adding the `Microsoft.Coyote` [NuGet
+The Coyote libraries and tools can be easily installed by adding the `Microsoft.Coyote` [NuGet
 package](https://www.nuget.org/packages/Microsoft.Coyote/) to your C# project. You can then
 immediately start programming the Coyote API as shown in the
 [samples](http://github.com/microsoft/coyote-samples).

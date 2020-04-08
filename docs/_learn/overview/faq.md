@@ -75,8 +75,9 @@ that talk over the wire. In contrast, Coyote has in-memory actors. Just like Coy
 actors are meant to be very lightweight programmatic constructs that can be put alongside any
 distributed runtime capable of hosting a .NET application. For instance, it should be possible to
 develop a Coyote application and host it on top of [Dapr](https://dapr.io/). We are aware of at
-least one team in Azure that has done something similar with [Service Fabric](https://azure.microsoft.com/en-us/services/service-fabric/)'s Reliable Actors: each
-Reliable Actor is just used as a wrapper around a Coyote
+least one team in Azure that has done something similar with [Service
+Fabric](https://azure.microsoft.com/en-us/services/service-fabric/)'s Reliable Actors: each Reliable
+Actor is just used as a wrapper around a Coyote
 [StateMachine](../programming-models/actors/state-machines). In this case, Service Fabric takes care
 of distribution, messaging and managing the actor's lifetime, whereas Coyote StateMachines encodes
 all the business logic, which is also thoroughly vetted by the Coyote tester. It would be

@@ -111,7 +111,8 @@ Coyote provides two main programming models:
   `StateMachine` type for easy development of event-driven state-machines. A `StateMachine` is
   simply an `Actor` with explicit `States` and event-driven state transitions.
 
-Note that you cannot use the above two programming models at the same time in the same process.
+Note that you cannot currently systematically test the above two programming models at the same
+time.
 
 <div class="embed-responsive embed-responsive-16by9">
 {% include architecture.svg %}

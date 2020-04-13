@@ -71,7 +71,7 @@ powershell -f build.ps1
 Now you can run the Raft.Azure application:
 
 ```
-dotnet ./bin/netcoreapp2.2/Raft.Azure.dll --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
+dotnet ./bin/netcoreapp3.1/Raft.Azure.dll --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
 ```
 
 Note: you don't want to try and run Raft.Azure client using the `coyote test` tool until you

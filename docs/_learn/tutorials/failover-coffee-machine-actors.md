@@ -90,7 +90,7 @@ Now you can run the `CoffeeMachine` application:
 - in .Net Core:
 
 ```shell
-dotnet ./bin/netcoreapp2.2/CoffeeMachineActors.dll
+dotnet ./bin/netcoreapp3.1/CoffeeMachineActors.dll
 ```
 
 - in .Net 4.6:

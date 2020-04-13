@@ -137,7 +137,7 @@ Now you can run the `DrinksServingRobotActors` application:
 - in .Net Core:
 
 ```shell
-dotnet ./bin/netcoreapp2.2/DrinksServingRobotActors.dll
+dotnet ./bin/netcoreapp3.1/DrinksServingRobotActors.dll
 ```
 
 - in .Net 4.6:

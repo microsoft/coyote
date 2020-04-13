@@ -69,7 +69,7 @@ namespace Microsoft.Coyote
 
             if (Configuration.ReportCodeCoverage)
             {
-#if NET46 || NET47
+#if NETFRAMEWORK
                 // Instruments the program under test for code coverage.
                 CodeCoverageInstrumentation.Instrument(Configuration);
 
@@ -167,7 +167,7 @@ namespace Microsoft.Coyote
         /// </summary>
         private static void Shutdown()
         {
-#if NET46 || NET47
+#if NETFRAMEWORK
             if (Configuration != null && Configuration.ReportCodeCoverage && CodeCoverageMonitor.IsRunning)
             {
                 Console.WriteLine(". Shutting down the code coverage monitor, this may take a few seconds...");

@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             string assembly = Assembly.GetExecutingAssembly().Location;
             Console.WriteLine("Launching " + assembly);
-#if NET46 || NET47
+#if NETFRAMEWORK
             ProcessStartInfo startInfo = new ProcessStartInfo(assembly,
                 CreateArgumentsFromConfiguration(id, configuration));
 #else

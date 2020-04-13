@@ -5,7 +5,7 @@ param(
 Import-Module $PSScriptRoot\powershell\common.psm1
 
 $current_dir = (Get-Item -Path ".\").FullName
-$benchmarks_dir = "$PSScriptRoot\..\Tools\BenchmarkRunner\bin\net472"
+$benchmarks_dir = "$PSScriptRoot\..\Tools\BenchmarkRunner\bin\net48"
 $benchmark_runner = "BenchmarkRunner.exe"
 $artifacts_dir = "$current_dir\BenchmarkDotNet.Artifacts"
 $timestamp = (Get-Date).ToString('yyyy_MM_dd_hh_mm_ss')

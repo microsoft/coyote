@@ -34,7 +34,7 @@ Now you can run the HelloWorldActors application:
 - in .Net Core:
 
 ```
-dotnet .\bin\netcoreapp2.2\HelloWorldActors.dll
+dotnet .\bin\netcoreapp3.1\HelloWorldActors.dll
 ```
 
 - in .Net 4.6:

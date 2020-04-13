@@ -704,7 +704,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 Error.ReportAndExit(ex.Message);
             }
 
-#if NET46 || NET47
+#if NETFRAMEWORK
             // Load config file and absorb its settings.
             try
             {

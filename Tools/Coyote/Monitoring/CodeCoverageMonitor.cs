@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET46 || NET47
+#if NETFRAMEWORK
 using System;
 using System.Diagnostics;
 using System.IO;

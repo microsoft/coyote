@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET46 || NET47
+#if NETFRAMEWORK
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 #endif
 using System.IO;
-#if NET46 || NET47
+#if NETFRAMEWORK
 using System.Linq;
 
 using Microsoft.Coyote.IO;
@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.SystematicTesting
     internal static class CodeCoverageInstrumentation
     {
         internal static string OutputDirectory = string.Empty;
-#if NET46 || NET47
+#if NETFRAMEWORK
         internal static List<string> InstrumentedAssemblyNames = new List<string>();
 
         internal static void Instrument(Configuration configuration)

@@ -5,13 +5,8 @@
     <Description>The Coyote performance tests.</Description>
     <AssemblyName>Microsoft.Coyote.Performance.Tests</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Performance.Tests</RootNamespace>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <OutputPath>.\bin\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />

@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/programming-models/actors/why-actors
 ---
 
-#  How are Coyote Actors different from existing Microsoft Actor frameworks?
+## How are Coyote Actors different from existing Microsoft Actor frameworks?
 
 As you build highly concurrent systems, designed to defending against race conditions, arbitrary
 faults, etc, how do you test such systems? How do you know that you got the code right? These

@@ -34,7 +34,7 @@ Now you can run the HelloWorldTasks application:
 - in .Net Core:
 
 ```
-dotnet .\bin\netcoreapp2.2\HelloWorldTasks.dll
+dotnet .\bin\netcoreapp3.1\HelloWorldTasks.dll
 ```
 
 - in .Net 4.6:

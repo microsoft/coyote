@@ -33,16 +33,18 @@ must match the platform of the sample app you are testing.  Pick one of the foll
 ```
 set COYOTE_PATH=d:\git\coyote\bin\net46
 set COYOTE_PATH=d:\git\coyote\bin\net47
-set COYOTE_PATH=d:\git\coyote\bin\netcoreapp2.2
+set COYOTE_PATH=d:\git\coyote\bin\net48
+set COYOTE_PATH=d:\git\coyote\bin\netcoreapp3.1
 ```
 
 If you did not build the coyote source code then you can find the coyote tool inside the NuGet
 package location here:
 
 ```
-set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.0\lib\net46\coyote.exe
-set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.0\lib\net47\coyote.exe
-set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.0\lib\netcoreapp2.2\coyote.dll
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.3\lib\net46\coyote.exe
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.3\lib\net47\coyote.exe
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.3\lib\net48\coyote.exe
+set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\1.0.3\lib\netcoreapp3.1\coyote.dll
 ```
 
 And based on what you decide you can now add this to your PATH environment:

@@ -86,7 +86,7 @@ Now you can run the `CoffeeMachine` application:
 - in .Net Core:
 
 ```
-dotnet ./bin/netcoreapp2.2/CoffeeMachineTasks.dll
+dotnet ./bin/netcoreapp3.1/CoffeeMachineTasks.dll
 ```
 
 - in .Net 4.6:

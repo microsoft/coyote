@@ -352,7 +352,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     "max scheduling steps bound.");
             }
 
-#if NETCOREAPP2_1
+#if NETCOREAPP
             if (configuration.ReportCodeCoverage || configuration.ReportActivityCoverage)
             {
                 Error.ReportAndExit("We do not yet support coverage reports when using the .NET Core runtime.");

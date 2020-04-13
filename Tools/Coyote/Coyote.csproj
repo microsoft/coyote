@@ -10,18 +10,15 @@
     <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netcoreapp2.2;net46;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net46;net47;net48</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.2|AnyCPU'">
-    <DefineConstants></DefineConstants>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47' OR '$(TargetFramework)'=='net48'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>

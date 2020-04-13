@@ -27,7 +27,7 @@ immediately start programming the Coyote API as shown in the
 ### Prerequisites
 
 - [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
-- [.NET Core SDK 2.2.207](https://dotnet.microsoft.com/download/dotnet-core)
+- [.NET Core SDK 3.1.201](https://dotnet.microsoft.com/download/dotnet-core)
 - [.NET Framework SDK 4.6 and 4.7](https://dotnet.microsoft.com/download/dotnet-framework), as Coyote builds binaries for both 4.6 and 4.7.
 
 - Optional: add the [DGML editor](../tools/dgml) feature of Visual Studio 2019.

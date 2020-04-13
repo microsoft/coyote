@@ -1,3 +1,7 @@
+## v1.0.3
+- Fixed an issue when invoking `Microsoft.Coyote.Tasks.Task.ExploreContextSwitch` during a
+  production run.
+
 ## v1.0.2
 - Make ActorRuntimeLogGraphBuilder public.
 - Add CreateStateMachine to IActorRuntimeLog.

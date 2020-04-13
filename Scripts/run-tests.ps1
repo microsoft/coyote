@@ -1,6 +1,6 @@
 param(
     [string]$dotnet="dotnet",
-    [ValidateSet("all","netcoreapp2.2","net46","net47")]
+    [ValidateSet("all","netcoreapp3.1","net46","net47","net48")]
     [string]$framework="all",
     [ValidateSet("all","production","testing")]
     [string]$test="all",
@@ -11,7 +11,7 @@ param(
 
 Import-Module $PSScriptRoot\powershell\common.psm1
 
-$frameworks = "netcoreapp2.2", "net46", "net47"
+$frameworks = "netcoreapp3.1", "net46", "net47", "net48"
 
 $targets = [ordered]@{
     "production" = "Production.Tests"

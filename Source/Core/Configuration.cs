@@ -414,6 +414,18 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration to use the replay scheduling strategy during systematic testing.
+        /// This strategy replays the specified schedule trace to reproduce the same execution.
+        /// </summary>
+        /// <param name="scheduleTrace">The schedule trace to be replayed.</param>
+        public Configuration WithReplayStrategy(string scheduleTrace)
+        {
+            this.SchedulingStrategy = "replay";
+            this.ScheduleTrace = scheduleTrace;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with the specified number of iterations to run during systematic testing.
         /// </summary>
         /// <param name="iterations">The number of iterations to run.</param>

@@ -137,9 +137,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
 
                 if (replay)
                 {
-                    configuration.SchedulingStrategy = "replay";
-                    configuration.ScheduleTrace = engine.ReproducableTrace;
-
+                    configuration.WithReplayStrategy(engine.ReproducableTrace);
                     engine = RunTest(test, configuration, logger);
 
                     string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
@@ -210,9 +208,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
 
                 if (replay)
                 {
-                    configuration.SchedulingStrategy = "replay";
-                    configuration.ScheduleTrace = engine.ReproducableTrace;
-
+                    configuration.WithReplayStrategy(engine.ReproducableTrace);
                     engine = RunTest(test, configuration, logger);
 
                     string replayError = (engine.Strategy as ReplayStrategy).ErrorText;

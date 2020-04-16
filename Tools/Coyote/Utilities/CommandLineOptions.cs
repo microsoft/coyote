@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Microsoft.Coyote.IO;
 
@@ -36,6 +37,7 @@ namespace Microsoft.Coyote.Utilities
             basicGroup.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
             basicGroup.AddArgument("debug", "d", "Enable debugging", typeof(bool)).IsHidden = true;
             basicGroup.AddArgument("break", "b", "Attaches the debugger and also adds a breakpoint when an assertion fails (disabled during parallel testing)", typeof(bool));
+            basicGroup.AddArgument("version", null, "Show tool version", typeof(bool));
 
             var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
@@ -107,6 +109,19 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
                 SanitizeConfiguration(configuration);
             }
+            catch (CommandLineException ex)
+            {
+                if ((from arg in ex.Result where arg.LongName == "version" select arg).Any())
+                {
+                    WriteVersion();
+                    Environment.Exit(1);
+                }
+                else
+                {
+                    this.Parser.PrintHelp(Console.Out);
+                    Error.ReportAndExit(ex.Message);
+                }
+            }
             catch (Exception ex)
             {
                 this.Parser.PrintHelp(Console.Out);
@@ -172,6 +187,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         configuration.ScheduleFile = filename;
                     }
 
+                    break;
+                case "version":
+                    WriteVersion();
+                    Environment.Exit(1);
                     break;
                 case "break":
                     configuration.AttachDebugger = true;
@@ -311,6 +330,11 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 default:
                     throw new Exception(string.Format("Unhandled parsed argument: '{0}'", option.LongName));
             }
+        }
+
+        private static void WriteVersion()
+        {
+            Console.WriteLine("Version: {0}", typeof(CommandLineOptions).Assembly.GetName().Version);
         }
 
         /// <summary>

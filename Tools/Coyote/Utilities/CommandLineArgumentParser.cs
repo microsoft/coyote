@@ -26,6 +26,20 @@ namespace Microsoft.Coyote.Utilities
     }
 
     /// <summary>
+    /// Exception raised from ParseArguments.
+    /// </summary>
+    internal class CommandLineException : Exception
+    {
+        public CommandLineException(string msg, List<CommandLineArgument> result)
+            : base(msg)
+        {
+            this.Result = result;
+        }
+
+        public List<CommandLineArgument> Result { get; set; }
+    }
+
+    /// <summary>
     /// A single command line argument.
     /// </summary>
     internal class CommandLineArgument
@@ -656,7 +670,7 @@ namespace Microsoft.Coyote.Utilities
 
                     if (current == null)
                     {
-                        throw new Exception(string.Format("Unexpected argument: '{0}'", arg));
+                        throw new CommandLineException(string.Format("Unexpected argument: '{0}'", arg), result);
                     }
 
                     current = current.Clone();
@@ -685,7 +699,7 @@ namespace Microsoft.Coyote.Utilities
                         }
                         else
                         {
-                            throw new Exception(string.Format("Unexpected positional argument: '{0}'", arg));
+                            throw new CommandLineException(string.Format("Unexpected positional argument: '{0}'", arg), result);
                         }
                     }
                     while (!IsRequired(current, result));
@@ -704,11 +718,11 @@ namespace Microsoft.Coyote.Utilities
                 {
                     if (arg.IsPositional)
                     {
-                        throw new Exception(string.Format("Missing required argument: '{0}'", arg.LongName));
+                        throw new CommandLineException(string.Format("Missing required argument: '{0}'", arg.LongName), result);
                     }
                     else
                     {
-                        throw new Exception(string.Format("Missing required argument: '--{0}'", arg.LongName));
+                        throw new CommandLineException(string.Format("Missing required argument: '--{0}'", arg.LongName), result);
                     }
                 }
             }
@@ -717,7 +731,7 @@ namespace Microsoft.Coyote.Utilities
             {
                 if (!arg.IsPositional && arg.Value == null && arg.DataType != typeof(bool) && !arg.AllowedValues.Contains(string.Empty))
                 {
-                    throw new Exception(string.Format("Missing value for argument: '--{0}'", arg.LongName));
+                    throw new CommandLineException(string.Format("Missing value for argument: '--{0}'", arg.LongName), result);
                 }
             }
 

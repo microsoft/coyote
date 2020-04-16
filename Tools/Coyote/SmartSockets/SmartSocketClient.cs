@@ -443,7 +443,26 @@ namespace Microsoft.Coyote.SmartSockets
                     int len = streamReader.ReadInt32();
                     byte[] block = streamReader.ReadBytes(len);
 
-                    object result = this.Serializer.ReadObject(new MemoryStream(block));
+                    object result = null;
+                    if (len != block.Length)
+                    {
+                        // Can happen if the process at the other side of this socket was terminated.
+                        // If we don't have the exact requested bytes then we cannot deserialize it.
+                    }
+                    else
+                    {
+                        try
+                        {
+                            result = this.Serializer.ReadObject(new MemoryStream(block));
+                        }
+                        catch (Exception)
+                        {
+                            // This can also happen when process on other side is terminated, the last network
+                            // packet can be scrambled.  This is usually just the DisconnectMessageId which is
+                            // ignorable.
+                        }
+                    }
+
                     var wrapper = result as MessageWrapper;
                     if (wrapper != null && wrapper.Message is SocketMessage)
                     {

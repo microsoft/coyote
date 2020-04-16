@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 
 namespace Microsoft.Coyote.IO
 {
@@ -56,17 +57,24 @@ namespace Microsoft.Coyote.IO
         /// </summary>
         private static void Write(ConsoleColor color, string value)
         {
+            Write(Console.Error, color, value);
+        }
+
+        /// <summary>
+        /// Writes with console color to the specified TextWriter.
+        /// </summary>
+        internal static void Write(TextWriter logger, ConsoleColor color, string value)
+        {
             lock (ColorLock)
             {
-                var previousForegroundColor = Console.ForegroundColor;
-                Console.ForegroundColor = color;
                 try
                 {
-                    Console.Error.Write(value);
+                    Console.ForegroundColor = color;
+                    logger.Write(value);
                 }
                 finally
                 {
-                    Console.ForegroundColor = previousForegroundColor;
+                    Console.ResetColor();
                 }
             }
         }

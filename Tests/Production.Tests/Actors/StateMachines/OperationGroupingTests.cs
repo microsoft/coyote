@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M1), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M2), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M3), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M4A), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -239,7 +239,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M5A), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M6A), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -351,8 +351,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs1 = new TaskCompletionSource<bool>();
-                var tcs2 = new TaskCompletionSource<bool>();
+                var tcs1 = TaskCompletionSource.Create<bool>();
+                var tcs2 = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M7A), new SetupMultipleEvent(tcs1, tcs2));
 
                 var result = await GetResultAsync(tcs1.Task);
@@ -416,8 +416,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs1 = new TaskCompletionSource<bool>();
-                var tcs2 = new TaskCompletionSource<bool>();
+                var tcs1 = TaskCompletionSource.Create<bool>();
+                var tcs2 = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M8A), new SetupMultipleEvent(tcs1, tcs2));
 
                 var result = await GetResultAsync(tcs1.Task);
@@ -500,9 +500,9 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs1 = new TaskCompletionSource<bool>();
-                var tcs2 = new TaskCompletionSource<bool>();
-                var tcs3 = new TaskCompletionSource<bool>();
+                var tcs1 = TaskCompletionSource.Create<bool>();
+                var tcs2 = TaskCompletionSource.Create<bool>();
+                var tcs3 = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M9A), new SetupMultipleEvent(tcs1, tcs2, tcs3));
 
                 var result = await GetResultAsync(tcs1.Task);

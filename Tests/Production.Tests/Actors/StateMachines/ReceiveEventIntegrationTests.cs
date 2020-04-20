@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M1), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M2), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M3), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M4), new SetupEvent(tcs));
 
                 var result = await GetResultAsync(tcs.Task);

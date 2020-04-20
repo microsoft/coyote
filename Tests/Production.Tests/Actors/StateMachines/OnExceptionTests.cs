@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests
 {
@@ -67,7 +68,7 @@ namespace Microsoft.Coyote.Production.Tests
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     // This should not be called because M1a returns OnExceptionOutcome.HandledException
@@ -110,7 +111,7 @@ namespace Microsoft.Coyote.Production.Tests
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -162,7 +163,7 @@ namespace Microsoft.Coyote.Production.Tests
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     // This should not be called, because M2a returns OnExceptionOutcome.HandledException.
@@ -206,7 +207,7 @@ namespace Microsoft.Coyote.Production.Tests
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -240,10 +241,10 @@ namespace Microsoft.Coyote.Production.Tests
                 return OnExceptionOutcome.Halt;
             }
 
-            protected override Task OnHaltAsync(Event e)
+            protected override SystemTasks.Task OnHaltAsync(Event e)
             {
                 (e as E).Tcs.TrySetResult(true);
-                return Task.CompletedTask;
+                return SystemTasks.Task.CompletedTask;
             }
         }
 
@@ -253,7 +254,7 @@ namespace Microsoft.Coyote.Production.Tests
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -294,11 +295,11 @@ namespace Microsoft.Coyote.Production.Tests
                 return OnExceptionOutcome.ThrowException;
             }
 
-            protected override Task OnHaltAsync(Event e)
+            protected override SystemTasks.Task OnHaltAsync(Event e)
             {
                 this.Assert(e is F);
                 this.Event.Tcs.TrySetResult(true);
-                return Task.CompletedTask;
+                return SystemTasks.Task.CompletedTask;
             }
         }
 
@@ -308,7 +309,7 @@ namespace Microsoft.Coyote.Production.Tests
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;

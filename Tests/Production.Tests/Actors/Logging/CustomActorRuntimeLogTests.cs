@@ -2,14 +2,15 @@
 // Licensed under the MIT License.
 
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.IO;
 using Microsoft.Coyote.Tests.Common.Runtime;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -70,10 +71,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [OnEventDoAction(typeof(E), nameof(Act))]
         internal class M : Actor
         {
-            protected override async Task OnInitializeAsync(Event e)
+            protected override async SystemTasks.Task OnInitializeAsync(Event e)
             {
                 await base.OnInitializeAsync(e);
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 var n = this.CreateActor(typeof(N), new SetupEvent(tcs));
                 await tcs.Task;
                 this.SendEvent(n, new E(this.Id));
@@ -150,7 +151,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             CustomLogger logger = new CustomLogger();
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(config, tcs, logger);
 
             runtime.CreateActor(typeof(M));
@@ -192,7 +193,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
             var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(config, tcs, logger);
             runtime.RegisterLog(graphBuilder);
 
@@ -238,7 +239,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             var logger = TextWriter.Null;
 
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(Configuration.Create(), tcs, logger);
 
             runtime.CreateActor(typeof(M));
@@ -251,7 +252,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public async Task TestNullCustomLogger()
         {
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(Configuration.Create(), tcs);
             runtime.SetLogger(null);
 
@@ -266,7 +267,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public async Task TestCustomActorRuntimeLogFormatter()
         {
             Configuration config = Configuration.Create().WithVerbosityEnabled();
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(config, tcs);
             runtime.RegisterMonitor<S>();
             runtime.SetLogger(null);
@@ -319,7 +320,7 @@ StateTransition
         {
             public ActorId ServerId;
 
-            protected override Task OnInitializeAsync(Event initialEvent)
+            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
             {
                 this.Logger.WriteLine("{0} initializing", this.Id);
                 this.ServerId = ((ClientSetupEvent)initialEvent).ServerId;
@@ -384,7 +385,7 @@ StateTransition
 
             var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
 
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(config, tcs, logger);
             runtime.RegisterLog(graphBuilder);
 
@@ -415,7 +416,7 @@ StateTransition
             var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
             graphBuilder.CollapseMachineInstances = true;
 
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = TaskCompletionSource.Create<bool>();
             IActorRuntime runtime = CreateTestRuntime(config, tcs, logger);
             runtime.RegisterLog(graphBuilder);
 

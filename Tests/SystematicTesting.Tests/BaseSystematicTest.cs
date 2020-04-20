@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Tests.Common;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
+namespace Microsoft.Coyote.SystematicTesting.Tests
 {
-    public class TaskRunTests : Microsoft.Coyote.Production.Tests.Tasks.TaskRunTests
+    public abstract class BaseSystematicTest : BaseTest
     {
-        public TaskRunTests(ITestOutputHelper output)
+        public BaseSystematicTest(ITestOutputHelper output)
             : base(output)
         {
         }

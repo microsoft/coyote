@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
+using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -9,7 +11,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class AsyncLockTests : BaseProductionTest
+    public class AsyncLockTests : BaseTest
     {
         public AsyncLockTests(ITestOutputHelper output)
             : base(output)
@@ -17,59 +19,124 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAcquireRelease()
+        public void TestAcquireRelease()
         {
-            AsyncLock mutex = AsyncLock.Create();
-            Assert.True(!mutex.IsAcquired);
-            var releaser = await mutex.AcquireAsync();
-            Assert.True(mutex.IsAcquired);
-            releaser.Dispose();
-            Assert.True(!mutex.IsAcquired);
+            this.Test(async () =>
+            {
+                AsyncLock mutex = AsyncLock.Create();
+                Specification.Assert(!mutex.IsAcquired, "Mutex is acquired.");
+                var releaser = await mutex.AcquireAsync();
+                Specification.Assert(mutex.IsAcquired, "Mutex is not acquired.");
+                releaser.Dispose();
+                Specification.Assert(!mutex.IsAcquired, "Mutex is acquired.");
+            });
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestSynchronizeTwoAsynchronousTasks()
+        public void TestAcquireTwice()
         {
-            SharedEntry entry = new SharedEntry();
-            AsyncLock mutex = AsyncLock.Create();
-
-            async Task WriteAsync(int value)
+            if (!this.SystematicTest)
             {
-                using (await mutex.AcquireAsync())
-                {
-                    entry.Value = value;
-                }
+                // .NET cannot detect these deadlocks.
+                return;
             }
 
-            Task task1 = WriteAsync(3);
-            Task task2 = WriteAsync(5);
-            await Task.WhenAll(task1, task2);
-
-            Assert.True(task1.IsCompleted && task2.IsCompleted && !mutex.IsAcquired);
-            Assert.True(entry.Value == 5, $"Value is '{entry.Value}' instead of 5.");
+            this.TestWithError(async () =>
+            {
+                AsyncLock mutex = AsyncLock.Create();
+                await mutex.AcquireAsync();
+                await Task.Run(async () =>
+                {
+                    await mutex.AcquireAsync();
+                });
+            },
+            expectedError: "Deadlock detected. Task() is waiting for a task to complete, but no other " +
+                "controlled tasks are enabled. Task() is waiting to acquire a resource that is already " +
+                "acquired, but no other controlled tasks are enabled.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestSynchronizeTwoAsynchronousTasksWithYield()
+        public void TestSynchronizeTwoAsynchronousTasks()
         {
-            SharedEntry entry = new SharedEntry();
-            AsyncLock mutex = AsyncLock.Create();
-
-            async Task WriteAsync(int value)
+            this.Test(async () =>
             {
-                using (await mutex.AcquireAsync())
+                SharedEntry entry = new SharedEntry();
+                AsyncLock mutex = AsyncLock.Create();
+
+                async Task WriteAsync(int value)
                 {
-                    entry.Value = value;
-                    await Task.Yield();
-                    Assert.True(entry.Value == value, $"Value is '{entry.Value}' instead of '{value}'.");
+                    using (await mutex.AcquireAsync())
+                    {
+                        entry.Value = value;
+                    }
                 }
-            }
 
-            Task task1 = WriteAsync(3);
-            Task task2 = WriteAsync(5);
-            await Task.WhenAll(task1, task2);
+                Task task1 = WriteAsync(3);
+                Task task2 = WriteAsync(5);
+                await Task.WhenAll(task1, task2);
+                Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
 
-            Assert.True(task1.IsCompleted && task2.IsCompleted && !mutex.IsAcquired);
+        [Fact(Timeout = 5000)]
+        public void TestSynchronizeTwoParallelTasks()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                AsyncLock mutex = AsyncLock.Create();
+
+                async Task WriteAsync(int value)
+                {
+                    using (await mutex.AcquireAsync())
+                    {
+                        entry.Value = value;
+                    }
+                }
+
+                Task task1 = Task.Run(async () =>
+                {
+                    await WriteAsync(3);
+                });
+
+                Task task2 = Task.Run(async () =>
+                {
+                    await WriteAsync(5);
+                });
+
+                await Task.WhenAll(task1, task2);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSynchronizeTwoAsynchronousTasksWithYield()
+        {
+            this.Test(async () =>
+            {
+                AsyncLock mutex = AsyncLock.Create();
+
+                SharedEntry entry = new SharedEntry();
+                async Task WriteAsync(int value)
+                {
+                    using (await mutex.AcquireAsync())
+                    {
+                        entry.Value = value;
+                        await Task.Yield();
+                        Specification.Assert(entry.Value == value, "Value is '{0}' instead of '{1}'.", entry.Value, value);
+                    }
+                }
+
+                Task task1 = WriteAsync(3);
+                Task task2 = WriteAsync(5);
+                await Task.WhenAll(task1, task2);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
     }
 }

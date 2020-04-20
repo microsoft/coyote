@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;

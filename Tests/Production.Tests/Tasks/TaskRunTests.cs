@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
+using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -9,7 +11,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class TaskRunTests : BaseProductionTest
+    public class TaskRunTests : BaseTest
     {
         public TaskRunTests(ITestOutputHelper output)
             : base(output)
@@ -17,152 +19,401 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunParallelTask()
+        public void TestRunParallelTask()
         {
-            SharedEntry entry = new SharedEntry();
-            await Task.Run(() =>
+            this.Test(async () =>
             {
-                entry.Value = 5;
-            });
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(() =>
+                {
+                    entry.Value = 5;
+                });
 
-            Assert.Equal(5, entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunParallelSynchronousTask()
+        public void TestRunParallelTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            await Task.Run(async () =>
+            this.TestWithError(async () =>
             {
-                await Task.CompletedTask;
-                entry.Value = 5;
-            });
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(() =>
+                {
+                    entry.Value = 3;
+                });
 
-            Assert.Equal(5, entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunParallelAsynchronousTask()
+        public void TestRunParallelSynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            await Task.Run(async () =>
+            this.Test(async () =>
             {
-                await Task.Delay(1);
-                entry.Value = 5;
-            });
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(async () =>
+                {
+                    await Task.CompletedTask;
+                    entry.Value = 5;
+                });
 
-            Assert.Equal(5, entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunNestedParallelSynchronousTask()
+        public void TestRunParallelSynchronousTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            await Task.Run(async () =>
+            this.TestWithError(async () =>
             {
+                SharedEntry entry = new SharedEntry();
                 await Task.Run(async () =>
                 {
                     await Task.CompletedTask;
                     entry.Value = 3;
                 });
 
-                entry.Value = 5;
-            });
-
-            Assert.Equal(5, entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitNestedParallelAsynchronousTask()
+        public void TestRunParallelAsynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            await Task.Run(async () =>
+            this.Test(async () =>
             {
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(async () =>
+                {
+                    await Task.Delay(1);
+                    entry.Value = 5;
+                });
+
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunParallelAsynchronousTaskFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
                 await Task.Run(async () =>
                 {
                     await Task.Delay(1);
                     entry.Value = 3;
                 });
 
-                entry.Value = 5;
-            });
-
-            Assert.Equal(5, entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunParallelTaskResult()
+        public void TestRunNestedParallelSynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await Task.Run(() =>
+            this.Test(async () =>
             {
-                entry.Value = 5;
-                return entry.Value;
-            });
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(async () =>
+                {
+                    await Task.Run(async () =>
+                    {
+                        await Task.CompletedTask;
+                        entry.Value = 3;
+                    });
 
-            Assert.Equal(5, value);
+                    entry.Value = 5;
+                });
+
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunParallelSynchronousTaskResult()
+        public void TestAwaitNestedParallelSynchronousTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await Task.Run(async () =>
+            this.TestWithError(async () =>
             {
-                await Task.CompletedTask;
-                entry.Value = 5;
-                return entry.Value;
-            });
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(async () =>
+                {
+                    await Task.Run(async () =>
+                    {
+                        await Task.CompletedTask;
+                        entry.Value = 5;
+                    });
 
-            Assert.Equal(5, value);
+                    entry.Value = 3;
+                });
+
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunParallelAsynchronousTaskResult()
+        public void TestAwaitNestedParallelAsynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await Task.Run(async () =>
+            this.Test(async () =>
             {
-                await Task.Delay(1);
-                entry.Value = 5;
-                return entry.Value;
-            });
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(async () =>
+                {
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(1);
+                        entry.Value = 3;
+                    });
 
-            Assert.Equal(5, value);
+                    entry.Value = 5;
+                });
+
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunNestedParallelSynchronousTaskResult()
+        public void TestAwaitNestedParallelAsynchronousTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await Task.Run(async () =>
+            this.TestWithError(async () =>
             {
-                return await Task.Run(async () =>
+                SharedEntry entry = new SharedEntry();
+                await Task.Run(async () =>
+                {
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(1);
+                        entry.Value = 5;
+                    });
+
+                    entry.Value = 3;
+                });
+
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunParallelTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(() =>
+                {
+                    entry.Value = 5;
+                    return entry.Value;
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunParallelTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(() =>
+                {
+                    entry.Value = 3;
+                    return entry.Value;
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunParallelSynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
                 {
                     await Task.CompletedTask;
                     entry.Value = 5;
                     return entry.Value;
                 });
-            });
 
-            Assert.Equal(5, value);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestRunNestedParallelAsynchronousTaskResult()
+        public void TestRunParallelSynchronousTaskWithResultFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await Task.Run(async () =>
+            this.TestWithError(async () =>
             {
-                return await Task.Run(async () =>
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
+                {
+                    await Task.CompletedTask;
+                    entry.Value = 3;
+                    return entry.Value;
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunParallelAsynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
                 {
                     await Task.Delay(1);
                     entry.Value = 5;
                     return entry.Value;
                 });
-            });
 
-            Assert.Equal(5, value);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunParallelAsynchronousTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
+                {
+                    await Task.Delay(1);
+                    entry.Value = 3;
+                    return entry.Value;
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunNestedParallelSynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
+                {
+                    return await Task.Run(async () =>
+                    {
+                        await Task.CompletedTask;
+                        entry.Value = 5;
+                        return entry.Value;
+                    });
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunNestedParallelSynchronousTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
+                {
+                    return await Task.Run(async () =>
+                    {
+                        await Task.CompletedTask;
+                        entry.Value = 3;
+                        return entry.Value;
+                    });
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunNestedParallelAsynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
+                {
+                    return await Task.Run(async () =>
+                    {
+                        await Task.Delay(1);
+                        entry.Value = 5;
+                        return entry.Value;
+                    });
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestRunNestedParallelAsynchronousTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task.Run(async () =>
+                {
+                    return await Task.Run(async () =>
+                    {
+                        await Task.Delay(1);
+                        entry.Value = 3;
+                        return entry.Value;
+                    });
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
     }
 }

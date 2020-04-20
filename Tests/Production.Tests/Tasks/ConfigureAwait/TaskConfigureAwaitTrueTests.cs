@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
@@ -29,19 +30,55 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitSynchronousTask()
+        public void TestAwaitSynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            await WriteAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, entry.Value);
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await WriteAsync(entry, 5).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitAsynchronousTask()
+        public void TestAwaitSynchronousTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            await WriteWithDelayAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, entry.Value);
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await WriteAsync(entry, 3).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitAsynchronousTask()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await WriteWithDelayAsync(entry, 5).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitAsynchronousTaskFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await WriteWithDelayAsync(entry, 3).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         private static async Task NestedWriteAsync(SharedEntry entry, int value)
@@ -57,77 +94,171 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitNestedSynchronousTask()
+        public void TestAwaitNestedSynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            await NestedWriteAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, entry.Value);
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await NestedWriteAsync(entry, 5).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitNestedAsynchronousTask()
+        public void TestAwaitNestedSynchronousTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            await NestedWriteWithDelayAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, entry.Value);
-        }
-
-        private static async Task<int> GetWriteResultAsync(SharedEntry entry, int value)
-        {
-            await Task.CompletedTask;
-            entry.Value = value;
-            return entry.Value;
-        }
-
-        private static async Task<int> GetWriteResultWithDelayAsync(SharedEntry entry, int value)
-        {
-            await Task.Delay(1).ConfigureAwait(true);
-            entry.Value = value;
-            return entry.Value;
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await NestedWriteAsync(entry, 3).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitSynchronousTaskResult()
+        public void TestAwaitNestedAsynchronousTask()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await GetWriteResultAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, value);
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await NestedWriteWithDelayAsync(entry, 5).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitAsynchronousTaskResult()
+        public void TestAwaitNestedAsynchronousTaskFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await GetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, value);
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                await NestedWriteWithDelayAsync(entry, 3).ConfigureAwait(true);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitSynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await entry.GetWriteResultAsync(5).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitSynchronousTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await entry.GetWriteResultAsync(3).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitAsynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await entry.GetWriteResultWithDelayAsync(5).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitAsynchronousTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await entry.GetWriteResultWithDelayAsync(3).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
 
         private static async Task<int> NestedGetWriteResultAsync(SharedEntry entry, int value)
         {
             await Task.CompletedTask;
-            return await GetWriteResultAsync(entry, value).ConfigureAwait(true);
+            return await entry.GetWriteResultAsync(value).ConfigureAwait(true);
         }
 
         private static async Task<int> NestedGetWriteResultWithDelayAsync(SharedEntry entry, int value)
         {
-            await Task.Delay(1);
-            return await GetWriteResultWithDelayAsync(entry, value).ConfigureAwait(true);
+            await Task.Delay(1).ConfigureAwait(true);
+            return await entry.GetWriteResultWithDelayAsync(value).ConfigureAwait(true);
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitNestedSynchronousTaskResult()
+        public void TestAwaitNestedSynchronousTaskWithResult()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await NestedGetWriteResultAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, value);
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await NestedGetWriteResultAsync(entry, 5).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestAwaitNestedAsynchronousTaskResult()
+        public void TestAwaitNestedSynchronousTaskWithResultFailure()
         {
-            SharedEntry entry = new SharedEntry();
-            int value = await NestedGetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(true);
-            Assert.Equal(5, value);
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await NestedGetWriteResultAsync(entry, 3).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitNestedAsynchronousTaskWithResult()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await NestedGetWriteResultWithDelayAsync(entry, 5).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAwaitNestedAsynchronousTaskWithResultFailure()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await NestedGetWriteResultWithDelayAsync(entry, 3).ConfigureAwait(true);
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 5.",
+            replay: true);
         }
     }
 }

@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class TaskRunTests : Microsoft.Coyote.Production.Tests.Tasks.TaskRunTests
+    public class TestExploreContextSwitch : Microsoft.Coyote.Production.Tests.Tasks.TestExploreContextSwitch
     {
-        public TaskRunTests(ITestOutputHelper output)
+        public TestExploreContextSwitch(ITestOutputHelper output)
             : base(output)
         {
         }

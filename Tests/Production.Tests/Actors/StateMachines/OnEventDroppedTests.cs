@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -43,10 +44,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            protected override Task OnHaltAsync(Event e)
+            protected override SystemTasks.Task OnHaltAsync(Event e)
             {
                 this.SendEvent(this.Id, new E());
-                return Task.CompletedTask;
+                return SystemTasks.Task.CompletedTask;
             }
         }
 
@@ -56,7 +57,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             await this.RunAsync(async r =>
             {
                 var called = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
 
                 r.OnEventDropped += (e, target) =>
                 {
@@ -93,7 +94,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             await this.RunAsync(async r =>
             {
                 var called = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
 
                 r.OnEventDropped += (e, target) =>
                 {
@@ -114,7 +115,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             await this.RunAsync(async r =>
             {
                 var called = false;
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
 
                 var m = r.CreateActor(typeof(M1));
 
@@ -223,7 +224,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             config.IsMonitoringEnabledInInProduction = true;
             await this.RunAsync(async r =>
             {
-                var tcs = new TaskCompletionSource<bool>();
+                var tcs = TaskCompletionSource.Create<bool>();
 
                 r.RegisterMonitor<Monitor3>();
                 r.Monitor<Monitor3>(new E(tcs));

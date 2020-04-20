@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Coyote.Actors;
@@ -48,20 +49,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Coverage
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string report = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M0));
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
-            }
+            string result = RemoveExcessiveEmptySpaceFromReport(report);
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -98,20 +92,13 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string report = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M1));
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
-            }
+            string result = RemoveExcessiveEmptySpaceFromReport(report);
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -154,21 +141,13 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string report = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M2));
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
-            }
-
+            string result = RemoveExcessiveEmptySpaceFromReport(report);
             var expected = @"Total event coverage: 100.0%
 ============================
 StateMachine: M2
@@ -240,20 +219,13 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string report = this.TestCoverage(r =>
             {
                 r.CreateActor(typeof(M3A));
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
-            }
+            string result = RemoveExcessiveEmptySpaceFromReport(report);
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -302,51 +274,50 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine1 = this.Test(r =>
+            string report1 = this.TestCoverage(r =>
             {
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
             },
             configuration);
 
-            // Assert that the coverage is as expected.
-            var coverage1 = testingEngine1.TestReport.CoverageInfo;
-            Assert.Contains(typeof(M4).FullName, coverage1.MachinesToStates.Keys);
-            Assert.Contains(typeof(M4.Init).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(typeof(M4.Done).Name, coverage1.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(coverage1.RegisteredEvents, tup => tup.Value.Contains(typeof(UnitEvent).FullName));
+            var expected = @"Total event coverage: 100.0%
+============================
+StateMachine: M4
+========================================================================================
+Event coverage: 100.0%
 
-            TestingEngine testingEngine2 = this.Test(r =>
+	State: Init
+		State event coverage: 100.0%
+		Events received: Events.UnitEvent
+		Next states: Done
+
+	State: Done
+		State has no expected events, so coverage is 100%
+		Previous states: Init
+
+StateMachine: ExternalCode
+==========================
+Event coverage: 100.0%
+
+	State: ExternalState
+		State has no expected events, so coverage is 100%
+		Events sent: Events.UnitEvent
+";
+
+            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            string result = RemoveExcessiveEmptySpaceFromReport(report1);
+            Assert.Equal(expected, result);
+
+            // Make sure second run is not confused by the first.
+            string report2 = this.TestCoverage(r =>
             {
                 var m = r.CreateActor(typeof(M4));
                 r.SendEvent(m, UnitEvent.Instance);
             },
             configuration);
 
-            // Assert that the coverage is the same as before.
-            var coverage2 = testingEngine2.TestReport.CoverageInfo;
-            Assert.Contains(typeof(M4).FullName, coverage2.MachinesToStates.Keys);
-            Assert.Contains(typeof(M4.Init).Name, coverage2.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(typeof(M4.Done).Name, coverage2.MachinesToStates[typeof(M4).FullName]);
-            Assert.Contains(coverage2.RegisteredEvents, tup => tup.Value.Contains(typeof(UnitEvent).FullName));
-
-            string coverageReport1, coverageReport2;
-
-            var activityCoverageReporter = new ActivityCoverageReporter(coverage1);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                coverageReport1 = writer.ToString();
-            }
-
-            activityCoverageReporter = new ActivityCoverageReporter(coverage2);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                coverageReport2 = writer.ToString();
-            }
-
-            Assert.Equal(coverageReport1, coverageReport2);
+            Assert.Equal(report1, report2);
         }
 
         private class E1 : Event
@@ -377,22 +348,14 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string report = this.TestCoverage(r =>
             {
                 var m = r.CreateActor(typeof(M5));
                 r.SendEvent(m, new E1());
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
-            }
-
+            string result = RemoveExcessiveEmptySpaceFromReport(report);
             var expected = @"Total event coverage: 50.0%
 ===========================
 StateMachine: M5
@@ -459,7 +422,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string report = this.TestCoverage(r =>
             {
                 var actor = r.CreateActor(typeof(M6));
                 r.SendEvent(actor, new E1());  // even though Ready state is pushed E1 can still be handled by Init state because Init state is still active.
@@ -467,14 +430,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-                result = RemoveExcessiveEmptySpaceFromReport(result);
-            }
+            string result = RemoveExcessiveEmptySpaceFromReport(report);
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -559,7 +515,7 @@ Event coverage: 100.0%
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
 
-            TestingEngine testingEngine = this.Test(r =>
+            string result = this.TestCoverage(r =>
             {
                 r.RegisterMonitor<Monitor1>();
                 var actor = r.CreateActor(typeof(M7));
@@ -568,13 +524,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result;
-            var activityCoverageReporter = new ActivityCoverageReporter(testingEngine.TestReport.CoverageInfo);
-            using (var writer = new StringWriter())
-            {
-                activityCoverageReporter.WriteCoverageText(writer);
-                result = RemoveNamespaceReferencesFromReport(writer.ToString());
-            }
+            result = RemoveExcessiveEmptySpaceFromReport(result);
 
             var expected = @"Total event coverage: 100.0%
 ============================

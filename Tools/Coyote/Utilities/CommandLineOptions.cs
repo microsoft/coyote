@@ -377,9 +377,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             }
 
 #if NETCOREAPP
-            if (configuration.ReportCodeCoverage || configuration.ReportActivityCoverage)
+            if (configuration.ReportCodeCoverage)
             {
-                Error.ReportAndExit("We do not yet support coverage reports when using the .NET Core runtime.");
+                Error.ReportAndExit("We do not yet support code coverage reports when using the .NET Core runtime.");
             }
 #endif
         }

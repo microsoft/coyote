@@ -68,7 +68,7 @@ methodology.
 To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install).
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -86,7 +86,7 @@ Now you can run the `CoffeeMachine` application:
 - in .Net Core:
 
 ```
-dotnet ./bin/netcoreapp3.1/CoffeeMachineTasks.dll
+"./bin/netcoreapp3.1/CoffeeMachineTasks.exe"
 ```
 
 - in .Net 4.6:
@@ -206,7 +206,7 @@ You can now use [coyote test](/coyote/learn/tools/testing) to exercise the code 
 can be found. From the `coyote-samples` folder:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\CoffeeMachineTasks.exe -i 100 -ms 2000 --sch-pct 10
+coyote test ./bin/netcoreapp3.1/CoffeeMachineTasks.dll -i 100 -ms 2000 --sch-pct 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -299,8 +299,14 @@ different kinds of bugs. The following command line shows how to use `--sch-port
 processes:
 
 ```
-d:\git\foundry99\CoyoteSamples>..\Coyote\bin\net46\coyote.exe test D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachineTasks.exe -i 100 -ms 2000 --sch-portfolio --parallel 8
-. Testing D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachineTasks.exe
+coyote test ./bin/netcoreapp3.1/CoffeeMachineTasks.dll -i 100 -ms 2000 --sch-portfolio --parallel 8
+```
+
+which outputs the following:
+
+```
+d:\git\foundry99\CoyoteSamples>
+. Testing .\bin\netcoreapp3.1\CoffeeMachineTasks.dll
 Starting TestingProcessScheduler in process 42036
 Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
 Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe

@@ -16,7 +16,7 @@ model](/coyote/learn/programming-models/async/overview) with Coyote.
 To run the Hello World Tasks  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install).
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -34,7 +34,7 @@ Now you can run the HelloWorldTasks application:
 - in .Net Core:
 
 ```
-dotnet .\bin\netcoreapp3.1\HelloWorldTasks.dll
+"./bin/netcoreapp3.1/HelloWorldTasks.exe"
 ```
 
 - in .Net 4.6:
@@ -58,14 +58,12 @@ sometimes 20 - 30, in order to be reproduced.
 The typical "normal" run will look like this:
 
 ```
-C:\git\CoyoteSamples>.\bin\net47\HelloWorldTasks.exe
 Hello World!
 ```
 
 When the error is caught, the run may look like this:
 
 ```
-C:\git\CoyoteSamples>.\bin\net47\HelloWorldTasks.exe
 Good Morning
 
 Unhandled Exception: Microsoft.Coyote.AssertionFailureException: { ... Exception text here }
@@ -95,14 +93,13 @@ significant amount of time.
 The second way to reproduce the bug is to run the code under `coyote test`.  From the command line you enter:
 
 ```
-coyote test .\bin\net47\HelloWorldTasks.exe --iterations 30
+coyote test ./bin/netcoreapp3.1/HelloWorldTasks.dll --iterations 30
 ```
 
 You will see output like this:
 
 ```
-C:\git\CoyoteSamples>coyote test .\bin\net47\HelloWorldTasks.exe --iterations 30
-. Testing bin\net46\HelloWorldTasks.exe
+. Testing .\bin\netcoreapp3.1\HelloWorldTasks.dll
 Starting TestingProcessScheduler in process 36352
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:914718657).

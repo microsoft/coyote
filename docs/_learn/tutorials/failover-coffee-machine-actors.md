@@ -72,7 +72,7 @@ methodology.
 To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install).
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -89,8 +89,8 @@ powershell -f build.ps1
 Now you can run the `CoffeeMachine` application:
 - in .Net Core:
 
-```shell
-dotnet ./bin/netcoreapp3.1/CoffeeMachineActors.dll
+```
+"./bin/netcoreapp3.1/CoffeeMachineActors.exe"
 ```
 
 - in .Net 4.6:
@@ -213,15 +213,15 @@ You can now use [coyote test](/coyote/learn/tools/testing) to exercise the code 
 can be found. From the `coyote-samples` folder:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\CoffeeMachineActors.exe -i 100 -ms 2000 --sch-pct 10 --graph-bug
+coyote test ./bin/netcoreapp3.1/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-pct 10 --graph-bug
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
 that a test output log and [DGML diagram](../tools/dgml) are produced, like this:
 
 ```
-.\bin\net46\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.txt
-.\bin\net46\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.dgml
+.\bin\netcoreapp3.1\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.txt
+.\bin\netcoreapp3.1\Output\CoffeeMachineActors.exe\CoyoteOutput\CoffeeMachine_0_0.dgml
 ```
 
 This log can be pretty big, a couple thousand lines where each line represents one async operation.
@@ -318,17 +318,21 @@ designed to find different kinds of bugs. The following command line shows how t
 each in different test processes:
 
 ```
-d:\git\foundry99\CoyoteSamples>..\Coyote\bin\net46\coyote.exe test D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachineActors.exe -i 100 -ms 2000 --sch-pct 10 --graph-bug --sch-portfolio --parallel 8
-. Testing D:\git\foundry99\CoyoteSamples\bin\net46\CoffeeMachineActors.exe
+coyote test ./bin/netcoreapp3.1/CoffeeMachineActors.dll -i 100 -ms 2000 --sch-pct 10 --graph-bug --sch-portfolio --parallel 8
+```
+
+which outputs the following:
+```
+. Testing .\bin\netcoreapp3.1\CoffeeMachineActors.dll
 Starting TestingProcessScheduler in process 42036
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
 ... Created '8' testing tasks.
 ... Task 3 is using 'FairPCT' strategy (seed:2143).
 ... Task 5 is using 'FairPCT' strategy (seed:3489).

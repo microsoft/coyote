@@ -35,7 +35,7 @@ is called the `Azure CLI`.
 
 You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install).
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -71,7 +71,7 @@ powershell -f build.ps1
 Now you can run the Raft.Azure application:
 
 ```
-dotnet ./bin/netcoreapp3.1/Raft.Azure.dll --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
+"./bin/netcoreapp3.1/Raft.Azure.exe" --connection-string "%CONNECTION_STRING%" --topic-name rafttopic --num-requests 5 --local-cluster-size 5
 ```
 
 Note: you don't want to try and run Raft.Azure client using the `coyote test` tool until you

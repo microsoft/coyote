@@ -33,7 +33,7 @@ the [coyote test](/coyote/learn/tools/testing) tool as follows, setting N steps 
 From the `coyote-samples` folder:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\CoffeeMachineActors.exe -i 10 -ms 200 -p 4 --sch-portfolio
+coyote test ./bin/netcoreapp3.1/CoffeeMachineActors.dll -i 10 -ms 200 -p 4 --sch-portfolio
 ```
 
 The `coyote test` tool will produce output, ending with something like the following:
@@ -56,7 +56,7 @@ averaging 457 steps. Going by this output, let's decide to increase the bound to
 `coyote test`.
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\CoffeeMachineActors.exe -i 10 -ms 1000 -p 4 --sch-portfolio
+coyote test ./bin/netcoreapp3.1/CoffeeMachineActors.dll -i 10 -ms 1000 -p 4 --sch-portfolio
 ```
 
 This time the output will be something like:

@@ -51,13 +51,13 @@ Detailed descriptions are provided in subsequent sections. The following provide
 ## Output file locations
 
 By default, at the end of testing the report files are written to a directory named
-`Output\[assemblyToTest]\CoyoteOutput` in the directory specified by the `path` argument. If
+`Output/[assemblyToTest]/CoyoteOutput` in the directory specified by the `path` argument. If
 `--outdir outputDirectory` is specified, then the files are written to the directory
-`[outputDirectory]\CoyoteOutput`. In either case, history is retained for up to 10 previous runs:
-  * If a directory named `...\CoyoteOutput9` exists it is removed.
-  * Any directories named `...\CoyoteOutput[n]` (for n = 0 to 8) are renamed to
-    `...\CoyoteOutput[n+1]`.
-  * The new directory `...\CoyoteOutput` is created.
+`[outputDirectory]/CoyoteOutput`. In either case, history is retained for up to 10 previous runs:
+  * If a directory named `.../CoyoteOutput9` exists it is removed.
+  * Any directories named `.../CoyoteOutput[n]` (for n = 0 to 8) are renamed to
+    `.../CoyoteOutput[n+1]`.
+  * The new directory `.../CoyoteOutput` is created.
 
 Details of the report files that are created for the separate coverage types are provided in
 subsequent sections.
@@ -163,21 +163,21 @@ Then run `coyote` with one of the coverage flags, as well as the other options y
 some minimal examples:
 
 ```
-coyote test .\bin\net46\Monitors.exe -i 10 --coverage
+coyote test ./bin/net46/Monitors.exe -i 10 --coverage
 ```
 
-This will create the directory `.\bin\net46\Output\Monitors.exe\CoyoteOutput\`, then it generates
+This will create the directory `./bin/net46/Output/Monitors.exe/CoyoteOutput/`, then it generates
 coverage files for code coverage.
 
 ```
-coyote test .\bin\net46\Monitors.exe -i 10 -coverage activity  -o C:\Coyote_Coverage\Monitors
+coyote test ./bin/net46/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
 ```
 
-This will create the directory `C:\Coyote_Coverage\Monitors\CoyoteOutput`, then it
+This will create the directory `/Coyote_Coverage/Monitors/CoyoteOutput`, then it
 generates only activity coverage.
 
 ```
-coyote test .\bin\net46\Monitors.exe -i 10 --coverage code activity-debug
+coyote test ./bin/net46/Monitors.exe -i 10 --coverage code activity-debug
 ```
 
 This generates code and activity coverage, including debug activity output.

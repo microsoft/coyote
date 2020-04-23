@@ -119,7 +119,7 @@ the design stage, before coding and pushing to production.
 To run the `DrinksServingRobotActors` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install).
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -136,8 +136,8 @@ powershell -f build.ps1
 Now you can run the `DrinksServingRobotActors` application:
 - in .Net Core:
 
-```shell
-dotnet ./bin/netcoreapp3.1/DrinksServingRobotActors.dll
+```
+"./bin/netcoreapp3.1/DrinksServingRobotActors.exe"
 ```
 
 - in .Net 4.6:
@@ -263,7 +263,7 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobotActors.exe -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/netcoreapp3.1/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
@@ -494,7 +494,7 @@ Remember the last lines of the coyote test execution log file:
 If you add to the coyote test command line `--graph-bug`, and test again:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobotActors.exe -i 1000 -ms 2000 --sch-pct 10 --graph-bug
+coyote test .\bin\netcoreapp3.1\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10 --graph-bug
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
@@ -660,7 +660,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```
-..\Coyote\bin\net46\coyote.exe test .\bin\net46\DrinksServingRobotActors.exe -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/netcoreapp3.1/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

@@ -25,4 +25,10 @@ $command = "pack $PSScriptRoot\NuGet\Coyote.nuspec $command_options"
 $error_msg = "Failed to create the Coyote NuGet package"
 Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
 
-Write-Comment -prefix "." -text "Successfully created the Coyote NuGet package" -color "green"
+Write-Comment -prefix "." -text "Creating the Coyote.CLI NuGet package" -color "yellow"
+
+$command = "pack $PSScriptRoot\NuGet\Coyote.CLI.nuspec $command_options -Tool"
+$error_msg = "Failed to create the Coyote CLI NuGet package"
+Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
+
+Write-Comment -prefix "." -text "Successfully created the Coyote NuGet packages" -color "green"

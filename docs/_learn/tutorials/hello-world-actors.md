@@ -16,7 +16,7 @@ model](/coyote/learn/programming-models/actors/overview).
 To run the Hello World Actors  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install).
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -34,7 +34,7 @@ Now you can run the HelloWorldActors application:
 - in .Net Core:
 
 ```
-dotnet .\bin\netcoreapp3.1\HelloWorldActors.dll
+"./bin/netcoreapp3.1/HelloWorldActors.exe"
 ```
 
 - in .Net 4.6:
@@ -57,7 +57,6 @@ run the program manually.
 The typical "normal" run will look like this:
 
 ```
-C:\git\CoyoteSamples\bin\net46>HelloWorldActors
 press ENTER to terminate...
 Requesting 5 greetings
 Received greeting: Good Morning
@@ -65,8 +64,6 @@ Received greeting: Hello World!
 Received greeting: Hello World!
 Received greeting: Hello World!
 Received greeting: Good Morning
-
-C:\git\CoyoteSamples\bin\net46>
 ```
 
 When the error is caught, an extra line of output is written saying:
@@ -84,13 +81,13 @@ find the `coyote` test tool and setup your environment to use it.
 Enter the following from the command line:
 
 ```
-coyote test .\bin\net46\HelloWorldActors.exe --iterations 30
+coyote test ./bin/netcoreapp3.1/HelloWorldActors.dll --iterations 30
 ```
 
 The result is:
 
 ```
-. Testing .\bin\net46\HelloWorldActors.exe
+. Testing .\bin\netcoreapp3.1\HelloWorldActors.dll
 Starting TestingProcessScheduler in process 16432
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:308255541).
@@ -267,7 +264,7 @@ tool has ways of interrupting and restarting this `Execute` method based on `--i
 So now you know what happened when you ran the following command line:
 
 ```
-coyote test .\bin\net46\HelloWorldActors.exe --iterations 30
+coyote test ./bin/net46/HelloWorldActors.exe --iterations 30
 ```
 
 A special coyote `TestEngine` was created, it invoked the `Execute` method 30 times, and during

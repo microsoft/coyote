@@ -24,10 +24,7 @@ you achieve a high level of confidence that the code is rock solid.
 
 You will also need to:
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Build the [Coyote project](/coyote/learn/get-started/install) and in the build output find the
-  netcoreapp3.1 version of `coyote.dll`. This will live in a path like this:
-  `c:\git\coyote\bin\netcoreapp3.1\coyote.dll`. Set this path in a new environment variable named
-  `coyote`
+- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -44,7 +41,7 @@ powershell -f build.ps1
 Now you can run `coyote test` tool on the Raft.Mocking application:
 
 ```
-dotnet %coyote% test ./bin/netcoreapp3.1/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
+coyote test ./bin/netcoreapp3.1/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity
 ```
 
 You should see the test succeed with output like this, including a coverage report and graph:
@@ -139,7 +136,7 @@ scheduling strategies at once, this is used in combination with the `--parallel`
  for example, would run 5 parallel test processes using different scheduling strategies:
 
 ```
-dotnet %coyote% test ./bin/netcoreapp3.1/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
+coyote test ./bin/netcoreapp3.1/Raft.Mocking.dll -i 1000 -ms 200 --coverage activity --sch-portfolio --parallel 5
 ```
 
 When you use this the test will print the chosen strategies at the top of the test output:

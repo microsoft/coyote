@@ -100,12 +100,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The readable trace, if any.
         /// </summary>
-        internal string ReadableTrace { get; private set; }
+        public string ReadableTrace { get; private set; }
 
         /// <summary>
         /// The reproducable trace, if any.
         /// </summary>
-        internal string ReproducableTrace { get; private set; }
+        public string ReproducableTrace { get; private set; }
 
         /// <summary>
         /// Checks if the systematic testing engine is running in replay mode.

@@ -84,6 +84,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             // Hidden options (for debugging or experimentation only).
             var hiddenGroup = this.Parser.GetOrCreateGroup("hiddenGroup", "Hidden Options");
             hiddenGroup.IsHidden = true;
+            hiddenGroup.AddArgument("sch-interactive", null, "Choose the interactive scheduling strategy", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
@@ -165,6 +166,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "sch-random":
                 case "sch-dfs":
+                case "sch-interactive":
                 case "sch-portfolio":
                     configuration.SchedulingStrategy = option.LongName.Substring(4);
                     break;
@@ -355,6 +357,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             }
 
             if (configuration.SchedulingStrategy != "portfolio" &&
+                configuration.SchedulingStrategy != "interactive" &&
                 configuration.SchedulingStrategy != "random" &&
                 configuration.SchedulingStrategy != "pct" &&
                 configuration.SchedulingStrategy != "fairpct" &&

@@ -155,8 +155,16 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         public int CompareTo(ActorId other) => string.Compare(this.Name, other?.Name);
 
+        /// <summary>
+        /// Indicates whether the specified <see cref="ActorId"/> is equal
+        /// to the current <see cref="ActorId"/>.
+        /// </summary>
         bool IEquatable<ActorId>.Equals(ActorId other) => this.Equals(other);
 
+        /// <summary>
+        /// Compares the specified <see cref="ActorId"/> with the current
+        /// <see cref="ActorId"/> for ordering or sorting purposes.
+        /// </summary>
         int IComparable<ActorId>.CompareTo(ActorId other) => string.Compare(this.Name, other?.Name);
     }
 }

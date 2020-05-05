@@ -17,6 +17,8 @@ public sealed class TestingEngine
 | name | description |
 | --- | --- |
 | static [Create](TestingEngine/Create)(…) | Creates a new systematic testing engine. (8 methods) |
+| [ReadableTrace](TestingEngine/ReadableTrace) { get; } | The readable trace, if any. |
+| [ReproducableTrace](TestingEngine/ReproducableTrace) { get; } | The reproducable trace, if any. |
 | [TestReport](TestingEngine/TestReport) { get; set; } | Data structure containing information gathered during testing. |
 | [GetReport](TestingEngine/GetReport)() | Returns a report with the testing results. |
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |

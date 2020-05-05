@@ -1018,6 +1018,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
         - name: TestReport
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
+        - name: ReadableTrace
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
+        - name: ReproducableTrace
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducableTrace
       - name: TestReport
         link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReportType
         subfolderitems:

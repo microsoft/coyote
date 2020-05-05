@@ -86,6 +86,10 @@ namespace Microsoft.Coyote.Actors.Timers
             return this.Equals((object)other);
         }
 
+        /// <summary>
+        /// Indicates whether the specified <see cref="TimerInfo"/> is equal
+        /// to the current <see cref="TimerInfo"/>.
+        /// </summary>
         bool IEquatable<TimerInfo>.Equals(TimerInfo other)
         {
             return this.Equals(other);

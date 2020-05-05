@@ -34,17 +34,11 @@ function InstallToolVersion
     return $installed
 }
 
-$inheritdoc = "$ToolPath\InheritDoc.exe"
 $xmldoc = "$ToolPath\xmldocmd.exe"
 $target = "$CoyoteRoot\docs\_learn\ref"
 
-# install InheritDocTool
-$installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
 # install xmldocmd
 $installed = InstallToolVersion -name "xmldocmd" -version "2.1.0-beta1"
-
-Write-Host "processing inherit docs under $CoyoteRoot\bin ..."
-& $inheritdoc --base $CoyoteRoot\bin\net46 -o
 
 # Completely clean the ref folder so we start fresh
 if (Test-Path -Path $target)

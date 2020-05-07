@@ -18,9 +18,12 @@
   </metadata>
   <files>
     <!-- .NET Core 3.1 -->
+    <file src="..\..\bin\netcoreapp3.1\*.exe" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.dll" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.mdb" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.xml" target="tools\netcoreapp3.1\any" />
+    <file src="..\..\bin\netcoreapp3.1\*.config" target="tools\netcoreapp3.1\any" />
+    <file src="..\..\bin\netcoreapp3.1\*.deps.json" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.runtimeconfig.json" target="tools\netcoreapp3.1\any" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />

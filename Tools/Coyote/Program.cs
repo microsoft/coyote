@@ -34,6 +34,8 @@ namespace Microsoft.Coyote
             // Parses the command line options to get the configuration.
             Configuration = new CommandLineOptions().Parse(args);
 
+            SetEnvironment(Configuration);
+
             switch (Configuration.ToolCommand.ToLower())
             {
                 case "test":
@@ -42,6 +44,15 @@ namespace Microsoft.Coyote
                 case "replay":
                     ReplayTest();
                     break;
+            }
+        }
+
+        private static void SetEnvironment(Configuration config)
+        {
+            if (!string.IsNullOrEmpty(config.AdditionalPaths))
+            {
+                string path = Environment.GetEnvironmentVariable("PATH");
+                Environment.SetEnvironmentVariable("PATH", path + Path.PathSeparator + config.AdditionalPaths);
             }
         }
 
@@ -69,13 +80,11 @@ namespace Microsoft.Coyote
 
             if (Configuration.ReportCodeCoverage)
             {
-#if NETFRAMEWORK
                 // Instruments the program under test for code coverage.
                 CodeCoverageInstrumentation.Instrument(Configuration);
 
                 // Starts monitoring for code coverage.
                 CodeCoverageMonitor.Start(Configuration);
-#endif
             }
 
             Console.WriteLine(". Testing " + Configuration.AssemblyToBeAnalyzed);
@@ -167,16 +176,13 @@ namespace Microsoft.Coyote
         /// </summary>
         private static void Shutdown()
         {
-#if NETFRAMEWORK
             if (Configuration != null && Configuration.ReportCodeCoverage && CodeCoverageMonitor.IsRunning)
             {
                 Console.WriteLine(". Shutting down the code coverage monitor, this may take a few seconds...");
 
                 // Stops monitoring for code coverage.
                 CodeCoverageMonitor.Stop();
-                CodeCoverageInstrumentation.Restore();
             }
-#endif
         }
     }
 }

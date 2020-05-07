@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NETFRAMEWORK
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -79,15 +78,40 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 Console.WriteLine($"... {(isStarting ? "Starting" : "Shutting down")} code coverage monitor");
 
+                int retries = 0;
                 // timedOut can only become true on shutdown (non-infinite timeout value)
-                timedOut = !monitorProc.WaitForExit(isStarting ? Timeout.Infinite : 5000);
-                if (!timedOut)
+                do
                 {
-                    exitCode = monitorProc.ExitCode;
-                    if (exitCode != 0)
+                    timedOut = !monitorProc.WaitForExit(5000);
+                    if (!timedOut)
                     {
-                        error = monitorProc.StandardError.ReadToEnd();
+                        exitCode = monitorProc.ExitCode;
+                        if (exitCode != 0)
+                        {
+                            error = monitorProc.StandardError.ReadToEnd();
+                        }
+
+                        break;
                     }
+                    else
+                    {
+                        // we've been asked to stop, but it is not stopping...
+                        retries++;
+                        if (isStarting)
+                        {
+                            Console.WriteLine($"Waiting for VSPerfCmd to start. Retry {retries} of 5 ...");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Waiting for VSPerfCmd /shutdown to complete. Retry {retries} of 5 ...");
+                        }
+                    }
+                }
+                while (retries < 5);
+
+                if (timedOut && retries == 5)
+                {
+                    monitorProc.Kill();
                 }
             }
 
@@ -131,4 +155,3 @@ namespace Microsoft.Coyote.SystematicTesting
         }
     }
 }
-#endif

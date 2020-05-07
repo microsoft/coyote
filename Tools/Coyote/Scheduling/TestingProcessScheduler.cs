@@ -113,7 +113,12 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Code coverage should be run out-of-process; otherwise VSPerfMon won't shutdown correctly
             // because an instrumented process (this one) is still running.
-            this.IsRunOutOfProcess = configuration.ParallelBugFindingTasks > 0 || configuration.ReportCodeCoverage;
+            if (configuration.ReportCodeCoverage)
+            {
+                configuration.ParallelBugFindingTasks = 1;
+            }
+
+            this.IsRunOutOfProcess = configuration.ParallelBugFindingTasks > 0;
 
             this.IsVerbose = configuration.IsVerbose;
 

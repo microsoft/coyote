@@ -22,6 +22,11 @@ namespace Microsoft.Coyote
         internal string ToolCommand;
 
         /// <summary>
+        /// Something to add to the PATH environment at test time.
+        /// </summary>
+        internal string AdditionalPaths { get; set; }
+
+        /// <summary>
         /// The output path.
         /// </summary>
         [DataMember]

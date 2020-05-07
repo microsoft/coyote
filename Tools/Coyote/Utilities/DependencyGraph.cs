@@ -1,162 +1,75 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NETFRAMEWORK
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.SystematicTesting.Utilities
 {
-    internal static class DependencyGraph
+    internal class DependencyGraph
     {
-        private class DependencyNode
+        private readonly Dictionary<string, string> AssemblyNameToFullPathMap = new Dictionary<string, string>();
+
+        public DependencyGraph(string rootFolder, HashSet<string> additionalAssemblies)
         {
-            internal string Name { get; private set; }
+            // here we assume the dependencies we need to instrument for assemblyUnderTest all live in the
+            // same folder, or the user provides them with --instrument and --instrument-list options.
+            var allNames = new HashSet<string>(Directory.GetFiles(rootFolder, "*.dll"));
+            allNames.UnionWith(additionalAssemblies);
 
-            internal DependencyNode Next { get; private set; }
-
-            internal DependencyNode(string name)
+            // Because Assembly.GetReferencedAssemblies does not yet have the path (assembly resolution is complex), we will assume that
+            // any assembly that matches a name in the executing directory is the referenced assembly that we need to also instrument.
+            foreach (var path in allNames)
             {
-                this.Name = name;
-            }
-
-            internal DependencyNode Append(string name)
-            {
-                return new DependencyNode(name) { Next = this };
-            }
-
-            internal void Process(Action<string> action)
-            {
-                action(this.Name);
-                for (var node = this.Next; node != null; node = node.Next)
+                // Note: we cannot use allNames.ToDictionary because in some cases we have a *.exe and *.dll with the same name.
+                var name = Path.GetFileNameWithoutExtension(path);
+                if (!this.AssemblyNameToFullPathMap.ContainsKey(name))
                 {
-                    node.Process(action);
+                    this.AssemblyNameToFullPathMap[name] = path;
+                }
+                else
+                {
+                    Debug.WriteLine("Skipping {0}", path);
                 }
             }
         }
 
-        internal static string[] GetDependenciesToCoyote(Configuration configuration)
+        internal string[] GetDependencies(string assemblyUnderTest)
         {
-            var domain = AppDomain.CreateDomain("DependentAssemblyLoading");
-            try
-            {
-                // We need to do this in a separate AppDomain so we can unload the assemblies to allow instrumentation.
-                var loader = (DependentAssemblyLoader)domain.CreateInstanceAndUnwrap(
-                        Assembly.GetExecutingAssembly().FullName, typeof(DependentAssemblyLoader).FullName);
-                return loader.GetDependenciesToCoyote(configuration.AssemblyToBeAnalyzed);
-            }
-            finally
-            {
-                AppDomain.Unload(domain);
-            }
+            // Get the case-normalized directory name
+            var result = new HashSet<string>();
+            this.GetDependencies(assemblyUnderTest, result);
+            return result.ToArray();
         }
 
-        internal static string[] GetDependenciesToTarget(string source, HashSet<string> allNames,
-            Func<string, string[]> dependenciesFunc, Func<string, bool> isTargetFunc)
+        private void GetDependencies(string assemblyPath, HashSet<string> visited)
         {
-            var known = new Dictionary<string, bool>();
-            var queue = new Queue<DependencyNode>();
+            assemblyPath = Path.GetFullPath(assemblyPath);
+            var assembly = Assembly.LoadFrom(assemblyPath);
+            visited.Add(assemblyPath);
 
-            void evaluate()
+            foreach (var assemblyName in assembly.GetReferencedAssemblies())
             {
-                // Adding it initially handles circular dependencies.
-                var node = queue.Dequeue();
-                known[node.Name] = false;
-
-                // If this has hit the target it may still have other dependencies we want.
-                var dependencies = dependenciesFunc(node.Name);
-                var isTarget = dependencies.Any(dep => isTargetFunc(dep));
-                if (isTarget)
+                if (assemblyName.Name != "Microsoft.Coyote")
                 {
-                    node.Process(n => known[n] = true);
-                }
-
-                foreach (var name in dependencies.Where(n => allNames.Contains(n) && !known.ContainsKey(n)))
-                {
-                    queue.Enqueue(isTarget ? new DependencyNode(name) : node.Append(name));
+                    if (this.AssemblyNameToFullPathMap.ContainsKey(assemblyName.Name))
+                    {
+                        var dependencyPath = this.AssemblyNameToFullPathMap[assemblyName.Name];
+                        if (!visited.Contains(dependencyPath))
+                        {
+                            this.GetDependencies(dependencyPath, visited);
+                        }
+                    }
+                    else if (assemblyName.Name != "mscorlib" && !assemblyName.Name.StartsWith("System"))
+                    {
+                        Error.Report($"Could not find dependent assembly '{assemblyName.ToString()}'");
+                    }
                 }
             }
-
-            for (queue.Enqueue(new DependencyNode(source)); queue.Count > 0; /* queue adjusted in loop */)
-            {
-                evaluate();
-            }
-
-            known[source] = true;   // Always return the source
-            return known.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToArray();
         }
-
-#if false
-        internal void Test()
-        {
-            string[] getDependencies(string key)
-            {
-                switch (key)
-                {
-                    case "A":
-                        return "B C D".Split();
-                    case "B":
-                        return "C E f".Split();
-                    case "C":
-                        return "c d e".Split();
-                    case "D":
-                        return "F X Z".Split();
-                    case "E":
-                        return "Y Z".Split();
-                    case "F":
-                        return "Z".Split();
-                }
-                return new string[0];
-            }
-
-            bool isTarget(string key)
-            {
-                return key == "Z";
-            }
-
-            string stringify(string[] strings)
-            {
-                var list = strings.ToList();
-                list.Sort();
-                return string.Join(" ", list);
-            }
-
-            void compare(string[] expected, string[] actual)
-            {
-                var exp = stringify(expected);
-                var act = stringify(actual);
-                var cmp = exp == act ? "Pass" : "Fail";
-                Console.WriteLine($"{exp} | {act} : {cmp}");
-            }
-
-            var allNames = new HashSet<string>("A B C D E F G H I X Y Z".Split());
-            var deps = GetDependenciesToTarget("A", allNames, name => getDependencies(name), name => isTarget(name));
-            compare("A B E D F".Split(), deps);
-            deps = GetDependenciesToTarget("B", allNames, name => getDependencies(name), name => isTarget(name));
-            compare("B E".Split(), deps);
-            deps = GetDependenciesToTarget("C", allNames, name => getDependencies(name), name => isTarget(name));
-            compare("C".Split(), deps);
-            deps = GetDependenciesToTarget("D", allNames, name => getDependencies(name), name => isTarget(name));
-            compare("D F".Split(), deps);
-            deps = GetDependenciesToTarget("F", allNames, name => getDependencies(name), name => isTarget(name));
-            compare("F".Split(), deps);
-
-            var numbers = Enumerable.Range(0, 10).Select(i => i.ToString()).ToArray();
-            allNames = new HashSet<string>(numbers);
-            deps = GetDependenciesToTarget("0", allNames, name => new[] { (int.Parse(name) + 1).ToString() }, name => name == (numbers.Length - 1).ToString());
-            compare(Enumerable.Range(0, 9).Select(i => i.ToString()).ToArray(), deps);
-            deps = GetDependenciesToTarget("0", allNames, name => new[] { (int.Parse(name) + 1).ToString() }, name => false);
-            compare("0".Split(), deps);
-
-            // Sanity check for recursion depth
-            numbers = Enumerable.Range(0, 100000).Select(i => i.ToString()).ToArray();
-            allNames = new HashSet<string>(numbers);
-            deps = GetDependenciesToTarget("0", allNames, name => new[] { (int.Parse(name) + 1).ToString() }, name => false);
-            compare("0".Split(), deps);
-        }
-#endif
     }
 }
-#endif

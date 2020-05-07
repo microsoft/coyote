@@ -129,6 +129,11 @@ namespace Microsoft.Coyote.SystematicTesting
             arguments.Append($"--testing-scheduler-ipaddress {configuration.TestingSchedulerIpAddress} ");
             arguments.Append($"--testing-process-id {id} ");
 
+            if (!string.IsNullOrEmpty(configuration.AdditionalPaths))
+            {
+                arguments.Append($"--additional-paths \"{configuration.AdditionalPaths}\" ");
+            }
+
             if (configuration.ParallelDebug)
             {
                 arguments.Append($"--parallel-debug ");

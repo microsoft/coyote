@@ -87,6 +87,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             hiddenGroup.AddArgument("sch-interactive", null, "Choose the interactive scheduling strategy", typeof(bool));
             hiddenGroup.AddArgument("prefix", null, "Safety prefix bound", typeof(int)); // why is this needed, seems to just be an override for MaxUnfairSchedulingSteps?
             hiddenGroup.AddArgument("run-as-parallel-testing-task", null, null, typeof(bool));
+            hiddenGroup.AddArgument("additional-paths", null, null, typeof(string));
             hiddenGroup.AddArgument("testing-process-id", null, "The id of the controlling TestingProcessScheduler", typeof(uint));
             // hiddenGroup.AddArgument("sch-dfs", null, "Choose the DFS scheduling strategy", typeof(bool)); // currently broken, re-enable when it's fixed
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
@@ -236,6 +237,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "run-as-parallel-testing-task":
                     configuration.RunAsParallelBugFindingTask = true;
                     break;
+                case "additional-paths":
+                    configuration.AdditionalPaths = (string)option.Value;
+                    break;
                 case "testing-scheduler-endpoint":
                     configuration.TestingSchedulerEndPoint = (string)option.Value;
                     break;
@@ -289,8 +293,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
                     break;
                 case "instrument":
-                case "instrument-list":
                     configuration.AdditionalCodeCoverageAssemblies[(string)option.Value] = false;
+                    break;
+                case "instrument-list":
+                    configuration.AdditionalCodeCoverageAssemblies[(string)option.Value] = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;
@@ -378,13 +384,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 Error.ReportAndExit("Please give a safety prefix bound that is less than the " +
                     "max scheduling steps bound.");
             }
-
-#if NETCOREAPP
-            if (configuration.ReportCodeCoverage)
-            {
-                Error.ReportAndExit("We do not yet support code coverage reports when using the .NET Core runtime.");
-            }
-#endif
         }
     }
 }

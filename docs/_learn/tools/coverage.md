@@ -53,19 +53,15 @@ Detailed descriptions are provided in subsequent sections. The following provide
 By default, at the end of testing the report files are written to a directory named
 `Output/[assemblyToTest]/CoyoteOutput` in the directory specified by the `path` argument. If
 `--outdir outputDirectory` is specified, then the files are written to the directory
-`[outputDirectory]/CoyoteOutput`. In either case, history is retained for up to 10 previous runs:
-  * If a directory named `.../CoyoteOutput9` exists it is removed.
-  * Any directories named `.../CoyoteOutput[n]` (for n = 0 to 8) are renamed to
-    `.../CoyoteOutput[n+1]`.
-  * The new directory `.../CoyoteOutput` is created.
+`[outputDirectory]/CoyoteOutput`.
 
 Details of the report files that are created for the separate coverage types are provided in
 subsequent sections.
 
 ## Actor activity coverage
 
-Actor activity coverage includes event coverage, which is defined in the following section, as well as a
-summary of states that were entered and exited and which state transitions occurred.
+Actor activity coverage includes event coverage, which is defined in the following section, as well
+as a summary of states that were entered and exited and which state transitions occurred.
 
 ## Definition of event coverage
 
@@ -76,9 +72,9 @@ A tuple `(M, S, E)` is said to be _covered_ by a test run if state S of machine 
 an event of type E during an execution.
 
 Event coverage is the number of tuples covered divided by the number of tuples defined in the
-program. The higher this metric, the better testing exercised all these combinations in the program.
-As with other coverage metrics, obtaining 100% coverage may be unrealistic as it depends on the
-particular test harness being used.
+program. The higher this metric, the better testing exercised all these combinations in the
+program. As with other coverage metrics, obtaining 100% coverage may be unrealistic as it depends
+on the particular test harness being used.
 
 ## Activity coverage output files
 
@@ -115,6 +111,16 @@ For code coverage, `coyote` instruments the `path` assembly and the binaries it 
 `VSInstr.exe`. `VSPerfCmd.exe` is launched while the test runs, and is terminated when the test is
 complete.
 
+For code coverage to work you must ensure your project is built using **Full PDBs** which you can
+do by specifying the following build properties:
+
+```xml
+<PropertyGroup>
+  <DebugType>full</DebugType>
+  <DebugSymbols>true</DebugSymbols>
+</PropertyGroup>
+```
+
 `VSPerfCmd.exe` collects data from all running processes, so do not run multiple coverage tests at
 the same time.
 
@@ -122,14 +128,15 @@ the same time.
 
 `coyote` instruments the following binaries (via `VSInstr.exe`):
 * `path`: this is the path to the assembly that is being tested.
-* Each DLL in the dependency graph between the assembly specified by the `path` argument and a
-  `Microsoft.Coyote.dll`.
-* Any additional assemblies specified by one of the `/instr` options.
+* Each DLL in the dependency graph of the assembly specified by the `path` argument - not including
+  `Microsoft.Coyote.dll`, `mscorlib` or any `System*` assemblies.
+* Any additional assemblies specified by one of the `--instrument` or `--instrument-list` options.
 
 By default the VS 2019 tools are used. These are set in `coyote.exe.config` and are based on the
 environment variable $(DevEnvDir) which is automatically defined if you use a Visual Studio
 Developer Command Prompt. The actual paths can be overridden by environment variables with the same
 names as the app settings:
+
 - `VSInstrToolPath`
 - `VSPerfCmdToolPath`
 
@@ -138,22 +145,21 @@ names as the app settings:
 If the option `--coverage` or `--coverage code` is passed to `coyote`, the following files will be
 written to the [output directory](#output-file-locations) (for example, if `path` is
 `PingPong.exe`):
+
 * `PingPong.coverage`. This file contains the code coverage data that can be read by Visual Studio.
   To do so, load it as a file into VS, then select Mixed Debugging.
-* `PingPong.instr.exe` and `PingPong.instr.pdb`. These are the instrumented binaries for the
-  assembly specified by the `path` argument.
-* The instrumented `.dll` and `.pdb` for each DLL in the dependency graph between the assembly
-  specified by the `path` argument and `Microsoft.Coyote.dll`, as well as any additional assemblies
-  specified by one of the `--instr` options.
+* The same Coyote output folder will contain all the instrumented binaries that were used to run the test.
+The original binaries are left unchanged.
 
 The instrumented binaries are retained because VS requires the matching instrumented binaries to be
-able to load the `.coverage` file. The source code may become out of sync, but the summary
-information displayed in VS will still be accurate. This allows evaluating the code-coverage impact
-of changes over time.
+able to load the `.coverage` file. If you want keep track of code-coverage improvements over time
+you can use the `coyote test --outdir` option to collect multiple coverage files in different
+locations.
 
 ## Coyote test examples
 
-First build the [coyote-samples](https://github.com/microsoft/coyote-samples) repo by running the following command:
+First build the [coyote-samples](https://github.com/microsoft/coyote-samples) repo by running the
+following command:
 
 ```
 powershell -f build.ps1
@@ -167,17 +173,40 @@ coyote test ./bin/net46/Monitors.exe -i 10 --coverage
 ```
 
 This will create the directory `./bin/net46/Output/Monitors.exe/CoyoteOutput/`, then it generates
-coverage files for code coverage.
+coverage files for code coverage which you can load into Visual Studio to see the results.
 
 ```
 coyote test ./bin/net46/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
 ```
 
-This will create the directory `/Coyote_Coverage/Monitors/CoyoteOutput`, then it
-generates only activity coverage.
+This will create the directory `/Coyote_Coverage/Monitors/CoyoteOutput`, then it generates only
+activity coverage.
 
 ```
 coyote test ./bin/net46/Monitors.exe -i 10 --coverage code activity-debug
 ```
 
 This generates code and activity coverage, including debug activity output.
+
+## Troubleshooting
+
+#### Error VSP1394: Could not start profile monitor
+
+This could happen if you are trying to run `coyote test` from a current directory that contains
+conflicting binaries from the ones you are testing. Try `cd` to some other location and run `coyote
+test` with a full path to the binary being tested.
+
+#### Exception thrown: 'System.BadImageFormatException' in System.Private.CoreLib.dll
+
+This could happen on a .NET core build if you are referencing a *.exe instead of the *.dll assembly
+for testing.
+
+#### Error: Could not find dependent assembly ...
+
+You may need to add `--instrument` or `--instrument-list` option to specify the location of that
+additional assembly.
+
+#### Code coverage is empty
+
+If a .coverage file is produced but it is empty, and contains no coverage information then try
+running `VSInst` manually and check for any errors.

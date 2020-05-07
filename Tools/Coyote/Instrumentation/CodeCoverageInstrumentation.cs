@@ -1,19 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NETFRAMEWORK
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-#endif
 using System.IO;
-#if NETFRAMEWORK
 using System.Linq;
-
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Utilities;
-#endif
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -23,53 +18,67 @@ namespace Microsoft.Coyote.SystematicTesting
     internal static class CodeCoverageInstrumentation
     {
         internal static string OutputDirectory = string.Empty;
-#if NETFRAMEWORK
-        internal static List<string> InstrumentedAssemblyNames = new List<string>();
 
         internal static void Instrument(Configuration configuration)
         {
-            // HashSet in case of duplicate file specifications.
-            var assemblyNames = new HashSet<string>(DependencyGraph.GetDependenciesToCoyote(configuration)
-                                                    .Union(GetAdditionalAssemblies(configuration)));
-            InstrumentedAssemblyNames.Clear();
-
-            foreach (var assemblyName in assemblyNames)
+            if (string.IsNullOrEmpty(OutputDirectory))
             {
-                if (!Instrument(assemblyName))
+                throw new Exception("Please set the OutputDirectory before calling Instrument");
+            }
+
+            // HashSet in case of duplicate file specifications.
+            var assembliesToInstrument = new HashSet<string>(GetInstrumentAssemblies(configuration));
+            assembliesToInstrument.UnionWith(GetDependencies(configuration.AssemblyToBeAnalyzed, assembliesToInstrument));
+
+            foreach (var assemblyPath in assembliesToInstrument)
+            {
+                string newAssembly = Instrument(assemblyPath);
+                if (string.IsNullOrEmpty(newAssembly))
                 {
-                    Restore();
-                    Environment.Exit(1);
+                    Error.ReportAndExit($"Terminating due to VSInstr error.");
                 }
 
-                InstrumentedAssemblyNames.Add(assemblyName);
+                if (assemblyPath == configuration.AssemblyToBeAnalyzed)
+                {
+                    // Remember the location of the original assembly so we can add this to the PATH
+                    // when we run the test out of proc.
+                    configuration.AdditionalPaths = Path.GetDirectoryName(configuration.AssemblyToBeAnalyzed);
+                    configuration.AssemblyToBeAnalyzed = newAssembly;
+                }
             }
         }
 
-        private static IEnumerable<string> GetAdditionalAssemblies(Configuration configuration)
+        private static IEnumerable<string> GetDependencies(string assemblyToBeAnalyzed, HashSet<string> additionalAssemblies)
         {
-            var testAssemblyPath = Path.GetDirectoryName(configuration.AssemblyToBeAnalyzed);
-            if (testAssemblyPath.Length == 0)
-            {
-                testAssemblyPath = ".";
-            }
+            var fullPath = Path.GetFullPath(assemblyToBeAnalyzed);
+            DependencyGraph graph = new DependencyGraph(Path.GetDirectoryName(fullPath), additionalAssemblies);
+            return graph.GetDependencies(fullPath);
+        }
+
+        private static IEnumerable<string> GetInstrumentAssemblies(Configuration configuration)
+        {
+            var fullPath = Path.GetFullPath(configuration.AssemblyToBeAnalyzed);
+            var testAssemblyPath = Path.GetDirectoryName(fullPath);
+            yield return fullPath;
+
+            Uri baseUri = new Uri(fullPath);
 
             IEnumerable<string> resolveFileSpec(string spec)
             {
-                // If not rooted, the file path is relative to testAssemblyPath.
-                var gdn = Path.GetDirectoryName(spec);
-                var dir = Path.IsPathRooted(gdn) ? gdn : Path.Combine(testAssemblyPath, gdn);
-                var fullDir = Path.GetFullPath(dir);
-                var fileSpec = Path.GetFileName(spec);
-                var fullNames = Directory.GetFiles(fullDir, fileSpec);
-                foreach (var fullName in fullNames)
+                var localPath = Path.GetFullPath(spec);
+                if (!File.Exists(localPath))
                 {
-                    if (!File.Exists(fullName))
-                    {
-                        Error.ReportAndExit($"Cannot find specified file for code-coverage instrumentation: '{fullName}'.");
-                    }
+                    // If not rooted, the file path might be relative to testAssemblyPath.
+                    var resolved = new Uri(baseUri, spec);
+                    localPath = resolved.LocalPath;
 
-                    yield return fullName;
+                    if (!File.Exists(localPath))
+                    {
+                        Error.ReportAndExit($"Cannot find specified file for code-coverage instrumentation: '{spec}'.");
+                    }
                 }
+
+                yield return localPath;
             }
 
             IEnumerable<string> resolveAdditionalFiles(KeyValuePair<string, bool> kvp)
@@ -92,12 +101,15 @@ namespace Microsoft.Coyote.SystematicTesting
                     Error.ReportAndExit($"Cannot find specified list file for code-coverage instrumentation: '{kvp.Key}'.");
                 }
 
-                foreach (var spec in File.ReadAllLines(listFile).Where(line => line.Length > 0).Select(line => line.Trim())
-                                                                .Where(line => !line.StartsWith("//")))
+                foreach (var spec in File.ReadAllLines(listFile))
                 {
-                    foreach (var file in resolveFileSpec(spec))
+                    var trimmed = spec.Trim();
+                    if (!string.IsNullOrEmpty(trimmed) && !trimmed.StartsWith("//"))
                     {
-                        yield return file;
+                        foreach (var file in resolveFileSpec(trimmed))
+                        {
+                            yield return file;
+                        }
                     }
                 }
             }
@@ -105,10 +117,16 @@ namespace Microsoft.Coyote.SystematicTesting
             // Note: Resolution has been deferred to here so that all empty path qualifiations, including to the list
             // file, will resolve to testAssemblyPath (as config coverage parameters may be specified before /test).
             // Return .ToList() to force iteration and return errors before we start instrumenting.
-            return configuration.AdditionalCodeCoverageAssemblies.SelectMany(kvp => resolveAdditionalFiles(kvp)).ToList();
+            foreach (var kvp in configuration.AdditionalCodeCoverageAssemblies)
+            {
+                foreach (var file in resolveAdditionalFiles(kvp))
+                {
+                    yield return file;
+                }
+            }
         }
 
-        private static bool Instrument(string assemblyName)
+        private static string Instrument(string assemblyName)
         {
             int exitCode;
             string error;
@@ -117,7 +135,7 @@ namespace Microsoft.Coyote.SystematicTesting
             using (var instrProc = new Process())
             {
                 instrProc.StartInfo.FileName = GetToolPath("VSInstrToolPath", "VSInstr");
-                instrProc.StartInfo.Arguments = $"/coverage {assemblyName}";
+                instrProc.StartInfo.Arguments = $"\"{assemblyName}\" /COVERAGE \"/OUTPUTPATH:{OutputDirectory}\"";
                 instrProc.StartInfo.UseShellExecute = false;
                 instrProc.StartInfo.RedirectStandardOutput = true;
                 instrProc.StartInfo.RedirectStandardError = true;
@@ -129,74 +147,34 @@ namespace Microsoft.Coyote.SystematicTesting
                 exitCode = instrProc.ExitCode;
             }
 
+            if (error.StartsWith("Error"))
+            {
+                // sometimes VSInstr fails, provides error message and returns 0 ?!
+                if (error.Contains("VSP1014"))
+                {
+                    Error.Report($"[Coyote] 'VSInstr' requires you build with '<DebugType>full</DebugType>' and '<DebugSymbols>true</DebugSymbols>'");
+                }
+
+                exitCode = 1;
+            }
+
             // Exit code 0 means that the file was instrumented successfully.
             // Exit code 4 means that the file was already instrumented.
             if (exitCode != 0 && exitCode != 4)
             {
-                Error.Report($"[Coyote] 'VSInstr' failed to instrument '{assemblyName}'.");
-                IO.Debug.WriteLine(error);
-                return false;
+                Error.Report($"[Coyote] 'VSInstr' failed to instrument '{assemblyName}'. " + error);
+                return null;
             }
 
-            return true;
-        }
-
-        internal static void Restore()
-        {
-            try
+            string fileName = Path.GetFileName(assemblyName);
+            string newFileName = Path.Combine(OutputDirectory, fileName);
+            if (!File.Exists(newFileName))
             {
-                foreach (var assemblyName in InstrumentedAssemblyNames)
-                {
-                    Restore(assemblyName);
-                }
-            }
-            finally
-            {
-                OutputDirectory = string.Empty;
-                InstrumentedAssemblyNames.Clear();
-            }
-        }
-
-        internal static void Restore(string assemblyName)
-        {
-            // VSInstr creates a backup of the uninstrumented .exe with the suffix ".exe.orig", and
-            // writes an instrumented .pdb with the suffix ".instr.pdb". We must restore the uninstrumented
-            // .exe after the coverage run, and viewing the coverage file requires the instrumented .exe,
-            // so move the instrumented files to the output directory and restore the uninstrumented .exe.
-            var origExe = $"{assemblyName}.orig";
-            var origDir = Path.GetDirectoryName(assemblyName);
-            if (origDir.Length == 0)
-            {
-                origDir = ".";
+                Error.Report($"[Coyote] 'VSInstr' did not produce output assembly '{newFileName}'. " + error);
+                return null;
             }
 
-            origDir += Path.DirectorySeparatorChar;
-            var instrExe = $"{OutputDirectory}{Path.GetFileName(assemblyName)}";
-            var instrPdb = $"{Path.GetFileNameWithoutExtension(assemblyName)}.instr.pdb";
-            try
-            {
-                if (!string.IsNullOrEmpty(OutputDirectory) && File.Exists(origExe))
-                {
-                    if (TestingProcessScheduler.IsProcessCanceled)
-                    {
-                        File.Delete(assemblyName);
-                        File.Delete(instrPdb);
-                        Directory.Delete(OutputDirectory, true);
-                    }
-                    else
-                    {
-                        File.Move(assemblyName, instrExe);
-                        File.Move($"{origDir}{instrPdb}", $"{OutputDirectory}{instrPdb}");
-                    }
-
-                    File.Move(origExe, assemblyName);
-                }
-            }
-            catch (IOException ex)
-            {
-                // Don't exit here as we're already shutting down the app, and we may have more assemblies to restore.
-                Error.Report($"[Coyote] Failed to restore non-instrumented '{assemblyName}': {ex.Message}.");
-            }
+            return newFileName;
         }
 
         /// <summary>
@@ -212,19 +190,39 @@ namespace Microsoft.Coyote.SystematicTesting
                 toolPath = Environment.GetEnvironmentVariable(settingName);
                 if (string.IsNullOrEmpty(toolPath))
                 {
+#if NETFRAMEWORK
                     toolPath = ConfigurationManager.AppSettings[settingName];
+#else
+                    if (settingName == "VSInstrToolPath")
+                    {
+                        toolPath = @"$(DevEnvDir)..\..\Team Tools\Performance Tools\x64\vsinstr.exe";
+                    }
+                    else
+                    {
+                        toolPath = @"$(DevEnvDir)..\..\..\..\Shared\Common\VSPerfCollectionTools\vs2019\x64\VSPerfCmd.exe";
+                    }
+#endif
                 }
                 else
                 {
                     Console.WriteLine($"{toolName} overriding app settings path with environment variable");
                 }
             }
-            catch (ConfigurationErrorsException)
+            catch (Exception)
             {
                 Error.ReportAndExit($"[Coyote] required '{settingName}' value is not set in configuration file.");
             }
 
-            toolPath = toolPath.Replace("$(DevEnvDir)", Environment.GetEnvironmentVariable("DevEnvDir"));
+            if (toolPath.Contains("$(DevEnvDir)"))
+            {
+                var devenvDir = Environment.GetEnvironmentVariable("DevEnvDir");
+                if (string.IsNullOrEmpty(devenvDir))
+                {
+                    Error.ReportAndExit($"[Coyote] '{toolName}' tool needs DevEnvDir variable to be set.");
+                }
+
+                toolPath = toolPath.Replace("$(DevEnvDir)", devenvDir);
+            }
 
             if (!File.Exists(toolPath))
             {
@@ -233,7 +231,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return toolPath;
         }
-#endif
 
         /// <summary>
         /// Set the <see cref="OutputDirectory"/> to either the user-specified <see cref="Configuration.OutputFilePath"/>
@@ -253,32 +250,6 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!makeHistory)
             {
                 return;
-            }
-
-            // The MaxHistory previous results are kept under the directory name with a suffix scrolling back from 0 to 9 (oldest).
-            const int MaxHistory = 10;
-            string makeHistoryDirName(int history) => OutputDirectory.Substring(0, OutputDirectory.Length - 1) + history;
-            var older = makeHistoryDirName(MaxHistory - 1);
-
-            if (Directory.Exists(older))
-            {
-                Directory.Delete(older, true);
-            }
-
-            for (var history = MaxHistory - 2; history >= 0; --history)
-            {
-                var newer = makeHistoryDirName(history);
-                if (Directory.Exists(newer))
-                {
-                    Directory.Move(newer, older);
-                }
-
-                older = newer;
-            }
-
-            if (Directory.Exists(OutputDirectory))
-            {
-                Directory.Move(OutputDirectory, older);
             }
 
             // Now create the new directory.

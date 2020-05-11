@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThre
 ---
 # Configuration.WithLivenessTemperatureThreshold method
 
-Updates the configuration with the specified liveness temperature threshold during systematic testing. If this value is 0 it disables liveness checking.
+Updates the configuration with the specified liveness temperature threshold during systematic testing. If this value is 0 it disables liveness checking. It is not recommended to explicitly set this value, instead use the default value which is assigned to [`MaxFairSchedulingSteps`](MaxFairSchedulingSteps) / 2.
 
 ```csharp
 public Configuration WithLivenessTemperatureThreshold(uint threshold)

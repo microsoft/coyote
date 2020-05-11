@@ -309,20 +309,24 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                             Error.ReportAndExit("Invalid number of options supplied via '--max-steps'.");
                         }
 
-                        uint i = values[0];
-                        uint j;
-                        if (values.Length == 2)
+                        try
                         {
-                            j = values[1];
-                            configuration.UserExplicitlySetMaxFairSchedulingSteps = true;
+                            uint i = values[0];
+                            uint j;
+                            if (values.Length == 2)
+                            {
+                                j = values[1];
+                                configuration.WithMaxSchedulingSteps(i, j);
+                            }
+                            else
+                            {
+                                configuration.WithMaxSchedulingSteps(i);
+                            }
                         }
-                        else
+                        catch (ArgumentException)
                         {
-                            j = 10 * i;
+                            Error.ReportAndExit("For the option '--max-steps N[,M]', please make sure that M >= N.");
                         }
-
-                        configuration.MaxUnfairSchedulingSteps = (int)i;
-                        configuration.MaxFairSchedulingSteps = (int)j;
                     }
 
                     break;
@@ -334,6 +338,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "liveness-temperature-threshold":
                     configuration.LivenessTemperatureThreshold = (int)(uint)option.Value;
+                    configuration.UserExplicitlySetLivenessTemperatureThreshold = true;
                     break;
                 default:
                     throw new Exception(string.Format("Unhandled parsed argument: '{0}'", option.LongName));
@@ -346,16 +351,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         }
 
         /// <summary>
-        /// Checks the configuration for errors and performs post-processing updates.
+        /// Checks the configuration for errors.
         /// </summary>
         private static void SanitizeConfiguration(Configuration configuration)
         {
-            if (configuration.LivenessTemperatureThreshold == 0 &&
-                configuration.MaxFairSchedulingSteps > 0)
-            {
-                configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
-            }
-
             if (string.IsNullOrEmpty(configuration.AssemblyToBeAnalyzed) &&
                 string.Compare(configuration.ToolCommand, "test", StringComparison.OrdinalIgnoreCase) == 0)
             {
@@ -371,11 +370,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 configuration.SchedulingStrategy != "dfs")
             {
                 Error.ReportAndExit("Please provide a scheduling strategy (see --sch* options)");
-            }
-
-            if (configuration.MaxFairSchedulingSteps < configuration.MaxUnfairSchedulingSteps)
-            {
-                Error.ReportAndExit("For the option '-max-steps N[,M]', please make sure that M >= N.");
             }
 
             if (configuration.SafetyPrefixBound > 0 &&

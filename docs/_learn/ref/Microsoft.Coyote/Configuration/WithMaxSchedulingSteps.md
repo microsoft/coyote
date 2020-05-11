@@ -4,9 +4,9 @@ section: learn
 title: WithMaxSchedulingSteps
 permalink: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps
 ---
-# Configuration.WithMaxSchedulingSteps method
+# Configuration.WithMaxSchedulingSteps method (1 of 2)
 
-Updates the configuration with the specified number of scheduling steps to explore per iteration (for both fair and unfair schedulers) during systematic testing.
+Updates the configuration with the specified number of maximum scheduling steps to explore per iteration during systematic testing. The [`MaxUnfairSchedulingSteps`](MaxUnfairSchedulingSteps) is assigned the *maxSteps* value, whereas the [`MaxFairSchedulingSteps`](MaxFairSchedulingSteps) is assigned a value using the default heuristic, which is 10 * *maxSteps*.
 
 ```csharp
 public Configuration WithMaxSchedulingSteps(uint maxSteps)
@@ -14,7 +14,28 @@ public Configuration WithMaxSchedulingSteps(uint maxSteps)
 
 | parameter | description |
 | --- | --- |
-| maxSteps | The scheduling steps to explore per iteration. |
+| maxSteps | The maximum scheduling steps to explore per iteration. |
+
+## See Also
+
+* class [Configuration](../ConfigurationType)
+* namespace [Microsoft.Coyote](../ConfigurationType)
+* assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
+
+---
+
+# Configuration.WithMaxSchedulingSteps method (2 of 2)
+
+Updates the configuration with the specified number of maximum unfair and fair scheduling steps to explore per iteration during systematic testing. It is recommended to use [`WithMaxSchedulingSteps`](WithMaxSchedulingSteps) instead of this overloaded method.
+
+```csharp
+public Configuration WithMaxSchedulingSteps(uint maxUnfairSteps, uint maxFairSteps)
+```
+
+| parameter | description |
+| --- | --- |
+| maxUnfairSteps | The unfair scheduling steps to explore per iteration. |
+| maxFairSteps | The fair scheduling steps to explore per iteration. |
 
 ## See Also
 

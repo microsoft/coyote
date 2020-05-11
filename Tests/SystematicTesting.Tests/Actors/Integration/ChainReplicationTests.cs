@@ -1516,20 +1516,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [InlineData(46)]
         public void TestSequenceNotSortedInChainReplicationProtocol(uint seed)
         {
-            var configuration = GetConfiguration();
-            configuration.SchedulingStrategy = "fairpct";
-            configuration.StrategyBound = 1;
-            configuration.MaxSchedulingSteps = 100;
-            configuration.RandomGeneratorSeed = seed;
-            configuration.TestingIterations = 1;
-
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<InvariantMonitor>();
                 r.RegisterMonitor<ServerResponseSeqMonitor>();
                 r.CreateActor(typeof(Environment));
             },
-            configuration: configuration,
+            configuration: GetConfiguration().WithPCTStrategy(true, 1).WithMaxSchedulingSteps(100).
+                WithTestingIterations(1).WithRandomGeneratorSeed(seed),
             expectedError: "Sequence is not sorted.",
             replay: true);
         }

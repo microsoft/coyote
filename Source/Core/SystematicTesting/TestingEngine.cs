@@ -209,6 +209,12 @@ namespace Microsoft.Coyote.SystematicTesting
             this.CancellationTokenSource = new CancellationTokenSource();
             this.PrintGuard = 1;
 
+            if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
+                configuration.MaxFairSchedulingSteps > 0)
+            {
+                configuration.LivenessTemperatureThreshold = configuration.MaxFairSchedulingSteps / 2;
+            }
+
             if (configuration.SchedulingStrategy is "replay")
             {
                 var scheduleDump = this.GetScheduleForReplay(out bool isFair);

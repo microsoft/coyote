@@ -90,13 +90,6 @@ namespace Microsoft.Coyote
         internal bool PerformFullExploration;
 
         /// <summary>
-        /// The maximum scheduling steps to explore for fair schedulers.
-        /// By default this is set to 100,000 steps.
-        /// </summary>
-        [DataMember]
-        public int MaxFairSchedulingSteps { get; internal set; }
-
-        /// <summary>
         /// The maximum scheduling steps to explore for unfair schedulers.
         /// By default this is set to 10,000 steps.
         /// </summary>
@@ -104,22 +97,14 @@ namespace Microsoft.Coyote
         public int MaxUnfairSchedulingSteps { get; internal set; }
 
         /// <summary>
-        /// The maximum scheduling steps to explore
-        /// for both fair and unfair schedulers.
-        /// By default there is no bound.
+        /// The maximum scheduling steps to explore for fair schedulers.
+        /// By default this is set to 100,000 steps.
         /// </summary>
-        internal int MaxSchedulingSteps
-        {
-            set
-            {
-                this.MaxUnfairSchedulingSteps = value;
-                this.MaxFairSchedulingSteps = value;
-            }
-        }
+        [DataMember]
+        public int MaxFairSchedulingSteps { get; internal set; }
 
         /// <summary>
-        /// True if the user has explicitly set the
-        /// fair scheduling steps bound.
+        /// True if the user has explicitly set the fair scheduling steps.
         /// </summary>
         [DataMember]
         internal bool UserExplicitlySetMaxFairSchedulingSteps;
@@ -160,11 +145,17 @@ namespace Microsoft.Coyote
         internal bool IsLivenessCheckingEnabled;
 
         /// <summary>
-        /// The liveness temperature threshold. If it is 0
-        /// then it is disabled.
+        /// The liveness temperature threshold. If it is 0 then it is disabled. By default
+        /// this value is assigned to <see cref="MaxFairSchedulingSteps"/> / 2.
         /// </summary>
         [DataMember]
         public int LivenessTemperatureThreshold { get; internal set; }
+
+        /// <summary>
+        /// True if the user has explicitly set the liveness temperature threshold.
+        /// </summary>
+        [DataMember]
+        internal bool UserExplicitlySetLivenessTemperatureThreshold;
 
         /// <summary>
         /// If this option is enabled, the tester is hashing the program state.
@@ -329,8 +320,8 @@ namespace Microsoft.Coyote
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
             this.PerformFullExploration = false;
-            this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps
             this.MaxUnfairSchedulingSteps = 10000;
+            this.MaxFairSchedulingSteps = 100000; // 10 times the unfair steps.
             this.UserExplicitlySetMaxFairSchedulingSteps = false;
             this.ParallelBugFindingTasks = 0;
             this.ParallelDebug = false;
@@ -344,7 +335,8 @@ namespace Microsoft.Coyote
             this.SafetyPrefixBound = 0;
 
             this.IsLivenessCheckingEnabled = true;
-            this.LivenessTemperatureThreshold = 0;
+            this.LivenessTemperatureThreshold = 50000;
+            this.UserExplicitlySetLivenessTemperatureThreshold = false;
             this.IsProgramStateHashingEnabled = false;
             this.IsMonitoringEnabledInInProduction = false;
             this.AttachDebugger = false;
@@ -441,46 +433,50 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
-        /// Updates the configuration with the specified number of scheduling steps to explore per iteration
-        /// (for both fair and unfair schedulers) during systematic testing.
+        /// Updates the configuration with the specified number of maximum scheduling steps to explore per
+        /// iteration during systematic testing. The <see cref="MaxUnfairSchedulingSteps"/> is assigned the
+        /// <paramref name="maxSteps"/> value, whereas the <see cref="MaxFairSchedulingSteps"/> is assigned
+        /// a value using the default heuristic, which is 10 * <paramref name="maxSteps"/>.
         /// </summary>
-        /// <param name="maxSteps">The scheduling steps to explore per iteration.</param>
+        /// <param name="maxSteps">The maximum scheduling steps to explore per iteration.</param>
         public Configuration WithMaxSchedulingSteps(uint maxSteps)
         {
-            this.MaxSchedulingSteps = (int)maxSteps;
+            this.MaxUnfairSchedulingSteps = (int)maxSteps;
+            this.MaxFairSchedulingSteps = 10 * (int)maxSteps;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration with the specified number of fair scheduling steps to explore
-        /// per iteration during systematic testing.
+        /// Updates the configuration with the specified number of maximum unfair and fair scheduling
+        /// steps to explore per iteration during systematic testing. It is recommended to use
+        /// <see cref="WithMaxSchedulingSteps(uint)"/> instead of this overloaded method.
         /// </summary>
-        /// <param name="maxFairSteps">The scheduling steps to explore per iteration.</param>
-        public Configuration WithMaxFairSchedulingSteps(uint maxFairSteps)
+        /// <param name="maxUnfairSteps">The unfair scheduling steps to explore per iteration.</param>
+        /// <param name="maxFairSteps">The fair scheduling steps to explore per iteration.</param>
+        public Configuration WithMaxSchedulingSteps(uint maxUnfairSteps, uint maxFairSteps)
         {
-            this.MaxFairSchedulingSteps = (int)maxFairSteps;
-            return this;
-        }
+            if (maxFairSteps < maxUnfairSteps)
+            {
+                throw new ArgumentException("The max fair steps cannot not be less than the max unfair steps.", nameof(maxFairSteps));
+            }
 
-        /// <summary>
-        /// Updates the configuration with the specified number of unfair scheduling steps to explore
-        /// per iteration during systematic testing.
-        /// </summary>
-        /// <param name="maxUnfairSteps">The scheduling steps to explore per iteration.</param>
-        public Configuration WithMaxUnfairSchedulingSteps(uint maxUnfairSteps)
-        {
             this.MaxUnfairSchedulingSteps = (int)maxUnfairSteps;
+            this.MaxFairSchedulingSteps = (int)maxFairSteps;
+            this.UserExplicitlySetMaxFairSchedulingSteps = true;
             return this;
         }
 
         /// <summary>
-        /// Updates the configuration with the specified liveness temperature threshold during systematic testing.
-        /// If this value is 0 it disables liveness checking.
+        /// Updates the configuration with the specified liveness temperature threshold during
+        /// systematic testing. If this value is 0 it disables liveness checking. It is not
+        /// recommended to explicitly set this value, instead use the default value which is
+        /// assigned to <see cref="MaxFairSchedulingSteps"/> / 2.
         /// </summary>
         /// <param name="threshold">The liveness temperature threshold.</param>
         public Configuration WithLivenessTemperatureThreshold(uint threshold)
         {
             this.LivenessTemperatureThreshold = (int)threshold;
+            this.UserExplicitlySetLivenessTemperatureThreshold = true;
             return this;
         }
 

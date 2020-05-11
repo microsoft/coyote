@@ -67,6 +67,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 arguments.Append($"--max-steps {configuration.MaxUnfairSchedulingSteps} ");
             }
 
+            if (configuration.UserExplicitlySetLivenessTemperatureThreshold)
+            {
+                arguments.Append($"--liveness-temperature-threshold {configuration.LivenessTemperatureThreshold} ");
+            }
+
             if (configuration.SchedulingStrategy is "pct" ||
                 configuration.SchedulingStrategy is "fairpct" ||
                 configuration.SchedulingStrategy is "probabilistic")

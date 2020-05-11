@@ -59,18 +59,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestTimerLiveness()
         {
-            var configuration = GetConfiguration();
-            configuration.TimeoutDelay = 1;
-            configuration.LivenessTemperatureThreshold = 150;
-            configuration.MaxSchedulingSteps = 300;
-            configuration.TestingIterations = 1000;
-
             this.Test(r =>
             {
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(Client));
             },
-            configuration: configuration);
+            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
+                WithLivenessTemperatureThreshold(150).WithTimeoutDelay(1));
         }
     }
 }

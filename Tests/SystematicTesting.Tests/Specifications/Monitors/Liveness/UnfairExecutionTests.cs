@@ -100,17 +100,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Specifications
         [Fact(Timeout = 5000)]
         public void TestUnfairExecution()
         {
-            var configuration = GetConfiguration();
-            configuration.LivenessTemperatureThreshold = 150;
-            configuration.SchedulingStrategy = "pct";
-            configuration.MaxSchedulingSteps = 300;
-
             this.Test(r =>
             {
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(M));
             },
-            configuration: configuration);
+            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithPCTStrategy(false).
+                WithLivenessTemperatureThreshold(150));
         }
     }
 }

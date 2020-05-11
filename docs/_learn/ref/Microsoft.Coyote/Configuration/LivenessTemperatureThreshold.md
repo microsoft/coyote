@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshol
 ---
 # Configuration.LivenessTemperatureThreshold property
 
-The liveness temperature threshold. If it is 0 then it is disabled.
+The liveness temperature threshold. If it is 0 then it is disabled. By default this value is assigned to [`MaxFairSchedulingSteps`](MaxFairSchedulingSteps) / 2.
 
 ```csharp
 public int LivenessTemperatureThreshold { get; }

@@ -123,10 +123,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithMaxSchedulingSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps
-        - name: WithMaxFairSchedulingSteps
-          link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxFairSchedulingSteps
-        - name: WithMaxUnfairSchedulingSteps
-          link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxUnfairSchedulingSteps
         - name: WithLivenessTemperatureThreshold
           link: /learn/ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold
         - name: WithTimeoutDelay
@@ -149,10 +145,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/TestingIterations
         - name: RandomGeneratorSeed
           link: /learn/ref/Microsoft.Coyote/Configuration/RandomGeneratorSeed
-        - name: MaxFairSchedulingSteps
-          link: /learn/ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps
         - name: MaxUnfairSchedulingSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/MaxUnfairSchedulingSteps
+        - name: MaxFairSchedulingSteps
+          link: /learn/ref/Microsoft.Coyote/Configuration/MaxFairSchedulingSteps
         - name: StrategyBound
           link: /learn/ref/Microsoft.Coyote/Configuration/StrategyBound
         - name: TimeoutDelay

@@ -58,17 +58,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestStartStopTimerInActor()
         {
-            var configuration = GetConfiguration();
-            configuration.LivenessTemperatureThreshold = 150;
-            configuration.MaxSchedulingSteps = 300;
-            configuration.TestingIterations = 1000;
-
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(ClientActor));
             },
-            configuration: configuration,
+            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
+                WithLivenessTemperatureThreshold(150),
             expectedError: "LivenessMonitor detected liveness bug in hot state " +
                 "'NoTimeoutReceived' at the end of program execution.",
             replay: true);
@@ -100,17 +96,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestStartStopTimerInStateMachine()
         {
-            var configuration = GetConfiguration();
-            configuration.LivenessTemperatureThreshold = 150;
-            configuration.MaxSchedulingSteps = 300;
-            configuration.TestingIterations = 1000;
-
             this.TestWithError(r =>
             {
                 r.RegisterMonitor<LivenessMonitor>();
                 r.CreateActor(typeof(ClientStateMachine));
             },
-            configuration: configuration,
+            configuration: GetConfiguration().WithMaxSchedulingSteps(300).WithTestingIterations(1000).
+                WithLivenessTemperatureThreshold(150),
             expectedError: "LivenessMonitor detected liveness bug in hot state " +
                 "'NoTimeoutReceived' at the end of program execution.",
             replay: true);

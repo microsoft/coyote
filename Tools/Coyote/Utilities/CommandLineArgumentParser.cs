@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Utilities
         /// <summary>
         /// This is the print help option.
         /// </summary>
-        public bool PrintHelp;
+        public bool PrintFullHelp;
 
         /// <summary>
         /// This argument depends on the specific value of another.
@@ -275,7 +275,8 @@ namespace Microsoft.Coyote.Utilities
                 AllowedValues = this.AllowedValues,
                 IsMultiValue = this.IsMultiValue,
                 IsPositional = this.IsPositional,
-                DependsOn = this.DependsOn
+                DependsOn = this.DependsOn,
+                PrintFullHelp = this.PrintFullHelp
             };
         }
 
@@ -381,6 +382,11 @@ namespace Microsoft.Coyote.Utilities
         public CommandLineArgumentDependency DependsOn;
 
         /// <summary>
+        /// Whether this group should be included in all help messages
+        /// </summary>
+        internal bool AlwaysPrint { get; set; }
+
+        /// <summary>
         /// Add a positional argument. Positional arguments have no switch (--foo) and must be specified in the
         /// order that they are defined. Note that positional arguments must appear before any named arguments.
         /// </summary>
@@ -431,6 +437,7 @@ namespace Microsoft.Coyote.Utilities
     {
         private readonly string AppName;
         private readonly string AppDescription;
+        private List<CommandLineArgument> ParsedArguments = new List<CommandLineArgument>();
 
         /// <summary>
         /// To remember the oder in which they were added.
@@ -461,12 +468,12 @@ namespace Microsoft.Coyote.Utilities
         /// Initializes a new instance of the <see cref="CommandLineArgumentParser"/> class.
         /// </summary>
         /// <param name="appName">The name of the application.</param>
-        /// <param name="appDescription">The overview help text for the application..</param>
+        /// <param name="appDescription">The overview help text for the application.</param>
         public CommandLineArgumentParser(string appName, string appDescription)
         {
             this.AppName = appName;
             this.AppDescription = appDescription;
-            this.AddArgument("?", "?", "Show this help menu", typeof(bool)).PrintHelp = true;
+            this.AddArgument("?", "?", "Show full help text", typeof(bool)).PrintFullHelp = true;
         }
 
         /// <summary>
@@ -474,15 +481,16 @@ namespace Microsoft.Coyote.Utilities
         /// </summary>
         /// <param name="name">The name of the group.</param>
         /// <param name="description">The help text for the group.</param>
+        /// <param name="alwaysPrint">Whether to include this in all help messages.</param>
         /// <returns>The new command line group.</returns>
-        public CommandLineGroup GetOrCreateGroup(string name, string description)
+        public CommandLineGroup GetOrCreateGroup(string name, string description, bool alwaysPrint = false)
         {
             if (this.Groups.TryGetValue(name, out CommandLineGroup group))
             {
                 return group;
             }
 
-            group = new CommandLineGroup(this, this.LongNames) { Name = name, Description = description };
+            group = new CommandLineGroup(this, this.LongNames) { Name = name, Description = description, AlwaysPrint = alwaysPrint };
             this.Groups.Add(name, group);
             this.GroupNames.Add(name);
             return group;
@@ -552,7 +560,7 @@ namespace Microsoft.Coyote.Utilities
                 ShortName = shortName,
                 DataType = dataType,
                 Description = description,
-                IsRequired = required
+                IsRequired = required,
             };
             this.Arguments[longName] = argument;
             this.LongNames.Add(longName);
@@ -624,7 +632,9 @@ namespace Microsoft.Coyote.Utilities
         /// <returns>The parsed arguments.</returns>
         public List<CommandLineArgument> ParseArguments(string[] args)
         {
-            List<CommandLineArgument> result = new List<CommandLineArgument>();
+            List<CommandLineArgument> result = this.ParsedArguments;
+            result.Clear();
+
             int position = 0; // For positional arguments.
             CommandLineArgument current = null;
 
@@ -676,7 +686,7 @@ namespace Microsoft.Coyote.Utilities
                     current = current.Clone();
                     result.Add(current);
 
-                    if (current.PrintHelp)
+                    if (current.PrintFullHelp)
                     {
                         this.PrintHelp(Console.Out);
                         Environment.Exit(1);
@@ -702,7 +712,7 @@ namespace Microsoft.Coyote.Utilities
                             throw new CommandLineException(string.Format("Unexpected positional argument: '{0}'", arg), result);
                         }
                     }
-                    while (!IsRequired(current, result));
+                    while (!this.IsRequired(current));
 
                     // Positional arguments have no name so the arg is the value.
                     var temp = current.Clone();
@@ -714,7 +724,7 @@ namespace Microsoft.Coyote.Utilities
 
             foreach (var arg in this.Arguments.Values)
             {
-                if (IsRequired(arg, result) && !(from r in result where r.LongName == arg.LongName select r).Any())
+                if (this.IsRequired(arg) && !(from r in result where r.LongName == arg.LongName select r).Any())
                 {
                     if (arg.IsPositional)
                     {
@@ -738,13 +748,13 @@ namespace Microsoft.Coyote.Utilities
             return result;
         }
 
-        private static bool IsRequired(CommandLineArgument argument, List<CommandLineArgument> result)
+        private bool IsRequired(CommandLineArgument argument)
         {
             if (argument.IsRequired)
             {
                 if (argument.DependsOn != null)
                 {
-                    var dependent = (from r in result where r.LongName == argument.DependsOn.Name select r).FirstOrDefault();
+                    var dependent = (from r in this.ParsedArguments where r.LongName == argument.DependsOn.Name select r).FirstOrDefault();
                     if (dependent != null && string.Compare(dependent.Value.ToString(), argument.DependsOn.Value, StringComparison.OrdinalIgnoreCase) == 0)
                     {
                         return true;
@@ -759,6 +769,19 @@ namespace Microsoft.Coyote.Utilities
             return false;
         }
 
+        private bool IsGroupSelected(CommandLineGroup g)
+        {
+            // return true if the group that this argument belongs to has been selected by the
+            // parse command line arguments.
+            if (g.DependsOn != null)
+            {
+                var dependent = (from r in this.ParsedArguments where r.LongName == g.DependsOn.Name select r).FirstOrDefault();
+                return dependent != null && string.Compare(dependent.Value.ToString(), g.DependsOn.Value, StringComparison.OrdinalIgnoreCase) == 0;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Shows help.
         /// </summary>
@@ -766,6 +789,7 @@ namespace Microsoft.Coyote.Utilities
         {
             const int ArgHelpLineLength = 100;
             const int ArgHelpIndent = 30;
+            var fullHelp = (from a in this.ParsedArguments where a.PrintFullHelp select a).Any();
 
             string prefix = string.Format("usage: {0} ", this.AppName);
             output.Write(prefix);
@@ -818,8 +842,13 @@ namespace Microsoft.Coyote.Utilities
                     continue;
                 }
 
-                output.WriteLine(g.Description + ":");
-                output.WriteLine(new string('-', g.Description.Length + 1));
+                bool supressed = !fullHelp && !g.AlwaysPrint && !this.IsGroupSelected(g);
+
+                if (!supressed)
+                {
+                    output.WriteLine(g.Description + ":");
+                    output.WriteLine(new string('-', g.Description.Length + 1));
+                }
 
                 foreach (var option in this.PositionalNames.Concat(this.LongNames))
                 {
@@ -833,37 +862,43 @@ namespace Microsoft.Coyote.Utilities
                     {
                         visitedOptions.Add(option);
 
-                        string syntax = "  ";
-                        if (!string.IsNullOrEmpty(arg.ShortName))
+                        if (!supressed)
                         {
-                            syntax += string.Format("{0}, ", arg.ShortSyntax);
-                        }
+                            string syntax = "  ";
+                            if (!string.IsNullOrEmpty(arg.ShortName))
+                            {
+                                syntax += string.Format("{0}, ", arg.ShortSyntax);
+                            }
 
-                        syntax += string.Format("{0} ", arg.LongSyntaxAndDataType);
+                            syntax += string.Format("{0} ", arg.LongSyntaxAndDataType);
 
-                        output.Write(syntax);
-                        if (syntax.Length < ArgHelpIndent)
-                        {
-                            output.Write(new string(' ', ArgHelpIndent - syntax.Length));
-                        }
-                        else
-                        {
+                            output.Write(syntax);
+                            if (syntax.Length < ArgHelpIndent)
+                            {
+                                output.Write(new string(' ', ArgHelpIndent - syntax.Length));
+                            }
+                            else
+                            {
+                                output.WriteLine();
+                                output.Write(new string(' ', ArgHelpIndent));
+                            }
+
+                            if (!string.IsNullOrEmpty(arg.Description))
+                            {
+                                output.Write(": ");
+                                wrapper = new WordWrapper(output, ArgHelpIndent + 2, ArgHelpLineLength);
+                                wrapper.Write(arg.Description);
+                            }
+
                             output.WriteLine();
-                            output.Write(new string(' ', ArgHelpIndent));
                         }
-
-                        if (!string.IsNullOrEmpty(arg.Description))
-                        {
-                            output.Write(": ");
-                            wrapper = new WordWrapper(output, ArgHelpIndent + 2, ArgHelpLineLength);
-                            wrapper.Write(arg.Description);
-                        }
-
-                        output.WriteLine();
                     }
                 }
 
-                output.WriteLine();
+                if (!supressed)
+                {
+                    output.WriteLine();
+                }
             }
 
             bool optionalHeader = false;

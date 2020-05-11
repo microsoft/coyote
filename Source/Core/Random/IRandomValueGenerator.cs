@@ -21,7 +21,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Returns a non-negative random number less than maxValue.
         /// </summary>
-        /// <param name="maxValue">Exclusive upper bound</param>
+        /// <param name="maxValue">Exclusive upper bound.</param>
         int Next(int maxValue);
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// <summary>
         /// Writes the specified string value.
         /// </summary>
-        /// <param name="value">Text</param>
+        /// <param name="value">Text.</param>
         public override void Write(string value)
         {
             if (this.IsVerbose)
@@ -81,8 +81,8 @@ namespace Microsoft.Coyote.Tests.Common
         /// <summary>
         /// Writes the text representation of the specified array of objects.
         /// </summary>
-        /// <param name="format">Text</param>
-        /// <param name="args">Arguments</param>
+        /// <param name="format">Text.</param>
+        /// <param name="args">Arguments.</param>
         public override void Write(string format, params object[] args)
         {
             if (this.IsVerbose)
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// Writes the specified string value, followed by the
         /// current line terminator.
         /// </summary>
-        /// <param name="value">Text</param>
+        /// <param name="value">Text.</param>
         public override void WriteLine(string value)
         {
             if (this.IsVerbose)
@@ -144,8 +144,8 @@ namespace Microsoft.Coyote.Tests.Common
         /// Writes the text representation of the specified array of objects,
         /// followed by the current line terminator.
         /// </summary>
-        /// <param name="format">Text</param>
-        /// <param name="args">Arguments</param>
+        /// <param name="format">Text.</param>
+        /// <param name="args">Arguments.</param>
         public override void WriteLine(string format, params object[] args)
         {
             if (this.IsVerbose)

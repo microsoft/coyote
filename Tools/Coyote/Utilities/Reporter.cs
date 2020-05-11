@@ -15,9 +15,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Emits the testing coverage report.
         /// </summary>
-        /// <param name="report">TestReport</param>
-        /// <param name="processId">Optional process id that produced the report</param>
-        /// <param name="isDebug">Is a debug report</param>
+        /// <param name="report">TestReport.</param>
+        /// <param name="processId">Optional process id that produced the report.</param>
+        /// <param name="isDebug">Is a debug report.</param>
         internal static void EmitTestingCoverageReport(TestReport report, uint? processId = null, bool isDebug = false)
         {
             string file = Path.GetFileNameWithoutExtension(report.Configuration.AssemblyToBeAnalyzed);
@@ -76,9 +76,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Emits all the testing coverage related output files.
         /// </summary>
-        /// <param name="report">TestReport containing CoverageInfo</param>
-        /// <param name="directory">Output directory name, unique for this run</param>
-        /// <param name="file">Output file name</param>
+        /// <param name="report">TestReport containing CoverageInfo.</param>
+        /// <param name="directory">Output directory name, unique for this run.</param>
+        /// <param name="file">Output file name.</param>
         private static void EmitTestingCoverageOutputFiles(TestReport report, string directory, string file)
         {
             var codeCoverageReporter = new ActivityCoverageReporter(report.CoverageInfo);

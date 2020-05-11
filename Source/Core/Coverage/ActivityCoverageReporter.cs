@@ -271,7 +271,7 @@ namespace Microsoft.Coyote.Coverage
         /// <summary>
         /// Remove all events from expectedEvent that are found in the graph.
         /// </summary>
-        /// <param name="expectedEvents">The list of all expected events organized by unique state Id</param>
+        /// <param name="expectedEvents">The list of all expected events organized by unique state Id.</param>
         private void RemoveCoveredEvents(Dictionary<string, HashSet<string>> expectedEvents)
         {
             foreach (var pair in expectedEvents)

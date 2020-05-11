@@ -13,7 +13,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertionFailureException"/> class.
         /// </summary>
-        /// <param name="message">Message</param>
+        /// <param name="message">Message.</param>
         internal AssertionFailureException(string message)
             : base(message)
         {
@@ -22,8 +22,8 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertionFailureException"/> class.
         /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="innerException">Inner exception</param>
+        /// <param name="message">Message.</param>
+        /// <param name="innerException">Inner exception.</param>
         internal AssertionFailureException(string message, Exception innerException)
             : base(message, innerException)
         {

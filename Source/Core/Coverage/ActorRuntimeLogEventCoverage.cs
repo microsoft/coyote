@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Coverage
         /// <summary>
         /// Get list of events received by the given fully qualified state.
         /// </summary>
-        /// <param name="stateId">The actor qualified state name</param>
+        /// <param name="stateId">The actor qualified state name.</param>
         public IEnumerable<string> GetEventsReceived(string stateId)
         {
             if (this.EventsReceived.TryGetValue(stateId, out HashSet<string> set))
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Coverage
         /// <summary>
         /// Get list of events sent by the given state.
         /// </summary>
-        /// <param name="stateId">The actor qualified state name</param>
+        /// <param name="stateId">The actor qualified state name.</param>
         public IEnumerable<string> GetEventsSent(string stateId)
         {
             if (this.EventsSent.TryGetValue(stateId, out HashSet<string> set))

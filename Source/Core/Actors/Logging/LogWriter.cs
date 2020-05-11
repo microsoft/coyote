@@ -513,7 +513,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the specified monitor enters or exits a state.
         /// </summary>
-        /// <param name="monitorType">The name of the type of the monitor entering or exiting the state</param>
+        /// <param name="monitorType">The name of the type of the monitor entering or exiting the state.</param>
         /// <param name="stateName">The name of the state being entered or exited; if <paramref name="isInHotState"/>
         /// is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]".</param>
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>

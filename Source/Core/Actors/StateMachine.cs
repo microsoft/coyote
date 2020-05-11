@@ -665,9 +665,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Get the appropriate inherited event handler for the given event.
         /// </summary>
-        /// <param name="e">The event we want to handle</param>
-        /// <param name="info">The HandlerInfo in the state stack</param>
-        /// <returns>True if a handler is found, otherwise false</returns>
+        /// <param name="e">The event we want to handle.</param>
+        /// <param name="info">The HandlerInfo in the state stack.</param>
+        /// <returns>True if a handler is found, otherwise false.</returns>
         private bool GetInheritedEventHandler(Event e, ref HandlerInfo info)
         {
             Type eventType = e.GetType();
@@ -1716,7 +1716,7 @@ namespace Microsoft.Coyote.Actors
                 /// <summary>
                 /// Initializes a new instance of the <see cref="DeferEventsAttribute"/> class.
                 /// </summary>
-                /// <param name="eventTypes">Event types</param>
+                /// <param name="eventTypes">Event types.</param>
                 public DeferEventsAttribute(params Type[] eventTypes)
                 {
                     this.Events = eventTypes;
@@ -1737,7 +1737,7 @@ namespace Microsoft.Coyote.Actors
                 /// <summary>
                 /// Initializes a new instance of the <see cref="IgnoreEventsAttribute"/> class.
                 /// </summary>
-                /// <param name="eventTypes">Event types</param>
+                /// <param name="eventTypes">Event types.</param>
                 public IgnoreEventsAttribute(params Type[] eventTypes)
                 {
                     this.Events = eventTypes;

@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class TaskWaitAllTests : Microsoft.Coyote.Production.Tests.Tasks.TaskWaitAllTests
+    public class TaskWaitAllTests : Production.Tests.Tasks.TaskWaitAllTests
     {
         public TaskWaitAllTests(ITestOutputHelper output)
             : base(output)

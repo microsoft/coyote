@@ -1,11 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;

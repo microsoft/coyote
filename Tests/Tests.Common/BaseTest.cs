@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Tests.Common
 {
+    public delegate void TestErrorChecker(string error);
+
     public abstract class BaseTest
     {
         protected readonly ITestOutputHelper TestOutput;
@@ -42,9 +45,10 @@ namespace Microsoft.Coyote.Tests.Common
             report = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
             report = Regex.Replace(report, @"\([^)]*\)", "()");
             report = Regex.Replace(report, @"\[[^)]*\]", "[]");
+            report = Regex.Replace(report, "[\r\n]+", " ");
 
             // Match a namespace.
-            return RemoveNamespaceReferencesFromReport(report);
+            return RemoveNamespaceReferencesFromReport(report).Trim();
         }
 
         protected static string SortLines(string text)
@@ -230,11 +234,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, new string[] { expectedError }, replay);
+                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
-                this.RunWithErrors((r) => test(), configuration, new string[] { expectedError });
+                this.RunWithErrors((r) => test(), configuration, (e) => { CheckSingleError(e, expectedError); });
             }
         }
 
@@ -243,11 +247,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test, configuration, new string[] { expectedError }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
-                this.RunWithErrors(test, configuration, new string[] { expectedError });
+                this.RunWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); });
             }
         }
 
@@ -256,11 +260,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, new string[] { expectedError }, replay);
+                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
-                this.RunWithErrorsAsync(async (r) => await test(), configuration, new string[] { expectedError }).Wait();
+                this.RunWithErrorsAsync(async (r) => await test(), configuration, (e) => { CheckSingleError(e, expectedError); }).Wait();
             }
         }
 
@@ -269,11 +273,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, new string[] { expectedError }, replay);
+                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
-                this.RunWithErrorsAsync(test, configuration, new string[] { expectedError }).Wait();
+                this.RunWithErrorsAsync(test, configuration, (e) => { CheckSingleError(e, expectedError); }).Wait();
             }
         }
 
@@ -282,11 +286,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, expectedErrors, replay);
+                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
-                this.RunWithErrors((r) => test(), configuration, expectedErrors);
+                this.RunWithErrors((r) => test(), configuration, (e) => { CheckMultipleErrors(e, expectedErrors); });
             }
         }
 
@@ -295,11 +299,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test, configuration, expectedErrors, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
-                this.RunWithErrors(test, configuration, expectedErrors);
+                this.RunWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); });
             }
         }
 
@@ -308,11 +312,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, expectedErrors, replay);
+                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
-                this.RunWithErrorsAsync(async (r) => await test(), configuration, expectedErrors).Wait();
+                this.RunWithErrorsAsync(async (r) => await test(), configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }).Wait();
             }
         }
 
@@ -321,15 +325,67 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, expectedErrors, replay);
+                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
-                this.RunWithErrorsAsync(test, configuration, expectedErrors).Wait();
+                this.RunWithErrorsAsync(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }).Wait();
             }
         }
 
-        private void TestWithErrors(Delegate test, Configuration configuration, string[] expectedErrors, bool replay)
+        protected void TestWithError(Action test, TestErrorChecker errorChecker, Configuration configuration = null,
+            bool replay = false)
+        {
+            if (this.SystematicTest)
+            {
+                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+            }
+            else
+            {
+                this.RunWithErrors((r) => test(), configuration, errorChecker);
+            }
+        }
+
+        protected void TestWithError(Action<IActorRuntime> test, TestErrorChecker errorChecker, Configuration configuration = null,
+            bool replay = false)
+        {
+            if (this.SystematicTest)
+            {
+                this.TestWithErrors(test, configuration, errorChecker, replay);
+            }
+            else
+            {
+                this.RunWithErrors(test, configuration, errorChecker);
+            }
+        }
+
+        protected void TestWithError(Func<Task> test, TestErrorChecker errorChecker, Configuration configuration = null,
+            bool replay = false)
+        {
+            if (this.SystematicTest)
+            {
+                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+            }
+            else
+            {
+                this.RunWithErrorsAsync(async (r) => await test(), configuration, errorChecker).Wait();
+            }
+        }
+
+        protected void TestWithError(Func<IActorRuntime, Task> test, TestErrorChecker errorChecker, Configuration configuration = null,
+            bool replay = false)
+        {
+            if (this.SystematicTest)
+            {
+                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+            }
+            else
+            {
+                this.RunWithErrorsAsync(test, configuration, errorChecker).Wait();
+            }
+        }
+
+        private void TestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -346,7 +402,7 @@ namespace Microsoft.Coyote.Tests.Common
             try
             {
                 var engine = RunTest(test, configuration, logger);
-                CheckErrors(engine, expectedErrors);
+                CheckErrors(engine, errorChecker);
 
                 if (replay)
                 {
@@ -356,7 +412,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                     string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
                     Assert.True(replayError.Length == 0, replayError);
-                    CheckErrors(engine, expectedErrors);
+                    CheckErrors(engine, errorChecker);
                 }
             }
             catch (Exception ex)
@@ -511,7 +567,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, string[] expectedErrors)
+        private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -536,7 +592,19 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                Assert.Contains(GetFirstLine(ex.Message), expectedErrors);
+                var msg = ex.Message;
+                if (ex is AggregateException ae)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var e in ae.InnerExceptions)
+                    {
+                        sb.AppendLine(e.Message);
+                    }
+
+                    msg = sb.ToString();
+                }
+
+                errorChecker(msg);
             }
             finally
             {
@@ -544,7 +612,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        private async Task RunWithErrorsAsync(Func<IActorRuntime, Task> test, Configuration configuration, string[] expectedErrors)
+        private async Task RunWithErrorsAsync(Func<IActorRuntime, Task> test, Configuration configuration, TestErrorChecker errorChecker)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -569,7 +637,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             catch (Exception ex)
             {
-                Assert.Contains(GetFirstLine(ex.Message), expectedErrors);
+                errorChecker(GetFirstLine(ex.Message));
             }
             finally
             {
@@ -635,13 +703,33 @@ namespace Microsoft.Coyote.Tests.Common
             return engine;
         }
 
-        private static void CheckErrors(TestingEngine engine, IEnumerable<string> expectedErrors)
+        private static void CheckSingleError(string actual, string expected)
         {
-            Assert.True(engine.TestReport.NumOfFoundBugs > 0);
+            var a = RemoveNonDeterministicValuesFromReport(actual);
+            var b = RemoveNonDeterministicValuesFromReport(expected);
+            Assert.Equal(b, a);
+        }
+
+        private static void CheckMultipleErrors(string actual, string[] expectedErrors)
+        {
+            var stripped = RemoveNonDeterministicValuesFromReport(actual);
+            try
+            {
+                Assert.Contains(expectedErrors, (e) => RemoveNonDeterministicValuesFromReport(e) == stripped);
+            }
+            catch (Exception)
+            {
+                Debug.WriteLine(actual);
+                throw;
+            }
+        }
+
+        private static void CheckErrors(TestingEngine engine, TestErrorChecker errorChecker)
+        {
+            Assert.True(engine.TestReport.NumOfFoundBugs > 0, "Expected bugs to be found, but we found none");
             foreach (var bugReport in engine.TestReport.BugReports)
             {
-                var actual = RemoveNonDeterministicValuesFromReport(bugReport);
-                Assert.Contains(actual, expectedErrors);
+                errorChecker(bugReport);
             }
         }
 

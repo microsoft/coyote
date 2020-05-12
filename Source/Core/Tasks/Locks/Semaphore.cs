@@ -131,8 +131,7 @@ namespace Microsoft.Coyote.Tasks
                     // The resource is not available yet, notify the scheduler that the executing
                     // asynchronous operation is blocked, so that it cannot be scheduled during
                     // systematic testing exploration, which could deadlock.
-                    this.Resource.NotifyWait();
-                    this.Resource.Runtime.ScheduleNextOperation();
+                    this.Resource.Wait();
                 }
 
                 this.NumAcquired++;
@@ -153,7 +152,7 @@ namespace Microsoft.Coyote.Tasks
                     "Cannot release semaphore as it has reached max count of {0}.", this.MaxCount);
 
                 // Release the semaphore and notify any awaiting asynchronous operations.
-                this.Resource.NotifyRelease();
+                this.Resource.SignalAll();
 
                 // This must be called outside the context of the semaphore, because it notifies
                 // the scheduler to try schedule another asynchronous operation that could in turn

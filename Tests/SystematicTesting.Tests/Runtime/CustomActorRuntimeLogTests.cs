@@ -86,12 +86,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 
-                string expected = @"CreateStateMachine
-StateTransition
-CreateStateMachine
-StateTransition
-";
-
+                string expected = @"CreateStateMachine StateTransition CreateStateMachine StateTransition";
                 string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
                 Assert.Equal(expected, actual);
             }
@@ -140,11 +135,12 @@ StateTransition
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 0 fair and 1 unfair.
-<StrategyLog> Found 100.00% buggy schedules.
-";
+<StrategyLog> Found 100.00% buggy schedules.";
 
-                string actual = RemoveNonDeterministicValuesFromReport(engine.ReadableTrace.ToString());
+                string actual = engine.ReadableTrace.ToString();
                 actual = RemoveStackTraceFromReport(actual);
+                actual = RemoveNonDeterministicValuesFromReport(actual);
+                expected = RemoveNonDeterministicValuesFromReport(expected);
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)
@@ -193,12 +189,12 @@ StateTransition
    at Microsoft.Coyote.SystematicTesting.Tests.Runtime.CustomActorRuntimeLogTests.M.Act()
   </AssertionFailure>
   <Strategy strategy='dfs'>dfs</Strategy>
-</Log>
-";
+</Log>";
 
                 string actual = builder.ToString().Replace("\"", "'");
-                actual = RemoveNonDeterministicValuesFromReport(actual);
                 actual = RemoveStackTraceFromXmlReport(actual);
+                actual = RemoveNonDeterministicValuesFromReport(actual);
+                expected = RemoveNonDeterministicValuesFromReport(expected);
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)

@@ -69,11 +69,12 @@ Task '' completed.
 <StrategyLog> Found 1 bug.
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 0 fair and 1 unfair.
-<StrategyLog> Found 100.00% buggy schedules.
-";
+<StrategyLog> Found 100.00% buggy schedules.";
 
-                string actual = RemoveNonDeterministicValuesFromReport(engine.ReadableTrace.ToString());
+                string actual = engine.ReadableTrace.ToString();
                 actual = RemoveStackTraceFromReport(actual, "<StrategyLog>");
+                actual = RemoveNonDeterministicValuesFromReport(actual);
+                expected = RemoveNonDeterministicValuesFromReport(expected);
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)

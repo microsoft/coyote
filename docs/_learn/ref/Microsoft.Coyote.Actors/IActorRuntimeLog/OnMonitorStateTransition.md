@@ -15,7 +15,7 @@ public void OnMonitorStateTransition(string monitorType, string stateName, bool 
 
 | parameter | description |
 | --- | --- |
-| monitorType | The name of the type of the monitor entering or exiting the state |
+| monitorType | The name of the type of the monitor entering or exiting the state. |
 | stateName | The name of the state being entered or exited; if *isInHotState* is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]". |
 | isEntry | If true, this is called for a state entry; otherwise, exit. |
 | isInHotState | If true, the monitor is in a hot state; if false, the monitor is in a cold state; else no liveness state is available. |

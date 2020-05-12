@@ -994,6 +994,27 @@
           link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/Semaphore
         - name: CurrentCount
           link: /learn/ref/Microsoft.Coyote.Tasks/Semaphore/CurrentCount
+      - name: SynchronizedBlock
+        link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlockType
+        subfolderitems:
+        - name: Lock
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Lock
+        - name: EnterLock
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/EnterLock
+        - name: Pulse
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Pulse
+        - name: PulseAll
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/PulseAll
+        - name: Wait
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Wait
+        - name: Dispose
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Dispose
+        - name: SynchronizedBlock
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SynchronizedBlock
+        - name: SyncObject
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SyncObject
+        - name: Verbose
+          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Verbose
       - name: Task
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskType
         subfolderitems:

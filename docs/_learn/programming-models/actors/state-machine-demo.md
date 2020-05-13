@@ -19,7 +19,7 @@ This graph was generated from a `coyote test` with the `--xml-trace` and `--grap
 is going on in a level of detail that is hard to extract from other kinds of C# code. This
 illustrates the benefit of this programming model both for software design, as well as
 implementation enforcing this design, and testing that can find very hard to find bugs in these
-kinds complex distributed systems.
+kinds of complex distributed systems.
 
 The trace shows a global order of messages being transferred between the various state machines. The
 message exchange is shown to happen one after the other (when in production they may be happening in
@@ -28,5 +28,5 @@ two Raft `Server` state-machines both end up claiming to be leaders at the same 
 violation of Raft's consensus requirements that there be at most one leader at a time.
 
 This animation is slowed down from actual testing speed so you can see what is happening. This
-entire test normally takes milliseconds so that Coyote can explore huge number of possible
-tests in short amount of time.
+entire test normally takes milliseconds so that Coyote can explore a huge number of possible
+tests in a short amount of time.

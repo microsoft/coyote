@@ -25,13 +25,11 @@ namespace Microsoft.Coyote.Utilities
                 "The Coyote tool enables you to systematically test a specified Coyote test, generate " +
                 "a reproducible bug-trace if a bug is found, and replay a bug-trace using the VS debugger.");
 
-            var basicOptions = this.Parser.GetOrCreateGroup("Basic", "Basic options");
-            var commandArg = basicOptions.AddPositionalArgument("command", "The operation perform (test, replay)");
+            var basicGroup = this.Parser.GetOrCreateGroup("Basic", "Basic options", true);
+            var commandArg = basicGroup.AddPositionalArgument("command", "The operation perform (test, replay)");
             commandArg.AllowedValues = new List<string>(new string[] { "test", "replay" });
-            basicOptions.AddPositionalArgument("path", "Path to the Coyote program to test");
-            basicOptions.AddArgument("method", "m", "Suffix of the test method to execute");
-
-            var basicGroup = this.Parser.GetOrCreateGroup("Basic", "Basic options");
+            basicGroup.AddPositionalArgument("path", "Path to the Coyote program to test");
+            basicGroup.AddArgument("method", "m", "Suffix of the test method to execute");
             basicGroup.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
             basicGroup.AddArgument("outdir", "o", "Dump output to directory x (absolute path or relative to current directory");
             basicGroup.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
@@ -55,7 +53,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             testingGroup.AddArgument("sch-fairpct", null, "Choose the fair PCT scheduling strategy with given maximum number of priority switch points", typeof(uint));
             testingGroup.AddArgument("sch-portfolio", null, "Choose the portfolio scheduling strategy", typeof(bool));
 
-            var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay and debug options");
+            var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay options");
             replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };
             replayOptions.AddPositionalArgument("schedule", "Schedule file to replay");
 

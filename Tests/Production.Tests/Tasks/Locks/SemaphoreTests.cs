@@ -7,7 +7,6 @@ using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
@@ -28,8 +27,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedErrors: new string[]
             {
                 "Cannot create semaphore with initial count of -1. The count must be equal or greater than 0.",
-                "The initialCount argument must be non-negative and less than or equal to the maximumCount.",
-                "The initialCount argument must be non-negative and less than or equal to the maximumCount. (Parameter 'initialCount')"
+                "The initialCount argument must be non-negative and less than or equal to the maximumCount. Parameter name: initialCount Actual value was -1.",
+                "The initialCount argument must be non-negative and less than or equal to the maximumCount. (Parameter 'initialCount') Actual value was -1."
             },
             replay: true);
         }
@@ -44,8 +43,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedErrors: new string[]
             {
                 "Cannot create semaphore with max count of 0. The count must be greater than 0.",
-                "The maximumCount argument must be a positive number. If a maximum is not required, use the constructor without a maxCount parameter.",
-                "The maximumCount argument must be a positive number. If a maximum is not required, use the constructor without a maxCount parameter. (Parameter 'maxCount')"
+                "The maximumCount argument must be a positive number. If a maximum is not required, use the constructor without a maxCount parameter. (Parameter 'maxCount') Actual value was 0.",
+                "The maximumCount argument must be a positive number. If a maximum is not required, use the constructor without a maxCount parameter. Parameter name: maxCount Actual value was 0."
             },
             replay: true);
         }
@@ -60,8 +59,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedErrors: new string[]
             {
                 "Cannot create semaphore with initial count of 2. The count be equal or less than max count of 1.",
-                "The initialCount argument must be non-negative and less than or equal to the maximumCount. (Parameter 'initialCount')",
-                "The initialCount argument must be non-negative and less than or equal to the maximumCount."
+                "The initialCount argument must be non-negative and less than or equal to the maximumCount. (Parameter 'initialCount') Actual value was 2.",
+                "The initialCount argument must be non-negative and less than or equal to the maximumCount. Parameter name: initialCount Actual value was 2."
             },
             replay: true);
         }

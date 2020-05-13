@@ -14,8 +14,8 @@ public OnEventDoActionAttribute(Type eventType, string actionName)
 
 | parameter | description |
 | --- | --- |
-| eventType | Event type |
-| actionName | Action name |
+| eventType | Event type. |
+| actionName | Action name. |
 
 ## See Also
 

@@ -93,8 +93,7 @@ namespace Microsoft.Coyote.Tasks
                                     // The resource is not available yet, notify the scheduler that the executing
                                     // asynchronous operation is blocked, so that it cannot be scheduled during
                                     // systematic testing exploration, which could deadlock.
-                                    this.Resource.NotifyWait();
-                                    this.Resource.Runtime.ScheduleNextOperation();
+                                    this.Resource.Wait();
                                 }
 
                                 if (this.Status is TaskStatus.Canceled)
@@ -187,7 +186,7 @@ namespace Microsoft.Coyote.Tasks
                     }
 
                     // Release the resource and notify any awaiting asynchronous operations.
-                    this.Resource.NotifyRelease();
+                    this.Resource.SignalAll();
                     this.Resource.Runtime.ScheduleNextOperation();
 
                     return true;

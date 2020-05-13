@@ -14,8 +14,8 @@ public OnEventGotoStateAttribute(Type eventType, Type stateType)
 
 | parameter | description |
 | --- | --- |
-| eventType | Event type |
-| stateType | State type |
+| eventType | Event type. |
+| stateType | State type. |
 
 ## See Also
 
@@ -35,9 +35,9 @@ public OnEventGotoStateAttribute(Type eventType, Type stateType, string actionNa
 
 | parameter | description |
 | --- | --- |
-| eventType | Event type |
-| stateType | State type |
-| actionName | Name of action to perform on exit |
+| eventType | Event type. |
+| stateType | State type. |
+| actionName | Name of action to perform on exit. |
 
 ## See Also
 

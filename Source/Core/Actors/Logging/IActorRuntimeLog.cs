@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="stateName">The state name, if the actor is a state machine and a state exists, else null.</param>
         /// <param name="e">The the event being received.</param>
         /// <param name="wasBlocked">The actor was waiting for one or more specific events,
-        /// and <paramref name="e"/> was one of them</param>
+        /// and <paramref name="e"/> was one of them.</param>
         void OnReceiveEvent(ActorId id, string stateName, Event e, bool wasBlocked);
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when the specified monitor enters or exits a state.
         /// </summary>
-        /// <param name="monitorType">The name of the type of the monitor entering or exiting the state</param>
+        /// <param name="monitorType">The name of the type of the monitor entering or exiting the state.</param>
         /// <param name="stateName">The name of the state being entered or exited; if <paramref name="isInHotState"/>
         /// is not null, then the temperature is appended to the statename in brackets, e.g. "stateName[hot]".</param>
         /// <param name="isEntry">If true, this is called for a state entry; otherwise, exit.</param>

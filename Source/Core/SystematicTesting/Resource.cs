@@ -30,21 +30,32 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Notifies that the currently executing asynchronous operation is waiting
-        /// for the resource to be released.
+        /// Waits for the resource to be released.
         /// </summary>
-        internal void NotifyWait()
+        internal void Wait()
         {
             var op = this.Runtime.GetExecutingOperation<AsyncOperation>();
             op.Status = AsyncOperationStatus.BlockedOnResource;
             this.AwaitingOperations.Add(op);
+            this.Runtime.ScheduleNextOperation();
         }
 
         /// <summary>
-        /// Notifies all waiting asynchronous operations waiting on this resource,
-        /// that the resource has been released.
+        /// Signals the specified waiting operation that the resource has been released.
         /// </summary>
-        internal void NotifyRelease()
+        internal void Signal(AsyncOperation op)
+        {
+            if (this.AwaitingOperations.Contains(op))
+            {
+                op.Status = AsyncOperationStatus.Enabled;
+                this.AwaitingOperations.Remove(op);
+            }
+        }
+
+        /// <summary>
+        /// Signals all waiting operations that the resource has been released.
+        /// </summary>
+        internal void SignalAll()
         {
             foreach (var op in this.AwaitingOperations)
             {

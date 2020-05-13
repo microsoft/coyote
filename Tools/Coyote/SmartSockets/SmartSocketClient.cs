@@ -127,8 +127,8 @@ namespace Microsoft.Coyote.SmartSockets
         /// It is expected you will start a ReceiveAsync loop on this server object to process
         /// those messages.
         /// </summary>
-        /// <param name="connectedHandler">An event handler to invoke when the server opens the back channel</param>
-        /// <returns>New server object that will get one ClientConnected event when the remote server connects</returns>
+        /// <param name="connectedHandler">An event handler to invoke when the server opens the back channel.</param>
+        /// <returns>New server object that will get one ClientConnected event when the remote server connects.</returns>
         public async Task<SmartSocketServer> OpenBackChannel(EventHandler<SmartSocketClient> connectedHandler)
         {
             IPEndPoint ipe = (IPEndPoint)this.Socket.LocalEndPoint;
@@ -335,7 +335,7 @@ namespace Microsoft.Coyote.SmartSockets
         /// <summary>
         /// Send a message back to the client.
         /// </summary>
-        /// <returns>The response message</returns>
+        /// <returns>The response message.</returns>
         public async Task<SocketMessage> SendReceiveAsync(SocketMessage msg)
         {
             if (this.Closed)
@@ -368,7 +368,7 @@ namespace Microsoft.Coyote.SmartSockets
         /// <summary>
         /// Send a message and do not wait for a response.
         /// </summary>
-        /// <returns>The response message</returns>
+        /// <returns>The response message.</returns>
         public async Task SendAsync(SocketMessage msg)
         {
             // must serialize this send/response sequence, cannot interleave them!

@@ -378,7 +378,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Gets the <see cref="IAsyncOperation"/> that is executing on the current
         /// synchronization context, or null if no such operation is executing.
         /// </summary>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         internal TAsyncOperation GetExecutingOperation<TAsyncOperation>()
             where TAsyncOperation : IAsyncOperation
         {

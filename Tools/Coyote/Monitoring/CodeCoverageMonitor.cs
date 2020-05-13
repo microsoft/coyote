@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Starts the code coverage monitor.
         /// </summary>
-        /// <param name="configuration">Configuration</param>
+        /// <param name="configuration">Configuration.</param>
         internal static void Start(Configuration configuration)
         {
             if (IsRunning)

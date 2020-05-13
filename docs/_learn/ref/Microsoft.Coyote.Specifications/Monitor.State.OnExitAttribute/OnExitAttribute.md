@@ -14,7 +14,7 @@ public OnExitAttribute(string actionName)
 
 | parameter | description |
 | --- | --- |
-| actionName | Action name |
+| actionName | Action name. |
 
 ## See Also
 

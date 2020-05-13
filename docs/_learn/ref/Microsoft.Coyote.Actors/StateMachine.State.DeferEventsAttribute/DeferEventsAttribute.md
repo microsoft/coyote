@@ -14,7 +14,7 @@ public DeferEventsAttribute(params Type[] eventTypes)
 
 | parameter | description |
 | --- | --- |
-| eventTypes | Event types |
+| eventTypes | Event types. |
 
 ## See Also
 

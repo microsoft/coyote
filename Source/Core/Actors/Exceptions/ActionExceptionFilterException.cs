@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActionExceptionFilterException"/> class.
         /// </summary>
-        /// <param name="message">Message</param>
+        /// <param name="message">Message.</param>
         internal ActionExceptionFilterException(string message)
             : base(message)
         {
@@ -22,8 +22,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActionExceptionFilterException"/> class.
         /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="innerException">Inner exception</param>
+        /// <param name="message">Message.</param>
+        /// <param name="innerException">Inner exception.</param>
         internal ActionExceptionFilterException(string message, Exception innerException)
             : base(message, innerException)
         {

@@ -17,7 +17,7 @@ state transitions and the percentage of possible events that are actually execut
 Running `coyote /?` displays a summary of command-line options. Here is the section describing
 options to report code and activity coverage:
 
-`````
+```
 Code and activity coverage options:
 -----------------------------------
   -c, --coverage string       : Generate code coverage statistics (via VS instrumentation) with zero

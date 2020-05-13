@@ -817,7 +817,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             /// <summary>
             /// Processes the given vote request.
             /// </summary>
-            /// <param name="request">VoteRequest</param>
+            /// <param name="request">VoteRequest.</param>
             private void Vote(VoteRequest request)
             {
                 var lastLogIndex = this.Logs.Count;
@@ -842,7 +842,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             /// <summary>
             /// Processes the given append entries request.
             /// </summary>
-            /// <param name="request">AppendEntriesRequest</param>
+            /// <param name="request">AppendEntriesRequest.</param>
             private void AppendEntries(AppendEntriesRequest request)
             {
                 if (request.Term < this.CurrentTerm)
@@ -911,8 +911,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             /// <summary>
             /// Returns the log term for the given log index.
             /// </summary>
-            /// <param name="logIndex">Index</param>
-            /// <returns>Term</returns>
+            /// <param name="logIndex">Index.</param>
+            /// <returns>Term.</returns>
             private int GetLogTermForIndex(int logIndex)
             {
                 var logTerm = 0;

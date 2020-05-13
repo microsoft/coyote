@@ -1343,7 +1343,7 @@ namespace Microsoft.Coyote.Specifications
                 /// <summary>
                 /// Initializes a new instance of the <see cref="OnEntryAttribute"/> class.
                 /// </summary>
-                /// <param name="actionName">Action name</param>
+                /// <param name="actionName">Action name.</param>
                 public OnEntryAttribute(string actionName)
                 {
                     this.Action = actionName;
@@ -1365,7 +1365,7 @@ namespace Microsoft.Coyote.Specifications
                 /// <summary>
                 /// Initializes a new instance of the <see cref="OnExitAttribute"/> class.
                 /// </summary>
-                /// <param name="actionName">Action name</param>
+                /// <param name="actionName">Action name.</param>
                 public OnExitAttribute(string actionName)
                 {
                     this.Action = actionName;
@@ -1397,8 +1397,8 @@ namespace Microsoft.Coyote.Specifications
                 /// <summary>
                 /// Initializes a new instance of the <see cref="OnEventGotoStateAttribute"/> class.
                 /// </summary>
-                /// <param name="eventType">Event type</param>
-                /// <param name="stateType">State type</param>
+                /// <param name="eventType">Event type.</param>
+                /// <param name="stateType">State type.</param>
                 public OnEventGotoStateAttribute(Type eventType, Type stateType)
                 {
                     this.Event = eventType;
@@ -1408,9 +1408,9 @@ namespace Microsoft.Coyote.Specifications
                 /// <summary>
                 /// Initializes a new instance of the <see cref="OnEventGotoStateAttribute"/> class.
                 /// </summary>
-                /// <param name="eventType">Event type</param>
-                /// <param name="stateType">State type</param>
-                /// <param name="actionName">Name of action to perform on exit</param>
+                /// <param name="eventType">Event type.</param>
+                /// <param name="stateType">State type.</param>
+                /// <param name="actionName">Name of action to perform on exit.</param>
                 public OnEventGotoStateAttribute(Type eventType, Type stateType, string actionName)
                 {
                     this.Event = eventType;
@@ -1439,8 +1439,8 @@ namespace Microsoft.Coyote.Specifications
                 /// <summary>
                 /// Initializes a new instance of the <see cref="OnEventDoActionAttribute"/> class.
                 /// </summary>
-                /// <param name="eventType">Event type</param>
-                /// <param name="actionName">Action name</param>
+                /// <param name="eventType">Event type.</param>
+                /// <param name="actionName">Action name.</param>
                 public OnEventDoActionAttribute(Type eventType, string actionName)
                 {
                     this.Event = eventType;
@@ -1463,7 +1463,7 @@ namespace Microsoft.Coyote.Specifications
                 /// <summary>
                 /// Initializes a new instance of the <see cref="IgnoreEventsAttribute"/> class.
                 /// </summary>
-                /// <param name="eventTypes">Event types</param>
+                /// <param name="eventTypes">Event types.</param>
                 public IgnoreEventsAttribute(params Type[] eventTypes)
                 {
                     this.Events = eventTypes;

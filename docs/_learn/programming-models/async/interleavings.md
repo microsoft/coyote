@@ -11,9 +11,9 @@ This page covers an advanaced topic of programmtically controlling the interleav
 covers during testing. Typically, this should not be needed: the "Controlled" APIs provided by
 Coyote cover a lot of scenarios already. However, if you find yourself working with code that may
 potentially have data races, or you are modeling other forms of synchronization not covered by
-Coyote already, then you might have to help out the tester a bit more. 
+Coyote already, then you might have to help out the tester a bit more.
 
-During [systematic testing](/../../../core/systematic-testing), Coyote serializes the concurrent
+During [systematic testing](../../core/systematic-testing), Coyote serializes the concurrent
 execution of a program. Serialization means that only one task is running at any given time. This
 helps remove the randomness that happens when the operating system schedules parallel tasks and
 performs thread switching at unpredictable moments depending on your machine load. It also makes
@@ -21,7 +21,7 @@ executions reproducible because Coyote controls the scheduling. This is super us
 Coyote, however, does not cover all possible interleavings by default. The interleavings are
 complete (i.e., all possible behaviors can be covered by testing, given enough time) for race-free
 programs. For programs with racy accesses, you have to help Coyote find more interleavings.
-        
+
 Consider the following code:
 
 ```c#
@@ -59,13 +59,13 @@ another task (or keeps running the same one) and execute it up to the next sched
 on. The default scheduling points are at Task API granularity (e.g., `Task.Run`, `Task.Delay`,
 `await` or `Task.WhenAny` etc.). This is why the racy-behavior `A: 1, B: 1` is missed in the above
 example: there is no scheduling point between the load of `x` and the store of its incremented
-value. 
+value.
 
 ## Instrumenting scheduling points to exercise racy behaviors
 
 It is generally not safe for multiple tasks to perform non-atomic operations on the same variable at
 the same time as this can create data race conditions. Ideally, you should avoid races using
-synchronization. You can use a [Semaphore](../semaphore), for instance, to protect the increment of
+synchronization. You can use a [Semaphore](semaphore), for instance, to protect the increment of
 `x`. This rules out the `A: 1, B: 1` behavior and also makes coyote testing complete (given enough
 time).
 
@@ -105,7 +105,7 @@ public void RunTest()
 ```
 
 When you run this with `coyote test` the specification will sometimes fail with the Assert
-`<ErrorLog> A: 1, B: 1`, which means `coyote test` can now fully explore behaviors of this program. 
+`<ErrorLog> A: 1, B: 1`, which means `coyote test` can now fully explore behaviors of this program.
 
 Note that `Task.ExploreContextSwitch` has no effect in production code, it only affects code running
 under `coyote test`.

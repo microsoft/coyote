@@ -12,7 +12,7 @@ The simplest is to use the [asynchronous tasks](../programming-models/async/over
 more advanced way is using the [asynchronous actors](../programming-models/actors/overview).
 
 **Note:** If you are upgrading to Coyote from P#, see [upgrading from
-P#](/coyote/learn/get-started/upgrade).
+P#](/coyote/learn/get-started/upgrade-from-psharp).
 
 Assuming you have [installed Coyote](/coyote/learn/get-started/install) and built the samples, you
 are ready to use the `coyote` command line tool. In your [Coyote

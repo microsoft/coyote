@@ -17,7 +17,7 @@ To invoke the tester use the following command:
 coyote test ${YOUR_PROGRAM}
 ```
 
-See [Using coyote](/learn/get-started/using-coyote) for information on where to find the `coyote` tool.
+See [Using coyote](/coyote/learn/get-started/using-coyote) for information on where to find the `coyote` tool.
 
 `${YOUR_PROGRAM}` is the path to your application or library that contains a method annotated
 with the `[Microsoft.Coyote.SystematicTesting.Test]` attribute. This method is the entry point to the

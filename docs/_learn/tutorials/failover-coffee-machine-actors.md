@@ -72,7 +72,7 @@ methodology.
 To run the `CoffeeMachine` example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
+- Install the [.NET Core 3.1 version of the `coyote` tool](/coyote/learn/get-started/install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 

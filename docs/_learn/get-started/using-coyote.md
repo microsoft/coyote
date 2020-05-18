@@ -17,7 +17,7 @@ P#](/coyote/learn/get-started/upgrade-from-psharp).
 Assuming you have [installed Coyote](/coyote/learn/get-started/install) and built the samples, you
 are ready to use the `coyote` command line tool. In your [Coyote
 samples](http://github.com/microsoft/coyote-samples) local repo you can find the compiled binaries
-in the `bin` folder.  Here we assume you are using the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
+in the `bin` folder.  Here we assume you are using the [.NET Core 3.1 version of the `coyote` tool](/coyote/learn/get-started/install#installing-the-net-core-31-coyote-tool).
 
 You can use the `coyote` tool to automatically test these samples and find bugs. There is a
 particularly hard bug to find in the `coyote-samples/Monitors` sample application. If you run this

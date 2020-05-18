@@ -16,7 +16,7 @@ model](/coyote/learn/programming-models/async/overview) with Coyote.
 To run the Hello World Tasks  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
+- Install the [.NET Core 3.1 version of the `coyote` tool](/coyote/learn/get-started/install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -268,7 +268,7 @@ return type: `Microsoft.Coyote.Tasks.Task`. When these are specified, then `coyo
 the `Execute()` method in the executable assembly and can control its execution.
 
 The Coyote `Task` type uses a C# 7 feature known as `async task types` (see
-[here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types)) that allows framework
+[here](https://github.com/dotnet/roslyn/blob/master/docs/features/task-types.md)) that allows framework
 developers to create custom task types that can be used with `async` and `await`. This is where the
 magic happens. In production, `Task` enables C# to build a custom asynchronous state machine that
 uses regular `Task` objects. However, during testing, Coyote uses dependency injection to supply

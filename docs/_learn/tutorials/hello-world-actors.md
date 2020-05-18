@@ -16,7 +16,7 @@ model](/coyote/learn/programming-models/actors/overview).
 To run the Hello World Actors  example, you will need to:
 
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/).
-- Install the [.NET Core 3.1 version of the `coyote` tool](install#installing-the-net-core-31-coyote-tool).
+- Install the [.NET Core 3.1 version of the `coyote` tool](/coyote/learn/get-started/install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
@@ -75,7 +75,7 @@ Too many greetings returned!
 
 ## Finding the bug using Coyote test tool
 
-See [Using Coyote](/learn/get-started/using-coyote) for information on how to
+See [Using Coyote](/coyote/learn/get-started/using-coyote) for information on how to
 find the `coyote` test tool and setup your environment to use it.
 
 Enter the following from the command line:
@@ -271,7 +271,7 @@ A special coyote `TestEngine` was created, it invoked the `Execute` method 30 ti
 those executions the test engine took over all concurrent activity and the non-determinism (like
 `RandomInteger`) to ensure the program covered lots of async non-deterministic choices, and recorded
 all this in a way that when a bug was found, it is able to reproduce that bug.  See also [Using
-Coyote](/learn/get-started/using-coyote) for information on how to replay a test that found a bug
+Coyote](/coyote/learn/get-started/using-coyote) for information on how to replay a test that found a bug
 using `coyote replay`.
 
 ## Summary

@@ -154,3 +154,10 @@ Clone the [Coyote samples repo](http://github.com/microsoft/coyote-samples), the
 ```
 powershell -f build.ps1
 ```
+
+## Troubleshooting
+
+#### The element 'metadata' in namespace nuspec.xsd has invalid child element 'repository'...
+
+If you get an error building the nuget package, you may need to download
+a new version of `nuget.exe` from [https://www.nuget.org/downloads](https://www.nuget.org/downloads).

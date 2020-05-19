@@ -93,7 +93,7 @@ significant amount of time.
 The second way to reproduce the bug is to run the code under `coyote test`.  From the command line you enter:
 
 ```
-coyote test ./bin/netcoreapp3.1/HelloWorldTasks.dll --iterations 30
+coyote test ./bin/netcoreapp3.1/HelloWorldTasks.dll --iterations 100
 ```
 
 You will see output like this:

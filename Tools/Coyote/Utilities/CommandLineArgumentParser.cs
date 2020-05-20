@@ -437,7 +437,7 @@ namespace Microsoft.Coyote.Utilities
     {
         private readonly string AppName;
         private readonly string AppDescription;
-        private List<CommandLineArgument> ParsedArguments = new List<CommandLineArgument>();
+        private readonly List<CommandLineArgument> ParsedArguments = new List<CommandLineArgument>();
 
         /// <summary>
         /// To remember the oder in which they were added.

@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 using SystemMonitor = System.Threading.Monitor;
@@ -23,12 +25,6 @@ namespace Microsoft.Coyote.Tasks
         protected readonly object SyncObject;
 
         /// <summary>
-        /// A boolean flag that can turn on verbose debugging output that can be handy
-        /// in tracking down deadlocks.
-        /// </summary>
-        public static bool Verbose;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
         /// </summary>
         /// <param name="syncObject">The sync object to serialize access to</param>
@@ -43,7 +39,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         /// <returns>The synchronized block.</returns>
         public static SynchronizedBlock Lock(object syncObject) => CoyoteRuntime.IsExecutionControlled ?
-            new Mock(syncObject).EnterLock() : new SynchronizedBlock(syncObject).EnterLock();
+            Mock.Create(syncObject).EnterLock() : new SynchronizedBlock(syncObject).EnterLock();
 
         /// <summary>
         /// Enters the lock.
@@ -101,12 +97,10 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing)
+            if (disposing)
             {
-                return;
+                SystemMonitor.Exit(this.SyncObject);
             }
-
-            SystemMonitor.Exit(this.SyncObject);
         }
 
         /// <summary>
@@ -124,78 +118,216 @@ namespace Microsoft.Coyote.Tasks
         private class Mock : SynchronizedBlock
         {
             /// <summary>
-            /// Cache from synchronized objects to synchronized object states.
+            /// Cache from synchronized objects to mock instances.
             /// </summary>
-            private static readonly Dictionary<object, SyncObjectState> Cache = new Dictionary<object, SyncObjectState>();
+            private static readonly ConcurrentDictionary<object, Lazy<Mock>> Cache =
+                new ConcurrentDictionary<object, Lazy<Mock>>();
 
             /// <summary>
-            /// The operation that is currently invoking this synchronized block.
+            /// The resource associated with this synchronization object.
             /// </summary>
-            private AsyncOperation Caller;
+            private readonly Resource Resource;
 
             /// <summary>
-            /// The currently invoked synchronized object state.
+            /// The current owner of this synchronization object.
             /// </summary>
-            private SyncObjectState State;
+            private AsyncOperation Owner;
 
             /// <summary>
-            /// True if the current invocation is reentrant, else false.
+            /// Wait queue of asynchronous operations.
             /// </summary>
-            private bool IsInvocationReentrant;
+            private readonly List<AsyncOperation> WaitQueue;
+
+            /// <summary>
+            /// Ready queue of asynchronous operations.
+            /// </summary>
+            private readonly List<AsyncOperation> ReadyQueue;
+
+            /// <summary>
+            /// Queue of nondeterministically buffered pulse operations to be performed after releasing
+            /// the lock. This allows modeling delayed pulse operations by the operation system.
+            /// </summary>
+            private readonly Queue<PulseOperation> PulseQueue;
+
+            /// <summary>
+            /// The number of times that the lock has been acquired per owner. The lock can only
+            /// be acquired more than one times by the same owner. A count > 1 indicates that the
+            /// invocation by the current owner is reentrant.
+            /// </summary>
+            private readonly Dictionary<AsyncOperation, int> LockCountMap;
+
+            /// <summary>
+            /// Used to reference count accesses to this synchronized block
+            /// so that it can be removed from the cache.
+            /// </summary>
+            private int UseCount;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(object syncObject)
+            private Mock(object syncObject)
                 : base(syncObject)
             {
                 if (syncObject is null)
                 {
                     throw new ArgumentNullException(nameof(syncObject));
                 }
+
+                this.Resource = new Resource();
+                this.WaitQueue = new List<AsyncOperation>();
+                this.ReadyQueue = new List<AsyncOperation>();
+                this.PulseQueue = new Queue<PulseOperation>();
+                this.LockCountMap = new Dictionary<AsyncOperation, int>();
+                this.UseCount = 0;
             }
+
+            internal static Mock Create(object syncObject) =>
+                Cache.GetOrAdd(syncObject, key => new Lazy<Mock>(() => new Mock(key))).Value;
 
             protected override SynchronizedBlock EnterLock()
             {
-                if (!Cache.ContainsKey(this.SyncObject))
+                Interlocked.Increment(ref this.UseCount);
+
+                if (this.Owner is null)
                 {
-                    Cache[this.SyncObject] = new SyncObjectState(this.SyncObject);
+                    // If this operation is trying to acquire this lock while it is free, then inject a scheduling
+                    // point to give another enabled operation the chance to race and acquire this lock.
+                    this.Resource.Runtime.ScheduleNextOperation();
                 }
 
-                this.State = Cache[this.SyncObject];
-                this.State.UseCount++;
-                this.State.Resource.Runtime.ScheduleNextOperation();
-
-                this.Caller = this.State.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                if (this.State.Owner != null)
+                if (this.Owner != null)
                 {
-                    if (this.State.Owner == this.Caller)
+                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                    if (this.Owner == op)
                     {
                         // The owner is re-entering the lock.
-                        this.IsInvocationReentrant = true;
+                        this.LockCountMap[op]++;
                         return this;
                     }
                     else
                     {
-                        // Another op has the lock right now, so add the executing op to the ready queue and block it.
-                        this.State.AddToReadyQueue(this.Caller);
+                        // Another op has the lock right now, so add the executing op
+                        // to the ready queue and block it.
+                        this.WaitQueue.Remove(op);
+                        if (!this.ReadyQueue.Contains(op))
+                        {
+                            this.ReadyQueue.Add(op);
+                        }
+
+                        this.Resource.Wait();
+                        this.LockCountMap.Add(op, 1);
                         return this;
                     }
                 }
 
                 // The executing op acquired the lock and can proceed.
-                this.State.Owner = this.Caller;
+                this.Owner = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }
 
             /// <inheritdoc/>
-            public override void Pulse() => this.State.PulseNext(this.Caller);
+            public override void Pulse() => this.SchedulePulse(PulseOperation.Next);
 
             /// <inheritdoc/>
-            public override void PulseAll() => this.State.PulseAll(this.Caller);
+            public override void PulseAll() => this.SchedulePulse(PulseOperation.All);
+
+            /// <summary>
+            /// Schedules a pulse operation that will either execute immediately or be scheduled
+            /// to execute after the current owner releases the lock. This nondeterministic action
+            /// is controlled by the runtime to simulate scenarios where the pulse is delayed by
+            /// the operation system.
+            /// </summary>
+            private void SchedulePulse(PulseOperation pulseOperation)
+            {
+                var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                if (this.Owner != op)
+                {
+                    throw new SynchronizationLockException();
+                }
+
+                // Pulse has a delay in the operating system, we can simulate that here
+                // by scheduling the pulse operation to be executed nondeterministically.
+                this.PulseQueue.Enqueue(pulseOperation);
+                if (this.PulseQueue.Count == 1)
+                {
+                    // Create a task for draining the queue. To optimize the testing performance,
+                    // we create and maintain a single task to perform this role.
+                    Task.Run(this.DrainPulseQueue);
+                }
+            }
+
+            /// <summary>
+            /// Drains the pulse queue, if it contains one or more buffered pulse operations.
+            /// </summary>
+            private void DrainPulseQueue()
+            {
+                while (this.PulseQueue.Count > 0)
+                {
+                    // Pulses can happen nondeterministically while other operations execute,
+                    // which models delays by the OS.
+                    this.Resource.Runtime.ScheduleNextOperation();
+
+                    var pulseOperation = this.PulseQueue.Dequeue();
+                    this.Pulse(pulseOperation);
+
+                    if (this.Owner is null)
+                    {
+                        this.UnlockNextReady();
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Invokes the pulse operation.
+            /// </summary>
+            private void Pulse(PulseOperation pulseOperation)
+            {
+                if (pulseOperation is PulseOperation.Next)
+                {
+                    if (this.WaitQueue.Count > 0)
+                    {
+                        // System.Threading.Monitor has FIFO semantics.
+                        var waitingOp = this.WaitQueue[0];
+                        this.WaitQueue.RemoveAt(0);
+                        this.ReadyQueue.Add(waitingOp);
+                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.", waitingOp.Id, Task.CurrentId);
+                    }
+                }
+                else
+                {
+                    foreach (var waitingOp in this.WaitQueue)
+                    {
+                        this.ReadyQueue.Add(waitingOp);
+                        IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' is pulsed by task '{1}'.", waitingOp.Id, Task.CurrentId);
+                    }
+
+                    this.WaitQueue.Clear();
+                }
+            }
 
             /// <inheritdoc/>
-            public override bool Wait() => this.State.Wait(this.Caller);
+            public override bool Wait()
+            {
+                var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                if (this.Owner != op)
+                {
+                    throw new SynchronizationLockException();
+                }
+
+                this.ReadyQueue.Remove(op);
+                if (!this.WaitQueue.Contains(op))
+                {
+                    this.WaitQueue.Add(op);
+                }
+
+                this.UnlockNextReady();
+                IO.Debug.WriteLine("<SynchronizedBlockDebug> Operation '{0}' with task id '{1}' is waiting.", op.Id, Task.CurrentId);
+
+                // Block this operation and schedule the next enabled operation.
+                this.Resource.Wait();
+                return true;
+            }
 
             /// <inheritdoc/>
             public override bool Wait(int millisecondsTimeout)
@@ -220,190 +352,64 @@ namespace Microsoft.Coyote.Tasks
                 return this.Wait();
             }
 
+            /// <summary>
+            /// Assigns the lock to the next operation waiting in the ready queue, if there is one,
+            /// following the FIFO semantics of <see cref="SystemMonitor"/>.
+            /// </summary>
+            private void UnlockNextReady()
+            {
+                // Preparing to unlock so give up ownership.
+                this.Owner = null;
+                if (this.ReadyQueue.Count > 0)
+                {
+                    // If there is a operation waiting in the ready queue, then signal it.
+                    AsyncOperation op = this.ReadyQueue[0];
+                    this.ReadyQueue.RemoveAt(0);
+                    this.Owner = op;
+                    this.Resource.Signal(op);
+                }
+            }
+
             /// <inheritdoc/>
             protected override void Dispose(bool disposing)
             {
-                if (!this.IsInvocationReentrant)
+                if (disposing)
                 {
-                    var runtime = this.State.Resource.Runtime;
-                    this.State.UnlockNextReady();
-                    runtime.ScheduleNextOperation();
-                }
+                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                    this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op), "Cannot invoke Dispose without acquiring the lock.");
 
-                this.State.Release();
+                    this.LockCountMap[op]--;
+                    if (this.LockCountMap[op] is 0)
+                    {
+                        // Only release the lock if the invocation is not reentrant.
+                        this.LockCountMap.Remove(op);
+                        this.UnlockNextReady();
+                        this.Resource.Runtime.ScheduleNextOperation();
+                    }
+
+                    int useCount = Interlocked.Decrement(ref this.UseCount);
+                    if (useCount == 0 && Cache[this.SyncObject].Value == this)
+                    {
+                        // It is safe to remove this instance from the cache.
+                        Cache.TryRemove(this.SyncObject, out _);
+                    }
+                }
             }
 
             /// <summary>
-            /// State associated with a synchronization object.
+            /// The type of a pulse operation.
             /// </summary>
-            private class SyncObjectState
+            private enum PulseOperation
             {
                 /// <summary>
-                /// The resource associated with this synchronization object.
+                /// Pulses the next waiting operation.
                 /// </summary>
-                internal readonly Resource Resource;
+                Next,
 
                 /// <summary>
-                /// The current owner of this synchronization object.
+                /// Pulses all waiting operations.
                 /// </summary>
-                internal AsyncOperation Owner;
-
-                internal readonly List<AsyncOperation> WaitQueue = new List<AsyncOperation>();
-                internal readonly List<AsyncOperation> ReadyQueue = new List<AsyncOperation>();
-
-                // How many SynchronizedBlocks are using this object.
-                internal int UseCount;
-
-                private bool Disposed;
-                private readonly object SyncObject;
-
-                /// <summary>
-                /// Initializes a new instance of the <see cref="SyncObjectState"/> class.
-                /// </summary>
-                internal SyncObjectState(object syncObject)
-                {
-                    this.SyncObject = syncObject;
-                    this.Resource = new Resource();
-                    this.WaitQueue = new List<AsyncOperation>();
-                    this.ReadyQueue = new List<AsyncOperation>();
-                }
-
-                internal bool Wait(AsyncOperation owner)
-                {
-                    this.AssertNotDisposed();
-                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                    this.Resource.Runtime.Assert(owner == op, "Object synchronization method was called from a task that did not create this SynchronizedBlock.");
-                    this.Resource.Runtime.Assert(this.Owner == owner, "Cannot invoke Wait without first taking the lock.");
-
-                    this.ReadyQueue.Remove(op);
-                    if (!this.WaitQueue.Contains(op))
-                    {
-                        this.WaitQueue.Add(op);
-                    }
-
-                    this.UnlockNextReady();
-                    if (Verbose)
-                    {
-                        this.Resource.Runtime.Logger.WriteLine("<SynchronizedBlock> Task {0} is waiting", op.Name);
-                    }
-
-                    this.Resource.Wait();
-                    return true;
-                }
-
-                internal void PulseNext(AsyncOperation owner)
-                {
-                    this.AssertNotDisposed();
-                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                    this.Resource.Runtime.Assert(owner == op, "Object synchronization method was called from a task that did not create this SynchronizedBlock.");
-                    this.Resource.Runtime.Assert(this.Owner == owner, "Cannot invoke Pulse without first taking the lock.");
-
-                    this.UseCount++;
-                    // Pulse has a delay in the Operating System, we can simulate that here with a scheduled action.
-                    Task.Run(() =>
-                    {
-                        if (this.WaitQueue.Count > 0)
-                        {
-                            // System.Threading.Monitor has FIFO semantics.
-                            var waitingOp = this.WaitQueue[0];
-                            this.WaitQueue.RemoveAt(0);
-                            this.ReadyQueue.Add(waitingOp);
-                            if (Verbose)
-                            {
-                                this.Resource.Runtime.Logger.WriteLine("<SynchronizedBlock> Task {0} is pulsed", op.Name);
-                            }
-                        }
-
-                        if (this.Owner == null)
-                        {
-                            this.UnlockNextReady();
-                        }
-
-                        this.Release();
-                    });
-                }
-
-                internal void PulseAll(AsyncOperation owner)
-                {
-                    this.AssertNotDisposed();
-                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                    this.Resource.Runtime.Assert(owner == op, "Object synchronization method was called from a task that did not create this SynchronizedBlock.");
-                    this.Resource.Runtime.Assert(this.Owner == owner, "Cannot invoke PulseAll without first taking the lock.");
-
-                    this.UseCount++;
-                    // Pulse has a delay in the Operating System, we can simulate that here with a scheduled action.
-                    Task.Run(() =>
-                    {
-                        foreach (var waitingOp in this.WaitQueue)
-                        {
-                            this.ReadyQueue.Add(waitingOp);
-                            if (Verbose)
-                            {
-                                this.Resource.Runtime.Logger.WriteLine("<SynchronizedBlock> Task {0} is pulsed", waitingOp.Name);
-                            }
-                        }
-
-                        this.WaitQueue.Clear();
-                        if (this.Owner == null)
-                        {
-                            this.UnlockNextReady();
-                        }
-
-                        this.Release();
-                    });
-                }
-
-                internal void UnlockNextReady()
-                {
-                    this.AssertNotDisposed();
-                    AsyncOperation op;
-                    this.Owner = null;
-                    if (this.ReadyQueue.Count > 0)
-                    {
-                        // System.Threading.Monitor has FIFO semantics.
-                        op = this.ReadyQueue[0];
-                        this.ReadyQueue.RemoveAt(0);
-                        this.Owner = op;
-                        this.Resource.Signal(op);
-                        if (Verbose)
-                        {
-                            this.Resource.Runtime.Logger.WriteLine("<SynchronizedBlock> Task {0} is waking up", op.Name);
-                        }
-                    }
-                }
-
-                internal void AddToReadyQueue(AsyncOperation op)
-                {
-                    this.AssertNotDisposed();
-                    this.WaitQueue.Remove(op);
-                    if (!this.ReadyQueue.Contains(op))
-                    {
-                        this.ReadyQueue.Add(op);
-                    }
-
-                    this.Resource.Wait();
-                }
-
-                internal bool IsEmpty() =>
-                    this.UseCount == 0 && this.Owner == null && this.ReadyQueue.Count == 0 && this.WaitQueue.Count == 0;
-
-                internal void Release()
-                {
-                    this.UseCount--;
-                    if (this.IsEmpty() && Cache[this.SyncObject] == this)
-                    {
-                        Cache.Remove(this.SyncObject);
-                        this.Disposed = true;
-                    }
-                }
-
-                internal void AssertNotDisposed()
-                {
-                    if (this.Disposed)
-                    {
-                        this.Resource.Runtime.Assert(false, "Cannot use a disposed SyncObjectState");
-                    }
-                }
+                All
             }
         }
     }

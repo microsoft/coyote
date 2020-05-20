@@ -384,6 +384,12 @@ namespace Microsoft.Coyote.SystematicTesting
         internal TAsyncOperation GetExecutingOperation<TAsyncOperation>()
             where TAsyncOperation : IAsyncOperation
         {
+            if (!this.IsRunning)
+            {
+                // If scheduler is not running, throw exception to force terminate the caller.
+                throw new ExecutionCanceledException();
+            }
+
             if (Task.CurrentId.HasValue &&
                 this.ControlledTaskMap.TryGetValue(Task.CurrentId.Value, out AsyncOperation op) &&
                 op is TAsyncOperation expected)

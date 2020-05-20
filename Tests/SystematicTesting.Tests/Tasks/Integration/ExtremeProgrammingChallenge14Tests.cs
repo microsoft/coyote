@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             for (int i = 0; i < 10; i++)
             {
-                object x = buffer.Take();
+                buffer.Take();
             }
         }
 

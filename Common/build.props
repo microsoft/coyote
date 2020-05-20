@@ -9,7 +9,58 @@
     <RepositoryType>git</RepositoryType>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
+    <Framework46Supported Condition="'$(Framework46Supported)'==''">true</Framework46Supported>
+    <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>
   </PropertyGroup>
+  <PropertyGroup>
+    <DotNetSdkDir>$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
+    <DotNetSdkDir Condition="'$(ProgramW6432)'!=''">$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
+    <NetCore31Dir>$(DotNetSdkDir)/3.1.201</NetCore31Dir>
+    <Framework46Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6</Framework46Dir>
+    <Framework47Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7</Framework47Dir>
+    <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NetCore31Installed>false</NetCore31Installed>
+    <Framework46Installed>false</Framework46Installed>
+    <Framework47Installed>false</Framework47Installed>
+    <Framework48Installed>false</Framework48Installed>
+    <NetCore31Installed Condition="Exists($(DotNetSdkDir))">true</NetCore31Installed>
+    <Framework46Installed Condition="Exists($(Framework46Dir))">true</Framework46Installed>
+    <Framework47Installed Condition="Exists($(Framework47Dir))">true</Framework47Installed>
+    <Framework48Installed Condition="Exists($(Framework48Dir))">true</Framework48Installed>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library' and '$(OS)'=='Windows_NT'">
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework46Installed) and $(Framework46Supported)">$(TargetFrameworks);net46</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework47Installed) and $(Framework47Supported)">$(TargetFrameworks);net47</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework48Installed)">$(TargetFrameworks);net48</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library' and '$(OS)'!='Windows_NT'">
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'StandardLibrary'">
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
+    <TargetFrameworks Condition='$(NetCore31Installed)'>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework46Installed) and $(Framework46Supported)">$(TargetFrameworks);net46</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework47Installed) and $(Framework47Supported)">$(TargetFrameworks);net47</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework48Installed)">$(TargetFrameworks);net48</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+  </PropertyGroup>
+  <!-- handy for debugging
+  <Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
+    <Message Text="Framework46Supported : $(Framework46Supported)" Importance="high"/>
+    <Message Text="Building for .NET Core 3.1: $(NetCore31Installed)" Importance="high"/>
+    <Message Text="Building for .NET Framework 4.6 : $(Framework46Installed)" Importance="high"/>
+    <Message Text="Building for .NET Framework 4.7: $(Framework47Installed)" Importance="high"/>
+    <Message Text="Building for .NET Framework 4.8: $(Framework48Installed)" Importance="high"/>
+    <Message Text="TargetFrameworks: $(TargetFrameworks)" Importance="high"/>
+  </Target>
+  -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>

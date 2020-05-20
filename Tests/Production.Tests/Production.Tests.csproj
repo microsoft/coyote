@@ -1,18 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Common\build.props" />
-  <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
     <Description>Tests for the production runtime.</Description>
     <AssemblyName>Microsoft.Coyote.Production.Tests</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Production.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>
+    <CoyoteTargetType>Application</CoyoteTargetType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netcoreapp3.1;net46;net47;net48</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />

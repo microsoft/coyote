@@ -1,19 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Common\build.props" />
-  <Import Project="..\..\Common\key.props" />
   <PropertyGroup>
     <Description>The Coyote benchmark runner.</Description>
     <AssemblyName>BenchmarkRunner</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Benchmarking</RootNamespace>
     <OutputType>Exe</OutputType>
     <OutputPath>.\bin\</OutputPath>
+    <CoyoteTargetType>Application</CoyoteTargetType>
+    <Framework46Supported>false</Framework46Supported>
+    <Framework47Supported>false</Framework47Supported>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='UNIX'">
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-  </PropertyGroup>
+  <Import Project="..\..\Common\build.props" />
+  <Import Project="..\..\Common\key.props" />
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
     <ProjectReference Include="..\..\Tests\Performance.Tests\Performance.Tests.csproj" />

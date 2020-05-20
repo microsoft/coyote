@@ -16,6 +16,8 @@ learn-toc:
       link: /learn/get-started/install
     - name: Using Coyote
       link: /learn/get-started/using-coyote
+    - name: Building the source code
+      link: /learn/get-started/build-source
 - title: Core concepts
   subfolderitems:
     - name: Program non-determinism

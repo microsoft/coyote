@@ -16,9 +16,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         public void TestParallelTestEngines()
         {
             string tempDir = Path.GetTempPath();
-            string outdir1 = Path.Combine(tempDir, "Coyote", "test1") + "\\";
-            string outdir2 = Path.Combine(tempDir, "Coyote", "test2") + "\\";
-            string outdir3 = Path.Combine(tempDir, "Coyote", "test3") + "\\";
+            string outdir1 = Path.Combine(tempDir, "Coyote", "test1");
+            string outdir2 = Path.Combine(tempDir, "Coyote", "test2");
+            string outdir3 = Path.Combine(tempDir, "Coyote", "test3");
 
             SafeDeleteDirectory(outdir1);
             SafeDeleteDirectory(outdir2);
@@ -39,7 +39,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             Task.WaitAll(task1, task2, task3);
 
-            string[] expected = new string[] { "PingPongClient", "PingPongServer", "LivenessMonitor", "Init", "WaitForPong", "Pong", "Busy", "Idle" };
+            string[] expected = new string[]
+            {
+                "PingPongClient", "PingPongServer", "LivenessMonitor", "Init", "WaitForPong", "Pong", "Busy", "Idle"
+            };
+
             AssertFileContainsKeywords(Path.Combine(outdir1, "foo_0.dgml"), expected);
         }
 

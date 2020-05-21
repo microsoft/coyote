@@ -33,8 +33,6 @@ cd coyote-samples
 coyote test ./bin/netcoreapp3.1/Monitors.dll --iterations 1000 --max-steps 200
 ```
 
-(Note: for .NET Framework versions 4.6, 4.7 and 4.8 you will test the output .exe files).
-
 This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
 found using the `PCT` exploration strategy with a given maximum number of priority switch points
 `--sch-pct` (or with the default `Random` exploration strategy, but with a much larger number of

@@ -9,26 +9,28 @@ template: basic
 
 ## Build from source
 
-If you plan to contribute a Pull Request to the Coyote repo then you need to be able to build the Coyote source code
-and run the tests.
+If you plan to contribute a Pull Request to the Coyote repo then you need to be able to build the
+Coyote source code and run the tests.
 
-<a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Clone the github repo</a>
+<a href="http://github.com/microsoft/coyote" class="btn btn-primary mt-20" target="_blank">Clone
+the github repo</a>
 
 ### Prerequisites
 
-- [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio) on Windows.
-- [Visual Studio Code](https://code.visualstudio.com/Download) - is handy to have on other platforms.
 - [.NET Core SDK 3.1.201](https://dotnet.microsoft.com/download/dotnet-core)
-- [.NET Framework SDK 4.6, 4.7 and 4.8](https://dotnet.microsoft.com/download/dotnet-framework) on Windows.
-These are optional, but you should test them before you submit a PR as Coyote CI build will build
-and test binaries for all these .NET frameworks versions.
+
+**Optional:**
+
+- [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
+on Windows.
+- [Visual Studio Code](https://code.visualstudio.com/Download) is handy to have on other platforms.
 
 ### Building the Coyote project
 
 Clone the [Coyote repo](http://github.com/microsoft/coyote), then open `Coyote.sln` and build.
 
-You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer Command
-Prompt:
+You can also use the following `PowerShell` command line from a Visual Studio 2019 Developer
+Command Prompt:
 
 ```
 powershell -f Scripts/build.ps1
@@ -75,10 +77,9 @@ Now you are ready to [start using Coyote](/coyote/learn/get-started/using-coyote
 ### Installing the Coyote command line tool for .NET Frameworks on Windows
 
 If you prefer to use .NET 4.6, 4.7 or 4.8 instead of .NET Core 3.1, then you will need to add the
-location of the tool to your `PATH` environment as follows.  First you must decide what .NET
-platform you want to use.  Coyote supports .NET 4.6, 4.7 and 4.8.  The `coyote` tool that
-you use must match the platform of the sample app you are testing.  Pick one of the following
-locations:
+location of the tool to your `PATH` environment as follows. First you must decide what .NET
+platform you want to use. Coyote supports .NET 4.6, 4.7 and 4.8. The `coyote` tool that you use
+must match the platform of the sample app you are testing. Pick one of the following locations:
 
 ```
 set COYOTE_PATH=d:\git\coyote\bin\net46

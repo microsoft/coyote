@@ -9,16 +9,16 @@ template: basic
 
 ## Installing Coyote
 
+Coyote is a Nuget library and works on .NET core which means it can be used on Windows, Linux and
+macOS.
+
 ### Prerequisites
+- [.NET Core SDK 3.1.201](https://dotnet.microsoft.com/download/dotnet-core)
 
-- [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio) if you are on Windows.
-- [Visual Studio Code](https://code.visualstudio.com/Download) - is handy to have on other platforms.
-
-**Optional**:
-- [.NET Core SDK 3.1.201](https://dotnet.microsoft.com/download/dotnet-core) if you want to develop a .NET core app
-that uses Coyote.
-- [.NET Framework SDK 4.6, 4.7 and 4.8](https://dotnet.microsoft.com/download/dotnet-framework) if you want to
-develop a .NET Framework app on windows, these are the .NET versions that Coyote supports.
+**Optional:**
+- [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
+if you are on Windows.
+- [Visual Studio Code](https://code.visualstudio.com/Download) is handy to have on other platforms.
 - Add the [DGML editor](../tools/dgml) feature of Visual Studio 2019.
 
 
@@ -34,6 +34,12 @@ The Coyote libraries and tools can be easily installed by adding the `Microsoft.
 package](https://www.nuget.org/packages/Microsoft.Coyote/) to your C# project. You can then
 immediately start programming the Coyote API as shown in the
 [samples](http://github.com/microsoft/coyote-samples).
+
+You can manually add Coyote to your C# project by using:
+
+```
+dotnet add <yourproject>.csproj package Microsoft.Coyote
+```
 
 ### Installing the .NET core 3.1 coyote tool
 

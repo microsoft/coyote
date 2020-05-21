@@ -576,8 +576,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Emits the human readable trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReadableTrace))
                 {
-                    string readableTracePath = directory + file + "_" + index + ".txt";
-
+                    string readableTracePath = Path.Combine(directory, file + "_" + index + ".txt");
                     this.Logger.WriteLine($"..... Writing {readableTracePath}");
                     File.WriteAllText(readableTracePath, this.ReadableTrace);
                     yield return readableTracePath;
@@ -586,7 +585,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (this.Configuration.IsXmlLogEnabled)
             {
-                string xmlPath = directory + file + "_" + index + ".trace.xml";
+                string xmlPath = Path.Combine(directory, file + "_" + index + ".trace.xml");
                 this.Logger.WriteLine($"..... Writing {xmlPath}");
                 File.WriteAllText(xmlPath, this.XmlLog.ToString());
                 yield return xmlPath;
@@ -594,7 +593,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (this.Graph != null)
             {
-                string graphPath = directory + file + "_" + index + ".dgml";
+                string graphPath = Path.Combine(directory, file + "_" + index + ".dgml");
                 this.Graph.SaveDgml(graphPath, true);
                 this.Logger.WriteLine($"..... Writing {graphPath}");
                 yield return graphPath;
@@ -605,8 +604,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Emits the reproducable trace, if it exists.
                 if (!string.IsNullOrEmpty(this.ReproducableTrace))
                 {
-                    string reproTracePath = directory + file + "_" + index + ".schedule";
-
+                    string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");
                     this.Logger.WriteLine($"..... Writing {reproTracePath}");
                     File.WriteAllText(reproTracePath, this.ReproducableTrace);
                     yield return reproTracePath;

@@ -42,10 +42,12 @@ namespace Microsoft.Coyote
             {
                 if (firstTime)
                 {
-                    string version = typeof(CommandLineOptions).Assembly.GetName().Version.ToString();
+                    string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
                     Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
                     Console.WriteLine("----------------------------{0}", new string('-', version.Length));
                     PrintTelemetryMessage();
+                    TelemetryClient = new CoyoteTelemetryClient(Configuration);
+                    TelemetryClient.TrackEventAsync("welcome").Wait();
                 }
 
                 Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",

@@ -26,17 +26,17 @@ namespace Coyote.Telemetry
 
         public CoyoteTelemetryClient(Configuration configuration)
         {
-#if FRAMEWORK_NET46
+#if NET46
             this.Framework = "net46";
-#elif FRAMEWORK_NET47
+#elif NET47
             this.Framework = "net47";
-#elif FRAMEWORK_NET48
+#elif NET48
             this.Framework = "net48";
-#elif FRAMEWORK_STANDARD20
+#elif NETSTANDARD2_0
             this.Framework = "netstandard2.0";
-#elif FRAMEWORK_STANDARD21
+#elif NETSTANDARD2_1
             this.Framework = "netstandard2.1";
-#elif FRAMEWORK_NETCOREAPP31
+#elif NETCOREAPP3_1
             this.Framework = "netcoreapp3.1";
 #endif
             this.Enabled = configuration.EnableTelemetry;
@@ -62,7 +62,7 @@ namespace Coyote.Telemetry
             var e = new TelemetryEvent(this.Framework, name, this.Name);
             if (this.Server != null)
             {
-                await this.Server.SendAsync(e);
+                await this.Server.SendReceiveAsync(e);
             }
             else
             {
@@ -84,7 +84,7 @@ namespace Coyote.Telemetry
             var e = new TelemetryMetric(this.Framework, name, this.Name, value);
             if (this.Server != null)
             {
-                await this.Server.SendAsync(e);
+                await this.Server.SendReceiveAsync(e);
             }
             else
             {
@@ -158,7 +158,7 @@ namespace Coyote.Telemetry
 
             foreach (var e in pending)
             {
-                await this.Server.SendAsync(e);
+                await this.Server.SendReceiveAsync(e);
             }
 
             this.PendingCleared.Set();
@@ -219,7 +219,7 @@ namespace Coyote.Telemetry
                     await Task.Delay(30000, token);
                     if (this.Server != null)
                     {
-                        await this.Server.SendAsync(new SocketMessage("ping", this.Name));
+                        await this.Server.SendReceiveAsync(new SocketMessage("ping", this.Name));
                     }
                 }
                 catch

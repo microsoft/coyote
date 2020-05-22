@@ -90,6 +90,8 @@ namespace Coyote.Telemetry
             configuration.InstrumentationKey = "17a6badb-bf2d-4f5d-959b-6843b8bb1f7f";
             this.Telemetry = new TelemetryClient(configuration);
             this.Telemetry.Context.Device.Id = this.MachineId;
+            string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
+            this.Telemetry.Context.GlobalProperties["coyote"] = version;
             this.Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.Platform.ToString();
             this.Telemetry.Context.Session.Id = Guid.NewGuid().ToString();
             this.LastEvent = DateTime.Now;
@@ -158,16 +160,18 @@ namespace Coyote.Telemetry
                         this.LastEvent = DateTime.Now;
                         if (msg is TelemetryEvent tm)
                         {
-                            this.HandleTelemetry(e, tm);
+                            this.HandleTelemetry(tm);
                         }
                         else if (msg is TelemetryMetric metric)
                         {
-                            this.HandleMetric(e, metric);
+                            this.HandleMetric(metric);
                         }
                         else
                         {
                             this.WriteLine("Received heartbeat");
                         }
+
+                        await e.SendAsync(new SocketMessage("ok", TelemetryServerEndPoint));
                     }
                 }
                 catch (Exception)
@@ -179,7 +183,7 @@ namespace Coyote.Telemetry
         /// <summary>
         /// Calls the App Insights TrackEvent method.
         /// </summary>
-        private async void HandleTelemetry(SmartSocketClient client, TelemetryEvent e)
+        private void HandleTelemetry(TelemetryEvent e)
         {
             try
             {
@@ -189,7 +193,6 @@ namespace Coyote.Telemetry
                     this.PendingEvents = true;
                     this.Telemetry.Context.GlobalProperties["dotnet"] = e.Framework;
                     this.Telemetry.TrackEvent(new EventTelemetry(e.Id));
-                    await client.SendAsync(new SocketMessage("ok", TelemetryServerEndPoint));
                 }
             }
             catch (Exception ex)
@@ -201,7 +204,7 @@ namespace Coyote.Telemetry
         /// <summary>
         /// Calls the App Insights TrackMetric method.
         /// </summary>
-        private async void HandleMetric(SmartSocketClient client, TelemetryMetric e)
+        private void HandleMetric(TelemetryMetric e)
         {
             try
             {
@@ -211,7 +214,6 @@ namespace Coyote.Telemetry
                     this.PendingEvents = true;
                     this.Telemetry.Context.GlobalProperties["dotnet"] = e.Framework;
                     this.Telemetry.TrackMetric(new MetricTelemetry(e.Id, e.Value));
-                    await client.SendAsync(new SocketMessage("ok", TelemetryServerEndPoint));
                 }
             }
             catch (Exception ex)

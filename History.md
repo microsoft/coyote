@@ -1,3 +1,9 @@
+## v1.0.7
+- Added support for building Coyote on Linux and macOS.
+- Building Coyote locally now ignores .NET targets that are not installed.
+- Added optional anonymized telemetry in the `coyote` tool.
+- Fixed a bug in the `SynchronizedBlock` type.
+
 ## v1.0.6
 - Added a `SynchronizedBlock` type to model the semantics of the C# `lock` statement.
 - Simplified the `Configuration` APIs for setting max-steps and liveness related heuristics.

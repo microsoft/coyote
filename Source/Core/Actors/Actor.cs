@@ -416,7 +416,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Asynchronous callback that is invoked when the actor receives an event that
         /// it is not prepared to handle. The callback is invoked first, after which the
-        /// actor will necessarily throw an <see cref="UnhandledEventException"/>
+        /// actor will necessarily throw an <see cref="UnhandledEventException"/>.
         /// </summary>
         /// <param name="e">The event that was unhandled.</param>
         /// <param name="state">The state when the event was dequeued.</param>

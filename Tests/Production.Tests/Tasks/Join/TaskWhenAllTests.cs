@@ -194,6 +194,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                     // production version of this test we don't know which order the tasks execute and
                     // with statement level interleaving we can even end up with duplicate values.
                 }
+
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),

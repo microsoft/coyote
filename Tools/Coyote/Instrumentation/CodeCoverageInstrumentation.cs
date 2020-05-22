@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             Uri baseUri = new Uri(fullPath);
 
-            IEnumerable<string> resolveFileSpec(string spec)
+            IEnumerable<string> ResolveFileSpec(string spec)
             {
                 var localPath = Path.GetFullPath(spec);
                 if (!File.Exists(localPath))
@@ -81,11 +81,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 yield return localPath;
             }
 
-            IEnumerable<string> resolveAdditionalFiles(KeyValuePair<string, bool> kvp)
+            IEnumerable<string> ResolveAdditionalFiles(KeyValuePair<string, bool> kvp)
             {
                 if (!kvp.Value)
                 {
-                    foreach (var file in resolveFileSpec(kvp.Key))
+                    foreach (var file in ResolveFileSpec(kvp.Key))
                     {
                         yield return file;
                     }
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     var trimmed = spec.Trim();
                     if (!string.IsNullOrEmpty(trimmed) && !trimmed.StartsWith("//"))
                     {
-                        foreach (var file in resolveFileSpec(trimmed))
+                        foreach (var file in ResolveFileSpec(trimmed))
                         {
                             yield return file;
                         }
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.SystematicTesting
             // Return .ToList() to force iteration and return errors before we start instrumenting.
             foreach (var kvp in configuration.AdditionalCodeCoverageAssemblies)
             {
-                foreach (var file in resolveAdditionalFiles(kvp))
+                foreach (var file in ResolveAdditionalFiles(kvp))
                 {
                     yield return file;
                 }

@@ -25,13 +25,13 @@ namespace Microsoft.Coyote.SmartSockets
         public string Id { get; set; }
 
         /// <summary>
-        /// This will be filled automatically by the SmartSocket class so you
+        /// This will be filled automatically by the SmartSocket class so you.
         /// </summary>
         [DataMember]
         public string Sender { get; set; }
 
         /// <summary>
-        /// An optional string message
+        /// An optional string message.
         /// </summary>
         [DataMember]
         public string Message { get; set; }

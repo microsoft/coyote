@@ -29,13 +29,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         private readonly ISchedulingStrategy SuffixStrategy;
 
         /// <summary>
-        /// Is the scheduler that produced the
-        /// schedule trace fair?
+        /// True if the scheduler that produced the schedule trace is fair, else false.
         /// </summary>
         private readonly bool IsSchedulerFair;
 
         /// <summary>
-        /// Is the scheduler replaying the trace?
+        /// True if the scheduler is replaying the trace, else false.
         /// </summary>
         private bool IsReplaying;
 

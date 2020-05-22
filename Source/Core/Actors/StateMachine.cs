@@ -154,10 +154,10 @@ namespace Microsoft.Coyote.Actors
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
-        /// <typeparam name="S">Type of the state.</typeparam>
-        protected void RaiseGotoStateEvent<S>()
-            where S : State =>
-            this.RaiseGotoStateEvent(typeof(S));
+        /// <typeparam name="TState">Type of the state.</typeparam>
+        protected void RaiseGotoStateEvent<TState>()
+            where TState : State =>
+            this.RaiseGotoStateEvent(typeof(TState));
 
         /// <summary>
         /// Raise a special event that performs a goto state operation at the end of the current action.
@@ -206,10 +206,10 @@ namespace Microsoft.Coyote.Actors
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
-        /// <typeparam name="S">Type of the state.</typeparam>
-        protected void RaisePushStateEvent<S>()
-            where S : State =>
-            this.RaisePushStateEvent(typeof(S));
+        /// <typeparam name="TState">Type of the state.</typeparam>
+        protected void RaisePushStateEvent<TState>()
+            where TState : State =>
+            this.RaisePushStateEvent(typeof(TState));
 
         /// <summary>
         /// Raise a special event that performs a push state operation at the end of the current action.

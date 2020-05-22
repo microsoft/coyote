@@ -1168,7 +1168,7 @@ namespace Microsoft.Coyote.Coverage
         public string Label { get; internal set; }
 
         /// <summary>
-        /// An optional category for the node
+        /// An optional category for the node.
         /// </summary>
         [DataMember]
         public string Category { get; internal set; }

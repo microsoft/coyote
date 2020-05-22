@@ -7,10 +7,6 @@
     <Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
     <RepositoryUrl>https://github.com/microsoft/coyote</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
-    <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
-    <Framework46Supported Condition="'$(Framework46Supported)'==''">true</Framework46Supported>
-    <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>    
   </PropertyGroup>
   <PropertyGroup>
     <DotNetSdkDir>$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
@@ -19,8 +15,13 @@
     <Framework46Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6</Framework46Dir>
     <Framework47Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7</Framework47Dir>
     <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
+    <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
+    <Framework46Supported Condition="'$(Framework46Supported)'==''">true</Framework46Supported>
+    <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>
     <NetCore31Installed>false</NetCore31Installed>
     <Framework46Installed>false</Framework46Installed>
     <Framework47Installed>false</Framework47Installed>
@@ -66,10 +67,6 @@
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.1" PrivateAssets="All" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />
-  </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" />
   </ItemGroup>

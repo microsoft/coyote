@@ -243,7 +243,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the Coyote testing scheduler.
         /// </summary>
-        /// <returns>The number of bugs found</returns>
+        /// <returns>The number of bugs found.</returns>
         internal int Run()
         {
             int bugs = 0;
@@ -378,7 +378,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates and runs an in-memory testing process.
         /// </summary>
-        /// <returns>The number of bugs found</returns>
+        /// <returns>The number of bugs found.</returns>
         private int CreateAndRunInMemoryTestingProcess()
         {
             TestingProcess testingProcess = TestingProcess.Create(this.Configuration);

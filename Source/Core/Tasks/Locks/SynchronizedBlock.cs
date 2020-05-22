@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
         /// </summary>
-        /// <param name="syncObject">The sync object to serialize access to</param>
+        /// <param name="syncObject">The sync object to serialize access to.</param>
         protected SynchronizedBlock(object syncObject)
         {
             this.SyncObject = syncObject;

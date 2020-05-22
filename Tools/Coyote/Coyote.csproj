@@ -9,6 +9,7 @@
     <OutputType>Exe</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
+    <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />

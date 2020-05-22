@@ -209,11 +209,11 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         /// <summary>
         /// If the actor is a state machine, this asserts that the state machine has transitioned to the state with the specified type <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="S">The type of the state.</typeparam>
-        public void AssertStateTransition<S>()
-            where S : StateMachine.State
+        /// <typeparam name="TState">The type of the state.</typeparam>
+        public void AssertStateTransition<TState>()
+            where TState : StateMachine.State
         {
-            this.AssertStateTransition(typeof(S).FullName);
+            this.AssertStateTransition(typeof(TState).FullName);
         }
 
         /// <summary>

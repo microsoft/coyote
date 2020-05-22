@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.SmartSockets
         /// </summary>
         /// <returns>The connected client or null if task is cancelled.</returns>
         public static async Task<SmartSocketClient> FindServerAsync(string serviceName, string clientName, SmartSocketTypeResolver resolver,
-                                                                    CancellationToken token, string udpGroupAddress = "226.10.10.2", int udpGroupPort = 37992)
+            CancellationToken token, string udpGroupAddress = "226.10.10.2", int udpGroupPort = 37992)
         {
             return await Task.Run(async () =>
             {
@@ -71,6 +71,7 @@ namespace Microsoft.Coyote.SmartSockets
                 {
                     return null;
                 }
+
                 while (!token.IsCancellationRequested)
                 {
                     try
@@ -118,6 +119,7 @@ namespace Microsoft.Coyote.SmartSockets
                         Debug.WriteLine("Something went wrong with Udp connection: " + ex.Message);
                     }
                 }
+
                 return null;
             });
         }
@@ -361,6 +363,7 @@ namespace Microsoft.Coyote.SmartSockets
                         // is the socket dead?
                         this.OnError(ex);
                     }
+
                     return null;
                 });
             }

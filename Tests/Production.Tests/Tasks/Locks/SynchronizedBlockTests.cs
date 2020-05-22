@@ -41,6 +41,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 using (monitor = SynchronizedBlock.Lock(syncObject))
                 {
                 }
+
                 monitor.Wait();
             },
             replay: true);
@@ -56,6 +57,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 using (monitor = SynchronizedBlock.Lock(syncObject))
                 {
                 }
+
                 monitor.Pulse();
             },
             replay: true);
@@ -71,6 +73,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 using (monitor = SynchronizedBlock.Lock(syncObject))
                 {
                 }
+
                 monitor.PulseAll();
             },
             replay: true);

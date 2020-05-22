@@ -71,6 +71,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors.SharedObjects
                     {
                         return 6;
                     }
+
                     return x;
                 });
 

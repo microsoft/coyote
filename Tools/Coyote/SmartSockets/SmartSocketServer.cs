@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.SmartSockets
         public int GroupPort { get; internal set; }
 
         /// <summary>
-        /// The end point we are listening on (valid after calling StartServer)
+        /// The end point we are listening on (valid after calling StartServer).
         /// </summary>
         public IPEndPoint EndPoint { get; set; }
 
@@ -70,6 +70,8 @@ namespace Microsoft.Coyote.SmartSockets
         /// <param name="name">The name the client will check in UDP broadcasts to make sure it is connecting to the right server.</param>
         /// <param name="resolver">A way of providing custom Message types for serialization.</param>
         /// <param name="ipAddress">An optional ipAddress so you can decide which network interface to use.</param>
+        /// <param name="udpGroupAddress">An optional UDP group address.</param>
+        /// <param name="udpGroupPort">An optional UDP group port.</param>
         private SmartSocketServer(string name, SmartSocketTypeResolver resolver, string ipAddress = "127.0.0.1:0",
             string udpGroupAddress = "226.10.10.2", int udpGroupPort = 37992)
         {

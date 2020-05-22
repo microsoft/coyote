@@ -231,13 +231,13 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async Task invokeWriteWithYieldAsync(int value)
+                async Task InvokeWriteWithYieldAsync(int value)
                 {
                     await WriteWithYieldAsync(entry, value);
                 }
 
-                Task task1 = invokeWriteWithYieldAsync(3);
-                Task task2 = invokeWriteWithYieldAsync(5);
+                Task task1 = InvokeWriteWithYieldAsync(3);
+                Task task2 = InvokeWriteWithYieldAsync(5);
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },

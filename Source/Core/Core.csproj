@@ -3,7 +3,6 @@
     <Description>The Coyote core libraries and runtime.</Description>
     <AssemblyName>Microsoft.Coyote</AssemblyName>
     <RootNamespace>Microsoft.Coyote</RootNamespace>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>asynchronous;actors;state-machines;tasks;systematic-testing</PackageTags>
     <OutputPath>..\..\bin\</OutputPath>
     <CoyoteTargetType>Library</CoyoteTargetType>

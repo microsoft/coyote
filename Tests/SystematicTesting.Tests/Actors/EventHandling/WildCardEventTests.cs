@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         }
 
         /// <summary>
-        /// Test that wildcard can be overridden by push
+        /// Test that wildcard can be overridden by push.
         /// </summary>
         internal class X : StateMachine
         {

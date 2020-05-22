@@ -54,7 +54,7 @@ namespace Coyote.Telemetry
     /// It sticks around for 60 seconds then terminates, unless a heartbeat or telemetry
     /// message is received from another coyote process.  You can debug this server easily
     /// by running "coyote telemetry server" from the command line.
-    /// <see href="https://github.com/microsoft/ApplicationInsights-dotnet"/>
+    /// See <see href="https://github.com/microsoft/ApplicationInsights-dotnet"/>.
     /// </summary>
     internal class CoyoteTelemetryServer
     {

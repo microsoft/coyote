@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Coverage
         public Graph CoverageGraph { get; set; }
 
         /// <summary>
-        /// Information about events sent and received
+        /// Information about events sent and received.
         /// </summary>
         [DataMember]
         public EventCoverage EventInfo { get; set; }

@@ -230,13 +230,13 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async Task invokeWriteWithDelayAsync(int value, int delay)
+                async Task InvokeWriteWithDelayAsync(int value, int delay)
                 {
                     await WriteWithDelayAsync(entry, value, delay);
                 }
 
-                Task task1 = invokeWriteWithDelayAsync(3, 0);
-                Task task2 = invokeWriteWithDelayAsync(5, 0);
+                Task task1 = InvokeWriteWithDelayAsync(3, 0);
+                Task task2 = InvokeWriteWithDelayAsync(5, 0);
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -249,13 +249,13 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async Task invokeWriteWithDelayAsync(int value, int delay)
+                async Task InvokeWriteWithDelayAsync(int value, int delay)
                 {
                     await WriteWithDelayAsync(entry, value, delay);
                 }
 
-                Task task1 = invokeWriteWithDelayAsync(3, 1);
-                Task task2 = invokeWriteWithDelayAsync(5, 1);
+                Task task1 = InvokeWriteWithDelayAsync(3, 1);
+                Task task2 = InvokeWriteWithDelayAsync(5, 1);
                 await Task.WhenAll(task1, task2);
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },

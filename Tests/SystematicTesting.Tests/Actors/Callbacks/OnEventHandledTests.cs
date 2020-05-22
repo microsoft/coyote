@@ -50,13 +50,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
         }
 
-        /// <summary>
-        /// Asserts that the following calls are seen in-order:
-        ///   OnEventDequeueAsync(UnitEvent)
-        ///   OnEventHandledAsync(UnitEvent)
-        ///   OnEventDequeueAsync(E1)
-        ///   OnEventHandledAsync(E1)
-        /// </summary>
         private class Spec1 : Monitor
         {
             private int Counter = 0;
@@ -76,6 +69,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void Process(Event e)
             {
+                // Asserts that the following calls are seen in-order:
+                //   OnEventDequeueAsync(UnitEvent)
+                //   OnEventHandledAsync(UnitEvent)
+                //   OnEventDequeueAsync(E1)
+                //   OnEventHandledAsync(E1)
                 if (this.Counter == 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
                 {
                     this.Counter++;
@@ -148,11 +146,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             });
         }
 
-        /// <summary>
-        /// Asserts that the following calls are seen in-order:
-        ///   OnEventDequeueAsync(UnitEvent)
-        ///   OnEventHandledAsync(UnitEvent)
-        /// </summary>
         private class Spec2 : Monitor
         {
             private int Counter = 0;
@@ -172,6 +165,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void Process(Event e)
             {
+                // Asserts that the following calls are seen in-order:
+                //   OnEventDequeueAsync(UnitEvent)
+                //   OnEventHandledAsync(UnitEvent)
                 if (this.Counter == 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
                 {
                     this.Counter++;

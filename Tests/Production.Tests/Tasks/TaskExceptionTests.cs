@@ -109,13 +109,13 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async Task func()
+                async Task Func()
                 {
                     entry.Value = 5;
                     await Task.Delay(1);
                 }
 
-                var task = Task.Run(func);
+                var task = Task.Run(Func);
                 await task;
 
                 Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
@@ -262,14 +262,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                async Task func()
+                async Task Func()
                 {
                     entry.Value = 5;
                     await Task.Delay(1);
                     throw new InvalidOperationException();
                 }
 
-                var task = Task.Run(func);
+                var task = Task.Run(Func);
 
                 Exception exception = null;
                 try

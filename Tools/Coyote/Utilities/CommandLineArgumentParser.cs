@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.Utilities
         public CommandLineArgumentDependency DependsOn;
 
         /// <summary>
-        /// Whether this group should be included in all help messages
+        /// Whether this group should be included in all help messages.
         /// </summary>
         internal bool AlwaysPrint { get; set; }
 

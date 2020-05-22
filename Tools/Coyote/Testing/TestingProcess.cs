@@ -14,7 +14,7 @@ using Microsoft.Coyote.SmartSockets;
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// A testing process, this can also be the client side of a multi-process test
+    /// A testing process, this can also be the client side of a multi-process test.
     /// </summary>
     internal sealed class TestingProcess
     {
@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private bool Terminating;
 
         /// <summary>
-        /// A name for the test client
+        /// A name for the test client.
         /// </summary>
         private readonly string Name = "CoyoteTestingProcess";
 
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the Coyote testing process.
         /// </summary>
-        /// <returns>The number of bugs found</returns>
+        /// <returns>The number of bugs found.</returns>
         internal int Run()
         {
             return this.RunAsync().Result;

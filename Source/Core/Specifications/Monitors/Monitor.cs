@@ -202,10 +202,10 @@ namespace Microsoft.Coyote.Specifications
         /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
-        /// <typeparam name="S">Type of the state.</typeparam>
-        protected void RaiseGotoStateEvent<S>()
-            where S : State =>
-            this.RaiseGotoStateEvent(typeof(S));
+        /// <typeparam name="TState">Type of the state.</typeparam>
+        protected void RaiseGotoStateEvent<TState>()
+            where TState : State =>
+            this.RaiseGotoStateEvent(typeof(TState));
 
         /// <summary>
         /// Raise a special event that performs a goto state operation at the end of the current action.

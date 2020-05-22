@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
     /// This is an implementation of the concurrency bug described in
     /// Extreme Programming Challenge 14:
     ///
-    /// http://wiki.c2.com/?ExtremeProgrammingChallengeFourteenTheBug)
+    /// http://wiki.c2.com/?ExtremeProgrammingChallengeFourteenTheBug.
     /// </summary>
     public class ExtremeProgrammingChallenge14Tests : BaseTest
     {

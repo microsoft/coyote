@@ -71,12 +71,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the Coyote testing process.
         /// </summary>
-        internal void Run()
+        /// <returns>The number of bugs found</returns>
+        internal int Run()
         {
-            this.RunAsync().Wait();
+            return this.RunAsync().Result;
         }
 
-        internal async Task RunAsync()
+        internal async Task<int> RunAsync()
         {
             if (this.Configuration.RunAsParallelBugFindingTask)
             {
@@ -135,6 +136,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             this.Disconnect();
+            return this.TestingEngine.TestReport.NumOfFoundBugs;
         }
 
         /// <summary>

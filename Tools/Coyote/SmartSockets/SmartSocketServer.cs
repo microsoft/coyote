@@ -146,38 +146,45 @@ namespace Microsoft.Coyote.SmartSockets
 
         private void UdpListenerThread()
         {
-            var localHost = SmartSocketClient.FindLocalHostName();
-            List<string> addresses = SmartSocketClient.FindLocalIpAddresses();
-            if (localHost == null || addresses.Count == 0)
+            try
             {
-                return; // no network.
-            }
-
-            IPEndPoint remoteEP = new IPEndPoint(this.GroupAddress, this.GroupPort);
-            this.UdpListener = new UdpClient(this.GroupPort);
-            this.UdpListener.JoinMulticastGroup(this.GroupAddress);
-            while (true)
-            {
-                byte[] data = this.UdpListener.Receive(ref remoteEP);
-                if (data != null)
+                var localHost = SmartSocketClient.FindLocalHostName();
+                List<string> addresses = SmartSocketClient.FindLocalIpAddresses();
+                if (localHost == null || addresses.Count == 0)
                 {
-                    BinaryReader reader = new BinaryReader(new MemoryStream(data));
-                    int len = reader.ReadInt32();
-                    string msg = reader.ReadString();
-                    if (msg == this.ServiceName)
+                    return; // no network.
+                }
+
+                IPEndPoint remoteEP = new IPEndPoint(this.GroupAddress, this.GroupPort);
+                this.UdpListener = new UdpClient(this.GroupPort);
+                this.UdpListener.JoinMulticastGroup(this.GroupAddress);
+                while (true)
+                {
+                    byte[] data = this.UdpListener.Receive(ref remoteEP);
+                    if (data != null)
                     {
-                        // send response back with info on how to connect to this server.
-                        IPEndPoint localEp = (IPEndPoint)this.Listener.LocalEndPoint;
-                        string addr = localEp.ToString();
-                        MemoryStream ms = new MemoryStream();
-                        BinaryWriter writer = new BinaryWriter(ms);
-                        writer.Write(addr.Length);
-                        writer.Write(addr);
-                        writer.Flush();
-                        byte[] buffer = ms.ToArray();
-                        this.UdpListener.Send(buffer, buffer.Length, remoteEP);
+                        BinaryReader reader = new BinaryReader(new MemoryStream(data));
+                        int len = reader.ReadInt32();
+                        string msg = reader.ReadString();
+                        if (msg == this.ServiceName)
+                        {
+                            // send response back with info on how to connect to this server.
+                            IPEndPoint localEp = (IPEndPoint)this.Listener.LocalEndPoint;
+                            string addr = localEp.ToString();
+                            MemoryStream ms = new MemoryStream();
+                            BinaryWriter writer = new BinaryWriter(ms);
+                            writer.Write(addr.Length);
+                            writer.Write(addr);
+                            writer.Flush();
+                            byte[] buffer = ms.ToArray();
+                            this.UdpListener.Send(buffer, buffer.Length, remoteEP);
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                // UdpListenerThread failed
             }
         }
 

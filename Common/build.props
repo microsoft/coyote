@@ -10,7 +10,7 @@
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
     <Framework46Supported Condition="'$(Framework46Supported)'==''">true</Framework46Supported>
-    <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>
+    <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>    
   </PropertyGroup>
   <PropertyGroup>
     <DotNetSdkDir>$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
@@ -51,16 +51,9 @@
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
-  <!-- handy for debugging
-  <Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
-    <Message Text="Framework46Supported : $(Framework46Supported)" Importance="high"/>
-    <Message Text="Building for .NET Core 3.1: $(NetCore31Installed)" Importance="high"/>
-    <Message Text="Building for .NET Framework 4.6 : $(Framework46Installed)" Importance="high"/>
-    <Message Text="Building for .NET Framework 4.7: $(Framework47Installed)" Importance="high"/>
-    <Message Text="Building for .NET Framework 4.8: $(Framework48Installed)" Importance="high"/>
-    <Message Text="TargetFrameworks: $(TargetFrameworks)" Importance="high"/>
-  </Target>
-  -->
+  <!--<Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
+    <Message Text="Building for .NET $(TargetFramework)" Importance="high"/>
+  </Target>-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -73,6 +66,26 @@
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net46'">
+    <DefineConstants>$(DefineConstants);FRAMEWORK_NET46</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net47'">
+    <DefineConstants>$(DefineConstants);FRAMEWORK_NET47</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net48'">
+    <DefineConstants>$(DefineConstants);FRAMEWORK_NET48</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
+    <DefineConstants>$(DefineConstants);FRAMEWORK_STANDARD21</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>$(DefineConstants);FRAMEWORK_STANDARD20</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
+    <DefineConstants>$(DefineConstants);FRAMEWORK_NETCOREAPP31</DefineConstants>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.1" PrivateAssets="All" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="All" />

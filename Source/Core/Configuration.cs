@@ -303,6 +303,11 @@ namespace Microsoft.Coyote
         internal bool DisableEnvironmentExit;
 
         /// <summary>
+        /// Enable Coyote sending Telemetry to Azure which is used to help improve the tool (default true).
+        /// </summary>
+        internal bool EnableTelemetry;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
         /// </summary>
         protected Configuration()
@@ -355,6 +360,13 @@ namespace Microsoft.Coyote
 
             this.EnableColoredConsoleOutput = false;
             this.DisableEnvironmentExit = true;
+            this.EnableTelemetry = true;
+
+            string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
+            if (optout == "1" || optout == "true")
+            {
+                this.EnableTelemetry = false;
+            }
         }
 
         /// <summary>

@@ -226,6 +226,7 @@ namespace Microsoft.Coyote.SmartSockets
 
         internal static List<string> FindLocalIpAddresses()
         {
+            List<string> ipAddresses = new List<string>();
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (ni.OperationalStatus == OperationalStatus.Up &&
@@ -236,7 +237,6 @@ namespace Microsoft.Coyote.SmartSockets
                     if (props.IsDnsEnabled || props.IsDynamicDnsEnabled)
                     {
                         IPHostEntry e = Dns.GetHostEntry(IPAddress.Loopback);
-                        List<string> ipAddresses = new List<string>();
                         foreach (var addr in e.AddressList)
                         {
                             ipAddresses.Add(addr.ToString());
@@ -247,7 +247,8 @@ namespace Microsoft.Coyote.SmartSockets
                 }
             }
 
-            return null;
+            ipAddresses.Add("127.0.0.1");
+            return ipAddresses;
         }
 
         public string ServerName { get; set; }

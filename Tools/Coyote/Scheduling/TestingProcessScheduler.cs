@@ -243,8 +243,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the Coyote testing scheduler.
         /// </summary>
-        internal void Run()
+        /// <returns>The number of bugs found</returns>
+        internal int Run()
         {
+            int bugs = 0;
             Console.WriteLine($"Starting TestingProcessScheduler in process {Process.GetCurrentProcess().Id}");
 
             // Start the local server.
@@ -263,10 +265,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     this.RunParallelTestingProcesses();
                 }
+
+                bugs = this.GlobalTestReport.NumOfFoundBugs;
             }
             else
             {
-                this.CreateAndRunInMemoryTestingProcess();
+                bugs = this.CreateAndRunInMemoryTestingProcess();
             }
 
             this.Profiler.StopMeasuringExecutionTime();
@@ -279,6 +283,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Merges and emits the test report.
                 this.EmitTestReport();
             }
+
+            return bugs;
         }
 
         /// <summary>
@@ -372,14 +378,15 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates and runs an in-memory testing process.
         /// </summary>
-        private void CreateAndRunInMemoryTestingProcess()
+        /// <returns>The number of bugs found</returns>
+        private int CreateAndRunInMemoryTestingProcess()
         {
             TestingProcess testingProcess = TestingProcess.Create(this.Configuration);
 
             Console.WriteLine($"... Created '1' testing task.");
 
             // Runs the testing process.
-            testingProcess.Run();
+            int bugs = testingProcess.Run();
 
             // Get and merge the test report.
             TestReport testReport = testingProcess.GetTestReport();
@@ -387,6 +394,8 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.MergeTestReport(testReport, 0);
             }
+
+            return bugs;
         }
 
         /// <summary>

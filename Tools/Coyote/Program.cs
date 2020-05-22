@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using Coyote.Telemetry;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Utilities;
@@ -15,7 +17,7 @@ namespace Microsoft.Coyote
     internal class Program
     {
         private static Configuration Configuration;
-
+        private static CoyoteTelemetryClient TelemetryClient;
         private static TextWriter StdOut;
         private static TextWriter StdError;
 
@@ -26,13 +28,44 @@ namespace Microsoft.Coyote
             // Save these so we can force output to happen even if TestingProcess has re-routed it.
             StdOut = Console.Out;
             StdError = Console.Error;
-
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             Console.CancelKeyPress += OnProcessCanceled;
 
             // Parses the command line options to get the configuration.
-            Configuration = new CommandLineOptions().Parse(args);
+
+            Configuration = Configuration.Create();
+
+            CoyoteTelemetryClient.GetOrCreateMachineId(out bool firstTime);
+
+            if (!Configuration.RunAsParallelBugFindingTask)
+            {
+                if (firstTime)
+                {
+                    string version = typeof(CommandLineOptions).Assembly.GetName().Version.ToString();
+                    Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
+                    Console.WriteLine("----------------------------{0}", new string('-', version.Length));
+                    PrintTelemetryMessage();
+                }
+
+                Console.WriteLine("Microsoft (R) Coyote version {0} for .NET{1}",
+                    typeof(CommandLineOptions).Assembly.GetName().Version,
+                    GetDotNetVersion());
+                Console.WriteLine("Copyright (C) Microsoft Corporation. All rights reserved.");
+                Console.WriteLine();
+            }
+
+            var options = new CommandLineOptions();
+            if (!options.Parse(args, Configuration))
+            {
+                options.PrintHelp(Console.Out);
+                if (!firstTime)
+                {
+                    PrintTelemetryMessage();
+                }
+
+                Environment.Exit(1);
+            }
 
             SetEnvironment(Configuration);
 
@@ -44,7 +77,16 @@ namespace Microsoft.Coyote
                 case "replay":
                     ReplayTest();
                     break;
+                case "telemetry":
+                    RunServer();
+                    break;
             }
+        }
+
+        public static void RunServer()
+        {
+            CoyoteTelemetryServer server = new CoyoteTelemetryServer(Configuration.IsVerbose);
+            server.RunServerAsync().Wait();
         }
 
         private static void SetEnvironment(Configuration config)
@@ -72,6 +114,17 @@ namespace Microsoft.Coyote
                 return;
             }
 
+            TelemetryClient = new CoyoteTelemetryClient(Configuration);
+            TelemetryClient.TrackEventAsync("test").Wait();
+
+            if (Debugger.IsAttached)
+            {
+                TelemetryClient.TrackEventAsync("test-debug").Wait();
+            }
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             if (Configuration.ReportCodeCoverage || Configuration.ReportActivityCoverage)
             {
                 // This has to be here because both forms of coverage require it.
@@ -94,13 +147,34 @@ namespace Microsoft.Coyote
             }
 
             // Creates and runs the testing process scheduler.
-            TestingProcessScheduler.Create(Configuration).Run();
+            int bugs = TestingProcessScheduler.Create(Configuration).Run();
+            if (bugs > 0)
+            {
+                TelemetryClient.TrackMetricAsync("test-bugs", bugs).Wait();
+            }
 
             Console.WriteLine(". Done");
+
+            watch.Stop();
+            if (!Debugger.IsAttached)
+            {
+                TelemetryClient.TrackMetricAsync("test-time", watch.Elapsed.TotalSeconds).Wait();
+            }
         }
 
         private static void ReplayTest()
         {
+            TelemetryClient = new CoyoteTelemetryClient(Configuration);
+            TelemetryClient.TrackEventAsync("replay").Wait();
+
+            if (Debugger.IsAttached)
+            {
+                TelemetryClient.TrackEventAsync("replay-debug").Wait();
+            }
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             // Set some replay specific options.
             Configuration.SchedulingStrategy = "replay";
             Configuration.EnableColoredConsoleOutput = true;
@@ -110,6 +184,13 @@ namespace Microsoft.Coyote
             TestingEngine engine = TestingEngine.Create(Configuration);
             engine.Run();
             Console.WriteLine(engine.GetReport());
+
+            watch.Stop();
+
+            if (!Debugger.IsAttached)
+            {
+                TelemetryClient.TrackMetricAsync("replay-time", watch.Elapsed.TotalSeconds).Wait();
+            }
         }
 
         /// <summary>
@@ -182,6 +263,50 @@ namespace Microsoft.Coyote
 
                 // Stops monitoring for code coverage.
                 CodeCoverageMonitor.Stop();
+            }
+
+            using (TelemetryClient)
+            {
+            }
+        }
+
+        private static string GetDotNetVersion()
+        {
+            var path = typeof(string).Assembly.Location;
+            string result = string.Empty;
+
+            string[] parts = path.Replace("\\", "/").Split('/');
+            if (path.Contains("Microsoft.NETCore"))
+            {
+                result += " Core";
+            }
+
+            if (parts.Length > 2)
+            {
+                var version = parts[parts.Length - 2];
+                if (char.IsDigit(version[0]))
+                {
+                    result += " " + version;
+                }
+            }
+
+            return result;
+        }
+
+        private static void PrintTelemetryMessage()
+        {
+            if (Configuration.EnableTelemetry)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Telemetry is enabled");
+                Console.WriteLine("--------------------");
+                Console.WriteLine("Microsoft Coyote tools collect usage data in order to help us improve your experience. " +
+                    "The data is anonymous. It is collected by Microsoft and shared with the community. " +
+                    "You can opt-out of telemetry by setting the COYOTE_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true'.");
+                Console.WriteLine();
+                Console.WriteLine("Read more about Microsoft Coyote Telemetry at http://aka.ms/coyote-telemetry");
+                Console.WriteLine("Use 'coyote --help' to see the full command line options.");
+                Console.WriteLine("--------------------------------------------------------------------------------------------");
             }
         }
     }

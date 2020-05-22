@@ -688,8 +688,7 @@ namespace Microsoft.Coyote.Utilities
 
                     if (current.PrintFullHelp)
                     {
-                        this.PrintHelp(Console.Out);
-                        Environment.Exit(1);
+                        return null;
                     }
                 }
                 else if (current != null)

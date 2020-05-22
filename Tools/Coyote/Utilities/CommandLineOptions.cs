@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.Coyote.IO;
@@ -27,7 +28,7 @@ namespace Microsoft.Coyote.Utilities
 
             var basicGroup = this.Parser.GetOrCreateGroup("Basic", "Basic options", true);
             var commandArg = basicGroup.AddPositionalArgument("command", "The operation perform (test, replay)");
-            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay" });
+            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay", "telemetry" });
             basicGroup.AddPositionalArgument("path", "Path to the Coyote program to test");
             basicGroup.AddArgument("method", "m", "Suffix of the test method to execute");
             basicGroup.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
@@ -91,23 +92,31 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             hiddenGroup.AddArgument("parallel-debug", "pd", "Used with --parallel to put up a debugger prompt on each child process", typeof(bool));
         }
 
+        internal void PrintHelp(TextWriter w)
+        {
+            this.Parser.PrintHelp(w);
+        }
+
         /// <summary>
         /// Parses the command line options and returns a configuration.
         /// </summary>
-        /// <returns>The Configuration object populated with the parsed command line options.</returns>
-        internal Configuration Parse(string[] args)
+        /// <param name="args">The command line arguments to parse.</param>
+        /// <param name="configuration">The Configuration object populated with the parsed command line options.</param>
+        internal bool Parse(string[] args, Configuration configuration)
         {
-            var configuration = Configuration.Create();
-
             try
             {
                 var result = this.Parser.ParseArguments(args);
-                foreach (var arg in result)
+                if (result != null)
                 {
-                    UpdateConfigurationWithParsedArgument(configuration, arg);
-                }
+                    foreach (var arg in result)
+                    {
+                        UpdateConfigurationWithParsedArgument(configuration, arg);
+                    }
 
-                SanitizeConfiguration(configuration);
+                    SanitizeConfiguration(configuration);
+                    return true;
+                }
             }
             catch (CommandLineException ex)
             {
@@ -128,7 +137,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 Error.ReportAndExit(ex.Message);
             }
 
-            return configuration;
+            return false;
         }
 
         /// <summary>

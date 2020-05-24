@@ -13,7 +13,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Device for generating random numbers.
         /// </summary>
-        private System.Random Random;
+        private Random Random;
 
         /// <summary>
         /// The seed currently used by the generator.

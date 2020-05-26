@@ -79,3 +79,6 @@ Bugs involving `System.Threading.Monitor` can be extremely tricky to debug due t
 [heisenbug](https://en.wikipedia.org/wiki/Heisenbug) nature. Coyote testing eliminates this problem
 and can given you clear 100% reproducible bug schedules that you can replay as slowly as you need
 to see what is really going on leading up to such bugs.
+
+For a complete example see the [BoundedBuffer
+sample](https://github.com/microsoft/coyote-samples/tree/master/BoundedBuffer).

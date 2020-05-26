@@ -27,7 +27,7 @@ public sealed class ActorTestKit<T>
 | [AssertInboxSize](ActorTestKit-1/AssertInboxSize)(…) | Asserts that the actor inbox contains the specified number of events. |
 | [AssertIsWaitingToReceiveEvent](ActorTestKit-1/AssertIsWaitingToReceiveEvent)(…) | Asserts that the actor is waiting (or not) to receive an event. |
 | [AssertStateTransition](ActorTestKit-1/AssertStateTransition)(…) | If the actor is a state machine, asserts that the state machine has transitioned to the state with the specified name (either FullName or Name). |
-| [AssertStateTransition&lt;S&gt;](ActorTestKit-1/AssertStateTransition)() | If the actor is a state machine, this asserts that the state machine has transitioned to the state with the specified type *T*. |
+| [AssertStateTransition&lt;TState&gt;](ActorTestKit-1/AssertStateTransition)() | If the actor is a state machine, this asserts that the state machine has transitioned to the state with the specified type *T*. |
 | [Invoke](ActorTestKit-1/Invoke)(…) | Invokes the actor method with the specified name, and passing the specified optional parameters. Use this method to invoke private methods of the actor. (2 methods) |
 | [InvokeAsync](ActorTestKit-1/InvokeAsync)(…) | Invokes the asynchronous actor method with the specified name, and passing the specified optional parameters. Use this method to invoke private methods of the actor. (2 methods) |
 | [SendEventAsync](ActorTestKit-1/SendEventAsync)(…) | Sends an event to the actor and starts its event handler. This method returns a task that completes when the actor reaches quiescence (typically when the event handler finishes executing because there are not more events to dequeue, or when the actor asynchronously waits to receive an event). |

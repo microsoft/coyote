@@ -14,7 +14,7 @@ protected SynchronizedBlock(object syncObject)
 
 | parameter | description |
 | --- | --- |
-| syncObject | The sync object to serialize access to |
+| syncObject | The sync object to serialize access to. |
 
 ## See Also
 

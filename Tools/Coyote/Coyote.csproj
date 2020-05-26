@@ -15,11 +15,12 @@
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.14.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47' OR '$(TargetFramework)'=='net48'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net47' OR '$(TargetFramework)'=='net48'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>

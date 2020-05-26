@@ -31,22 +31,9 @@ powershell -f build.ps1
 ## Run the HelloWorldTasks application
 
 Now you can run the HelloWorldTasks application:
-- in .Net Core:
 
 ```
 "./bin/netcoreapp3.1/HelloWorldTasks.exe"
-```
-
-- in .Net 4.6:
-
-```
-.\bin\net46\HelloWorldTasks.exe
-```
-
-- in .Net 4.7:
-
-```
-.\bin\net47\HelloWorldTasks.exe
 ```
 
 Note that in the code there is a bug (put intentionally) that should be caught by a Coyote
@@ -114,8 +101,8 @@ Starting TestingProcessScheduler in process 36352
 ..... Iteration #9
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing bin\net46\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.txt
-..... Writing bin\net46\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.schedule
+..... Writing bin\netcoreapp3.1\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.txt
+..... Writing bin\netcoreapp3.1\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.schedule
 ... Elapsed 0.07038 sec.
 ... Testing statistics:
 ..... Found 1 bug.

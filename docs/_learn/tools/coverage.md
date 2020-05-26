@@ -169,21 +169,21 @@ Then run `coyote` with one of the coverage flags, as well as the other options y
 some minimal examples:
 
 ```
-coyote test ./bin/net46/Monitors.exe -i 10 --coverage
+coyote test ./bin/netcoreapp3.1/Monitors.exe -i 10 --coverage
 ```
 
-This will create the directory `./bin/net46/Output/Monitors.exe/CoyoteOutput/`, then it generates
-coverage files for code coverage which you can load into Visual Studio to see the results.
+This will create the directory `./bin/netcoreapp3.1/Output/Monitors.exe/CoyoteOutput/`, then it
+generates coverage files for code coverage which you can load into Visual Studio to see the results.
 
 ```
-coyote test ./bin/net46/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
+coyote test ./bin/netcoreapp3.1/Monitors.exe -i 10 -coverage activity  -o "/Coyote_Coverage/Monitors"
 ```
 
 This will create the directory `/Coyote_Coverage/Monitors/CoyoteOutput`, then it generates only
 activity coverage.
 
 ```
-coyote test ./bin/net46/Monitors.exe -i 10 --coverage code activity-debug
+coyote test ./bin/netcoreapp3.1/Monitors.exe -i 10 --coverage code activity-debug
 ```
 
 This generates code and activity coverage, including debug activity output.
@@ -198,7 +198,7 @@ test` with a full path to the binary being tested.
 
 #### Exception thrown: 'System.BadImageFormatException' in System.Private.CoreLib.dll
 
-This could happen on a .NET core build if you are referencing a *.exe instead of the *.dll assembly
+This could happen on a .NET Core build if you are referencing a *.exe instead of the *.dll assembly
 for testing.
 
 #### Error: Could not find dependent assembly ...

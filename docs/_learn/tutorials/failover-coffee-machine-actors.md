@@ -87,22 +87,9 @@ powershell -f build.ps1
 ## Run the failover coffee machine application
 
 Now you can run the `CoffeeMachine` application:
-- in .Net Core:
 
 ```
 "./bin/netcoreapp3.1/CoffeeMachineActors.exe"
-```
-
-- in .Net 4.6:
-
-```
-.\bin\net46\CoffeeMachineActors.exe
-```
-
-- in .Net 4.7:
-
-```
-.\bin\net47\CoffeeMachineActors.exe
 ```
 
 ## The coffee machine

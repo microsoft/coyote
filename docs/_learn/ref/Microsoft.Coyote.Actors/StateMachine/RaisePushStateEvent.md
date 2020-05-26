@@ -36,18 +36,18 @@ This event is not handled until the action that calls this method returns contro
 
 ---
 
-# StateMachine.RaisePushStateEvent&lt;S&gt; method (2 of 2)
+# StateMachine.RaisePushStateEvent&lt;TState&gt; method (2 of 2)
 
 Raise a special event that performs a push state operation at the end of the current action.
 
 ```csharp
-protected void RaisePushStateEvent<S>()
-    where S : State
+protected void RaisePushStateEvent<TState>()
+    where TState : State
 ```
 
 | parameter | description |
 | --- | --- |
-| S | Type of the state. |
+| TState | Type of the state. |
 
 ## Remarks
 

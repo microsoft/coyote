@@ -1013,8 +1013,6 @@
           link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SynchronizedBlock
         - name: SyncObject
           link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/SyncObject
-        - name: Verbose
-          link: /learn/ref/Microsoft.Coyote.Tasks/SynchronizedBlock/Verbose
       - name: Task
         link: /learn/ref/Microsoft.Coyote.Tasks/TaskType
         subfolderitems:

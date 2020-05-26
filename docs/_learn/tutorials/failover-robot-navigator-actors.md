@@ -134,22 +134,9 @@ powershell -f build.ps1
 ## Running and testing the Drink Serving Robot
 
 Now you can run the `DrinksServingRobotActors` application:
-- in .Net Core:
 
 ```
 "./bin/netcoreapp3.1/DrinksServingRobotActors.exe"
-```
-
-- in .Net 4.6:
-
-```
-.\bin\net46\DrinksServingRobotActors.exe
-```
-
-- in .Net 4.7:
-
-```
-.\bin\net47\DrinksServingRobotActors.exe
 ```
 
 When you run the executable like this without using `coyote test` (this is called running in
@@ -269,7 +256,7 @@ coyote test ./bin/netcoreapp3.1/DrinksServingRobotActors.dll -i 1000 -ms 2000 --
 Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```
-. Testing .\bin\net46\DrinksServingRobotActors.exe
+. Testing .\bin\netcoreapp3.1\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
 ... Task 0 is using 'pct' strategy (seed:324932188).
@@ -287,8 +274,8 @@ Starting TestingProcessScheduler in process 26236
 ..... Iteration #30
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net46\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.txt
-..... Writing .\bin\net46\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.schedule
+..... Writing .\bin\netcoreapp3.1\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.txt
+..... Writing .\bin\netcoreapp3.1\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.schedule
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -300,7 +287,7 @@ Starting TestingProcessScheduler in process 26236
 ```
 
 Notice that a log file is produced
-`.bin\net46\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
+`.bin\netcoreapp3.1\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
 pretty big, it contains the test iteration that failed, and towards the end of this file you will
 see something like this:
 
@@ -500,7 +487,7 @@ coyote test .\bin\netcoreapp3.1\DrinksServingRobotActors.dll -i 1000 -ms 2000 --
 you'll see in the output of the tester that a DGML diagram has been produced:
 
 ```
-..... Writing .\bin\net46\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.dgml
+..... Writing .\bin\netcoreapp3.1\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.dgml
 ```
 
 Open this with Visual Studio 2019 and you will see a diagram like this.  Here the diagram is also

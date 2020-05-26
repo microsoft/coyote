@@ -9,7 +9,7 @@ template: basic
 
 ## Installing Coyote
 
-Coyote is a Nuget library and works on .NET core which means it can be used on Windows, Linux and
+Coyote is a NuGet library and works on .NET Core which means it can be used on Windows, Linux and
 macOS.
 
 ### Prerequisites
@@ -20,7 +20,6 @@ macOS.
 if you are on Windows.
 - [Visual Studio Code](https://code.visualstudio.com/Download) is handy to have on other platforms.
 - Add the [DGML editor](../tools/dgml) feature of Visual Studio 2019.
-
 
 ### Installing the NuGet package
 
@@ -41,7 +40,7 @@ You can manually add Coyote to your C# project by using:
 dotnet add <yourproject>.csproj package Microsoft.Coyote
 ```
 
-### Installing the .NET core 3.1 coyote tool
+### Installing the .NET Core 3.1 coyote tool
 
 You can also install the `dotnet tool` named `coyote` for .NET Core 3.1 using the following command:
 
@@ -49,37 +48,15 @@ You can also install the `dotnet tool` named `coyote` for .NET Core 3.1 using th
 dotnet tool install --global Microsoft.Coyote.CLI
 ```
 
-Now you can run the `coyote test` tool without having to build Coyote from source.  The dotnet tool install can also install coyote to a `--local` folder if you prefer that.
+Now you can run the `coyote test` tool without having to build Coyote from source. Type `coyote
+--help` to see if it is working. The dotnet tool install can also install coyote to a `--local`
+folder if you prefer that.
 
 You can remove the global `coyote` tool by running the following command:
 
 ```
 dotnet tool uninstall --global Microsoft.Coyote.CLI
 ```
-
-### Installing the Coyote command line tool for .NET Frameworks on Windows
-
-If you prefer to use .NET 4.6, 4.7 or 4.8 instead of .NET Core 3.1, then you will need to add the
-location of the tool to your `PATH` environment as follows.  First you must decide what .NET
-platform you want to use.  Coyote supports .NET 4.6, 4.7 and 4.8.  The `coyote` tool that
-you use must match the platform of the sample app you are testing.  Pick one of the following
-locations:
-
-```
-set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\<version>\lib\net46\
-set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\<version>\lib\net47\
-set COYOTE_PATH=d:\git\coyote-samples\packages\microsoft.coyote\<version>\lib\net48\
-```
-
-where `<version>` is the coyote version number matching what you installed.
-If you built local source the the version needs to match the version in `Common\version.props`.
-Then based on what you decide you can now add this to your PATH environment:
-
-```
-set PATH=%PATH%;%COYOTE_PATH%
-```
-
-Now type `coyote --help` to see if it is working.
 
 ### Building the samples
 

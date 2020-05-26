@@ -83,22 +83,9 @@ powershell -f build.ps1
 ## Run the failover coffee machine application
 
 Now you can run the `CoffeeMachine` application:
-- in .Net Core:
 
 ```
 "./bin/netcoreapp3.1/CoffeeMachineTasks.exe"
-```
-
-- in .Net 4.6:
-
-```
-.\bin\net46\CoffeeMachineTasks.exe
-```
-
-- in .Net 4.7:
-
-```
-.\bin\net47\CoffeeMachineTasks.exe
 ```
 
 ## The Coffee Machine
@@ -213,7 +200,7 @@ Chances are this will find a bug quickly, one of the safety assertions will fire
 that a test output log is produced, like this:
 
 ```
-.\bin\net46\Output\CoffeeMachineTasks.exe\CoyoteOutput\CoffeeMachine_0_0.txt
+.\bin\netcoreapp3.1\Output\CoffeeMachineTasks.exe\CoyoteOutput\CoffeeMachine_0_0.txt
 ```
 
 This log contains only the one test iteration that failed, and towards the end you will see
@@ -308,14 +295,14 @@ which outputs the following:
 d:\git\foundry99\CoyoteSamples>
 . Testing .\bin\netcoreapp3.1\CoffeeMachineTasks.dll
 Starting TestingProcessScheduler in process 42036
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
-Launching d:\git\foundry99\Coyote\bin\net46\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
+Launching d:\git\foundry99\Coyote\bin\netcoreapp3.1\coyote.exe
 ... Created '8' testing tasks.
 ... Task 3 is using 'FairPCT' strategy (seed:2143).
 ... Task 5 is using 'FairPCT' strategy (seed:3489).

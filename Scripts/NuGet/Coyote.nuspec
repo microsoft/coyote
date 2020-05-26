@@ -16,7 +16,6 @@
       <group targetFramework=".NETStandard2.0" />
       <group targetFramework=".NETStandard2.1" />
       <group targetFramework=".NETCoreApp3.1" />
-      <group targetFramework=".NETFramework4.6" />
       <group targetFramework=".NETFramework4.7" />
       <group targetFramework=".NETFramework4.8" />
     </dependencies>
@@ -39,12 +38,6 @@
     <file src="..\..\bin\netcoreapp3.1\*.config" target="lib\netcoreapp3.1" />
     <file src="..\..\bin\netcoreapp3.1\*.deps.json" target="lib\netcoreapp3.1" />
     <file src="..\..\bin\netcoreapp3.1\*.runtimeconfig.json" target="lib\netcoreapp3.1" />
-    <!-- .NET Framework 4.6 -->
-    <file src="..\..\bin\net46\*.exe" target="lib\net46" />
-    <file src="..\..\bin\net46\*.dll" target="lib\net46" />
-    <file src="..\..\bin\net46\*.mdb" target="lib\net46" />
-    <file src="..\..\bin\net46\*.xml" target="lib\net46" />
-    <file src="..\..\bin\net46\*.config" target="lib\net46" />
      <!-- .NET Framework 4.7 -->
     <file src="..\..\bin\net47\*.exe" target="lib\net47" />
     <file src="..\..\bin\net47\*.dll" target="lib\net47" />

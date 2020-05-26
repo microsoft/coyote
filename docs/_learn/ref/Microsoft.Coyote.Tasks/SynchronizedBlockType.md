@@ -22,7 +22,6 @@ public class SynchronizedBlock : IDisposable
 | virtual [PulseAll](SynchronizedBlock/PulseAll)() | Notifies all waiting threads of a change in the object's state. |
 | virtual [Wait](SynchronizedBlock/Wait)() | Releases the lock on an object and blocks the current thread until it reacquires the lock. |
 | virtual [Wait](SynchronizedBlock/Wait)(…) | Releases the lock on an object and blocks the current thread until it reacquires the lock. If the specified time-out interval elapses, the thread enters the ready queue. (2 methods) |
-| static [Verbose](SynchronizedBlock/Verbose) | A boolean flag that can turn on verbose debugging output that can be handy in tracking down deadlocks. |
 
 ## Protected Members
 

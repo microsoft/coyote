@@ -715,30 +715,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 Error.ReportAndExit(ex.Message);
             }
 
-#if NETFRAMEWORK
-            // Load config file and absorb its settings.
-            try
-            {
-                var configFile = System.Configuration.ConfigurationManager.OpenExeConfiguration(assemblyFile);
-                var settings = configFile.AppSettings.Settings;
-                foreach (var key in settings.AllKeys)
-                {
-                    if (System.Configuration.ConfigurationManager.AppSettings.Get(key) is null)
-                    {
-                        System.Configuration.ConfigurationManager.AppSettings.Set(key, settings[key].Value);
-                    }
-                    else
-                    {
-                        System.Configuration.ConfigurationManager.AppSettings.Add(key, settings[key].Value);
-                    }
-                }
-            }
-            catch (System.Configuration.ConfigurationErrorsException ex)
-            {
-                Error.Report(ex.Message);
-            }
-#endif
-
             return assembly;
         }
 

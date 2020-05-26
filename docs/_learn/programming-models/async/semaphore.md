@@ -231,8 +231,8 @@ and reports a test bug:
 ```
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing bin\net46\Output\Semaphores.exe\CoyoteOutput\Semaphores_0_2.txt
-..... Writing bin\net46\Output\Semaphores.exe\CoyoteOutput\Semaphores_0_2.schedule
+..... Writing ...\Semaphores_0_2.txt
+..... Writing ...\Semaphores_0_2.schedule
 ... Elapsed 0.1125501 sec.
 ```
 

@@ -6,7 +6,7 @@ $CoyoteRoot = Split-Path $PSScriptRoot
 
 $ToolPath = "$CoyoteRoot\packages"
 
-if (-Not (Test-Path -Path "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll"))
+if (-Not (Test-Path -Path "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll"))
 {
     throw "please build coyote project first"
 }
@@ -44,15 +44,12 @@ $installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
 # install xmldocmd
 $installed = InstallToolVersion -name "xmldocmd" -version "2.1.0-beta1"
 
-foreach ($file in Get-ChildItem -Path "$CoyoteRoot\bin")
+$frameworks = Get-ChildItem -Path "bin" | where Name -cne "nuget" | select -expand Name
+foreach ($name in $frameworks)
 {
-    $name = $file.Name
-    if ($name -ne "nuget")
-    {
-        $target = "$CoyoteRoot\bin\$name"
-        Write-Host "processing inherit docs under $target ..." -ForegroundColor Yellow
-        & $inheritdoc --base $target -o
-    }
+    $target = "$CoyoteRoot\bin\$name"
+    Write-Host "processing inherit docs under $target ..." -ForegroundColor Yellow
+    & $inheritdoc --base $target -o
 }
 
 # Completely clean the ref folder so we start fresh
@@ -62,7 +59,7 @@ if (Test-Path -Path $target)
 }
 
 Write-Host "Generating new markdown under $target"
-& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\net46\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
+& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
 $toc = "$CoyoteRoot\docs\_data\sidebar-learn.yml"
 
 Write-Host "Merging $toc..."

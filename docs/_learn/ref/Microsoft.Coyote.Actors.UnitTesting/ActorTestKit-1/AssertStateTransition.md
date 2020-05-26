@@ -24,18 +24,18 @@ public void AssertStateTransition(string stateName)
 
 ---
 
-# ActorTestKit&lt;T&gt;.AssertStateTransition&lt;S&gt; method (2 of 2)
+# ActorTestKit&lt;T&gt;.AssertStateTransition&lt;TState&gt; method (2 of 2)
 
 If the actor is a state machine, this asserts that the state machine has transitioned to the state with the specified type *T*.
 
 ```csharp
-public void AssertStateTransition<S>()
-    where S : State
+public void AssertStateTransition<TState>()
+    where TState : State
 ```
 
 | parameter | description |
 | --- | --- |
-| S | The type of the state. |
+| TState | The type of the state. |
 
 ## See Also
 

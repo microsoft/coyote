@@ -75,7 +75,7 @@ See [How are Coyote Actors different from existing Microsoft Actor frameworks?](
 
 One comparison point for Coyote would be other offerings that help build reliable systems. It would
 be difficult to give an exhaustive answer here, but Coyote is quite unique in its combination of
-powerful testing and very light run-time requirements (i.e., it requires the .NET core only).
+powerful testing and very light run-time requirements (i.e., it requires the .NET Core only).
 Other systems might require a buy-in to a particular distributed runtime or messaging system, or
 might not help much in the way of testing custom business logic. You can adapt Coyote to work with
 whatever platform you are using today.

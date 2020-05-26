@@ -111,6 +111,9 @@ namespace Microsoft.Coyote
                     Console.ReadLine();
                 }
 
+                // Load the configuration of the assembly to be tested.
+                LoadAssemblyConfiguration(Configuration.AssemblyToBeAnalyzed);
+
                 TestingProcess testingProcess = TestingProcess.Create(Configuration);
                 testingProcess.Run();
                 return;
@@ -182,6 +185,9 @@ namespace Microsoft.Coyote
             Configuration.EnableColoredConsoleOutput = true;
             Configuration.DisableEnvironmentExit = false;
 
+            // Load the configuration of the assembly to be replayed.
+            LoadAssemblyConfiguration(Configuration.AssemblyToBeAnalyzed);
+
             Console.WriteLine($". Replaying {Configuration.ScheduleFile}");
             TestingEngine engine = TestingEngine.Create(Configuration);
             engine.Run();
@@ -192,6 +198,34 @@ namespace Microsoft.Coyote
             if (!Debugger.IsAttached)
             {
                 TelemetryClient.TrackMetricAsync("replay-time", watch.Elapsed.TotalSeconds).Wait();
+            }
+        }
+
+        /// <summary>
+        /// Loads the configuration of the specified assembly.
+        /// </summary>
+        private static void LoadAssemblyConfiguration(string assemblyFile)
+        {
+            // Load config file and absorb its settings.
+            try
+            {
+                var configFile = System.Configuration.ConfigurationManager.OpenExeConfiguration(assemblyFile);
+                var settings = configFile.AppSettings.Settings;
+                foreach (var key in settings.AllKeys)
+                {
+                    if (System.Configuration.ConfigurationManager.AppSettings.Get(key) is null)
+                    {
+                        System.Configuration.ConfigurationManager.AppSettings.Set(key, settings[key].Value);
+                    }
+                    else
+                    {
+                        System.Configuration.ConfigurationManager.AppSettings.Add(key, settings[key].Value);
+                    }
+                }
+            }
+            catch (System.Configuration.ConfigurationErrorsException ex)
+            {
+                Error.Report(ex.Message);
             }
         }
 

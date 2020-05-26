@@ -74,24 +74,6 @@ and use that. Note: this can make debugging into the Coyote runtime possible.
 
 Now you are ready to [start using Coyote](/coyote/learn/get-started/using-coyote).
 
-### Installing the Coyote command line tool for .NET Frameworks on Windows
-
-If you prefer to use .NET 4.6, 4.7 or 4.8 instead of .NET Core 3.1, then you will need to add the
-location of the tool to your `PATH` environment as follows. First you must decide what .NET
-platform you want to use. Coyote supports .NET 4.6, 4.7 and 4.8. The `coyote` tool that you use
-must match the platform of the sample app you are testing. Pick one of the following locations:
-
-```
-set COYOTE_PATH=d:\git\coyote\bin\net46
-set COYOTE_PATH=d:\git\coyote\bin\net47
-set COYOTE_PATH=d:\git\coyote\bin\net48
-```
-
-Then run this to modify your local PATH environment:
-```
-set PATH=%PATH%;%COYOTE_PATH%
-```
-
 ### Running the tests
 
 To run all available tests, execute the following `PowerShell` command line from a Visual Studio

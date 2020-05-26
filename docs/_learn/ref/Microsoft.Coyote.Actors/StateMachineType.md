@@ -28,11 +28,11 @@ public abstract class StateMachine : Actor
 | override [OnEventHandledAsync](StateMachine/OnEventHandledAsync)(…) | Asynchronous callback that is invoked when the actor finishes handling a dequeued event, unless the handler of the dequeued event raised an event or caused the actor to halt (either normally or due to an exception). Unless this callback raises an event, the actor will either become idle or dequeue the next event from its inbox. |
 | [RaiseEvent](StateMachine/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
 | [RaiseGotoStateEvent](StateMachine/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
-| [RaiseGotoStateEvent&lt;S&gt;](StateMachine/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
+| [RaiseGotoStateEvent&lt;TState&gt;](StateMachine/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
 | override [RaiseHaltEvent](StateMachine/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
 | [RaisePopStateEvent](StateMachine/RaisePopStateEvent)() | Raise a special event that performs a pop state operation at the end of the current action. |
 | [RaisePushStateEvent](StateMachine/RaisePushStateEvent)(…) | Raise a special event that performs a push state operation at the end of the current action. |
-| [RaisePushStateEvent&lt;S&gt;](StateMachine/RaisePushStateEvent)() | Raise a special event that performs a push state operation at the end of the current action. |
+| [RaisePushStateEvent&lt;TState&gt;](StateMachine/RaisePushStateEvent)() | Raise a special event that performs a push state operation at the end of the current action. |
 
 ## Remarks
 

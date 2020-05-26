@@ -31,22 +31,9 @@ powershell -f build.ps1
 ## Run the HelloWorldActors application
 
 Now you can run the HelloWorldActors application:
-- in .Net Core:
 
 ```
 "./bin/netcoreapp3.1/HelloWorldActors.exe"
-```
-
-- in .Net 4.6:
-
-```
-.\bin\net46\HelloWorldActors.exe
-```
-
-- in .Net 4.7:
-
-```
-.\bin\net47\HelloWorldActors.exe
 ```
 
 Press the ENTER key to terminate the program when it is done. Note that a bug has been inserted into
@@ -95,8 +82,8 @@ Starting TestingProcessScheduler in process 16432
 ..... Iteration #2
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
-..... Writing .\bin\net46\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
+..... Writing .\bin\netcoreapp3.1\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.txt
+..... Writing .\bin\netcoreapp3.1\Output\HelloWorldActors.exe\CoyoteOutput\HelloWorldActors_0_2.schedule
 ... Elapsed 0.0906639 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -264,7 +251,7 @@ tool has ways of interrupting and restarting this `Execute` method based on `--i
 So now you know what happened when you ran the following command line:
 
 ```
-coyote test ./bin/net46/HelloWorldActors.exe --iterations 30
+coyote test ./bin/netcoreapp3.1/HelloWorldActors.exe --iterations 30
 ```
 
 A special coyote `TestEngine` was created, it invoked the `Execute` method 30 times, and during

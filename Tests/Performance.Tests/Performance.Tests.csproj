@@ -4,7 +4,7 @@
     <AssemblyName>Microsoft.Coyote.Performance.Tests</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Performance.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
-    <CoyoteTargetType>StandardLibrary</CoyoteTargetType>
+    <CoyoteTargetType>Library</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

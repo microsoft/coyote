@@ -32,7 +32,7 @@ public abstract class Monitor
 | [Assert](Monitor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (2 methods) |
 | [RaiseEvent](Monitor/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
 | [RaiseGotoStateEvent](Monitor/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
-| [RaiseGotoStateEvent&lt;S&gt;](Monitor/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
+| [RaiseGotoStateEvent&lt;TState&gt;](Monitor/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
 
 ## Remarks
 

@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventUnhandledAsync
 ---
 # Actor.OnEventUnhandledAsync method
 
-Asynchronous callback that is invoked when the actor receives an event that it is not prepared to handle. The callback is invoked first, after which the actor will necessarily throw an [`UnhandledEventException`](../UnhandledEventExceptionType)
+Asynchronous callback that is invoked when the actor receives an event that it is not prepared to handle. The callback is invoked first, after which the actor will necessarily throw an [`UnhandledEventException`](../UnhandledEventExceptionType).
 
 ```csharp
 protected virtual Task OnEventUnhandledAsync(Event e, string state)

@@ -14,7 +14,7 @@ machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which 
 [systematic testing process](/coyote/learn/core/systematic-testing) in action on this application.
 
 This example is organized into the following projects:
-- **Raft** - a .NET core C# class library that implements the [Raft Consensus
+- **Raft** - a .NET Core C# class library that implements the [Raft Consensus
   Algorithm](https://raft.github.io/) using the Coyote [Actor Programming
   Model](../programming-models/actors/overview).
 - **Raft.Azure** - a C# executable that shows how to run Coyote messages through an [Azure Service

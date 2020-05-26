@@ -26,9 +26,7 @@ namespace Coyote.Telemetry
 
         public CoyoteTelemetryClient(Configuration configuration)
         {
-#if NET46
-            this.Framework = "net46";
-#elif NET47
+#if NET47
             this.Framework = "net47";
 #elif NET48
             this.Framework = "net48";

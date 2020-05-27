@@ -1,3 +1,9 @@
+## v1.0.8
+- The core `Microsoft.Coyote` project is now targeting only .NET Standard, allowing it to be
+  consumed by any project that supports `netstandard2.0` and above.
+- Removed the `net46` target.
+- Fixed bug in using the global dotnet tool.
+
 ## v1.0.7
 - Added support for building Coyote on Linux and macOS.
 - Building Coyote locally now ignores .NET targets that are not installed.

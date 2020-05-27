@@ -66,8 +66,6 @@ if ($dotnet_path -is [array]){
     $dotnet_path = $dotnet_path[0]
 }
 
-
-
 $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
 $globalJson = "$ScriptDir\..\global.json"
 $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
@@ -76,7 +74,8 @@ Write-Host "Searching SDK path $sdkpath for version matching global.json: $globa
 $prefix = GetMajorVersion($global_version)
 $version = GetMinorVersion($global_version)
 $matching_version = $null
-if (-not ("" -eq $dotnet_path))
+$best_match = $null
+if ("" -ne $dotnet_path)
 {
     foreach($item in Get-ChildItem "$sdkpath"  -directory)
     {
@@ -85,22 +84,40 @@ if (-not ("" -eq $dotnet_path))
         {
             $found_prefix = GetMajorVersion($name)
             $found_version = GetMinorVersion($name)
-            $vh = $version / 100
-            $vh = [int]$vh
-            $fvh = $found_version / 100
-            $fvh = [int]$fvh
-            if ($prefix -eq $found_prefix -and $vh -eq $fvh)
+            if ($prefix -eq $found_prefix)
             {
-                Write-Host "Found matching SDK version $name"
-                $matching_version = $name
-                if ($global_version -ne $name)
+                if ($null -eq $best_match)
                 {
-                    Write-Host "updating global.json with version $name"
-                    $json.sdk.version = $name
-                    $new_content = $json | ConvertTo-Json
-                    Set-Content $globalJson $new_content
+                    $best_match = $found_version
+                    $matching_version = $name
+                }
+                elseif ($found_version -eq $global_version)
+                {
+                    $best_match = $found_version
+                    $matching_version = $name
+                }
+                elseif ($found_version -gt $best_match)
+                {
+                    # use the newest version then.
+                    $best_match = $found_version
+                    $matching_version = $name
                 }
             }
+        }
+    }
+
+    if ($null -ne $best_match)
+    {
+        if ($global_version -eq $matching_version)
+        {
+            Write-Host "Found the correct SDK version $matching_version"
+        }
+        else
+        {
+            Write-Comment -text "Updating global.json to select version $matching_version" -color "yellow"
+            $json.sdk.version = $matching_version
+            $new_content = $json | ConvertTo-Json
+            Set-Content $globalJson $new_content
         }
     }
 }
@@ -112,7 +129,7 @@ if ($null -eq $matching_version)
     exit 1
 }
 
-Write-Comment -text "Using .NET SDK version $versions at: $sdkpath" -color yellow
+Write-Comment -text "Using .NET SDK version $matching_version from: $sdkpath" -color yellow
 
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = $ScriptDir + "\..\Coyote.sln"

@@ -3,7 +3,9 @@ param(
     [string]$configuration="Release"
 )
 
-Import-Module $PSScriptRoot\powershell\common.psm1
+$ScriptDir = $PSScriptRoot
+
+Import-Module $ScriptDir\powershell\common.psm1
 
 Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
 
@@ -67,7 +69,8 @@ if ($dotnet_path -is [array]){
 
 
 $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
-$json = Get-Content '$PSScriptRoot\..\global.json' | Out-String | ConvertFrom-Json
+$globalJson = "$ScriptDir\..\global.json"
+$json = Get-Content $globalJson | Out-String | ConvertFrom-Json
 $global_version = $json.sdk.version
 Write-Host "Searching SDK path $sdkpath for version matching global.json: $global_version"
 $prefix = GetMajorVersion($global_version)
@@ -82,7 +85,11 @@ if (-not ("" -eq $dotnet_path))
         {
             $found_prefix = GetMajorVersion($name)
             $found_version = GetMinorVersion($name)
-            if ($prefix -eq $found_prefix -and ($version / 100) -eq ($found_version / 100))
+            $vh = $version / 100
+            $vh = [int]$vh
+            $fvh = $found_version / 100
+            $fvh = [int]$fvh
+            if ($prefix -eq $found_prefix -and $vh -eq $fvh)
             {
                 Write-Host "Found matching SDK version $name"
                 $matching_version = $name
@@ -91,7 +98,7 @@ if (-not ("" -eq $dotnet_path))
                     Write-Host "updating global.json with version $name"
                     $json.sdk.version = $name
                     $new_content = $json | ConvertTo-Json
-                    Set-Content '$PSScriptRoot\..\global.json' $new_content
+                    Set-Content $globalJson $new_content
                 }
             }
         }
@@ -108,7 +115,7 @@ if ($null -eq $matching_version)
 Write-Comment -text "Using .NET SDK version $versions at: $sdkpath" -color yellow
 
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
-$solution = $PSScriptRoot + "\..\Coyote.sln"
+$solution = $ScriptDir + "\..\Coyote.sln"
 $command = "build -c $configuration $solution"
 $error_msg = "Failed to build Coyote"
 Invoke-ToolCommand -tool $dotnet -command $command -error_msg $error_msg

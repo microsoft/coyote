@@ -190,7 +190,11 @@ namespace Coyote.Telemetry
 
         private void Close()
         {
-            this.PendingCleared.WaitOne(5000);
+            if (this.Enabled)
+            {
+                this.PendingCleared.WaitOne(5000);
+            }
+
             this.FindServerTokenSource.Cancel();
         }
 

@@ -15,8 +15,13 @@
   </PropertyGroup>
   <PropertyGroup>
     <DotNetSdkDir>$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
-    <DotNetSdkDir Condition="'$(ProgramW6432)'!=''">$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
-    <NetCore31Dir>$(DotNetSdkDir)/3.1.201</NetCore31Dir>
+    <DotNetSdkDir Condition="'$(ProgramW6432)'!=''">$(ProgramW6432)/dotnet/sdk</DotNetSdkDir>
+    <GlobalJson>$([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)/../global.json))</GlobalJson>
+    <GlobalVersion>$([System.Text.RegularExpressions.Regex]::Match($(GlobalJson), `(\"version\":[ ]*\"([^\"]*)\")`))</GlobalVersion>
+    <GlobalVersionT1>$(GlobalVersion.Substring(10))</GlobalVersionT1>
+    <GlobalVersionT2>$(GlobalVersionT1.Trim())</GlobalVersionT2>
+    <GlobalVersionT3>$(GlobalVersionT2.Trim('"'))</GlobalVersionT3>
+    <NetCore31Dir>$(DotNetSdkDir)/$(GlobalVersionT3)</NetCore31Dir>
     <Framework47Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7</Framework47Dir>
     <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
     <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>

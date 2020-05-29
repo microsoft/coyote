@@ -11,7 +11,7 @@ param(
 
 Import-Module $PSScriptRoot\powershell\common.psm1
 
-$frameworks = Get-ChildItem -Path "bin" | where Name -cne "nuget" | select -expand Name
+$frameworks = Get-ChildItem -Path "$PSScriptRoot\..\Tests\bin" | where Name -CNotIn "netstandard2.0", "netstandard2.1" | select -expand Name
 
 $targets = [ordered]@{
     "production" = "Production.Tests"

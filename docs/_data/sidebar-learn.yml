@@ -94,6 +94,8 @@ learn-toc:
   subfolderitems:
     - name: Testing
       link: /learn/tools/testing
+    - name: Unit testing
+      link: /learn/tools/unit-testing
     - name: Tester requirements
       link: /learn/tools/tester-requirements
     - name: Code and activity coverage

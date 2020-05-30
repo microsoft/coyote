@@ -254,7 +254,7 @@ So now you know what happened when you ran the following command line:
 coyote test ./bin/netcoreapp3.1/HelloWorldActors.exe --iterations 30
 ```
 
-A special coyote `TestEngine` was created, it invoked the `Execute` method 30 times, and during
+A special coyote `TestingEngine` was created, it invoked the `Execute` method 30 times, and during
 those executions the test engine took over all concurrent activity and the non-determinism (like
 `RandomInteger`) to ensure the program covered lots of async non-deterministic choices, and recorded
 all this in a way that when a bug was found, it is able to reproduce that bug.  See also [Using

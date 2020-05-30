@@ -150,3 +150,7 @@ allowed.
 See also the [DGML diagram](/coyote/assets/images/raft.dgml) which you can open in Visual Studio.
 Here the Server state machines are colored in green, and the Leader states in red to
 highlight the bug found.
+
+## Unit Testing
+
+To use Coyote tester in a unit test environment see [Unit Testing](unit-testing.md).

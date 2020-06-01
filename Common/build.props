@@ -9,43 +9,50 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSetLocation>$(MSBuildThisFileDirectory)</CodeAnalysisRuleSetLocation>
     <CodeAnalysisRuleSet>$(CodeAnalysisRuleSetLocation)\codeanalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
-    <DotNetSdkDir>$(ProgramFiles)/dotnet/sdk</DotNetSdkDir>
-    <DotNetSdkDir Condition="'$(ProgramW6432)'!=''">$(ProgramW6432)/dotnet/sdk</DotNetSdkDir>
     <GlobalJson>$([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)/../global.json))</GlobalJson>
     <GlobalVersion>$([System.Text.RegularExpressions.Regex]::Match($(GlobalJson), `(\"version\":[ ]*\"([^\"]*)\")`))</GlobalVersion>
-    <GlobalVersionT1>$(GlobalVersion.Substring(10))</GlobalVersionT1>
-    <GlobalVersionT2>$(GlobalVersionT1.Trim())</GlobalVersionT2>
-    <GlobalVersionT3>$(GlobalVersionT2.Trim('"'))</GlobalVersionT3>
-    <NetCore31Dir>$(DotNetSdkDir)/$(GlobalVersionT3)</NetCore31Dir>
+    <GlobalVersion>$(GlobalVersion.Substring(10))</GlobalVersion>
+    <GlobalVersion>$(GlobalVersion.Trim())</GlobalVersion>
+    <GlobalVersion>$(GlobalVersion.Trim('"'))</GlobalVersion>
     <Framework47Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7</Framework47Dir>
     <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
     <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>
+    <NetCore21Installed>false</NetCore21Installed>
+    <NetCore22Installed>false</NetCore22Installed>
     <NetCore31Installed>false</NetCore31Installed>
     <Framework47Installed>false</Framework47Installed>
     <Framework48Installed>false</Framework48Installed>
-    <NetCore31Installed Condition="Exists($(DotNetSdkDir))">true</NetCore31Installed>
+    <NetCore21Installed Condition="$(GlobalVersion.StartsWith('2.1'))">true</NetCore21Installed>
+    <NetCore22Installed Condition="$(GlobalVersion.StartsWith('2.2'))">true</NetCore22Installed>
+    <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
     <Framework47Installed Condition="Exists($(Framework47Dir))">true</Framework47Installed>
     <Framework48Installed Condition="Exists($(Framework48Dir))">true</Framework48Installed>
+    <TargetFrameworks></TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(NetCore31Installed)">$(TargetFrameworks);netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
-    <TargetFrameworks Condition='$(NetCore31Installed)'>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks Condition='$(NetCore22Installed)'>$(TargetFrameworks);netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(Framework47Installed) and $(Framework47Supported)">$(TargetFrameworks);net47</TargetFrameworks>
     <TargetFrameworks Condition="$(Framework48Installed)">$(TargetFrameworks);net48</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks Condition='$(NetCore22Installed)'>$(TargetFrameworks);netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
-  <!--<Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
-    <Message Text="Building for .NET $(TargetFramework)" Importance="high"/>
-  </Target>-->
+  <!-- <Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
+    <Message Text="Building for .NET $(TargetFrameworks) and GlobalVersion=$(GlobalVersion)" Importance="high"/>
+  </Target> -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>

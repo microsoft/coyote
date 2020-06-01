@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // allowing future retrieval in the same asynchronous call stack.
                     AssignAsyncControlFlowRuntime(this);
 
-                    OperationScheduler.StartOperation(op);
+                    this.Scheduler.StartOperation(op);
 
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
                     {
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     op.OnCompleted();
 
                     // Task has completed, schedule the next enabled operation.
-                    this.Scheduler.ScheduleNextEnabledOperation();
+                    this.Scheduler.ScheduleNextOperation();
                 }
                 catch (Exception ex)
                 {
@@ -273,7 +273,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Using ulong.MaxValue because a Create operation cannot specify
             // the id of its target, because the id does not exist yet.
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
             ResetProgramCounter(creator);
 
             if (id is null)
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 "Cannot send event '{0}' to actor id '{1}' that is not bound to an actor instance.",
                 e.GetType().FullName, targetId.Value);
 
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
             ResetProgramCounter(sender as StateMachine);
 
             // The operation group id of this operation is set using the following precedence:
@@ -484,7 +484,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // allowing future retrieval in the same asynchronous call stack.
                     AssignAsyncControlFlowRuntime(this);
 
-                    OperationScheduler.StartOperation(op);
+                    this.Scheduler.StartOperation(op);
 
                     if (isFresh)
                     {
@@ -506,7 +506,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     op.OnCompleted();
 
                     // The actor is inactive or halted, schedule the next enabled operation.
-                    this.Scheduler.ScheduleNextEnabledOperation();
+                    this.Scheduler.ScheduleNextOperation();
                 }
                 catch (Exception ex)
                 {
@@ -773,7 +773,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var callerOp = this.Scheduler.GetExecutingOperation<AsyncOperation>();
             if (callerOp != null)
             {
-                this.Scheduler.ScheduleNextEnabledOperation();
+                this.Scheduler.ScheduleNextOperation();
             }
         }
 
@@ -797,7 +797,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else
             {
-                this.Scheduler.ScheduleNextEnabledOperation();
+                this.Scheduler.ScheduleNextOperation();
                 ResetProgramCounter(actor);
             }
 
@@ -808,14 +808,14 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <inheritdoc/>
         internal override void NotifyDefaultEventDequeued(Actor actor)
         {
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
             ResetProgramCounter(actor);
         }
 
         /// <inheritdoc/>
         internal override void NotifyDefaultEventHandlerCheck(Actor actor)
         {
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
         }
 
         /// <inheritdoc/>
@@ -852,7 +852,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
             this.LogWriter.LogReceiveEvent(actor.Id, stateName, e, wasBlocked: false);
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
             ResetProgramCounter(actor);
         }
 
@@ -890,7 +890,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray);
             }
 
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
             ResetProgramCounter(actor);
         }
 

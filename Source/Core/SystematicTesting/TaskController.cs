@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // allowing future retrieval in the same asynchronous call stack.
                     CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
-                    OperationScheduler.StartOperation(op);
+                    this.Scheduler.StartOperation(op);
                     if (predecessor != null)
                     {
                         op.OnWaitTask(predecessor);
@@ -91,13 +91,13 @@ namespace Microsoft.Coyote.SystematicTesting
             }, cancellationToken);
 
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
-            task.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
+            task.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
 
             return new CoyoteTasks.Task(this, task);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // allowing future retrieval in the same asynchronous call stack.
                     CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
-                    OperationScheduler.StartOperation(op);
+                    this.Scheduler.StartOperation(op);
                     if (predecessor != null)
                     {
                         op.OnWaitTask(predecessor);
@@ -152,13 +152,13 @@ namespace Microsoft.Coyote.SystematicTesting
             Task innerTask = task.Unwrap();
 
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
-            innerTask.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
+            innerTask.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
 
             return new CoyoteTasks.Task(this, innerTask);
         }
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // allowing future retrieval in the same asynchronous call stack.
                     CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
-                    OperationScheduler.StartOperation(op);
+                    this.Scheduler.StartOperation(op);
                     if (predecessor != null)
                     {
                         op.OnWaitTask(predecessor);
@@ -214,13 +214,13 @@ namespace Microsoft.Coyote.SystematicTesting
             Task<TResult> innerTask = task.Unwrap();
 
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
-            innerTask.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
+            innerTask.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
 
             return new CoyoteTasks.Task<TResult>(this, innerTask);
         }
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     // allowing future retrieval in the same asynchronous call stack.
                     CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
 
-                    OperationScheduler.StartOperation(op);
+                    this.Scheduler.StartOperation(op);
                     if (predecessor != null)
                     {
                         op.OnWaitTask(predecessor);
@@ -291,13 +291,13 @@ namespace Microsoft.Coyote.SystematicTesting
             }, cancellationToken);
 
             // Schedule a task continuation that will schedule the next enabled operation upon completion.
-            task.ContinueWith(t => this.Scheduler.ScheduleNextEnabledOperation(), TaskScheduler.Current);
+            task.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
 
             return new CoyoteTasks.Task<TResult>(this, task);
         }
@@ -680,7 +680,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         public void OnYieldAwaiterGetResult()
         {
-            this.Scheduler.ScheduleNextEnabledOperation();
+            this.Scheduler.ScheduleNextOperation();
         }
 
         /// <summary>

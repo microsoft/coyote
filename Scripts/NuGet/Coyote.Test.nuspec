@@ -12,6 +12,9 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
     <tags>asynchrony reliability actors state-machines tasks specifications testing</tags>
+    <packageTypes>
+      <packageType name="SymbolsPackage" />
+    </packageTypes>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Microsoft.Coyote" version="$version$"/>
@@ -42,26 +45,50 @@
   </metadata>
   <files>
     <!-- .NET Standard 2.0 -->
-    <file src="..\..\bin\netstandard2.0\*.dll" target="lib\netstandard2.0" />
-    <file src="..\..\bin\netstandard2.0\*.xml" target="lib\netstandard2.0" />
-     <!-- .NET Standard 2.1 -->
-    <file src="..\..\bin\netstandard2.1\*.dll" target="lib\netstandard2.1" />
-    <file src="..\..\bin\netstandard2.1\*.xml" target="lib\netstandard2.1" />
+    <file src="..\..\bin\netstandard2.0\Microsoft.Coyote.Test.dll" target="lib\netstandard2.0" />
+    <file src="..\..\bin\netstandard2.0\Microsoft.Coyote.Test.xml" target="lib\netstandard2.0" />
+    <file src="..\..\bin\netstandard2.0\Microsoft.Coyote.Test.pdb" target="lib\netstandard2.0" />
+    <!-- .NET Standard 2.1 -->
+    <file src="..\..\bin\netstandard2.1\Microsoft.Coyote.Test.dll" target="lib\netstandard2.1" />
+    <file src="..\..\bin\netstandard2.1\Microsoft.Coyote.Test.xml" target="lib\netstandard2.1" />
+    <file src="..\..\bin\netstandard2.1\Microsoft.Coyote.Test.pdb" target="lib\netstandard2.1" />
     <!-- .NET Core 3.1 -->
-    <file src="..\..\bin\netcoreapp3.1\*.dll" target="lib\netcoreapp3.1" />
-    <file src="..\..\bin\netcoreapp3.1\*.xml" target="lib\netcoreapp3.1" />
-    <file src="..\..\bin\netcoreapp3.1\*.config" target="lib\netcoreapp3.1" />
-    <file src="..\..\bin\netcoreapp3.1\*.runtimeconfig.json" target="lib\netcoreapp3.1" />
-     <!-- .NET Framework 4.7 -->
-    <file src="..\..\bin\net47\*.exe" target="lib\net47" />
-    <file src="..\..\bin\net47\*.dll" target="lib\net47" />
-    <file src="..\..\bin\net47\*.xml" target="lib\net47" />
-    <file src="..\..\bin\net47\*.config" target="lib\net47" />
-     <!-- .NET Framework 4.8 -->
-    <file src="..\..\bin\net48\*.exe" target="lib\net48" />
-    <file src="..\..\bin\net48\*.dll" target="lib\net48" />
-    <file src="..\..\bin\net48\*.xml" target="lib\net48" />
-    <file src="..\..\bin\net48\*.config" target="lib\net48" />
+    <file src="..\..\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\Microsoft.Coyote.Test.xml" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\Microsoft.Coyote.Test.pdb" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\coyote.dll" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\coyote.xml" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\coyote.pdb" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\coyote.dll.config" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\coyote.runtimeconfig.json" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\CoyoteCoverageReportMerger.dll" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\CoyoteCoverageReportMerger.xml" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\CoyoteCoverageReportMerger.pdb" target="lib\netcoreapp3.1" />
+    <file src="..\..\bin\netcoreapp3.1\CoyoteCoverageReportMerger.runtimeconfig.json" target="lib\netcoreapp3.1" />
+    <!-- .NET Framework 4.7 -->
+    <file src="..\..\bin\net47\Microsoft.Coyote.Test.dll" target="lib\net47" />
+    <file src="..\..\bin\net47\Microsoft.Coyote.Test.xml" target="lib\net47" />
+    <file src="..\..\bin\net47\Microsoft.Coyote.Test.pdb" target="lib\net47" />
+    <file src="..\..\bin\net47\coyote.exe" target="lib\net47" />
+    <file src="..\..\bin\net47\coyote.xml" target="lib\net47" />
+    <file src="..\..\bin\net47\coyote.pdb" target="lib\net47" />
+    <file src="..\..\bin\net47\coyote.exe.config" target="lib\net47" />
+    <file src="..\..\bin\net47\CoyoteCoverageReportMerger.exe" target="lib\net47" />
+    <file src="..\..\bin\net47\CoyoteCoverageReportMerger.xml" target="lib\net47" />
+    <file src="..\..\bin\net47\CoyoteCoverageReportMerger.pdb" target="lib\net47" />
+    <file src="..\..\bin\net47\CoyoteCoverageReportMerger.exe.config" target="lib\net47" />
+    <!-- .NET Framework 4.8 -->
+    <file src="..\..\bin\net48\Microsoft.Coyote.Test.dll" target="lib\net48" />
+    <file src="..\..\bin\net48\Microsoft.Coyote.Test.xml" target="lib\net48" />
+    <file src="..\..\bin\net48\Microsoft.Coyote.Test.pdb" target="lib\net48" />
+    <file src="..\..\bin\net48\coyote.exe" target="lib\net48" />
+    <file src="..\..\bin\net48\coyote.xml" target="lib\net48" />
+    <file src="..\..\bin\net48\coyote.pdb" target="lib\net48" />
+    <file src="..\..\bin\net48\coyote.exe.config" target="lib\net48" />
+    <file src="..\..\bin\net48\CoyoteCoverageReportMerger.exe" target="lib\net48" />
+    <file src="..\..\bin\net48\CoyoteCoverageReportMerger.xml" target="lib\net48" />
+    <file src="..\..\bin\net48\CoyoteCoverageReportMerger.pdb" target="lib\net48" />
+    <file src="..\..\bin\net48\CoyoteCoverageReportMerger.exe.config" target="lib\net48" />
     <!-- Assets -->
     <file src="..\..\docs\assets\images\icon.png" target="images" />
   </files>

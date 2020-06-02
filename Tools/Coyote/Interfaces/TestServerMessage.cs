@@ -4,10 +4,10 @@
 using System.Runtime.Serialization;
 using Microsoft.Coyote.SmartSockets;
 
-namespace CoyoteTester.Interfaces
+namespace Microsoft.Coyote.SystematicTesting.Interfaces
 {
     [DataContract]
-    public class TestServerMessage : SocketMessage
+    internal class TestServerMessage : SocketMessage
     {
         [DataMember]
         public bool Stop { get; set; }

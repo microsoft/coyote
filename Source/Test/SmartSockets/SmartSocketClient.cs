@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SmartSockets
     /// It also supports serializing custom message objects via the DataContractSerializer using
     /// known types provided in your SmartSocketTypeResolver.
     /// </summary>
-    public class SmartSocketClient : IDisposable
+    internal class SmartSocketClient : IDisposable
     {
         private readonly Socket Client;
         private readonly NetworkStream Stream;

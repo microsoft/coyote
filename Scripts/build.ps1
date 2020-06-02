@@ -16,12 +16,12 @@ $sdk_version = FindDotNetSdk($dotnet_path);
 
 if ($null -eq $sdk_version)
 {
-    Write-Comment -text "The global.json file is pointing to version: $sdk_version but no matching version was found" -color "yellow"
-    Write-Comment -text "Please install .NET SDK version $sdk_version from https://dotnet.microsoft.com/download/dotnet-core." -color "yellow"
+    Write-Error "The global.json file is pointing to version '$sdk_version' but no matching version was found."
+    Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet-core."
     exit 1
 }
 
-Write-Comment -text "Using .NET SDK version $sdk_version" -color yellow
+Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "white"
 
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = $ScriptDir + "\..\Coyote.sln"

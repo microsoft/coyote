@@ -4,9 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
-
-using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

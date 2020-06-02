@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.SmartSockets
     /// clients at the same time, each client will have their own SmartSocketClient on different ports.
     /// If the client goes away, the ClientDisconnected event is raised so the server can cleanup.
     /// </summary>
-    public class SmartSocketServer
+    internal class SmartSocketServer
     {
         private bool Stopped;
         private Socket Listener;

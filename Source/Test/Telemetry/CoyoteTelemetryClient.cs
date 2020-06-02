@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote;
 using Microsoft.Coyote.SmartSockets;
 
-namespace Coyote.Telemetry
+namespace Microsoft.Coyote.Telemetry
 {
     internal class CoyoteTelemetryClient : IDisposable
     {
@@ -23,31 +23,74 @@ namespace Coyote.Telemetry
         private readonly string Name;
         private const string CoyoteMachineIdFileName = "CoyoteMachineId.txt";
         private readonly string Framework = "unknown";
+        private static string MachineId;
+        private static CoyoteTelemetryServer InProcServer;
 
         public CoyoteTelemetryClient(Configuration configuration)
         {
-#if NET47
-            this.Framework = "net47";
-#elif NET48
-            this.Framework = "net48";
+            this.Enabled = configuration.EnableTelemetry && !configuration.RunAsParallelBugFindingTask;
+            if (string.IsNullOrEmpty(configuration.DotnetFrameworkVersion))
+            {
+#if NETSTANDARD2_1
+                this.Framework = "netstandard2.1";
 #elif NETSTANDARD2_0
-            this.Framework = "netstandard2.0";
-#elif NETSTANDARD2_1
-            this.Framework = "netstandard2.1";
+                this.Framework = "netstandard2.0";
+#elif NETSTANDARD
+                this.Framework = "netstandard";
 #elif NETCOREAPP3_1
-            this.Framework = "netcoreapp3.1";
+                this.Framework = "netcoreapp3.1";
+#elif NETCOREAPP
+                this.Framework = "netcoreapp";
+#elif NET48
+                this.Framework = "net48";
+#elif NET47
+                this.Framework = "net47";
+#elif NETFRAMEWORK
+                this.Framework = "net";
 #endif
-            this.Enabled = configuration.EnableTelemetry;
+            }
+            else
+            {
+                this.Framework = configuration.DotnetFrameworkVersion;
+            }
+
             if (this.Enabled)
             {
-                this.Name = $"coyote{Process.GetCurrentProcess().Id.ToString()}";
-                _ = this.ConnectToServer();
+                if (string.IsNullOrEmpty(configuration.TelemetryServerPath))
+                {
+                    // then server is running in-proc (as we do for unit testing)
+                    if (InProcServer == null)
+                    {
+                        InProcServer = new CoyoteTelemetryServer(false);
+                    }
+
+                    return;
+                }
+                else
+                {
+                    // run the server out of proc.
+                    this.Name = $"coyote{Process.GetCurrentProcess().Id}";
+                    _ = this.ConnectToServer(configuration.TelemetryServerPath);
+                }
             }
         }
 
         ~CoyoteTelemetryClient()
         {
             this.Dispose(false);
+        }
+
+        public static void PrintTelemetryMessage(TextWriter writer)
+        {
+            writer.WriteLine();
+            writer.WriteLine("Telemetry is enabled");
+            writer.WriteLine("--------------------");
+            writer.WriteLine("Microsoft Coyote tools collect usage data in order to help us improve your experience. " +
+                "The data is anonymous. It is collected by Microsoft and shared with the community. " +
+                "You can opt-out of telemetry by setting the COYOTE_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true'.");
+            writer.WriteLine();
+            writer.WriteLine("Read more about Microsoft Coyote Telemetry at http://aka.ms/coyote-telemetry");
+            writer.WriteLine("--------------------------------------------------------------------------------------------");
         }
 
         public async Task TrackEventAsync(string name)
@@ -58,7 +101,12 @@ namespace Coyote.Telemetry
             }
 
             var e = new TelemetryEvent(this.Framework, name, this.Name);
-            if (this.Server != null)
+
+            if (InProcServer != null)
+            {
+                InProcServer.HandleEvent(e);
+            }
+            else if (this.Server != null)
             {
                 await this.Server.SendReceiveAsync(e);
             }
@@ -80,7 +128,12 @@ namespace Coyote.Telemetry
             }
 
             var e = new TelemetryMetric(this.Framework, name, this.Name, value);
-            if (this.Server != null)
+
+            if (InProcServer != null)
+            {
+                InProcServer.HandleMetric(e);
+            }
+            else if (this.Server != null)
             {
                 await this.Server.SendReceiveAsync(e);
             }
@@ -95,11 +148,9 @@ namespace Coyote.Telemetry
         }
 
         /// <summary>
-        /// Opens the remote notification listener. If this is
-        /// not a parallel testing process, then this operation
-        /// does nothing.
+        /// Starts a telemetry server in a separate coyote process.
         /// </summary>
-        private async Task ConnectToServer()
+        private async Task ConnectToServer(string serverPath)
         {
             this.FindServerTokenSource = new CancellationTokenSource();
             var token = this.FindServerTokenSource.Token;
@@ -130,7 +181,7 @@ namespace Coyote.Telemetry
             {
                 try
                 {
-                    StartServer();
+                    StartServer(serverPath);
                     client = await SmartSocketClient.FindServerAsync(serviceName, this.Name, resolver, token,
                         CoyoteTelemetryServer.UdpGroupAddress, CoyoteTelemetryServer.UdpGroupPort);
                 }
@@ -169,19 +220,27 @@ namespace Coyote.Telemetry
             // todo: error handling?
         }
 
-        private static void StartServer()
+        private static void StartServer(string assembly)
         {
-            string assembly = Assembly.GetExecutingAssembly().Location;
-#if NETFRAMEWORK
-            ProcessStartInfo startInfo = new ProcessStartInfo(assembly, "telemetry server");
-#else
-            ProcessStartInfo startInfo = new ProcessStartInfo("dotnet", assembly + " telemetry server");
-#endif
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = true;
+            string ext = Path.GetExtension(assembly);
+            string program = assembly;
+            string args = "telemetry server";
+            if (string.Compare(ext, ".dll", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                args = "\"" + assembly + "\" telemetry server";
+                program = "dotnet";
+            }
 
-            Process process = new Process();
-            process.StartInfo = startInfo;
+            ProcessStartInfo startInfo = new ProcessStartInfo(program, args)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            Process process = new Process
+            {
+                StartInfo = startInfo
+            };
             if (!process.Start())
             {
                 Console.WriteLine("Error starting coyote telemetry");
@@ -190,7 +249,11 @@ namespace Coyote.Telemetry
 
         private void Close()
         {
-            if (this.Enabled)
+            if (InProcServer != null)
+            {
+                InProcServer.Flush();
+            }
+            else if (this.Enabled)
             {
                 this.PendingCleared.WaitOne(5000);
             }
@@ -231,48 +294,64 @@ namespace Coyote.Telemetry
             }
         }
 
-        internal static string GetOrCreateMachineId(out bool firstTime)
+        internal static async Task<Tuple<string, bool>> GetOrCreateMachineId()
         {
-            firstTime = false;
+            bool firstTime = false;
+            if (MachineId != null)
+            {
+                return new Tuple<string, bool>(MachineId, firstTime);
+            }
+
             string path = CoyoteHomePath;
-            try
+            int retries = 3;
+            while (retries-- > 0)
             {
-                if (!Directory.Exists(path))
+                try
                 {
-                    Directory.CreateDirectory(path);
-                }
-
-                string fullpath = Path.Combine(path, CoyoteMachineIdFileName);
-                if (!File.Exists(fullpath))
-                {
-                    try
+                    if (!Directory.Exists(path))
                     {
-                        firstTime = true;
-                        Guid id = Guid.NewGuid();
-                        using (StreamWriter writer = new StreamWriter(fullpath))
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string fullpath = Path.Combine(path, CoyoteMachineIdFileName);
+                    if (!File.Exists(fullpath))
+                    {
+                        try
                         {
-                            writer.Write(id.ToString());
+                            firstTime = true;
+                            Guid id = Guid.NewGuid();
+                            using (StreamWriter writer = new StreamWriter(fullpath))
+                            {
+                                writer.Write(id.ToString());
+                            }
+
+                            MachineId = id.ToString();
                         }
-
-                        return id.ToString();
+                        catch
+                        {
+                            // race condition, another process beat us to it?
+                            MachineId = File.ReadAllText(fullpath);
+                        }
                     }
-                    catch
+                    else
                     {
-                        // race condition, another process beat us to it?
-                        return File.ReadAllText(fullpath);
+                        MachineId = File.ReadAllText(fullpath);
                     }
                 }
-                else
+                catch
                 {
-                    return File.ReadAllText(fullpath);
+                    // ignore race conditions on this first time file.
+                    await Task.Delay(50);
                 }
             }
-            catch
+
+            if (MachineId == null)
             {
-                // ignore race conditions on this first time file.
+                // hmmm, something is horribly wrong with the file system, so just invent a new guid for now.
+                MachineId = Guid.NewGuid().ToString();
             }
 
-            return null;
+            return new Tuple<string, bool>(MachineId, firstTime);
         }
 
         internal static string CoyoteHomePath

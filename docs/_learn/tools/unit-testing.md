@@ -1,19 +1,19 @@
 ---
 layout: reference
-title: Unit testing with Coyote systematic tester
+title: Unit testing with the Coyote systematic tester
 section: learn
 permalink: /learn/tools/unit-testing
 ---
 
-## Unit testing with Coyote systematic tester
+## Unit testing with the Coyote systematic tester
 
 Common unit testing frameworks like
 [MSTest](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-mstest),
 [xUnit.net](https://xunit.net/) and [nunit](https://nunit.org/) cannot easily call the `coyote`
 command line tool for testing. In this case you can use the Coyote `TestingEngine` directly.
 
-The following shows a complete example using xUnit. The project simply includes the `xunit` and
-`Microsoft.Coyote` packages:
+The Coyote `TestingEngine` is included in the `Microsoft.Coyote.Test` package. The following shows
+a complete example using xUnit. The project simply includes xUnit and the Coyote packages:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -22,6 +22,7 @@ The following shows a complete example using xUnit. The project simply includes 
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Coyote" Version="1.0.9" />
+    <PackageReference Include="Microsoft.Coyote.Test" Version="1.0.9" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>

@@ -100,10 +100,10 @@ learn-toc:
       link: /learn/tools/tester-requirements
     - name: Code and activity coverage
       link: /learn/tools/coverage
-    - name: Coyote telemetry
-      link: /learn/tools/telemetry
     - name: DGML diagrams
       link: /learn/tools/dgml
+    - name: Telemetry
+      link: /learn/tools/telemetry
 - title: API documentation
   subfolderitems:
     - name: Microsoft.Coyote

@@ -308,6 +308,16 @@ namespace Microsoft.Coyote
         internal bool EnableTelemetry;
 
         /// <summary>
+        /// The .NET framework version of coyote being used.
+        /// </summary>
+        internal string DotnetFrameworkVersion;
+
+        /// <summary>
+        /// Optional location of app that can run as a telemetry server.
+        /// </summary>
+        internal string TelemetryServerPath;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
         /// </summary>
         protected Configuration()
@@ -551,6 +561,15 @@ namespace Microsoft.Coyote
         public Configuration WithXmlLogEnabled(bool isEnabled = true)
         {
             this.IsXmlLogEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with telemetry enabled or disabled.
+        /// </summary>
+        public Configuration WithTelemetryEnabled(bool isEnabled = true)
+        {
+            this.EnableTelemetry = isEnabled;
             return this;
         }
     }

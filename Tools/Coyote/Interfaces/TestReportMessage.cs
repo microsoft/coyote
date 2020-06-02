@@ -5,10 +5,10 @@ using System.Runtime.Serialization;
 using Microsoft.Coyote.SmartSockets;
 using Microsoft.Coyote.SystematicTesting;
 
-namespace CoyoteTester.Interfaces
+namespace Microsoft.Coyote.SystematicTesting.Interfaces
 {
     [DataContract]
-    public class TestReportMessage : SocketMessage
+    internal class TestReportMessage : SocketMessage
     {
         [DataMember]
         public uint ProcessId { get; set; }

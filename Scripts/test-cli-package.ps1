@@ -1,5 +1,9 @@
 $ErrorActionPreference = 'Stop'
 
+Import-Module $PSScriptRoot\powershell\common.psm1
+
+Write-Comment -prefix "." -text "Running the Coyote CLI package test" -color "yellow"
+
 $root = $ENV:SYSTEMROOT
 if ($null -ne $root -and $root.ToLower().Contains("windows")) {
 
@@ -7,11 +11,11 @@ if ($null -ne $root -and $root.ToLower().Contains("windows")) {
 
     if (-not $coyote_path -eq "")
     {
-        Write-Host "Uninstalling Microsoft.Coyote.CLI..."
+        Write-Comment -prefix "..." -text "Uninstalling the Microsoft.Coyote.CLI package" -color "white"
         dotnet tool uninstall --global Microsoft.Coyote.CLI
     }
 
-    Write-Host "Installing Microsoft.Coyote.CLI..."
+    Write-Comment -prefix "..." -text "Installing the Microsoft.Coyote.CLI package" -color "white"
     dotnet tool install --global --add-source $PSScriptRoot/../bin/nuget Microsoft.Coyote.CLI --no-cache
     if (!$?)
     {
@@ -27,25 +31,25 @@ else
 
     if (-not $coyote_path -eq "")
     {
-        Write-Host "Uninstalling coyote..."
+        Write-Comment -prefix "..." -text "Uninstalling the coyote .NET tool" -color "white"
         dotnet tool uninstall --global coyote
     }
 
     $profile = $Env:HOME
     $Env:Path += "$profile\.dotnet\tools"
 
-    Write-Host "Installing coyote..."
+    Write-Comment -prefix "..." -text "Installing the coyote .NET tool" -color "white"
     dotnet tool install --global --add-source $PSScriptRoot/../bin coyote --no-cache
 }
 
 $help = (coyote -?) -join '\n'
 
-if (!$help.Contains("Microsoft (R) Coyote version"))
+if (!$help.Contains("usage: Coyote command path"))
 {
-    Write-Host "### Unexpected output from coyote command"
-    Write-Host $help
+    Write-Error "### Unexpected output from coyote command"
+    Write-Error $help
     Exit 1
 }
 
-Write-Host "Test passed"
+Write-Comment -prefix "." -text "Test passed" -color "green"
 Exit 0

@@ -7,9 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using CoyoteTester.Interfaces;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SmartSockets;
+using Microsoft.Coyote.SystematicTesting.Interfaces;
+using Microsoft.Coyote.Telemetry;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -243,11 +244,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the Coyote testing scheduler.
         /// </summary>
-        /// <returns>The number of bugs found.</returns>
-        internal int Run()
+        internal void Run()
         {
-            int bugs = 0;
-            Console.WriteLine($"Starting TestingProcessScheduler in process {Process.GetCurrentProcess().Id}");
+            Console.WriteLine($"... Started the testing task scheduler (process:{Process.GetCurrentProcess().Id}).");
 
             // Start the local server.
             this.StartServer();
@@ -256,21 +255,39 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (this.IsRunOutOfProcess)
             {
-                this.CreateParallelTestingProcesses();
-                if (this.Configuration.WaitForTestingProcesses)
+                using (var telemetryClient = new CoyoteTelemetryClient(this.Configuration))
                 {
-                    this.WaitForParallelTestingProcesses().Wait();
-                }
-                else
-                {
-                    this.RunParallelTestingProcesses();
-                }
+                    telemetryClient.TrackEventAsync("test").Wait();
 
-                bugs = this.GlobalTestReport.NumOfFoundBugs;
+                    Stopwatch watch = new Stopwatch();
+                    watch.Start();
+
+                    this.CreateParallelTestingProcesses();
+                    if (this.Configuration.WaitForTestingProcesses)
+                    {
+                        this.WaitForParallelTestingProcesses().Wait();
+                    }
+                    else
+                    {
+                        this.RunParallelTestingProcesses();
+                    }
+
+                    watch.Stop();
+
+                    if (this.GlobalTestReport.NumOfFoundBugs > 0)
+                    {
+                        telemetryClient.TrackMetricAsync("test-bugs", this.GlobalTestReport.NumOfFoundBugs).Wait();
+                    }
+
+                    if (!Debugger.IsAttached)
+                    {
+                        telemetryClient.TrackMetricAsync("test-time", watch.Elapsed.TotalSeconds).Wait();
+                    }
+                }
             }
             else
             {
-                bugs = this.CreateAndRunInMemoryTestingProcess();
+                this.CreateAndRunInMemoryTestingProcess();
             }
 
             this.Profiler.StopMeasuringExecutionTime();
@@ -283,8 +300,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Merges and emits the test report.
                 this.EmitTestReport();
             }
-
-            return bugs;
         }
 
         /// <summary>
@@ -383,7 +398,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             TestingProcess testingProcess = TestingProcess.Create(this.Configuration);
 
-            Console.WriteLine($"... Created '1' testing task.");
+            Console.WriteLine($"... Created '1' testing task (process:{Process.GetCurrentProcess().Id}).");
 
             // Runs the testing process.
             int bugs = testingProcess.Run();

@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected static Configuration GetConfiguration()
         {
-            return Configuration.Create();
+            return Configuration.Create().WithTelemetryEnabled(false);
         }
 
         protected static string RemoveNonDeterministicValuesFromReport(string report)

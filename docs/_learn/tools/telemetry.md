@@ -5,7 +5,7 @@ section: learn
 permalink: /learn/tools/telemetry
 ---
 
-## Coyote telemetry
+## Telemetry in Coyote
 
 The [coyote test tool](testing.md) collects usage data in order to help improve your experience. The
 data is anonymous. It is collected by Microsoft and shared with the community. You can opt-out of

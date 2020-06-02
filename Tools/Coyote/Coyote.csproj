@@ -18,7 +18,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Source\Test\Test.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net47' OR '$(TargetFramework)'=='net48'">
     <Reference Include="System.Configuration" />

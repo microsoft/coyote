@@ -10,7 +10,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Coyote.SmartSockets;
 
-namespace Coyote.Telemetry
+namespace Microsoft.Coyote.Telemetry
 {
     /// <summary>
     /// A custom SocketMessage used to convey a telemetry event.
@@ -70,7 +70,7 @@ namespace Coyote.Telemetry
 
         public const string TelemetryServerEndPoint = "CoyoteTelemetryServer.132d4357-1b32-473f-994b-e35eccaacd46";
 
-        private readonly string MachineId;
+        private string MachineId;
         private DateTime LastEvent;
         private bool PendingEvents;
         private readonly bool Verbose;
@@ -83,13 +83,11 @@ namespace Coyote.Telemetry
         public CoyoteTelemetryServer(bool verbose)
         {
             this.Verbose = verbose;
-            this.MachineId = CoyoteTelemetryClient.GetOrCreateMachineId(out bool _);
 
             // you may use different options to create configuration as shown later in this article
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
             configuration.InstrumentationKey = "17a6badb-bf2d-4f5d-959b-6843b8bb1f7f";
             this.Telemetry = new TelemetryClient(configuration);
-            this.Telemetry.Context.Device.Id = this.MachineId;
             string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
             this.Telemetry.Context.GlobalProperties["coyote"] = version;
             this.Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.Platform.ToString();
@@ -103,6 +101,11 @@ namespace Coyote.Telemetry
         internal async Task RunServerAsync()
         {
             this.WriteLine("Starting telemetry server...");
+
+            var result = await CoyoteTelemetryClient.GetOrCreateMachineId();
+            this.MachineId = result.Item1;
+            this.Telemetry.Context.Device.Id = this.MachineId;
+
             var resolver = new SmartSocketTypeResolver(typeof(TelemetryEvent), typeof(TelemetryMetric));
             var server = SmartSocketServer.StartServer(TelemetryServerEndPoint, resolver, null /* localhost only */, UdpGroupAddress, UdpGroupPort);
             server.ClientConnected += this.OnClientConnected;
@@ -118,13 +121,24 @@ namespace Coyote.Telemetry
                 if (this.PendingEvents)
                 {
                     this.WriteLine("Flushing telemetry...");
-                    this.PendingEvents = false;
-                    this.Telemetry.Flush();
+                    this.Flush();
                     this.LastEvent = DateTime.Now; // go around again to give flush time to finish.
                 }
             }
 
             this.Telemetry = null;
+        }
+
+        /// <summary>
+        /// Flush events to Azure.
+        /// </summary>
+        internal void Flush()
+        {
+            if (this.Telemetry != null)
+            {
+                this.PendingEvents = false;
+                this.Telemetry.Flush();
+            }
         }
 
         /// <summary>
@@ -160,7 +174,7 @@ namespace Coyote.Telemetry
                         this.LastEvent = DateTime.Now;
                         if (msg is TelemetryEvent tm)
                         {
-                            this.HandleTelemetry(tm);
+                            this.HandleEvent(tm);
                         }
                         else if (msg is TelemetryMetric metric)
                         {
@@ -183,7 +197,7 @@ namespace Coyote.Telemetry
         /// <summary>
         /// Calls the App Insights TrackEvent method.
         /// </summary>
-        private void HandleTelemetry(TelemetryEvent e)
+        internal void HandleEvent(TelemetryEvent e)
         {
             try
             {
@@ -204,7 +218,7 @@ namespace Coyote.Telemetry
         /// <summary>
         /// Calls the App Insights TrackMetric method.
         /// </summary>
-        private void HandleMetric(TelemetryMetric e)
+        internal void HandleMetric(TelemetryMetric e)
         {
             try
             {

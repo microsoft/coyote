@@ -191,7 +191,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         if (!extension.Equals(".schedule"))
                         {
                             Error.ReportAndExit("Please give a valid schedule file " +
-                                "'--replay x', where 'x' has extension '.schedule'.");
+                                "with extension '.schedule'.");
                         }
 
                         configuration.ScheduleFile = filename;

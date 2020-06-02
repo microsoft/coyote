@@ -1,13 +1,13 @@
 Import-Module $PSScriptRoot\powershell\common.psm1
 
-Write-Comment -prefix "." -text "Creating the Coyote NuGet package" -color "yellow"
-
 # Check that NuGet.exe is installed.
 $nuget = "nuget"
 if (-not (Get-Command $nuget -errorAction SilentlyContinue)) {
     Write-Comment -text "Please install the latest NuGet.exe from https://www.nuget.org/downloads and add it to the PATH environment variable." -color "yellow"
     exit 1
 }
+
+Write-Comment -prefix "." -text "Creating the Coyote NuGet packages" -color "yellow"
 
 # Extract the package version.
 $version_file = "$PSScriptRoot\..\Common\version.props"
@@ -21,11 +21,19 @@ if ($version_suffix) {
     $command_options = "$command_options -Suffix $version_suffix"
 }
 
+Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote' package" -color "white"
+
 $command = "pack $PSScriptRoot\NuGet\Coyote.nuspec $command_options"
 $error_msg = "Failed to create the Coyote NuGet package"
 Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
 
-Write-Comment -prefix "." -text "Creating the Coyote.CLI NuGet package" -color "yellow"
+Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote.Test' package" -color "white"
+
+$command = "pack $PSScriptRoot\NuGet\Coyote.Test.nuspec $command_options"
+$error_msg = "Failed to create the Coyote Test NuGet package"
+Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
+
+Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote.CLI' package" -color "white"
 
 $command = "pack $PSScriptRoot\NuGet\Coyote.CLI.nuspec $command_options -Tool"
 $error_msg = "Failed to create the Coyote CLI NuGet package"

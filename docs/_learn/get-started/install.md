@@ -24,20 +24,23 @@ if you are on Windows.
 ### Installing the NuGet package
 
 <div>
-<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install NuGet package</a>
+<a href="https://www.nuget.org/packages/Microsoft.Coyote/" class="btn btn-primary mt-20 mr-30" target="_blank">Install Coyote package</a>
+<a href="https://www.nuget.org/packages/Microsoft.Coyote.Test/" class="btn btn-primary mt-20 mr-30" target="_blank">Install Coyote Test package</a>
 <br/>
 <br/>
 </div>
 
-The Coyote libraries and tools can be easily installed by adding the `Microsoft.Coyote` [NuGet
-package](https://www.nuget.org/packages/Microsoft.Coyote/) to your C# project. You can then
-immediately start programming the Coyote API as shown in the
+The Coyote libraries can be easily installed by adding the
+[`Microsoft.Coyote`](https://www.nuget.org/packages/Microsoft.Coyote/) NuGet package and the
+[`Microsoft.Coyote.Test`](https://www.nuget.org/packages/Microsoft.Coyote.Test/) NuGet package to
+your C# project. You can then immediately start programming the Coyote API as shown in the
 [samples](http://github.com/microsoft/coyote-samples).
 
 You can manually add Coyote to your C# project by using:
 
 ```
 dotnet add <yourproject>.csproj package Microsoft.Coyote
+dotnet add <yourproject>.csproj package Microsoft.Coyote.Test
 ```
 
 ### Installing the .NET Core 3.1 coyote tool
@@ -57,6 +60,9 @@ You can remove the global `coyote` tool by running the following command:
 ```
 dotnet tool uninstall --global Microsoft.Coyote.CLI
 ```
+
+**Note:** this command line tool is only for .NET Core. If you need a version of `coyote.exe` that
+runs on .NET Framework 4.7 or 4.8, this is included in the `Microsoft.Coyote.Test` package.
 
 ### Building the samples
 

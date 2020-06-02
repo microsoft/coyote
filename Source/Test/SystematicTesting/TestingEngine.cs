@@ -18,6 +18,7 @@ using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting.Strategies;
+using Microsoft.Coyote.Telemetry;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
@@ -31,6 +32,11 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
     public sealed class TestingEngine
     {
+        /// <summary>
+        /// Url with information about the gathered telemetry.
+        /// </summary>
+        private const string LearnAboutTelemetryUrl = "http://aka.ms/coyote-telemetry";
+
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -74,6 +80,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The profiler.
         /// </summary>
         private readonly Profiler Profiler;
+
+        /// <summary>
+        /// The client used to optionally send anonymized telemetry data.
+        /// </summary>
+        private static CoyoteTelemetryClient TelemetryClient;
 
         /// <summary>
         /// The testing task cancellation token source.
@@ -267,6 +278,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 ScheduleTrace schedule = new ScheduleTrace(scheduleDump);
                 this.Strategy = new ReplayStrategy(configuration, schedule, isFair, this.Strategy);
             }
+
+            if (TelemetryClient == null)
+            {
+                TelemetryClient = new CoyoteTelemetryClient(this.Configuration);
+            }
         }
 
         /// <summary>
@@ -274,8 +290,17 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         public void Run()
         {
+            bool isReplaying = this.Strategy is ReplayStrategy;
+
             try
             {
+                TelemetryClient.TrackEventAsync(isReplaying ? "replay" : "test").Wait();
+
+                if (Debugger.IsAttached)
+                {
+                    TelemetryClient.TrackEventAsync(isReplaying ? "replay-debug" : "test-debug").Wait();
+                }
+
                 Task task = this.CreateTestingTask();
                 if (this.Configuration.Timeout > 0)
                 {
@@ -323,6 +348,16 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.Profiler.StopMeasuringExecutionTime();
             }
+
+            if (this.TestReport != null && this.TestReport.NumOfFoundBugs > 0)
+            {
+                TelemetryClient.TrackMetricAsync(isReplaying ? "replay-bugs" : "test-bugs", this.TestReport.NumOfFoundBugs).Wait();
+            }
+
+            if (!Debugger.IsAttached)
+            {
+                TelemetryClient.TrackMetricAsync(isReplaying ? "replay-time" : "test-time", this.Profiler.Results()).Wait();
+            }
         }
 
         /// <summary>
@@ -341,6 +376,11 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} is " +
                 $"using '{this.Configuration.SchedulingStrategy}' strategy{options}.");
+
+            if (this.Configuration.EnableTelemetry)
+            {
+                this.Logger.WriteLine($"... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
+            }
 
             return new Task(() =>
             {
@@ -490,7 +530,13 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     if (runtimeLogger != null)
                     {
-                        this.ReadableTrace = runtimeLogger.ToString();
+                        this.ReadableTrace = string.Empty;
+                        if (this.Configuration.EnableTelemetry)
+                        {
+                            this.ReadableTrace += $"<TelemetryLog> Telemetry is enabled, see {LearnAboutTelemetryUrl}.\n";
+                        }
+
+                        this.ReadableTrace += runtimeLogger.ToString();
                         this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
                     }
 

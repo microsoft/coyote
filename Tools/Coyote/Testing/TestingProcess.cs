@@ -7,9 +7,9 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using CoyoteTester.Interfaces;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SmartSockets;
+using Microsoft.Coyote.SystematicTesting.Interfaces;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

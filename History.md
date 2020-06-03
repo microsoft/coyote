@@ -1,3 +1,12 @@
+## v1.0.9
+- Introduced a new `Microsoft.Coyote.Test` package that contains the `Test` attribute and the
+  `TestingEngine` type for writing unit tests.
+- The core `Microsoft.Coyote` does not contain anymore `Test` and `TestingEngine`, which were moved
+  to the `Microsoft.Coyote.Test` package.
+- Added support for optional anonymized telemetry in the `TestingEngine`.
+- Optimized various internals of the systematic testing scheduler.
+- Fixed some issues in the scripts.
+
 ## v1.0.8
 - The core `Microsoft.Coyote` project is now targeting only .NET Standard, allowing it to be
   consumed by any project that supports `netstandard2.0` and above.
@@ -36,7 +45,7 @@
   production run.
 
 ## v1.0.2
-- Make ActorRuntimeLogGraphBuilder public.
+- Made ActorRuntimeLogGraphBuilder public.
 - Added CreateStateMachine to IActorRuntimeLog.
 
 ## v1.0.1

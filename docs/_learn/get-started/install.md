@@ -13,7 +13,7 @@ Coyote is a NuGet library and works on .NET Core which means it can be used on W
 macOS.
 
 ### Prerequisites
-- [.NET Core SDK 3.1.201](https://dotnet.microsoft.com/download/dotnet-core)
+- [.NET Core SDK 3.1.300](https://dotnet.microsoft.com/download/dotnet-core)
 
 **Optional:**
 - [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)
@@ -62,7 +62,8 @@ dotnet tool uninstall --global Microsoft.Coyote.CLI
 ```
 
 **Note:** this command line tool is only for .NET Core. If you need a version of `coyote.exe` that
-runs on .NET Framework 4.7 or 4.8, this is included in the `Microsoft.Coyote.Test` package.
+runs on .NET Framework 4.7 or 4.8, this is installed from the `Microsoft.Coyote.Test` package, and
+you can run it from the bin folder of your Coyote application.
 
 ### Building the samples
 

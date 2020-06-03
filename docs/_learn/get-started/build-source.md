@@ -17,7 +17,7 @@ the github repo</a>
 
 ### Prerequisites
 
-- [.NET Core SDK 3.1.201](https://dotnet.microsoft.com/download/dotnet-core)
+- [.NET Core SDK 3.1.300](https://dotnet.microsoft.com/download/dotnet-core)
 
 **Optional:**
 

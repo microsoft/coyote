@@ -18,6 +18,8 @@ $targets = [ordered]@{
     "testing" = "SystematicTesting.Tests"
 }
 
+[System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT','1')
+
 Write-Comment -prefix "." -text "Running the Coyote tests" -color "yellow"
 foreach ($kvp in $targets.GetEnumerator()) {
     if (($test -ne "all") -and ($test -ne $($kvp.Name))) {

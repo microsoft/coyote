@@ -7,9 +7,9 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
     }
 
     if (!($filter -eq "")) {
-        $command = "test $target --filter $filter -f $framework --no-build -v $verbosity"
+        $command = "test $target --filter $filter -f $framework --no-build -v $verbosity --logger trx"
     } else {
-        $command = "test $target -f $framework --no-build -v $verbosity"
+        $command = "test $target -f $framework --no-build -v $verbosity --logger trx"
     }
 
     $error_msg = "Failed to test '$project'"

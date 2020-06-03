@@ -33,7 +33,6 @@ function Write-Error([String]$text) {
     Write-Host "Error: $text" -b "black" -f "red"
 }
 
-
 function TraverseLink($path)
 {
     $item = Get-Item $path

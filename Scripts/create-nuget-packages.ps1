@@ -16,21 +16,21 @@ $version = $version_node.Project.PropertyGroup.VersionPrefix
 $version_suffix = $version_node.Project.PropertyGroup.VersionSuffix
 
 # Setup the command line options for nuget pack.
-$symbol_cmd_options = "-Symbols -SymbolPackageFormat snupkg"
 $cmd_options = "-OutputDirectory $PSScriptRoot\..\bin\nuget -Version $version"
+$cmd_options = "$cmd_options -Symbols -SymbolPackageFormat snupkg"
 if ($version_suffix) {
     $cmd_options = "$cmd_options -Suffix $version_suffix"
 }
 
 Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote' package" -color "white"
 
-$command = "pack $PSScriptRoot\NuGet\Coyote.nuspec $cmd_options $symbol_cmd_options"
+$command = "pack $PSScriptRoot\NuGet\Coyote.nuspec $cmd_options"
 $error_msg = "Failed to create the Coyote NuGet package"
 Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
 
 Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote.Test' package" -color "white"
 
-$command = "pack $PSScriptRoot\NuGet\Coyote.Test.nuspec $cmd_options $symbol_cmd_options"
+$command = "pack $PSScriptRoot\NuGet\Coyote.Test.nuspec $cmd_options"
 $error_msg = "Failed to create the Coyote Test NuGet package"
 Invoke-ToolCommand -tool $nuget -command $command -error_msg $error_msg
 

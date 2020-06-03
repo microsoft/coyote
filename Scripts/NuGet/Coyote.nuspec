@@ -12,9 +12,6 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
     <tags>asynchrony reliability actors state-machines tasks specifications testing</tags>
-    <packageTypes>
-      <packageType name="SymbolsPackage" />
-    </packageTypes>
     <dependencies>
       <group targetFramework=".NETStandard2.0" />
       <group targetFramework=".NETStandard2.1" />

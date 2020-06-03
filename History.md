@@ -1,3 +1,6 @@
+## v1.0.10
+- Fixed the NuGet symbol packages.
+
 ## v1.0.9
 - Introduced a new `Microsoft.Coyote.Test` package that contains the `Test` attribute and the
   `TestingEngine` type for writing unit tests.

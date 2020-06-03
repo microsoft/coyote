@@ -621,7 +621,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         public void OnAsyncTaskMethodBuilderTask()
         {
-            if (!this.Scheduler.IsRunning)
+            if (!this.Scheduler.IsAttached)
             {
                 throw new ExecutionCanceledException();
             }

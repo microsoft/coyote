@@ -62,9 +62,9 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly TaskCompletionSource<bool> CompletionSource;
 
         /// <summary>
-        /// Checks if the scheduler is running.
+        /// True if the scheduler is attached to the executing program, else false.
         /// </summary>
-        internal bool IsRunning { get; private set; }
+        internal bool IsAttached { get; private set; }
 
         /// <summary>
         /// The currently scheduled asynchronous operation.
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.ScheduleTrace = trace;
             this.SyncObject = new object();
             this.CompletionSource = new TaskCompletionSource<bool>();
-            this.IsRunning = true;
+            this.IsAttached = true;
             this.BugFound = false;
             this.HasFullyExploredSchedule = false;
         }
@@ -128,18 +128,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 AsyncOperation current = this.ScheduledOperation;
-                if (!this.IsRunning)
-                {
-                    // TODO: check if this stop is needed.
-                    this.Detach();
-
-                    if (current.Status != AsyncOperationStatus.Completed)
-                    {
-                        // If scheduler is not running, throw exception to force terminate the current operation.
-                        throw new ExecutionCanceledException();
-                    }
-                }
-
+                this.ThrowExecutionCanceledExceptionIfDetached();
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
                     // Checks if concurrency not controlled by the runtime was used.
@@ -176,12 +165,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.HasFullyExploredSchedule = true;
                     this.Detach();
-
-                    if (current.Status != AsyncOperationStatus.Completed)
-                    {
-                        // The schedule is explored so throw exception to force terminate the current operation.
-                        throw new ExecutionCanceledException();
-                    }
                 }
 
                 this.ScheduledOperation = next as AsyncOperation;
@@ -191,10 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (current != next)
                 {
-                    current.IsActive = false;
-                    this.ScheduledOperation.IsActive = true;
                     Monitor.PulseAll(this.SyncObject);
-
                     if (!current.IsHandlerRunning)
                     {
                         return;
@@ -206,17 +186,14 @@ namespace Microsoft.Coyote.SystematicTesting
                         IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is associated with task '{1}'.", current.Id, Task.CurrentId);
                     }
 
-                    while (!current.IsActive)
+                    while (current != this.ScheduledOperation && this.IsAttached)
                     {
                         IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", current.Name, Task.CurrentId);
                         Monitor.Wait(this.SyncObject);
                         IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", current.Name, Task.CurrentId);
                     }
 
-                    if (current.Status != AsyncOperationStatus.Enabled)
-                    {
-                        throw new ExecutionCanceledException();
-                    }
+                    this.ThrowExecutionCanceledExceptionIfDetached();
                 }
             }
         }
@@ -228,11 +205,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (!this.IsRunning)
-                {
-                    // If scheduler is not running, throw exception to force terminate the caller.
-                    throw new ExecutionCanceledException();
-                }
+                this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if concurrency not controlled by the runtime was used.
                 this.CheckNoExternalConcurrencyUsed();
@@ -250,7 +223,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.Detach();
-                    throw new ExecutionCanceledException();
                 }
 
                 this.ScheduleTrace.AddNondeterministicBooleanChoice(choice);
@@ -265,11 +237,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (!this.IsRunning)
-                {
-                    // If scheduler is not running, throw exception to force terminate the caller.
-                    throw new ExecutionCanceledException();
-                }
+                this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if concurrency not controlled by the runtime was used.
                 this.CheckNoExternalConcurrencyUsed();
@@ -287,7 +255,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.Detach();
-                    throw new ExecutionCanceledException();
                 }
 
                 this.ScheduleTrace.AddNondeterministicIntegerChoice(choice);
@@ -356,17 +323,14 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 op.IsHandlerRunning = true;
                 Monitor.PulseAll(this.SyncObject);
-                while (!op.IsActive)
+                while (op != this.ScheduledOperation && this.IsAttached)
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the operation of '{op.Name}' on task '{Task.CurrentId}'.");
                     Monitor.Wait(this.SyncObject);
                     IO.Debug.WriteLine($"<ScheduleDebug> Waking up the operation of '{op.Name}' on task '{Task.CurrentId}'.");
                 }
 
-                if (op.Status != AsyncOperationStatus.Enabled)
-                {
-                    throw new ExecutionCanceledException();
-                }
+                this.ThrowExecutionCanceledExceptionIfDetached();
             }
         }
 
@@ -378,14 +342,9 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (this.OperationMap.Count == 1)
+                if (this.OperationMap.Count > 1)
                 {
-                    op.IsActive = true;
-                    Monitor.PulseAll(this.SyncObject);
-                }
-                else
-                {
-                    while (!op.IsHandlerRunning)
+                    while (!op.IsHandlerRunning && this.IsAttached)
                     {
                         Monitor.Wait(this.SyncObject);
                     }
@@ -425,12 +384,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (!this.IsRunning)
-                {
-                    // If scheduler is not running, throw exception to force terminate the caller.
-                    throw new ExecutionCanceledException();
-                }
-
+                this.ThrowExecutionCanceledExceptionIfDetached();
                 if (Task.CurrentId.HasValue &&
                     this.ControlledTaskMap.TryGetValue(Task.CurrentId.Value, out AsyncOperation op) &&
                     op is TAsyncOperation expected)
@@ -605,12 +559,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
                     this.Detach();
-
-                    if (this.ScheduledOperation.Status != AsyncOperationStatus.Completed)
-                    {
-                        // The schedule is explored so throw exception to force terminate the current operation.
-                        throw new ExecutionCanceledException();
-                    }
                 }
             }
         }
@@ -646,12 +594,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (killTasks)
                 {
-                    this.Detach();
-                }
-
-                if (cancelExecution)
-                {
-                    throw new ExecutionCanceledException();
+                    this.Detach(cancelExecution);
                 }
             }
         }
@@ -662,19 +605,21 @@ namespace Microsoft.Coyote.SystematicTesting
         internal Task WaitAsync() => this.CompletionSource.Task;
 
         /// <summary>
-        /// Detaches from the scheduler releasing all controlled operations.
+        /// Detaches the scheduler releasing all controlled operations.
         /// </summary>
-        private void Detach()
+        private void Detach(bool cancelExecution = true)
         {
-            this.IsRunning = false;
+            this.IsAttached = false;
 
             // Cancel any remaining operations at the end of the schedule.
             foreach (var operation in this.OperationMap.Values)
             {
                 // This casting is always safe.
                 var op = operation as AsyncOperation;
-                op.IsActive = true;
-                op.Status = AsyncOperationStatus.Canceled;
+                if (op.Status != AsyncOperationStatus.Completed)
+                {
+                    op.Status = AsyncOperationStatus.Canceled;
+                }
             }
 
             Monitor.PulseAll(this.SyncObject);
@@ -683,6 +628,23 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!this.CompletionSource.Task.IsCompleted)
             {
                 this.CompletionSource.SetResult(true);
+            }
+
+            if (cancelExecution)
+            {
+                // Throw exception to force terminate the current operation.
+                throw new ExecutionCanceledException();
+            }
+        }
+
+        /// <summary>
+        /// If scheduler is detached, throw exception to force terminate the caller.
+        /// </summary>
+        private void ThrowExecutionCanceledExceptionIfDetached()
+        {
+            if (!this.IsAttached)
+            {
+                throw new ExecutionCanceledException();
             }
         }
     }

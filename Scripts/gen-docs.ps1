@@ -6,7 +6,7 @@ $CoyoteRoot = Split-Path $PSScriptRoot
 
 $ToolPath = "$CoyoteRoot\packages"
 
-if (-Not (Test-Path -Path "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll"))
+if (-Not (Test-Path -Path "$CoyoteRoot\bin"))
 {
     throw "please build coyote project first"
 }
@@ -44,13 +44,15 @@ $installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
 # install xmldocmd
 $installed = InstallToolVersion -name "xmldocmd" -version "2.1.0-beta1"
 
-$frameworks = Get-ChildItem -Path "bin" | where Name -cne "nuget" | select -expand Name
+$frameworks = Get-ChildItem -Path "$CoyoteRoot/bin" | where Name -ne "nuget" | select -expand Name
 foreach ($name in $frameworks)
 {
     $target = "$CoyoteRoot\bin\$name"
     Write-Host "processing inherit docs under $target ..." -ForegroundColor Yellow
-    & $inheritdoc --base $target -o
+    & $inheritdoc --base "$target" -o
 }
+
+$target = "$CoyoteRoot\docs\_learn\ref"
 
 # Completely clean the ref folder so we start fresh
 if (Test-Path -Path $target)
@@ -60,11 +62,18 @@ if (Test-Path -Path $target)
 
 Write-Host "Generating new markdown under $target"
 & $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
+$coyotetoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
+
+& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
+$newtoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
+$newtoc = [System.Collections.ArrayList]$newtoc
+$newtoc.RemoveRange(0, 4); # remove -toc and assembly header
+$newtoc.InsertRange(0, $coyotetoc)
+
 $toc = "$CoyoteRoot\docs\_data\sidebar-learn.yml"
 
 Write-Host "Merging $toc..."
 # Now merge the new toc
-$newtoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
 
 $oldtoc = Get-Content -Path $toc
 
@@ -82,7 +91,7 @@ for ($i = 0; $i -lt $oldtoc.Length; $i++)
         $merged += $line
         $merged += $oldtoc[$i + 1]
         $i = $i + 2  # skip to "- name: Microsoft.Coyote"
-        for ($j = 4; $j -lt $newtoc.Length; $j++)
+        for ($j = 4; $j -lt $newtoc.Count; $j++)
         {
             $line = $newtoc[$j]
             $merged += $line

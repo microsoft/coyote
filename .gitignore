@@ -345,3 +345,4 @@ Gemfile.lock
 # Website
 docs/assets/images/Thumbs.db
 docs/_data/sidebar-temp.yml
+docs/_learn/ref/toc.yml

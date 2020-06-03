@@ -1,9 +1,11 @@
 ---
 layout: reference
 section: learn
-title: Microsoft.Coyote.SystematicTesting
-permalink: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
+title: Microsoft.Coyote.Test
+permalink: /learn/ref/MicrosoftCoyoteTestAssembly
 ---
+# Microsoft.Coyote.Test assembly
+
 ## Microsoft.Coyote.SystematicTesting namespace
 
 | public type | description |

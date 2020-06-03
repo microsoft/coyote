@@ -145,6 +145,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/WithDgmlGraphEnabled
         - name: WithXmlLogEnabled
           link: /learn/ref/Microsoft.Coyote/Configuration/WithXmlLogEnabled
+        - name: WithTelemetryEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithTelemetryEnabled
         - name: Configuration
           link: /learn/ref/Microsoft.Coyote/Configuration/Configuration
         - name: SchedulingStrategy
@@ -980,89 +982,6 @@ learn-toc:
         subfolderitems:
         - name: HotAttribute
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
-    - name: Microsoft.Coyote.SystematicTesting
-      link: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
-      subfolderitems:
-      - name: TestAttribute
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttributeType
-        subfolderitems:
-        - name: TestAttribute
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttribute/TestAttribute
-      - name: TestInitAttribute
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestInitAttributeType
-        subfolderitems:
-        - name: TestInitAttribute
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestInitAttribute/TestInitAttribute
-      - name: TestDisposeAttribute
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestDisposeAttributeType
-        subfolderitems:
-        - name: TestDisposeAttribute
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestDisposeAttribute/TestDisposeAttribute
-      - name: TestIterationDisposeAttribute
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttributeType
-        subfolderitems:
-        - name: TestIterationDisposeAttribute
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttribute/TestIterationDisposeAttribute
-      - name: TestingEngine
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngineType
-        subfolderitems:
-        - name: Create
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Create
-        - name: Run
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Run
-        - name: Stop
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop
-        - name: GetReport
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
-        - name: TryEmitTraces
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
-        - name: RegisterPerIterationCallBack
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
-        - name: SetLogger
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
-        - name: TestReport
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
-        - name: ReadableTrace
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
-        - name: ReproducableTrace
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducableTrace
-      - name: TestReport
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReportType
-        subfolderitems:
-        - name: Merge
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge
-        - name: GetText
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText
-        - name: Clone
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone
-        - name: TestReport
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport
-        - name: Configuration
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration
-        - name: CoverageInfo
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo
-        - name: NumOfExploredFairSchedules
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules
-        - name: NumOfExploredUnfairSchedules
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules
-        - name: NumOfFoundBugs
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs
-        - name: BugReports
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports
-        - name: MinExploredFairSteps
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
-        - name: MaxExploredFairSteps
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps
-        - name: TotalExploredFairSteps
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps
-        - name: MaxFairStepsHitInFairTests
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests
-        - name: MaxUnfairStepsHitInFairTests
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests
-        - name: MaxUnfairStepsHitInUnfairTests
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests
-        - name: InternalErrors
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors
     - name: Microsoft.Coyote.Tasks
       link: /learn/ref/MicrosoftCoyoteTasksNamespace
       subfolderitems:
@@ -1213,6 +1132,89 @@ learn-toc:
         subfolderitems:
         - name: Dispose
           link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose
+    - name: Microsoft.Coyote.SystematicTesting
+      link: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
+      subfolderitems:
+      - name: TestAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttributeType
+        subfolderitems:
+        - name: TestAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttribute/TestAttribute
+      - name: TestInitAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestInitAttributeType
+        subfolderitems:
+        - name: TestInitAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestInitAttribute/TestInitAttribute
+      - name: TestDisposeAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestDisposeAttributeType
+        subfolderitems:
+        - name: TestDisposeAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestDisposeAttribute/TestDisposeAttribute
+      - name: TestIterationDisposeAttribute
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttributeType
+        subfolderitems:
+        - name: TestIterationDisposeAttribute
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestIterationDisposeAttribute/TestIterationDisposeAttribute
+      - name: TestingEngine
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngineType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Create
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Run
+        - name: Stop
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop
+        - name: GetReport
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
+        - name: TryEmitTraces
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
+        - name: RegisterPerIterationCallBack
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
+        - name: SetLogger
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
+        - name: TestReport
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
+        - name: ReadableTrace
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
+        - name: ReproducableTrace
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducableTrace
+      - name: TestReport
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReportType
+        subfolderitems:
+        - name: Merge
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Merge
+        - name: GetText
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/GetText
+        - name: Clone
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Clone
+        - name: TestReport
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/TestReport
+        - name: Configuration
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/Configuration
+        - name: CoverageInfo
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/CoverageInfo
+        - name: NumOfExploredFairSchedules
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredFairSchedules
+        - name: NumOfExploredUnfairSchedules
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfExploredUnfairSchedules
+        - name: NumOfFoundBugs
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/NumOfFoundBugs
+        - name: BugReports
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/BugReports
+        - name: MinExploredFairSteps
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MinExploredFairSteps
+        - name: MaxExploredFairSteps
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxExploredFairSteps
+        - name: TotalExploredFairSteps
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/TotalExploredFairSteps
+        - name: MaxFairStepsHitInFairTests
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxFairStepsHitInFairTests
+        - name: MaxUnfairStepsHitInFairTests
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInFairTests
+        - name: MaxUnfairStepsHitInUnfairTests
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/MaxUnfairStepsHitInUnfairTests
+        - name: InternalErrors
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReport/InternalErrors
 - title: Resources
   subfolderitems:
     - name: Publications

@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The scheduling strategy used for program exploration.
         /// </summary>
-        private readonly ISchedulingStrategy Strategy;
+        internal readonly ISchedulingStrategy Strategy;
 
         /// <summary>
         /// Map from unique ids to asynchronous operations.
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Object that is used to synchronize access to the scheduler.
         /// </summary>
-        private readonly object SyncObject;
+        internal readonly object SyncObject;
 
         /// <summary>
         /// The scheduler completion source.
@@ -474,61 +474,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 return enabledSchedulableIds;
-            }
-        }
-
-        /// <summary>
-        /// Returns a test report with the scheduling statistics.
-        /// </summary>
-        internal TestReport GetReport()
-        {
-            lock (this.SyncObject)
-            {
-                TestReport report = new TestReport(this.Configuration);
-
-                if (this.BugFound)
-                {
-                    report.NumOfFoundBugs++;
-                    report.BugReports.Add(this.BugReport);
-                }
-
-                if (this.Strategy.IsFair())
-                {
-                    report.NumOfExploredFairSchedules++;
-                    report.TotalExploredFairSteps += this.ScheduledSteps;
-
-                    if (report.MinExploredFairSteps < 0 ||
-                        report.MinExploredFairSteps > this.ScheduledSteps)
-                    {
-                        report.MinExploredFairSteps = this.ScheduledSteps;
-                    }
-
-                    if (report.MaxExploredFairSteps < this.ScheduledSteps)
-                    {
-                        report.MaxExploredFairSteps = this.ScheduledSteps;
-                    }
-
-                    if (this.Strategy.HasReachedMaxSchedulingSteps())
-                    {
-                        report.MaxFairStepsHitInFairTests++;
-                    }
-
-                    if (this.ScheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
-                    {
-                        report.MaxUnfairStepsHitInFairTests++;
-                    }
-                }
-                else
-                {
-                    report.NumOfExploredUnfairSchedules++;
-
-                    if (this.Strategy.HasReachedMaxSchedulingSteps())
-                    {
-                        report.MaxUnfairStepsHitInUnfairTests++;
-                    }
-                }
-
-                return report;
             }
         }
 

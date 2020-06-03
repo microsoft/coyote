@@ -38,6 +38,7 @@ public class Configuration
 | [WithRandomGeneratorSeed](Configuration/WithRandomGeneratorSeed)(…) | Updates the seed used by the random value generator during systematic testing. |
 | [WithRandomStrategy](Configuration/WithRandomStrategy)() | Updates the configuration to use the random scheduling strategy during systematic testing. |
 | [WithReplayStrategy](Configuration/WithReplayStrategy)(…) | Updates the configuration to use the replay scheduling strategy during systematic testing. This strategy replays the specified schedule trace to reproduce the same execution. |
+| [WithTelemetryEnabled](Configuration/WithTelemetryEnabled)(…) | Updates the configuration with telemetry enabled or disabled. |
 | [WithTestingIterations](Configuration/WithTestingIterations)(…) | Updates the configuration with the specified number of iterations to run during systematic testing. |
 | [WithTimeoutDelay](Configuration/WithTimeoutDelay)(…) | Updates the [`TimeoutDelay`](Configuration/TimeoutDelay) value that controls the probability of triggering a timeout each time a built-in timer is scheduled during systematic testing. This value is not a unit of time. |
 | [WithVerbosityEnabled](Configuration/WithVerbosityEnabled)(…) | Updates the configuration with verbose output enabled or disabled. |

@@ -769,7 +769,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void GatherTestingStatistics(ControlledRuntime runtime)
         {
-            TestReport report = runtime.Scheduler.GetReport();
+            TestReport report = this.GetSchedulerReport(runtime.Scheduler);
             if (this.Configuration.ReportActivityCoverage)
             {
                 report.CoverageInfo.CoverageGraph = this.Graph;
@@ -781,6 +781,61 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // Also save the graph snapshot of the last iteration, if there is one.
             this.Graph = coverageInfo.CoverageGraph;
+        }
+
+        /// <summary>
+        /// Returns a test report with the scheduling statistics.
+        /// </summary>
+        internal TestReport GetSchedulerReport(OperationScheduler scheduler)
+        {
+            lock (scheduler.SyncObject)
+            {
+                TestReport report = new TestReport(this.Configuration);
+
+                if (scheduler.BugFound)
+                {
+                    report.NumOfFoundBugs++;
+                    report.BugReports.Add(scheduler.BugReport);
+                }
+
+                if (this.Strategy.IsFair())
+                {
+                    report.NumOfExploredFairSchedules++;
+                    report.TotalExploredFairSteps += scheduler.ScheduledSteps;
+
+                    if (report.MinExploredFairSteps < 0 ||
+                        report.MinExploredFairSteps > scheduler.ScheduledSteps)
+                    {
+                        report.MinExploredFairSteps = scheduler.ScheduledSteps;
+                    }
+
+                    if (report.MaxExploredFairSteps < scheduler.ScheduledSteps)
+                    {
+                        report.MaxExploredFairSteps = scheduler.ScheduledSteps;
+                    }
+
+                    if (scheduler.Strategy.HasReachedMaxSchedulingSteps())
+                    {
+                        report.MaxFairStepsHitInFairTests++;
+                    }
+
+                    if (scheduler.ScheduledSteps >= report.Configuration.MaxUnfairSchedulingSteps)
+                    {
+                        report.MaxUnfairStepsHitInFairTests++;
+                    }
+                }
+                else
+                {
+                    report.NumOfExploredUnfairSchedules++;
+
+                    if (scheduler.Strategy.HasReachedMaxSchedulingSteps())
+                    {
+                        report.MaxUnfairStepsHitInUnfairTests++;
+                    }
+                }
+
+                return report;
+            }
         }
 
         /// <summary>

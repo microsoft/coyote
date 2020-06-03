@@ -42,8 +42,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
                 "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
                 "concurrently, you will need to mock them during testing.",
-            },
-            replay: true);
+            });
         }
 
         private class M1 : StateMachine
@@ -78,8 +77,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
                 "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
                 "concurrently, you will need to mock them during testing.",
-            },
-            replay: true);
+            });
         }
 
         private class A2 : Actor
@@ -108,8 +106,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
                 "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
                 "concurrently, you will need to mock them during testing.",
-            },
-            replay: true);
+            });
         }
 
         private class M2 : StateMachine
@@ -144,8 +141,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                 "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
                 "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
                 "concurrently, you will need to mock them during testing.",
-            },
-            replay: true);
+            });
         }
     }
 }

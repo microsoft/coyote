@@ -44,8 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -89,8 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -124,8 +122,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -171,8 +168,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
     }
 }

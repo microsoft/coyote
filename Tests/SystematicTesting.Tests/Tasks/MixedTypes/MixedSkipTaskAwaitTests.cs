@@ -80,8 +80,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
                 "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
                 "concurrently, you will need to mock them during testing.",
-            },
-            replay: true);
+            });
         }
 
         [Fact(Timeout = 5000)]
@@ -105,8 +104,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -125,8 +123,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -145,8 +142,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -171,8 +167,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ().",
-            replay: true);
+                "Please make sure to use Coyote APIs to express concurrency ().");
         }
 
         [Fact(Timeout = 5000)]
@@ -203,8 +198,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
                 "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
                 "concurrently, you will need to mock them during testing.",
-            },
-            replay: true);
+            });
         }
     }
 }

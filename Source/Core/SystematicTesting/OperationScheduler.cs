@@ -22,6 +22,12 @@ namespace Microsoft.Coyote.SystematicTesting
     internal sealed class OperationScheduler
     {
         /// <summary>
+        /// Provides access to the operation executing on each asynchronous control flow.
+        /// </summary>
+        private static readonly AsyncLocal<AsyncOperation> ExecutingOperation =
+            new AsyncLocal<AsyncOperation>(OnAsyncLocalExecutingOperationValueChanged);
+
+        /// <summary>
         /// The configuration used by the scheduler.
         /// </summary>
         private readonly Configuration Configuration;
@@ -40,11 +46,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Map from unique ids to asynchronous operations.
         /// </summary>
         private readonly Dictionary<ulong, IAsyncOperation> OperationMap;
-
-        /// <summary>
-        /// Map from ids of tasks that are controlled by the runtime to operations.
-        /// </summary>
-        private readonly Dictionary<int, AsyncOperation> ControlledTaskMap;
 
         /// <summary>
         /// The program schedule trace.
@@ -101,7 +102,6 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Runtime = runtime;
             this.Strategy = strategy;
             this.OperationMap = new Dictionary<ulong, IAsyncOperation>();
-            this.ControlledTaskMap = new Dictionary<int, AsyncOperation>();
             this.ScheduleTrace = trace;
             this.SyncObject = new object();
             this.CompletionSource = new TaskCompletionSource<bool>();
@@ -178,12 +178,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     if (!current.IsHandlerRunning)
                     {
                         return;
-                    }
-
-                    if (!this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
-                    {
-                        this.ControlledTaskMap.Add(Task.CurrentId.Value, current);
-                        IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is associated with task '{1}'.", current.Id, Task.CurrentId);
                     }
 
                     while (current != this.ScheduledOperation && this.IsAttached)
@@ -291,27 +285,6 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Schedules the specified asynchronous operation to execute on the task with the given id.
-        /// </summary>
-        /// <param name="op">The operation to schedule.</param>
-        /// <param name="taskId">The id of the task to be used to execute the operation.</param>
-        internal void ScheduleOperation(AsyncOperation op, int taskId)
-        {
-            lock (this.SyncObject)
-            {
-                IO.Debug.WriteLine($"<ScheduleDebug> Scheduling operation '{op.Name}' to execute on task '{taskId}'.");
-#if NETSTANDARD2_0
-                if (!this.ControlledTaskMap.ContainsKey(taskId))
-                {
-                    this.ControlledTaskMap.Add(taskId, op);
-                }
-#else
-                this.ControlledTaskMap.TryAdd(taskId, op);
-#endif
-            }
-        }
-
-        /// <summary>
         /// Starts the execution of the specified asynchronous operation.
         /// </summary>
         /// <param name="op">The operation to start executing.</param>
@@ -320,6 +293,9 @@ namespace Microsoft.Coyote.SystematicTesting
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
+
+                // Store the operation in the async local context.
+                ExecutingOperation.Value = op;
 
                 op.IsHandlerRunning = true;
                 Monitor.PulseAll(this.SyncObject);
@@ -373,8 +349,8 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Gets the <see cref="IAsyncOperation"/> that is executing on the current
-        /// synchronization context, or null if no such operation is executing.
+        /// Gets the <see cref="IAsyncOperation"/> that is currently executing,
+        /// or null if no such operation is executing.
         /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
@@ -385,15 +361,10 @@ namespace Microsoft.Coyote.SystematicTesting
             lock (this.SyncObject)
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
-                if (Task.CurrentId.HasValue &&
-                    this.ControlledTaskMap.TryGetValue(Task.CurrentId.Value, out AsyncOperation op) &&
-                    op is TAsyncOperation expected)
-                {
-                    return expected;
-                }
-            }
 
-            return default;
+                var op = ExecutingOperation.Value;
+                return op != null && op == this.ScheduledOperation && op is TAsyncOperation expected ? expected : default;
+            }
         }
 
         /// <summary>
@@ -441,7 +412,8 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (!Task.CurrentId.HasValue || !this.ControlledTaskMap.ContainsKey(Task.CurrentId.Value))
+                var op = ExecutingOperation.Value;
+                if (op is null || op != this.ScheduledOperation)
                 {
                     this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
                         "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
@@ -645,6 +617,16 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!this.IsAttached)
             {
                 throw new ExecutionCanceledException();
+            }
+        }
+
+        private static void OnAsyncLocalExecutingOperationValueChanged(AsyncLocalValueChangedArgs<AsyncOperation> args)
+        {
+            if (args.ThreadContextChanged && args.PreviousValue != null && args.CurrentValue != null)
+            {
+                // Restore the value if it changed due to a change in the thread context,
+                // but the previous and current value where not null.
+                ExecutingOperation.Value = args.PreviousValue;
             }
         }
     }

@@ -207,7 +207,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             });
 
-            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
         }
@@ -514,7 +513,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             });
 
-            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
         }

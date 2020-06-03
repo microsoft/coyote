@@ -94,7 +94,6 @@ namespace Microsoft.Coyote.SystematicTesting
             task.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
-            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
@@ -155,7 +154,6 @@ namespace Microsoft.Coyote.SystematicTesting
             innerTask.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
-            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
@@ -217,7 +215,6 @@ namespace Microsoft.Coyote.SystematicTesting
             innerTask.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
-            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
@@ -294,7 +291,6 @@ namespace Microsoft.Coyote.SystematicTesting
             task.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
 
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
-            this.Scheduler.ScheduleOperation(op, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();

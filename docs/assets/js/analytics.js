@@ -8,14 +8,19 @@ function addTelemetryTag() {
         awaInitialized = true;
         // awaConfig is defined in awa.html.
         awaConfig.userConsented = true;
-        awa.init(awaConfig);
+        // awa.init(awaConfig);
+
+        // also enable google analytics.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161403370-1');
     }
 }
 
 function hideBanner(){
     $(".cookie-banner").hide();
 }
-
 
 $(document).ready(function () {
 

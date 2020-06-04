@@ -383,26 +383,6 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Returns the enabled operation ids.
-        /// </summary>
-        internal HashSet<ulong> GetEnabledOperationIds()
-        {
-            lock (this.SyncObject)
-            {
-                var enabledSchedulableIds = new HashSet<ulong>();
-                foreach (var machineInfo in this.OperationMap.Values)
-                {
-                    if (machineInfo.Status is AsyncOperationStatus.Enabled)
-                    {
-                        enabledSchedulableIds.Add(machineInfo.Id);
-                    }
-                }
-
-                return enabledSchedulableIds;
-            }
-        }
-
-        /// <summary>
         /// Checks that no task that is not controlled by the runtime is currently executing.
         /// </summary>
 #if !DEBUG

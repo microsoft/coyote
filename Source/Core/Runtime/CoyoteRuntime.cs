@@ -41,7 +41,19 @@ namespace Microsoft.Coyote.Runtime
         /// If true, the program execution is controlled by the runtime to
         /// explore interleavings and sources of nondeterminism, else false.
         /// </summary>
-        internal static bool IsExecutionControlled { get; private protected set; } = false;
+        internal static bool IsExecutionControlled => ExecutionControlledUseCount > 0;
+
+        private static int ExecutionControlledUseCount;
+
+        protected internal static void IncrementExecutionControlledUseCount()
+        {
+            Interlocked.Increment(ref ExecutionControlledUseCount);
+        }
+
+        protected internal static void DecrementExecutionControlledUseCount()
+        {
+            Interlocked.Decrement(ref ExecutionControlledUseCount);
+        }
 
         /// <summary>
         /// The configuration used by the runtime.
@@ -294,6 +306,7 @@ namespace Microsoft.Coyote.Runtime
             if (disposing)
             {
                 this.OperationIdCounter = 0;
+                AssignAsyncControlFlowRuntime(null);
             }
         }
 

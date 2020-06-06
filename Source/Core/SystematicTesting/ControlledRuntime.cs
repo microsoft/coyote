@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.SystematicTesting
             IRandomValueGenerator valueGenerator)
             : base(configuration, valueGenerator)
         {
-            IsExecutionControlled = true;
+            IncrementExecutionControlledUseCount();
 
             this.RootTaskId = Task.CurrentId;
             this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
@@ -1133,6 +1133,11 @@ namespace Microsoft.Coyote.SystematicTesting
             if (disposing)
             {
                 this.Monitors.Clear();
+
+                // Note: this makes it possible to run a Controlled unit test followed by a production
+                // unit test, whereas before that would throw "Uncontrolled Task" exceptions.
+                // This does not solve mixing unit test type in parallel.
+                DecrementExecutionControlledUseCount();
             }
 
             base.Dispose(disposing);

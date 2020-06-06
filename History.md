@@ -1,3 +1,8 @@
+## v1.0.11
+- Fixed an issue that did not allow systematic and non-systematic unit tests to run on the same
+  process.
+- Fixed a bug in the `TestingEngine` logger.
+
 ## v1.0.10
 - Fixed the NuGet symbol packages.
 

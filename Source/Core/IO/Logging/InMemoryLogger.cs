@@ -27,6 +27,11 @@ namespace Microsoft.Coyote.IO
         private readonly object Lock;
 
         /// <summary>
+        /// Optional logger provided by the user to delegate logging to.
+        /// </summary>
+        internal TextWriter UserLogger { get; set; }
+
+        /// <summary>
         /// When overridden in a derived class, returns the character encoding in which the
         /// output is written.
         /// </summary>
@@ -52,6 +57,10 @@ namespace Microsoft.Coyote.IO
                 lock (this.Lock)
                 {
                     this.Builder.Append(value);
+                    if (this.UserLogger != null)
+                    {
+                        this.UserLogger.WriteLine(value);
+                    }
                 }
             }
             catch (ObjectDisposedException)
@@ -70,6 +79,10 @@ namespace Microsoft.Coyote.IO
                 lock (this.Lock)
                 {
                     this.Builder.Append(value);
+                    if (this.UserLogger != null)
+                    {
+                        this.UserLogger.WriteLine(value);
+                    }
                 }
             }
             catch (ObjectDisposedException)
@@ -89,6 +102,10 @@ namespace Microsoft.Coyote.IO
                 lock (this.Lock)
                 {
                     this.Builder.AppendLine(value);
+                    if (this.UserLogger != null)
+                    {
+                        this.UserLogger.WriteLine(value);
+                    }
                 }
             }
             catch (ObjectDisposedException)

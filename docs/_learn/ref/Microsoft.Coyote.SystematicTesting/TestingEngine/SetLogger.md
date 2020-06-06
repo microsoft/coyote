@@ -9,8 +9,16 @@ permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
 Installs the specified TextWriter.
 
 ```csharp
-public void SetLogger(TextWriter logger)
+public TextWriter SetLogger(TextWriter logger)
 ```
+
+| parameter | description |
+| --- | --- |
+| logger | The logger to install. |
+
+## Return Value
+
+The previously installed logger.
 
 ## See Also
 

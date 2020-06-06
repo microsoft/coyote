@@ -77,6 +77,11 @@ namespace Microsoft.Coyote.SystematicTesting
         private TextWriter Logger;
 
         /// <summary>
+        /// The default logger that is used during testing.
+        /// </summary>
+        private readonly TextWriter DefaultLogger;
+
+        /// <summary>
         /// The profiler.
         /// </summary>
         private readonly Profiler Profiler;
@@ -204,7 +209,8 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Configuration = configuration;
             this.TestMethodInfo = testMethodInfo;
 
-            this.Logger = new ConsoleLogger();
+            this.DefaultLogger = new ConsoleLogger();
+            this.Logger = this.DefaultLogger;
             this.ErrorReporter = new ErrorReporter(configuration, this.Logger);
             this.Profiler = new Profiler();
 
@@ -488,11 +494,20 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (!this.Configuration.IsVerbose)
                 {
                     runtimeLogger = new InMemoryLogger();
+                    if (this.Logger != this.DefaultLogger)
+                    {
+                        runtimeLogger.UserLogger = this.Logger;
+                    }
+
                     runtime.SetLogger(runtimeLogger);
 
                     var writer = TextWriter.Null;
                     Console.SetOut(writer);
                     Console.SetError(writer);
+                }
+                else if (this.Logger != this.DefaultLogger)
+                {
+                    runtime.SetLogger(this.Logger);
                 }
 
                 this.InitializeCustomLogging(runtime);
@@ -949,9 +964,15 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Installs the specified <see cref="TextWriter"/>.
         /// </summary>
-        public void SetLogger(TextWriter logger)
+        /// <param name="logger">The logger to install.</param>
+        /// <returns>The previously installed logger.</returns>
+        public TextWriter SetLogger(TextWriter logger)
         {
-            this.Logger.Dispose();
+            TextWriter oldLoger = null;
+            if (this.Logger != this.DefaultLogger)
+            {
+                oldLoger = this.Logger;
+            }
 
             if (logger is null)
             {
@@ -963,6 +984,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             this.ErrorReporter.Logger = logger;
+            return oldLoger;
         }
     }
 }

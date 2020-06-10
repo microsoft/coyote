@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Production.Tests.Actors
+namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 {
     public class SendAndExecuteTests : BaseProductionTest
     {

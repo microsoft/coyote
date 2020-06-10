@@ -37,6 +37,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
             await task;
 
+            Assert.True(task.IsCompleted, "The task await returned but the task is not completed???");
+
             string expected = @"<RandomLog> Task '' nondeterministically chose ''.
 Task '' completed with result ''.";
             string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());

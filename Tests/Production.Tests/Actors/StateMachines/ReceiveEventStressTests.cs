@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                     var tcs = TaskCompletionSource.Create<bool>();
                     r.CreateActor(typeof(M1), new SetupTcsEvent(tcs, 18000));
 
-                    var result = await GetResultAsync(tcs.Task);
+                    var result = await this.GetResultAsync(tcs);
                     Assert.True(result);
                 });
             }
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                     var tcs = TaskCompletionSource.Create<bool>();
                     r.CreateActor(typeof(M3), new SetupTcsEvent(tcs, 18000));
 
-                    var result = await GetResultAsync(tcs.Task);
+                    var result = await this.GetResultAsync(tcs);
                     Assert.True(result);
                 });
             }
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                     var tcs = TaskCompletionSource.Create<bool>();
                     r.CreateActor(typeof(M5), new SetupTcsEvent(tcs, 18000));
 
-                    var result = await GetResultAsync(tcs.Task);
+                    var result = await this.GetResultAsync(tcs);
                     Assert.True(result);
                 });
             }

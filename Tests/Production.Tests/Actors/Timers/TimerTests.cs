@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T1), new SetupEvent(tcs));
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T2), new SetupEvent(tcs));
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T3), new SetupEvent(tcs));
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }
@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T4), new SetupEvent(tcs));
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }
@@ -286,7 +286,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T5), new SetupEvent(tcs));
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }
@@ -370,7 +370,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T6), new T6.ConfigEvent { Tcs = tcs, Test = T6.TestType.CustomTimer });
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }
@@ -383,7 +383,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(T6), new T6.ConfigEvent { Tcs = tcs, Test = T6.TestType.CustomPeriodicTimer });
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
             });
         }

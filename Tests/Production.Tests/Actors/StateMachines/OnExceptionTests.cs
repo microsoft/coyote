@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var e = new E(tcs);
                 r.CreateActor(typeof(M3), e);
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
                 Assert.False(failed);
             });
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var m = r.CreateActor(typeof(M4), e);
                 r.SendEvent(m, new F());
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
                 Assert.False(failed);
             });

@@ -134,16 +134,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(new Func<IActorRuntime, Task>(async (runtime) =>
             {
-                CustomLogger logger = new CustomLogger();
-                runtime.SetLogger(logger);
-                var tcs = TaskCompletionSource.Create<bool>();
-                runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                runtime.CreateActor(typeof(M));
-                await this.WaitAsync(tcs.Task);
-                await Task.Delay(200);
+                using (CustomLogger logger = new CustomLogger())
+                {
+                    runtime.SetLogger(logger);
+                    var tcs = TaskCompletionSource.Create<bool>();
+                    runtime.RegisterMonitor<TestMonitor>();
+                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                    runtime.CreateActor(typeof(M));
+                    await this.WaitAsync(tcs.Task);
+                    await Task.Delay(200);
+                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                string expected = @"<CreateLog> TestMonitor was created.
+                    string expected = @"<CreateLog> TestMonitor was created.
 <MonitorLog> TestMonitor enters state 'Init'.
 <MonitorLog> TestMonitor is processing event 'SetupEvent' in state 'Init'.
 <MonitorLog> TestMonitor executed action 'OnSetup' in state 'Init'.
@@ -165,12 +167,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 <MonitorLog> TestMonitor is processing event 'CompletedEvent' in state 'Init'.
 <MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.";
 
-                string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
-                expected = NormalizeNewLines(expected);
-                actual = SortLines(actual); // threading makes this non-deterministic otherwise.
-                expected = SortLines(expected);
-                Assert.Equal(expected, actual);
-                logger.Dispose();
+                    string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
+                    expected = NormalizeNewLines(expected);
+                    actual = SortLines(actual); // threading makes this non-deterministic otherwise.
+                    expected = SortLines(expected);
+                    Assert.Equal(expected, actual);
+                }
             }), config);
         }
 
@@ -180,18 +182,20 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(new Func<IActorRuntime, Task>(async (runtime) =>
             {
-                CustomLogger logger = new CustomLogger();
-                runtime.SetLogger(logger);
-                var tcs = TaskCompletionSource.Create<bool>();
-                runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-                runtime.RegisterLog(graphBuilder);
-                runtime.CreateActor(typeof(M));
-                await this.WaitAsync(tcs.Task);
-                await Task.Delay(200);
+                using (CustomLogger logger = new CustomLogger())
+                {
+                    runtime.SetLogger(logger);
+                    var tcs = TaskCompletionSource.Create<bool>();
+                    runtime.RegisterMonitor<TestMonitor>();
+                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
+                    runtime.RegisterLog(graphBuilder);
+                    runtime.CreateActor(typeof(M));
+                    await this.WaitAsync(tcs.Task);
+                    await Task.Delay(200);
+                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
+                    string expected = @"<DirectedGraph xmlns='http://schemas.microsoft.com/vs/2009/dgml'>
   <Nodes>
     <Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0)' Category='Actor' Group='Expanded'/>
     <Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0).M(0)' Label='M(0)'/>
@@ -215,12 +219,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 </DirectedGraph>
 ";
 
-                string dgml = graphBuilder.Graph.ToString();
-                string actual = RemoveNonDeterministicValuesFromReport(dgml);
-                expected = RemoveNonDeterministicValuesFromReport(expected);
-                Assert.Equal(expected, actual);
-
-                logger.Dispose();
+                    string dgml = graphBuilder.Graph.ToString();
+                    string actual = RemoveNonDeterministicValuesFromReport(dgml);
+                    expected = RemoveNonDeterministicValuesFromReport(expected);
+                    Assert.Equal(expected, actual);
+                }
             }), config);
         }
 
@@ -379,32 +382,33 @@ StateTransition";
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(new Func<IActorRuntime, Task>(async (runtime) =>
             {
-                CustomLogger logger = new CustomLogger();
-                runtime.SetLogger(logger);
+                using (CustomLogger logger = new CustomLogger())
+                {
+                    runtime.SetLogger(logger);
 
-                var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
+                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
 
-                var tcs = TaskCompletionSource.Create<bool>();
-                runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                runtime.RegisterLog(graphBuilder);
+                    var tcs = TaskCompletionSource.Create<bool>();
+                    runtime.RegisterMonitor<TestMonitor>();
+                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                    runtime.RegisterLog(graphBuilder);
 
-                ActorId serverId = runtime.CreateActor(typeof(Server));
-                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                    ActorId serverId = runtime.CreateActor(typeof(Server));
+                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
 
-                await this.WaitAsync(tcs.Task);
-                await Task.Delay(1000);
+                    await this.WaitAsync(tcs.Task);
+                    await Task.Delay(1000);
+                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                string actual = graphBuilder.Graph.ToString();
-                actual = RemoveInstanceIds(actual);
+                    string actual = graphBuilder.Graph.ToString();
+                    actual = RemoveInstanceIds(actual);
 
-                Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", actual);
-                Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
-                Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
-
-                logger.Dispose();
+                    Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", actual);
+                    Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
+                    Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
+                }
             }), config);
         }
 
@@ -414,31 +418,32 @@ StateTransition";
             Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(new Func<IActorRuntime, Task>(async (runtime) =>
             {
-                CustomLogger logger = new CustomLogger();
-                runtime.SetLogger(logger);
+                using (CustomLogger logger = new CustomLogger())
+                {
+                    runtime.SetLogger(logger);
 
-                var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-                graphBuilder.CollapseMachineInstances = true;
+                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
+                    graphBuilder.CollapseMachineInstances = true;
 
-                var tcs = TaskCompletionSource.Create<bool>();
-                runtime.RegisterMonitor<TestMonitor>();
-                runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                runtime.RegisterLog(graphBuilder);
+                    var tcs = TaskCompletionSource.Create<bool>();
+                    runtime.RegisterMonitor<TestMonitor>();
+                    runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
+                    runtime.RegisterLog(graphBuilder);
 
-                ActorId serverId = runtime.CreateActor(typeof(Server));
-                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
-                runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                    ActorId serverId = runtime.CreateActor(typeof(Server));
+                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
+                    runtime.CreateActor(typeof(Client), new ClientSetupEvent(serverId));
 
-                await this.WaitAsync(tcs.Task, 5000);
-                await Task.Delay(1000);
+                    await this.WaitAsync(tcs.Task, 5000);
+                    await Task.Delay(1000);
+                    Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
-                string actual = graphBuilder.Graph.ToString();
+                    string actual = graphBuilder.Graph.ToString();
 
-                Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
-                Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
-
-                logger.Dispose();
+                    Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
+                    Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
+                }
             }), config);
         }
     }

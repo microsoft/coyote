@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         public bool IsEventHandlerRunning { get; set; }
 
         /// <inheritdoc/>
-        public Guid OperationGroupId { get; set; }
+        public Operation CurrentOperation { get; set; }
 
         /// <summary>
         /// Program counter used for state-caching. Distinguishes
@@ -48,15 +48,15 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Initializes a new instance of the <see cref="MockActorManager"/> class.
         /// </summary>
-        internal MockActorManager(ControlledRuntime runtime, Actor instance, Guid operationGroupId)
+        internal MockActorManager(ControlledRuntime runtime, Actor instance, Operation op)
         {
             this.Runtime = runtime;
             this.Instance = instance;
             this.IsEventHandlerRunning = true;
-            this.OperationGroupId = operationGroupId;
             this.ProgramCounter = 0;
             this.IsTransitionStatementCalledInCurrentAction = false;
             this.IsInsideOnExit = false;
+            this.CurrentOperation = op;
         }
 
         /// <inheritdoc/>
@@ -73,11 +73,11 @@ namespace Microsoft.Coyote.Actors.Mocks
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventIgnored(Event e, Guid opGroupId, EventInfo eventInfo) => this.Instance.IsEventIgnored(e);
+        public bool IsEventIgnored(Event e, EventInfo eventInfo) => this.Instance.IsEventIgnored(e);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) => false;
+        public bool IsEventDeferred(Event e, EventInfo eventInfo) => false;
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,12 +85,12 @@ namespace Microsoft.Coyote.Actors.Mocks
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public void OnEnqueueEvent(Event e, Operation op, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnRaiseEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public void OnRaiseEvent(Event e, Operation op, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogRaiseEvent(this.Instance.Id, default, e);
 
         /// <inheritdoc/>
@@ -99,12 +99,12 @@ namespace Microsoft.Coyote.Actors.Mocks
             this.Runtime.NotifyWaitEvent(this.Instance, eventTypes);
 
         /// <inheritdoc/>
-        public void OnReceiveEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnReceiveEvent(Event e, Operation op, EventInfo eventInfo)
         {
-            if (opGroupId != Guid.Empty)
+            if (op != null)
             {
-                // Inherit the operation group id of the receive operation, if it is non-empty.
-                this.OperationGroupId = opGroupId;
+                // Inherit the operation of the receive operation, if it is non-null.
+                this.CurrentOperation = op;
             }
 
             this.Runtime.NotifyReceivedEvent(this.Instance, e, eventInfo);
@@ -112,12 +112,12 @@ namespace Microsoft.Coyote.Actors.Mocks
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnReceiveEventWithoutWaiting(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnReceiveEventWithoutWaiting(Event e, Operation op, EventInfo eventInfo)
         {
-            if (opGroupId != Guid.Empty)
+            if (op != null)
             {
                 // Inherit the operation group id of the receive operation, if it is non-empty.
-                this.OperationGroupId = opGroupId;
+                this.CurrentOperation = op;
             }
 
             this.Runtime.NotifyReceivedEventWithoutWaiting(this.Instance, e, eventInfo);
@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Actors.Mocks
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnDropEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnDropEvent(Event e, Operation op, EventInfo eventInfo)
         {
             this.Runtime.Assert(!eventInfo.MustHandle, "{0} halted before dequeueing must-handle event '{1}'.",
                 this.Instance.Id, e.GetType().FullName);

@@ -49,11 +49,11 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             IActorManager actorManager;
             if (this.Instance is StateMachine stateMachine)
             {
-                actorManager = new StateMachineManager(this, stateMachine, Guid.Empty);
+                actorManager = new StateMachineManager(this, stateMachine, null);
             }
             else
             {
-                actorManager = new ActorManager(this, this.Instance, Guid.Empty);
+                actorManager = new ActorManager(this, this.Instance, null);
             }
 
             this.ActorInbox = new EventQueue(actorManager);
@@ -85,45 +85,24 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         public override ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, name, this, true);
 
         /// <inheritdoc/>
-        public override ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default) =>
+        public override ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null) =>
             throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
 
         /// <inheritdoc/>
-        public override ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
+        public override ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null) =>
             throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
 
         /// <inheritdoc/>
-        public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Guid opGroupId = default) =>
+        public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Operation op = null) =>
             throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
 
         /// <inheritdoc/>
-        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null,
-            Guid opGroupId = default) =>
+        public override void SendEvent(ActorId targetId, Event e, Operation op = null, SendOptions options = null) =>
             throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
-
-        /// <inheritdoc/>
-        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
-            Guid opGroupId = default) =>
-            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
-
-        /// <inheritdoc/>
-        public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event e = null, Guid opGroupId = default) =>
-            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
-
-        /// <inheritdoc/>
-        public override void SendEvent(ActorId targetId, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
-
-        /// <inheritdoc/>
-        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
-
-        /// <inheritdoc/>
-        public override Guid GetCurrentOperationGroupId(ActorId currentActorId) => Guid.Empty;
 
         /// <inheritdoc/>
         internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
-            Actor creator, Guid opGroupId)
+            Actor creator, Operation op)
         {
             id = id ?? new ActorId(type, null, this);
             if (typeof(StateMachine).IsAssignableFrom(type))
@@ -139,39 +118,20 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         }
 
         /// <inheritdoc/>
-        internal override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
-            Event initialEvent, Actor creator, Guid opGroupId)
-        {
-            id = id ?? new ActorId(type, null, this);
-            if (typeof(StateMachine).IsAssignableFrom(type))
-            {
-                this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
-            }
-            else
-            {
-                this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
-            }
-
-            return Task.FromResult(id);
-        }
-
-        /// <inheritdoc/>
-        internal override void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
+        internal override void SendEvent(ActorId targetId, Event e, Actor sender, Operation op, SendOptions options)
         {
             this.Assert(sender is null || this.Instance.Id.Equals(sender.Id),
                 string.Format("Only {0} can send an event during this test.", this.Instance.Id.ToString()));
             this.Assert(e != null, string.Format("{0} is sending a null event.", this.Instance.Id.ToString()));
             this.Assert(targetId != null, string.Format("{0} is sending event {1} to a null actor.", this.Instance.Id.ToString(), e.ToString()));
 
-            // The operation group id of this operation is set using the following precedence:
-            // (1) To the specified send operation group id, if it is non-empty.
-            // (2) To the operation group id of the sender actor, if it exists and is non-empty.
-            // (3) To the empty operation group id.
-            if (opGroupId == Guid.Empty && sender != null)
+            // by default we pass the operation along on each SendEvent.
+            if (op == null && sender != null)
             {
-                opGroupId = sender.OperationGroupId;
+                op = sender.CurrentOperation;
             }
 
+            Guid opGroupId = (op == null) ? Guid.Empty : op.Id;
             if (this.Instance.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
@@ -188,19 +148,11 @@ namespace Microsoft.Coyote.Actors.UnitTesting
                 return;
             }
 
-            EnqueueStatus enqueueStatus = this.Instance.Enqueue(e, opGroupId, null);
+            EnqueueStatus enqueueStatus = this.Instance.Enqueue(e, op, null);
             if (enqueueStatus == EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunActorEventHandlerAsync(this.Instance, null, false);
             }
-        }
-
-        /// <inheritdoc/>
-        internal override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            Guid opGroupId, SendOptions options)
-        {
-            this.SendEvent(targetId, e, sender, opGroupId, options);
-            return this.QuiescenceCompletionSource.Task;
         }
 
         /// <summary>

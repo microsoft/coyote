@@ -10,6 +10,10 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
+    /// <summary>
+    /// Tests internal low level EventQueue implementation.
+    /// This is a Production-only test.
+    /// </summary>
     public class EventQueueTests : BaseProductionTest
     {
         public EventQueueTests(ITestOutputHelper output)
@@ -43,10 +47,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public void TestEnqueueEvent()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 Assert.Equal(0, queue.Size);
 
@@ -68,10 +72,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public void TestDequeueEvent()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
@@ -112,10 +116,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public void TestEnqueueEventWithHandlerNotRunning()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
@@ -131,10 +135,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public void TestRaiseEvent()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 queue.RaiseEvent(new E1(), Guid.Empty);
                 Assert.True(queue.IsEventRaised);
@@ -154,18 +158,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 2)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEvent, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEvent, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E1));
 
@@ -192,18 +196,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 3)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEvent, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEvent, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E4), evt => (evt as E4).Value);
 
@@ -241,18 +245,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 3)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEventWithoutWaiting, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEventWithoutWaiting, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
@@ -288,18 +292,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 2)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEventWithoutWaiting, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEventWithoutWaiting, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
@@ -324,18 +328,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 2)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEvent, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEvent, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E1), typeof(E2));
 
@@ -362,18 +366,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 4)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEvent, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEvent, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E1));
 
@@ -414,18 +418,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var mockActorManager = new MockActorManager(logger,
                 (notification, evt, _) =>
                 {
                     notificationCount++;
                     if (notificationCount == 4)
                     {
-                        Assert.Equal(MockStateMachineManager.Notification.ReceiveEventWithoutWaiting, notification);
+                        Assert.Equal(MockActorManager.Notification.ReceiveEventWithoutWaiting, notification);
                         tcs.SetResult(true);
                     }
                 });
 
-            using (var queue = new EventQueue(machineStateManager))
+            using (var queue = new EventQueue(mockActorManager))
             {
                 var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);

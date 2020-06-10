@@ -98,11 +98,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             }
         }
 
-        private static string NormalizeNewLines(string text)
-        {
-            return text.Replace("\r\n", "\n");
-        }
-
         [Fact(Timeout = 5000)]
         public async Task TestActorInheritance()
         {

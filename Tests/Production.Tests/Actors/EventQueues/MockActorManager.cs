@@ -9,7 +9,7 @@ using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
-    internal class MockStateMachineManager : IActorManager
+    internal class MockActorManager : IActorManager
     {
         internal enum Notification
         {
@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
         public Guid OperationGroupId { get; set; }
 
-        internal MockStateMachineManager(TextWriter logger, Action<Notification, Event, EventInfo> notify,
+        internal MockActorManager(TextWriter logger, Action<Notification, Event, EventInfo> notify,
             Type[] ignoredEvents = null, Type[] deferredEvents = null, bool isDefaultHandlerInstalled = false)
         {
             this.Logger = logger;

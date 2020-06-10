@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 r.Assert(!m1.Equals(m2));
                 r.CreateActor(m2, typeof(M), new Conf(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             });
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 r.CreateActor(m1, typeof(M));
                 r.CreateActor(m2, typeof(M), new Conf(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             });
         }
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                     tcs.SetResult(false);
                 }
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
             });
         }
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                     tcs.SetResult(false);
                 }
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
             });
         }
@@ -231,7 +231,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 r.CreateActor(typeof(M6));
                 r.CreateActor(typeof(M6));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
             });
         }
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 r.CreateActor(typeof(M7), new Conf(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             });
         }

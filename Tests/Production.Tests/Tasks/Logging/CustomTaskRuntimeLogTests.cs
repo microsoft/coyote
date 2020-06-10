@@ -37,8 +37,10 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
             await task;
 
-            string expected = @"<RandomLog> Task '' nondeterministically chose ''. Task '' completed with result ''.";
+            string expected = @"<RandomLog> Task '' nondeterministically chose ''.
+Task '' completed with result ''.";
             string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
+            expected = NormalizeNewLines(expected);
             Assert.Equal(expected, actual);
 
             logger.Dispose();

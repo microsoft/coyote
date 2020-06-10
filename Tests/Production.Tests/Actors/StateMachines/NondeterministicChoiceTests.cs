@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 r.CreateActor(typeof(M1), new ConfigEvent(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.Null(tcs.Task.Exception);
                 Assert.False(tcs.Task.IsCanceled);
                 Assert.False(tcs.Task.IsFaulted);
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 r.CreateActor(typeof(M2), new ConfigEvent(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.Null(tcs.Task.Exception);
                 Assert.False(tcs.Task.IsCanceled);
                 Assert.False(tcs.Task.IsFaulted);

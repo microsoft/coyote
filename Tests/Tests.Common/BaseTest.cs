@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Coyote.Actors;
@@ -43,18 +44,27 @@ namespace Microsoft.Coyote.Tests.Common
         {
             // Match a GUID or other ids (since they can be nondeterministic).
             report = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
-            report = Regex.Replace(report, @"\([^)]*\)", "()");
-            report = Regex.Replace(report, @"\[[^)]*\]", "[]");
-            report = Regex.Replace(report, "[\r\n]+", " ");
-
+            report = RemoveInstanceIds(report);
+            report = NormalizeNewLines(report);
             // Match a namespace.
             return RemoveNamespaceReferencesFromReport(report).Trim();
+        }
+
+        protected static string RemoveInstanceIds(string actual)
+        {
+            actual = Regex.Replace(actual, @"\([^)]*\)", "()");
+            return actual;
+        }
+
+        protected static string NormalizeNewLines(string text)
+        {
+            return Regex.Replace(text, "[\r\n]+", "\n");
         }
 
         protected static string SortLines(string text)
         {
             var list = new List<string>(text.Split('\n'));
-            list.Sort();
+            list.Sort(StringComparer.Ordinal);
             return string.Join("\n", list);
         }
 
@@ -139,7 +149,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -151,7 +161,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -163,7 +173,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -175,7 +185,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -185,7 +195,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
         {
-            var engine = this.InternalTest(test as Delegate, configuration);
+            var engine = this.InternalTest(test, configuration);
             using (var writer = new StringWriter())
             {
                 var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
@@ -234,7 +244,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
@@ -260,7 +270,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
@@ -273,7 +283,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
@@ -286,7 +296,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
@@ -312,7 +322,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
@@ -325,7 +335,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
@@ -338,7 +348,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
             else
             {
@@ -364,7 +374,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
             else
             {
@@ -377,7 +387,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
             else
             {
@@ -430,7 +440,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+                this.InternalTestWithException<TException>(test, configuration, replay);
             }
             else
             {
@@ -441,20 +451,20 @@ namespace Microsoft.Coyote.Tests.Common
             bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+            this.InternalTestWithException<TException>(test, configuration, replay);
         }
 
         protected void TestWithException<TException>(Func<Task> test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+            this.InternalTestWithException<TException>(test, configuration, replay);
         }
 
         protected void TestWithException<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null,
             bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+            this.InternalTestWithException<TException>(test, configuration, replay);
         }
 
         private void InternalTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
@@ -553,6 +563,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 await test(runtime);
@@ -682,10 +693,23 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected static async Task WaitAsync(Task task, int millisecondsDelay = 5000)
+        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
         {
-            await Task.WhenAny(task, Task.Delay(millisecondsDelay));
-            Assert.True(task.IsCompleted);
+            if (this.SystematicTest)
+            {
+                var tickCount = Environment.TickCount;
+                while (!task.IsCompleted && tickCount - Environment.TickCount < millisecondsDelay)
+                {
+                    await Task.Delay(millisecondsDelay);
+                }
+
+                Assert.True(task.IsCompleted);
+            }
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                Assert.True(task.IsCompleted);
+            }
         }
 
         protected static async Task<TResult> GetResultAsync<TResult>(Task<TResult> task, int millisecondsDelay = 5000)

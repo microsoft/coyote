@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Actors
         {
             string eventName = e.GetType().FullName;
             string text;
-            if (stateName is null)
+            if (string.IsNullOrEmpty(stateName))
             {
                 text = $"<DequeueLog> {id} dequeued event '{eventName}'.";
             }

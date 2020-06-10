@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 var m = r.CreateActor(typeof(M1));
                 r.SendEvent(m, HaltEvent.Instance);
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(called);
             });
         }
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 var m = r.CreateActor(typeof(M2));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(called);
             });
         }
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 r.SendEvent(m, HaltEvent.Instance);
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(called);
             });
         }
@@ -244,7 +244,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 r.CreateActor(typeof(M3a), new E(m));
                 r.CreateActor(typeof(M3b), new E(m));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
             }, config);
         }
     }

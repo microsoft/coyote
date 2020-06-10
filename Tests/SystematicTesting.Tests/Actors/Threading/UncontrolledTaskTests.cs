@@ -84,9 +84,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
-                    this.RandomBoolean();
+                    await Task.Delay(1);
                 });
             }
         }
@@ -119,9 +119,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private async Task InitOnEntry()
             {
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
-                    this.RandomBoolean();
+                    await Task.Delay(1);
                 });
             }
         }

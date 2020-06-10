@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Coverage
         internal void WriteCoverageText(TextWriter writer)
         {
             var machines = new List<string>(this.CoverageInfo.Machines);
-            machines.Sort();
+            machines.Sort(StringComparer.Ordinal);
 
             var machineTypes = new Dictionary<string, string>();
 
@@ -316,7 +316,7 @@ namespace Microsoft.Coyote.Coverage
         private static List<string> SortHashSet(HashSet<string> items)
         {
             List<string> sorted = new List<string>(items);
-            sorted.Sort();
+            sorted.Sort(StringComparer.Ordinal);
             return sorted;
         }
 

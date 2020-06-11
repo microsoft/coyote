@@ -5,13 +5,14 @@ param(
     [ValidateSet("all","production","testing")]
     [string]$test="all",
     [string]$filter="",
+    [string]$logger="",
     [ValidateSet("quiet","minimal","normal","detailed","diagnostic")]
     [string]$v="normal"
 )
 
 Import-Module $PSScriptRoot\powershell\common.psm1
 
-$frameworks = Get-ChildItem -Path "$PSScriptRoot\..\Tests\bin" | where Name -CNotIn "netstandard2.0", "netstandard2.1" | select -expand Name
+$frameworks = Get-ChildItem -Path "$PSScriptRoot\..\Tests\bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
 
 $targets = [ordered]@{
     "production" = "Production.Tests"
@@ -32,7 +33,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
         }
 
         $target = "$PSScriptRoot\..\Tests\$($kvp.Value)\$($kvp.Value).csproj"
-        Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -framework $f -verbosity $v
+        Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
     }
 }
 

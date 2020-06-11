@@ -1,15 +1,18 @@
 # Runs the specified .NET test using the specified framework.
-function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [string]$filter, [string]$framework, [string]$verbosity) {
+function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [string]$filter, [string]$framework, [string]$logger, [string]$verbosity) {
     Write-Comment -prefix "..." -text "Testing '$project' ($framework)" -color "white"
     if (-not (Test-Path $target)) {
         Write-Error "tests for '$project' ($framework) not found."
         exit
     }
 
+    $command = "test $target -f $framework --no-build -v $verbosity"
     if (!($filter -eq "")) {
-        $command = "test $target --filter $filter -f $framework --no-build -v $verbosity --logger trx"
-    } else {
-        $command = "test $target -f $framework --no-build -v $verbosity --logger trx"
+        $command = "$command --filter $filter"
+    }
+
+    if (!($logger -eq "")) {
+        $command = "$command --logger $logger"
     }
 
     $error_msg = "Failed to test '$project'"

@@ -288,7 +288,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry(Event e)
             {
                 var creator = (e as E2).Id;
+#pragma warning disable CS0618
                 var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E1());
+#pragma warning restore CS0618
                 this.Assert(!handled);
             }
         }

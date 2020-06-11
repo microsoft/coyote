@@ -42,8 +42,8 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled.
+        /// optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// method on the new actor.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
@@ -53,8 +53,8 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled.
+        /// specified optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// method on the new actor.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
@@ -65,8 +65,8 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified type, using the specified <see cref="ActorId"/>.
-        /// This method optionally passes an <see cref="Event"/> to the new actor, which can only
-        /// be used to access its payload, and cannot be handled.
+        /// This method optionally passes an <see cref="Event"/>. This event is given to the
+        /// InitializeAsync method on the new actor.
         /// </summary>
         /// <param name="id">Unbound actor id.</param>
         /// <param name="type">Type of the actor.</param>
@@ -77,8 +77,8 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled. The method returns only when the actor is initialized and
+        /// optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// method on the new actor. The method returns only when the actor is initialized and
         /// the <see cref="Event"/> (if any) is handled.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
@@ -90,8 +90,8 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled. The method returns only when the actor is
+        /// specified optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// method on the new actor. The method returns only when the actor is
         /// initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
@@ -105,8 +105,8 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
-        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
-        /// be used to access its payload, and cannot be handled. The method returns only when
+        /// actor id, and passes the specified optional <see cref="Event"/>. This event is given to
+        /// the InitializeAsync method on the new actor. The method returns only when
         /// the actor is initialized and the <see cref="Event"/> (if any)
         /// is handled.
         /// </summary>

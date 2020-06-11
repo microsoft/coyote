@@ -6,7 +6,6 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Events;
-using Microsoft.VisualBasic;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTask = System.Threading.Tasks.Task;
@@ -282,11 +281,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.CreateActor(m, typeof(M4), "friendly");
-                var op = this.CurrentOperation as Operation<bool>;
-                if (op != null)
-                {
-                    op.SetResult(true);
-                }
             }
         }
 
@@ -312,9 +306,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private async SystemTask InitOnEntry()
             {
-                var op = new Operation<bool>();
-                this.Runtime.CreateActor(typeof(M6), null, op);
-                await op.Completion.Task;
+                await this.Runtime.CreateActorAndExecuteAsync(typeof(M6));
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, UnitEvent.Instance);
             }

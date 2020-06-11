@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             test.AssertInboxSize(0);
         }
 
-        [Fact(Timeout = 500000)]
+        [Fact(Timeout = 5000)]
         public async Task TestMultipleReceiveEventStatementsUnordered()
         {
             var configuration = GetConfiguration();

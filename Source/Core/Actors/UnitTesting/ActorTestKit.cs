@@ -78,9 +78,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         public Task SendEventAsync(Event e)
         {
             this.Runtime.Assert(this.IsRunning, string.Format("{0} is not running.", this.ActorInstance.Id));
-            var op = new QuiescentOperation();
-            this.Runtime.SendEvent(this.Runtime.Instance.Id, e, null, op, null);
-            return op.Completion.Task;
+            return this.Runtime.SendEventAndExecuteAsync(this.Runtime.Instance.Id, e, null, null, null);
         }
 
         /// <summary>

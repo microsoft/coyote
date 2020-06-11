@@ -1,0 +1,92 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
+using Xunit;
+using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
+
+namespace Microsoft.Coyote.Production.Tests.Actors
+{
+    public class GetOperationGroupIdTests : BaseProductionTest
+    {
+        public GetOperationGroupIdTests(ITestOutputHelper output)
+            : base(output)
+        {
+        }
+
+        private const string OperationGroup = "OperationGroup";
+
+        private class SetupEvent : Event
+        {
+            public TaskCompletionSource<string> Tcs = TaskCompletionSource.Create<string>();
+
+            public SetupEvent()
+            {
+            }
+        }
+
+        private class E : Event
+        {
+            public ActorId Id;
+
+            public E(ActorId id)
+            {
+                this.Id = id;
+            }
+        }
+
+        private class M1 : Actor
+        {
+            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+            {
+                var tcs = (initialEvent as SetupEvent).Tcs;
+                tcs.SetResult(this.CurrentOperation == null ? null : this.CurrentOperation.Name);
+                return base.OnInitializeAsync(initialEvent);
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGetOperationGroupIdNotSet()
+        {
+            this.Test(async r =>
+            {
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M1), e);
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.True(result == null);
+            });
+        }
+
+        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
+        private class M2 : Actor
+        {
+            private TaskCompletionSource<string> Tcs;
+
+            protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
+            {
+                this.Tcs = (initialEvent as SetupEvent).Tcs;
+                this.Runtime.SendEvent(this.Id, new E(this.Id), new Operation() { Name = OperationGroup });
+                return base.OnInitializeAsync(initialEvent);
+            }
+
+            private void CheckEvent()
+            {
+                this.Tcs.SetResult(this.CurrentOperation == null ? null : this.CurrentOperation.Name);
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGetOperationGroupIdSet()
+        {
+            this.Test(async r =>
+            {
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M2), e);
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.Equal(OperationGroup, result);
+            });
+        }
+    }
+}

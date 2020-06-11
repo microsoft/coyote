@@ -173,7 +173,7 @@ namespace Microsoft.Coyote.Actors
                     var quiess = this.ActorManager.CurrentOperation as QuiescentOperation;
                     if (quiess != null && !quiess.IsCompleted)
                     {
-                        quiess.Complete(true);
+                        quiess.SetResult(true);
                     }
 
                     return (DequeueStatus.NotAvailable, null, null, null);

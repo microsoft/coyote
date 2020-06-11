@@ -37,8 +37,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                var id = this.Runtime.GetCurrentOperationGroupId(this.Id);
-                this.Assert(id == Guid.Empty, $"OperationGroupId is not '{Guid.Empty}', but {id}.");
+                this.Assert(this.CurrentOperation == null, "CurrentOperation is not null");
             }
         }
 
@@ -53,36 +52,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                this.Runtime.SendEvent(this.Id, new E(this.Id), OperationGroup);
+                this.Runtime.SendEvent(this.Id, new E(this.Id), new Operation() { Id = OperationGroup });
             }
 
             private void CheckEvent()
             {
-                var id = this.Runtime.GetCurrentOperationGroupId(this.Id);
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup, $"OperationGroupId is not '{OperationGroup}', but {id}.");
-            }
-        }
-
-        private class M3 : StateMachine
-        {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
-            {
-            }
-
-            private void InitOnEntry()
-            {
-                var target = this.CreateActor(typeof(M4));
-                this.Runtime.GetCurrentOperationGroupId(target);
-            }
-        }
-
-        private class M4 : StateMachine
-        {
-            [Start]
-            private class Init : State
-            {
             }
         }
 
@@ -102,17 +78,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 r.CreateActor(typeof(M2));
             });
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestGetOperationGroupIdOfNotCurrentMachine()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M3));
-            },
-            expectedError: "Trying to access the operation group id of M4(), which is not the currently executing actor.",
-            replay: true);
         }
     }
 }

@@ -16,16 +16,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
         }
 
-        private class Conf : Event
-        {
-            public TaskCompletionSource<bool> Tcs;
-
-            public Conf(TaskCompletionSource<bool> tcs)
-            {
-                this.Tcs = tcs;
-            }
-        }
-
         private class M : StateMachine
         {
             [Start]
@@ -36,9 +26,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private void InitOnEntry(Event e)
             {
-                if (e is Conf)
+                var op = this.CurrentOperation as Operation<bool>;
+                if (op != null)
                 {
-                    (e as Conf).Tcs.SetResult(true);
+                    op.SetResult(true);
                 }
             }
         }
@@ -49,19 +40,19 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
-                    tcs.SetResult(false);
+                    op.SetResult(false);
                 };
 
                 var m1 = r.CreateActor(typeof(M));
                 var m2 = r.CreateActorIdFromName(typeof(M), "M");
                 r.Assert(!m1.Equals(m2));
-                r.CreateActor(m2, typeof(M), new Conf(tcs));
+                r.CreateActor(m2, typeof(M), null, op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.False(failed);
             });
         }
@@ -212,6 +203,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.CreateActor(m, typeof(M4), "friendly");
+                var op = this.CurrentOperation as Operation<bool>;
+                if (op != null)
+                {
+                    op.SetResult(true);
+                }
             }
         }
 
@@ -246,7 +242,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private async Task InitOnEntry(Event e)
             {
-                await this.Runtime.CreateActorAndExecuteAsync(typeof(M6));
+                var op = new Operation<bool>();
+                this.Runtime.CreateActor(typeof(M6), null, op);
+                await op.Completion.Task;
+                // should fail because M6 already created an actor named "M4".
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.Runtime.SendEvent(m, e);
             }

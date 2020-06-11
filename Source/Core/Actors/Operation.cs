@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Actors
         /// Provided the completed result and set IsCompleted to true.
         /// </summary>
         /// <param name="result">The completed result object.</param>
-        public virtual void Complete(T result)
+        public virtual void SetResult(T result)
         {
             this.Completion.SetResult(result);
             this.IsCompleted = true;
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Actors
         /// operation is not already completed.
         /// </summary>
         /// <param name="result">The completed result object.</param>
-        public virtual void TryComplete(T result)
+        public virtual void TrySetResult(T result)
         {
             this.Completion.TrySetResult(result);
             this.IsCompleted = true;

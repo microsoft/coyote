@@ -16,6 +16,7 @@ using Microsoft.Coyote.SystematicTesting.Strategies;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common
 {
@@ -702,26 +703,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
-        {
-            if (this.SystematicTest)
-            {
-                // WhenAny delay is ignored in test mode...
-                int start = Environment.TickCount;
-                while (start + millisecondsDelay > Environment.TickCount && !task.IsCompleted)
-                {
-                    await Task.WhenAny(task, Task.Delay(10));
-                }
-            }
-            else
-            {
-                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
-            }
-
-            this.CheckFailure();
-            Assert.True(task.IsCompleted);
-        }
-
         protected void RunWithException<TException>(Action test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
@@ -772,11 +753,61 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
+        protected static async Task<T> WaitAsync<T>(SystemTasks.Task<T> task, int millisecondsDelay = 5000)
+        {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
+            await SystemTasks.Task.WhenAny(task, SystemTasks.Task.Delay(millisecondsDelay));
+            Assert.True(task.IsCompleted);
+            return task.Result;
+        }
+
+        protected static async Task WaitAsync(SystemTasks.Task task, int millisecondsDelay = 5000)
+        {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
+            await SystemTasks.Task.WhenAny(task, SystemTasks.Task.Delay(millisecondsDelay));
+            Assert.True(task.IsCompleted);
+        }
+
+        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
+        {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
+            if (this.SystematicTest)
+            {
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                await task;
+            }
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            }
+
+            this.CheckFailure();
+            Assert.True(task.IsCompleted);
+        }
+
         protected async Task<TResult> GetResultAsync<TResult>(TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
         {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
             var task = tcs.Task;
             if (this.SystematicTest)
             {
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
                 await task;
             }
             else

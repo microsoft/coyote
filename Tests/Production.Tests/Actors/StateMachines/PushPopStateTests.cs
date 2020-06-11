@@ -327,7 +327,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             }
         }
 
-        [Fact(Timeout = 50000)]
+        [Fact(Timeout = 5000)]
         public async Task TestInheritedDuplicateDeferHandler()
         {
             // inherited state can re-define a DeferEvent, IgnoreEvent or a Goto if it wants to, this is not an error.

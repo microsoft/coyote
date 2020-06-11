@@ -375,7 +375,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             }
         }
 
-        [Fact(Timeout = 50000)]
+        [Fact(Timeout = 5000)]
         public void TestTwoActorIntegration4()
         {
             this.TestWithError(r =>

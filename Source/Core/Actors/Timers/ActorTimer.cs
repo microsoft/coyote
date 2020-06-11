@@ -30,6 +30,11 @@ namespace Microsoft.Coyote.Actors.Timers
         private readonly TimerElapsedEvent TimeoutEvent;
 
         /// <summary>
+        /// Whether this timer is disposed.
+        /// </summary>
+        private bool IsDisposed;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActorTimer"/> class.
         /// </summary>
         /// <param name="info">Stores information about this timer.</param>
@@ -62,6 +67,11 @@ namespace Microsoft.Coyote.Actors.Timers
         /// </summary>
         private void HandleTimeout(object state)
         {
+            if (this.IsDisposed)
+            {
+                return;
+            }
+
             // Send a timeout event.
             this.Owner.Runtime.SendEvent(this.Owner.Id, this.TimeoutEvent);
 
@@ -120,6 +130,7 @@ namespace Microsoft.Coyote.Actors.Timers
         /// </summary>
         public void Dispose()
         {
+            this.IsDisposed = true;
             this.InternalTimer.Dispose();
         }
     }

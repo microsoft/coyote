@@ -351,7 +351,9 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Invokes an action.
         /// </summary>
+#if !DEBUG
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         private void Do(string actionName, Event e)
         {
             CachedDelegate cachedAction = this.ActionMap[actionName];
@@ -363,7 +365,9 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Executes the on entry function of the current state.
         /// </summary>
+#if !DEBUG
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         private void ExecuteCurrentStateOnEntry(Event e)
         {
             this.Runtime.NotifyEnteredState(this);
@@ -386,7 +390,9 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Executes the on exit function of the current state.
         /// </summary>
+#if !DEBUG
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         private void ExecuteCurrentStateOnExit(string eventHandlerExitActionName, Event e)
         {
             this.Runtime.NotifyExitedState(this);
@@ -426,7 +432,9 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Executes the specified action.
         /// </summary>
+#if !DEBUG
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         private void ExecuteAction(CachedDelegate cachedAction, Event e)
         {
             try

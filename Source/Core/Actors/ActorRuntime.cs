@@ -37,7 +37,9 @@ namespace Microsoft.Coyote.Actors
         public override TextWriter Logger => this.LogWriter.Logger;
 
         /// <summary>
-        /// Callback that is fired when a Coyote event is dropped.
+        /// Callback that is fired when a Coyote event is dropped. This happens when
+        /// <see cref="IActorRuntime.SendEvent"/> is called with an ActorId that has no matching
+        /// actor defined or the actor is halted.
         /// </summary>
         public event OnEventDroppedHandler OnEventDropped;
 

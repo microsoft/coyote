@@ -460,6 +460,11 @@ namespace Microsoft.Coyote.Actors
             {
                 (DequeueStatus status, Event e, Operation op, EventInfo info) = this.Inbox.Dequeue();
 
+                if (op != null && this.CurrentOperation == null)
+                {
+                    this.CurrentOperation = op;
+                }
+
                 if (status is DequeueStatus.Success)
                 {
                     // Notify the runtime for a new event to handle. This is only used

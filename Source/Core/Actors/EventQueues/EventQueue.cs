@@ -157,7 +157,6 @@ namespace Microsoft.Coyote.Actors
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
-                    this.ActorManager.CurrentOperation = node.Value.op;
                     return (DequeueStatus.Success, node.Value.e, node.Value.op, null);
                 }
 

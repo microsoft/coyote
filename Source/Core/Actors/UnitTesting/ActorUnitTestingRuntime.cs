@@ -24,11 +24,6 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         internal readonly EventQueue ActorInbox;
 
         /// <summary>
-        /// Task completion source that completes when the actor being tested reaches quiescence.
-        /// </summary>
-        private TaskCompletionSource<bool> QuiescenceCompletionSource;
-
-        /// <summary>
         /// True if the actor is waiting to receive and event, else false.
         /// </summary>
         internal bool IsActorWaitingToReceiveEvent { get; private set; }
@@ -77,8 +72,10 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         /// </summary>
         internal Task StartAsync(Event initialEvent)
         {
+            var op = new QuiescentOperation();
+            this.Instance.CurrentOperation = op;
             this.RunActorEventHandlerAsync(this.Instance, initialEvent, true);
-            return this.QuiescenceCompletionSource.Task;
+            return op.Completion.Task;
         }
 
         /// <inheritdoc/>
@@ -160,8 +157,6 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         /// </summary>
         private Task RunActorEventHandlerAsync(Actor actor, Event initialEvent, bool isFresh)
         {
-            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
-
             return Task.Run(async () =>
             {
                 try
@@ -172,13 +167,11 @@ namespace Microsoft.Coyote.Actors.UnitTesting
                     }
 
                     await actor.RunEventHandlerAsync();
-                    this.QuiescenceCompletionSource.SetResult(true);
                 }
                 catch (Exception ex)
                 {
                     this.IsRunning = false;
                     this.RaiseOnFailureEvent(ex);
-                    this.QuiescenceCompletionSource.SetException(ex);
                 }
             });
         }
@@ -192,7 +185,6 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         {
             base.NotifyReceivedEvent(actor, e, eventInfo);
             this.IsActorWaitingToReceiveEvent = false;
-            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
         }
 
         /// <inheritdoc/>
@@ -200,7 +192,6 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         {
             base.NotifyWaitEvent(actor, eventTypes);
             this.IsActorWaitingToReceiveEvent = true;
-            this.QuiescenceCompletionSource.SetResult(true);
         }
     }
 }

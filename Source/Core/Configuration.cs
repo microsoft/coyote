@@ -572,6 +572,15 @@ namespace Microsoft.Coyote
             this.EnableTelemetry = isEnabled;
             return this;
         }
+
+        /// <summary>
+        /// Enable running of Monitor objects in production.
+        /// </summary>
+        internal Configuration WithProductionMonitorEnabled(bool isEnabled = true)
+        {
+            this.IsMonitoringEnabledInInProduction = isEnabled;
+            return this;
+        }
     }
 #pragma warning restore CA1724 // Type names should not match namespaces
 }

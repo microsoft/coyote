@@ -86,7 +86,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    this.RandomBoolean();
+                    await Task.Delay(100);
                 });
             }
         }
@@ -121,7 +122,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    this.RandomBoolean();
+                    await Task.Delay(100);
                 });
             }
         }

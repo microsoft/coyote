@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var m = r.CreateActor(typeof(M1a), e);
                 r.SendEvent(m, new F());
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
                 Assert.True(e.X == 1);
             });
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var e = new E(tcs);
                 r.CreateActor(typeof(M1b), e);
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.True(e.X == 1);
             });
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var m = r.CreateActor(typeof(M2a), e);
                 r.SendEvent(m, new F());
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
                 Assert.True(e.X == 1);
             });
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var e = new E(tcs);
                 r.CreateActor(typeof(M2b), e);
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.True(e.X == 1);
             });
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var e = new E(tcs);
                 r.CreateActor(typeof(M3), e);
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
                 Assert.False(failed);
             });
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var m = r.CreateActor(typeof(M4), e);
                 r.SendEvent(m, new F());
 
-                var result = await GetResultAsync(tcs.Task);
+                var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
                 Assert.False(failed);
             });

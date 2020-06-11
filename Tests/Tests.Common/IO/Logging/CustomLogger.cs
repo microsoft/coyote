@@ -23,17 +23,28 @@ namespace Microsoft.Coyote.Tests.Common.IO
 
         public override void Write(string value)
         {
-            this.StringBuilder.Append(value);
+            if (this.StringBuilder != null)
+            {
+                this.StringBuilder.Append(value);
+            }
         }
 
         public override void WriteLine(string value)
         {
-            this.StringBuilder.AppendLine(value);
+            if (this.StringBuilder != null)
+            {
+                this.StringBuilder.AppendLine(value);
+            }
         }
 
         public override string ToString()
         {
-            return this.StringBuilder.ToString();
+            if (this.StringBuilder != null)
+            {
+                return this.StringBuilder.ToString();
+            }
+
+            return string.Empty;
         }
 
         protected override void Dispose(bool disposing)

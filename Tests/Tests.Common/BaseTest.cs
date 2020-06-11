@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Coyote.Actors;
@@ -23,6 +24,7 @@ namespace Microsoft.Coyote.Tests.Common
     public abstract class BaseTest
     {
         protected readonly ITestOutputHelper TestOutput;
+        private Exception Failure;
 
         public BaseTest(ITestOutputHelper output)
         {
@@ -43,18 +45,27 @@ namespace Microsoft.Coyote.Tests.Common
         {
             // Match a GUID or other ids (since they can be nondeterministic).
             report = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
-            report = Regex.Replace(report, @"\([^)]*\)", "()");
-            report = Regex.Replace(report, @"\[[^)]*\]", "[]");
-            report = Regex.Replace(report, "[\r\n]+", " ");
-
+            report = RemoveInstanceIds(report);
+            report = NormalizeNewLines(report);
             // Match a namespace.
             return RemoveNamespaceReferencesFromReport(report).Trim();
+        }
+
+        protected static string RemoveInstanceIds(string actual)
+        {
+            actual = Regex.Replace(actual, @"\([^)]*\)", "()");
+            return actual;
+        }
+
+        protected static string NormalizeNewLines(string text)
+        {
+            return Regex.Replace(text, "[\r\n]+", "\n");
         }
 
         protected static string SortLines(string text)
         {
             var list = new List<string>(text.Split('\n'));
-            list.Sort();
+            list.Sort(StringComparer.Ordinal);
             return string.Join("\n", list);
         }
 
@@ -139,7 +150,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -151,7 +162,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -163,7 +174,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -175,7 +186,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTest(test as Delegate, configuration);
+                this.InternalTest(test, configuration);
             }
             else
             {
@@ -185,7 +196,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
         {
-            var engine = this.InternalTest(test as Delegate, configuration);
+            var engine = this.InternalTest(test, configuration);
             using (var writer = new StringWriter())
             {
                 var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
@@ -234,7 +245,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
@@ -260,7 +271,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
@@ -273,7 +284,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
             else
             {
@@ -286,7 +297,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
@@ -312,7 +323,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
@@ -325,7 +336,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
+                this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
             else
             {
@@ -338,7 +349,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
             else
             {
@@ -364,7 +375,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
             else
             {
@@ -377,7 +388,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.TestWithErrors(test as Delegate, configuration, errorChecker, replay);
+                this.TestWithErrors(test, configuration, errorChecker, replay);
             }
             else
             {
@@ -430,10 +441,11 @@ namespace Microsoft.Coyote.Tests.Common
         {
             if (this.SystematicTest)
             {
-                this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+                this.InternalTestWithException<TException>(test, configuration, replay);
             }
             else
             {
+                this.RunWithException<TException>(test, configuration);
             }
         }
 
@@ -441,20 +453,20 @@ namespace Microsoft.Coyote.Tests.Common
             bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+            this.InternalTestWithException<TException>(test, configuration, replay);
         }
 
         protected void TestWithException<TException>(Func<Task> test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+            this.InternalTestWithException<TException>(test, configuration, replay);
         }
 
         protected void TestWithException<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null,
             bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test as Delegate, configuration, replay);
+            this.InternalTestWithException<TException>(test, configuration, replay);
         }
 
         private void InternalTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
@@ -553,7 +565,9 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                runtime.OnFailure += this.OnFailure;
                 runtime.SetLogger(logger);
                 await test(runtime);
             }
@@ -565,6 +579,12 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 logger.Dispose();
             }
+        }
+
+        private void OnFailure(Exception ex)
+        {
+            this.Failure = ex;
+            Assert.False(true, ex.Message + "\n" + ex.StackTrace);
         }
 
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
@@ -682,16 +702,90 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected static async Task WaitAsync(Task task, int millisecondsDelay = 5000)
+        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
         {
-            await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            if (this.SystematicTest)
+            {
+                // WhenAny delay is ignored in test mode...
+                int start = Environment.TickCount;
+                while (start + millisecondsDelay > Environment.TickCount && !task.IsCompleted)
+                {
+                    await Task.WhenAny(task, Task.Delay(10));
+                }
+            }
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            }
+
+            this.CheckFailure();
             Assert.True(task.IsCompleted);
         }
 
-        protected static async Task<TResult> GetResultAsync<TResult>(Task<TResult> task, int millisecondsDelay = 5000)
+        protected void RunWithException<TException>(Action test, Configuration configuration = null)
         {
-            await Task.WhenAny(task, Task.Delay(millisecondsDelay));
-            Assert.True(task.IsCompleted);
+            configuration = configuration ?? GetConfiguration();
+
+            Type exceptionType = typeof(TException);
+            Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
+                $"Type '{exceptionType}' is not an exception type.");
+
+            TextWriter logger;
+            if (configuration.IsVerbose)
+            {
+                logger = new TestOutputLogger(this.TestOutput, true);
+            }
+            else
+            {
+                logger = TextWriter.Null;
+            }
+
+            try
+            {
+                var runtime = RuntimeFactory.Create(configuration);
+                runtime.SetLogger(logger);
+                for (int i = 0; i < configuration.TestingIterations; i++)
+                {
+                    test();
+                }
+            }
+            catch (Exception ex)
+            {
+                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+            }
+            finally
+            {
+                logger.Dispose();
+            }
+        }
+
+        private void CheckFailure()
+        {
+            // XUnit doesn't report unhandled exceptions from background threads which happens
+            // with Actors a lot, so this brings that error over to the main thread so the unit
+            // test fails with the most meaningful error.
+            var e = this.Failure;
+            if (e != null)
+            {
+                this.Failure = null;
+                throw e;
+            }
+        }
+
+        protected async Task<TResult> GetResultAsync<TResult>(TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
+        {
+            var task = tcs.Task;
+            if (this.SystematicTest)
+            {
+                await task;
+            }
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            }
+
+            this.CheckFailure();
+            Assert.True(task.IsCompleted, string.Format("Task timed out after '{0}' milliseconds", millisecondsDelay));
             return await task;
         }
 

@@ -568,7 +568,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Configuration.IsVerbose)
             {
-                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, action.Name, stateName);
+                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, stateName, action.Name);
             }
         }
 

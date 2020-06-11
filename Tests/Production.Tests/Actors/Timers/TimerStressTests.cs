@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
 
                 Task task = Task.WhenAll(awaiters);
-                await WaitAsync(task);
+                await this.WaitAsync(task);
             });
         }
 
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
 
                 Task task = Task.WhenAll(awaiters);
-                await WaitAsync(task);
+                await this.WaitAsync(task);
             });
         }
     }

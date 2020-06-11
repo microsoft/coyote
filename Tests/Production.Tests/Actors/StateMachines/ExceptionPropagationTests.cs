@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M), new SetupEvent(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
 
                 AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(async () => await tcsFail.Task);
                 Assert.Equal(1, count);
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(N), new SetupEvent(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
 
                 AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(async () => await tcsFail.Task);
                 Assert.IsType<InvalidOperationException>(ex.InnerException);

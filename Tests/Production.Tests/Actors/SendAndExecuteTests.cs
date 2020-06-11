@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Production.Tests.Actors
+namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 {
     public class SendAndExecuteTests : BaseProductionTest
     {
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 r.CreateActor(typeof(M1), new Config1(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             });
         }
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 r.CreateActor(typeof(M2), new Config1(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             });
         }
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 r.RegisterMonitor<SafetyMonitor>();
                 r.CreateActor(typeof(M3), new Config1(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             }, config);
         }
@@ -355,7 +355,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 r.CreateActor(typeof(M4), new Config2(true, tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
             });
         }
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 r.CreateActor(typeof(M4), new Config2(false, tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.StartsWith("Exception of type 'System.Exception' was thrown", message);
             });
@@ -434,7 +434,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 r.CreateActor(typeof(M5), new Config1(tcs));
 
-                await WaitAsync(tcs.Task);
+                await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.Equal(
                     "Microsoft.Coyote.Production.Tests.Actors.SendAndExecuteTests+N5(1) received event " +

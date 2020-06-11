@@ -879,7 +879,7 @@ namespace Microsoft.Coyote.Coverage
             if (this.InternalNodes != null)
             {
                 List<string> nodes = new List<string>(this.InternalNodes.Keys);
-                nodes.Sort();
+                nodes.Sort(StringComparer.Ordinal);
                 foreach (var id in nodes)
                 {
                     GraphNode node = this.InternalNodes[id];
@@ -906,7 +906,7 @@ namespace Microsoft.Coyote.Coverage
             if (this.InternalLinks != null)
             {
                 List<string> links = new List<string>(this.InternalLinks.Keys);
-                links.Sort();
+                links.Sort(StringComparer.Ordinal);
                 foreach (var id in links)
                 {
                     GraphLink link = this.InternalLinks[id];
@@ -1106,7 +1106,7 @@ namespace Microsoft.Coyote.Coverage
             if (this.Attributes != null)
             {
                 List<string> names = new List<string>(this.Attributes.Keys);
-                names.Sort();  // creates a more stable output file (can be handy for expected output during testing).
+                names.Sort(StringComparer.Ordinal);  // creates a more stable output file (can be handy for expected output during testing).
                 foreach (string name in names)
                 {
                     var value = this.Attributes[name];
@@ -1117,7 +1117,7 @@ namespace Microsoft.Coyote.Coverage
             if (this.AttributeLists != null)
             {
                 List<string> names = new List<string>(this.AttributeLists.Keys);
-                names.Sort();  // creates a more stable output file (can be handy for expected output during testing).
+                names.Sort(StringComparer.Ordinal);  // creates a more stable output file (can be handy for expected output during testing).
                 foreach (string name in names)
                 {
                     var value = this.AttributeLists[name];

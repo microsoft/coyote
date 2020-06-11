@@ -389,9 +389,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task '{0}' invoked a when-all operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+            this.AssertIsTaskControlled(callerOp, "WhenAll");
             callerOp.OnWaitTasks(tasks, waitAll: true);
 
             List<Exception> exceptions = null;
@@ -431,9 +429,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task '{0}' invoked a when-all operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+            this.AssertIsTaskControlled(callerOp, "WhenAll");
             callerOp.OnWaitTasks(tasks, waitAll: true);
 
             int idx = 0;
@@ -445,6 +441,16 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             return CoyoteTasks.Task.FromResult(result);
+        }
+
+        private void AssertIsTaskControlled(TaskOperation callerOp, string opName)
+        {
+            if (callerOp == null)
+            {
+                this.Assert(callerOp != null,
+                    "Uncontrolled task '{0}' invoked a {1} operation.",
+                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", opName);
+            }
         }
 
         /// <summary>
@@ -460,9 +466,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task '{0}' invoked a when-any operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+            this.AssertIsTaskControlled(callerOp, "WhenAny");
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
             CoyoteTasks.Task result = null;
@@ -491,9 +495,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task '{0}' invoked a when-any operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+            this.AssertIsTaskControlled(callerOp, "WhenAny");
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
             CoyoteTasks.Task<TResult> result = null;
@@ -520,9 +522,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task '{0}' invoked a wait-all operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+            this.AssertIsTaskControlled(callerOp, "WaitAll");
             callerOp.OnWaitTasks(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
@@ -543,9 +543,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.Assert(callerOp != null,
-                "Uncontrolled task '{0}' invoked a wait-any operation.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+            this.AssertIsTaskControlled(callerOp, "WaitAny");
             callerOp.OnWaitTasks(tasks, waitAll: false);
 
             int result = -1;

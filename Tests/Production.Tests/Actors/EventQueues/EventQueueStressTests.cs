@@ -10,6 +10,10 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
+    /// <summary>
+    /// Stresses the thread safety of the event queue on an Actor.
+    /// This is a Production-only test.
+    /// </summary>
     public class EventQueueStressTests : BaseProductionTest
     {
         public EventQueueStressTests(ITestOutputHelper output)
@@ -29,7 +33,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public async Task TestEnqueueDequeueEvents()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var machineStateManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
             var queue = new EventQueue(machineStateManager);
@@ -64,7 +68,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public async Task TestEnqueueReceiveEvents()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var machineStateManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
             var queue = new EventQueue(machineStateManager);
@@ -95,7 +99,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         public async Task TestEnqueueReceiveEventsAlternateType()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockStateMachineManager(logger,
+            var machineStateManager = new MockActorManager(logger,
                 (notification, evt, _) => { });
 
             var queue = new EventQueue(machineStateManager);

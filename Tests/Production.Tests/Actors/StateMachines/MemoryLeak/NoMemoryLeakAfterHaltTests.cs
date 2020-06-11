@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M), new SetupEvent(tcs));
 
-                await WaitAsync(tcs.Task, 15000);
+                await this.WaitAsync(tcs.Task, 15000);
 
                 (r as ActorRuntime).Stop();
             });

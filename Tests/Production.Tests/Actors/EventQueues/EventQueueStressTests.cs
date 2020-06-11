@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 for (int i = 0; i < numMessages; i++)
                 {
-                    queue.Enqueue(new E1(), Guid.Empty, null);
+                    queue.Enqueue(new E1(), null, null);
                 }
             });
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 for (int i = 0; i < numMessages; i++)
                 {
-                    queue.Enqueue(new E1(), Guid.Empty, null);
+                    queue.Enqueue(new E1(), null, null);
                 }
             });
 
@@ -111,11 +111,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 {
                     if (i % 2 == 0)
                     {
-                        queue.Enqueue(new E1(), Guid.Empty, null);
+                        queue.Enqueue(new E1(), null, null);
                     }
                     else
                     {
-                        queue.Enqueue(new E2(), Guid.Empty, null);
+                        queue.Enqueue(new E2(), null, null);
                     }
                 }
             });

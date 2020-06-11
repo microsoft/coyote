@@ -18,25 +18,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
         {
         }
 
-        private class Config1 : Event
-        {
-            public TaskCompletionSource<bool> Tcs;
-
-            public Config1(TaskCompletionSource<bool> tcs)
-            {
-                this.Tcs = tcs;
-            }
-        }
-
-        private class Config2 : Event
+        private class ConfigEvent : Event
         {
             public bool HandleException;
-            public TaskCompletionSource<bool> Tcs;
 
-            public Config2(bool handleEx, TaskCompletionSource<bool> tcs)
+            public ConfigEvent(bool handleEx)
             {
                 this.HandleException = handleEx;
-                this.Tcs = tcs;
             }
         }
 
@@ -80,12 +68,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async Task InitOnEntry()
             {
-                var tcs = (e as Config1).Tcs;
                 var e1 = new E1();
                 var op = new Operation<bool>();
-                var m = this.Runtime.CreateActor(typeof(N1), null, op);
+                var m = this.CreateActor(typeof(N1), null, op);
                 await op.Completion.Task;
 
                 op = new Operation<bool>();
@@ -93,7 +80,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                 await op.Completion.Task;
 
                 this.Assert(e1.Value == 1);
-                tcs.SetResult(true);
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
@@ -128,22 +115,23 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public async Task TestSyncSendBlocks()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
-                    tcs.SetResult(true);
+                    op.SetResult(true);
                 };
 
-                r.CreateActor(typeof(M1), new Config1(tcs));
+                r.CreateActor(typeof(M1), null, op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.False(failed);
             });
         }
@@ -157,16 +145,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async Task InitOnEntry()
             {
-                var tcs = (e as Config1).Tcs;
                 var op = new Operation<bool>();
                 var m = this.Runtime.CreateActor(typeof(N2), new E2(this.Id), op);
                 await op.Completion.Task;
 
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                this.Runtime.SendEvent(m, new E3());
+                var handled = await op.Completion.Task;
+
                 this.Assert(handled);
-                tcs.SetResult(true);
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
@@ -174,7 +163,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            [IgnoreEvents(typeof(E3))]
+            [OnEventDoAction(typeof(E3), nameof(HandleE3))]
             private class Init : State
             {
             }
@@ -182,27 +171,35 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             private async Task InitOnEntry(Event e)
             {
                 var creator = (e as E2).Id;
-                var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E3());
+                var op = new Operation<bool>();
+                this.SendEvent(creator, new E3(), op);
+                var handled = await op.Completion.Task;
                 this.Assert(!handled);
+            }
+
+            private void HandleE3()
+            {
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public async Task TestSendCycleDoesNotDeadlock()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
-                    tcs.SetResult(false);
+                    op.SetResult(false);
                 };
 
-                r.CreateActor(typeof(M2), new Config1(tcs));
+                r.CreateActor(typeof(M2), null, op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.False(failed);
             });
         }
@@ -215,14 +212,15 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async Task InitOnEntry()
             {
-                var tcs = (e as Config1).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N3));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var op = new Operation<bool>();
+                var m = this.CreateActor(typeof(N3), null, op);
+                this.SendEvent(m, new E3());
+                var handled = await op.Completion.Task;
                 this.Monitor<SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
-                tcs.TrySetResult(true);
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
@@ -239,6 +237,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             protected override SystemTasks.Task OnHaltAsync(Event e)
             {
                 this.Monitor<SafetyMonitor>(new MHalts());
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
                 return SystemTasks.Task.CompletedTask;
             }
         }
@@ -275,6 +274,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public async Task TestMachineHaltsOnSendExec()
         {
@@ -283,17 +283,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
-                    tcs.SetResult(false);
+                    op.SetResult(false);
                 };
 
                 r.RegisterMonitor<SafetyMonitor>();
-                r.CreateActor(typeof(M3), new Config1(tcs));
+                r.CreateActor(typeof(M3), null, op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.False(failed);
             }, config);
         }
@@ -308,11 +308,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private async Task InitOnEntry(Event e)
             {
-                var tcs = (e as Config2).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N4), e);
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var op = new Operation<bool>();
+                var m = this.CreateActor(typeof(N4), e, op);
+                this.SendEvent(m, new E3());
+                var handled = await op.Completion.Task;
                 this.Assert(handled);
-                tcs.TrySetResult(true);
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
@@ -335,7 +336,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private void InitOnEntry(Event e)
             {
-                this.HandleException = (e as Config2).HandleException;
+                this.HandleException = (e as ConfigEvent).HandleException;
             }
 
             private void HandleE() => throw new Exception();
@@ -344,6 +345,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
                 if (this.HandleException)
                 {
+                    ((Operation<bool>)this.CurrentOperation).SetResult(true);
                     return OnExceptionOutcome.HandledException;
                 }
 
@@ -351,33 +353,35 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public async Task TestHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 r.OnFailure += (ex) =>
                 {
                     failed = true;
-                    tcs.SetResult(false);
+                    op.SetResult(false);
                 };
 
-                r.CreateActor(typeof(M4), new Config2(true, tcs));
+                r.CreateActor(typeof(M4), new ConfigEvent(true), op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.False(failed);
             });
         }
 
+        //--------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public async Task TestUnHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 var message = string.Empty;
 
                 r.OnFailure += (ex) =>
@@ -386,13 +390,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                     {
                         message = (ex is ActionExceptionFilterException) ? ex.InnerException.Message : ex.Message;
                         failed = true;
-                        tcs.TrySetResult(false);
+                        op.TrySetResult(true);
                     }
                 };
 
-                r.CreateActor(typeof(M4), new Config2(false, tcs));
+                r.CreateActor(typeof(M4), new ConfigEvent(false), op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.True(failed);
                 Assert.StartsWith("Exception of type 'System.Exception' was thrown", message);
             });
@@ -406,13 +410,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async Task InitOnEntry()
             {
-                var tcs = (e as Config1).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N5));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var op = new Operation<bool>();
+                var m = this.CreateActor(typeof(N5), null, op);
+                this.Runtime.SendEvent(m, new E3()); // should raise unhandled event exception
+                var handled = await op.Completion.Task;
                 this.Assert(handled);
-                tcs.TrySetResult(true);
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
@@ -424,13 +429,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public async Task TestUnhandledEventOnSendExec()
         {
             await this.RunAsync(async r =>
             {
                 var failed = false;
-                var tcs = TaskCompletionSource.Create<bool>();
+                var op = new Operation<bool>();
                 var message = string.Empty;
 
                 r.OnFailure += (ex) =>
@@ -439,13 +445,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                     {
                         message = (ex is ActionExceptionFilterException) ? ex.InnerException.Message : ex.Message;
                         failed = true;
-                        tcs.TrySetResult(false);
+                        op.TrySetResult(false);
                     }
                 };
 
-                r.CreateActor(typeof(M5), new Config1(tcs));
+                r.CreateActor(typeof(M5), null, op);
 
-                await this.WaitAsync(tcs.Task);
+                await WaitAsync(op.Completion.Task);
                 Assert.True(failed);
                 Assert.Equal(
                     "Microsoft.Coyote.Production.Tests.Actors.SendAndExecuteTests+N5(1) received event " +

@@ -4,8 +4,10 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -99,7 +101,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestActorInheritance()
+        public async SystemTasks.Task TestActorInheritance()
         {
             var runtime = RuntimeFactory.Create();
             var config = new ConfigEvent();
@@ -111,12 +113,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             runtime.SendEvent(actor, new CompletedEvent());
             await config.Completed.Task;
 
-            var actual = NormalizeNewLines(config.Log.ToString());
-            var expected = NormalizeNewLines(@"ActorSubclass handling E1
+            var actual = config.Log.ToString().NormalizeNewLines();
+            var expected = @"ActorSubclass handling E1
 ActorSubclass handling E2
 BaseActor handling E3
 Inherited handling of E4
-");
+";
+            expected = expected.NormalizeNewLines();
             Assert.Equal(expected, actual);
         }
     }

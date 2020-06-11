@@ -7,6 +7,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -153,7 +154,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEvent()
+        public async SystemTasks.Task TestReceiveEvent()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -191,7 +192,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventWithPredicate()
+        public async SystemTasks.Task TestReceiveEventWithPredicate()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -240,7 +241,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventWithoutWaiting()
+        public async SystemTasks.Task TestReceiveEventWithoutWaiting()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -287,7 +288,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventWithPredicateWithoutWaiting()
+        public async SystemTasks.Task TestReceiveEventWithPredicateWithoutWaiting()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -323,7 +324,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventMultipleTypes()
+        public async SystemTasks.Task TestReceiveEventMultipleTypes()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -361,7 +362,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventAfterMultipleEnqueues()
+        public async SystemTasks.Task TestReceiveEventAfterMultipleEnqueues()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -413,7 +414,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventWithoutWaitingAndWithMultipleEventsInQueue()
+        public async SystemTasks.Task TestReceiveEventWithoutWaitingAndWithMultipleEventsInQueue()
         {
             int notificationCount = 0;
             var tcs = new TaskCompletionSource<bool>();

@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnExceptionCalledOnce1()
+        public async SystemTasks.Task TestOnExceptionCalledOnce1()
         {
             await this.RunAsync(async r =>
             {
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnExceptionCalledOnce2()
+        public async SystemTasks.Task TestOnExceptionCalledOnce2()
         {
             await this.RunAsync(async r =>
             {
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.Production.Tests
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 await Task.CompletedTask;
                 this.Event = e as E;
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnExceptionCalledOnceAsync1()
+        public async SystemTasks.Task TestOnExceptionCalledOnceAsync1()
         {
             await this.RunAsync(async r =>
             {
@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.Production.Tests
             {
             }
 
-            private async Task InitOnEntry()
+            private async SystemTasks.Task InitOnEntry()
             {
                 await Task.CompletedTask;
                 throw new NotImplementedException();
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnExceptionCalledOnceAsync2()
+        public async SystemTasks.Task TestOnExceptionCalledOnceAsync2()
         {
             await this.RunAsync(async r =>
             {
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnExceptionCanHalt()
+        public async SystemTasks.Task TestOnExceptionCanHalt()
         {
             await this.RunAsync(async r =>
             {
@@ -304,7 +304,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestUnhandledEventCanHalt()
+        public async SystemTasks.Task TestUnhandledEventCanHalt()
         {
             await this.RunAsync(async r =>
             {

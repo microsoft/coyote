@@ -5,6 +5,7 @@ using System;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
+using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -72,9 +73,9 @@ Task '' completed.
 <StrategyLog> Found 100.00% buggy schedules.";
 
                 string actual = engine.ReadableTrace.ToString();
-                actual = RemoveStackTraceFromReport(actual, "<StrategyLog>");
-                actual = RemoveNonDeterministicValuesFromReport(actual);
-                expected = RemoveNonDeterministicValuesFromReport(expected);
+                actual = actual.RemoveStackTrace("<StrategyLog>");
+                actual = actual.RemoveNonDeterministicValues();
+                expected = expected.RemoveNonDeterministicValues();
                 Assert.Equal(expected, actual);
             }
             catch (Exception ex)

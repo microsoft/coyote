@@ -5,6 +5,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -47,7 +48,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
@@ -64,7 +65,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
@@ -81,7 +82,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 this.SendEvent(this.Id, new E1());
@@ -98,7 +99,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
                 var id = this.CreateActor(typeof(M5), new E2(this.Id));
@@ -120,14 +121,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var id = (e as E2).Id;
                 var received = (E2)await this.ReceiveEventAsync(typeof(E2));
                 this.SendEvent(received.Id, new E2(this.Id));
             }
 
-            private async Task Handle(Event e)
+            private async SystemTasks.Task Handle(Event e)
             {
                 var id = (e as E2).Id;
                 var received = (E2)await this.ReceiveEventAsync(typeof(E2));
@@ -136,7 +137,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventOneMachine()
+        public async SystemTasks.Task TestReceiveEventOneMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -149,7 +150,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventWithPredicateOneMachine()
+        public async SystemTasks.Task TestReceiveEventWithPredicateOneMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -162,7 +163,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventMultipleTypesOneMachine()
+        public async SystemTasks.Task TestReceiveEventMultipleTypesOneMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -175,7 +176,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventTwoMachines()
+        public async SystemTasks.Task TestReceiveEventTwoMachines()
         {
             await this.RunAsync(async r =>
             {

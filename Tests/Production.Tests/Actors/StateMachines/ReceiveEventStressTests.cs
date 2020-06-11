@@ -5,6 +5,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -77,7 +78,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupTcsEvent).Tcs;
                 var numMessages = (e as SetupTcsEvent).NumMessages;
@@ -94,7 +95,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 20000)]
-        public async Task TestReceiveEvent()
+        public async SystemTasks.Task TestReceiveEvent()
         {
             for (int i = 0; i < 100; i++)
             {
@@ -157,7 +158,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 this.Counter = 0;
             }
 
-            private async Task HandleMessage()
+            private async SystemTasks.Task HandleMessage()
             {
                 await this.ReceiveEventAsync(typeof(Message));
                 this.Counter += 2;
@@ -170,7 +171,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 20000)]
-        public async Task TestReceiveEventAlternate()
+        public async SystemTasks.Task TestReceiveEventAlternate()
         {
             for (int i = 0; i < 100; i++)
             {
@@ -195,7 +196,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupTcsEvent).Tcs;
                 var numMessages = (e as SetupTcsEvent).NumMessages;
@@ -222,7 +223,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var id = (e as SetupIdEvent).Id;
                 var numMessages = (e as SetupIdEvent).NumMessages;
@@ -238,7 +239,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 20000)]
-        public async Task TestReceiveEventExchange()
+        public async SystemTasks.Task TestReceiveEventExchange()
         {
             for (int i = 0; i < 100; i++)
             {

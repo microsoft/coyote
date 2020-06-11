@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests
 {
@@ -82,7 +83,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSendNullEventInActor()
+        public async SystemTasks.Task TestSendNullEventInActor()
         {
             TaskCompletionSource<bool> completed = new TaskCompletionSource<bool>();
             var runtime = RuntimeFactory.Create();
@@ -96,7 +97,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSendNullSendorInActor()
+        public async SystemTasks.Task TestSendNullSendorInActor()
         {
             TaskCompletionSource<bool> completed = new TaskCompletionSource<bool>();
             var runtime = RuntimeFactory.Create();

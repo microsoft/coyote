@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Coyote;
 using Microsoft.Coyote.SmartSockets;
 
 namespace Microsoft.Coyote.Telemetry

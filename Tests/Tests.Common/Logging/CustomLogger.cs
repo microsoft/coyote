@@ -4,7 +4,7 @@
 using System.IO;
 using System.Text;
 
-namespace Microsoft.Coyote.Tests.Common.IO
+namespace Microsoft.Coyote.Tests.Common
 {
     public class CustomLogger : TextWriter
     {

@@ -6,6 +6,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests
 {
@@ -71,7 +72,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAssertFailureNoEventHandler()
+        public async SystemTasks.Task TestAssertFailureNoEventHandler()
         {
             var runtime = RuntimeFactory.Create();
             var tcs = TaskCompletionSource.Create<bool>();
@@ -80,7 +81,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAssertFailureEventHandler()
+        public async SystemTasks.Task TestAssertFailureEventHandler()
         {
             await this.RunAsync(async r =>
             {
@@ -99,15 +100,13 @@ namespace Microsoft.Coyote.Production.Tests
                 var tcs = TaskCompletionSource.Create<bool>();
                 r.CreateActor(typeof(M), new SetupEvent(tcs));
 
-                await this.WaitAsync(tcs.Task);
-
-                AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(async () => await tcsFail.Task);
+                AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(async () => await this.WaitAsync(tcsFail.Task));
                 Assert.Equal(1, count);
             });
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestUnhandledExceptionEventHandler()
+        public async SystemTasks.Task TestUnhandledExceptionEventHandler()
         {
             await this.RunAsync(async r =>
             {

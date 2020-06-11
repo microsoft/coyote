@@ -7,6 +7,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -30,7 +31,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestEnqueueDequeueEvents()
+        public async SystemTasks.Task TestEnqueueDequeueEvents()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
             var machineStateManager = new MockActorManager(logger,
@@ -65,7 +66,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestEnqueueReceiveEvents()
+        public async SystemTasks.Task TestEnqueueReceiveEvents()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
             var machineStateManager = new MockActorManager(logger,
@@ -96,7 +97,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestEnqueueReceiveEventsAlternateType()
+        public async SystemTasks.Task TestEnqueueReceiveEventsAlternateType()
         {
             var logger = new TestOutputLogger(this.TestOutput, false);
             var machineStateManager = new MockActorManager(logger,

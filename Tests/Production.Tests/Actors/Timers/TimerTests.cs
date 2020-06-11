@@ -7,6 +7,7 @@ using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -78,7 +79,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestBasicTimerOperationInStateMachine()
+        public async SystemTasks.Task TestBasicTimerOperationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -126,7 +127,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestBasicPeriodicTimerOperationInStateMachine()
+        public async SystemTasks.Task TestBasicPeriodicTimerOperationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -166,7 +167,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task DoPing(Event e)
+            private async SystemTasks.Task DoPing(Event e)
             {
                 this.Tcs = (e as SetupEvent).Tcs;
                 this.PingTimer = this.StartPeriodicTimer(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5));
@@ -197,7 +198,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestDropTimeoutsAfterTimerDisposalInStateMachine()
+        public async SystemTasks.Task TestDropTimeoutsAfterTimerDisposalInStateMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -238,7 +239,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestIllegalDueTimeSpecificationInStateMachine()
+        public async SystemTasks.Task TestIllegalDueTimeSpecificationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -279,7 +280,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestIllegalPeriodSpecificationInStateMachine()
+        public async SystemTasks.Task TestIllegalPeriodSpecificationInStateMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -363,7 +364,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestCustomTimerEventInStateMachine()
+        public async SystemTasks.Task TestCustomTimerEventInStateMachine()
         {
             await this.RunAsync(async r =>
             {
@@ -376,7 +377,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 10000)]
-        public async Task TestCustomPeriodicTimerEventInStateMachine()
+        public async SystemTasks.Task TestCustomPeriodicTimerEventInStateMachine()
         {
             await this.RunAsync(async r =>
             {

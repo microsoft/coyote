@@ -4,7 +4,7 @@
 using Microsoft.Coyote.Random;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common.IO;
+using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
@@ -41,8 +41,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
             string expected = @"<RandomLog> Task '' nondeterministically chose ''.
 Task '' completed with result ''.";
-            string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
-            expected = NormalizeNewLines(expected);
+            string actual = logger.ToString().RemoveNonDeterministicValues();
+            expected = expected.NormalizeNewLines();
             Assert.Equal(expected, actual);
 
             logger.Dispose();

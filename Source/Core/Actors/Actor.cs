@@ -465,60 +465,77 @@ namespace Microsoft.Coyote.Actors
                     this.CurrentOperation = op;
                 }
 
-                if (status is DequeueStatus.Success)
+                try
                 {
-                    // Notify the runtime for a new event to handle. This is only used
-                    // during bug-finding and operation bounding, because the runtime
-                    // has to schedule an actor when a new operation is dequeued.
-                    this.Runtime.NotifyDequeuedEvent(this, e, info);
-                    await this.InvokeUserCallbackAsync(UserCallbackType.OnEventDequeued, e);
-                    lastDequeuedEvent = e;
-                }
-                else if (status is DequeueStatus.Raised)
-                {
-                    // Only supported by types (e.g. StateMachine) that allow
-                    // the user to explicitly raise events.
-                    this.Runtime.NotifyHandleRaisedEvent(this, e);
-                }
-                else if (status is DequeueStatus.Default)
-                {
-                    this.Runtime.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
+                    if (status is DequeueStatus.Success)
+                    {
+                        // Notify the runtime for a new event to handle. This is only used
+                        // during bug-finding and operation bounding, because the runtime
+                        // has to schedule an actor when a new operation is dequeued.
+                        this.Runtime.NotifyDequeuedEvent(this, e, info);
+                        await this.InvokeUserCallbackAsync(UserCallbackType.OnEventDequeued, e);
+                        lastDequeuedEvent = e;
+                    }
+                    else if (status is DequeueStatus.Raised)
+                    {
+                        // Only supported by types (e.g. StateMachine) that allow
+                        // the user to explicitly raise events.
+                        this.Runtime.NotifyHandleRaisedEvent(this, e);
+                    }
+                    else if (status is DequeueStatus.Default)
+                    {
+                        this.Runtime.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
 
-                    // If the default event was dequeued, then notify the runtime.
-                    // This is only used during bug-finding, because the runtime must
-                    // instrument a scheduling point between default event handlers.
-                    this.Runtime.NotifyDefaultEventDequeued(this);
-                }
-                else if (status is DequeueStatus.NotAvailable)
-                {
-                    // Terminate the handler as there is no event available.
-                    break;
-                }
+                        // If the default event was dequeued, then notify the runtime.
+                        // This is only used during bug-finding, because the runtime must
+                        // instrument a scheduling point between default event handlers.
+                        this.Runtime.NotifyDefaultEventDequeued(this);
+                    }
+                    else if (status is DequeueStatus.NotAvailable)
+                    {
+                        // Terminate the handler as there is no event available.
+                        break;
+                    }
 
-                if (e is TimerElapsedEvent timeoutEvent &&
-                    timeoutEvent.Info.Period.TotalMilliseconds < 0)
-                {
-                    // If the timer is not periodic, then dispose it.
-                    this.UnregisterTimer(timeoutEvent.Info);
-                }
+                    if (e is TimerElapsedEvent timeoutEvent &&
+                        timeoutEvent.Info.Period.TotalMilliseconds < 0)
+                    {
+                        // If the timer is not periodic, then dispose it.
+                        this.UnregisterTimer(timeoutEvent.Info);
+                    }
 
-                if (this.CurrentStatus is Status.Active)
-                {
-                    // Handles the next event, if the actor is not halted.
-                    await this.HandleEventAsync(e);
-                }
+                    if (this.CurrentStatus is Status.Active)
+                    {
+                        // Handles the next event, if the actor is not halted.
+                        await this.HandleEventAsync(e);
+                    }
 
-                if (!this.Inbox.IsEventRaised && lastDequeuedEvent != null && this.CurrentStatus != Status.Halted)
-                {
-                    // Inform the user that the actor handled the dequeued event.
-                    await this.InvokeUserCallbackAsync(UserCallbackType.OnEventHandled, lastDequeuedEvent);
-                    lastDequeuedEvent = null;
-                }
+                    if (!this.Inbox.IsEventRaised && lastDequeuedEvent != null && this.CurrentStatus != Status.Halted)
+                    {
+                        // Inform the user that the actor handled the dequeued event.
+                        await this.InvokeUserCallbackAsync(UserCallbackType.OnEventHandled, lastDequeuedEvent);
+                        lastDequeuedEvent = null;
+                    }
 
-                if (this.CurrentStatus is Status.Halting)
+                    if (this.CurrentStatus is Status.Halting)
+                    {
+                        // If the current status is halting, then halt the actor.
+                        await this.HaltAsync(e);
+                    }
+                }
+                catch (Exception)
                 {
-                    // If the current status is halting, then halt the actor.
-                    await this.HaltAsync(e);
+                    // This unhandled exception is stopping the event loop so technically the actor is quiescing.
+                    if (this.CurrentOperation != null)
+                    {
+                        var q = this.CurrentOperation as QuiescentOperation;
+                        if (q != null && !q.IsCompleted)
+                        {
+                            q.TrySetResult(true);
+                        }
+                    }
+
+                    throw;
                 }
             }
         }

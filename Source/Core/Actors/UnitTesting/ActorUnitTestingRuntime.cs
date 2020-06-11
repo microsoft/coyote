@@ -24,6 +24,11 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         internal readonly EventQueue ActorInbox;
 
         /// <summary>
+        /// Task completion source that completes when the actor being tested reaches quiescence.
+        /// </summary>
+        private TaskCompletionSource<bool> QuiescenceCompletionSource;
+
+        /// <summary>
         /// True if the actor is waiting to receive and event, else false.
         /// </summary>
         internal bool IsActorWaitingToReceiveEvent { get; private set; }
@@ -72,10 +77,8 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         /// </summary>
         internal Task StartAsync(Event initialEvent)
         {
-            var op = new QuiescentOperation();
-            this.Instance.CurrentOperation = op;
             this.RunActorEventHandlerAsync(this.Instance, initialEvent, true);
-            return op.Completion.Task;
+            return this.QuiescenceCompletionSource.Task;
         }
 
         /// <inheritdoc/>
@@ -94,8 +97,29 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
 
         /// <inheritdoc/>
+        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null,
+            Operation op = null) =>
+            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
+
+        /// <inheritdoc/>
+        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
+            Operation op = null) =>
+            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
+
+        /// <inheritdoc/>
+        public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event e = null, Operation op = null) =>
+            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
+
+        /// <inheritdoc/>
         public override void SendEvent(ActorId targetId, Event e, Operation op = null, SendOptions options = null) =>
             throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
+
+        /// <inheritdoc/>
+        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Operation op = null, SendOptions options = null) =>
+            throw new NotSupportedException("Invoking this method is not supported in actor unit testing mode.");
+
+        /// <inheritdoc/>
+        public override Operation GetCurrentOperation(ActorId currentActorId) => null;
 
         /// <inheritdoc/>
         internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
@@ -112,6 +136,25 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             }
 
             return id;
+        }
+
+        /// <inheritdoc/>
+        internal override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
+            Event initialEvent, Actor creator, Operation op)
+        {
+            // bugbug: how can this internal method be called when all the public CreateActorAndExecuteAsync
+            // methods throw NotImplementedException?
+            id = id ?? new ActorId(type, null, this);
+            if (typeof(StateMachine).IsAssignableFrom(type))
+            {
+                this.LogWriter.LogCreateStateMachine(id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(id, creator?.Id.Name, creator?.Id.Type);
+            }
+
+            return Task.FromResult(id);
         }
 
         /// <inheritdoc/>
@@ -152,11 +195,23 @@ namespace Microsoft.Coyote.Actors.UnitTesting
             }
         }
 
+        /// <inheritdoc/>
+        internal override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
+            Operation op, SendOptions options)
+        {
+            // bugbug: how can this internal method be called when all the public SendEventAndExecuteAsync
+            // methods throw NotImplementedException?
+            this.SendEvent(targetId, e, sender, op, options);
+            return this.QuiescenceCompletionSource.Task;
+        }
+
         /// <summary>
         /// Runs a new asynchronous actor event handler.
         /// </summary>
         private Task RunActorEventHandlerAsync(Actor actor, Event initialEvent, bool isFresh)
         {
+            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
+
             return Task.Run(async () =>
             {
                 try
@@ -167,11 +222,13 @@ namespace Microsoft.Coyote.Actors.UnitTesting
                     }
 
                     await actor.RunEventHandlerAsync();
+                    this.QuiescenceCompletionSource.SetResult(true);
                 }
                 catch (Exception ex)
                 {
                     this.IsRunning = false;
                     this.RaiseOnFailureEvent(ex);
+                    this.QuiescenceCompletionSource.SetException(ex);
                 }
             });
         }
@@ -185,6 +242,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         {
             base.NotifyReceivedEvent(actor, e, eventInfo);
             this.IsActorWaitingToReceiveEvent = false;
+            this.QuiescenceCompletionSource = new TaskCompletionSource<bool>();
         }
 
         /// <inheritdoc/>
@@ -192,6 +250,7 @@ namespace Microsoft.Coyote.Actors.UnitTesting
         {
             base.NotifyWaitEvent(actor, eventTypes);
             this.IsActorWaitingToReceiveEvent = true;
+            this.QuiescenceCompletionSource.SetResult(true);
         }
     }
 }

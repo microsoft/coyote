@@ -72,11 +72,60 @@ namespace Microsoft.Coyote.Actors
             this.CreateActor(id, type, null, initialEvent, null, op);
 
         /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
+        /// optional <see cref="Event"/>. This event can only be used to access its payload,
+        /// and cannot be handled. The method returns only when the actor is initialized and
+        /// the <see cref="Event"/> (if any) is handled.
+        /// </summary>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Operation op = null) =>
+            this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, op);
+
+        /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
+        /// specified optional <see cref="Event"/>. This event can only be used to access
+        /// its payload, and cannot be handled. The method returns only when the actor is
+        /// initialized and the <see cref="Event"/> (if any) is handled.
+        /// </summary>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
+            Operation op = null) =>
+            this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, op);
+
+        /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
+        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
+        /// be used to access its payload, and cannot be handled. The method returns only when
+        /// the actor is initialized and the <see cref="Event"/> (if any)
+        /// is handled.
+        /// </summary>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
+            Operation op = null) =>
+            this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, op);
+
+        /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
         public virtual void SendEvent(ActorId targetId, Event initialEvent, Operation op = default,
             SendOptions options = null) =>
             this.SendEvent(targetId, initialEvent, null, op, options);
+
+        /// <summary>
+        /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
+        /// running. Otherwise blocks until the target handles the event and reaches quiescense.
+        /// </summary>
+        public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
+            Operation op = null, SendOptions options = null) =>
+            this.SendEventAndExecuteAsync(targetId, initialEvent, null, op, options);
+
+        /// <summary>
+        /// Returns the operation group id of the actor with the specified id. Returns <see cref="Guid.Empty"/>
+        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
+        /// testing, the runtime asserts that the specified actor is currently executing.
+        /// </summary>
+        public virtual Operation GetCurrentOperation(ActorId currentActorId)
+        {
+            Actor actor = this.GetActorWithId<Actor>(currentActorId);
+            return actor?.CurrentOperation;
+        }
 
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
@@ -95,6 +144,28 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.RunActorEventHandler(actor, initialEvent, true);
+            return actor.Id;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>. The method
+        /// returns only when the actor is initialized and the <see cref="Event"/> (if any)
+        /// is handled.
+        /// </summary>
+        internal virtual async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
+            Event initialEvent, Actor creator, Operation op)
+        {
+            Actor actor = this.CreateActor(id, type, name, creator, op);
+            if (actor is StateMachine)
+            {
+                this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            }
+            else
+            {
+                this.LogWriter.LogCreateActor(actor.Id, creator?.Id.Name, creator?.Id.Type);
+            }
+
+            await this.RunActorEventHandlerAsync(actor, initialEvent, true);
             return actor.Id;
         }
 

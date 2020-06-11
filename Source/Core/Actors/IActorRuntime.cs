@@ -76,6 +76,50 @@ namespace Microsoft.Coyote.Actors
         ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Operation op = null);
 
         /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
+        /// optional <see cref="Event"/>. This event can only be used to access its payload,
+        /// and cannot be handled. The method returns only when the actor is initialized and
+        /// the <see cref="Event"/> (if any) is handled.
+        /// </summary>
+        /// <param name="type">Type of the actor.</param>
+        /// <param name="initialEvent">Optional event used during initialization.</param>
+        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
+        [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
+        Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Operation op = null);
+
+        /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
+        /// specified optional <see cref="Event"/>. This event can only be used to access
+        /// its payload, and cannot be handled. The method returns only when the actor is
+        /// initialized and the <see cref="Event"/> (if any) is handled.
+        /// </summary>
+        /// <param name="type">Type of the actor.</param>
+        /// <param name="name">Optional name used for logging.</param>
+        /// <param name="initialEvent">Optional event used during initialization.</param>
+        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
+        [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
+        Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
+            Operation op = null);
+
+        /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
+        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
+        /// be used to access its payload, and cannot be handled. The method returns only when
+        /// the actor is initialized and the <see cref="Event"/> (if any)
+        /// is handled.
+        /// </summary>
+        /// <param name="id">Unbound actor id.</param>
+        /// <param name="type">Type of the actor.</param>
+        /// <param name="initialEvent">Optional event used during initialization.</param>
+        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
+        [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
+        Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
+            Operation op = null);
+
+        /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
         /// <param name="targetId">The id of the target.</param>
@@ -83,6 +127,28 @@ namespace Microsoft.Coyote.Actors
         /// <param name="op">An optional Operation associated with this Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
         void SendEvent(ActorId targetId, Event e, Operation op = null, SendOptions options = null);
+
+        /// <summary>
+        /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
+        /// running. Otherwise blocks until the target handles the event and reaches quiescense.
+        /// </summary>
+        /// <param name="targetId">The id of the target.</param>
+        /// <param name="e">The event to send.</param>
+        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="options">Optional configuration of a send operation.</param>
+        /// <returns>Task that represents the asynchronous operation. The task result is true if
+        /// the event was handled, false if the event was only enqueued.</returns>
+        [Obsolete("Use Operation<T> instead to coordinate completion of SendEvent operations")]
+        Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Operation op = null, SendOptions options = null);
+
+        /// <summary>
+        /// Returns the current operation of the actor with the specified id. Returns null
+        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
+        /// testing, the runtime asserts that the specified actor is currently executing.
+        /// </summary>
+        /// <param name="currentActorId">The id of the currently executing actor.</param>
+        /// <returns>The current Operation or null.</returns>
+        Operation GetCurrentOperation(ActorId currentActorId);
 
         /// <summary>
         /// Use this method to register an <see cref="IActorRuntimeLog"/>.

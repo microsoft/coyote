@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Actors
     /// This operation contains a TaskCompletionSource that can be used to wait for the
     /// operation to be completed.
     /// </summary>
-    /// <typeparam name="T">The result returned whent the operation is completed.</typeparam>
+    /// <typeparam name="T">The result returned when the operation is completed.</typeparam>
     public class Operation<T> : Operation
     {
         /// <summary>

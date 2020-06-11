@@ -110,10 +110,43 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
+        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event e = null, Operation op = null) =>
+            this.CreateActorAndExecuteAsync(null, type, null, e, op);
+
+        /// <inheritdoc/>
+        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event e = null, Operation op = null) =>
+            this.CreateActorAndExecuteAsync(null, type, name, e, op);
+
+        /// <inheritdoc/>
+        public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event e = null, Operation op = null)
+        {
+            this.Assert(id != null, "Cannot create an actor using a null actor id.");
+            return this.CreateActorAndExecuteAsync(id, type, null, e, op);
+        }
+
+        /// <inheritdoc/>
         public override void SendEvent(ActorId targetId, Event e, Operation op = null, SendOptions options = null)
         {
             var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
             this.SendEvent(targetId, e, senderOp?.Actor, op, options);
+        }
+
+        /// <inheritdoc/>
+        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Operation op = null,
+            SendOptions options = null)
+        {
+            var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+            return this.SendEventAndExecuteAsync(targetId, e, senderOp?.Actor, op, options);
+        }
+
+        /// <inheritdoc/>
+        public override Operation GetCurrentOperation(ActorId currentActorId)
+        {
+            var callerOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+            this.Assert(callerOp != null && currentActorId == callerOp.Actor.Id,
+                "Trying to access the operation group id of {0}, which is not the currently executing actor.",
+                currentActorId);
+            return callerOp.Actor.CurrentOperation;
         }
 
         /// <summary>
@@ -197,6 +230,35 @@ namespace Microsoft.Coyote.SystematicTesting
             Actor actor = this.CreateActor(id, type, name, creator, op);
             this.RunActorEventHandler(actor, initialEvent, true, null);
             return actor.Id;
+        }
+
+        /// <summary>
+        /// Creates a new actor of the specified <see cref="Type"/> and name, using the specified
+        /// unbound actor id, and passes the specified optional <see cref="Event"/>. This event
+        /// can only be used to access its payload, and cannot be handled. The method returns only
+        /// when the actor is initialized and the <see cref="Event"/> (if any) is handled.
+        /// </summary>
+        internal Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name, Event initialEvent = null,
+            Operation op = null)
+        {
+            var creatorOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
+            return this.CreateActorAndExecuteAsync(id, type, name, initialEvent, creatorOp?.Actor, op);
+        }
+
+        /// <inheritdoc/>
+        internal override async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
+            Event initialEvent, Actor creator, Operation op = null)
+        {
+            this.AssertExpectedCallerActor(creator, "CreateActorAndExecuteAsync");
+            this.Assert(creator != null, "Only an actor can call 'CreateActorAndExecuteAsync': avoid calling " +
+                "it directly from the test method; instead call it through a test driver actor.");
+
+            Actor actor = this.CreateActor(id, type, name, creator, op);
+            this.RunActorEventHandler(actor, initialEvent, true, creator);
+
+            // Wait until the actor reaches quiescence.
+            await creator.ReceiveEventAsync(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == actor.Id);
+            return await Task.FromResult(actor.Id);
         }
 
         /// <summary>
@@ -292,28 +354,29 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        // <inheritdoc/>
-        // internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-        //    Guid opGroupId, SendOptions options)
-        // {
-        //    this.Assert(sender is StateMachine, "Only an actor can call 'SendEventAndExecuteAsync': avoid " +
-        //        "calling it directly from the test method; instead call it through a test driver actor.");
-        //    this.Assert(e != null, "{0} is sending a null event.", sender.Id);
-        //    this.Assert(targetId != null, "{0} is sending event {1} to a null actor.", sender.Id, e);
-        //    this.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
-        //    EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, options, out Actor target);
-        //    if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
-        //    {
-        //        this.RunActorEventHandler(target, null, false, sender as StateMachine);
-        //        // Wait until the actor reaches quiescence.
-        //        await (sender as StateMachine).ReceiveEventAsync(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == targetId);
-        //        return true;
-        //    }
-        //    // EnqueueStatus.EventHandlerNotRunning is not returned by EnqueueEvent
-        //    // (even when the actor was previously inactive) when the event e requires
-        //    // no action by the actor (i.e., it implicitly handles the event).
-        //    return enqueueStatus is EnqueueStatus.Dropped || enqueueStatus is EnqueueStatus.NextEventUnavailable;
-        // }
+         /// <inheritdoc/>
+        internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
+            Operation op, SendOptions options)
+        {
+            this.Assert(sender is StateMachine, "Only an actor can call 'SendEventAndExecuteAsync': avoid " +
+                "calling it directly from the test method; instead call it through a test driver actor.");
+            this.Assert(e != null, "{0} is sending a null event.", sender.Id);
+            this.Assert(targetId != null, "{0} is sending event {1} to a null actor.", sender.Id, e);
+            this.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, options, out Actor target);
+            if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
+            {
+                this.RunActorEventHandler(target, null, false, sender as StateMachine);
+                // Wait until the actor reaches quiescence.
+                await (sender as StateMachine).ReceiveEventAsync(typeof(QuiescentEvent), rev => (rev as QuiescentEvent).ActorId == targetId);
+                return true;
+            }
+
+            // EnqueueStatus.EventHandlerNotRunning is not returned by EnqueueEvent
+            // (even when the actor was previously inactive) when the event e requires
+            // no action by the actor (i.e., it implicitly handles the event).
+            return enqueueStatus is EnqueueStatus.Dropped || enqueueStatus is EnqueueStatus.NextEventUnavailable;
+        }
 
         /// <summary>
         /// Enqueues an event to the actor with the specified id.

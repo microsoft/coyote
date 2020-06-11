@@ -70,8 +70,6 @@ namespace Microsoft.Coyote.Actors
                 op = this.ActorManager.CurrentOperation;
             }
 
-            this.ActorManager.CurrentOperation = op;
-
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
             {
@@ -157,6 +155,7 @@ namespace Microsoft.Coyote.Actors
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
+
                     return (DequeueStatus.Success, node.Value.e, node.Value.op, null);
                 }
 

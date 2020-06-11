@@ -58,14 +58,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 ActorId b;
                 if ((e as ExecuteSynchronouslySetupEvent).ExecuteSynchronously)
                 {
-                    // this will deadlock since our await stops the SendEvent at the bottom of this method which ReceiveEventAsync is waiting for.
-                    var op = new Operation<bool>();
-                    b = this.CreateActor(typeof(M1B), null, op);
-                    await op.Completion.Task;
+                    b = await this.Runtime.CreateActorAndExecuteAsync(typeof(M1B));
                 }
                 else
                 {
-                    b = this.CreateActor(typeof(M1B));
+                    b = this.Runtime.CreateActor(typeof(M1B));
                 }
 
                 this.SendEvent(b, new E1());
@@ -83,13 +80,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 await this.ReceiveEventAsync(typeof(E1));
-                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
-        public void TestOperationNoDeadlockWithReceive()
+        public void TestSendAndExecuteNoDeadlockWithReceive()
         {
             this.Test(r =>
             {
@@ -97,9 +92,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             });
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
-        public void TestOperationDeadlockWithReceive()
+        public void TestSendAndExecuteDeadlockWithReceive()
         {
             this.TestWithError(r =>
             {
@@ -122,9 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 var b = this.CreateActor(typeof(M2B));
-                var op = new Operation<bool>();
-                this.SendEvent(b, new E1(), op);
-                var handled = await op.Completion.Task;
+                var handled = await this.Runtime.SendEventAndExecuteAsync(b, new E1());
                 this.Assert(!handled);
             }
         }
@@ -140,19 +132,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 await this.ReceiveEventAsync(typeof(E1));
-                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
-        }
-
-        //------------------------------------------------------------------------------------------------------------
-        [Fact(Timeout = 5000)]
-        public void TestSyncSendToReceive()
-        {
-            this.Test(r =>
-            {
-                r.CreateActor(typeof(M2A));
-            },
-            configuration: Configuration.Create().WithTestingIterations(200));
         }
 
         private class M2C : StateMachine
@@ -166,9 +146,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 var d = this.CreateActor(typeof(M2D));
-                var op = new Operation<bool>();
-                this.SendEvent(d, new E1(), op);
-                var handled = await op.Completion.Task;
+                var handled = await this.Runtime.SendEventAndExecuteAsync(d, new E1());
                 this.Assert(handled);
             }
         }
@@ -189,13 +167,21 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void Handle()
             {
-                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
-        public void TestOperationCompletedTwiceError()
+        public void TestSyncSendToReceive()
+        {
+            this.Test(r =>
+            {
+                r.CreateActor(typeof(M2A));
+            },
+            configuration: Configuration.Create().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestSyncSendSometimesDoesNotHandle()
         {
             this.TestWithError(r =>
             {
@@ -216,9 +202,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             }
         }
 
-        private static Guid Stage1Operation = Guid.NewGuid();
-        private static Guid Stage2Operation = Guid.NewGuid();
-
         private class M3A : StateMachine
         {
             [Start]
@@ -229,14 +212,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var op = new Operation<bool>() { Id = Stage1Operation };
-                var m = this.CreateActor(typeof(M3B), null, op);
-                await op.Completion.Task;
-
-                op = new Operation<bool>() { Id = Stage2Operation };
                 var e = new E4();
-                this.SendEvent(m, e, op);
-                var handled = await op.Completion.Task;
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M3B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, e);
                 this.Assert(handled);
                 this.Assert(e.X == 1);
             }
@@ -262,24 +240,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void HandleEventE1()
             {
                 this.E1Handled = true;
-                // stage 1 complete
-                var op = this.CurrentOperation as Operation<bool>;
-                this.Assert(op.Id == Stage1Operation);
-                op.SetResult(true);
             }
 
             private void HandleEventE4(Event e)
             {
                 this.Assert(this.E1Handled);
                 (e as E4).X = 1;
-                // stage 2 complete.
-                var op = this.CurrentOperation as Operation<bool>;
-                this.Assert(op.Id == Stage2Operation);
-                op.SetResult(true);
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public void TestSendBlocks()
         {
@@ -294,25 +263,16 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
-            [OnEventDoAction(typeof(E1), nameof(HandleE1))]
+            [IgnoreEvents(typeof(E1))]
             private class Init : State
             {
             }
 
             private async Task InitOnEntry()
             {
-                var op = new Operation<bool>();
-                var m = this.CreateActor(typeof(M4B), new E2(this.Id), op);
-                // this will cause a deadlock since we are expecting M4B to be able
-                // to call us back, but we can't handle the E1 even because we are
-                // waiting for the operation to complete here.
-                await op.Completion.Task;
-            }
-
-            private void HandleE1()
-            {
-                var op = this.CurrentOperation as Operation<bool>;
-                op.SetResult(true);
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M4B), new E2(this.Id));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
+                this.Assert(handled);
             }
         }
 
@@ -327,17 +287,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry(Event e)
             {
-                var op = this.CurrentOperation as Operation<bool>;
                 var creator = (e as E2).Id;
-                this.SendEvent(creator, new E1());
-                var handled = await op.Completion.Task;
+                var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E1());
                 this.Assert(!handled);
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
-        public void TestOperationCreateSendCycleDeadlocks()
+        public void TestSendCycleDoesNotDeadlock()
         {
             this.Test(r =>
             {
@@ -356,10 +313,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var op = new Operation<bool>();
-                var m = this.CreateActor(typeof(M5B), null, op);
-                this.SendEvent(m, new E1());
-                var handled = await op.Completion.Task;
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M5B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M5SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
@@ -378,8 +333,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             protected override Task OnHaltAsync(Event e)
             {
                 this.Monitor<M5SafetyMonitor>(new MHalts());
-                var op = this.CurrentOperation as Operation<bool>;
-                op.SetResult(true);
                 return Task.CompletedTask;
             }
         }
@@ -424,13 +377,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
-        public void TestOperationInHaltedMachine()
+        public void TestMachineHaltsOnSendExec()
         {
             this.Test(r =>
             {
-                // an Operation can be completed in OnHaltAsync
                 r.RegisterMonitor<M5SafetyMonitor>();
                 r.CreateActor(typeof(M5A));
             },
@@ -457,10 +408,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry(Event e)
             {
-                var op = new Operation<bool>();
-                var m = this.CreateActor(typeof(M6B), e, op);
-                this.SendEvent(m, new E1());
-                var handled = await op.Completion.Task;
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M6B), e);
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M6SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
@@ -495,9 +444,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                var op = this.CurrentOperation as Operation<bool>;
-                op.SetResult(true);
-
                 if (this.HandleException)
                 {
                     return OnExceptionOutcome.HandledException;
@@ -522,26 +468,22 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public void TestHandledExceptionOnSendExec()
         {
             this.Test(r =>
             {
-                // tests an Operation can be completed in an unhandled exception handler.
                 r.RegisterMonitor<M6SafetyMonitor>();
                 r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(true));
             },
             configuration: Configuration.Create().WithTestingIterations(100));
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public void TestUnhandledExceptionOnSendExec()
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                // tests an Operation can be completed in an unhandled exception handler.
                 r.RegisterMonitor<M6SafetyMonitor>();
                 r.CreateActor(typeof(M6A), new HandleExceptionSetupEvent(false));
             },
@@ -558,10 +500,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var op = new Operation<bool>();
-                var m = this.CreateActor(typeof(M7B), null, op);
-                this.SendEvent(m, new E1());  // unhandled event!
-                var handled = await op.Completion.Task;
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M7B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }
@@ -574,7 +514,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             }
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public void TestUnhandledEventOnSendExec1()
         {
@@ -596,10 +535,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var op = new Operation<bool>();
-                var m = this.CreateActor(typeof(M8B), null, op);
-                this.SendEvent(m, new E1()); // indirect unhandled event E3
-                var handled = await op.Completion.Task;
+                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M8B));
+                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }
@@ -608,6 +545,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         {
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Handle))]
+            [IgnoreEvents(typeof(E3))]
             private class Init : State
             {
             }
@@ -615,16 +553,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void Handle() => this.RaiseEvent(new E3());
         }
 
-        //------------------------------------------------------------------------------------------------------------
         [Fact(Timeout = 5000)]
         public void TestUnhandledEventOnSendExec2()
         {
-            this.TestWithError(r =>
+            this.Test(r =>
             {
                 r.CreateActor(typeof(M8A));
-            },
-            expectedError: "M8B() received event 'E3' that cannot be handled.",
-            replay: true);
+            });
         }
     }
 }

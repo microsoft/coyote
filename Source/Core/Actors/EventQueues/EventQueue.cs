@@ -65,10 +65,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, Operation op, EventInfo info)
         {
-            if (op == null)
-            {
-                op = this.ActorManager.CurrentOperation;
-            }
+            System.Diagnostics.Debug.WriteLine($"EventQueue op = {op?.Name}");
 
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)

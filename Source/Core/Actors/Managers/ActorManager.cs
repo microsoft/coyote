@@ -25,8 +25,22 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public bool IsEventHandlerRunning { get; set; }
 
+        private Operation op;
+
         /// <inheritdoc/>
-        public Operation CurrentOperation { get; set; }
+        public Operation CurrentOperation
+        {
+            get
+            {
+                return this.op;
+            }
+
+            set
+            {
+                this.op = value;
+                System.Diagnostics.Debug.WriteLine($"Actor {this.Instance.GetType().FullName} set operation to {this.op?.Name}");
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorManager"/> class.

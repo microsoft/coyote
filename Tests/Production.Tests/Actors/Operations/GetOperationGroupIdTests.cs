@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
             {
                 var tcs = (initialEvent as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation == null ? null : this.CurrentOperation.Name);
+                tcs.SetResult(this.CurrentOperation?.Name);
                 return base.OnInitializeAsync(initialEvent);
             }
         }

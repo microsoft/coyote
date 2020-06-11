@@ -460,10 +460,7 @@ namespace Microsoft.Coyote.Actors
             {
                 (DequeueStatus status, Event e, Operation op, EventInfo info) = this.Inbox.Dequeue();
 
-                if (op != null && this.CurrentOperation == null)
-                {
-                    this.CurrentOperation = op;
-                }
+                this.CurrentOperation = op;
 
                 try
                 {

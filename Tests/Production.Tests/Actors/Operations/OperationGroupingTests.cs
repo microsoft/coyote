@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
+using Microsoft.Coyote.Tests.Common.Actors;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
@@ -17,26 +18,16 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
         }
 
-        private static Guid OperationGroup1 = Guid.NewGuid();
-        private static Guid OperationGroup2 = Guid.NewGuid();
+        private const string OperationGroup1 = "OperationGroup1";
+        private const string OperationGroup2 = "OperationGroup2";
 
         private class SetupEvent : Event
         {
-            public TaskCompletionSource<bool> Tcs;
+            public TaskCompletionSource<string> Tcs = TaskCompletionSource.Create<string>();
+            public string Name;
 
-            public SetupEvent(TaskCompletionSource<bool> tcs)
+            public SetupEvent()
             {
-                this.Tcs = tcs;
-            }
-        }
-
-        private class SetupMultipleEvent : Event
-        {
-            public TaskCompletionSource<bool>[] Tcss;
-
-            public SetupMultipleEvent(params TaskCompletionSource<bool>[] tcss)
-            {
-                this.Tcss = tcss;
             }
         }
 
@@ -59,92 +50,73 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation == null);
+                tcs.SetResult(this.CurrentOperation?.Name);
                 return base.OnInitializeAsync(e);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingSingleActorNoSend()
+        public void TestNullOperation()
         {
             this.Test(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M1), new SetupEvent(tcs));
-
-                var result = await this.GetResultAsync(tcs);
-                Assert.True(result);
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M1), e);
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.True(result == null);
             });
         }
 
-        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
-        private class M2 : Actor
-        {
-            private TaskCompletionSource<bool> Tcs;
-
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                this.Tcs = (e as SetupEvent).Tcs;
-                this.SendEvent(this.Id, new E());
-                return base.OnInitializeAsync(e);
-            }
-
-            private void CheckEvent()
-            {
-                this.Tcs.SetResult(this.CurrentOperation == null);
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestOperationGroupingSingleActorSend()
-        {
-            this.Test(async r =>
-            {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M2), new SetupEvent(tcs));
-
-                var result = await this.GetResultAsync(tcs);
-                Assert.True(result);
-            });
-        }
-
+        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M3 : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
+            private SetupEvent Setup;
 
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                this.Tcs = (e as SetupEvent).Tcs;
-                this.Runtime.SendEvent(this.Id, new E(), new Operation() { Id = OperationGroup1 });
+                this.Setup = e as SetupEvent;
+                this.SendEvent(this.Id, new E(), new Operation() { Name = this.Setup.Name });
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
+                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingSingleActorSendStarter()
+        public void TestOperationSetBySend()
         {
             this.Test(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M3), new SetupEvent(tcs));
-
-                var result = await this.GetResultAsync(tcs);
-                Assert.True(result);
+                var e = new SetupEvent() { Name = OperationGroup1 };
+                r.CreateActor(typeof(M3), e);
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.Equal(OperationGroup1, result);
             });
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestOperationChangedBySend()
+        {
+            this.Test(async r =>
+            {
+                var e = new SetupEvent() { Name = OperationGroup1 };
+                r.CreateActor(typeof(M3), e, new Operation { Name = OperationGroup2 });
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.Equal(OperationGroup1, result);
+            });
+        }
+
+        //----------------------------------------------------------------------------------------------------
         private class M4A : Actor
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                var tcs = (e as SetupEvent).Tcs;
-                this.CreateActor(typeof(M4B), new SetupEvent(tcs));
+                this.CurrentOperation = null; // clear the operation
+                this.CreateActor(typeof(M4B), e);
                 return base.OnInitializeAsync(e);
             }
         }
@@ -154,31 +126,30 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation == null);
+                tcs.SetResult(this.CurrentOperation?.Name);
                 return base.OnInitializeAsync(e);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingTwoActorsCreate()
+        public void TestOperationClearedByCreate()
         {
             this.Test(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M4A), new SetupEvent(tcs));
-
-                var result = await this.GetResultAsync(tcs);
-                Assert.True(result);
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M4A), e, new Operation() { Name = OperationGroup1 });
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.True(result == null);
             });
         }
 
+        //----------------------------------------------------------------------------------------------------
         private class M5A : Actor
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                var tcs = (e as SetupEvent).Tcs;
-                var target = this.CreateActor(typeof(M5B), new SetupEvent(tcs));
-                this.SendEvent(target, new E());
+                var target = this.CreateActor(typeof(M5B), e);
+                this.SendEvent(target, new E(), Operation.NullOperation);
                 return base.OnInitializeAsync(e);
             }
         }
@@ -186,254 +157,179 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M5B : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
+            private SetupEvent Setup;
 
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                this.Tcs = (e as SetupEvent).Tcs;
+                this.Setup = e as SetupEvent;
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.CurrentOperation == null);
+                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingTwoActorsSend()
+        public void TestOperationClearedBySend()
         {
             this.Test(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M5A), new SetupEvent(tcs));
-
-                var result = await this.GetResultAsync(tcs);
-                Assert.True(result);
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M5A), e, new Operation() { Name = OperationGroup1 });
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.True(result == null);
             });
         }
 
-        private class M6A : Actor
-        {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                var tcs = (e as SetupEvent).Tcs;
-                var target = this.CreateActor(typeof(M6B), new SetupEvent(tcs));
-                this.Runtime.SendEvent(target, new E(), new Operation() { Id = OperationGroup1 });
-                return base.OnInitializeAsync(e);
-            }
-        }
-
-        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
-        private class M6B : Actor
-        {
-            private TaskCompletionSource<bool> Tcs;
-
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                this.Tcs = (e as SetupEvent).Tcs;
-                return base.OnInitializeAsync(e);
-            }
-
-            private void CheckEvent()
-            {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestOperationGroupingTwoActorsSendStarter()
-        {
-            this.Test(async r =>
-            {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M6A), new SetupEvent(tcs));
-
-                var result = await this.GetResultAsync(tcs);
-                Assert.True(result);
-            });
-        }
-
+        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M7A : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
+            private SetupEvent Setup;
 
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                var tcss = (e as SetupMultipleEvent).Tcss;
-                this.Tcs = tcss[0];
-                var target = this.CreateActor(typeof(M7B), new SetupEvent(tcss[1]));
-                // bugbug: why isn't this "this.SendEvent" ?
-                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
+                this.Setup = e as SetupEvent;
+                var target = this.CreateActor(typeof(M7B), e);
+                this.SendEvent(target, new E(this.Id));
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
+                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
             }
         }
 
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M7B : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
-
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                this.Tcs = (e as SetupEvent).Tcs;
-                return base.OnInitializeAsync(e);
-            }
-
             private void CheckEvent(Event e)
             {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
-                this.SendEvent((e as E).Id, new E());
+                // change the operation on the send back to the caller.
+                this.SendEvent((e as E).Id, new E(), new Operation() { Name = OperationGroup2 });
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingTwoActorsSendBack()
+        public void TestOperationTwoActorsSendBack()
         {
             this.Test(async r =>
             {
-                var tcs1 = TaskCompletionSource.Create<bool>();
-                var tcs2 = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M7A), new SetupMultipleEvent(tcs1, tcs2));
-
-                var result = await this.GetResultAsync(tcs1, 500000);
-                Assert.True(result);
-
-                result = await this.GetResultAsync(tcs2, 500000);
-                Assert.True(result);
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M7A), e, new Operation() { Name = OperationGroup1 });
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.Equal(OperationGroup2, result);
             });
         }
 
+        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M8A : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
+            private SetupEvent Setup;
 
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                var tcss = (e as SetupMultipleEvent).Tcss;
-                this.Tcs = tcss[0];
-                var target = this.CreateActor(typeof(M8B), new SetupEvent(tcss[1]));
-                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
+                this.Setup = e as SetupEvent;
+                var target = this.CreateActor(typeof(M8B));
+                this.SendEvent(target, new E(this.Id));
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup2);
+                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
             }
         }
 
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M8B : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
-
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                this.Tcs = (e as SetupEvent).Tcs;
-                return base.OnInitializeAsync(e);
-            }
-
             private void CheckEvent(Event e)
             {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
-                this.Runtime.SendEvent((e as E).Id, new E(), new Operation() { Id = OperationGroup2 });
+                this.CurrentOperation = null; // cleared before send back.
+                this.SendEvent((e as E).Id, new E());
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingTwoActorsSendBackStarter()
+        public void TestOperationTwoActorsSendBackCleared()
         {
             this.Test(async r =>
             {
-                var tcs1 = TaskCompletionSource.Create<bool>();
-                var tcs2 = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M8A), new SetupMultipleEvent(tcs1, tcs2));
+                var e = new SetupEvent();
+                r.CreateActor(typeof(M8A), e, new Operation() { Name = OperationGroup1 });
 
-                var result = await this.GetResultAsync(tcs1);
-                Assert.True(result);
-
-                result = await this.GetResultAsync(tcs2);
-                Assert.True(result);
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.True(result == null);
             });
         }
 
-        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
+        //----------------------------------------------------------------------------------------------------
         private class M9A : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
-
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                var tcss = (e as SetupMultipleEvent).Tcss;
-                this.Tcs = tcss[0];
-                var target = this.CreateActor(typeof(M9B), new SetupMultipleEvent(tcss[1], tcss[2]));
-                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
+                var op = this.CurrentOperation as OperationCounter;
+                op.SetResult(true);
+                var target = this.CreateActor(typeof(M9B));
+                this.SendEvent(target, new E());
                 return base.OnInitializeAsync(e);
-            }
-
-            private void CheckEvent()
-            {
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup2);
             }
         }
 
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M9B : Actor
         {
-            private TaskCompletionSource<bool> Tcs;
-            private TaskCompletionSource<bool> TargetTcs;
-
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                var tcss = (e as SetupMultipleEvent).Tcss;
-                this.Tcs = tcss[0];
-                this.TargetTcs = tcss[1];
-                return base.OnInitializeAsync(e);
-            }
-
             private void CheckEvent(Event e)
             {
-                this.CreateActor(typeof(M9C), new SetupEvent(this.TargetTcs));
-                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
-                this.Runtime.SendEvent((e as E).Id, new E(), new Operation() { Id = OperationGroup2 });
+                var op = this.CurrentOperation as OperationCounter;
+                op.SetResult(true);
+                var c = this.CreateActor(typeof(M9C), e);
+                this.SendEvent(c, new E());
             }
         }
 
+        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M9C : Actor
         {
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            private async SystemTasks.Task CheckEvent()
             {
-                var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
-                return base.OnInitializeAsync(e);
+                // perform a sub-operation using separate Operation object
+                var sub = new Operation<bool>();
+                var d = this.CreateActor(typeof(M9D));
+                this.SendEvent(d, new E(), sub);
+                await sub.Completion.Task; // test actor can block on a operation
+
+                // now we can complete the outer operation
+                var op = this.CurrentOperation as OperationCounter;
+                op.SetResult(true);
+            }
+        }
+
+        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
+        private class M9D : Actor
+        {
+            private void CheckEvent()
+            {
+                var op = this.CurrentOperation as Operation<bool>;
+                op.SetResult(true);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationGroupingThreeActorsSendStarter()
+        public void TestOperationFourActorGroup()
         {
             this.Test(async r =>
             {
-                var tcs1 = TaskCompletionSource.Create<bool>();
-                var tcs2 = TaskCompletionSource.Create<bool>();
-                var tcs3 = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M9A), new SetupMultipleEvent(tcs1, tcs2, tcs3));
-
-                var result = await this.GetResultAsync(tcs1);
-                Assert.True(result);
-
-                result = await this.GetResultAsync(tcs2);
-                Assert.True(result);
-
-                result = await this.GetResultAsync(tcs3);
+                // setup an operation that will be completed 3 times by 3 different actors
+                // while performing a 4th sub-operation on a fourth actor.
+                var op = new OperationCounter(3);
+                r.CreateActor(typeof(M9A), null, op);
+                var result = await this.GetResultAsync(op.Completion);
                 Assert.True(result);
             });
         }

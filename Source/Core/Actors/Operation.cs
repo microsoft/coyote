@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading.Tasks;
+using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -36,6 +36,11 @@ namespace Microsoft.Coyote.Actors
         {
             this.Id = Guid.NewGuid();
         }
+
+        /// <summary>
+        /// A special null operation that can be used to clear the current operation.
+        /// </summary>
+        public static Operation NullOperation = new Operation();
     }
 
     /// <summary>
@@ -59,7 +64,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         public Operation()
         {
-            this.Completion = new TaskCompletionSource<T>();
+            this.Completion = TaskCompletionSource.Create<T>();
         }
 
         /// <summary>

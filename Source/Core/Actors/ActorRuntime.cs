@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
@@ -284,6 +285,10 @@ namespace Microsoft.Coyote.Actors
             if (op == null && sender != null)
             {
                 op = sender.CurrentOperation;
+            }
+            else if (op == Operation.NullOperation)
+            {
+                op = null;
             }
 
             Guid opId = op == null ? Guid.Empty : op.Id;

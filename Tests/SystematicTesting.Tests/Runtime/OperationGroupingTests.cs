@@ -43,8 +43,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                var id = this.OperationGroupId;
-                this.Assert(id == Guid.Empty, $"Operation group id is not '{Guid.Empty}', but {id}.");
+                var op = this.CurrentOperation;
+                this.Assert(op == null, $"Operation is not null");
             }
         }
 
@@ -73,8 +73,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
-                this.Assert(id == Guid.Empty, $"Operation group id is not '{Guid.Empty}', but {id}.");
+                var op = this.CurrentOperation;
+                this.Assert(op == null, $"Operation is not null");
             }
         }
 
@@ -98,12 +98,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                this.Runtime.SendEvent(this.Id, new E(), OperationGroup1);
+                this.Runtime.SendEvent(this.Id, new E(), new Operation() { Id = OperationGroup1 });
             }
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
             }
         }
@@ -141,8 +141,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                var id = this.OperationGroupId;
-                this.Assert(id == Guid.Empty, $"Operation group id is not '{Guid.Empty}', but {id}.");
+                var op = this.CurrentOperation;
+                this.Assert(op == null, $"Operation is not null.");
             }
         }
 
@@ -180,8 +180,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
-                this.Assert(id == Guid.Empty, $"Operation group id is not '{Guid.Empty}', but {id}.");
+                var op = this.CurrentOperation;
+                this.Assert(op == null, $"Operation is not null");
             }
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void InitOnEntry()
             {
                 var target = this.CreateActor(typeof(M6B));
-                this.Runtime.SendEvent(target, new E(), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(), new Operation() { Id = OperationGroup1 });
             }
         }
 
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
             }
         }
@@ -245,12 +245,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void InitOnEntry()
             {
                 var target = this.CreateActor(typeof(M7B));
-                this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
             }
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
             }
         }
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void CheckEvent(Event e)
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
                 this.SendEvent((e as E).Id, new E());
             }
@@ -292,12 +292,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void InitOnEntry()
             {
                 var target = this.CreateActor(typeof(M8B));
-                this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
             }
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup2, $"Operation group id is not '{OperationGroup2}', but {id}.");
             }
         }
@@ -312,9 +312,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void CheckEvent(Event e)
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
-                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
+                this.Runtime.SendEvent((e as E).Id, new E(), new Operation() { Id = OperationGroup2 });
             }
         }
 
@@ -339,12 +339,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void InitOnEntry()
             {
                 var target = this.CreateActor(typeof(M9B));
-                this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
             }
 
             private void CheckEvent()
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup2, $"Operation group id is not '{OperationGroup2}', but {id}.");
             }
         }
@@ -360,9 +360,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void CheckEvent(Event e)
             {
                 this.CreateActor(typeof(M9C));
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
-                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
+                this.Runtime.SendEvent((e as E).Id, new E(), new Operation() { Id = OperationGroup2 });
             }
         }
 
@@ -376,7 +376,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                var id = this.OperationGroupId;
+                var id = this.CurrentOperation.Id;
                 this.Assert(id == OperationGroup1, $"Operation group id is not '{OperationGroup1}', but {id}.");
             }
         }
@@ -408,20 +408,22 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void InitOnEntry()
             {
                 var e = new E(this.Id);
-                this.SendEvent(this.Id, e, OperationGroup1);
-                this.Runtime.SendEvent(this.Id, e, OperationGroup2);
+                this.SendEvent(this.Id, e, new Operation() { Id = OperationGroup1 });
+                this.Runtime.SendEvent(this.Id, e, new Operation() { Id = OperationGroup2 });
             }
 
             private void FinalOnEntry()
             {
-                this.Assert(this.OperationGroupId == OperationGroup1,
-                    $"[1] Operation group id is not '{OperationGroup1}', but {this.OperationGroupId}.");
+                var id = this.CurrentOperation.Id;
+                this.Assert(id == OperationGroup1,
+                    $"[1] Operation group id is not '{OperationGroup1}', but {id}.");
             }
 
             private void Check()
             {
-                this.Assert(this.OperationGroupId == OperationGroup2,
-                    $"[2] Operation group id is not '{OperationGroup2}', but {this.OperationGroupId}.");
+                var id = this.CurrentOperation.Id;
+                this.Assert(this.CurrentOperation.Id == OperationGroup2,
+                    $"[2] Operation group id is not '{OperationGroup2}', but {id}.");
             }
         }
 
@@ -452,21 +454,23 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private void InitOnEntry()
             {
                 var e = new E(this.Id);
-                this.SendEvent(this.Id, e, OperationGroup1);
-                this.OperationGroupId = OperationGroup2;
+                this.SendEvent(this.Id, e, new Operation() { Id = OperationGroup1 });
+                this.CurrentOperation = new Operation() { Id = OperationGroup2 };
                 this.Runtime.SendEvent(this.Id, e);
             }
 
             private void FinalOnEntry()
             {
-                this.Assert(this.OperationGroupId == OperationGroup1,
-                    $"[1] Operation group id is not '{OperationGroup1}', but {this.OperationGroupId}.");
+                var id = this.CurrentOperation.Id;
+                this.Assert(id == OperationGroup1,
+                    $"[1] Operation group id is not '{OperationGroup1}', but {id}.");
             }
 
             private void Check()
             {
-                this.Assert(this.OperationGroupId == OperationGroup2,
-                    $"[2] Operation group id is not '{OperationGroup2}', but {this.OperationGroupId}.");
+                var id = this.CurrentOperation.Id;
+                this.Assert(id == OperationGroup2,
+                    $"[2] Operation group id is not '{OperationGroup2}', but {id}.");
             }
         }
 
@@ -489,12 +493,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                this.SendEvent(this.Id, new E(this.Id), OperationGroup1);
-                this.Assert(this.OperationGroupId == Guid.Empty,
-                    $"[1] Operation group id is not '{Guid.Empty}', but {this.OperationGroupId}.");
+                this.SendEvent(this.Id, new E(this.Id), new Operation() { Id = OperationGroup1 });
+                // the operation should not be set until the event is dequeued.
+                this.Assert(this.CurrentOperation == null,
+                    $"[1] Operation is not null.");
                 await this.ReceiveEventAsync(typeof(E));
-                this.Assert(this.OperationGroupId == OperationGroup1,
-                    $"[2] Operation group id is not '{OperationGroup1}', but {this.OperationGroupId}.");
+                var id = this.CurrentOperation.Id;
+                this.Assert(id == OperationGroup1,
+                    $"[2] Operation group id is not '{OperationGroup1}', but {id}.");
             }
         }
 

@@ -84,8 +84,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
                 var tcs = (e as Config1).Tcs;
                 var e1 = new E1();
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N1));
-                await this.Runtime.SendEventAndExecuteAsync(m, e1);
+                var op = new Operation<bool>();
+                var m = this.Runtime.CreateActor(typeof(N1), null, op);
+                await op.Completion.Task;
+
+                op = new Operation<bool>();
+                this.Runtime.SendEvent(m, e1, op);
+                await op.Completion.Task;
+
                 this.Assert(e1.Value == 1);
                 tcs.SetResult(true);
             }
@@ -106,6 +112,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             private void InitOnEntry()
             {
                 this.SendEvent(this.Id, new E3());
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
 
             private void HandleEventLE()
@@ -117,6 +124,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
                 this.Assert(this.LEHandled);
                 (e as E1).Value = 1;
+                ((Operation<bool>)this.CurrentOperation).SetResult(true);
             }
         }
 
@@ -152,7 +160,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             private async Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N2), new E2(this.Id));
+                var op = new Operation<bool>();
+                var m = this.Runtime.CreateActor(typeof(N2), new E2(this.Id), op);
+                await op.Completion.Task;
+
                 var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.SetResult(true);

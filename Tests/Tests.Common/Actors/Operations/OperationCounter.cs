@@ -24,5 +24,4 @@ namespace Microsoft.Coyote.Tests.Common.Actors
             }
         }
     }
-
 }

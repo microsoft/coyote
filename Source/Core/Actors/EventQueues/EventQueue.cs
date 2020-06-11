@@ -170,10 +170,10 @@ namespace Microsoft.Coyote.Actors
                     this.ActorManager.IsEventHandlerRunning = false;
 
                     // Notify caller if they are waiting for actor to reach quiescent state.
-                    var quiess = this.ActorManager.CurrentOperation as QuiescentOperation;
-                    if (quiess != null && !quiess.IsCompleted)
+                    var q = this.ActorManager.CurrentOperation as QuiescentOperation;
+                    if (q != null && !q.IsCompleted)
                     {
-                        quiess.SetResult(true);
+                        q.TrySetResult(true);
                     }
 
                     return (DequeueStatus.NotAvailable, null, null, null);

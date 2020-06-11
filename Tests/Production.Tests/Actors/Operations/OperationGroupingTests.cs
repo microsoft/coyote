@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.OperationGroupId == Guid.Empty);
+                tcs.SetResult(this.CurrentOperation == null);
                 return base.OnInitializeAsync(e);
             }
         }
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == Guid.Empty);
+                this.Tcs.SetResult(this.CurrentOperation == null);
             }
         }
 
@@ -116,13 +116,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 this.Tcs = (e as SetupEvent).Tcs;
-                this.Runtime.SendEvent(this.Id, new E(), OperationGroup1);
+                this.Runtime.SendEvent(this.Id, new E(), new Operation() { Id = OperationGroup1 });
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
             }
         }
 
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.OperationGroupId == Guid.Empty);
+                tcs.SetResult(this.CurrentOperation == null);
                 return base.OnInitializeAsync(e);
             }
         }
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == Guid.Empty);
+                this.Tcs.SetResult(this.CurrentOperation == null);
             }
         }
 
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             {
                 var tcs = (e as SetupEvent).Tcs;
                 var target = this.CreateActor(typeof(M6B), new SetupEvent(tcs));
-                this.Runtime.SendEvent(target, new E(), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(), new Operation() { Id = OperationGroup1 });
                 return base.OnInitializeAsync(e);
             }
         }
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
             }
         }
 
@@ -265,13 +265,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                 this.Tcs = tcss[0];
                 var target = this.CreateActor(typeof(M7B), new SetupEvent(tcss[1]));
                 // bugbug: why isn't this "this.SendEvent" ?
-                this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
             }
         }
 
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private void CheckEvent(Event e)
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
                 this.SendEvent((e as E).Id, new E());
             }
         }
@@ -320,13 +320,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                 var tcss = (e as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
                 var target = this.CreateActor(typeof(M8B), new SetupEvent(tcss[1]));
-                this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup2);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup2);
             }
         }
 
@@ -343,8 +343,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
             private void CheckEvent(Event e)
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
-                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
+                this.Runtime.SendEvent((e as E).Id, new E(), new Operation() { Id = OperationGroup2 });
             }
         }
 
@@ -375,13 +375,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                 var tcss = (e as SetupMultipleEvent).Tcss;
                 this.Tcs = tcss[0];
                 var target = this.CreateActor(typeof(M9B), new SetupMultipleEvent(tcss[1], tcss[2]));
-                this.Runtime.SendEvent(target, new E(this.Id), OperationGroup1);
+                this.Runtime.SendEvent(target, new E(this.Id), new Operation() { Id = OperationGroup1 });
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup2);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup2);
             }
         }
 
@@ -402,8 +402,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             private void CheckEvent(Event e)
             {
                 this.CreateActor(typeof(M9C), new SetupEvent(this.TargetTcs));
-                this.Tcs.SetResult(this.OperationGroupId == OperationGroup1);
-                this.Runtime.SendEvent((e as E).Id, new E(), OperationGroup2);
+                this.Tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
+                this.Runtime.SendEvent((e as E).Id, new E(), new Operation() { Id = OperationGroup2 });
             }
         }
 
@@ -412,7 +412,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.OperationGroupId == OperationGroup1);
+                tcs.SetResult(this.CurrentOperation.Id == OperationGroup1);
                 return base.OnInitializeAsync(e);
             }
         }

@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnDroppedCalled1()
+        public async SystemTasks.Task TestOnDroppedCalled1()
         {
             await this.RunAsync(async r =>
             {
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnDroppedCalled2()
+        public async SystemTasks.Task TestOnDroppedCalled2()
         {
             await this.RunAsync(async r =>
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestOnDroppedParams()
+        public async SystemTasks.Task TestOnDroppedParams()
         {
             await this.RunAsync(async r =>
             {
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestProcessedOrDropped()
+        public async SystemTasks.Task TestProcessedOrDropped()
         {
             var config = GetConfiguration();
             config.IsMonitoringEnabledInInProduction = true;

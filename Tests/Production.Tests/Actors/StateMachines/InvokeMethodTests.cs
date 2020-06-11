@@ -7,6 +7,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -45,7 +46,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestInvokeInternalAsyncMethod()
+        public async SystemTasks.Task TestInvokeInternalAsyncMethod()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
@@ -89,7 +90,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestInvokePrivateAsyncMethod()
+        public async SystemTasks.Task TestInvokePrivateAsyncMethod()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M4>(configuration: configuration);

@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestPushStateTransition()
+        public async SystemTasks.Task TestPushStateTransition()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M1>(configuration: configuration);
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestPushStateTransitionAfterSend()
+        public async SystemTasks.Task TestPushStateTransitionAfterSend()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestPushStateTransitionAfterRaise()
+        public async SystemTasks.Task TestPushStateTransitionAfterRaise()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);
@@ -131,7 +131,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestPushPopTransition()
+        public async SystemTasks.Task TestPushPopTransition()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M4>(configuration: configuration);
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestPushStateInheritance()
+        public async SystemTasks.Task TestPushStateInheritance()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M5>(configuration: configuration);
@@ -328,7 +328,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestInheritedDuplicateDeferHandler()
+        public async SystemTasks.Task TestInheritedDuplicateDeferHandler()
         {
             // inherited state can re-define a DeferEvent, IgnoreEvent or a Goto if it wants to, this is not an error.
             var configuration = GetConfiguration();

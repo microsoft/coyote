@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestHandleEventInStateMachine()
+        public async SystemTasks.Task TestHandleEventInStateMachine()
         {
             var result = new Result();
 
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestHandleMultipleEventsInStateMachine()
+        public async SystemTasks.Task TestHandleMultipleEventsInStateMachine()
         {
             var result = new Result();
 

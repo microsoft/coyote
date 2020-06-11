@@ -7,6 +7,7 @@ using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -54,7 +55,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 6000)]
-        public async Task TestTimerLifetime()
+        public async SystemTasks.Task TestTimerLifetime()
         {
             await this.RunAsync(async r =>
             {
@@ -105,7 +106,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 6000)]
-        public async Task TestPeriodicTimerLifetime()
+        public async SystemTasks.Task TestPeriodicTimerLifetime()
         {
             await this.RunAsync(async r =>
             {

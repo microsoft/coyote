@@ -8,7 +8,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common.IO;
+using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Runtime;
 using Xunit;
 using Xunit.Abstractions;
@@ -167,10 +167,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 <MonitorLog> TestMonitor is processing event 'CompletedEvent' in state 'Init'.
 <MonitorLog> TestMonitor executed action 'OnCompleted' in state 'Init'.";
 
-                    string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
-                    expected = NormalizeNewLines(expected);
-                    actual = SortLines(actual); // threading makes this non-deterministic otherwise.
-                    expected = SortLines(expected);
+                    string actual = logger.ToString().RemoveNonDeterministicValues();
+                    expected = expected.NormalizeNewLines();
+                    actual = actual.SortLines(); // threading makes this non-deterministic otherwise.
+                    expected = expected.SortLines();
                     Assert.Equal(expected, actual);
                 }
             }), config);
@@ -220,8 +220,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 ";
 
                     string dgml = graphBuilder.Graph.ToString();
-                    string actual = RemoveNonDeterministicValuesFromReport(dgml);
-                    expected = RemoveNonDeterministicValuesFromReport(expected);
+                    string actual = dgml.RemoveNonDeterministicValues();
+                    expected = expected.RemoveNonDeterministicValues();
                     Assert.Equal(expected, actual);
                 }
             }), config);
@@ -284,8 +284,8 @@ CreateStateMachine
 StateTransition
 StateTransition
 StateTransition";
-                string actual = RemoveNonDeterministicValuesFromReport(logger.ToString());
-                expected = NormalizeNewLines(expected);
+                string actual = logger.ToString().RemoveNonDeterministicValues();
+                expected = expected.NormalizeNewLines();
                 Assert.Equal(expected, actual);
             }), config);
         }
@@ -403,7 +403,7 @@ StateTransition";
                     Assert.True(tcs.Task.IsCompleted, "The task await returned but the task is not completed???");
 
                     string actual = graphBuilder.Graph.ToString();
-                    actual = RemoveInstanceIds(actual);
+                    actual = actual.RemoveInstanceIds();
 
                     Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client().Client()' Label='Client()'/>", actual);
                     Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
@@ -422,8 +422,10 @@ StateTransition";
                 {
                     runtime.SetLogger(logger);
 
-                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
-                    graphBuilder.CollapseMachineInstances = true;
+                    var graphBuilder = new ActorRuntimeLogGraphBuilder(false)
+                    {
+                        CollapseMachineInstances = true
+                    };
 
                     var tcs = TaskCompletionSource.Create<bool>();
                     runtime.RegisterMonitor<TestMonitor>();

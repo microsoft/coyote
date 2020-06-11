@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SystematicTesting;
@@ -25,7 +23,6 @@ namespace Microsoft.Coyote.Tests.Common
     public abstract class BaseTest
     {
         protected readonly ITestOutputHelper TestOutput;
-        private Exception Failure;
 
         public BaseTest(ITestOutputHelper output)
         {
@@ -36,116 +33,6 @@ namespace Microsoft.Coyote.Tests.Common
         /// Override this to run the test under the Coyote TestEngine (default false).
         /// </summary>
         public virtual bool SystematicTest => false;
-
-        protected static Configuration GetConfiguration()
-        {
-            return Configuration.Create().WithTelemetryEnabled(false);
-        }
-
-        protected static string RemoveNonDeterministicValuesFromReport(string report)
-        {
-            // Match a GUID or other ids (since they can be nondeterministic).
-            report = Regex.Replace(report, @"\'[0-9|a-z|A-Z|-]{36}\'|\'[0-9]+\'|\'<unknown>\'", "''");
-            report = RemoveInstanceIds(report);
-            report = NormalizeNewLines(report);
-            // Match a namespace.
-            return RemoveNamespaceReferencesFromReport(report).Trim();
-        }
-
-        protected static string RemoveInstanceIds(string actual)
-        {
-            actual = Regex.Replace(actual, @"\([^)]*\)", "()");
-            return actual;
-        }
-
-        protected static string NormalizeNewLines(string text)
-        {
-            return Regex.Replace(text, "[\r\n]+", "\n");
-        }
-
-        protected static string SortLines(string text)
-        {
-            var list = new List<string>(text.Split('\n'));
-            list.Sort(StringComparer.Ordinal);
-            return string.Join("\n", list);
-        }
-
-        protected static string RemoveNamespaceReferencesFromReport(string report)
-        {
-            report = Regex.Replace(report, @"Microsoft.Coyote.Tests.Common\.", string.Empty);
-            return Regex.Replace(report, @"Microsoft\.[^+]*\+", string.Empty);
-        }
-
-        protected static string RemoveExcessiveEmptySpaceFromReport(string report)
-        {
-            return Regex.Replace(report, @"\s+", " ");
-        }
-
-        protected static string RemoveStackTraceFromReport(string report,
-            string removeUntilContainsText = "Microsoft.Coyote.SystematicTesting.Tests")
-        {
-            StringBuilder result = new StringBuilder();
-            bool strip = false;
-            foreach (var line in report.Split('\n'))
-            {
-                string trimmed = line.Trim('\r');
-                string nows = trimmed.Trim();
-                if (nows.StartsWith("<StackTrace>"))
-                {
-                    result.AppendLine("<StackTrace> ");
-                    strip = true;
-                }
-                else if (strip && string.IsNullOrEmpty(nows))
-                {
-                    strip = false;
-                    continue;
-                }
-
-                if (!strip)
-                {
-                    result.AppendLine(trimmed);
-                }
-                else if (strip && trimmed.Contains(removeUntilContainsText))
-                {
-                    result.AppendLine(trimmed);
-                }
-            }
-
-            return result.ToString();
-        }
-
-        protected static string RemoveStackTraceFromXmlReport(string report)
-        {
-            StringBuilder result = new StringBuilder();
-            bool strip = false;
-            foreach (var line in report.Split('\n'))
-            {
-                string trimmed = line.Trim('\r');
-                string nows = trimmed.Trim();
-                if (nows.StartsWith("<AssertionFailure>&lt;StackTrace&gt;"))
-                {
-                    result.AppendLine("  <AssertionFailure>StackTrace:");
-                    strip = true;
-                }
-                else if (strip && nows.StartsWith("</AssertionFailure>"))
-                {
-                    result.AppendLine("  </AssertionFailure>");
-                    strip = false;
-                    continue;
-                }
-
-                if (!strip)
-                {
-                    result.AppendLine(trimmed);
-                }
-                else if (strip && trimmed.Contains("Microsoft.Coyote.SystematicTesting.Tests"))
-                {
-                    result.AppendLine(trimmed);
-                }
-            }
-
-            return result.ToString();
-        }
 
         protected void Test(Action test, Configuration configuration = null)
         {
@@ -202,7 +89,7 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
                 activityCoverageReporter.WriteCoverageText(writer);
-                string result = RemoveNamespaceReferencesFromReport(writer.ToString());
+                string result = writer.ToString().RemoveNamespaceReferences();
                 return result;
             }
         }
@@ -568,7 +455,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
-                runtime.OnFailure += this.OnFailure;
                 runtime.SetLogger(logger);
                 await test(runtime);
             }
@@ -580,12 +466,6 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 logger.Dispose();
             }
-        }
-
-        private void OnFailure(Exception ex)
-        {
-            this.Failure = ex;
-            Assert.False(true, ex.Message + "\n" + ex.StackTrace);
         }
 
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
@@ -740,19 +620,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        private void CheckFailure()
-        {
-            // XUnit doesn't report unhandled exceptions from background threads which happens
-            // with Actors a lot, so this brings that error over to the main thread so the unit
-            // test fails with the most meaningful error.
-            var e = this.Failure;
-            if (e != null)
-            {
-                this.Failure = null;
-                throw e;
-            }
-        }
-
         protected static async Task<T> WaitAsync<T>(SystemTasks.Task<T> task, int millisecondsDelay = 5000)
         {
             if (Debugger.IsAttached)
@@ -783,17 +650,25 @@ namespace Microsoft.Coyote.Tests.Common
                 millisecondsDelay = 500000;
             }
 
-            if (this.SystematicTest)
+            try
             {
-                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                await task;
+                if (this.SystematicTest)
+                {
+                    // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                    await task;
+                }
+                else
+                {
+                    await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                }
             }
-            else
+            catch (AggregateException ae)
             {
-                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                // unwrap the AggregateException so unit tests can more easily
+                // Assert.Throws to match a more specific inner exception.
+                throw ae.InnerException;
             }
 
-            this.CheckFailure();
             Assert.True(task.IsCompleted);
         }
 
@@ -805,17 +680,25 @@ namespace Microsoft.Coyote.Tests.Common
             }
 
             var task = tcs.Task;
-            if (this.SystematicTest)
+            try
             {
-                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                await task;
+                if (this.SystematicTest)
+                {
+                    // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                    await task;
+                }
+                else
+                {
+                    await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                }
             }
-            else
+            catch (AggregateException ae)
             {
-                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                // unwrap the AggregateException so unit tests can more easily
+                // Assert.Throws to match a more specific inner exception.
+                throw ae.InnerException;
             }
 
-            this.CheckFailure();
             Assert.True(task.IsCompleted, string.Format("Task timed out after '{0}' milliseconds", millisecondsDelay));
             return await task;
         }
@@ -830,17 +713,17 @@ namespace Microsoft.Coyote.Tests.Common
 
         private static void CheckSingleError(string actual, string expected)
         {
-            var a = RemoveNonDeterministicValuesFromReport(actual);
-            var b = RemoveNonDeterministicValuesFromReport(expected);
+            var a = actual.RemoveNonDeterministicValues();
+            var b = expected.RemoveNonDeterministicValues();
             Assert.Equal(b, a);
         }
 
         private static void CheckMultipleErrors(string actual, string[] expectedErrors)
         {
-            var stripped = RemoveNonDeterministicValuesFromReport(actual);
+            var stripped = actual.RemoveNonDeterministicValues();
             try
             {
-                Assert.Contains(expectedErrors, (e) => RemoveNonDeterministicValuesFromReport(e) == stripped);
+                Assert.Contains(expectedErrors, (e) => e.RemoveNonDeterministicValues() == stripped);
             }
             catch (Exception)
             {
@@ -863,6 +746,11 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.Equal(1, engine.TestReport.NumOfFoundBugs);
             Assert.Contains("'" + exceptionType.FullName + "'",
                 engine.TestReport.BugReports.First().Split(new[] { '\r', '\n' }).FirstOrDefault());
+        }
+
+        protected static Configuration GetConfiguration()
+        {
+            return Configuration.Create().WithTelemetryEnabled(false);
         }
 
         protected static string GetBugReport(TestingEngine engine)

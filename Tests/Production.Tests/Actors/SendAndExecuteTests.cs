@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var e1 = new E1();
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSyncSendBlocks()
+        public async SystemTasks.Task TestSyncSendBlocks()
         {
             await this.RunAsync(async r =>
             {
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N2), new E2(this.Id));
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var creator = (e as E2).Id;
 #pragma warning disable CS0618
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestSendCycleDoesNotDeadlock()
+        public async SystemTasks.Task TestSendCycleDoesNotDeadlock()
         {
             await this.RunAsync(async r =>
             {
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N3));
@@ -267,7 +267,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestMachineHaltsOnSendExec()
+        public async SystemTasks.Task TestMachineHaltsOnSendExec()
         {
             var config = GetConfiguration();
             config.IsMonitoringEnabledInInProduction = true;
@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config2).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N4), e);
@@ -343,7 +343,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestHandledExceptionOnSendExec()
+        public async SystemTasks.Task TestHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
             {
@@ -363,7 +363,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestUnHandledExceptionOnSendExec()
+        public async SystemTasks.Task TestUnHandledExceptionOnSendExec()
         {
             await this.RunAsync(async r =>
             {
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
                 var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N5));
@@ -416,7 +416,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestUnhandledEventOnSendExec()
+        public async SystemTasks.Task TestUnhandledEventOnSendExec()
         {
             await this.RunAsync(async r =>
             {
@@ -438,9 +438,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
-                Assert.Equal(
-                    "Microsoft.Coyote.Production.Tests.Actors.SendAndExecuteTests+N5(1) received event " +
-                    "'Microsoft.Coyote.Production.Tests.Actors.SendAndExecuteTests+E3' that cannot be handled.", message);
+
+                var className = this.GetType().FullName;
+                var expected = string.Format("{0}+N5(1) received event '{0}+E3' that cannot be handled.", className);
+                Assert.Equal(expected, message);
             });
         }
     }

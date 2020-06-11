@@ -5,6 +5,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -46,7 +47,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private async Task InitOnEntry(Event e)
+            private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
 
@@ -88,7 +89,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 22000)]
-        public async Task TestNoMemoryLeakInEventSending()
+        public async SystemTasks.Task TestNoMemoryLeakInEventSending()
         {
             await this.RunAsync(async r =>
             {

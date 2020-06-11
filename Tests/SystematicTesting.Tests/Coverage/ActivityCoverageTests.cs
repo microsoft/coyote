@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
@@ -52,7 +53,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Coverage
             },
             configuration);
 
-            string result = RemoveExcessiveEmptySpaceFromReport(report);
+            string result = report.RemoveExcessiveEmptySpace();
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -64,7 +65,7 @@ Event coverage: 100.0%
 		State has no expected events, so coverage is 100%
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
 
@@ -95,7 +96,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result = RemoveExcessiveEmptySpaceFromReport(report);
+            string result = report.RemoveExcessiveEmptySpace();
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -112,7 +113,7 @@ Event coverage: 100.0%
 		Previous states: Init
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
 
@@ -144,7 +145,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result = RemoveExcessiveEmptySpaceFromReport(report);
+            string result = report.RemoveExcessiveEmptySpace();
             var expected = @"Total event coverage: 100.0%
 ============================
 StateMachine: M2
@@ -162,7 +163,7 @@ Event coverage: 100.0%
 		Previous states: Init
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
 
@@ -222,7 +223,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result = RemoveExcessiveEmptySpaceFromReport(report);
+            string result = report.RemoveExcessiveEmptySpace();
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -248,7 +249,7 @@ Event coverage: 100.0%
 		Events sent: HelloEvent, Events.UnitEvent
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
 
@@ -302,8 +303,8 @@ Event coverage: 100.0%
 		Events sent: Events.UnitEvent
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
-            string result = RemoveExcessiveEmptySpaceFromReport(report1);
+            expected = expected.RemoveExcessiveEmptySpace();
+            string result = report1.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
 
             // Make sure second run is not confused by the first.
@@ -352,7 +353,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result = RemoveExcessiveEmptySpaceFromReport(report);
+            string result = report.RemoveExcessiveEmptySpace();
             var expected = @"Total event coverage: 50.0%
 ===========================
 StateMachine: M5
@@ -378,7 +379,7 @@ Event coverage: 100.0%
 		Events sent: E1
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
 
@@ -414,7 +415,7 @@ Event coverage: 100.0%
         }
 
         [Fact(Timeout = 5000)]
-        private void TestPushStateActivityCoverage()
+        public void TestPushStateActivityCoverage()
         {
             var configuration = Configuration.Create();
             configuration.ReportActivityCoverage = true;
@@ -427,7 +428,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            string result = RemoveExcessiveEmptySpaceFromReport(report);
+            string result = report.RemoveExcessiveEmptySpace();
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -454,7 +455,7 @@ Event coverage: 100.0%
 		Events sent: E1, E2
 ";
 
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
 
@@ -521,7 +522,7 @@ Event coverage: 100.0%
             },
             configuration);
 
-            result = RemoveExcessiveEmptySpaceFromReport(result);
+            result = result.RemoveExcessiveEmptySpace();
 
             var expected = @"Total event coverage: 100.0%
 ============================
@@ -562,8 +563,8 @@ Event coverage: 100.0%
 		Events sent: E1, E2
 ";
 
-            result = RemoveExcessiveEmptySpaceFromReport(result);
-            expected = RemoveExcessiveEmptySpaceFromReport(expected);
+            result = result.RemoveExcessiveEmptySpace();
+            expected = expected.RemoveExcessiveEmptySpace();
             Assert.Equal(expected, result);
         }
     }

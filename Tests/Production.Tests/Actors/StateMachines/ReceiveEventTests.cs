@@ -6,6 +6,7 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -89,7 +90,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventStatement()
+        public async SystemTasks.Task TestReceiveEventStatement()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M1>(configuration: configuration);
@@ -103,7 +104,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestMultipleReceiveEventStatements()
+        public async SystemTasks.Task TestMultipleReceiveEventStatements()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
@@ -123,7 +124,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestMultipleReceiveEventStatementsUnordered()
+        public async SystemTasks.Task TestMultipleReceiveEventStatementsUnordered()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
@@ -145,7 +146,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveEventStatementWithMultipleTypes()
+        public async SystemTasks.Task TestReceiveEventStatementWithMultipleTypes()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);
@@ -159,7 +160,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestMultipleReceiveEventStatementsWithMultipleTypes()
+        public async SystemTasks.Task TestMultipleReceiveEventStatementsWithMultipleTypes()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M4>(configuration: configuration);

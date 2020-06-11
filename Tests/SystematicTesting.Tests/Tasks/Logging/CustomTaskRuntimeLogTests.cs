@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.IO;
-using System.Text.RegularExpressions;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
@@ -34,8 +33,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             engine.Run();
 
             var result = log.ToString();
-            result = RemoveNonDeterministicValuesFromReport(result);
-            var expected = RemoveNonDeterministicValuesFromReport(@"... Task 0 is using 'random' strategy (seed:4005173804).
+            result = result.RemoveNonDeterministicValues();
+            var expected = @"... Task 0 is using 'random' strategy (seed:4005173804).
 ..... Iteration #1
 <TestLog> Running test.
 Hi mom!
@@ -45,7 +44,8 @@ Hi mom!
 ..... Iteration #3
 <TestLog> Running test.
 Hi mom!
-");
+";
+            expected = expected.RemoveNonDeterministicValues();
 
             Assert.Equal(expected, result);
         }

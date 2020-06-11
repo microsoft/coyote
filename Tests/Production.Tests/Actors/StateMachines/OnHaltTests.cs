@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestHaltCalled()
+        public async SystemTasks.Task TestHaltCalled()
         {
             await this.RunAsync(async r =>
             {
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestReceiveOnHalt()
+        public async SystemTasks.Task TestReceiveOnHalt()
         {
             await this.RunAsync(async r =>
             {
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestAPIsOnHalt()
+        public async SystemTasks.Task TestAPIsOnHalt()
         {
             await this.RunAsync(async r =>
             {

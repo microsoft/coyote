@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Utilities;
 

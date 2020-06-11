@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestGotoStateTransition()
+        public async SystemTasks.Task TestGotoStateTransition()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M1>(configuration: configuration);
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestGotoStateTransitionAfterSend()
+        public async SystemTasks.Task TestGotoStateTransitionAfterSend()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M2>(configuration: configuration);
@@ -86,7 +86,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 5000)]
-        public async Task TestGotoStateTransitionAfterRaise()
+        public async SystemTasks.Task TestGotoStateTransitionAfterRaise()
         {
             var configuration = GetConfiguration();
             var test = new ActorTestKit<M3>(configuration: configuration);

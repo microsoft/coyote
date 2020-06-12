@@ -393,5 +393,22 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedError: "Reached test assertion.",
             replay: true);
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestIsCompleted()
+        {
+            this.TestWithError(async () =>
+            {
+                var tcs = TaskCompletionSource.Create<int>();
+                var task = tcs.Task;
+                tcs.SetResult(3);
+                Specification.Assert(tcs.Task.IsCompleted, "Task is not completed.");
+                await task;
+                Specification.Assert(task.IsCompleted, "Task is not completed.");
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
     }
 }

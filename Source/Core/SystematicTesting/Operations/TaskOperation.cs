@@ -69,11 +69,6 @@ namespace Microsoft.Coyote.SystematicTesting
             this.JoinDependencies = new HashSet<SystemTasks.Task>();
         }
 
-        internal void OnGetAwaiter()
-        {
-            this.IsAwaiterControlled = true;
-        }
-
         /// <summary>
         /// Invoked when the operation is waiting to join the specified task.
         /// </summary>
@@ -83,7 +78,6 @@ namespace Microsoft.Coyote.SystematicTesting
             this.JoinDependencies.Add(task);
             this.Status = AsyncOperationStatus.BlockedOnWaitAll;
             this.Scheduler.ScheduleNextOperation();
-            this.IsAwaiterControlled = false;
         }
 
         /// <summary>
@@ -105,8 +99,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
                 this.Scheduler.ScheduleNextOperation();
             }
-
-            this.IsAwaiterControlled = false;
         }
 
         /// <summary>

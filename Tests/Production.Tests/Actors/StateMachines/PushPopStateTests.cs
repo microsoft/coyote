@@ -64,10 +64,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 runtime.CreateActor(typeof(M1), null, op);
-                await op.Completion.Task;
-                Assert.Equal("InitOnEntry, CurrentState=Final, OnFinal", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("InitOnEntry, CurrentState=Final, OnFinal", actual);
             });
         }
 
@@ -84,8 +84,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
             private void InitOnEntry()
             {
-                this.TraceOp = this.CurrentOperation as OperationTrace;
-                this.TraceOp.WriteLine("InitOnEntry");
+                this.TraceOp.AddItem("InitOnEntry");
             }
 
             [OnEntry(nameof(OnFinal))]
@@ -95,7 +94,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
             private void OnFinal()
             {
-                this.TraceOp.WriteLine("OnFinal");
+                this.TraceOp.AddItem("OnFinal");
                 this.OnFinalEvent();
             }
         }
@@ -105,12 +104,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
-                op.WriteLine("SendEvent");
+                op.AddItem("SendEvent");
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("SendEvent, InitOnEntry, CurrentState=Final, OnFinal", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("SendEvent, InitOnEntry, CurrentState=Final, OnFinal", actual);
             });
         }
 
@@ -148,10 +147,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M3), null, op);
-                await op.Completion.Task;
-                Assert.Equal("InitOnEntry, RaiseEvent, CurrentState=Final, OnFinal", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("InitOnEntry, RaiseEvent, CurrentState=Final, OnFinal", actual);
             });
         }
 
@@ -188,15 +187,15 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M4), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E2());
-                await op.Completion.Task;
+                var actual = await op.WaitForResult();
                 // the CurrentState=Init that happens as a result of Pop is timing sensitive and
                 // there is no state machine call back to tell us when this happens, so we just use
                 // a Contains test here to deal with that non-determinism.
-                Assert.Contains("InitOnEntry, CurrentState=Final, Pop", op.ToString());
+                Assert.Contains("InitOnEntry, CurrentState=Final, Pop", actual);
             });
         }
 
@@ -238,14 +237,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M5), null, op);
                 runtime.SendEvent(id, new E2()); // should be deferred
                 runtime.SendEvent(id, new E1()); // push
                 runtime.SendEvent(id, new E3()); // ignored
                 runtime.SendEvent(id, new E4()); // inherited handler
-                await op.Completion.Task;
-                Assert.Equal("CurrentState=Final, HandleEvent, FinalEvent", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("CurrentState=Final, HandleEvent, FinalEvent", actual);
             });
         }
 
@@ -381,13 +380,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M9), null, op);
                 runtime.SendEvent(id, new E1()); // should be deferred
                 runtime.SendEvent(id, new E2()); // should be ignored
                 runtime.SendEvent(id, new E3()); // should trigger goto, where deferred E1 can be handled.
-                await op.Completion.Task;
-                Assert.Equal("CurrentState=Final, HandleEvent:E1", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("CurrentState=Final, HandleEvent:E1", actual);
             });
         }
     }

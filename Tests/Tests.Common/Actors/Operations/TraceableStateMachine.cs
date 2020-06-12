@@ -1,41 +1,56 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 {
-    public class OperationTrace : Operation<bool>
+    public class OperationList : Operation<bool>
     {
-        public List<string> Trace = new List<string>();
+        public List<string> Items = new List<string>();
 
-        public void WriteLine(string msg, params object[] args)
+        public void AddItem(string msg)
         {
-            this.Trace.Add(string.Format(msg, args));
+            this.Items.Add(msg);
+        }
+
+        public async Task<string> WaitForResult(int millisecondsTimeout = 5000)
+        {
+            Task timeout = Task.Delay(millisecondsTimeout);
+            var t = await Task.WhenAny(this.Completion.Task, timeout);
+            if (!this.Completion.Task.IsCompleted)
+            {
+                throw new TimeoutException("Timeout waiting for OperationList result, results so far: " + this.ToString());
+            }
+
+            return this.ToString();
         }
 
         public override string ToString()
         {
-            return string.Join(", ", this.Trace);
+            return string.Join(", ", this.Items);
         }
     }
 
     public class TraceableStateMachine : StateMachine
     {
-        protected OperationTrace TraceOp;
+        protected OperationList TraceOp;
 
-        protected override Task OnInitializeAsync(Event initialEvent)
+        protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
         {
-            this.TraceOp = this.CurrentOperation as OperationTrace;
+            this.TraceOp = this.CurrentOperation as OperationList;
             this.Assert(this.TraceOp != null, "Did you forget to provide OperationTrace?");
             return base.OnInitializeAsync(initialEvent);
         }
 
-        protected void Trace(string msg, params object[] args)
+        protected void Trace(string format, params object[] args)
         {
-            this.TraceOp.WriteLine(msg, args);
+            var msg = string.Format(format, args);
+            this.TraceOp.AddItem(msg);
         }
 
         protected override void OnStateChanged()

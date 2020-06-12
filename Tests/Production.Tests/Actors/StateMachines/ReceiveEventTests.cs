@@ -114,11 +114,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M1), null, op);
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("Receiving, Received:E1", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("Receiving, Received:E1", actual);
             });
         }
 
@@ -127,13 +127,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E2());
                 runtime.SendEvent(id, new E3());
-                await op.Completion.Task;
-                Assert.Equal("Receiving, Received:E1, Received:E2, Received:E3", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("Receiving, Received:E1, Received:E2, Received:E3", actual);
             });
         }
 
@@ -142,13 +142,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E2());
                 runtime.SendEvent(id, new E3());
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("Receiving, Received:E1, Received:E2, Received:E3", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("Receiving, Received:E1, Received:E2, Received:E3", actual);
             });
         }
 
@@ -157,11 +157,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M3), null, op);
                 runtime.SendEvent(id, new E2());
-                await op.Completion.Task;
-                Assert.Equal("Receiving, Received:E2", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("Receiving, Received:E2", actual);
             });
         }
 
@@ -170,13 +170,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M4), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E3());
                 runtime.SendEvent(id, new E2());
-                await op.Completion.Task;
-                Assert.Equal("Receiving, Received:E1, Received:E3, Received:E2", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("Receiving, Received:E1, Received:E3, Received:E2", actual);
             });
         }
     }

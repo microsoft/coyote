@@ -130,11 +130,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M1), null, op);
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("HandleE1", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("HandleE1", actual);
             });
         }
 
@@ -143,11 +143,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("HandleInitE1", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("HandleInitE1", actual);
             });
         }
 
@@ -156,11 +156,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M3), null, op);
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("OnInitEntry, CurrentState=Active, HandleActiveE1", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("OnInitEntry, CurrentState=Active, HandleActiveE1", actual);
             });
         }
 
@@ -169,11 +169,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M4), null, op);
                 runtime.SendEvent(id, new E1());
-                await op.Completion.Task;
-                Assert.Equal("HandleWildCard", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("HandleWildCard", actual);
             });
         }
     }

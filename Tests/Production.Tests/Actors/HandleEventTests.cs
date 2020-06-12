@@ -85,10 +85,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
+                var op = new OperationList();
                 runtime.CreateActor(typeof(M1), null, op);
-                await op.Completion.Task;
-                Assert.Equal("InitOnEntry, HandleE1, CurrentState=Init", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("InitOnEntry, HandleE1, CurrentState=Init", actual);
             });
         }
 
@@ -97,13 +97,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationTrace();
-                var id = runtime.CreateActor(typeof(M1), null, op);
+                var op = new OperationList();
+                var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E2());
                 runtime.SendEvent(id, new E3());
-                await op.Completion.Task;
-                Assert.Equal("InitOnEntry, HandleE1, CurrentState=Init, HandleE2, HandleE3", op.ToString());
+                var actual = await op.WaitForResult();
+                Assert.Equal("InitOnEntry, HandleE1, CurrentState=Init, HandleE2, HandleE3", actual);
             });
         }
     }

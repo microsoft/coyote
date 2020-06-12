@@ -263,7 +263,6 @@ namespace Microsoft.Coyote.Actors
                 // Note that EventWaitTypes is racy, so should not be accessed outside
                 // the lock, this is why we access eventWaitTypes instead.
                 this.ActorManager.OnWaitEvent(eventWaitTypes.Keys);
-                this.OnQuiet();
                 return this.ReceiveCompletionSource.Task;
             }
 

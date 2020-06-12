@@ -66,8 +66,6 @@ learn-toc:
           link: /learn/programming-models/actors/tracking-operation-groups
         - name: Semantics of unhandled exceptions
           link: /learn/programming-models/actors/uncaught-exceptions
-        - name: Unit-testing in isolation
-          link: /learn/programming-models/actors/unit-testing
         - name: Sharing objects
           link: /learn/programming-models/actors/sharing-objects
         - name: State machine demo
@@ -623,32 +621,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/Period
         - name: CustomEvent
           link: /learn/ref/Microsoft.Coyote.Actors.Timers/TimerInfo/CustomEvent
-    - name: Microsoft.Coyote.Actors.UnitTesting
-      link: /learn/ref/MicrosoftCoyoteActorsUnitTestingNamespace
-      subfolderitems:
-      - name: ActorTestKit<T>
-        link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1Type
-        subfolderitems:
-        - name: StartActorAsync
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/StartActorAsync
-        - name: SendEventAsync
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/SendEventAsync
-        - name: Invoke
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Invoke
-        - name: InvokeAsync
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/InvokeAsync
-        - name: Assert
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/Assert
-        - name: AssertStateTransition
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertStateTransition
-        - name: AssertIsWaitingToReceiveEvent
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertIsWaitingToReceiveEvent
-        - name: AssertInboxSize
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/AssertInboxSize
-        - name: ActorTestKit
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorTestKit
-        - name: ActorInstance
-          link: /learn/ref/Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1/ActorInstance
     - name: Microsoft.Coyote.Coverage
       link: /learn/ref/MicrosoftCoyoteCoverageNamespace
       subfolderitems:

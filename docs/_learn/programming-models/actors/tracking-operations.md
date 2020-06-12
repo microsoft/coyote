@@ -1,6 +1,6 @@
 ---
 layout: reference
-title: Tracking operation groups
+title: Tracking operations
 section: learn
 permalink: /learn/programming-models/actors/tracking-operations
 ---

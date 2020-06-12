@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Xunit;
@@ -18,24 +20,20 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
         internal class SetupEvent : Event
         {
-            public TaskCompletionSource<bool> Tcs;
-
-            public SetupEvent(TaskCompletionSource<bool> tcs)
-            {
-                this.Tcs = tcs;
-            }
+            public TaskCompletionSource<bool> Tcs = TaskCompletionSource.Create<bool>();
+            public List<WeakReference<int[]>> Buffers = new List<WeakReference<int[]>>();
         }
 
         internal class E : Event
         {
             public ActorId Id;
-            public readonly int[] LargeArray;
+            public readonly int[] Buffer;
 
             public E(ActorId id)
                 : base()
             {
                 this.Id = id;
-                this.LargeArray = new int[10000000];
+                this.Buffer = new int[1000];
             }
         }
 
@@ -49,27 +47,29 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
             private async SystemTasks.Task InitOnEntry(Event e)
             {
-                var tcs = (e as SetupEvent).Tcs;
+                var setup = e as SetupEvent;
 
                 try
                 {
-                    int counter = 0;
-                    var n = this.CreateActor(typeof(N));
-
-                    while (counter < 1000)
+                    for (int i = 0; i < 10; i++)
                     {
-                        this.SendEvent(n, new E(this.Id));
-                        E received = (E)await this.ReceiveEventAsync(typeof(E));
-                        received.LargeArray[10] = 7;
-                        counter++;
+                        var n = this.CreateActor(typeof(N));
+
+                        for (int j = 0; j < 100; j++)
+                        {
+                            var send = new E(this.Id);
+                            setup.Buffers.Add(new WeakReference<int[]>(send.Buffer));
+                            this.SendEvent(n, send);
+                            E received = (E)await this.ReceiveEventAsync(typeof(E));
+                        }
                     }
                 }
                 finally
                 {
-                    tcs.SetResult(true);
+                    setup.Tcs.SetResult(true);
                 }
 
-                tcs.SetResult(true);
+                setup.Tcs.TrySetResult(true);
             }
         }
 
@@ -93,12 +93,22 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             await this.RunAsync(async r =>
             {
-                var tcs = TaskCompletionSource.Create<bool>();
-                r.CreateActor(typeof(M), new SetupEvent(tcs));
+                var setup = new SetupEvent();
+                r.CreateActor(typeof(M), setup);
 
-                await this.WaitAsync(tcs.Task, 20000);
+                await this.WaitAsync(setup.Tcs.Task, 20000);
 
                 (r as ActorRuntime).Stop();
+
+                GC.Collect();
+
+                foreach (WeakReference<int[]> item in setup.Buffers)
+                {
+                    if (item.TryGetTarget(out int[] buffer))
+                    {
+                        Assert.Null(buffer);
+                    }
+                }
             });
         }
     }

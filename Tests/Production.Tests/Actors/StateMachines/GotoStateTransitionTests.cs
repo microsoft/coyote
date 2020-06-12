@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.UnitTesting;
+using Microsoft.Coyote.Tasks;
+using Microsoft.Coyote.Tests.Common.Actors.Operations;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
         }
 
-        private class M1 : StateMachine
+        private class M1 : TraceableStateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -28,27 +29,25 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry() => this.RaiseGotoStateEvent<Final>();
+            private void InitOnEntry()
+            {
+                this.Trace("InitOnEntry");
+                this.RaiseGotoStateEvent<Final>();
+            }
 
+            [OnEntry(nameof(FinalOnEntry))]
             private class Final : State
             {
             }
-        }
 
-        private class M2 : StateMachine
-        {
-            [Start]
-            [OnEventGotoState(typeof(Message), typeof(Final))]
-            private class Init : State
+            private void FinalOnEntry()
             {
-            }
-
-            private class Final : State
-            {
+                this.Trace("FinalOnEntry");
+                this.TraceOp.SetResult(true);
             }
         }
 
-        private class M3 : StateMachine
+        private class M2 : TraceableStateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -57,41 +56,88 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry() => this.RaiseEvent(new Message());
+            private void InitOnEntry()
+            {
+                this.Trace("InitOnEntry");
+            }
 
+            [OnEntry(nameof(FinalOnEntry))]
             private class Final : State
             {
+            }
+
+            private void FinalOnEntry()
+            {
+                this.Trace("FinalOnEntry");
+                this.OnFinalEvent();
+            }
+        }
+
+        private class M3 : TraceableStateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            [OnEventGotoState(typeof(Message), typeof(Final))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+                this.Trace("InitOnEntry");
+                this.RaiseEvent(new Message());
+            }
+
+            [OnEntry(nameof(FinalOnEntry))]
+            private class Final : State
+            {
+            }
+
+            private void FinalOnEntry()
+            {
+                this.Trace("FinalOnEntry");
+                this.OnFinalEvent();
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestGotoStateTransition()
+        public void TestGotoStateTransition()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M1>(configuration: configuration);
-            await test.StartActorAsync();
-            test.AssertStateTransition("Final");
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                runtime.CreateActor(typeof(M1), null, op);
+                await op.Completion.Task;
+                string actual = op.ToString();
+                Assert.Equal("InitOnEntry, CurrentState=Final, FinalOnEntry", actual);
+            });
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestGotoStateTransitionAfterSend()
+        public void TestGotoStateTransitionAfterSend()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M2>(configuration: configuration);
-            await test.StartActorAsync();
-            test.AssertStateTransition("Init");
-
-            await test.SendEventAsync(new Message());
-            test.AssertStateTransition("Final");
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M2), null, op);
+                runtime.SendEvent(id, new Message());
+                await op.Completion.Task;
+                string actual = op.ToString();
+                Assert.Equal("InitOnEntry, CurrentState=Final, FinalOnEntry", actual);
+            });
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestGotoStateTransitionAfterRaise()
+        public void TestGotoStateTransitionAfterRaise()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M3>(configuration: configuration);
-            await test.StartActorAsync();
-            test.AssertStateTransition("Final");
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M3), null, op);
+                await op.Completion.Task;
+                string actual = op.ToString();
+                Assert.Equal("InitOnEntry, CurrentState=Final, FinalOnEntry", actual);
+            });
         }
     }
 }

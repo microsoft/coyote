@@ -650,23 +650,21 @@ namespace Microsoft.Coyote.Tests.Common
                 millisecondsDelay = 500000;
             }
 
-            try
+            if (this.SystematicTest)
             {
-                if (this.SystematicTest)
-                {
-                    // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                    await task;
-                }
-                else
-                {
-                    await Task.WhenAny(task, Task.Delay(millisecondsDelay));
-                }
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                await task;
             }
-            catch (AggregateException ae)
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            }
+
+            if (task.IsFaulted)
             {
                 // unwrap the AggregateException so unit tests can more easily
                 // Assert.Throws to match a more specific inner exception.
-                throw ae.InnerException;
+                throw task.Exception.InnerException;
             }
 
             Assert.True(task.IsCompleted);
@@ -680,23 +678,21 @@ namespace Microsoft.Coyote.Tests.Common
             }
 
             var task = tcs.Task;
-            try
+            if (this.SystematicTest)
             {
-                if (this.SystematicTest)
-                {
-                    // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
-                    await task;
-                }
-                else
-                {
-                    await Task.WhenAny(task, Task.Delay(millisecondsDelay));
-                }
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                await task;
             }
-            catch (AggregateException ae)
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            }
+
+            if (task.IsFaulted)
             {
                 // unwrap the AggregateException so unit tests can more easily
                 // Assert.Throws to match a more specific inner exception.
-                throw ae.InnerException;
+                throw task.Exception.InnerException;
             }
 
             Assert.True(task.IsCompleted, string.Format("Task timed out after '{0}' milliseconds", millisecondsDelay));

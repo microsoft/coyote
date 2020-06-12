@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.UnitTesting;
+using Microsoft.Coyote.Tests.Common.Actors.Operations;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 {
@@ -34,7 +33,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
         }
 
-        private class M1 : StateMachine
+        private class M1 : TraceableStateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -42,48 +41,39 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry() => this.RaisePushStateEvent<Final>();
+            private void InitOnEntry()
+            {
+                this.Trace("InitOnEntry");
+                this.RaisePushStateEvent<Final>();
+            }
 
+            [OnEntry(nameof(OnFinal))]
             private class Final : State
             {
+            }
+
+            private void OnFinal()
+            {
+                this.Trace("OnFinal");
+                this.OnFinalEvent();
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestPushStateTransition()
+        public void TestPushStateTransition()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M1>(configuration: configuration);
-            await test.StartActorAsync();
-            test.AssertStateTransition("Final");
-        }
-
-        private class M2 : StateMachine
-        {
-            [Start]
-            [OnEventPushState(typeof(E1), typeof(Final))]
-            private class Init : State
+            this.Test(async (IActorRuntime runtime) =>
             {
-            }
-
-            private class Final : State
-            {
-            }
+                var op = new OperationTrace();
+                runtime.CreateActor(typeof(M1), null, op);
+                await op.Completion.Task;
+                Assert.Equal("InitOnEntry, CurrentState=Final, OnFinal", op.ToString());
+            });
         }
 
-        [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestPushStateTransitionAfterSend()
-        {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M2>(configuration: configuration);
-            await test.StartActorAsync();
-            test.AssertStateTransition("Init");
+        //------------------------------------------------------------------------------------------------------------
 
-            await test.SendEventAsync(new E1());
-            test.AssertStateTransition("Final");
-        }
-
-        private class M3 : StateMachine
+        private class M2 : TraceableStateMachine
         {
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -92,30 +82,92 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private void InitOnEntry() => this.RaiseEvent(new E1());
+            private void InitOnEntry()
+            {
+                this.TraceOp = this.CurrentOperation as OperationTrace;
+                this.TraceOp.WriteLine("InitOnEntry");
+            }
 
+            [OnEntry(nameof(OnFinal))]
             private class Final : State
             {
+            }
+
+            private void OnFinal()
+            {
+                this.TraceOp.WriteLine("OnFinal");
+                this.OnFinalEvent();
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestPushStateTransitionAfterRaise()
+        public void TestPushStateTransitionAfterSend()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M3>(configuration: configuration);
-            await test.StartActorAsync();
-            test.AssertStateTransition("Final");
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M2), null, op);
+                op.WriteLine("SendEvent");
+                runtime.SendEvent(id, new E1());
+                await op.Completion.Task;
+                Assert.Equal("SendEvent, InitOnEntry, CurrentState=Final, OnFinal", op.ToString());
+            });
         }
 
-        private class M4 : StateMachine
+        //------------------------------------------------------------------------------------------------------------
+        private class M3 : TraceableStateMachine
         {
-            public int Count;
-
             [Start]
+            [OnEntry(nameof(InitOnEntry))]
             [OnEventPushState(typeof(E1), typeof(Final))]
             private class Init : State
             {
+            }
+
+            private void InitOnEntry()
+            {
+                this.Trace("InitOnEntry");
+                this.Trace("RaiseEvent");
+                this.RaiseEvent(new E1());
+            }
+
+            [OnEntry(nameof(OnFinal))]
+            private class Final : State
+            {
+            }
+
+            private void OnFinal()
+            {
+                this.Trace("OnFinal");
+                this.OnFinalEvent();
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestPushStateTransitionAfterRaise()
+        {
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M3), null, op);
+                await op.Completion.Task;
+                Assert.Equal("InitOnEntry, RaiseEvent, CurrentState=Final, OnFinal", op.ToString());
+            });
+        }
+
+        //------------------------------------------------------------------------------------------------------------
+        private class M4 : TraceableStateMachine
+        {
+            [Start]
+            [OnEntry(nameof(InitOnEntry))]
+            [OnEventPushState(typeof(E1), typeof(Final))]
+            private class Init : State
+            {
+            }
+
+            private void InitOnEntry()
+            {
+                this.Trace("InitOnEntry");
             }
 
             [OnEventDoAction(typeof(E2), nameof(Pop))]
@@ -125,35 +177,41 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
             private void Pop()
             {
-                this.Count++;
+                this.Trace("Pop");
                 this.RaisePopStateEvent();
+                this.OnFinalEvent();
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestPushPopTransition()
+        public void TestPushPopTransition()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M4>(configuration: configuration);
-            await test.StartActorAsync();
-            await test.SendEventAsync(new E1());
-            await test.SendEventAsync(new E2());
-            test.AssertStateTransition("Init");
-            test.Assert(test.ActorInstance.Count == 1, "Did not reach Final state");
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M4), null, op);
+                runtime.SendEvent(id, new E1());
+                runtime.SendEvent(id, new E2());
+                await op.Completion.Task;
+                // the CurrentState=Init that happens as a result of Pop is timing sensitive and
+                // there is no state machine call back to tell us when this happens, so we just use
+                // a Contains test here to deal with that non-determinism.
+                Assert.Contains("InitOnEntry, CurrentState=Final, Pop", op.ToString());
+            });
         }
+
+        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test that Defer, Ignore and DoAction can be inherited.
         /// </summary>
-        private class M5 : StateMachine
+        private class M5 : TraceableStateMachine
         {
-            public List<string> Log = new List<string>();
-
             [Start]
             [OnEventPushState(typeof(E1), typeof(Final))]
             [DeferEvents(typeof(E2))]
             [IgnoreEvents(typeof(E3))]
-            [OnEventDoAction(typeof(E4), nameof(HandleEvent))]
+            [OnEventDoAction(typeof(E4), nameof(FinalEvent))]
             private class Init : State
             {
             }
@@ -163,27 +221,35 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private void HandleEvent(Event e)
+            private void HandleEvent()
             {
-                this.Log.Add(string.Format("{0} in state {1}", e.GetType().Name, this.CurrentStateName));
+                this.Trace("HandleEvent");
+            }
+
+            private void FinalEvent()
+            {
+                this.Trace("FinalEvent");
+                this.OnFinalEvent();
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestPushStateInheritance()
+        public void TestPushStateInheritance()
         {
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M5>(configuration: configuration);
-            await test.StartActorAsync();
-            await test.SendEventAsync(new E2()); // should be deferred
-            await test.SendEventAsync(new E1()); // push
-            await test.SendEventAsync(new E3()); // ignored
-            await test.SendEventAsync(new E4()); // inherited handler
-            test.AssertStateTransition("Final");
-            string actual = string.Join(", ", test.ActorInstance.Log);
-            string expected = "E2 in state Final, E4 in state Final";
-            Assert.Equal(expected, actual);
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M5), null, op);
+                runtime.SendEvent(id, new E2()); // should be deferred
+                runtime.SendEvent(id, new E1()); // push
+                runtime.SendEvent(id, new E3()); // ignored
+                runtime.SendEvent(id, new E4()); // inherited handler
+                await op.Completion.Task;
+                Assert.Equal("CurrentState=Final, HandleEvent, FinalEvent", op.ToString());
+            });
         }
+
+        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test you cannot have duplicated handlers for the same event.
@@ -203,19 +269,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         [Fact(Timeout = 5000)]
         public void TestDuplicateHandler()
         {
-            string actual = null;
-            try
+            this.TestWithError((IActorRuntime runtime) =>
             {
-                var test = new ActorTestKit<M6>(GetConfiguration());
-            }
-            catch (Exception e)
-            {
-                string fullname = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullname + "+", string.Empty);
-            }
-
-            Assert.Equal("M6(0) declared multiple handlers for event 'E2' in state 'M6+Init'.", actual);
+                runtime.CreateActor(typeof(M6));
+            },
+            expectedError: "M6(0) declared multiple handlers for event 'E2' in state 'M6+Init'.");
         }
+
+        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test you cannot have duplicated handlers for the same event.
@@ -239,19 +300,14 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         [Fact(Timeout = 5000)]
         public void TestDuplicateHandler2()
         {
-            string actual = null;
-            try
+            this.TestWithError((IActorRuntime runtime) =>
             {
-                var test = new ActorTestKit<M7>(GetConfiguration());
-            }
-            catch (Exception e)
-            {
-                string fullname = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullname + "+", string.Empty);
-            }
-
-            Assert.Equal("M7(0) declared multiple handlers for event 'E2' in state 'M7+Init'.", actual);
+                runtime.CreateActor(typeof(M7));
+            },
+            expectedError: "M7(0) declared multiple handlers for event 'E2' in state 'M7+Init'.");
         }
+
+        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test if you have duplicate handlers for the same event on inherited State class then the
@@ -289,29 +345,21 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         [Fact(Timeout = 5000)]
         public void TestInheritedDuplicateHandler()
         {
-            string actual = null;
-            try
+            this.TestWithError((IActorRuntime runtime) =>
             {
-                var test = new ActorTestKit<M8>(GetConfiguration());
-            }
-            catch (Exception e)
-            {
-                string fullname = typeof(PushPopStateTests).FullName;
-                actual = e.Message.Replace(fullname + "+", string.Empty);
-            }
-
-            Assert.Equal("M8(0) inherited multiple handlers for event 'E1' from state 'BaseState' in state 'M8+Init'.", actual);
+                runtime.CreateActor(typeof(M8));
+            },
+            expectedError: "M8(0) inherited multiple handlers for event 'E1' from state 'BaseState' in state 'M8+Init'.");
         }
 
-        private class M9 : StateMachine
-        {
-            public int Count;
+        //------------------------------------------------------------------------------------------------------------
 
+        private class M9 : TraceableStateMachine
+        {
             [Start]
             [DeferEvents(typeof(E1))]
             [IgnoreEvents(typeof(E2))]
             [OnEventGotoState(typeof(E3), typeof(Final))]
-            [OnEventPushState(typeof(E4), typeof(Final))]
             private class Init : BaseState
             {
             }
@@ -321,23 +369,26 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
             }
 
-            private void HandleEvent()
+            private void HandleEvent(Event e)
             {
-                this.Count++;
+                this.Trace("HandleEvent:{0}", e.GetType().Name);
+                this.OnFinalEvent();
             }
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestInheritedDuplicateDeferHandler()
+        public void TestInheritedDuplicateDeferHandler()
         {
-            // inherited state can re-define a DeferEvent, IgnoreEvent or a Goto if it wants to, this is not an error.
-            var configuration = GetConfiguration();
-            var test = new ActorTestKit<M9>(configuration: configuration);
-            await test.StartActorAsync();
-            await test.SendEventAsync(new E1()); // should be deferred
-            await test.SendEventAsync(new E2()); // should be ignored
-            await test.SendEventAsync(new E3()); // should trigger goto, where deferred E1 can be handled.
-            test.AssertStateTransition("Final");
+            this.Test(async (IActorRuntime runtime) =>
+            {
+                var op = new OperationTrace();
+                var id = runtime.CreateActor(typeof(M9), null, op);
+                runtime.SendEvent(id, new E1()); // should be deferred
+                runtime.SendEvent(id, new E2()); // should be ignored
+                runtime.SendEvent(id, new E3()); // should trigger goto, where deferred E1 can be handled.
+                await op.Completion.Task;
+                Assert.Equal("CurrentState=Final, HandleEvent:E1", op.ToString());
+            });
         }
     }
 }

@@ -230,8 +230,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Actor
         - name: Id
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Id
-        - name: OperationGroupId
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OperationGroupId
+        - name: CurrentOperation
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/CurrentOperation
         - name: Logger
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Logger
         - name: HashedState
@@ -298,14 +298,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName
         - name: CreateActor
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
-        - name: CreateActorAndExecuteAsync
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorAndExecuteAsync
         - name: SendEvent
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
-        - name: SendEventAndExecuteAsync
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEventAndExecuteAsync
-        - name: GetCurrentOperationGroupId
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperationGroupId
+        - name: GetCurrentOperation
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperation
         - name: RegisterLog
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog
         - name: RemoveLog
@@ -446,6 +442,35 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStrategyDescription
         - name: OnCompleted
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted
+      - name: Operation
+        link: /learn/ref/Microsoft.Coyote.Actors/OperationType
+        subfolderitems:
+        - name: Operation
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation/Operation
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation/Id
+        - name: Name
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation/Name
+        - name: IsCompleted
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation/IsCompleted
+        - name: NullOperation
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation/NullOperation
+      - name: Operation<T>
+        link: /learn/ref/Microsoft.Coyote.Actors/Operation-1Type
+        subfolderitems:
+        - name: SetResult
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation-1/SetResult
+        - name: TrySetResult
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation-1/TrySetResult
+        - name: Operation
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation-1/Operation
+        - name: Completion
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation-1/Completion
+      - name: QuiescentOperation
+        link: /learn/ref/Microsoft.Coyote.Actors/QuiescentOperationType
+        subfolderitems:
+        - name: QuiescentOperation
+          link: /learn/ref/Microsoft.Coyote.Actors/QuiescentOperation/QuiescentOperation
       - name: RuntimeFactory
         link: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactoryType
         subfolderitems:
@@ -479,6 +504,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent
         - name: RaiseHaltEvent
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent
+        - name: OnStateChanged
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/OnStateChanged
         - name: OnEventHandledAsync
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync
         - name: StateMachine

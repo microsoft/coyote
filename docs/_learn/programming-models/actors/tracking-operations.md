@@ -17,7 +17,7 @@ void SendEvent(ActorId target, Event e, Operation op = null);
 ```
 
 When you pass a non-null Operation the runtime takes care of propagating it to any subsequent
-actors that might be created as a result and across any SendEvent calls to any other actors. So all
+actors that might be created as a result and across any `SendEvent` calls to any other actors. So all
 the work performed as a result of these actors and events can be grouped into a logical operation.
 
 The `Actor` class has a field that returns the current operation in progress:
@@ -71,7 +71,7 @@ return a result from your system of actors.  `SetResult` also sets `IsCompleted`
 
 ### QuiescentOperation
 
-A special operation called `QuiescentOperation` is completed by the ActorRuntime when the actor
+A special operation called `QuiescentOperation` is completed by the `ActorRuntime` when the actor
 reaches a quiescent state, meaning the inbox cannot process any events, either it is empty or
 everything in it is deferred.
 
@@ -85,9 +85,8 @@ Notice that this is a subclass of `Operation<bool>` which means it has a
 `TaskCompletionSource<bool>` that you can wait on. The wait will complete when the first actor you
 sent this to reaches a quiescent state.
 
-**Note :** Quiescence is never reached on a `StateMachine` that has a
-DefaultEvent handler. In that case the default event handler can be considered a type of quiescence
-notification.
+**Note :** Quiescence is never reached on a `StateMachine` that has a `DefaultEvent` handler. In
+that case the default event handler can be considered a type of quiescence notification.
 
 ### Custom Operations
 
@@ -115,10 +114,10 @@ public class OperationCounter : Operation<bool>
 }
 ```
 
-This way you can have multiple actors calling SetResult and the outer code that is waiting is not
+This way you can have multiple actors calling `SetResult` and the outer code that is waiting is not
 released until the expected count is reached.
 
-Similarly you can create an Operation that gathers multiple results from various actors like this:
+Similarly you can create an `Operation` that gathers multiple results from various actors like this:
 
 ```c#
 public class OperationList : Operation<bool>

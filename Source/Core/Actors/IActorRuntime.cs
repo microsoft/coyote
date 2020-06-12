@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Actors
         Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Operation op = null, SendOptions options = null);
 
         /// <summary>
-        /// Returns the current operation of the actor with the specified id. Returns null
+        /// Returns the current <see cref="Operation"/> of the actor with the specified id. Returns null
         /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
         /// testing, the runtime asserts that the specified actor is currently executing.
         /// </summary>

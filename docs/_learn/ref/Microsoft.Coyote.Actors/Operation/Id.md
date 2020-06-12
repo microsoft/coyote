@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Operation/Id
 ---
 # Operation.Id property
 
-The unique id of this operation.
+The unique id of this operation, automatically initialized with Guid.NewGiud.
 
 ```csharp
 public Guid Id { get; }

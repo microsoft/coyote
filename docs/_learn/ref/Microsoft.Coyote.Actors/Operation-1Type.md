@@ -22,7 +22,7 @@ public class Operation<T> : Operation
 | --- | --- |
 | [Operation](Operation-1/Operation)() | Initializes a new instance of the [`Operation`](Operation-1Type) class. |
 | [Completion](Operation-1/Completion) { get; } | A task completion source that can be awaited to get the final result object. |
-| virtual [SetResult](Operation-1/SetResult)(…) | Provided the completed result and set IsCompleted to true. |
+| virtual [SetResult](Operation-1/SetResult)(…) | Provided the completed result and set [`IsCompleted`](Operation/IsCompleted) to true. |
 | virtual [TrySetResult](Operation-1/TrySetResult)(…) | Provided the completed result and set IsCompleted to true if the operation is not already completed. |
 
 ## See Also

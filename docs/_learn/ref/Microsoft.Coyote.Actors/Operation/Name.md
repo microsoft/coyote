@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Operation/Name
 ---
 # Operation.Name property
 
-An optional name for this operation.
+An optional friendly name for this operation.
 
 ```csharp
 public string Name { get; }

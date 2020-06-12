@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperation
 ---
 # IActorRuntime.GetCurrentOperation method
 
-Returns the current operation of the actor with the specified id. Returns null if the id is not set, or if the [`ActorId`](../ActorIdType) is not associated with this runtime. During testing, the runtime asserts that the specified actor is currently executing.
+Returns the current [`Operation`](../OperationType) of the actor with the specified id. Returns null if the id is not set, or if the [`ActorId`](../ActorIdType) is not associated with this runtime. During testing, the runtime asserts that the specified actor is currently executing.
 
 ```csharp
 public Operation GetCurrentOperation(ActorId currentActorId)

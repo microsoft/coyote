@@ -10,17 +10,18 @@ namespace Microsoft.Coyote.Actors
     /// An object representing a long running operation involving one or more actors.
     /// This operation is passed along automatically during any subsequent CreateActor
     /// or SendEvent calls so that any Actor in a network of actors can complete this
-    /// operation.  An actor can find the operation using the CurrentOperation property.
+    /// operation.  An actor can find the operation using the <see cref="Actor.CurrentOperation"/>
+    /// property.
     /// </summary>
     public class Operation
     {
         /// <summary>
-        /// The unique id of this operation.
+        /// The unique id of this operation, automatically initialized with Guid.NewGiud.
         /// </summary>
         public Guid Id { get; internal set; }
 
         /// <summary>
-        /// An optional name for this operation.
+        /// An optional friendly name for this operation.
         /// </summary>
         public string Name { get; internal set; }
 
@@ -38,7 +39,8 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// A special null operation that can be used to clear the current operation.
+        /// A special null operation that can be used to stop the CurrentOperation from
+        /// being passed along in a CreateActor or SendEvent call.
         /// </summary>
         public static Operation NullOperation = new Operation();
     }
@@ -68,7 +70,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Provided the completed result and set IsCompleted to true.
+        /// Provided the completed result and set <see cref="Operation.IsCompleted"/> to true.
         /// </summary>
         /// <param name="result">The completed result object.</param>
         public virtual void SetResult(T result)

@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Operation-1/SetResult
 ---
 # Operation&lt;T&gt;.SetResult method
 
-Provided the completed result and set IsCompleted to true.
+Provided the completed result and set [`IsCompleted`](../Operation/IsCompleted) to true.
 
 ```csharp
 public virtual void SetResult(T result)

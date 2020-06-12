@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
+        public virtual bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
         {
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOperations.Count == 0)
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
+        public virtual bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
             if (this.RandomValueGenerator.Next(maxValue) == 0)
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
+        public virtual bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;

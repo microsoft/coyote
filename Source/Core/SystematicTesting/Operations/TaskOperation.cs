@@ -34,12 +34,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The unique id of the operation.
         /// </summary>
-        public override ulong Id { get; }
+        internal override ulong Id { get; }
 
         /// <summary>
         /// The unique name of the operation.
         /// </summary>
-        public override string Name { get; }
+        internal override string Name { get; }
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks

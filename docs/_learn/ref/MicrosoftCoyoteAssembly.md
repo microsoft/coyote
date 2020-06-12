@@ -51,12 +51,6 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | class [TimerElapsedEvent](Microsoft.Coyote.Actors.Timers/TimerElapsedEventType) | Defines a timer elapsed event that is sent from a timer to the actor that owns the timer. |
 | class [TimerInfo](Microsoft.Coyote.Actors.Timers/TimerInfoType) | Stores information about a timer that can send timeout events to its owner actor. |
 
-## Microsoft.Coyote.Actors.UnitTesting namespace
-
-| public type | description |
-| --- | --- |
-| class [ActorTestKit&lt;T&gt;](Microsoft.Coyote.Actors.UnitTesting/ActorTestKit-1Type) | Provides methods for testing an actor of type *T* in isolation. |
-
 ## Microsoft.Coyote.Coverage namespace
 
 | public type | description |

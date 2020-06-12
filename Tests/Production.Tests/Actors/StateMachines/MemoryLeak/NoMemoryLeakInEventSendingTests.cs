@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Xunit;
@@ -100,15 +101,23 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 (r as ActorRuntime).Stop();
 
-                GC.Collect();
-
-                foreach (WeakReference<int[]> item in setup.Buffers)
+                int retries = 5;
+                int count = 0;
+                do
                 {
-                    if (item.TryGetTarget(out int[] buffer))
+                    GC.Collect();
+                    count = 0;
+                    foreach (WeakReference<int[]> item in setup.Buffers)
                     {
-                        Assert.Null(buffer);
+                        if (item.TryGetTarget(out int[] buffer))
+                        {
+                            count++;
+                        }
                     }
                 }
+                while (retries-- > 0 && count > 0);
+
+                Assert.Equal(0, count);
             });
         }
     }

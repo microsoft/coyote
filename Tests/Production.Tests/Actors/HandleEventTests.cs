@@ -45,6 +45,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private void HandleE1()
             {
                 this.Trace("HandleE1");
+                this.OnFinalEvent();
             }
         }
 
@@ -77,6 +78,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private void HandleE3()
             {
                 this.Trace("HandleE3");
+                this.OnFinalEvent();
             }
         }
 
@@ -86,9 +88,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             this.Test(async (IActorRuntime runtime) =>
             {
                 var op = new OperationList();
-                runtime.CreateActor(typeof(M1), null, op);
+                var id = runtime.CreateActor(typeof(M1), null, op);
+                runtime.SendEvent(id, new E1());
                 var actual = await op.WaitForResult();
-                Assert.Equal("InitOnEntry, HandleE1, CurrentState=Init", actual);
+                Assert.Equal("InitOnEntry, HandleE1", actual);
             });
         }
 
@@ -103,7 +106,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 runtime.SendEvent(id, new E2());
                 runtime.SendEvent(id, new E3());
                 var actual = await op.WaitForResult();
-                Assert.Equal("InitOnEntry, HandleE1, CurrentState=Init, HandleE2, HandleE3", actual);
+                Assert.Equal("InitOnEntry, HandleE1, HandleE2, HandleE3", actual);
             });
         }
     }

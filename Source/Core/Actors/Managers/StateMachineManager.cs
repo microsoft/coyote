@@ -25,26 +25,8 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public bool IsEventHandlerRunning { get; set; }
 
-        private Operation op;
-
         /// <inheritdoc/>
-        public Operation CurrentOperation
-        {
-            get
-            {
-                return this.op;
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    Console.WriteLine("debug me!");
-                }
-
-                this.op = value;
-            }
-        }
+        public Operation CurrentOperation { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StateMachineManager"/> class.

@@ -60,10 +60,10 @@ learn-toc:
           link: /learn/programming-models/actors/termination
         - name: Using timers in actors
           link: /learn/programming-models/actors/timers
+        - name: Tracking operations
+          link: /learn/programming-models/actors/tracking-operations
         - name: Synchronous execution
           link: /learn/programming-models/actors/synchronous-execution
-        - name: Tracking operation groups
-          link: /learn/programming-models/actors/tracking-operation-groups
         - name: Semantics of unhandled exceptions
           link: /learn/programming-models/actors/uncaught-exceptions
         - name: Sharing objects

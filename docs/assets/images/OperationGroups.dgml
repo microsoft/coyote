@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-294.631666666666,-185.33625" ZoomLevel="1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="A" Bounds="175.623333333333,57.6475,50,25.96" />
+    <Node Id="B" Bounds="267.623333333333,129.5675,50,25.96" />
+    <Node Id="C" Bounds="359.623333333333,209.4675,50,25.96" />
+    <Node Id="CreateActor(&quot;A&quot;,Op)" Bounds="0,0,127.246666666667,25.96" Label="CreateActor(&quot;A&quot;, op)" />
+    <Node Id="CurrentOperation==Op" Category="Comment" Bounds="256.51,57.6475,150.226666666667,25.96" Label="CurrentOperation == op" />
+    <Node Id="CurrentOperation==Op1" Category="Comment" Bounds="348.51,129.5675,150.226666666667,25.96" Label="CurrentOperation == op" />
+    <Node Id="CurrentOperation==Op2" Category="Comment" Bounds="157.51,0,150.226666666667,25.96" Label="CurrentOperation == op" />
+    <Node Id="CurrentOperation==OpWhenEventIsDequeued" Category="Comment" Bounds="440.51,201.4875,150.226666666667,41.9200000000001" Label="CurrentOperation == op&#xD;&#xA;when event is dequeued" />
+    <Node Id="D" Bounds="490.623333333333,289.3675,50,25.96" />
+  </Nodes>
+  <Links>
+    <Link Source="A" Target="B" Bounds="223.08824232181,83.5712576878742,39.1392025836433,40.4233202414438" Label="CreateActor" LabelBounds="245.373333333333,98.6075000000001,62.8833333333333,15.96" />
+    <Link Source="B" Target="C" Bounds="316.678527832031,154.712936401367,39.9578857421875,47.4501495361328" Label="CreateActor" LabelBounds="340.665046347794,170.5275,62.8833333333332,15.96" />
+    <Link Source="C" Target="D" Bounds="403.474182128906,235.427505493164,79.2552185058594,52.1240081787109" Label="SendEvent" LabelBounds="387.240081572117,258.4075,55.4566666666667,15.96" />
+    <Link Source="CreateActor(&quot;A&quot;,Op)" Target="A" Bounds="120.884333333334,25.96,48.0799424136589,27.8326819129472" />
+    <Link Source="CurrentOperation==Op" Target="B" Bounds="313.308715820313,83.6074981689453,18.3146057128906,39.8498916625977" />
+    <Link Source="CurrentOperation==Op1" Target="C" Bounds="402.118377685547,155.527496337891,21.5049438476563,47.2089233398438" />
+    <Link Source="CurrentOperation==Op2" Target="A" Bounds="213.123333333333,25.96,0,22.6875" />
+    <Link Source="CurrentOperation==OpWhenEventIsDequeued" Target="D" Bounds="515.623333333333,243.4075,0,36.96" />
+  </Links>
+  <Categories>
+    <Category Id="Comment" Label="Comment" Description="Represents a user defined comment on the diagram" CanBeDataDriven="True" IsProviderRoot="False" NavigationActionLabel="Comments" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsProviderRoot" Label="IsProviderRoot" Description="IsProviderRoot" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="NavigationActionLabel" Label="NavigationActionLabel" Description="NavigationActionLabel" DataType="System.String" />
+    <Property Id="Offset" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Comment" ValueLabel="Has comment">
+      <Condition Expression="HasCategory('Comment')" />
+      <Setter Property="Background" Value="#FFFFFACD" />
+      <Setter Property="Stroke" Value="#FFE5C365" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="NodeRadius" Value="2" />
+      <Setter Property="MaxWidth" Value="250" />
+    </Style>
+  </Styles>
+</DirectedGraph>

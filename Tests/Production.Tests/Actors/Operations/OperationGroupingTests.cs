@@ -274,6 +274,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var op = this.CurrentOperation as OperationCounter;
+                this.Assert(op != null, "M9A has unexpected null CurrentOperation");
                 op.SetResult(true);
                 var target = this.CreateActor(typeof(M9B));
                 this.SendEvent(target, new E());
@@ -287,6 +288,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private void CheckEvent(Event e)
             {
                 var op = this.CurrentOperation as OperationCounter;
+                this.Assert(op != null, "M9B has unexpected null CurrentOperation");
                 op.SetResult(true);
                 var c = this.CreateActor(typeof(M9C), e);
                 this.SendEvent(c, new E());
@@ -296,32 +298,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M9C : Actor
         {
-            private async SystemTasks.Task CheckEvent()
-            {
-                // perform a sub-operation using separate Operation object
-                var sub = new Operation<bool>();
-                var d = this.CreateActor(typeof(M9D));
-                this.SendEvent(d, new E(), sub);
-                await sub.Completion.Task; // test actor can block on a operation
-
-                // now we can complete the outer operation
-                var op = this.CurrentOperation as OperationCounter;
-                op.SetResult(true);
-            }
-        }
-
-        [OnEventDoAction(typeof(E), nameof(CheckEvent))]
-        private class M9D : Actor
-        {
             private void CheckEvent()
             {
-                var op = this.CurrentOperation as Operation<bool>;
+                // now we can complete the outer operation
+                var op = this.CurrentOperation as OperationCounter;
+                this.Assert(op != null, "M9C has unexpected null CurrentOperation");
                 op.SetResult(true);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationFourActorGroup()
+        public void TestOperationThreeActorGroup()
         {
             this.Test(async r =>
             {

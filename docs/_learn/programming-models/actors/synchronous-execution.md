@@ -5,6 +5,13 @@ section: learn
 permalink: /learn/programming-models/actors/synchronous-execution
 ---
 
+## Obsolete
+
+**Note:** _these api's are now obsolete_ and it is recommended instead that you use the
+[Operation](/learn/programming-models/actors/tracking-operations) construct to track the
+asynchronous completion of operations across your actors.
+
+
 ## Synchronous execution of actors
 
 Coyote offers the following APIs (and overloads) for synchronous execution of actor creation and

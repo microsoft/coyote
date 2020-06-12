@@ -15,7 +15,10 @@ namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 
         public void AddItem(string msg)
         {
-            this.Items.Add(msg);
+            lock (this.Items)
+            {
+                this.Items.Add(msg);
+            }
         }
 
         public async Task<string> WaitForResult(int millisecondsTimeout = 5000)
@@ -32,7 +35,13 @@ namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 
         public override string ToString()
         {
-            return string.Join(", ", this.Items);
+            string result = null;
+            lock (this.Items)
+            {
+                result = string.Join(", ", this.Items);
+            }
+
+            return result;
         }
     }
 

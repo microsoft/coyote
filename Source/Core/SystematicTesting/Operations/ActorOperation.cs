@@ -23,12 +23,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Unique id of the operation.
         /// </summary>
-        public override ulong Id => this.Actor.Id.Value;
+        internal override ulong Id => this.Actor.Id.Value;
 
         /// <summary>
         /// Unique name of the operation.
         /// </summary>
-        public override string Name => this.Actor.Id.Name;
+        internal override string Name => this.Actor.Id.Name;
 
         /// <summary>
         /// Set of events that this operation is waiting to receive. Receiving

@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// List of prioritized operations.
         /// </summary>
-        private readonly List<IAsyncOperation> PrioritizedOperations;
+        private readonly List<AsyncOperation> PrioritizedOperations;
 
         /// <summary>
         /// Set of priority change points.
@@ -62,12 +62,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             this.ScheduledSteps = 0;
             this.ScheduleLength = 0;
             this.MaxPrioritySwitchPoints = maxPrioritySwitchPoints;
-            this.PrioritizedOperations = new List<IAsyncOperation>();
+            this.PrioritizedOperations = new List<AsyncOperation>();
             this.PriorityChangePoints = new SortedSet<int>();
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
+        public bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
         {
             next = null;
             var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 return false;
             }
 
-            IAsyncOperation highestEnabledOp = this.GetPrioritizedOperation(enabledOperations, current);
+            AsyncOperation highestEnabledOp = this.GetPrioritizedOperation(enabledOperations, current);
             if (next is null)
             {
                 next = highestEnabledOp;
@@ -88,7 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
+        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
             if (this.RandomValueGenerator.Next(maxValue) == 0)
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
+        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;
@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Returns the prioritized operation.
         /// </summary>
-        private IAsyncOperation GetPrioritizedOperation(List<IAsyncOperation> ops, IAsyncOperation current)
+        private AsyncOperation GetPrioritizedOperation(List<AsyncOperation> ops, AsyncOperation current)
         {
             if (this.PrioritizedOperations.Count == 0)
             {
@@ -214,9 +214,9 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Returns the highest-priority enabled operation.
         /// </summary>
-        private IAsyncOperation GetHighestPriorityEnabledOperation(IEnumerable<IAsyncOperation> choices)
+        private AsyncOperation GetHighestPriorityEnabledOperation(IEnumerable<AsyncOperation> choices)
         {
-            IAsyncOperation prioritizedOp = null;
+            AsyncOperation prioritizedOp = null;
             foreach (var entity in this.PrioritizedOperations)
             {
                 if (choices.Any(m => m == entity))

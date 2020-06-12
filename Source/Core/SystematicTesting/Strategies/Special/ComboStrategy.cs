@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next)
+        public bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next)
+        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next)
+        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {

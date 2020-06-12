@@ -13,32 +13,34 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
     [DebuggerStepThrough]
 #endif
-    internal abstract class AsyncOperation : IAsyncOperation
+    internal abstract class AsyncOperation
     {
-        /// <inheritdoc/>
-        public abstract ulong Id { get; }
+        /// <summary>
+        /// The unique id of the operation.
+        /// </summary>
+        internal abstract ulong Id { get; }
 
-        /// <inheritdoc/>
-        public abstract string Name { get; }
+        /// <summary>
+        /// The unique name of the operation.
+        /// </summary>
+        internal abstract string Name { get; }
 
-        /// <inheritdoc/>
-        public AsyncOperationStatus Status { get; internal set; }
+        /// <summary>
+        /// The status of the operation. An operation can be scheduled only
+        /// if it is <see cref="AsyncOperationStatus.Enabled"/>.
+        /// </summary>
+        internal AsyncOperationStatus Status;
 
         /// <summary>
         /// A value that represents the hashed program state when
         /// this operation last executed.
         /// </summary>
-        public int HashedProgramState { get; internal set; }
+        internal int HashedProgramState;
 
         /// <summary>
         /// True if the handler of the source of the operation is running, else false.
         /// </summary>
         internal bool IsHandlerRunning; // TODO: figure out if this can be replaced by status.
-
-        /// <summary>
-        /// True if the next awaiter is controlled, else false.
-        /// </summary>
-        internal bool IsAwaiterControlled;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncOperation"/> class.
@@ -47,7 +49,6 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             this.Status = AsyncOperationStatus.None;
             this.IsHandlerRunning = false;
-            this.IsAwaiterControlled = false;
         }
 
         /// <summary>

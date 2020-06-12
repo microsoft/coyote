@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Map from unique ids to asynchronous operations.
         /// </summary>
-        private readonly Dictionary<ulong, IAsyncOperation> OperationMap;
+        private readonly Dictionary<ulong, AsyncOperation> OperationMap;
 
         /// <summary>
         /// The program schedule trace.
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Configuration = configuration;
             this.Runtime = runtime;
             this.Strategy = strategy;
-            this.OperationMap = new Dictionary<ulong, IAsyncOperation>();
+            this.OperationMap = new Dictionary<ulong, AsyncOperation>();
             this.ScheduleTrace = trace;
             this.SyncObject = new object();
             this.CompletionSource = new TaskCompletionSource<bool>();
@@ -157,17 +157,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                 }
 
-                if (!this.Strategy.GetNextOperation(current, ops, out IAsyncOperation next))
+                if (!this.Strategy.GetNextOperation(current, ops, out AsyncOperation next))
                 {
                     // Checks if the program has deadlocked.
-                    this.CheckIfProgramHasDeadlocked(ops.Select(op => op as AsyncOperation));
+                    this.CheckIfProgramHasDeadlocked(ops);
 
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.HasFullyExploredSchedule = true;
                     this.Detach();
                 }
 
-                this.ScheduledOperation = next as AsyncOperation;
+                this.ScheduledOperation = next;
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
 
                 IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
@@ -329,16 +329,16 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Gets the <see cref="IAsyncOperation"/> associated with the specified
+        /// Gets the <see cref="AsyncOperation"/> associated with the specified
         /// unique id, or null if no such operation exists.
         /// </summary>
         [DebuggerStepThrough]
         internal TAsyncOperation GetOperationWithId<TAsyncOperation>(ulong id)
-            where TAsyncOperation : IAsyncOperation
+            where TAsyncOperation : AsyncOperation
         {
             lock (this.SyncObject)
             {
-                if (this.OperationMap.TryGetValue(id, out IAsyncOperation op) &&
+                if (this.OperationMap.TryGetValue(id, out AsyncOperation op) &&
                     op is TAsyncOperation expected)
                 {
                     return expected;
@@ -349,14 +349,14 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Gets the <see cref="IAsyncOperation"/> that is currently executing,
+        /// Gets the <see cref="AsyncOperation"/> that is currently executing,
         /// or null if no such operation is executing.
         /// </summary>
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
         internal TAsyncOperation GetExecutingOperation<TAsyncOperation>()
-            where TAsyncOperation : IAsyncOperation
+            where TAsyncOperation : AsyncOperation
         {
             lock (this.SyncObject)
             {
@@ -374,7 +374,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// This operation is thread safe because the systematic testing
         /// runtime serializes the execution.
         /// </remarks>
-        internal IEnumerable<IAsyncOperation> GetRegisteredOperations()
+        internal IEnumerable<AsyncOperation> GetRegisteredOperations()
         {
             lock (this.SyncObject)
             {
@@ -564,10 +564,8 @@ namespace Microsoft.Coyote.SystematicTesting
             this.IsAttached = false;
 
             // Cancel any remaining operations at the end of the schedule.
-            foreach (var operation in this.OperationMap.Values)
+            foreach (var op in this.OperationMap.Values)
             {
-                // This casting is always safe.
-                var op = operation as AsyncOperation;
                 if (op.Status != AsyncOperationStatus.Completed)
                 {
                     op.Status = AsyncOperationStatus.Canceled;

@@ -697,11 +697,7 @@ namespace Microsoft.Coyote.Tasks
         /// Gets an awaiter for this awaitable.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TaskAwaiter GetAwaiter()
-        {
-            this.TaskController?.OnGetAwaiter();
-            return new TaskAwaiter(this.TaskController, this.InternalTask);
-        }
+        public TaskAwaiter GetAwaiter() => new TaskAwaiter(this.TaskController, this.InternalTask);
 
         /// <summary>
         /// Configures an awaiter used to await this task.
@@ -792,11 +788,7 @@ namespace Microsoft.Coyote.Tasks
         /// Gets an awaiter for this awaitable.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public new TaskAwaiter<TResult> GetAwaiter()
-        {
-            this.TaskController?.OnGetAwaiter();
-            return new TaskAwaiter<TResult>(this.TaskController, this.UncontrolledTask);
-        }
+        public new TaskAwaiter<TResult> GetAwaiter() => new TaskAwaiter<TResult>(this.TaskController, this.UncontrolledTask);
 
         /// <summary>
         /// Configures an awaiter used to await this task.

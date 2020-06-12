@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <param name="ops">List of operations that can be scheduled.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNextOperation(IAsyncOperation current, IEnumerable<IAsyncOperation> ops, out IAsyncOperation next);
+        bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next);
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next boolean choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNextBooleanChoice(IAsyncOperation current, int maxValue, out bool next);
+        bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next);
 
         /// <summary>
         /// Returns the next integer choice.
@@ -35,7 +35,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <param name="maxValue">The max value.</param>
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNextIntegerChoice(IAsyncOperation current, int maxValue, out int next);
+        bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next);
 
         /// <summary>
         /// Prepares for the next scheduling iteration. This is invoked

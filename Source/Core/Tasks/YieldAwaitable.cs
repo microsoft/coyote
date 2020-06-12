@@ -24,11 +24,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Gets an awaiter for this awaitable.
         /// </summary>
-        public YieldAwaiter GetAwaiter()
-        {
-            this.TaskController?.OnGetAwaiter();
-            return new YieldAwaiter(this.TaskController, default);
-        }
+        public YieldAwaiter GetAwaiter() => new YieldAwaiter(this.TaskController, default);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="YieldAwaitable"/> struct.

@@ -633,14 +633,6 @@ namespace Microsoft.Coyote.SystematicTesting
         public void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType)
         {
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            if (!callerOp.IsAwaiterControlled)
-            {
-                this.Assert(false, "Controlled task '{0}' is trying to wait for an uncontrolled " +
-                    "task or awaiter to complete. Please make sure to use Coyote APIs to express concurrency " +
-                    "(e.g. Microsoft.Coyote.Tasks.Task instead of System.Threading.Tasks.Task).",
-                    Task.CurrentId);
-            }
-
             bool sameNamespace = awaiterType.Namespace == typeof(CoyoteTasks.Task).Namespace;
             if (!sameNamespace)
             {
@@ -652,18 +644,6 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             callerOp.SetExecutingAsyncTaskStateMachineType(stateMachineType);
-        }
-
-        /// <summary>
-        /// Callback invoked when the currently executing task operation gets a controlled awaiter.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        public void OnGetAwaiter()
-        {
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.OnGetAwaiter();
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Tasks
         /// <typeparam name="TResult">The type of the result value assocatied with this task completion source.</typeparam>
         /// <returns>The task completion source.</returns>
         public static TaskCompletionSource<TResult> Create<TResult>() => CoyoteRuntime.IsExecutionControlled ?
-            new Mock<TResult>() : new TaskCompletionSource<TResult>(new System.Threading.Tasks.TaskCompletionSource<TResult>());
+            new Mock<TResult>() : new TaskCompletionSource<TResult>(false);
 
         /// <summary>
         /// Mock implementation of <see cref="TaskCompletionSource{TResult}"/> that
@@ -36,29 +36,17 @@ namespace Microsoft.Coyote.Tasks
             private readonly Resource Resource;
 
             /// <summary>
-            /// True if the task completion source is completed, else false.
-            /// </summary>
-            private TaskStatus Status;
-
-            /// <summary>
-            /// The task that provides access to the result.
-            /// </summary>
-            private Task<TResult> ResultTask;
-
-            /// <summary>
-            /// The result value.
-            /// </summary>
-            private TResult Result;
-
-            /// <summary>
-            /// The bound exception, if any.
-            /// </summary>
-            private Exception Exception;
-
-            /// <summary>
             /// The cancellation token source.
             /// </summary>
             private readonly CancellationTokenSource CancellationTokenSource;
+
+            /// <summary>
+            /// A task that can be awaited until the task completion source completes.
+            /// </summary>
+            /// <remarks>
+            /// Cached to avoid allocating a new task on each <see cref="Task"/> access.
+            /// </remarks>
+            private Task<TResult> AwaiterTask;
 
             /// <summary>
             /// Gets the task created by this task completion source.
@@ -67,28 +55,16 @@ namespace Microsoft.Coyote.Tasks
             {
                 get
                 {
+                    // Optimization: if the task completion source is already completed,
+                    // just return a completed task, no need to run a new task.
                     if (this.ResultTask is null)
                     {
-                        // Optimization: if the task completion source is already completed,
-                        // just return a completed task, no need to run a new task.
-                        if (this.Status is TaskStatus.RanToCompletion)
+                        // Else, return a task that will complete once the task completion source also completes.
+                        if (this.AwaiterTask is null)
                         {
-                            this.ResultTask = Tasks.Task.FromResult(this.Result);
-                        }
-                        else if (this.Status is TaskStatus.Canceled)
-                        {
-                            this.ResultTask = Tasks.Task.FromCanceled<TResult>(this.CancellationTokenSource.Token);
-                        }
-                        else if (this.Status is TaskStatus.Faulted)
-                        {
-                            this.ResultTask = Tasks.Task.FromException<TResult>(this.Exception);
-                        }
-                        else
-                        {
-                            // Else, return a task that will complete once the task completion source also completes.
-                            this.ResultTask = Tasks.Task.Run(() =>
+                            this.AwaiterTask = Tasks.Task.Run(() =>
                             {
-                                if (this.Status is TaskStatus.Created)
+                                if (this.ResultTask is null)
                                 {
                                     // The resource is not available yet, notify the scheduler that the executing
                                     // asynchronous operation is blocked, so that it cannot be scheduled during
@@ -96,18 +72,21 @@ namespace Microsoft.Coyote.Tasks
                                     this.Resource.Wait();
                                 }
 
-                                if (this.Status is TaskStatus.Canceled)
+                                if (this.CancellationTokenSource.IsCancellationRequested)
                                 {
                                     this.CancellationTokenSource.Token.ThrowIfCancellationRequested();
                                 }
-                                else if (this.Status is TaskStatus.Faulted)
+                                else if (this.ResultTask.Status is TaskStatus.Faulted)
                                 {
-                                    throw this.Exception;
+                                    Exception ex = this.ResultTask.Exception;
+                                    throw ex is AggregateException aex ? aex.InnerException : ex;
                                 }
 
-                                return this.Result;
+                                return this.ResultTask.Result;
                             }, this.CancellationTokenSource.Token);
                         }
+
+                        return this.AwaiterTask;
                     }
 
                     return this.ResultTask;
@@ -118,10 +97,9 @@ namespace Microsoft.Coyote.Tasks
             /// Initializes a new instance of the <see cref="Mock{TResult}"/> class.
             /// </summary>
             internal Mock()
-                : base(default)
+                : base(true)
             {
                 this.Resource = new Resource();
-                this.Status = TaskStatus.Created;
                 this.CancellationTokenSource = new CancellationTokenSource();
             }
 
@@ -168,26 +146,24 @@ namespace Microsoft.Coyote.Tasks
             /// </summary>
             private bool TryCompleteWithStatus(TaskStatus status, TResult result, Exception exception)
             {
-                if (this.Status is TaskStatus.Created)
+                if (this.ResultTask is null)
                 {
-                    this.Status = status;
                     if (status is TaskStatus.RanToCompletion)
                     {
-                        this.Result = result;
+                        this.ResultTask = Tasks.Task.FromResult(result);
                     }
                     else if (status is TaskStatus.Canceled)
                     {
                         this.CancellationTokenSource.Cancel();
-                        this.Exception = new TaskCanceledException();
+                        this.ResultTask = Tasks.Task.FromCanceled<TResult>(this.CancellationTokenSource.Token);
                     }
                     else if (status is TaskStatus.Faulted)
                     {
-                        this.Exception = exception;
+                        this.ResultTask = Tasks.Task.FromException<TResult>(exception);
                     }
 
                     // Release the resource and notify any awaiting asynchronous operations.
                     this.Resource.SignalAll();
-                    this.Resource.Runtime.ScheduleNextOperation();
 
                     return true;
                 }
@@ -210,16 +186,28 @@ namespace Microsoft.Coyote.Tasks
         private readonly System.Threading.Tasks.TaskCompletionSource<TResult> Instance;
 
         /// <summary>
+        /// The task containing the result.
+        /// </summary>
+        /// <remarks>
+        /// Cached to avoid allocating a new task wrapper on each <see cref="Task"/> access.
+        /// </remarks>
+        private protected Task<TResult> ResultTask;
+
+        /// <summary>
         /// Gets the task created by this task completion source.
         /// </summary>
-        public virtual Task<TResult> Task => this.Instance.Task.WrapInControlledTask();
+        public virtual Task<TResult> Task => this.ResultTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskCompletionSource{TResult}"/> class.
         /// </summary>
-        internal TaskCompletionSource(System.Threading.Tasks.TaskCompletionSource<TResult> tcs)
+        internal TaskCompletionSource(bool isMocked)
         {
-            this.Instance = tcs;
+            if (!isMocked)
+            {
+                this.Instance = new System.Threading.Tasks.TaskCompletionSource<TResult>();
+                this.ResultTask = this.Instance.Task.WrapInControlledTask();
+            }
         }
 
         /// <summary>

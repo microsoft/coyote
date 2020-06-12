@@ -18,11 +18,6 @@ namespace Microsoft.Coyote.Tasks
     public struct ConfiguredTaskAwaitable
     {
         /// <summary>
-        /// Responsible for controlling the execution of tasks during systematic testing.
-        /// </summary>
-        private readonly TaskController TaskController;
-
-        /// <summary>
         /// The task awaiter.
         /// </summary>
         private readonly ConfiguredTaskAwaiter Awaiter;
@@ -33,7 +28,6 @@ namespace Microsoft.Coyote.Tasks
         internal ConfiguredTaskAwaitable(TaskController taskController, SystemTasks.Task awaitedTask,
             bool continueOnCapturedContext)
         {
-            this.TaskController = taskController;
             this.Awaiter = new ConfiguredTaskAwaiter(taskController, awaitedTask, continueOnCapturedContext);
         }
 
@@ -41,11 +35,7 @@ namespace Microsoft.Coyote.Tasks
         /// Returns an awaiter for this awaitable object.
         /// </summary>
         /// <returns>The awaiter.</returns>
-        public ConfiguredTaskAwaiter GetAwaiter()
-        {
-            this.TaskController?.OnGetAwaiter();
-            return this.Awaiter;
-        }
+        public ConfiguredTaskAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
         /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.
@@ -136,11 +126,6 @@ namespace Microsoft.Coyote.Tasks
     public struct ConfiguredTaskAwaitable<TResult>
     {
         /// <summary>
-        /// Responsible for controlling the execution of tasks during systematic testing.
-        /// </summary>
-        private readonly TaskController TaskController;
-
-        /// <summary>
         /// The task awaiter.
         /// </summary>
         private readonly ConfiguredTaskAwaiter Awaiter;
@@ -151,7 +136,6 @@ namespace Microsoft.Coyote.Tasks
         internal ConfiguredTaskAwaitable(TaskController taskController, SystemTasks.Task<TResult> awaitedTask,
             bool continueOnCapturedContext)
         {
-            this.TaskController = taskController;
             this.Awaiter = new ConfiguredTaskAwaiter(taskController, awaitedTask, continueOnCapturedContext);
         }
 
@@ -159,11 +143,7 @@ namespace Microsoft.Coyote.Tasks
         /// Returns an awaiter for this awaitable object.
         /// </summary>
         /// <returns>The awaiter.</returns>
-        public ConfiguredTaskAwaiter GetAwaiter()
-        {
-            this.TaskController?.OnGetAwaiter();
-            return this.Awaiter;
-        }
+        public ConfiguredTaskAwaiter GetAwaiter() => this.Awaiter;
 
         /// <summary>
         /// Provides an awaiter for an awaitable object. This type is intended for compiler use only.

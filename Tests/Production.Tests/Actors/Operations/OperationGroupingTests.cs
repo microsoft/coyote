@@ -250,8 +250,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             private void CheckEvent(Event e)
             {
-                this.CurrentOperation = null; // cleared before send back.
-                this.SendEvent((e as E).Id, new E());
+                this.SendEvent((e as E).Id, new E(), Operation.NullOperation);
             }
         }
 
@@ -285,12 +284,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M9B : Actor
         {
-            private void CheckEvent(Event e)
+            private void CheckEvent()
             {
                 var op = this.CurrentOperation as OperationCounter;
                 this.Assert(op != null, "M9B has unexpected null CurrentOperation");
                 op.SetResult(true);
-                var c = this.CreateActor(typeof(M9C), e);
+                var c = this.CreateActor(typeof(M9C));
                 this.SendEvent(c, new E());
             }
         }
@@ -313,7 +312,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             this.Test(async r =>
             {
                 // setup an operation that will be completed 3 times by 3 different actors
-                // while performing a 4th sub-operation on a fourth actor.
                 var op = new OperationCounter(3);
                 r.CreateActor(typeof(M9A), null, op);
                 var result = await this.GetResultAsync(op.Completion);

@@ -101,11 +101,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 (r as ActorRuntime).Stop();
 
-                int retries = 5;
+                int retries = 10;
                 int count = 0;
                 do
                 {
-                    GC.Collect();
+                    GC.Collect(3);
                     count = 0;
                     foreach (WeakReference<int[]> item in setup.Buffers)
                     {

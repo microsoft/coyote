@@ -106,10 +106,9 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             {
                 var op = new OperationList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
-                op.AddItem("SendEvent");
                 runtime.SendEvent(id, new E1());
                 var actual = await op.WaitForResult();
-                Assert.Equal("SendEvent, InitOnEntry, CurrentState=Final, OnFinal", actual);
+                Assert.Equal("InitOnEntry, CurrentState=Final, OnFinal", actual);
             });
         }
 

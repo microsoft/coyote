@@ -9,7 +9,7 @@ namespace Microsoft.Coyote.Actors
     /// deferred.  Quiescence is never reach on a StateMachine that has a DefaultEvent handler.
     /// In that case the default event handler can be considered a quiescent notification.
     /// </summary>
-    public class QuiescentOperation : Operation<bool>
+    public class QuiescentOperation : AwaitableOperation<bool>
     {
     }
 }

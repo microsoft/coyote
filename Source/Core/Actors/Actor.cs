@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// An optional operation associated with the current event being handled.
         /// An actor that handles an event can choose to complete the operation
-        /// with a result object. Typically the operation will be an <see cref="Operation{T}"/>
+        /// with a result object. Typically the operation will be an <see cref="AwaitableOperation{T}"/>
         /// and the target actor will know what type the result is.
         /// </summary>
         public Operation CurrentOperation

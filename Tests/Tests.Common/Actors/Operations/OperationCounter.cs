@@ -6,7 +6,7 @@ using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Tests.Common.Actors
 {
-    public class OperationCounter : Operation<bool>
+    public class OperationCounter : AwaitableOperation<bool>
     {
         public int ExpectedCount;
 

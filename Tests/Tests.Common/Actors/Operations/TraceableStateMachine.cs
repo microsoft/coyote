@@ -9,7 +9,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 {
-    public class OperationList : Operation<bool>
+    public class OperationList : AwaitableOperation<bool>
     {
         public List<string> Items = new List<string>();
 

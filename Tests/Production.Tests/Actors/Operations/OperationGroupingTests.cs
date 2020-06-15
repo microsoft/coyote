@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 // setup an operation that will be completed 3 times by 3 different actors
                 var op = new OperationCounter(3);
                 r.CreateActor(typeof(M9A), null, op);
-                var result = await this.GetResultAsync(op.Completion);
+                var result = await op;
                 Assert.True(result);
             });
         }

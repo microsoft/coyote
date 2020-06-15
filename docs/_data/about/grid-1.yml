@@ -21,8 +21,8 @@ row-1:
     buggy interleavings late into the wee hours.</p>
 
     <p>With this broader vision, Coyote's programming models marry design, implementation, and
-    testing for remarkable productivity. Coyote is an evolution of Microsoft Research's P# project
-    that got us started on this journey, building over years of research in concurrency design and
+    testing for remarkable productivity. Coyote is the evolution of the P# project that got us
+    started on this journey, building over years of research in concurrency design and
     implementation bugs.</p>
 
     <p>From the moment various Azure teams began using Coyote, we've been receiving enthusiastic

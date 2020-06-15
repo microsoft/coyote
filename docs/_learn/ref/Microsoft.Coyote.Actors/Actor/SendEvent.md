@@ -16,7 +16,7 @@ protected void SendEvent(ActorId id, Event e, Operation op = null, SendOptions o
 | --- | --- |
 | id | The id of the target. |
 | e | The event to send. |
-| op | An optional Operation associated with this Actor. |
+| op | An optional operation associated with this Actor. |
 | options | Optional configuration of a send operation. |
 
 ## See Also

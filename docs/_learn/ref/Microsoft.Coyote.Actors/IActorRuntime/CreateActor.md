@@ -16,7 +16,7 @@ public ActorId CreateActor(Type type, Event initialEvent = null, Operation op = 
 | --- | --- |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| op | An optional Operation associated with the new Actor. |
+| op | An optional operation associated with the new Actor. |
 
 ## Return Value
 
@@ -46,7 +46,7 @@ public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Ope
 | id | Unbound actor id. |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| op | An optional Operation associated with the new Actor. |
+| op | An optional operation associated with the new Actor. |
 
 ## Return Value
 
@@ -76,7 +76,7 @@ public ActorId CreateActor(Type type, string name, Event initialEvent = null, Op
 | type | Type of the actor. |
 | name | Optional name used for logging. |
 | initialEvent | Optional event used during initialization. |
-| op | An optional Operation associated with the new Actor. |
+| op | An optional operation associated with the new Actor. |
 
 ## Return Value
 

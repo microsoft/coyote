@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: IsCompleted
-permalink: /learn/ref/Microsoft.Coyote.Actors/Operation/IsCompleted
+title: NotifyComlete
+permalink: /learn/ref/Microsoft.Coyote.Actors/Operation/NotifyComlete
 ---
-# Operation.IsCompleted property
+# Operation.NotifyComlete method
 
-Indicates the operation has been completed.
+Call this method to mark the operation as completed.
 
 ```csharp
-public bool IsCompleted { get; }
+public virtual void NotifyComlete()
 ```
 
 ## See Also

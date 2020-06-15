@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// optional <see cref="Event"/>. This event is given to the <see cref="Actor.InitializeAsync"/>
         /// method on the new actor.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// specified optional <see cref="Event"/>. This event is given to the <see cref="Actor.InitializeAsync"/>
         /// method on the new actor.
         /// </summary>
         /// <param name="type">Type of the actor.</param>
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// optional <see cref="Event"/>. This event is given to the <see cref="Actor.InitializeAsync"/>
         /// method on the new actor. The method returns only when the actor is initialized and
         /// the <see cref="Event"/> (if any) is handled.
         /// </summary>
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event is given to the InitializeAsync
+        /// specified optional <see cref="Event"/>. This event is given to the <see cref="Actor.InitializeAsync"/>
         /// method on the new actor. The method returns only when the actor is
         /// initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>

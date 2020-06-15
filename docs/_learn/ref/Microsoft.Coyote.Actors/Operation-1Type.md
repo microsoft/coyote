@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Operation-1Type
 ---
 # Operation&lt;T&gt; class
 
-An object representing a long running operation involving one or more actors. This operation is passed along automatically during any subsequent CreateActor or SendEvent calls so that any Actor in a network of actors can complete this operation. An actor can find the operation using the CurrentOperation property. This operation contains a TaskCompletionSource that can be used to wait for the operation to be completed.
+An object representing a long running operation involving one or more actors. This operation is passed along automatically during any subsequent CreateActor or SendEvent calls so that any Actor in a network of actors can complete this operation. An actor can find the operation using the [`CurrentOperation`](Actor/CurrentOperation) property. This operation contains a [`TaskCompletionSource`](../Microsoft.Coyote.Tasks/TaskCompletionSourceType) that can be used to wait for the operation to be completed.
 
 ```csharp
 public class Operation<T> : Operation

@@ -28,7 +28,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Indicates the operation has been completed.
         /// </summary>
-        public bool IsCompleted { get; set; }
+        public bool IsCompleted { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Operation"/> class.
@@ -36,6 +36,14 @@ namespace Microsoft.Coyote.Actors
         public Operation()
         {
             this.Id = Guid.NewGuid();
+        }
+
+        /// <summary>
+        /// Call this method to mark the operation as completed.
+        /// </summary>
+        public virtual void NotifyComlete()
+        {
+            this.IsCompleted = true;
         }
 
         /// <summary>
@@ -49,8 +57,8 @@ namespace Microsoft.Coyote.Actors
     /// An object representing a long running operation involving one or more actors.
     /// This operation is passed along automatically during any subsequent CreateActor
     /// or SendEvent calls so that any Actor in a network of actors can complete this
-    /// operation.  An actor can find the operation using the CurrentOperation property.
-    /// This operation contains a TaskCompletionSource that can be used to wait for the
+    /// operation.  An actor can find the operation using the <see cref="Actor.CurrentOperation"/> property.
+    /// This operation contains a <see cref="TaskCompletionSource"/> that can be used to wait for the
     /// operation to be completed.
     /// </summary>
     /// <typeparam name="T">The result returned when the operation is completed.</typeparam>
@@ -76,7 +84,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void SetResult(T result)
         {
             this.Completion.SetResult(result);
-            this.IsCompleted = true;
+            this.NotifyComlete();
         }
 
         /// <summary>
@@ -87,17 +95,7 @@ namespace Microsoft.Coyote.Actors
         public virtual void TrySetResult(T result)
         {
             this.Completion.TrySetResult(result);
-            this.IsCompleted = true;
+            this.NotifyComlete();
         }
-    }
-
-    /// <summary>
-    /// This is a special operation that is completed when the Actor reaches a quiescent state,
-    /// meaning the inbox cannot process any events, either it is empty or everything in it is
-    /// deferred.  Quiescence is never reach on a StateMachine that has a DefaultEvent handler.
-    /// In that case the default event handler can be considered a quiescent notification.
-    /// </summary>
-    public class QuiescentOperation : Operation<bool>
-    {
     }
 }

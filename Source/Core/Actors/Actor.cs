@@ -99,8 +99,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// An optional operation associated with the current event being handled.
         /// An actor that handles an event can choose to complete the operation
-        /// with a result object. Typically the Operation will be an Operation{T}
-        /// where the target Actor knows what type the result is.
+        /// with a result object. Typically the operation will be an <see cref="Operation{T}"/>
+        /// and the target actor will know what type the result is.
         /// </summary>
         public Operation CurrentOperation
         {
@@ -460,7 +460,7 @@ namespace Microsoft.Coyote.Actors
             {
                 (DequeueStatus status, Event e, Operation op, EventInfo info) = this.Inbox.Dequeue();
 
-                this.CurrentOperation = op;
+                this.Manager.CurrentOperation = op;
 
                 try
                 {
@@ -520,7 +520,7 @@ namespace Microsoft.Coyote.Actors
                         await this.HaltAsync(e);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     // This unhandled exception is stopping the event loop so technically the actor is quiescing.
                     if (this.CurrentOperation != null)
@@ -528,7 +528,7 @@ namespace Microsoft.Coyote.Actors
                         var q = this.CurrentOperation as QuiescentOperation;
                         if (q != null && !q.IsCompleted)
                         {
-                            q.TrySetResult(true);
+                            q.Completion.SetException(ex);
                         }
                     }
 
@@ -687,7 +687,7 @@ namespace Microsoft.Coyote.Actors
                 innerException = innerException.InnerException;
             }
 
-            if (innerException is ExecutionCanceledException || innerException is System.Threading.Tasks.TaskSchedulerException)
+            if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
             {
                 this.CurrentStatus = Status.Halted;
                 Debug.WriteLine($"<Exception> {innerException.GetType().Name} was thrown from {this.Id}.");

@@ -38,7 +38,6 @@ namespace Microsoft.Coyote.Actors
             set
             {
                 this.op = value;
-                System.Diagnostics.Debug.WriteLine($"Actor {this.Instance.GetType().FullName} set operation to {this.op?.Name}");
             }
         }
 

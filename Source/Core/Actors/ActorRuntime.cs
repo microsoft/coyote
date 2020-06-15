@@ -281,7 +281,8 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(false, message);
             }
 
-            // by default we pass the operation along on each SendEvent.
+            // If no operation is provided we default to passing along the operation from the sender.
+            // If the operation is a special Operation.NullOperation then it means clear the operation.
             if (op == null && sender != null)
             {
                 op = sender.CurrentOperation;

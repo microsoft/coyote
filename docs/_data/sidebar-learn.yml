@@ -445,6 +445,8 @@ learn-toc:
       - name: Operation
         link: /learn/ref/Microsoft.Coyote.Actors/OperationType
         subfolderitems:
+        - name: NotifyComlete
+          link: /learn/ref/Microsoft.Coyote.Actors/Operation/NotifyComlete
         - name: Operation
           link: /learn/ref/Microsoft.Coyote.Actors/Operation/Operation
         - name: Id

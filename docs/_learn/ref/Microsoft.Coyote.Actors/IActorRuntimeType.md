@@ -17,7 +17,7 @@ public interface IActorRuntime : ICoyoteRuntime
 | name | description |
 | --- | --- |
 | event [OnEventDropped](IActorRuntime/OnEventDropped) | Callback that is fired when an event is dropped. |
-| [CreateActor](IActorRuntime/CreateActor)(…) | Creates a new actor of the specified Type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This event is given to the InitializeAsync method on the new actor. (3 methods) |
+| [CreateActor](IActorRuntime/CreateActor)(…) | Creates a new actor of the specified Type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor. (3 methods) |
 | [CreateActorId](IActorRuntime/CreateActorId)(…) | Creates a fresh actor id that has not yet been bound to any actor. |
 | [CreateActorIdFromName](IActorRuntime/CreateActorIdFromName)(…) | Creates a actor id that is uniquely tied to the specified unique name. The returned actor id can either be a fresh id (not yet bound to any actor), or it can be bound to a previously created actor. In the second case, this actor id can be directly used to communicate with the corresponding actor. |
 | [GetCurrentOperation](IActorRuntime/GetCurrentOperation)(…) | Returns the current [`Operation`](OperationType) of the actor with the specified id. Returns null if the id is not set, or if the [`ActorId`](ActorIdType) is not associated with this runtime. During testing, the runtime asserts that the specified actor is currently executing. |

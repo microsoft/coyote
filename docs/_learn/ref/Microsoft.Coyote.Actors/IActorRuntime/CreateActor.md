@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
 ---
 # IActorRuntime.CreateActor method (1 of 3)
 
-Creates a new actor of the specified Type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the InitializeAsync method on the new actor.
+Creates a new actor of the specified Type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
 public ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null)
@@ -65,7 +65,7 @@ The result is the actor id.
 
 # IActorRuntime.CreateActor method (3 of 3)
 
-Creates a new actor of the specified Type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the InitializeAsync method on the new actor.
+Creates a new actor of the specified Type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
 public ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null)

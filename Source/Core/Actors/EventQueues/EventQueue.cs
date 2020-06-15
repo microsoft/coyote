@@ -65,8 +65,6 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public EnqueueStatus Enqueue(Event e, Operation op, EventInfo info)
         {
-            System.Diagnostics.Debug.WriteLine($"EventQueue op = {op?.Name}");
-
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
             {
@@ -163,7 +161,7 @@ namespace Microsoft.Coyote.Actors
                     // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.ActorManager.IsEventHandlerRunning = false;
-                    this.OnQuiet();
+                    this.NotifyQuiescent();
 
                     return (DequeueStatus.NotAvailable, null, null, null);
                 }
@@ -177,7 +175,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notify caller if they are waiting for actor to reach quiescent state.
         /// </summary>
-        private void OnQuiet()
+        private void NotifyQuiescent()
         {
             var q = this.ActorManager.CurrentOperation as QuiescentOperation;
             if (q != null && !q.IsCompleted)

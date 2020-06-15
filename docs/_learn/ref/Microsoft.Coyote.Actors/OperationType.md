@@ -19,8 +19,9 @@ public class Operation
 | [Operation](Operation/Operation)() | Initializes a new instance of the [`Operation`](OperationType) class. |
 | static [NullOperation](Operation/NullOperation) | A special null operation that can be used to stop the CurrentOperation from being passed along in a CreateActor or SendEvent call. |
 | [Id](Operation/Id) { get; } | The unique id of this operation, automatically initialized with Guid.NewGiud. |
-| [IsCompleted](Operation/IsCompleted) { get; set; } | Indicates the operation has been completed. |
+| [IsCompleted](Operation/IsCompleted) { get; } | Indicates the operation has been completed. |
 | [Name](Operation/Name) { get; } | An optional friendly name for this operation. |
+| virtual [NotifyComlete](Operation/NotifyComlete)() | Call this method to mark the operation as completed. |
 
 ## See Also
 

@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/CurrentOperation
 ---
 # Actor.CurrentOperation property
 
-An optional operation associated with the current event being handled. An actor that handles an event can choose to complete the operation with a result object. Typically the Operation will be an Operation{T} where the target Actor knows what type the result is.
+An optional operation associated with the current event being handled. An actor that handles an event can choose to complete the operation with a result object. Typically the operation will be an [`Operation`](../Operation-1Type) and the target actor will know what type the result is.
 
 ```csharp
 public Operation CurrentOperation { get; set; }

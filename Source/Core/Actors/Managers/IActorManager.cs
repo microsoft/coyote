@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Actors
         bool IsEventHandlerRunning { get; set; }
 
         /// <summary>
-        /// An optional Operation associated with the current Event being handled.
+        /// An optional operation associated with the current Event being handled.
         /// </summary>
         Operation CurrentOperation { get; set; }
 

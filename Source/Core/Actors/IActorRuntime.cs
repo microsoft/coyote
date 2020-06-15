@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>The result is the actor id.</returns>
         ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null);
 
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>The result is the actor id.</returns>
         ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null);
 
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">Unbound actor id.</param>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>The result is the actor id.</returns>
         ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Operation op = null);
 
@@ -83,7 +83,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
         [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
         Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Operation op = null);
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
         [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
         Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="id">Unbound actor id.</param>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional event used during initialization.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
         [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
         Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="targetId">The id of the target.</param>
         /// <param name="e">The event to send.</param>
-        /// <param name="op">An optional Operation associated with this Actor.</param>
+        /// <param name="op">An optional operation associated with this Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
         void SendEvent(ActorId targetId, Event e, Operation op = null, SendOptions options = null);
 
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="targetId">The id of the target.</param>
         /// <param name="e">The event to send.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is true if
         /// the event was handled, false if the event was only enqueued.</returns>

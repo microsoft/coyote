@@ -287,10 +287,6 @@ namespace Microsoft.Coyote.Actors
             {
                 op = sender.CurrentOperation;
             }
-            else if (op == Operation.NullOperation)
-            {
-                op = null;
-            }
 
             Guid opId = op == null ? Guid.Empty : op.Id;
             target = this.GetActorWithId<Actor>(targetId);
@@ -300,6 +296,16 @@ namespace Microsoft.Coyote.Actors
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
+            }
+
+            // If no operation is provided, and the target already has an operation then use that one.
+            if (op == null && target.CurrentOperation != null)
+            {
+                op = target.CurrentOperation;
+            }
+            else if (op == Operation.NullOperation)
+            {
+                op = null;
             }
 
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,

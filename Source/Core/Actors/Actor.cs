@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
         protected ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null) =>
             this.Runtime.CreateActor(null, type, null, initialEvent, this, op);
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
         protected ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null) =>
             this.Runtime.CreateActor(null, type, name, initialEvent, this, op);
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="op">An optional Operation associated with the new Actor.</param>
+        /// <param name="op">An optional operation associated with the new Actor.</param>
         protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, Operation op = null) =>
             this.Runtime.CreateActor(id, type, name, initialEvent, this, op);
 
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="id">The id of the target.</param>
         /// <param name="e">The event to send.</param>
-        /// <param name="op">An optional Operation associated with this Actor.</param>
+        /// <param name="op">An optional operation associated with this Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
         protected void SendEvent(ActorId id, Event e, Operation op = null, SendOptions options = null) =>
             this.Runtime.SendEvent(id, e, this, op, options);

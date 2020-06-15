@@ -37,8 +37,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             }
         }
 
-        private class Q1 : Actor
+        private class QMachine : StateMachine
         {
+            [Start]
+            [OnEventGotoState(typeof(E), typeof(Busy))]
+            public class Init : State
+            {
+            }
+
+            public class Busy : State
+            {
+            }
         }
 
         [Fact(Timeout = 5000)]
@@ -47,7 +56,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             this.Test(async r =>
             {
                 var q = new QuiescentOperation();
-                r.CreateActor(typeof(Q1), null, q);
+                var a = r.CreateActor(typeof(QMachine), null, q);
+                r.SendEvent(a, new E());
                 var result = await this.GetResultAsync(q.Task);
                 Assert.True(result);
             });
@@ -78,17 +88,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var c = new SendCountEvent() { Count = 100 };
                 var q = new QuiescentOperation();
-                var a = r.CreateActor(typeof(QReceiver), c);
+                var a = r.CreateActor(typeof(QReceiver), c, q);
                 for (int i = c.Count; i > 0; i--)
                 {
-                    if (i == 1)
-                    {
-                        r.SendEvent(a, new E(), q);
-                    }
-                    else
-                    {
-                        r.SendEvent(a, new E());
-                    }
+                    r.SendEvent(a, new E());
                 }
 
                 // note the QuiescentOperation allows us to easily discover when

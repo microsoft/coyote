@@ -23,9 +23,9 @@ namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 
         public async Task<string> WaitForResult(int millisecondsTimeout = 5000)
         {
-            Task timeout = Task.Delay(millisecondsTimeout);
-            var t = await Task.WhenAny(this.Completion.Task, timeout);
-            if (!this.Completion.Task.IsCompleted)
+            Task timeout = Coyote.Tasks.Task.Delay(millisecondsTimeout);
+            var t = await Coyote.Tasks.Task.WhenAny(this.Task, timeout);
+            if (!this.Task.IsCompleted)
             {
                 throw new TimeoutException("Timeout waiting for OperationList result, results so far: " + this.ToString());
             }

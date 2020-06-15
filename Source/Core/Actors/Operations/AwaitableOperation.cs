@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Actors
@@ -19,43 +20,86 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// A task completion source that can be awaited to get the final result object.
         /// </summary>
-        public TaskCompletionSource<T> Completion { get; internal set; }
+        private readonly TaskCompletionSource<T> Tcs;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AwaitableOperation{T}"/> class.
         /// </summary>
         public AwaitableOperation()
         {
-            this.Completion = TaskCompletionSource.Create<T>();
+            this.Tcs = TaskCompletionSource.Create<T>();
         }
 
         /// <summary>
-        /// Provided the completed result and set <see cref="Operation.IsCompleted"/> to true.
+        /// Gets the task created by this operation.
+        /// </summary>
+        public Task<T> Task => this.Tcs.Task;
+
+        /// <summary>
+        /// Indicates the operation has been completed.
+        /// </summary>
+        public bool IsCompleted => this.Tcs.Task.IsCompleted;
+
+        /// <summary>
+        /// Value that indicates whether the task completed execution due to being canceled.
+        /// </summary>
+        public bool IsCanceled => this.Tcs.Task.IsCanceled;
+
+        /// <summary>
+        /// Value that indicates whether the task completed due to an unhandled exception.
+        /// </summary>
+        public bool IsFaulted => this.Tcs.Task.IsFaulted;
+
+        /// <summary>
+        /// Transitions the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.RanToCompletion"/> state.
         /// </summary>
         /// <param name="result">The completed result object.</param>
         public virtual void SetResult(T result)
         {
-            this.Completion.SetResult(result);
-            this.NotifyComlete();
+            this.Tcs.SetResult(result);
         }
 
         /// <summary>
-        /// Provided the completed result and set IsCompleted to true if the
-        /// operation is not already completed.
+        /// Attempts to transition the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.RanToCompletion"/> state.
         /// </summary>
         /// <param name="result">The completed result object.</param>
         public virtual void TrySetResult(T result)
         {
-            this.Completion.TrySetResult(result);
-            this.NotifyComlete();
+            this.Tcs.TrySetResult(result);
         }
+
+        /// <summary>
+        /// Transitions the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.Canceled"/> state.
+        /// </summary>
+        public virtual void SetCancelled() => this.Tcs.SetCanceled();
+
+        /// <summary>
+        /// Attempts to transition the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.Canceled"/> state.
+        /// </summary>
+        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        public virtual bool TrySetCanceled() => this.Tcs.TrySetCanceled();
+
+        /// <summary>
+        /// Transitions the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.Faulted"/> state
+        /// and binds it to the specified exception.
+        /// </summary>
+        /// <param name="exception">The exception to bind to this task.</param>
+        public virtual void SetException(Exception exception) => this.Tcs.SetException(exception);
+
+        /// <summary>
+        /// Attempts to transition the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.Faulted"/> state
+        /// and binds it to the specified exception.
+        /// </summary>
+        /// <param name="exception">The exception to bind to this task.</param>
+        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        public virtual bool TrySetException(Exception exception) => this.Tcs.TrySetException(exception);
 
         /// <summary>
         /// Gets an awaiter for this awaitable.
         /// </summary>
         public TaskAwaiter<T> GetAwaiter()
         {
-            return this.Completion.Task.GetAwaiter();
+            return this.Tcs.Task.GetAwaiter();
         }
     }
 }

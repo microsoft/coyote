@@ -26,24 +26,11 @@ namespace Microsoft.Coyote.Actors
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Indicates the operation has been completed.
-        /// </summary>
-        public bool IsCompleted { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Operation"/> class.
         /// </summary>
         public Operation()
         {
             this.Id = Guid.NewGuid();
-        }
-
-        /// <summary>
-        /// Call this method to mark the operation as completed.
-        /// </summary>
-        public virtual void NotifyComlete()
-        {
-            this.IsCompleted = true;
         }
 
         /// <summary>

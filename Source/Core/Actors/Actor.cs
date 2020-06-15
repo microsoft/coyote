@@ -528,7 +528,7 @@ namespace Microsoft.Coyote.Actors
                         var q = this.CurrentOperation as QuiescentOperation;
                         if (q != null && !q.IsCompleted)
                         {
-                            q.Completion.SetException(ex);
+                            q.SetException(ex);
                         }
                     }
 

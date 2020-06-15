@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var q = new QuiescentOperation();
                 r.CreateActor(typeof(Q1), null, q);
-                var result = await this.GetResultAsync(q.Completion);
+                var result = await this.GetResultAsync(q.Task);
                 Assert.True(result);
             });
         }
@@ -81,13 +81,20 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var a = r.CreateActor(typeof(QReceiver), c);
                 for (int i = c.Count; i > 0; i--)
                 {
-                    r.SendEvent(a, new E(), q);
+                    if (i == 1)
+                    {
+                        r.SendEvent(a, new E(), q);
+                    }
+                    else
+                    {
+                        r.SendEvent(a, new E());
+                    }
                 }
 
                 // note the QuiescentOperation allows us to easily discover when
                 // the actor has handled all the events we just sent without having
                 // to modify the actor class to make it know about this Operation.
-                var result = await this.GetResultAsync(q.Completion);
+                var result = await this.GetResultAsync(q.Task);
                 Assert.True(result);
                 Assert.Equal(0, c.Count);
             });
@@ -124,7 +131,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
 
                 // note the QuiescentOperation also terminates on unhandled exceptions inside the actor.
-                await this.GetResultAsync(q.Completion);
+                await this.GetResultAsync(q.Task);
             });
         }
     }

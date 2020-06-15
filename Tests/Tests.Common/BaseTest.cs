@@ -672,12 +672,16 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task<TResult> GetResultAsync<TResult>(TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
         {
+            return await this.GetResultAsync(tcs.Task, millisecondsDelay);
+        }
+
+        protected async Task<TResult> GetResultAsync<TResult>(Task<TResult> task, int millisecondsDelay = 5000)
+        {
             if (Debugger.IsAttached)
             {
                 millisecondsDelay = 500000;
             }
 
-            var task = tcs.Task;
             if (this.SystematicTest)
             {
                 // The TestEngine will throw a Deadlock exception if this task can't possibly complete.

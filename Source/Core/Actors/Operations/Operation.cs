@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Actors
     public class Operation
     {
         /// <summary>
-        /// The unique id of this operation, automatically initialized with Guid.NewGiud.
+        /// The unique id of this operation, initialized with Guid.Empty.
         /// </summary>
         public Guid Id { get; internal set; }
 
@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         public Operation()
         {
-            this.Id = Guid.NewGuid();
+            this.Id = Guid.Empty;
         }
 
         /// <summary>

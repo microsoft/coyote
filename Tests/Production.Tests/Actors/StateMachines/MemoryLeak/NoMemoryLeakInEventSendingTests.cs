@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                         }
                     }
                 }
-                while (retries-- > 0 && count > 0);
+                while (retries-- > 0 && count > 1);
 
                 Assert.Equal(0, count);
             });

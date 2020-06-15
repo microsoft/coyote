@@ -28,9 +28,10 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="Operation"/> class.
         /// </summary>
-        public Operation()
+        /// <param name="id">The id for this operation (defaults to Guid.Empty).</param>
+        public Operation(Guid id = default)
         {
-            this.Id = Guid.Empty;
+            this.Id = id;
         }
 
         /// <summary>

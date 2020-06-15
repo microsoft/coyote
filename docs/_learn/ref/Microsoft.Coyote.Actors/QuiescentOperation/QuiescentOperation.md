@@ -6,11 +6,15 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/QuiescentOperation/QuiescentOperat
 ---
 # QuiescentOperation constructor
 
-The default constructor.
+Initializes a new instance of the [`QuiescentOperation`](../QuiescentOperationType) class.
 
 ```csharp
-public QuiescentOperation()
+public QuiescentOperation(Guid id = default(Guid))
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id for this operation (defaults to Guid.Empty). |
 
 ## See Also
 

@@ -9,18 +9,18 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/QuiescentOperationType
 This is a special operation that is completed when the Actor reaches a quiescent state, meaning the inbox cannot process any events, either it is empty or everything in it is deferred. Quiescence is never reach on a StateMachine that has a DefaultEvent handler. In that case the default event handler can be considered a quiescent notification.
 
 ```csharp
-public class QuiescentOperation : Operation<bool>
+public class QuiescentOperation : AwaitableOperation<bool>
 ```
 
 ## Public Members
 
 | name | description |
 | --- | --- |
-| [QuiescentOperation](QuiescentOperation/QuiescentOperation)() | The default constructor. |
+| [QuiescentOperation](QuiescentOperation/QuiescentOperation)(…) | Initializes a new instance of the [`QuiescentOperation`](QuiescentOperationType) class. |
 
 ## See Also
 
-* class [Operation&lt;T&gt;](Operation-1Type)
+* class [AwaitableOperation&lt;T&gt;](AwaitableOperation-1Type)
 * namespace [Microsoft.Coyote.Actors](../MicrosoftCoyoteActorsNamespace)
 * assembly [Microsoft.Coyote](../MicrosoftCoyoteAssembly)
 

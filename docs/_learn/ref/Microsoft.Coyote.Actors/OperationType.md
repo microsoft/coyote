@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/OperationType
 ---
 # Operation class
 
-An object representing a long running operation involving one or more actors. This operation is passed along automatically during any subsequent CreateActor or SendEvent calls so that any Actor in a network of actors can complete this operation. An actor can find the operation using the [`CurrentOperation`](Actor/CurrentOperation) property.
+An object representing a long running operation involving one or more actors. This operation is passed along automatically during any subsequent CreateActor or SendEvent calls so that any actor in a network of actors can complete this operation. An actor can find the operation using the [`CurrentOperation`](Actor/CurrentOperation) property.
 
 ```csharp
 public class Operation
@@ -16,12 +16,10 @@ public class Operation
 
 | name | description |
 | --- | --- |
-| [Operation](Operation/Operation)() | Initializes a new instance of the [`Operation`](OperationType) class. |
-| static [NullOperation](Operation/NullOperation) | A special null operation that can be used to stop the CurrentOperation from being passed along in a CreateActor or SendEvent call. |
-| [Id](Operation/Id) { get; } | The unique id of this operation, automatically initialized with Guid.NewGiud. |
-| [IsCompleted](Operation/IsCompleted) { get; } | Indicates the operation has been completed. |
+| [Operation](Operation/Operation)(…) | Initializes a new instance of the [`Operation`](OperationType) class. |
+| static [NullOperation](Operation/NullOperation) | A special null operation that can be used to stop the [`CurrentOperation`](Actor/CurrentOperation) from being passed along in a CreateActor or SendEvent call. |
+| [Id](Operation/Id) { get; } | The unique id of this operation, initialized with Guid.Empty. |
 | [Name](Operation/Name) { get; } | An optional friendly name for this operation. |
-| virtual [NotifyComlete](Operation/NotifyComlete)() | Call this method to mark the operation as completed. |
 
 ## See Also
 

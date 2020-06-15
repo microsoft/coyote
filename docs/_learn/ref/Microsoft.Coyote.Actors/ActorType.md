@@ -16,7 +16,7 @@ public abstract class Actor
 
 | name | description |
 | --- | --- |
-| [CurrentOperation](Actor/CurrentOperation) { get; set; } | An optional operation associated with the current event being handled. An actor that handles an event can choose to complete the operation with a result object. Typically the operation will be an [`Operation`](Operation-1Type) and the target actor will know what type the result is. |
+| [CurrentOperation](Actor/CurrentOperation) { get; set; } | An optional operation associated with the current event being handled. An actor that handles an event can choose to complete the operation with a result object. Typically the operation will be an [`AwaitableOperation`](AwaitableOperation-1Type) and the target actor will know what type the result is. |
 | override [Equals](Actor/Equals)(…) | Determines whether the specified object is equal to the current object. |
 | override [GetHashCode](Actor/GetHashCode)() | Returns the hash code for this instance. |
 | override [ToString](Actor/ToString)() | Returns a string that represents the current actor. |

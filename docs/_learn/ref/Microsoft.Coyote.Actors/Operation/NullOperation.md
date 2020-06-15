@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Operation/NullOperation
 ---
 # Operation.NullOperation field
 
-A special null operation that can be used to stop the CurrentOperation from being passed along in a CreateActor or SendEvent call.
+A special null operation that can be used to stop the [`CurrentOperation`](../Actor/CurrentOperation) from being passed along in a CreateActor or SendEvent call.
 
 ```csharp
 public static Operation NullOperation;

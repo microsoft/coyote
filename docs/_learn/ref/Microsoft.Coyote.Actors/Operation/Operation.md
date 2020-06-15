@@ -9,8 +9,12 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Operation/Operation
 Initializes a new instance of the [`Operation`](../OperationType) class.
 
 ```csharp
-public Operation()
+public Operation(Guid id = default(Guid))
 ```
+
+| parameter | description |
+| --- | --- |
+| id | The id for this operation (defaults to Guid.Empty). |
 
 ## See Also
 

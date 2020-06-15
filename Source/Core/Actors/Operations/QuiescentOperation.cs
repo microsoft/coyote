@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
@@ -11,5 +13,13 @@ namespace Microsoft.Coyote.Actors
     /// </summary>
     public class QuiescentOperation : AwaitableOperation<bool>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QuiescentOperation"/> class.
+        /// </summary>
+        /// <param name="id">The id for this operation (defaults to Guid.Empty).</param>
+        public QuiescentOperation(Guid id = default)
+        {
+            this.Id = id;
+        }
     }
 }

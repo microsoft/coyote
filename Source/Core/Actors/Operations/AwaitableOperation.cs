@@ -25,7 +25,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="AwaitableOperation{T}"/> class.
         /// </summary>
-        public AwaitableOperation()
+        /// <param name="id">The id for this operation (defaults to Guid.Empty).</param>
+        public AwaitableOperation(Guid id = default)
+            : base(id)
         {
             this.Tcs = TaskCompletionSource.Create<T>();
         }

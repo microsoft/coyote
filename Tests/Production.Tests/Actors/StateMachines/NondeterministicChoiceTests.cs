@@ -65,7 +65,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 Assert.False(tcs.Task.IsCanceled);
                 Assert.False(tcs.Task.IsFaulted);
                 Assert.True(tcs.Task.IsCompleted);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M2 : StateMachine
@@ -103,7 +104,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 Assert.False(tcs.Task.IsCanceled);
                 Assert.False(tcs.Task.IsFaulted);
                 Assert.True(tcs.Task.IsCompleted);
-            });
+            },
+            handleFailures: false);
         }
     }
 }

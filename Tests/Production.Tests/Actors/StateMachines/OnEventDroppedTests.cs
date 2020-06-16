@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 r.CreateActor(typeof(M3b), new E(m));
 
                 await this.WaitAsync(tcs.Task);
-            }, config);
+            }, config, handleFailures: false);
         }
     }
 }

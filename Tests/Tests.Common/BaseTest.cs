@@ -436,7 +436,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected async Task RunAsync(Func<IActorRuntime, Task> test, Configuration configuration = null)
+        protected async Task RunAsync(Func<IActorRuntime, Task> test, Configuration configuration = null, bool handleFailures = true)
         {
             configuration = configuration ?? GetConfiguration();
 
@@ -457,13 +457,16 @@ namespace Microsoft.Coyote.Tests.Common
                 runtime.SetLogger(logger);
 
                 var errorTask = TaskCompletionSource.Create<Exception>();
-                runtime.OnFailure += (e) =>
+                if (handleFailures)
                 {
-                    errorTask.SetResult(Unwrap(e));
-                };
+                    runtime.OnFailure += (e) =>
+                    {
+                        errorTask.SetResult(Unwrap(e));
+                    };
+                }
 
                 await Task.WhenAny(test(runtime), errorTask.Task);
-                if (errorTask.Task.IsCompleted)
+                if (handleFailures && errorTask.Task.IsCompleted)
                 {
                     Assert.False(true, errorTask.Task.Result.Message);
                 }

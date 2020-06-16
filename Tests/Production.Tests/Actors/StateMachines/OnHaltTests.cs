@@ -70,7 +70,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M2 : StateMachine
@@ -106,7 +107,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
-            });
+            },
+            handleFailures: false);
         }
 
         private class Dummy : StateMachine
@@ -165,7 +167,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-            });
+            },
+            handleFailures: false);
         }
     }
 }

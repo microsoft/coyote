@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 // spawn 5 children, each child spawns 4 grand children and those spawn 3, etc.
                 // so we should get 1 + 5 + (5*4) + (5*4*3*2) + (5!) + (5!) actors in this network = 326
                 // actors before they are all halted.
-                r.SendEvent(id, new SpawnEvent() { Count = 5 });
+                r.SendEvent(id, new SpawnEvent() { Count = 5 }, op);
                 var result = await this.GetResultAsync(op.Task);
 
                 string dgml = graphBuilder.Graph.ToString();

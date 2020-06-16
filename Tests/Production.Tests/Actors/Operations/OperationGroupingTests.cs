@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common.Actors;

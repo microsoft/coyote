@@ -157,7 +157,6 @@ namespace Microsoft.Coyote.Actors.Mocks
             {
                 // There is no default event handler installed, so do not return an event.
                 this.ActorManager.IsEventHandlerRunning = false;
-                this.NotifyQuiescent();
                 return (DequeueStatus.NotAvailable, null, null, null);
             }
 
@@ -167,18 +166,6 @@ namespace Microsoft.Coyote.Actors.Mocks
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
             var eventOrigin = new EventOriginInfo(this.Actor.Id, this.Actor.GetType().FullName, stateName);
             return (DequeueStatus.Default, DefaultEvent.Instance, null, new EventInfo(DefaultEvent.Instance, eventOrigin));
-        }
-
-        /// <summary>
-        /// Notify caller if they are waiting for actor to reach quiescent state.
-        /// </summary>
-        private void NotifyQuiescent()
-        {
-            var q = this.ActorManager.CurrentOperation as QuiescentOperation;
-            if (q != null && !q.IsCompleted)
-            {
-                q.TrySetResult(true);
-            }
         }
 
         /// <summary>

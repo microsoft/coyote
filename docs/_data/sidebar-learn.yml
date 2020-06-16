@@ -480,11 +480,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Operation/Name
         - name: NullOperation
           link: /learn/ref/Microsoft.Coyote.Actors/Operation/NullOperation
-      - name: QuiescentOperation
-        link: /learn/ref/Microsoft.Coyote.Actors/QuiescentOperationType
-        subfolderitems:
-        - name: QuiescentOperation
-          link: /learn/ref/Microsoft.Coyote.Actors/QuiescentOperation/QuiescentOperation
       - name: RuntimeFactory
         link: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactoryType
         subfolderitems:

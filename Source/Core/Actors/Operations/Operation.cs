@@ -8,9 +8,12 @@ namespace Microsoft.Coyote.Actors
 {
     /// <summary>
     /// An object representing a long running operation involving one or more actors.
-    /// This operation is passed along automatically during any subsequent CreateActor
-    /// or SendEvent calls so that any actor in a network of actors can complete this
-    /// operation.  An actor can find the operation using the <see cref="Actor.CurrentOperation"/>
+    /// An operation can be provided as an optional argument in CreateActor and SendEvent.
+    /// If a null operation is passed then the operation is inherited from the sender
+    /// or target actors (based on which ever one has a <see cref="Actor.CurrentOperation"/>).
+    /// In this way an operation is automatically communicated to all actors involved in
+    /// completing some logical operation. Each actor involved can find the operation using
+    /// their <see cref="Actor.CurrentOperation"/> property.
     /// property.
     /// </summary>
     public class Operation

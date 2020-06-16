@@ -160,7 +160,6 @@ namespace Microsoft.Coyote.Actors
                     // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.ActorManager.IsEventHandlerRunning = false;
-                    this.NotifyQuiescent();
                     return (DequeueStatus.NotAvailable, null, null, null);
                 }
             }
@@ -168,20 +167,6 @@ namespace Microsoft.Coyote.Actors
             // TODO: check op-id of default event.
             // A default event handler exists.
             return (DequeueStatus.Default, DefaultEvent.Instance, null, null);
-        }
-
-        /// <summary>
-        /// Notify caller if they are waiting for actor to reach quiescent state.
-        /// </summary>
-        private void NotifyQuiescent()
-        {
-            // only complete quiescent operation after the event queue actually
-            // found something to do.
-            var q = this.ActorManager.CurrentOperation as QuiescentOperation;
-            if (q != null && !q.IsCompleted)
-            {
-                q.TrySetResult(true);
-            }
         }
 
         /// <inheritdoc/>

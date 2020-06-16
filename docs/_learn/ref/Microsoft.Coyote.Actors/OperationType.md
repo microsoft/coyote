@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/OperationType
 ---
 # Operation class
 
-An object representing a long running operation involving one or more actors. This operation is passed along automatically during any subsequent CreateActor or SendEvent calls so that any actor in a network of actors can complete this operation. An actor can find the operation using the [`CurrentOperation`](Actor/CurrentOperation) property.
+An object representing a long running operation involving one or more actors. An operation can be provided as an optional argument in CreateActor and SendEvent. If a null operation is passed then the operation is inherited from the sender or target actors (based on which ever one has a [`CurrentOperation`](Actor/CurrentOperation)). In this way an operation is automatically communicated to all actors involved in completing some logical operation. Each actor involved can find the operation using their [`CurrentOperation`](Actor/CurrentOperation) property. property.
 
 ```csharp
 public class Operation

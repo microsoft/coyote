@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common.Actors;
+using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.IO;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
@@ -18,123 +22,100 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
         }
 
-        private class SendCountEvent : Event
+        private class ActorHaltedOperation : AwaitableOperation<bool>
+        {
+            public ConcurrentDictionary<ActorId, bool> Running = new ConcurrentDictionary<ActorId, bool>();
+            public int RunningCount;
+
+            public int Count => this.Running.Count;
+
+            public void AddActor(ActorId owner)
+            {
+                if (this.Running.TryAdd(owner, true))
+                {
+                    Interlocked.Increment(ref this.RunningCount);
+                }
+            }
+
+            public void NotifyHalted(ActorId owner)
+            {
+                if (this.Running.TryUpdate(owner, false, true))
+                {
+                    if (Interlocked.Decrement(ref this.RunningCount) == 0)
+                    {
+                        // all known actors have halted so we are done!
+                        this.SetResult(true);
+                    }
+                }
+            }
+        }
+
+        private class SpawnEvent : Event
         {
             public int Count;
         }
 
-        private class E : Event
+        private class HaltTrackingActor : Actor
         {
-            public ActorId Id;
+            protected ActorHaltedOperation Halted;
 
-            public E()
+            internal override SystemTasks.Task InitializeAsync(Event initialEvent)
             {
+                this.Halted = this.CurrentOperation as ActorHaltedOperation;
+                return base.InitializeAsync(initialEvent);
             }
 
-            public E(ActorId id)
+            protected override Task OnHaltAsync(Event e)
             {
-                this.Id = id;
+                this.Halted.NotifyHalted(this.Id);
+                return base.OnHaltAsync(e);
             }
         }
 
-        private class QMachine : StateMachine
+        [OnEventDoAction(typeof(SpawnEvent), nameof(HandleSpawn))]
+        private class NetworkActor : HaltTrackingActor
         {
-            [Start]
-            [OnEventGotoState(typeof(E), typeof(Busy))]
-            public class Init : State
+            private void HandleSpawn(Event e)
             {
-            }
+                if (e is SpawnEvent s)
+                {
+                    int count = s.Count;
+                    System.Diagnostics.Debug.WriteLine("Actor {0} creating {1} child actors", this.Id.Name, count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        var a = this.CreateActor(typeof(NetworkActor));
+                        this.Halted.AddActor(a);
+                        this.SendEvent(a, new SpawnEvent() { Count = count - 1 });
+                    }
+                }
 
-            public class Busy : State
-            {
+                // we're done!
+                this.SendEvent(this.Id, HaltEvent.Instance);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestSimpleQuiescentOperation()
+        public void TestQuiescentNetwork()
         {
             this.Test(async r =>
             {
-                var q = new QuiescentOperation();
-                var a = r.CreateActor(typeof(QMachine));
-                r.SendEvent(a, new E(), q);
-                var result = await this.GetResultAsync(q.Task);
-                Assert.True(result);
-            });
-        }
+                var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
+                r.RegisterLog(graphBuilder);
 
-        //----------------------------------------------------------------------------------------------------
-        [OnEventDoAction(typeof(E), nameof(HandleE))]
-        internal class QReceiver : Actor
-        {
-            private SendCountEvent Counter;
+                var op = new ActorHaltedOperation();
+                var id = r.CreateActor(typeof(NetworkActor), null, op);
+                op.AddActor(id);
 
-            protected override SystemTasks.Task OnInitializeAsync(Event e)
-            {
-                this.Counter = (SendCountEvent)e;
-                return base.OnInitializeAsync(e);
-            }
+                // spawn 5 children, each child spawns 4 grand children and those spawn 3, etc.
+                // so we should get 1 + 5 + (5*4) + (5*4*3*2) + (5!) + (5!) actors in this network = 326
+                // actors before they are all halted.
+                r.SendEvent(id, new SpawnEvent() { Count = 5 });
+                var result = await this.GetResultAsync(op.Task);
 
-            private void HandleE()
-            {
-                this.Counter.Count--;
-            }
-        }
+                string dgml = graphBuilder.Graph.ToString();
 
-        [Fact(Timeout = 5000)]
-        public void TestQuiescentSends()
-        {
-            this.Test(async r =>
-            {
-                var c = new SendCountEvent() { Count = 100 };
-                var q = new QuiescentOperation();
-                var a = r.CreateActor(typeof(QReceiver), c);
-                for (int i = c.Count; i > 0; i--)
-                {
-                    r.SendEvent(a, new E(), i == 1 ? q : null);
-                }
-
-                // note the QuiescentOperation allows us to easily discover when
-                // the actor has handled all the events we just sent without having
-                // to modify the actor class to make it know about this Operation.
-                var result = await this.GetResultAsync(q.Task);
-                Assert.True(result);
-                Assert.Equal(0, c.Count);
-            });
-        }
-
-        internal class TestException : Exception
-        {
-            public TestException(string msg)
-                : base(msg)
-            {
-            }
-        }
-
-        //----------------------------------------------------------------------------------------------------
-        [OnEventDoAction(typeof(E), nameof(HandleE))]
-        internal class QError : Actor
-        {
-            private void HandleE()
-            {
-                throw new TestException("this is a bug");
-            }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestQuiescentOnError()
-        {
-            this.TestWithException<TestException>(async r =>
-            {
-                var q = new QuiescentOperation();
-                var a = r.CreateActor(typeof(QError));
-                for (int i = 0; i < 100; i++)
-                {
-                    r.SendEvent(a, new E(), q);
-                }
-
-                // note the QuiescentOperation also terminates on unhandled exceptions inside the actor.
-                await this.GetResultAsync(q.Task);
+                // add one for the initial actor created here.
+                Assert.Equal(326, op.Count);
             });
         }
     }

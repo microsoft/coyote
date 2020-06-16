@@ -26,12 +26,12 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// The internal queue that contains events with their metadata.
         /// </summary>
-        private readonly LinkedList<(Event e, Operation op, EventInfo info)> Queue;
+        private readonly LinkedList<(Event e, EventGroup op, EventInfo info)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, Operation op, EventInfo info) RaisedEvent;
+        private (Event e, EventGroup op, EventInfo info) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -68,13 +68,13 @@ namespace Microsoft.Coyote.Actors.Mocks
         {
             this.ActorManager = actorManager;
             this.Actor = actor;
-            this.Queue = new LinkedList<(Event, Operation, EventInfo)>();
+            this.Queue = new LinkedList<(Event, EventGroup, EventInfo)>();
             this.EventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             this.IsClosed = false;
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, Operation op, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup op, EventInfo info)
         {
             if (this.IsClosed)
             {
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, Operation op, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup op, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 }
                 else
                 {
-                    (Event e, Operation op, EventInfo info) raisedEvent = this.RaisedEvent;
+                    (Event e, EventGroup op, EventInfo info) raisedEvent = this.RaisedEvent;
                     this.RaisedEvent = default;
                     return (DequeueStatus.Raised, raisedEvent.e, raisedEvent.op, raisedEvent.info);
                 }
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             }
 
             // Try to dequeue the next event, if there is one.
-            (Event e, Operation op, EventInfo info) dequeued = this.TryDequeueEvent();
+            (Event e, EventGroup op, EventInfo info) dequeued = this.TryDequeueEvent();
             if (dequeued.e != null)
             {
                 // Found next event that can be dequeued.
@@ -171,9 +171,9 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Dequeues the next event and its metadata, if there is one available, else returns null.
         /// </summary>
-        private (Event e, Operation op, EventInfo info) TryDequeueEvent(bool checkOnly = false)
+        private (Event e, EventGroup op, EventInfo info) TryDequeueEvent(bool checkOnly = false)
         {
-            (Event, Operation, EventInfo) nextAvailableEvent = default;
+            (Event, EventGroup, EventInfo) nextAvailableEvent = default;
 
             // Iterates through the events and metadata in the inbox.
             var node = this.Queue.First;
@@ -213,7 +213,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public void RaiseEvent(Event e, Operation op)
+        public void RaiseEvent(Event e, EventGroup op)
         {
             string stateName = this.Actor is StateMachine stateMachine ?
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         {
             this.Actor.Runtime.NotifyReceiveCalled(this.Actor);
 
-            (Event e, Operation op, EventInfo info) receivedEvent = default;
+            (Event e, EventGroup op, EventInfo info) receivedEvent = default;
             var node = this.Queue.First;
             while (node != null)
             {

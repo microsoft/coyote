@@ -99,16 +99,16 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// An optional operation associated with the current event being handled.
         /// An actor that handles an event can choose to complete the operation
-        /// with a result object. Typically the operation will be an <see cref="AwaitableOperation{T}"/>
+        /// with a result object. Typically the operation will be an <see cref="AwaitableEventGroup{T}"/>
         /// and the target actor will know what type the result is.
         /// </summary>
-        public Operation CurrentOperation
+        public EventGroup CurrentEventGroup
         {
-            get => this.Manager.CurrentOperation;
+            get => this.Manager.CurrentEventGroup;
 
             set
             {
-                this.Manager.CurrentOperation = value;
+                this.Manager.CurrentEventGroup = value;
             }
         }
 
@@ -170,10 +170,10 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="op">An optional operation associated with the new Actor.</param>
+        /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
-        protected ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null) =>
-            this.Runtime.CreateActor(null, type, null, initialEvent, this, op);
+        protected ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.Runtime.CreateActor(null, type, null, initialEvent, this, group);
 
         /// <summary>
         /// Creates a new actor of the specified type and name, and with the specified
@@ -183,10 +183,10 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="op">An optional operation associated with the new Actor.</param>
+        /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
-        protected ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null) =>
-            this.Runtime.CreateActor(null, type, name, initialEvent, this, op);
+        protected ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.Runtime.CreateActor(null, type, name, initialEvent, this, group);
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, using the specified
@@ -197,19 +197,19 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="op">An optional operation associated with the new Actor.</param>
-        protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, Operation op = null) =>
-            this.Runtime.CreateActor(id, type, name, initialEvent, this, op);
+        /// <param name="group">An optional event group associated with the new Actor.</param>
+        protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.Runtime.CreateActor(id, type, name, initialEvent, this, group);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a target.
         /// </summary>
         /// <param name="id">The id of the target.</param>
         /// <param name="e">The event to send.</param>
-        /// <param name="op">An optional operation associated with this Actor.</param>
+        /// <param name="group">An optional event group associated with this Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
-        protected void SendEvent(ActorId id, Event e, Operation op = null, SendOptions options = null) =>
-            this.Runtime.SendEvent(id, e, this, op, options);
+        protected void SendEvent(ActorId id, Event e, EventGroup group = null, SendOptions options = null) =>
+            this.Runtime.SendEvent(id, e, this, group, options);
 
         /// <summary>
         /// Waits to receive an <see cref="Event"/> of the specified type
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues the specified event and its metadata.
         /// </summary>
-        internal EnqueueStatus Enqueue(Event e, Operation op, EventInfo info)
+        internal EnqueueStatus Enqueue(Event e, EventGroup op, EventInfo info)
         {
             if (this.CurrentStatus is Status.Halted)
             {
@@ -458,9 +458,9 @@ namespace Microsoft.Coyote.Actors
             Event lastDequeuedEvent = null;
             while (this.CurrentStatus != Status.Halted && this.Runtime.IsRunning)
             {
-                (DequeueStatus status, Event e, Operation op, EventInfo info) = this.Inbox.Dequeue();
+                (DequeueStatus status, Event e, EventGroup op, EventInfo info) = this.Inbox.Dequeue();
 
-                this.Manager.CurrentOperation = op;
+                this.Manager.CurrentEventGroup = op;
 
                 if (status is DequeueStatus.Success)
                 {

@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// An optional operation associated with the current Event being handled.
         /// </summary>
-        Operation CurrentOperation { get; set; }
+        EventGroup CurrentEventGroup { get; set; }
 
         /// <summary>
         /// Returns the cached state of the actor.
@@ -44,12 +44,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies the actor that an event has been enqueued.
         /// </summary>
-        void OnEnqueueEvent(Event e, Operation op, EventInfo eventInfo);
+        void OnEnqueueEvent(Event e, EventGroup group, EventInfo eventInfo);
 
         /// <summary>
         /// Notifies the actor that an event has been raised.
         /// </summary>
-        void OnRaiseEvent(Event e, Operation op, EventInfo eventInfo);
+        void OnRaiseEvent(Event e, EventGroup group, EventInfo eventInfo);
 
         /// <summary>
         /// Notifies the actor that it is waiting to receive an event of one of the specified types.
@@ -59,18 +59,18 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Notifies the actor that an event it was waiting to receive has been enqueued.
         /// </summary>
-        void OnReceiveEvent(Event e, Operation op, EventInfo eventInfo);
+        void OnReceiveEvent(Event e, EventGroup group, EventInfo eventInfo);
 
         /// <summary>
         /// Notifies the actor that an event it was waiting to receive was already in the
         /// event queue when the actor invoked the receive statement.
         /// </summary>
-        void OnReceiveEventWithoutWaiting(Event e, Operation op, EventInfo eventInfo);
+        void OnReceiveEventWithoutWaiting(Event e, EventGroup group, EventInfo eventInfo);
 
         /// <summary>
         /// Notifies the actor that an event has been dropped.
         /// </summary>
-        void OnDropEvent(Event e, Operation op, EventInfo eventInfo);
+        void OnDropEvent(Event e, EventGroup group, EventInfo eventInfo);
 
         /// <summary>
         /// Asserts if the specified condition holds.

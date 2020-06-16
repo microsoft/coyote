@@ -9,7 +9,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 {
-    public class OperationList : AwaitableOperation<bool>
+    public class EventGroupList : AwaitableEventGroup<bool>
     {
         public List<string> Items = new List<string>();
 
@@ -47,11 +47,11 @@ namespace Microsoft.Coyote.Tests.Common.Actors.Operations
 
     public class TraceableStateMachine : StateMachine
     {
-        protected OperationList TraceOp;
+        protected EventGroupList TraceOp;
 
         protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
         {
-            this.TraceOp = this.CurrentOperation as OperationList;
+            this.TraceOp = this.CurrentEventGroup as EventGroupList;
             this.Assert(this.TraceOp != null, "Did you forget to provide OperationTrace?");
             return base.OnInitializeAsync(initialEvent);
         }

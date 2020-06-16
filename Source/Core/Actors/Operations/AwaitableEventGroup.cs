@@ -7,16 +7,16 @@ using Microsoft.Coyote.Tasks;
 namespace Microsoft.Coyote.Actors
 {
     /// <summary>
-    /// An object representing an awaitable long running operation involving one or more actors.
-    /// An operation can be provided as an optional argument in CreateActor and SendEvent.
-    /// If a null operation is passed then the operation is inherited from the sender
-    /// or target actors (based on which ever one has a <see cref="Actor.CurrentOperation"/>).
-    /// In this way an operation is automatically communicated to all actors involved in
-    /// completing some logical operation. Each actor can find the operation using
-    /// their <see cref="Actor.CurrentOperation"/> property.
+    /// An object representing an awaitable long running context involving one or more actors.
+    /// An `AwaitableEventGroup` can be provided as an optional argument in CreateActor and SendEvent.
+    /// If a null `AwaitableEventGroup` is passed then the `EventGroup` is inherited from the sender
+    /// or target actors (based on which ever one has a <see cref="Actor.CurrentEventGroup"/>).
+    /// In this way an `AwaitableEventGroup` is automatically communicated to all actors involved in
+    /// completing some larger operation. Each actor involved can find the `AwaitableEventGroup` using
+    /// their <see cref="Actor.CurrentEventGroup"/> property.
     /// </summary>
     /// <typeparam name="T">The result returned when the operation is completed.</typeparam>
-    public class AwaitableOperation<T> : Operation
+    public class AwaitableEventGroup<T> : EventGroup
     {
         /// <summary>
         /// A task completion source that can be awaited to get the final result object.
@@ -24,22 +24,22 @@ namespace Microsoft.Coyote.Actors
         private readonly TaskCompletionSource<T> Tcs;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AwaitableOperation{T}"/> class.
+        /// Initializes a new instance of the <see cref="AwaitableEventGroup{T}"/> class.
         /// </summary>
-        /// <param name="id">The id for this operation (defaults to Guid.Empty).</param>
-        public AwaitableOperation(Guid id = default)
+        /// <param name="id">The id for this `AwaitableEventGroup` (defaults to Guid.Empty).</param>
+        public AwaitableEventGroup(Guid id = default)
             : base(id)
         {
             this.Tcs = TaskCompletionSource.Create<T>();
         }
 
         /// <summary>
-        /// Gets the task created by this operation.
+        /// Gets the task created by this `AwaitableEventGroup`.
         /// </summary>
         public Task<T> Task => this.Tcs.Task;
 
         /// <summary>
-        /// Indicates the operation has been completed.
+        /// Indicates the `AwaitableEventGroup` has been completed.
         /// </summary>
         public bool IsCompleted => this.Tcs.Task.IsCompleted;
 
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Attempts to transition the underlying task into the <see cref="System.Threading.Tasks.TaskStatus.Canceled"/> state.
         /// </summary>
-        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        /// <returns>True if the `AwaitableEventGroup` was successful; otherwise, false.</returns>
         public virtual bool TrySetCanceled() => this.Tcs.TrySetCanceled();
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Actors
         /// and binds it to the specified exception.
         /// </summary>
         /// <param name="exception">The exception to bind to this task.</param>
-        /// <returns>True if the operation was successful; otherwise, false.</returns>
+        /// <returns>True if the `AwaitableEventGroup` was successful; otherwise, false.</returns>
         public virtual bool TrySetException(Exception exception) => this.Tcs.TrySetException(exception);
 
         /// <summary>

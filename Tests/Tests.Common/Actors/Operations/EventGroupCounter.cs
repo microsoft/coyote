@@ -6,11 +6,11 @@ using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Tests.Common.Actors
 {
-    public class OperationCounter : AwaitableOperation<bool>
+    public class EventGroupCounter : AwaitableEventGroup<bool>
     {
         public int ExpectedCount;
 
-        public OperationCounter(int expected)
+        public EventGroupCounter(int expected)
         {
             this.ExpectedCount = expected;
         }

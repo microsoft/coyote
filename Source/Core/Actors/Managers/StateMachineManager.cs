@@ -26,17 +26,17 @@ namespace Microsoft.Coyote.Actors
         public bool IsEventHandlerRunning { get; set; }
 
         /// <inheritdoc/>
-        public Operation CurrentOperation { get; set; }
+        public EventGroup CurrentEventGroup { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StateMachineManager"/> class.
         /// </summary>
-        internal StateMachineManager(ActorRuntime runtime, StateMachine instance, Operation op)
+        internal StateMachineManager(ActorRuntime runtime, StateMachine instance, EventGroup group)
         {
             this.Runtime = runtime;
             this.Instance = instance;
             this.IsEventHandlerRunning = true;
-            this.CurrentOperation = op;
+            this.CurrentEventGroup = group;
         }
 
         /// <inheritdoc/>
@@ -58,12 +58,12 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnEnqueueEvent(Event e, Operation op, EventInfo eventInfo) =>
+        public void OnEnqueueEvent(Event e, EventGroup group, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnRaiseEvent(Event e, Operation op, EventInfo eventInfo) =>
+        public void OnRaiseEvent(Event e, EventGroup group, EventInfo eventInfo) =>
             this.Runtime.NotifyRaisedEvent(this.Instance, e, eventInfo);
 
         /// <inheritdoc/>
@@ -72,25 +72,25 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.NotifyWaitEvent(this.Instance, eventTypes);
 
         /// <inheritdoc/>
-        public void OnReceiveEvent(Event e, Operation op, EventInfo eventInfo)
+        public void OnReceiveEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
             // Inherit the operation group id of the receive operation, if it is non-empty.
-            this.CurrentOperation = op;
+            this.CurrentEventGroup = group;
             this.Runtime.NotifyReceivedEvent(this.Instance, e, eventInfo);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnReceiveEventWithoutWaiting(Event e, Operation op, EventInfo eventInfo)
+        public void OnReceiveEventWithoutWaiting(Event e, EventGroup group, EventInfo eventInfo)
         {
             // Inherit the operation group id of the receive operation, if it is non-empty.
-            this.CurrentOperation = op;
+            this.CurrentEventGroup = group;
             this.Runtime.NotifyReceivedEventWithoutWaiting(this.Instance, e, eventInfo);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnDropEvent(Event e, Operation op, EventInfo eventInfo) =>
+        public void OnDropEvent(Event e, EventGroup group, EventInfo eventInfo) =>
             this.Runtime.TryHandleDroppedEvent(e, this.Instance.Id);
 
         /// <inheritdoc/>

@@ -9,14 +9,14 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
-    public class GetOperationGroupIdTests : BaseProductionTest
+    public class GetEventGroupIdTests : BaseProductionTest
     {
-        public GetOperationGroupIdTests(ITestOutputHelper output)
+        public GetEventGroupIdTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        private const string OperationGroup = "OperationGroup";
+        private const string EventGroupId = "EventGroupId";
 
         private class SetupEvent : Event
         {
@@ -42,13 +42,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
             {
                 var tcs = (initialEvent as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation?.Name);
+                tcs.SetResult(this.CurrentEventGroup?.Name);
                 return base.OnInitializeAsync(initialEvent);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestGetOperationGroupIdNotSet()
+        public void TestGetEventGroupIdNotSet()
         {
             this.Test(async r =>
             {
@@ -67,25 +67,25 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
             {
                 this.Tcs = (initialEvent as SetupEvent).Tcs;
-                this.Runtime.SendEvent(this.Id, new E(this.Id), new Operation() { Name = OperationGroup });
+                this.Runtime.SendEvent(this.Id, new E(this.Id), new EventGroup() { Name = EventGroupId });
                 return base.OnInitializeAsync(initialEvent);
             }
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.CurrentOperation == null ? null : this.CurrentOperation.Name);
+                this.Tcs.SetResult(this.CurrentEventGroup == null ? null : this.CurrentEventGroup.Name);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestGetOperationGroupIdSet()
+        public void TestGetEventGroupIdSet()
         {
             this.Test(async r =>
             {
                 var e = new SetupEvent();
                 r.CreateActor(typeof(M2), e);
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.Equal(OperationGroup, result);
+                Assert.Equal(EventGroupId, result);
             });
         }
     }

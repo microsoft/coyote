@@ -15,14 +15,14 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
-    public class QuiescentOperationTests : BaseProductionTest
+    public class LargeEventGroupTest : BaseProductionTest
     {
-        public QuiescentOperationTests(ITestOutputHelper output)
+        public LargeEventGroupTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        private class ActorHaltedOperation : AwaitableOperation<bool>
+        private class ActorHaltedEventGroup : AwaitableEventGroup<bool>
         {
             public ConcurrentDictionary<ActorId, bool> Running = new ConcurrentDictionary<ActorId, bool>();
             public int RunningCount;
@@ -57,11 +57,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
         private class HaltTrackingActor : Actor
         {
-            protected ActorHaltedOperation Halted;
+            protected ActorHaltedEventGroup Halted;
 
             internal override SystemTasks.Task InitializeAsync(Event initialEvent)
             {
-                this.Halted = this.CurrentOperation as ActorHaltedOperation;
+                this.Halted = this.CurrentEventGroup as ActorHaltedEventGroup;
                 return base.InitializeAsync(initialEvent);
             }
 
@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
                 r.RegisterLog(graphBuilder);
 
-                var op = new ActorHaltedOperation();
+                var op = new ActorHaltedEventGroup();
                 var id = r.CreateActor(typeof(NetworkActor), null, op);
                 op.AddActor(id);
 

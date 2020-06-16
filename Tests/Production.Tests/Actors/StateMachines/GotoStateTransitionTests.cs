@@ -105,7 +105,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 runtime.CreateActor(typeof(M1), null, op);
                 var actual = await op.WaitForResult();
                 Assert.Equal("InitOnEntry, CurrentState=Final, FinalOnEntry", actual);
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new Message());
                 var actual = await op.WaitForResult();
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M3), null, op);
                 var actual = await op.WaitForResult();
                 Assert.Equal("InitOnEntry, CurrentState=Final, FinalOnEntry", actual);

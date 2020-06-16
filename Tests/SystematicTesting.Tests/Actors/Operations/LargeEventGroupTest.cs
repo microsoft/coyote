@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 {
-    public class QuiescentOperationTests : Microsoft.Coyote.Production.Tests.Actors.QuiescentOperationTests
+    public class LargeEventGroupTest : Microsoft.Coyote.Production.Tests.Actors.LargeEventGroupTest
     {
-        public QuiescentOperationTests(ITestOutputHelper output)
+        public LargeEventGroupTest(ITestOutputHelper output)
             : base(output)
         {
         }

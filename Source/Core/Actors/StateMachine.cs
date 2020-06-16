@@ -486,17 +486,17 @@ namespace Microsoft.Coyote.Actors
             else if (transition.TypeValue is Transition.Type.RaiseEvent)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(transition.Event, this.CurrentOperation);
+                this.Inbox.RaiseEvent(transition.Event, this.CurrentEventGroup);
             }
             else if (transition.TypeValue is Transition.Type.GotoState)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.CurrentOperation);
+                this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.CurrentEventGroup);
             }
             else if (transition.TypeValue is Transition.Type.PushState)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.CurrentOperation);
+                this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.CurrentEventGroup);
             }
             else if (transition.TypeValue is Transition.Type.PopState)
             {

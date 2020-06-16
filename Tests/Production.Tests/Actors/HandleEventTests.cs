@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M1), null, op);
                 runtime.SendEvent(id, new E1());
                 var actual = await op.WaitForResult();
@@ -100,7 +100,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E2());

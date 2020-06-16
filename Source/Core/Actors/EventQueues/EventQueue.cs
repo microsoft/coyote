@@ -20,12 +20,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The internal queue.
         /// </summary>
-        private readonly LinkedList<(Event e, Operation op)> Queue;
+        private readonly LinkedList<(Event e, EventGroup op)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, Operation op) RaisedEvent;
+        private (Event e, EventGroup op) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -57,13 +57,13 @@ namespace Microsoft.Coyote.Actors
         internal EventQueue(IActorManager actorManager)
         {
             this.ActorManager = actorManager;
-            this.Queue = new LinkedList<(Event, Operation)>();
+            this.Queue = new LinkedList<(Event, EventGroup)>();
             this.EventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             this.IsClosed = false;
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, Operation op, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup op, EventInfo info)
         {
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, Operation op, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup op, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    (Event e, Operation op) = this.RaisedEvent;
+                    (Event e, EventGroup op) = this.RaisedEvent;
                     this.RaisedEvent = default;
                     return (DequeueStatus.Raised, e, op, null);
                 }
@@ -170,10 +170,10 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public void RaiseEvent(Event e, Operation op = null)
+        public void RaiseEvent(Event e, EventGroup group = null)
         {
-            this.RaisedEvent = (e, op);
-            this.ActorManager.OnRaiseEvent(e, op, null);
+            this.RaisedEvent = (e, group);
+            this.ActorManager.OnRaiseEvent(e, group, null);
         }
 
         //// <inheritdoc/>
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
-            (Event e, Operation op) receivedEvent = default;
+            (Event e, EventGroup op) receivedEvent = default;
             lock (this.Queue)
             {
                 var node = this.Queue.First;

@@ -61,78 +61,53 @@ namespace Microsoft.Coyote.Actors
         public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, name, this, true);
 
         /// <inheritdoc/>
-        public virtual ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null) =>
-            this.CreateActor(null, type, null, initialEvent, null, op);
+        public virtual ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(null, type, null, initialEvent, null, group);
 
         /// <inheritdoc/>
-        public virtual ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null) =>
-            this.CreateActor(null, type, name, initialEvent, null, op);
+        public virtual ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(null, type, name, initialEvent, null, group);
 
         /// <inheritdoc/>
-        public virtual ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Operation op = null) =>
-            this.CreateActor(id, type, null, initialEvent, null, op);
+        public virtual ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(id, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled. The method returns only when the actor is initialized and
-        /// the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Operation op = null) =>
-            this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, op);
+        /// <inheritdoc/>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled. The method returns only when the actor is
-        /// initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
-            Operation op = null) =>
-            this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, op);
+            EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
-        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
-        /// be used to access its payload, and cannot be handled. The method returns only when
-        /// the actor is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
-            Operation op = null) =>
-            this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, op);
+            EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to an actor.
-        /// </summary>
-        public virtual void SendEvent(ActorId targetId, Event initialEvent, Operation op = default,
+        /// <inheritdoc/>
+        public virtual void SendEvent(ActorId targetId, Event initialEvent, EventGroup op = default,
             SendOptions options = null) =>
             this.SendEvent(targetId, initialEvent, null, op, options);
 
-        /// <summary>
-        /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
-        /// running. Otherwise blocks until the target handles the event and reaches quiescense.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
-            Operation op = null, SendOptions options = null) =>
-            this.SendEventAndExecuteAsync(targetId, initialEvent, null, op, options);
+            EventGroup group = null, SendOptions options = null) =>
+            this.SendEventAndExecuteAsync(targetId, initialEvent, null, group, options);
 
-        /// <summary>
-        /// Returns the operation group id of the actor with the specified id. Returns <see cref="Guid.Empty"/>
-        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
-        /// testing, the runtime asserts that the specified actor is currently executing.
-        /// </summary>
-        public virtual Operation GetCurrentOperation(ActorId currentActorId)
+        /// <inheritdoc/>
+        public virtual EventGroup GetCurrentEventGroup(ActorId currentActorId)
         {
             Actor actor = this.GetActorWithId<Actor>(currentActorId);
-            return actor?.CurrentOperation;
+            return actor?.CurrentEventGroup;
         }
 
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
-            Actor creator, Operation op)
+            Actor creator, EventGroup op)
         {
             Actor actor = this.CreateActor(id, type, name, creator, op);
             if (actor is StateMachine)
@@ -154,7 +129,7 @@ namespace Microsoft.Coyote.Actors
         /// is handled.
         /// </summary>
         internal virtual async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
-            Event initialEvent, Actor creator, Operation op)
+            Event initialEvent, Actor creator, EventGroup op)
         {
             Actor actor = this.CreateActor(id, type, name, creator, op);
             if (actor is StateMachine)
@@ -173,7 +148,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, Operation op)
+        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup op)
         {
             if (!type.IsSubclassOf(typeof(Actor)))
             {
@@ -201,7 +176,7 @@ namespace Microsoft.Coyote.Actors
             // Inherit the current operation from the creator.
             if (op == null && creator != null)
             {
-                op = creator.CurrentOperation;
+                op = creator.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
@@ -233,7 +208,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, Operation op, SendOptions options)
+        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup op, SendOptions options)
         {
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
@@ -247,7 +222,7 @@ namespace Microsoft.Coyote.Actors
         /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
         internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            Operation op, SendOptions options)
+            EventGroup op, SendOptions options)
         {
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
@@ -262,7 +237,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, Operation op, out Actor target)
+        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup op, out Actor target)
         {
             if (e is null)
             {
@@ -288,16 +263,16 @@ namespace Microsoft.Coyote.Actors
             // If the operation is a special Operation.NullOperation then it means clear the operation.
             if (op == null)
             {
-                if (sender != null && sender.CurrentOperation != null)
+                if (sender != null && sender.CurrentEventGroup != null)
                 {
-                    op = sender.CurrentOperation;
+                    op = sender.CurrentEventGroup;
                 }
                 else if (target != null)
                 {
-                    op = target.CurrentOperation;
+                    op = target.CurrentEventGroup;
                 }
             }
-            else if (op == Operation.NullOperation)
+            else if (op == EventGroup.NullEventGroup)
             {
                 op = null;
             }

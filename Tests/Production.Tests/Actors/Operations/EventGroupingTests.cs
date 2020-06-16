@@ -10,15 +10,15 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
-    public class OperationGroupingTests : BaseProductionTest
+    public class EventGroupingTests : BaseProductionTest
     {
-        public OperationGroupingTests(ITestOutputHelper output)
+        public EventGroupingTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        private const string OperationGroup1 = "OperationGroup1";
-        private const string OperationGroup2 = "OperationGroup2";
+        private const string EventGroup1 = "EventGroup1";
+        private const string EventGroup2 = "EventGroup2";
 
         private class SetupEvent : Event
         {
@@ -49,13 +49,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation?.Name);
+                tcs.SetResult(this.CurrentEventGroup?.Name);
                 return base.OnInitializeAsync(e);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestNullOperation()
+        public void TestNullEventGroup()
         {
             this.Test(async r =>
             {
@@ -75,37 +75,37 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 this.Setup = e as SetupEvent;
-                this.SendEvent(this.Id, new E(), new Operation() { Name = this.Setup.Name });
+                this.SendEvent(this.Id, new E(), new EventGroup() { Name = this.Setup.Name });
                 return base.OnInitializeAsync(e);
             }
 
             private void CheckEvent()
             {
-                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
+                this.Setup.Tcs.SetResult(this.CurrentEventGroup?.Name);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationSetBySend()
+        public void TestEventGroupSetByHand()
         {
             this.Test(async r =>
             {
-                var e = new SetupEvent() { Name = OperationGroup1 };
+                var e = new SetupEvent() { Name = EventGroup1 };
                 r.CreateActor(typeof(M3), e);
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.Equal(OperationGroup1, result);
+                Assert.Equal(EventGroup1, result);
             });
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationChangedBySend()
+        public void TestEventGroupChangedBySend()
         {
             this.Test(async r =>
             {
-                var e = new SetupEvent() { Name = OperationGroup1 };
-                r.CreateActor(typeof(M3), e, new Operation { Name = OperationGroup2 });
+                var e = new SetupEvent() { Name = EventGroup1 };
+                r.CreateActor(typeof(M3), e, new EventGroup { Name = EventGroup2 });
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.Equal(OperationGroup1, result);
+                Assert.Equal(EventGroup1, result);
             });
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                this.CurrentOperation = null; // clear the operation
+                this.CurrentEventGroup = null; // clear the EventGroup
                 this.CreateActor(typeof(M4B), e);
                 return base.OnInitializeAsync(e);
             }
@@ -125,18 +125,18 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var tcs = (e as SetupEvent).Tcs;
-                tcs.SetResult(this.CurrentOperation?.Name);
+                tcs.SetResult(this.CurrentEventGroup?.Name);
                 return base.OnInitializeAsync(e);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationClearedByCreate()
+        public void TestEventGroupClearedByCreate()
         {
             this.Test(async r =>
             {
                 var e = new SetupEvent();
-                r.CreateActor(typeof(M4A), e, new Operation() { Name = OperationGroup1 });
+                r.CreateActor(typeof(M4A), e, new EventGroup() { Name = EventGroup1 });
                 var result = await this.GetResultAsync(e.Tcs);
                 Assert.True(result == null);
             });
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var target = this.CreateActor(typeof(M5B), e);
-                this.SendEvent(target, new E(), Operation.NullOperation);
+                this.SendEvent(target, new E(), EventGroup.NullEventGroup);
                 return base.OnInitializeAsync(e);
             }
         }
@@ -166,17 +166,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private void CheckEvent()
             {
-                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
+                this.Setup.Tcs.SetResult(this.CurrentEventGroup?.Name);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationClearedBySend()
+        public void TestEventGroupClearedBySend()
         {
             this.Test(async r =>
             {
                 var e = new SetupEvent();
-                r.CreateActor(typeof(M5A), e, new Operation() { Name = OperationGroup1 });
+                r.CreateActor(typeof(M5A), e, new EventGroup() { Name = EventGroup1 });
                 var result = await this.GetResultAsync(e.Tcs);
                 Assert.True(result == null);
             });
@@ -198,7 +198,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private void CheckEvent()
             {
-                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
+                this.Setup.Tcs.SetResult(this.CurrentEventGroup?.Name);
             }
         }
 
@@ -207,20 +207,20 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             private void CheckEvent(Event e)
             {
-                // change the operation on the send back to the caller.
-                this.SendEvent((e as E).Id, new E(), new Operation() { Name = OperationGroup2 });
+                // change the EventGroup on the send back to the caller.
+                this.SendEvent((e as E).Id, new E(), new EventGroup() { Name = EventGroup2 });
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationTwoActorsSendBack()
+        public void TestEventGroupTwoActorsSendBack()
         {
             this.Test(async r =>
             {
                 var e = new SetupEvent();
-                r.CreateActor(typeof(M7A), e, new Operation() { Name = OperationGroup1 });
+                r.CreateActor(typeof(M7A), e, new EventGroup() { Name = EventGroup1 });
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.Equal(OperationGroup2, result);
+                Assert.Equal(EventGroup2, result);
             });
         }
 
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private void CheckEvent()
             {
-                this.Setup.Tcs.SetResult(this.CurrentOperation?.Name);
+                this.Setup.Tcs.SetResult(this.CurrentEventGroup?.Name);
             }
         }
 
@@ -249,17 +249,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             private void CheckEvent(Event e)
             {
-                this.SendEvent((e as E).Id, new E(), Operation.NullOperation);
+                this.SendEvent((e as E).Id, new E(), EventGroup.NullEventGroup);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationTwoActorsSendBackCleared()
+        public void TestEventGroupTwoActorsSendBackCleared()
         {
             this.Test(async r =>
             {
                 var e = new SetupEvent();
-                r.CreateActor(typeof(M8A), e, new Operation() { Name = OperationGroup1 });
+                r.CreateActor(typeof(M8A), e, new EventGroup() { Name = EventGroup1 });
 
                 var result = await this.GetResultAsync(e.Tcs);
                 Assert.True(result == null);
@@ -271,8 +271,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
-                var op = this.CurrentOperation as OperationCounter;
-                this.Assert(op != null, "M9A has unexpected null CurrentOperation");
+                var op = this.CurrentEventGroup as EventGroupCounter;
+                this.Assert(op != null, "M9A has unexpected null CurrentEventGroup");
                 op.SetResult(true);
                 var target = this.CreateActor(typeof(M9B));
                 this.SendEvent(target, new E());
@@ -285,8 +285,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             private void CheckEvent()
             {
-                var op = this.CurrentOperation as OperationCounter;
-                this.Assert(op != null, "M9B has unexpected null CurrentOperation");
+                var op = this.CurrentEventGroup as EventGroupCounter;
+                this.Assert(op != null, "M9B has unexpected null CurrentEventGroup");
                 op.SetResult(true);
                 var c = this.CreateActor(typeof(M9C));
                 this.SendEvent(c, new E());
@@ -298,20 +298,20 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             private void CheckEvent()
             {
-                // now we can complete the outer operation
-                var op = this.CurrentOperation as OperationCounter;
-                this.Assert(op != null, "M9C has unexpected null CurrentOperation");
+                // now we can complete the outer EventGroup
+                var op = this.CurrentEventGroup as EventGroupCounter;
+                this.Assert(op != null, "M9C has unexpected null CurrentEventGroup");
                 op.SetResult(true);
             }
         }
 
         [Fact(Timeout = 5000)]
-        public void TestOperationThreeActorGroup()
+        public void TestEventGroupThreeActorGroup()
         {
             this.Test(async r =>
             {
-                // setup an operation that will be completed 3 times by 3 different actors
-                var op = new OperationCounter(3);
+                // setup an EventGroup that will be completed 3 times by 3 different actors
+                var op = new EventGroupCounter(3);
                 r.CreateActor(typeof(M9A), null, op);
                 var result = await op;
                 Assert.True(result);

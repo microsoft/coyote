@@ -95,58 +95,58 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        public override ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null) =>
-            this.CreateActor(null, type, null, initialEvent, op);
+        public override ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(null, type, null, initialEvent, group);
 
         /// <inheritdoc/>
-        public override ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null) =>
-            this.CreateActor(null, type, name, initialEvent, op);
+        public override ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(null, type, name, initialEvent, group);
 
         /// <inheritdoc/>
-        public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Operation op = null)
+        public override ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, EventGroup group = null)
         {
             this.Assert(id != null, "Cannot create an actor using a null actor id.");
-            return this.CreateActor(id, type, null, initialEvent, op);
+            return this.CreateActor(id, type, null, initialEvent, group);
         }
 
         /// <inheritdoc/>
-        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event e = null, Operation op = null) =>
-            this.CreateActorAndExecuteAsync(null, type, null, e, op);
+        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, Event e = null, EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(null, type, null, e, group);
 
         /// <inheritdoc/>
-        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event e = null, Operation op = null) =>
-            this.CreateActorAndExecuteAsync(null, type, name, e, op);
+        public override Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event e = null, EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(null, type, name, e, group);
 
         /// <inheritdoc/>
-        public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event e = null, Operation op = null)
+        public override Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event e = null, EventGroup group = null)
         {
             this.Assert(id != null, "Cannot create an actor using a null actor id.");
-            return this.CreateActorAndExecuteAsync(id, type, null, e, op);
+            return this.CreateActorAndExecuteAsync(id, type, null, e, group);
         }
 
         /// <inheritdoc/>
-        public override void SendEvent(ActorId targetId, Event e, Operation op = null, SendOptions options = null)
+        public override void SendEvent(ActorId targetId, Event e, EventGroup group = null, SendOptions options = null)
         {
             var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
-            this.SendEvent(targetId, e, senderOp?.Actor, op, options);
+            this.SendEvent(targetId, e, senderOp?.Actor, group, options);
         }
 
         /// <inheritdoc/>
-        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Operation op = null,
+        public override Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, EventGroup group = null,
             SendOptions options = null)
         {
             var senderOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
-            return this.SendEventAndExecuteAsync(targetId, e, senderOp?.Actor, op, options);
+            return this.SendEventAndExecuteAsync(targetId, e, senderOp?.Actor, group, options);
         }
 
         /// <inheritdoc/>
-        public override Operation GetCurrentOperation(ActorId currentActorId)
+        public override EventGroup GetCurrentEventGroup(ActorId currentActorId)
         {
             var callerOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
             this.Assert(callerOp != null && currentActorId == callerOp.Actor.Id,
-                "Trying to access the operation group id of {0}, which is not the currently executing actor.",
+                "Trying to access the event group id of {0}, which is not the currently executing actor.",
                 currentActorId);
-            return callerOp.Actor.CurrentOperation;
+            return callerOp.Actor.CurrentEventGroup;
         }
 
         /// <summary>
@@ -216,18 +216,18 @@ namespace Microsoft.Coyote.SystematicTesting
         /// unbound actor id, and passes the specified optional <see cref="Event"/>. This event
         /// can only be used to access its payload, and cannot be handled.
         /// </summary>
-        internal ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent = null, Operation op = null)
+        internal ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup group = null)
         {
             var creatorOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
-            return this.CreateActor(id, type, name, initialEvent, creatorOp?.Actor, op);
+            return this.CreateActor(id, type, name, initialEvent, creatorOp?.Actor, group);
         }
 
         /// <inheritdoc/>
-        internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator, Operation op)
+        internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator, EventGroup group)
         {
             this.AssertExpectedCallerActor(creator, "CreateActor");
 
-            Actor actor = this.CreateActor(id, type, name, creator, op);
+            Actor actor = this.CreateActor(id, type, name, creator, group);
             this.RunActorEventHandler(actor, initialEvent, true, null);
             return actor.Id;
         }
@@ -239,21 +239,21 @@ namespace Microsoft.Coyote.SystematicTesting
         /// when the actor is initialized and the <see cref="Event"/> (if any) is handled.
         /// </summary>
         internal Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name, Event initialEvent = null,
-            Operation op = null)
+            EventGroup group = null)
         {
             var creatorOp = this.Scheduler.GetExecutingOperation<ActorOperation>();
-            return this.CreateActorAndExecuteAsync(id, type, name, initialEvent, creatorOp?.Actor, op);
+            return this.CreateActorAndExecuteAsync(id, type, name, initialEvent, creatorOp?.Actor, group);
         }
 
         /// <inheritdoc/>
         internal override async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
-            Event initialEvent, Actor creator, Operation op = null)
+            Event initialEvent, Actor creator, EventGroup group = null)
         {
             this.AssertExpectedCallerActor(creator, "CreateActorAndExecuteAsync");
             this.Assert(creator != null, "Only an actor can call 'CreateActorAndExecuteAsync': avoid calling " +
                 "it directly from the test method; instead call it through a test driver actor.");
 
-            Actor actor = this.CreateActor(id, type, name, creator, op);
+            Actor actor = this.CreateActor(id, type, name, creator, group);
             this.RunActorEventHandler(actor, initialEvent, true, creator);
 
             // Wait until the actor reaches quiescence.
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/>.
         /// </summary>
-        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, Operation op)
+        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup op)
         {
             this.Assert(type.IsSubclassOf(typeof(Actor)), "Type '{0}' is not an actor.", type.FullName);
 
@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.SystematicTesting
             // Inherit the current operation from the creator (if any).
             if (op == null && creator != null)
             {
-                op = creator.CurrentOperation;
+                op = creator.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
@@ -326,7 +326,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        internal override void SendEvent(ActorId targetId, Event e, Actor sender, Operation op, SendOptions options)
+        internal override void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup op, SendOptions options)
         {
             if (e is null)
             {
@@ -356,7 +356,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
          /// <inheritdoc/>
         internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            Operation op, SendOptions options)
+            EventGroup op, SendOptions options)
         {
             this.Assert(sender is StateMachine, "Only an actor can call 'SendEventAndExecuteAsync': avoid " +
                 "calling it directly from the test method; instead call it through a test driver actor.");
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, Operation op,
+        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup op,
             SendOptions options, out Actor target)
         {
             target = this.Scheduler.GetOperationWithId<ActorOperation>(targetId.Value)?.Actor;
@@ -397,16 +397,16 @@ namespace Microsoft.Coyote.SystematicTesting
             // If the operation is a special Operation.NullOperation then it means clear the operation.
             if (op == null)
             {
-                if (sender != null && sender.CurrentOperation != null)
+                if (sender != null && sender.CurrentEventGroup != null)
                 {
-                    op = sender.CurrentOperation;
+                    op = sender.CurrentEventGroup;
                 }
                 else if (target != null)
                 {
-                    op = target.CurrentOperation;
+                    op = target.CurrentEventGroup;
                 }
             }
-            else if (op == Operation.NullOperation)
+            else if (op == EventGroup.NullEventGroup)
             {
                 op = null;
             }
@@ -434,7 +434,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(Actor actor, Event e, Actor sender, Operation op, SendOptions options)
+        private EnqueueStatus EnqueueEvent(Actor actor, Event e, Actor sender, EventGroup op, SendOptions options)
         {
             EventOriginInfo originInfo;
 
@@ -498,7 +498,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     await actor.RunEventHandlerAsync();
                     if (syncCaller != null)
                     {
-                        this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentOperation, null);
+                        this.EnqueueEvent(syncCaller, new QuiescentEvent(actor.Id), actor, actor.CurrentEventGroup, null);
                     }
 
                     if (!actor.IsHalted)

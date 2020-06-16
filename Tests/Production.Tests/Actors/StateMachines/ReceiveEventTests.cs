@@ -114,7 +114,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M1), null, op);
                 runtime.SendEvent(id, new E1());
                 var actual = await op.WaitForResult();
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E2());
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M2), null, op);
                 runtime.SendEvent(id, new E2());
                 runtime.SendEvent(id, new E3());
@@ -157,7 +157,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M3), null, op);
                 runtime.SendEvent(id, new E2());
                 var actual = await op.WaitForResult();
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         {
             this.Test(async (IActorRuntime runtime) =>
             {
-                var op = new OperationList();
+                var op = new EventGroupList();
                 var id = runtime.CreateActor(typeof(M4), null, op);
                 runtime.SendEvent(id, new E1());
                 runtime.SendEvent(id, new E3());

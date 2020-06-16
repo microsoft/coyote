@@ -281,31 +281,34 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(false, message);
             }
 
+            target = this.GetActorWithId<Actor>(targetId);
+
             // If no operation is provided we default to passing along the operation from the sender.
+            // If no operation is provided, and the target already has an operation then use that one.
             // If the operation is a special Operation.NullOperation then it means clear the operation.
-            if (op == null && sender != null)
+            if (op == null)
             {
-                op = sender.CurrentOperation;
+                if (sender != null && sender.CurrentOperation != null)
+                {
+                    op = sender.CurrentOperation;
+                }
+                else if (target != null)
+                {
+                    op = target.CurrentOperation;
+                }
+            }
+            else if (op == Operation.NullOperation)
+            {
+                op = null;
             }
 
             Guid opId = op == null ? Guid.Empty : op.Id;
-            target = this.GetActorWithId<Actor>(targetId);
             if (target is null || target.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
-            }
-
-            // If no operation is provided, and the target already has an operation then use that one.
-            if (op == null && target.CurrentOperation != null)
-            {
-                op = target.CurrentOperation;
-            }
-            else if (op == Operation.NullOperation)
-            {
-                op = null;
             }
 
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,

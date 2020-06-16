@@ -395,13 +395,16 @@ namespace Microsoft.Coyote.SystematicTesting
             // If no operation is provided we default to passing along the operation from the sender.
             // If no operation is provided, and the target already has an operation then use that one.
             // If the operation is a special Operation.NullOperation then it means clear the operation.
-            if (op == null && sender != null)
+            if (op == null)
             {
-                op = sender.CurrentOperation;
-            }
-            else if (op == null && target.CurrentOperation != null)
-            {
-                op = target.CurrentOperation;
+                if (sender != null && sender.CurrentOperation != null)
+                {
+                    op = sender.CurrentOperation;
+                }
+                else if (target != null)
+                {
+                    op = target.CurrentOperation;
+                }
             }
             else if (op == Operation.NullOperation)
             {

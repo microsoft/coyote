@@ -52,11 +52,6 @@ namespace Microsoft.Coyote.Actors
         public bool IsEventRaised => this.RaisedEvent != default;
 
         /// <summary>
-        /// The event queue found something to dequeue.
-        /// </summary>
-        public bool IsBusy;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="EventQueue"/> class.
         /// </summary>
         internal EventQueue(IActorManager actorManager)
@@ -127,7 +122,6 @@ namespace Microsoft.Coyote.Actors
                 {
                     (Event e, Operation op) = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    this.IsBusy = true;
                     return (DequeueStatus.Raised, e, op, null);
                 }
             }
@@ -156,7 +150,6 @@ namespace Microsoft.Coyote.Actors
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
-                    this.IsBusy = true;
                     return (DequeueStatus.Success, node.Value.e, node.Value.op, null);
                 }
 
@@ -168,14 +161,12 @@ namespace Microsoft.Coyote.Actors
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.ActorManager.IsEventHandlerRunning = false;
                     this.NotifyQuiescent();
-                    this.IsBusy = false;
                     return (DequeueStatus.NotAvailable, null, null, null);
                 }
             }
 
             // TODO: check op-id of default event.
             // A default event handler exists.
-            this.IsBusy = true;
             return (DequeueStatus.Default, DefaultEvent.Instance, null, null);
         }
 
@@ -184,15 +175,12 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private void NotifyQuiescent()
         {
-            if (this.IsBusy)
+            // only complete quiescent operation after the event queue actually
+            // found something to do.
+            var q = this.ActorManager.CurrentOperation as QuiescentOperation;
+            if (q != null && !q.IsCompleted)
             {
-                // only complete quiescent operation after the event queue actually
-                // found something to do.
-                var q = this.ActorManager.CurrentOperation as QuiescentOperation;
-                if (q != null && !q.IsCompleted)
-                {
-                    q.TrySetResult(true);
-                }
+                q.TrySetResult(true);
             }
         }
 

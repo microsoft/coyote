@@ -56,8 +56,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             this.Test(async r =>
             {
                 var q = new QuiescentOperation();
-                var a = r.CreateActor(typeof(QMachine), null, q);
-                r.SendEvent(a, new E());
+                var a = r.CreateActor(typeof(QMachine));
+                r.SendEvent(a, new E(), q);
                 var result = await this.GetResultAsync(q.Task);
                 Assert.True(result);
             });
@@ -88,10 +88,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var c = new SendCountEvent() { Count = 100 };
                 var q = new QuiescentOperation();
-                var a = r.CreateActor(typeof(QReceiver), c, q);
+                var a = r.CreateActor(typeof(QReceiver), c);
                 for (int i = c.Count; i > 0; i--)
                 {
-                    r.SendEvent(a, new E());
+                    r.SendEvent(a, new E(), i == 1 ? q : null);
                 }
 
                 // note the QuiescentOperation allows us to easily discover when

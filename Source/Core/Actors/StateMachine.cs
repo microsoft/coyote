@@ -281,6 +281,13 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Notification that the current state has changed.
+        /// </summary>
+        protected virtual void OnStateChanged()
+        {
+        }
+
+        /// <summary>
         /// Asynchronous callback that is invoked when the actor finishes handling a dequeued
         /// event, unless the handler of the dequeued event raised an event or caused the actor
         /// to halt (either normally or due to an exception). Unless this callback raises an
@@ -479,17 +486,17 @@ namespace Microsoft.Coyote.Actors
             else if (transition.TypeValue is Transition.Type.RaiseEvent)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(transition.Event, this.OperationGroupId);
+                this.Inbox.RaiseEvent(transition.Event, this.Manager.CurrentEventGroup);
             }
             else if (transition.TypeValue is Transition.Type.GotoState)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.OperationGroupId);
+                this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.Manager.CurrentEventGroup);
             }
             else if (transition.TypeValue is Transition.Type.PushState)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.OperationGroupId);
+                this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.Manager.CurrentEventGroup);
             }
             else if (transition.TypeValue is Transition.Type.PopState)
             {
@@ -622,6 +629,7 @@ namespace Microsoft.Coyote.Actors
             this.StateStack.Push(state);
             this.CurrentState = state.GetType();
             this.CurrentStateName = NameResolver.GetQualifiedStateName(this.CurrentState);
+            this.OnStateChanged();
 
             // Push the inheritable event handlers.
             foreach (var eventHandler in state.InheritableEventHandlers)
@@ -653,12 +661,14 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentState = state.GetType();
                 this.CurrentStateName = NameResolver.GetQualifiedStateName(this.CurrentState);
                 this.EventHandlerMap = this.StateStack.Peek().EventHandlers;
+                this.OnStateChanged();
             }
             else
             {
                 this.EventHandlerMap = EmptyEventHandlerMap;
                 this.CurrentState = null;
                 this.CurrentStateName = string.Empty;
+                this.OnStateChanged();
             }
         }
 

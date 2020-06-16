@@ -16,6 +16,7 @@ public abstract class Actor
 
 | name | description |
 | --- | --- |
+| [CurrentEventGroup](Actor/CurrentEventGroup) { get; set; } | An optional operation associated with the current event being handled. An actor that handles an event can choose to complete the operation with a result object. Typically the operation will be an [`AwaitableEventGroup`](AwaitableEventGroup-1Type) and the target actor will know what type the result is. |
 | override [Equals](Actor/Equals)(…) | Determines whether the specified object is equal to the current object. |
 | override [GetHashCode](Actor/GetHashCode)() | Returns the hash code for this instance. |
 | override [ToString](Actor/ToString)() | Returns a string that represents the current actor. |
@@ -28,7 +29,6 @@ public abstract class Actor
 | virtual [HashedState](Actor/HashedState) { get; } | User-defined hashed state of the actor. Override to improve the accuracy of stateful techniques during testing. |
 | [Id](Actor/Id) { get; } | Unique id that identifies this actor. |
 | [Logger](Actor/Logger) { get; } | The installed runtime logger. |
-| virtual [OperationGroupId](Actor/OperationGroupId) { get; set; } | Id used to identify subsequent operations performed by this actor. This value is initially either Empty or the Guid specified upon creation. This value is automatically set to the operation group id of the last dequeue or receive operation, if it is not Empty. This value can also be manually set using the property. |
 | [Assert](Actor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [CreateActor](Actor/CreateActor)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This [`Event`](../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled. (3 methods) |
 | [Monitor](Actor/Monitor)(…) | Invokes the specified monitor with the specified event. |

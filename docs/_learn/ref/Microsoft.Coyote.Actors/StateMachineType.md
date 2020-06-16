@@ -26,6 +26,7 @@ public abstract class StateMachine : Actor
 | [StateMachine](StateMachine/StateMachine)() | Initializes a new instance of the [`StateMachine`](StateMachineType) class. |
 | [CurrentState](StateMachine/CurrentState) { get; } | Gets the Type of the current state. |
 | override [OnEventHandledAsync](StateMachine/OnEventHandledAsync)(…) | Asynchronous callback that is invoked when the actor finishes handling a dequeued event, unless the handler of the dequeued event raised an event or caused the actor to halt (either normally or due to an exception). Unless this callback raises an event, the actor will either become idle or dequeue the next event from its inbox. |
+| virtual [OnStateChanged](StateMachine/OnStateChanged)() | Notification that the current state has changed. |
 | [RaiseEvent](StateMachine/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
 | [RaiseGotoStateEvent](StateMachine/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
 | [RaiseGotoStateEvent&lt;TState&gt;](StateMachine/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |

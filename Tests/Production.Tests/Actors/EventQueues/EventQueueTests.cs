@@ -55,15 +55,15 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 Assert.Equal(0, queue.Size);
 
-                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E1(), null, null);
                 Assert.Equal(1, queue.Size);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
 
-                enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E2(), null, null);
                 Assert.Equal(2, queue.Size);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
 
-                enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E3(), null, null);
                 Assert.Equal(3, queue.Size);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
             }
@@ -78,36 +78,36 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             using (var queue = new EventQueue(mockActorManager))
             {
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                queue.Enqueue(new E1(), Guid.Empty, null);
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                queue.Enqueue(new E1(), null, null);
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E1>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                queue.Enqueue(new E3(), Guid.Empty, null);
-                queue.Enqueue(new E2(), Guid.Empty, null);
-                queue.Enqueue(new E1(), Guid.Empty, null);
+                queue.Enqueue(new E3(), null, null);
+                queue.Enqueue(new E2(), null, null);
+                queue.Enqueue(new E1(), null, null);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E3>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(2, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E2>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(1, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E1>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
             }
@@ -122,11 +122,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             using (var queue = new EventQueue(mockActorManager))
             {
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E1(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerNotRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
             }
@@ -141,11 +141,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             using (var queue = new EventQueue(mockActorManager))
             {
-                queue.RaiseEvent(new E1(), Guid.Empty);
+                queue.RaiseEvent(new E1(), null);
                 Assert.True(queue.IsEventRaised);
                 Assert.Equal(0, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E1>(e);
                 Assert.Equal(DequeueStatus.Raised, deqeueStatus);
                 Assert.False(queue.IsEventRaised);
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E1));
 
-                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E1(), null, null);
                 Assert.Equal(EnqueueStatus.Received, enqueueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(0, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -212,11 +212,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E4), evt => (evt as E4).Value);
 
-                var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E4(false), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
-                enqueueStatus = queue.Enqueue(new E4(true), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E4(true), null, null);
                 Assert.Equal(EnqueueStatus.Received, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
@@ -225,13 +225,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.True((receivedEvent as E4).Value);
                 Assert.Equal(1, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E4>(e);
                 Assert.False((e as E4).Value);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -259,11 +259,11 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             using (var queue = new EventQueue(mockActorManager))
             {
-                var enqueueStatus = queue.Enqueue(new E4(false), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E4(false), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
-                enqueueStatus = queue.Enqueue(new E4(true), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E4(true), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(2, queue.Size);
 
@@ -272,13 +272,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.True((receivedEvent as E4).Value);
                 Assert.Equal(1, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E4>(e);
                 Assert.False((e as E4).Value);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -306,7 +306,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             using (var queue = new EventQueue(mockActorManager))
             {
-                var enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E1(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(0, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -344,7 +344,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E1), typeof(E2));
 
-                var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E2(), null, null);
                 Assert.Equal(EnqueueStatus.Received, enqueueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -352,7 +352,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.IsType<E2>(receivedEvent);
                 Assert.Equal(0, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
@@ -382,15 +382,15 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var receivedEventTask = queue.ReceiveEventAsync(typeof(E1));
 
-                var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E2(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
-                enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E3(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(2, queue.Size);
 
-                enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E1(), null, null);
                 Assert.Equal(EnqueueStatus.Received, enqueueStatus);
                 Assert.Equal(2, queue.Size);
 
@@ -398,12 +398,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(2, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E2>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(1, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E3>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(0, queue.Size);
@@ -432,15 +432,15 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             using (var queue = new EventQueue(mockActorManager))
             {
-                var enqueueStatus = queue.Enqueue(new E2(), Guid.Empty, null);
+                var enqueueStatus = queue.Enqueue(new E2(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(1, queue.Size);
 
-                enqueueStatus = queue.Enqueue(new E1(), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E1(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(2, queue.Size);
 
-                enqueueStatus = queue.Enqueue(new E3(), Guid.Empty, null);
+                enqueueStatus = queue.Enqueue(new E3(), null, null);
                 Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
                 Assert.Equal(3, queue.Size);
 
@@ -448,17 +448,17 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.IsType<E1>(receivedEvent);
                 Assert.Equal(2, queue.Size);
 
-                var (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                var (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E2>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(1, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.IsType<E3>(e);
                 Assert.Equal(DequeueStatus.Success, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 
-                (deqeueStatus, e, opGroupId, info) = queue.Dequeue();
+                (deqeueStatus, e, group, info) = queue.Dequeue();
                 Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
                 Assert.Equal(0, queue.Size);
 

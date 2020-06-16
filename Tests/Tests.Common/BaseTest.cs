@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
@@ -14,6 +13,7 @@ using Microsoft.Coyote.SystematicTesting.Strategies;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common
 {
@@ -455,16 +455,43 @@ namespace Microsoft.Coyote.Tests.Common
                 configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
-                await test(runtime);
+
+                var errorTask = TaskCompletionSource.Create<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorTask.SetResult(Unwrap(e));
+                };
+
+                await Task.WhenAny(test(runtime), errorTask.Task);
+                if (errorTask.Task.IsCompleted)
+                {
+                    Assert.False(true, errorTask.Task.Result.Message);
+                }
             }
             catch (Exception ex)
             {
-                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+                Exception e = Unwrap(ex);
+                Assert.False(true, e.Message + "\n" + e.StackTrace);
             }
             finally
             {
                 logger.Dispose();
             }
+        }
+
+        private static Exception Unwrap(Exception ex)
+        {
+            Exception e = ex;
+            if (e is AggregateException ae)
+            {
+                e = ae.InnerException;
+            }
+            else if (e is ActionExceptionFilterException fe)
+            {
+                e = fe.InnerException;
+            }
+
+            return e;
         }
 
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
@@ -582,36 +609,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
-        {
-            if (Debugger.IsAttached)
-            {
-                millisecondsDelay = 500000;
-            }
-
-            if (this.SystematicTest)
-            {
-                // WhenAny delay is ignored in test mode...
-                int start = Environment.TickCount;
-                while (start + millisecondsDelay > Environment.TickCount && !task.IsCompleted)
-                {
-                    await Task.WhenAny(task, Task.Delay(10));
-                }
-            }
-            else
-            {
-                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
-            }
-
-            if (task.IsFaulted)
-            {
-                // unwrap the AggregateException.
-                throw task.Exception.InnerException;
-            }
-
-            Assert.True(task.IsCompleted);
-        }
-
         protected void RunWithException<TException>(Action test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
@@ -649,16 +646,39 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected async Task<TResult> GetResultAsync<TResult>(TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
+        protected static async Task<T> WaitAsync<T>(SystemTasks.Task<T> task, int millisecondsDelay = 5000)
         {
             if (Debugger.IsAttached)
             {
                 millisecondsDelay = 500000;
             }
 
-            var task = tcs.Task;
+            await SystemTasks.Task.WhenAny(task, SystemTasks.Task.Delay(millisecondsDelay));
+            Assert.True(task.IsCompleted);
+            return task.Result;
+        }
+
+        protected static async Task WaitAsync(SystemTasks.Task task, int millisecondsDelay = 5000)
+        {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
+            await SystemTasks.Task.WhenAny(task, SystemTasks.Task.Delay(millisecondsDelay));
+            Assert.True(task.IsCompleted);
+        }
+
+        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
+        {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
             if (this.SystematicTest)
             {
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
                 await task;
             }
             else
@@ -668,7 +688,40 @@ namespace Microsoft.Coyote.Tests.Common
 
             if (task.IsFaulted)
             {
-                // unwrap the AggregateException.
+                // unwrap the AggregateException so unit tests can more easily
+                // Assert.Throws to match a more specific inner exception.
+                throw task.Exception.InnerException;
+            }
+
+            Assert.True(task.IsCompleted);
+        }
+
+        protected async Task<TResult> GetResultAsync<TResult>(TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
+        {
+            return await this.GetResultAsync(tcs.Task, millisecondsDelay);
+        }
+
+        protected async Task<TResult> GetResultAsync<TResult>(Task<TResult> task, int millisecondsDelay = 5000)
+        {
+            if (Debugger.IsAttached)
+            {
+                millisecondsDelay = 500000;
+            }
+
+            if (this.SystematicTest)
+            {
+                // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
+                await task;
+            }
+            else
+            {
+                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+            }
+
+            if (task.IsFaulted)
+            {
+                // unwrap the AggregateException so unit tests can more easily
+                // Assert.Throws to match a more specific inner exception.
                 throw task.Exception.InnerException;
             }
 

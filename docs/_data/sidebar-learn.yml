@@ -60,10 +60,8 @@ learn-toc:
           link: /learn/programming-models/actors/termination
         - name: Using timers in actors
           link: /learn/programming-models/actors/timers
-        - name: Synchronous execution
-          link: /learn/programming-models/actors/synchronous-execution
-        - name: Tracking operation groups
-          link: /learn/programming-models/actors/tracking-operation-groups
+        - name: Event groups
+          link: /learn/programming-models/actors/event-groups
         - name: Semantics of unhandled exceptions
           link: /learn/programming-models/actors/uncaught-exceptions
         - name: Sharing objects
@@ -230,8 +228,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Actor
         - name: Id
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Id
-        - name: OperationGroupId
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OperationGroupId
+        - name: CurrentEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup
         - name: Logger
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Logger
         - name: HashedState
@@ -298,14 +296,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorIdFromName
         - name: CreateActor
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
-        - name: CreateActorAndExecuteAsync
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActorAndExecuteAsync
         - name: SendEvent
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
-        - name: SendEventAndExecuteAsync
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEventAndExecuteAsync
-        - name: GetCurrentOperationGroupId
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperationGroupId
+        - name: GetCurrentEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
         - name: RegisterLog
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog
         - name: RemoveLog
@@ -446,6 +440,44 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStrategyDescription
         - name: OnCompleted
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted
+      - name: AwaitableEventGroup<T>
+        link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1Type
+        subfolderitems:
+        - name: SetResult
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult
+        - name: TrySetResult
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetResult
+        - name: SetCancelled
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetCancelled
+        - name: TrySetCanceled
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetCanceled
+        - name: SetException
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetException
+        - name: TrySetException
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetException
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/GetAwaiter
+        - name: AwaitableEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/AwaitableEventGroup
+        - name: Task
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/Task
+        - name: IsCompleted
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCompleted
+        - name: IsCanceled
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled
+        - name: IsFaulted
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted
+      - name: EventGroup
+        link: /learn/ref/Microsoft.Coyote.Actors/EventGroupType
+        subfolderitems:
+        - name: EventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/EventGroup
+        - name: Id
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Id
+        - name: Name
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Name
+        - name: NullEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/NullEventGroup
       - name: RuntimeFactory
         link: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactoryType
         subfolderitems:
@@ -479,6 +511,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaisePopStateEvent
         - name: RaiseHaltEvent
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent
+        - name: OnStateChanged
+          link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/OnStateChanged
         - name: OnEventHandledAsync
           link: /learn/ref/Microsoft.Coyote.Actors/StateMachine/OnEventHandledAsync
         - name: StateMachine

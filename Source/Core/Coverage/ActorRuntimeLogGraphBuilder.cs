@@ -112,6 +112,13 @@ namespace Microsoft.Coyote.Coverage
                 var resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
                 GraphNode node = this.Graph.GetOrCreateNode(resolvedId);
                 node.Category = ActorCategory;
+
+                if (!string.IsNullOrEmpty(creatorName))
+                {
+                    var creatorId = this.GetResolveActorId(creatorName, creatorType);
+                    GraphNode creator = this.Graph.GetOrCreateNode(creatorId);
+                    this.GetOrCreateEventLink(creator, node, new EventInfo() { Event = "CreateActor" });
+                }
             }
         }
 
@@ -123,6 +130,13 @@ namespace Microsoft.Coyote.Coverage
                 var resolvedId = this.GetResolveActorId(id?.Name, id?.Type);
                 GraphNode node = this.Graph.GetOrCreateNode(resolvedId);
                 node.Category = StateMachineCategory;
+
+                if (!string.IsNullOrEmpty(creatorName))
+                {
+                    var creatorId = this.GetResolveActorId(creatorName, creatorType);
+                    GraphNode creator = this.Graph.GetOrCreateNode(creatorId);
+                    this.GetOrCreateEventLink(creator, node, new EventInfo() { Event = "CreateActor" });
+                }
             }
         }
 
@@ -264,15 +278,14 @@ namespace Microsoft.Coyote.Coverage
             lock (this.Inbox)
             {
                 this.HaltedStates.TryGetValue(id, out string stateName);
-                if (string.IsNullOrEmpty(stateName))
-                {
-                    stateName = "null";
-                }
+                var target = this.GetOrCreateChild(id?.Name, id?.Type, "Halt", "Halt");
 
                 // Transition to the Halt state.
-                var source = this.GetOrCreateChild(id?.Name, id?.Type, stateName);
-                var target = this.GetOrCreateChild(id?.Name, id?.Type, "Halt", "Halt");
-                this.GetOrCreateEventLink(source, target, new EventInfo() { Event = typeof(HaltEvent).FullName });
+                if (!string.IsNullOrEmpty(stateName))
+                {
+                    var source = this.GetOrCreateChild(id?.Name, id?.Type, stateName);
+                    this.GetOrCreateEventLink(source, target, new EventInfo() { Event = typeof(HaltEvent).FullName });
+                }
             }
         }
 
@@ -328,9 +341,12 @@ namespace Microsoft.Coyote.Coverage
         /// <inheritdoc/>
         public void OnPopStateUnhandledEvent(ActorId actorId, string currentStateName, Event e)
         {
-            if (e is HaltEvent)
+            lock (this.Inbox)
             {
-                this.HaltedStates[actorId] = currentStateName;
+                if (e is HaltEvent)
+                {
+                    this.HaltedStates[actorId] = currentStateName;
+                }
             }
         }
 
@@ -622,7 +638,11 @@ namespace Microsoft.Coyote.Coverage
                 }
                 else
                 {
-                    link.AddAttribute("EventId", e.Event);
+                    if (e.Event != null)
+                    {
+                        link.AddAttribute("EventId", e.Event);
+                    }
+
                     if (e.HandlingState != null)
                     {
                         link.AddAttribute("HandledBy", e.HandlingState);

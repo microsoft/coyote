@@ -20,12 +20,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The internal queue.
         /// </summary>
-        private readonly LinkedList<(Event e, Guid opGroupId)> Queue;
+        private readonly LinkedList<(Event e, EventGroup group)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, Guid opGroupId) RaisedEvent;
+        private (Event e, EventGroup group) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -57,13 +57,13 @@ namespace Microsoft.Coyote.Actors
         internal EventQueue(IActorManager actorManager)
         {
             this.ActorManager = actorManager;
-            this.Queue = new LinkedList<(Event, Guid)>();
+            this.Queue = new LinkedList<(Event, EventGroup)>();
             this.EventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             this.IsClosed = false;
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, Guid opGroupId, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
         {
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    this.Queue.AddLast((e, opGroupId));
+                    this.Queue.AddLast((e, group));
                     if (!this.ActorManager.IsEventHandlerRunning)
                     {
                         this.ActorManager.IsEventHandlerRunning = true;
@@ -93,26 +93,26 @@ namespace Microsoft.Coyote.Actors
 
             if (enqueueStatus is EnqueueStatus.Received)
             {
-                this.ActorManager.OnReceiveEvent(e, opGroupId, info);
+                this.ActorManager.OnReceiveEvent(e, group, info);
                 this.ReceiveCompletionSource.SetResult(e);
                 return enqueueStatus;
             }
             else
             {
-                this.ActorManager.OnEnqueueEvent(e, opGroupId, info);
+                this.ActorManager.OnEnqueueEvent(e, group, info);
             }
 
             return enqueueStatus;
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, Guid opGroupId, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup group, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
             if (this.RaisedEvent != default)
             {
-                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e, this.RaisedEvent.opGroupId, null))
+                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e, null))
                 {
                     // TODO: should the user be able to raise an ignored event?
                     // The raised event is ignored in the current state.
@@ -120,9 +120,9 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    (Event e, Guid opGroupId) = this.RaisedEvent;
+                    (Event e, EventGroup group) = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.Raised, e, opGroupId, null);
+                    return (DequeueStatus.Raised, e, group, null);
                 }
             }
 
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Actors
                 while (node != null)
                 {
                     // Iterates through the events in the inbox.
-                    if (this.ActorManager.IsEventIgnored(node.Value.e, node.Value.opGroupId, null))
+                    if (this.ActorManager.IsEventIgnored(node.Value.e, null))
                     {
                         // Removes an ignored event.
                         var nextNode = node.Next;
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Actors
                         node = nextNode;
                         continue;
                     }
-                    else if (this.ActorManager.IsEventDeferred(node.Value.e, node.Value.opGroupId, null))
+                    else if (this.ActorManager.IsEventDeferred(node.Value.e, null))
                     {
                         // Skips a deferred event.
                         node = node.Next;
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Actors
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
-                    return (DequeueStatus.Success, node.Value.e, node.Value.opGroupId, null);
+                    return (DequeueStatus.Success, node.Value.e, node.Value.group, null);
                 }
 
                 // No event can be dequeued, so check if there is a default event handler.
@@ -160,20 +160,20 @@ namespace Microsoft.Coyote.Actors
                     // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
                     this.ActorManager.IsEventHandlerRunning = false;
-                    return (DequeueStatus.NotAvailable, null, Guid.Empty, null);
+                    return (DequeueStatus.NotAvailable, null, null, null);
                 }
             }
 
             // TODO: check op-id of default event.
             // A default event handler exists.
-            return (DequeueStatus.Default, DefaultEvent.Instance, Guid.Empty, null);
+            return (DequeueStatus.Default, DefaultEvent.Instance, null, null);
         }
 
         /// <inheritdoc/>
-        public void RaiseEvent(Event e, Guid opGroupId)
+        public void RaiseEvent(Event e, EventGroup group = null)
         {
-            this.RaisedEvent = (e, opGroupId);
-            this.ActorManager.OnRaiseEvent(e, opGroupId, null);
+            this.RaisedEvent = (e, group);
+            this.ActorManager.OnRaiseEvent(e, group, null);
         }
 
         //// <inheritdoc/>
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
-            (Event e, Guid opGroupId) receivedEvent = default;
+            (Event e, EventGroup group) receivedEvent = default;
             lock (this.Queue)
             {
                 var node = this.Queue.First;
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Actors
                 return this.ReceiveCompletionSource.Task;
             }
 
-            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.opGroupId, null);
+            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.group, null);
             return Task.FromResult(receivedEvent.e);
         }
 

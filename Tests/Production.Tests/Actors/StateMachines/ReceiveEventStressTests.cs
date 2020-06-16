@@ -95,21 +95,16 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 20000)]
-        public async SystemTasks.Task TestReceiveEvent()
+        public void TestReceiveEvent()
         {
-            for (int i = 0; i < 100; i++)
+            this.Test(async r =>
             {
-                await this.RunAsync(async r =>
-                {
-                    r.Logger.WriteLine($"Iteration #{i}");
+                var tcs = TaskCompletionSource.Create<bool>();
+                r.CreateActor(typeof(M1), new SetupTcsEvent(tcs, 18000));
 
-                    var tcs = TaskCompletionSource.Create<bool>();
-                    r.CreateActor(typeof(M1), new SetupTcsEvent(tcs, 18000));
-
-                    var result = await this.GetResultAsync(tcs);
-                    Assert.True(result);
-                });
-            }
+                var result = await this.GetResultAsync(tcs);
+                Assert.True(result);
+            });
         }
 
         private class M3 : StateMachine
@@ -161,7 +156,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             private async SystemTasks.Task HandleMessage()
             {
                 await this.ReceiveEventAsync(typeof(Message));
-                this.Counter += 2;
+                this.Counter += 2; // +2 because we are handling a message and receiving another.
 
                 if (this.Counter == this.NumMessages)
                 {
@@ -171,21 +166,16 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 20000)]
-        public async SystemTasks.Task TestReceiveEventAlternate()
+        public void TestReceiveEventAlternate()
         {
-            for (int i = 0; i < 100; i++)
+            this.Test(async r =>
             {
-                await this.RunAsync(async r =>
-                {
-                    r.Logger.WriteLine($"Iteration #{i}");
+                var tcs = TaskCompletionSource.Create<bool>();
+                r.CreateActor(typeof(M3), new SetupTcsEvent(tcs, 18000));
 
-                    var tcs = TaskCompletionSource.Create<bool>();
-                    r.CreateActor(typeof(M3), new SetupTcsEvent(tcs, 18000));
-
-                    var result = await this.GetResultAsync(tcs);
-                    Assert.True(result);
-                });
-            }
+                var result = await this.GetResultAsync(tcs);
+                Assert.True(result);
+            });
         }
 
         private class M5 : StateMachine
@@ -239,21 +229,16 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
         }
 
         [Fact(Timeout = 20000)]
-        public async SystemTasks.Task TestReceiveEventExchange()
+        public void TestReceiveEventExchange()
         {
-            for (int i = 0; i < 100; i++)
+            this.Test(async r =>
             {
-                await this.RunAsync(async r =>
-                {
-                    r.Logger.WriteLine($"Iteration #{i}");
+                var tcs = TaskCompletionSource.Create<bool>();
+                r.CreateActor(typeof(M5), new SetupTcsEvent(tcs, 18000));
 
-                    var tcs = TaskCompletionSource.Create<bool>();
-                    r.CreateActor(typeof(M5), new SetupTcsEvent(tcs, 18000));
-
-                    var result = await this.GetResultAsync(tcs);
-                    Assert.True(result);
-                });
-            }
+                var result = await this.GetResultAsync(tcs);
+                Assert.True(result);
+            });
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
@@ -53,106 +54,62 @@ namespace Microsoft.Coyote.Actors
             this.LogWriter = new LogWriter(configuration);
         }
 
-        /// <summary>
-        /// Creates a fresh actor id that has not yet been bound to any actor.
-        /// </summary>
-        public ActorId CreateActorId(Type type, string name = null) => new ActorId(type, name, this);
+        /// <inheritdoc/>
+        public virtual ActorId CreateActorId(Type type, string name = null) => new ActorId(type, name, this);
 
-        /// <summary>
-        /// Creates a actor id that is uniquely tied to the specified unique name. The
-        /// returned actor id can either be a fresh id (not yet bound to any actor), or
-        /// it can be bound to a previously created actor. In the second case, this actor
-        /// id can be directly used to communicate with the corresponding actor.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual ActorId CreateActorIdFromName(Type type, string name) => new ActorId(type, name, this, true);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled.
-        /// </summary>
-        public virtual ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default) =>
-            this.CreateActor(null, type, null, initialEvent, null, opGroupId);
+        /// <inheritdoc/>
+        public virtual ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(null, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled.
-        /// </summary>
-        public virtual ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
-            this.CreateActor(null, type, name, initialEvent, null, opGroupId);
+        /// <inheritdoc/>
+        public virtual ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(null, type, name, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified type, using the specified <see cref="ActorId"/>.
-        /// This method optionally passes an <see cref="Event"/> to the new actor, which can only
-        /// be used to access its payload, and cannot be handled.
-        /// </summary>
-        public virtual ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Guid opGroupId = default) =>
-            this.CreateActor(id, type, null, initialEvent, null, opGroupId);
+        /// <inheritdoc/>
+        public virtual ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActor(id, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and with the specified
-        /// optional <see cref="Event"/>. This event can only be used to access its payload,
-        /// and cannot be handled. The method returns only when the actor is initialized and
-        /// the <see cref="Event"/> (if any) is handled.
-        /// </summary>
-        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, Guid opGroupId = default) =>
-            this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, opGroupId);
+        /// <inheritdoc/>
+        public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(null, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/> and name, and with the
-        /// specified optional <see cref="Event"/>. This event can only be used to access
-        /// its payload, and cannot be handled. The method returns only when the actor is
-        /// initialized and the <see cref="Event"/> (if any) is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
-            Guid opGroupId = default) =>
-            this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, opGroupId);
+            EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(null, type, name, initialEvent, null, group);
 
-        /// <summary>
-        /// Creates a new actor of the specified <see cref="Type"/>, using the specified unbound
-        /// actor id, and passes the specified optional <see cref="Event"/>. This event can only
-        /// be used to access its payload, and cannot be handled. The method returns only when
-        /// the actor is initialized and the <see cref="Event"/> (if any)
-        /// is handled.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
-            Guid opGroupId = default) =>
-            this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, opGroupId);
+            EventGroup group = null) =>
+            this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, group);
 
-        /// <summary>
-        /// Sends an asynchronous <see cref="Event"/> to an actor.
-        /// </summary>
-        public virtual void SendEvent(ActorId targetId, Event initialEvent, Guid opGroupId = default,
+        /// <inheritdoc/>
+        public virtual void SendEvent(ActorId targetId, Event initialEvent, EventGroup group = default,
             SendOptions options = null) =>
-            this.SendEvent(targetId, initialEvent, null, opGroupId, options);
+            this.SendEvent(targetId, initialEvent, null, group, options);
 
-        /// <summary>
-        /// Sends an <see cref="Event"/> to an actor. Returns immediately if the target was already
-        /// running. Otherwise blocks until the target handles the event and reaches quiescense.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
-            Guid opGroupId = default, SendOptions options = null) =>
-            this.SendEventAndExecuteAsync(targetId, initialEvent, null, opGroupId, options);
+            EventGroup group = null, SendOptions options = null) =>
+            this.SendEventAndExecuteAsync(targetId, initialEvent, null, group, options);
 
-        /// <summary>
-        /// Returns the operation group id of the actor with the specified id. Returns <see cref="Guid.Empty"/>
-        /// if the id is not set, or if the <see cref="ActorId"/> is not associated with this runtime. During
-        /// testing, the runtime asserts that the specified actor is currently executing.
-        /// </summary>
-        public virtual Guid GetCurrentOperationGroupId(ActorId currentActorId)
+        /// <inheritdoc/>
+        public virtual EventGroup GetCurrentEventGroup(ActorId currentActorId)
         {
             Actor actor = this.GetActorWithId<Actor>(currentActorId);
-            return actor is null ? Guid.Empty : actor.OperationGroupId;
+            return actor?.CurrentEventGroup;
         }
 
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
-            Actor creator, Guid opGroupId)
+            Actor creator, EventGroup group)
         {
-            Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
+            Actor actor = this.CreateActor(id, type, name, creator, group);
             if (actor is StateMachine)
             {
                 this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
@@ -172,9 +129,9 @@ namespace Microsoft.Coyote.Actors
         /// is handled.
         /// </summary>
         internal virtual async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
-            Event initialEvent, Actor creator, Guid opGroupId)
+            Event initialEvent, Actor creator, EventGroup group)
         {
-            Actor actor = this.CreateActor(id, type, name, creator, opGroupId);
+            Actor actor = this.CreateActor(id, type, name, creator, group);
             if (actor is StateMachine)
             {
                 this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
@@ -191,7 +148,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, Guid opGroupId)
+        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup group)
         {
             if (!type.IsSubclassOf(typeof(Actor)))
             {
@@ -216,24 +173,21 @@ namespace Microsoft.Coyote.Actors
                 id.Bind(this);
             }
 
-            // The operation group id of the actor is set using the following precedence:
-            // (1) To the specified actor creation operation group id, if it is non-empty.
-            // (2) To the operation group id of the creator actor, if it exists.
-            // (3) To the empty operation group id.
-            if (opGroupId == Guid.Empty && creator != null)
+            // Inherit the current operation from the creator.
+            if (group == null && creator != null)
             {
-                opGroupId = creator.OperationGroupId;
+                group = creator.Manager.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
             IActorManager actorManager;
             if (actor is StateMachine stateMachine)
             {
-                actorManager = new StateMachineManager(this, stateMachine, opGroupId);
+                actorManager = new StateMachineManager(this, stateMachine, group);
             }
             else
             {
-                actorManager = new ActorManager(this, actor, opGroupId);
+                actorManager = new ActorManager(this, actor, group);
             }
 
             IEventQueue eventQueue = new EventQueue(actorManager);
@@ -254,9 +208,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, SendOptions options)
+        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup group, SendOptions options)
         {
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, out Actor target);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunActorEventHandler(target, null, false);
@@ -268,9 +222,9 @@ namespace Microsoft.Coyote.Actors
         /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
         internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            Guid opGroupId, SendOptions options)
+            EventGroup group, SendOptions options)
         {
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, opGroupId, out Actor target);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 await this.RunActorEventHandlerAsync(target, null, false);
@@ -283,7 +237,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, Guid opGroupId, out Actor target)
+        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup group, out Actor target)
         {
             if (e is null)
             {
@@ -302,28 +256,36 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(false, message);
             }
 
-            // The operation group id of this operation is set using the following precedence:
-            // (1) To the specified send operation group id, if it is non-empty.
-            // (2) To the operation group id of the sender actor, if it exists and is non-empty.
-            // (3) To the empty operation group id.
-            if (opGroupId == Guid.Empty && sender != null)
+            target = this.GetActorWithId<Actor>(targetId);
+
+            // If no group is provided we default to passing along the group from the sender.
+            // If no group is provided, and the target already has an group then use that one.
+            // If the group is a special EventGroup.NullOperation then it means clear the group.
+            if (group == null)
             {
-                opGroupId = sender.OperationGroupId;
+                if (sender != null && sender.Manager.CurrentEventGroup != null)
+                {
+                    group = sender.Manager.CurrentEventGroup;
+                }
+                else if (target != null)
+                {
+                    group = target.Manager.CurrentEventGroup;
+                }
             }
 
-            target = this.GetActorWithId<Actor>(targetId);
+            Guid opId = group == null ? Guid.Empty : group.Id;
             if (target is null || target.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
-                    (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: true);
+                    (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: true);
                 this.TryHandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
 
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
-                (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opGroupId, isTargetHalted: false);
+                (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: false);
 
-            EnqueueStatus enqueueStatus = target.Enqueue(e, opGroupId, null);
+            EnqueueStatus enqueueStatus = target.Enqueue(e, group, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
                 this.TryHandleDroppedEvent(e, targetId);

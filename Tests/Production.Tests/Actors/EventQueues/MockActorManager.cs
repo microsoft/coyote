@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
         public bool IsEventHandlerRunning { get; set; }
 
-        public Guid OperationGroupId { get; set; }
+        public EventGroup CurrentEventGroup { get; set; }
 
         internal MockActorManager(TextWriter logger, Action<Notification, Event, EventInfo> notify,
             Type[] ignoredEvents = null, Type[] deferredEvents = null, bool isDefaultHandlerInstalled = false)
@@ -44,21 +44,21 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
         public int GetCachedState() => 0;
 
-        public bool IsEventIgnored(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public bool IsEventIgnored(Event e, EventInfo eventInfo) =>
             this.IgnoredEvents.Contains(e.GetType());
 
-        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public bool IsEventDeferred(Event e, EventInfo eventInfo) =>
             this.DeferredEvents.Contains(e.GetType());
 
         public bool IsDefaultHandlerAvailable() => this.IsDefaultHandlerInstalled;
 
-        public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnEnqueueEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
             this.Logger.WriteLine("Enqueued event of type '{0}'.", e.GetType().FullName);
             this.Notify(Notification.EnqueueEvent, e, eventInfo);
         }
 
-        public void OnRaiseEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnRaiseEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
             this.Logger.WriteLine("Raised event of type '{0}'.", e.GetType().FullName);
             this.Notify(Notification.RaiseEvent, e, eventInfo);
@@ -74,31 +74,31 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             this.Notify(Notification.WaitEvent, null, null);
         }
 
-        public void OnReceiveEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnReceiveEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
-            if (opGroupId != Guid.Empty)
+            if (group != null)
             {
-                // Inherit the operation group id of the receive operation, if it is non-empty.
-                this.OperationGroupId = opGroupId;
+                // Inherit the operation of the receive operation, if it is non-empty.
+                this.CurrentEventGroup = group;
             }
 
             this.Logger.WriteLine("Received event of type '{0}'.", e.GetType().FullName);
             this.Notify(Notification.ReceiveEvent, e, eventInfo);
         }
 
-        public void OnReceiveEventWithoutWaiting(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnReceiveEventWithoutWaiting(Event e, EventGroup group, EventInfo eventInfo)
         {
-            if (opGroupId != Guid.Empty)
+            if (group != null)
             {
-                // Inherit the operation group id of the receive operation, if it is non-empty.
-                this.OperationGroupId = opGroupId;
+                // Inherit the operation of the receive operation, if it is non-empty.
+                this.CurrentEventGroup = group;
             }
 
             this.Logger.WriteLine("Received event of type '{0}' without waiting.", e.GetType().FullName);
             this.Notify(Notification.ReceiveEventWithoutWaiting, e, eventInfo);
         }
 
-        public void OnDropEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnDropEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
             this.Logger.WriteLine("Dropped event of type '{0}'.", e.GetType().FullName);
             this.Notify(Notification.DropEvent, e, eventInfo);

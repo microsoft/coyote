@@ -207,6 +207,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
   </Nodes>
   <Links>
     <Link Source='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0).M(0)' Category='Contains'/>
+    <Link Source='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0)' Target='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+N(1)' Label='CreateActor' Index='0' EventId='CreateActor'/>
     <Link Source='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+N(1).Init' Label='E' Index='0' EventId='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+E' HandledBy='Init'/>
     <Link Source='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+M(0).M(0)' Target='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+TestMonitor.Init' Label='CompletedEvent' Index='0' EventId='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+CompletedEvent'/>
     <Link Source='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+N(1)' Target='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+N(1).Act' Category='Contains'/>

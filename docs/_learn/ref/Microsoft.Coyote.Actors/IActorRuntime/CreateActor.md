@@ -6,17 +6,17 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
 ---
 # IActorRuntime.CreateActor method (1 of 3)
 
-Creates a new actor of the specified Type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event can only be used to access its payload, and cannot be handled.
+Creates a new actor of the specified Type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
-public ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default(Guid))
+public ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null)
 ```
 
 | parameter | description |
 | --- | --- |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| opGroupId | Optional id that can be used to identify this operation. |
+| group | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -26,6 +26,7 @@ The result is the actor id.
 
 * class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
+* class [EventGroup](../EventGroupType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
@@ -34,11 +35,11 @@ The result is the actor id.
 
 # IActorRuntime.CreateActor method (2 of 3)
 
-Creates a new actor of the specified type, using the specified [`ActorId`](../ActorIdType). This method optionally passes an [`Event`](../../Microsoft.Coyote/EventType) to the new actor, which can only be used to access its payload, and cannot be handled.
+Creates a new actor of the specified type, using the specified [`ActorId`](../ActorIdType). This method optionally passes an [`Event`](../../Microsoft.Coyote/EventType). This event is given to the InitializeAsync method on the new actor.
 
 ```csharp
 public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, 
-    Guid opGroupId = default(Guid))
+    EventGroup group = null)
 ```
 
 | parameter | description |
@@ -46,7 +47,7 @@ public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null,
 | id | Unbound actor id. |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| opGroupId | Optional id that can be used to identify this operation. |
+| group | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -56,6 +57,7 @@ The result is the actor id.
 
 * class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
+* class [EventGroup](../EventGroupType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
@@ -64,11 +66,11 @@ The result is the actor id.
 
 # IActorRuntime.CreateActor method (3 of 3)
 
-Creates a new actor of the specified Type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event can only be used to access its payload, and cannot be handled.
+Creates a new actor of the specified Type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
 public ActorId CreateActor(Type type, string name, Event initialEvent = null, 
-    Guid opGroupId = default(Guid))
+    EventGroup group = null)
 ```
 
 | parameter | description |
@@ -76,7 +78,7 @@ public ActorId CreateActor(Type type, string name, Event initialEvent = null,
 | type | Type of the actor. |
 | name | Optional name used for logging. |
 | initialEvent | Optional event used during initialization. |
-| opGroupId | Optional id that can be used to identify this operation. |
+| group | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -86,6 +88,7 @@ The result is the actor id.
 
 * class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
+* class [EventGroup](../EventGroupType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

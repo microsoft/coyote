@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Production.Tests.Actors.Operations
+namespace Microsoft.Coyote.Production.Tests.Actors
 {
     public class SendAndExecuteTests : BaseProductionTest
     {
@@ -171,7 +171,9 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var creator = (e as E2).Id;
+#pragma warning disable CS0618 // Type or member is obsolete
                 var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E3());
+#pragma warning restore CS0618 // Type or member is obsolete
                 this.Assert(!handled);
             }
         }

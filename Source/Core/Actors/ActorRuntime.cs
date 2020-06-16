@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.Actors
             // Inherit the current operation from the creator.
             if (group == null && creator != null)
             {
-                group = creator.CurrentEventGroup;
+                group = creator.Manager.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
@@ -263,18 +263,14 @@ namespace Microsoft.Coyote.Actors
             // If the group is a special EventGroup.NullOperation then it means clear the group.
             if (group == null)
             {
-                if (sender != null && sender.CurrentEventGroup != null)
+                if (sender != null && sender.Manager.CurrentEventGroup != null)
                 {
-                    group = sender.CurrentEventGroup;
+                    group = sender.Manager.CurrentEventGroup;
                 }
                 else if (target != null)
                 {
-                    group = target.CurrentEventGroup;
+                    group = target.Manager.CurrentEventGroup;
                 }
-            }
-            else if (group == EventGroup.NullEventGroup)
-            {
-                group = null;
             }
 
             Guid opId = group == null ? Guid.Empty : group.Id;

@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.SystematicTesting
             // If a group was not provided, inherit the current event group from the creator (if any).
             if (group == null && creator != null)
             {
-                group = creator.CurrentEventGroup;
+                group = creator.Manager.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
@@ -397,18 +397,14 @@ namespace Microsoft.Coyote.SystematicTesting
             // If the group is a special EventGroup.NullOperation then it means clear the group.
             if (group == null)
             {
-                if (sender != null && sender.CurrentEventGroup != null)
+                if (sender != null && sender.Manager.CurrentEventGroup != null)
                 {
-                    group = sender.CurrentEventGroup;
+                    group = sender.Manager.CurrentEventGroup;
                 }
                 else if (target != null)
                 {
-                    group = target.CurrentEventGroup;
+                    group = target.Manager.CurrentEventGroup;
                 }
-            }
-            else if (group == EventGroup.NullEventGroup)
-            {
-                group = null;
             }
 
             if (target.IsHalted)

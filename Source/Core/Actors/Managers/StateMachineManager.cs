@@ -74,8 +74,12 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public void OnReceiveEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
-            // Inherit the operation group id of the receive operation, if it is non-empty.
-            this.CurrentEventGroup = group;
+            if (group != null)
+            {
+                // Inherit the operation group id of the receive operation, if it is non-null.
+                this.CurrentEventGroup = group;
+            }
+
             this.Runtime.NotifyReceivedEvent(this.Instance, e, eventInfo);
         }
 
@@ -83,8 +87,12 @@ namespace Microsoft.Coyote.Actors
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnReceiveEventWithoutWaiting(Event e, EventGroup group, EventInfo eventInfo)
         {
-            // Inherit the operation group id of the receive operation, if it is non-empty.
-            this.CurrentEventGroup = group;
+            if (group != null)
+            {
+                // Inherit the operation group id of the receive operation, if it is non-null.
+                this.CurrentEventGroup = group;
+            }
+
             this.Runtime.NotifyReceivedEventWithoutWaiting(this.Instance, e, eventInfo);
         }
 

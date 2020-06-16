@@ -104,8 +104,15 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         public EventGroup CurrentEventGroup
         {
-            get => this.Manager.CurrentEventGroup;
+            get
+            {
+                if (this.Manager.CurrentEventGroup == EventGroup.NullEventGroup)
+                {
+                    return null;
+                }
 
+                return this.Manager.CurrentEventGroup;
+            }
             set
             {
                 this.Manager.CurrentEventGroup = value;

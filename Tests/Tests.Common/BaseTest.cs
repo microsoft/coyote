@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
@@ -456,16 +455,43 @@ namespace Microsoft.Coyote.Tests.Common
                 configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
-                await test(runtime);
+
+                var errorTask = TaskCompletionSource.Create<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorTask.SetResult(Unwrap(e));
+                };
+
+                await Task.WhenAny(test(runtime), errorTask.Task);
+                if (errorTask.Task.IsCompleted)
+                {
+                    Assert.False(true, errorTask.Task.Result.Message);
+                }
             }
             catch (Exception ex)
             {
-                Assert.False(true, ex.Message + "\n" + ex.StackTrace);
+                Exception e = Unwrap(ex);
+                Assert.False(true, e.Message + "\n" + e.StackTrace);
             }
             finally
             {
                 logger.Dispose();
             }
+        }
+
+        private static Exception Unwrap(Exception ex)
+        {
+            Exception e = ex;
+            if (e is AggregateException ae)
+            {
+                e = ae.InnerException;
+            }
+            else if (e is ActionExceptionFilterException fe)
+            {
+                e = fe.InnerException;
+            }
+
+            return e;
         }
 
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)

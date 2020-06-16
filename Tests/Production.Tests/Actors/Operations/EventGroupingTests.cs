@@ -183,6 +183,62 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         //----------------------------------------------------------------------------------------------------
+
+        [OnEventDoAction(typeof(E), nameof(HandleEvent))]
+        private class M6A : Actor
+        {
+            private SetupEvent Setup;
+            private ActorId Child;
+
+            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            {
+                this.Setup = e as SetupEvent;
+                this.Assert(this.CurrentEventGroup?.Name == EventGroup1);
+                this.Child = this.CreateActor(typeof(M6B), e);
+                return base.OnInitializeAsync(e);
+            }
+
+            private void HandleEvent()
+            {
+                this.Assert(this.CurrentEventGroup == null, "M6A event group is not null");
+                // propagate the null event group.
+                this.SendEvent(this.Child, new E(this.Id));
+            }
+        }
+
+        [OnEventDoAction(typeof(E), nameof(HandleEvent))]
+        private class M6B : Actor
+        {
+            private SetupEvent Setup;
+
+            protected override SystemTasks.Task OnInitializeAsync(Event e)
+            {
+                this.Setup = e as SetupEvent;
+                this.Assert(this.CurrentEventGroup?.Name == EventGroup1);
+                return base.OnInitializeAsync(e);
+            }
+
+            private void HandleEvent()
+            {
+                this.Assert(this.CurrentEventGroup == null, "M6B event group is not null");
+                this.Setup.Tcs.SetResult("ok");
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestNullEventGroupPropagation()
+        {
+            this.Test(async r =>
+            {
+                var e = new SetupEvent();
+                var a = r.CreateActor(typeof(M6A), e, new EventGroup() { Name = EventGroup1 });
+                r.SendEvent(a, new E(), EventGroup.NullEventGroup); // clear the event group!
+                var result = await this.GetResultAsync(e.Tcs);
+                Assert.True(result == "ok", string.Format("result is {0}", result));
+            });
+        }
+
+        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M7A : Actor
         {

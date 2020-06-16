@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="513.91999664306638" height="355.327500457764" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" viewbox="0,0,513,355" width="100%" style="max-width:600" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
   <rect width="513.91999664306638" height="355.327500457764" fill="#FFFFFF" />
   <g transform="translate(20,20.0000004577637)">
@@ -78,7 +78,7 @@
     <g id="CurrentOperation==OpWhenEventIsDequeued">
       <rect x="306.56666666666661" y="201.48750000000018" rx="2" ry="2" width="149.1566666666667" height="41.920000000000016" fill="#FFFACD" stroke="#E5C365" stroke-width="1" />
       <g>
-        <text x="316.56666666666661" y="219.43750000000017" fill="#3D3D3D">EventGroup == g 
+        <text x="316.56666666666661" y="219.43750000000017" fill="#3D3D3D">EventGroup == g
 </text>
         <text x="316.56666666666661" y="235.39750000000018" fill="#3D3D3D">when event is dequeued</text>
       </g>

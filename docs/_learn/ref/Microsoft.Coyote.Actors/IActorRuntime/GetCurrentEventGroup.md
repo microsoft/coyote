@@ -18,7 +18,7 @@ public EventGroup GetCurrentEventGroup(ActorId currentActorId)
 
 ## Return Value
 
-The current Operation or null.
+The current EventGroup or null.
 
 ## See Also
 

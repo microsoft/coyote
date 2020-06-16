@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="initialEvent">Optional event used during initialization.</param>
         /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
-        [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
+        [Obsolete("Use AwaitableEventGroup<T> instead to coordinate completion of CreateActor operations")]
         Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup group = null);
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="initialEvent">Optional event used during initialization.</param>
         /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
-        [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
+        [Obsolete("Use AwaitableEventGroup<T> instead to coordinate completion of CreateActor operations")]
         Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null,
             EventGroup group = null);
 
@@ -115,7 +115,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="initialEvent">Optional event used during initialization.</param>
         /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is the actor id.</returns>
-        [Obsolete("Use Operation<T> instead to coordinate completion of CreateActor operations")]
+        [Obsolete("Use AwaitableEventGroup<T> instead to coordinate completion of CreateActor operations")]
         Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null,
             EventGroup group = null);
 
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="options">Optional configuration of a send operation.</param>
         /// <returns>Task that represents the asynchronous operation. The task result is true if
         /// the event was handled, false if the event was only enqueued.</returns>
-        [Obsolete("Use Operation<T> instead to coordinate completion of SendEvent operations")]
+        [Obsolete("Use AwaitableEventGroup<T> instead to coordinate completion of SendEvent operations")]
         Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, EventGroup group = null, SendOptions options = null);
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Microsoft.Coyote.Actors
         /// testing, the runtime asserts that the specified actor is currently executing.
         /// </summary>
         /// <param name="currentActorId">The id of the currently executing actor.</param>
-        /// <returns>The current Operation or null.</returns>
+        /// <returns>The current EventGroup or null.</returns>
         EventGroup GetCurrentEventGroup(ActorId currentActorId);
 
         /// <summary>

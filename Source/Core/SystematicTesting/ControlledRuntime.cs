@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/>.
         /// </summary>
-        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup op)
+        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup group)
         {
             this.Assert(type.IsSubclassOf(typeof(Actor)), "Type '{0}' is not an actor.", type.FullName);
 
@@ -285,21 +285,21 @@ namespace Microsoft.Coyote.SystematicTesting
                 id.Bind(this);
             }
 
-            // Inherit the current operation from the creator (if any).
-            if (op == null && creator != null)
+            // If a group was not provided, inherit the current event group from the creator (if any).
+            if (group == null && creator != null)
             {
-                op = creator.CurrentEventGroup;
+                group = creator.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
             IActorManager actorManager;
             if (actor is StateMachine stateMachine)
             {
-                actorManager = new MockStateMachineManager(this, stateMachine, op);
+                actorManager = new MockStateMachineManager(this, stateMachine, group);
             }
             else
             {
-                actorManager = new MockActorManager(this, actor, op);
+                actorManager = new MockActorManager(this, actor, group);
             }
 
             IEventQueue eventQueue = new MockEventQueue(actorManager, actor);
@@ -326,7 +326,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        internal override void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup op, SendOptions options)
+        internal override void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup group, SendOptions options)
         {
             if (e is null)
             {
@@ -347,7 +347,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.AssertExpectedCallerActor(sender, "SendEvent");
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, options, out Actor target);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, options, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunActorEventHandler(target, null, false, null);
@@ -356,14 +356,14 @@ namespace Microsoft.Coyote.SystematicTesting
 
          /// <inheritdoc/>
         internal override async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            EventGroup op, SendOptions options)
+            EventGroup group, SendOptions options)
         {
             this.Assert(sender is StateMachine, "Only an actor can call 'SendEventAndExecuteAsync': avoid " +
                 "calling it directly from the test method; instead call it through a test driver actor.");
             this.Assert(e != null, "{0} is sending a null event.", sender.Id);
             this.Assert(targetId != null, "{0} is sending event {1} to a null actor.", sender.Id, e);
             this.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, options, out Actor target);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, options, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunActorEventHandler(target, null, false, sender as StateMachine);
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup op,
+        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup group,
             SendOptions options, out Actor target)
         {
             target = this.Scheduler.GetOperationWithId<ActorOperation>(targetId.Value)?.Actor;
@@ -392,28 +392,28 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler.ScheduleNextOperation();
             ResetProgramCounter(sender as StateMachine);
 
-            // If no operation is provided we default to passing along the operation from the sender.
-            // If no operation is provided, and the target already has an operation then use that one.
-            // If the operation is a special Operation.NullOperation then it means clear the operation.
-            if (op == null)
+            // If no group is provided we default to passing along the group from the sender.
+            // If no group is provided, and the target already has an group then use that one.
+            // If the group is a special EventGroup.NullOperation then it means clear the group.
+            if (group == null)
             {
                 if (sender != null && sender.CurrentEventGroup != null)
                 {
-                    op = sender.CurrentEventGroup;
+                    group = sender.CurrentEventGroup;
                 }
                 else if (target != null)
                 {
-                    op = target.CurrentEventGroup;
+                    group = target.CurrentEventGroup;
                 }
             }
-            else if (op == EventGroup.NullEventGroup)
+            else if (group == EventGroup.NullEventGroup)
             {
-                op = null;
+                group = null;
             }
 
             if (target.IsHalted)
             {
-                Guid opId = op == null ? Guid.Empty : op.Id;
+                Guid opId = group == null ? Guid.Empty : group.Id;
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
@@ -422,7 +422,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 return EnqueueStatus.Dropped;
             }
 
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, op, options);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, group, options);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
                 this.TryHandleDroppedEvent(e, targetId);
@@ -434,7 +434,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(Actor actor, Event e, Actor sender, EventGroup op, SendOptions options)
+        private EnqueueStatus EnqueueEvent(Actor actor, Event e, Actor sender, EventGroup group, SendOptions options)
         {
             EventOriginInfo originInfo;
 
@@ -461,10 +461,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 Assert = options?.Assert ?? -1
             };
 
-            Guid opId = op == null ? Guid.Empty : op.Id;
+            Guid opId = group == null ? Guid.Empty : group.Id;
             this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
                 e, opId, isTargetHalted: false);
-            return actor.Enqueue(e, op, eventInfo);
+            return actor.Enqueue(e, group, eventInfo);
         }
 
         /// <summary>

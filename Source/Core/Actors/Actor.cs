@@ -439,14 +439,14 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues the specified event and its metadata.
         /// </summary>
-        internal EnqueueStatus Enqueue(Event e, EventGroup op, EventInfo info)
+        internal EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
         {
             if (this.CurrentStatus is Status.Halted)
             {
                 return EnqueueStatus.Dropped;
             }
 
-            return this.Inbox.Enqueue(e, op, info);
+            return this.Inbox.Enqueue(e, group, info);
         }
 
         /// <summary>
@@ -458,9 +458,9 @@ namespace Microsoft.Coyote.Actors
             Event lastDequeuedEvent = null;
             while (this.CurrentStatus != Status.Halted && this.Runtime.IsRunning)
             {
-                (DequeueStatus status, Event e, EventGroup op, EventInfo info) = this.Inbox.Dequeue();
+                (DequeueStatus status, Event e, EventGroup group, EventInfo info) = this.Inbox.Dequeue();
 
-                this.Manager.CurrentEventGroup = op;
+                this.Manager.CurrentEventGroup = group;
 
                 if (status is DequeueStatus.Success)
                 {

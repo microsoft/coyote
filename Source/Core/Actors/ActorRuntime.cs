@@ -87,9 +87,9 @@ namespace Microsoft.Coyote.Actors
             this.CreateActorAndExecuteAsync(id, type, null, initialEvent, null, group);
 
         /// <inheritdoc/>
-        public virtual void SendEvent(ActorId targetId, Event initialEvent, EventGroup op = default,
+        public virtual void SendEvent(ActorId targetId, Event initialEvent, EventGroup group = default,
             SendOptions options = null) =>
-            this.SendEvent(targetId, initialEvent, null, op, options);
+            this.SendEvent(targetId, initialEvent, null, group, options);
 
         /// <inheritdoc/>
         public virtual Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent,
@@ -107,9 +107,9 @@ namespace Microsoft.Coyote.Actors
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
         internal virtual ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent,
-            Actor creator, EventGroup op)
+            Actor creator, EventGroup group)
         {
-            Actor actor = this.CreateActor(id, type, name, creator, op);
+            Actor actor = this.CreateActor(id, type, name, creator, group);
             if (actor is StateMachine)
             {
                 this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
@@ -129,9 +129,9 @@ namespace Microsoft.Coyote.Actors
         /// is handled.
         /// </summary>
         internal virtual async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name,
-            Event initialEvent, Actor creator, EventGroup op)
+            Event initialEvent, Actor creator, EventGroup group)
         {
-            Actor actor = this.CreateActor(id, type, name, creator, op);
+            Actor actor = this.CreateActor(id, type, name, creator, group);
             if (actor is StateMachine)
             {
                 this.LogWriter.LogCreateStateMachine(actor.Id, creator?.Id.Name, creator?.Id.Type);
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Creates a new <see cref="Actor"/> of the specified <see cref="Type"/>.
         /// </summary>
-        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup op)
+        private Actor CreateActor(ActorId id, Type type, string name, Actor creator, EventGroup group)
         {
             if (!type.IsSubclassOf(typeof(Actor)))
             {
@@ -174,20 +174,20 @@ namespace Microsoft.Coyote.Actors
             }
 
             // Inherit the current operation from the creator.
-            if (op == null && creator != null)
+            if (group == null && creator != null)
             {
-                op = creator.CurrentEventGroup;
+                group = creator.CurrentEventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
             IActorManager actorManager;
             if (actor is StateMachine stateMachine)
             {
-                actorManager = new StateMachineManager(this, stateMachine, op);
+                actorManager = new StateMachineManager(this, stateMachine, group);
             }
             else
             {
-                actorManager = new ActorManager(this, actor, op);
+                actorManager = new ActorManager(this, actor, group);
             }
 
             IEventQueue eventQueue = new EventQueue(actorManager);
@@ -208,9 +208,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to an actor.
         /// </summary>
-        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup op, SendOptions options)
+        internal virtual void SendEvent(ActorId targetId, Event e, Actor sender, EventGroup group, SendOptions options)
         {
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, out Actor target);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 this.RunActorEventHandler(target, null, false);
@@ -222,9 +222,9 @@ namespace Microsoft.Coyote.Actors
         /// already running. Otherwise blocks until the target handles the event and reaches quiescense.
         /// </summary>
         internal virtual async Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event e, Actor sender,
-            EventGroup op, SendOptions options)
+            EventGroup group, SendOptions options)
         {
-            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, op, out Actor target);
+            EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
                 await this.RunActorEventHandlerAsync(target, null, false);
@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues an event to the actor with the specified id.
         /// </summary>
-        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup op, out Actor target)
+        private EnqueueStatus EnqueueEvent(ActorId targetId, Event e, Actor sender, EventGroup group, out Actor target)
         {
             if (e is null)
             {
@@ -258,26 +258,26 @@ namespace Microsoft.Coyote.Actors
 
             target = this.GetActorWithId<Actor>(targetId);
 
-            // If no operation is provided we default to passing along the operation from the sender.
-            // If no operation is provided, and the target already has an operation then use that one.
-            // If the operation is a special Operation.NullOperation then it means clear the operation.
-            if (op == null)
+            // If no group is provided we default to passing along the group from the sender.
+            // If no group is provided, and the target already has an group then use that one.
+            // If the group is a special EventGroup.NullOperation then it means clear the group.
+            if (group == null)
             {
                 if (sender != null && sender.CurrentEventGroup != null)
                 {
-                    op = sender.CurrentEventGroup;
+                    group = sender.CurrentEventGroup;
                 }
                 else if (target != null)
                 {
-                    op = target.CurrentEventGroup;
+                    group = target.CurrentEventGroup;
                 }
             }
-            else if (op == EventGroup.NullEventGroup)
+            else if (group == EventGroup.NullEventGroup)
             {
-                op = null;
+                group = null;
             }
 
-            Guid opId = op == null ? Guid.Empty : op.Id;
+            Guid opId = group == null ? Guid.Empty : group.Id;
             if (target is null || target.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.Actors
             this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                 (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: false);
 
-            EnqueueStatus enqueueStatus = target.Enqueue(e, op, null);
+            EnqueueStatus enqueueStatus = target.Enqueue(e, group, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
                 this.TryHandleDroppedEvent(e, targetId);

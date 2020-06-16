@@ -26,12 +26,12 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// The internal queue that contains events with their metadata.
         /// </summary>
-        private readonly LinkedList<(Event e, EventGroup op, EventInfo info)> Queue;
+        private readonly LinkedList<(Event e, EventGroup group, EventInfo info)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, EventGroup op, EventInfo info) RaisedEvent;
+        private (Event e, EventGroup group, EventInfo info) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -74,7 +74,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, EventGroup op, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
         {
             if (this.IsClosed)
             {
@@ -85,13 +85,13 @@ namespace Microsoft.Coyote.Actors.Mocks
                 (predicate is null || predicate(e)))
             {
                 this.EventWaitTypes.Clear();
-                this.ActorManager.OnReceiveEvent(e, op, info);
+                this.ActorManager.OnReceiveEvent(e, group, info);
                 this.ReceiveCompletionSource.SetResult(e);
                 return EnqueueStatus.EventHandlerRunning;
             }
 
-            this.ActorManager.OnEnqueueEvent(e, op, info);
-            this.Queue.AddLast((e, op, info));
+            this.ActorManager.OnEnqueueEvent(e, group, info);
+            this.Queue.AddLast((e, group, info));
 
             if (info.Assert >= 0)
             {
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, EventGroup op, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup group, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
@@ -132,9 +132,9 @@ namespace Microsoft.Coyote.Actors.Mocks
                 }
                 else
                 {
-                    (Event e, EventGroup op, EventInfo info) raisedEvent = this.RaisedEvent;
+                    (Event e, EventGroup group, EventInfo info) raisedEvent = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.Raised, raisedEvent.e, raisedEvent.op, raisedEvent.info);
+                    return (DequeueStatus.Raised, raisedEvent.e, raisedEvent.group, raisedEvent.info);
                 }
             }
 
@@ -145,11 +145,11 @@ namespace Microsoft.Coyote.Actors.Mocks
             }
 
             // Try to dequeue the next event, if there is one.
-            (Event e, EventGroup op, EventInfo info) dequeued = this.TryDequeueEvent();
+            (Event e, EventGroup group, EventInfo info) dequeued = this.TryDequeueEvent();
             if (dequeued.e != null)
             {
                 // Found next event that can be dequeued.
-                return (DequeueStatus.Success, dequeued.e, dequeued.op, dequeued.info);
+                return (DequeueStatus.Success, dequeued.e, dequeued.group, dequeued.info);
             }
 
             // No event can be dequeued, so check if there is a default event handler.
@@ -171,7 +171,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Dequeues the next event and its metadata, if there is one available, else returns null.
         /// </summary>
-        private (Event e, EventGroup op, EventInfo info) TryDequeueEvent(bool checkOnly = false)
+        private (Event e, EventGroup group, EventInfo info) TryDequeueEvent(bool checkOnly = false)
         {
             (Event, EventGroup, EventInfo) nextAvailableEvent = default;
 
@@ -213,14 +213,14 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public void RaiseEvent(Event e, EventGroup op)
+        public void RaiseEvent(Event e, EventGroup group)
         {
             string stateName = this.Actor is StateMachine stateMachine ?
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
             var eventOrigin = new EventOriginInfo(this.Actor.Id, this.Actor.GetType().FullName, stateName);
             var info = new EventInfo(e, eventOrigin);
-            this.RaisedEvent = (e, op, info);
-            this.ActorManager.OnRaiseEvent(e, op, info);
+            this.RaisedEvent = (e, group, info);
+            this.ActorManager.OnRaiseEvent(e, group, info);
         }
 
         /// <inheritdoc/>
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         {
             this.Actor.Runtime.NotifyReceiveCalled(this.Actor);
 
-            (Event e, EventGroup op, EventInfo info) receivedEvent = default;
+            (Event e, EventGroup group, EventInfo info) receivedEvent = default;
             var node = this.Queue.First;
             while (node != null)
             {
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 return this.ReceiveCompletionSource.Task;
             }
 
-            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.op, receivedEvent.info);
+            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.group, receivedEvent.info);
             return Task.FromResult(receivedEvent.e);
         }
 

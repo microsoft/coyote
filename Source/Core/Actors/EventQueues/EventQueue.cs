@@ -20,12 +20,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The internal queue.
         /// </summary>
-        private readonly LinkedList<(Event e, EventGroup op)> Queue;
+        private readonly LinkedList<(Event e, EventGroup group)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, EventGroup op) RaisedEvent;
+        private (Event e, EventGroup group) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -63,7 +63,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, EventGroup op, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
         {
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    this.Queue.AddLast((e, op));
+                    this.Queue.AddLast((e, group));
                     if (!this.ActorManager.IsEventHandlerRunning)
                     {
                         this.ActorManager.IsEventHandlerRunning = true;
@@ -93,20 +93,20 @@ namespace Microsoft.Coyote.Actors
 
             if (enqueueStatus is EnqueueStatus.Received)
             {
-                this.ActorManager.OnReceiveEvent(e, op, info);
+                this.ActorManager.OnReceiveEvent(e, group, info);
                 this.ReceiveCompletionSource.SetResult(e);
                 return enqueueStatus;
             }
             else
             {
-                this.ActorManager.OnEnqueueEvent(e, op, info);
+                this.ActorManager.OnEnqueueEvent(e, group, info);
             }
 
             return enqueueStatus;
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, EventGroup op, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup group, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
@@ -120,9 +120,9 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    (Event e, EventGroup op) = this.RaisedEvent;
+                    (Event e, EventGroup group) = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.Raised, e, op, null);
+                    return (DequeueStatus.Raised, e, group, null);
                 }
             }
 
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.Actors
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
-                    return (DequeueStatus.Success, node.Value.e, node.Value.op, null);
+                    return (DequeueStatus.Success, node.Value.e, node.Value.group, null);
                 }
 
                 // No event can be dequeued, so check if there is a default event handler.
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
-            (Event e, EventGroup op) receivedEvent = default;
+            (Event e, EventGroup group) receivedEvent = default;
             lock (this.Queue)
             {
                 var node = this.Queue.First;
@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Actors
                 return this.ReceiveCompletionSource.Task;
             }
 
-            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.op, null);
+            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.group, null);
             return Task.FromResult(receivedEvent.e);
         }
 

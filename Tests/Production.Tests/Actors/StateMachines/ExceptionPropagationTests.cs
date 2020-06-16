@@ -102,7 +102,8 @@ namespace Microsoft.Coyote.Production.Tests
 
                 AssertionFailureException ex = await Assert.ThrowsAsync<AssertionFailureException>(async () => await this.WaitAsync(tcsFail.Task));
                 Assert.Equal(1, count);
-            });
+            },
+            handleFailures: false);
         }
 
         [Fact(Timeout = 5000)]
@@ -138,7 +139,8 @@ namespace Microsoft.Coyote.Production.Tests
                 Assert.IsType<InvalidOperationException>(ex.InnerException);
                 Assert.Equal(1, count);
                 Assert.True(sawFilterException);
-            });
+            },
+            handleFailures: false);
         }
     }
 }

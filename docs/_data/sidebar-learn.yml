@@ -230,8 +230,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Actor
         - name: Id
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Id
-        - name: CurrentOperation
-          link: /learn/ref/Microsoft.Coyote.Actors/Actor/CurrentOperation
+        - name: CurrentEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup
         - name: Logger
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/Logger
         - name: HashedState
@@ -300,8 +300,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
         - name: SendEvent
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
-        - name: GetCurrentOperation
-          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentOperation
+        - name: GetCurrentEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/GetCurrentEventGroup
         - name: RegisterLog
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/RegisterLog
         - name: RemoveLog
@@ -442,44 +442,44 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnStrategyDescription
         - name: OnCompleted
           link: /learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLog/OnCompleted
-      - name: AwaitableOperation<T>
-        link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1Type
+      - name: AwaitableEventGroup<T>
+        link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1Type
         subfolderitems:
         - name: SetResult
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/SetResult
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetResult
         - name: TrySetResult
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/TrySetResult
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetResult
         - name: SetCancelled
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/SetCancelled
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetCancelled
         - name: TrySetCanceled
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/TrySetCanceled
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetCanceled
         - name: SetException
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/SetException
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/SetException
         - name: TrySetException
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/TrySetException
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/TrySetException
         - name: GetAwaiter
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/GetAwaiter
-        - name: AwaitableOperation
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/AwaitableOperation
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/GetAwaiter
+        - name: AwaitableEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/AwaitableEventGroup
         - name: Task
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/Task
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/Task
         - name: IsCompleted
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/IsCompleted
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCompleted
         - name: IsCanceled
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/IsCanceled
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled
         - name: IsFaulted
-          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableOperation-1/IsFaulted
-      - name: Operation
-        link: /learn/ref/Microsoft.Coyote.Actors/OperationType
+          link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted
+      - name: EventGroup
+        link: /learn/ref/Microsoft.Coyote.Actors/EventGroupType
         subfolderitems:
-        - name: Operation
-          link: /learn/ref/Microsoft.Coyote.Actors/Operation/Operation
+        - name: EventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/EventGroup
         - name: Id
-          link: /learn/ref/Microsoft.Coyote.Actors/Operation/Id
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Id
         - name: Name
-          link: /learn/ref/Microsoft.Coyote.Actors/Operation/Name
-        - name: NullOperation
-          link: /learn/ref/Microsoft.Coyote.Actors/Operation/NullOperation
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Name
+        - name: NullEventGroup
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/NullEventGroup
       - name: RuntimeFactory
         link: /learn/ref/Microsoft.Coyote.Actors/RuntimeFactoryType
         subfolderitems:

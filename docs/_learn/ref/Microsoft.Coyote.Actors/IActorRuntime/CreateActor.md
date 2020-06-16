@@ -9,14 +9,14 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
 Creates a new actor of the specified Type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
-public ActorId CreateActor(Type type, Event initialEvent = null, Operation op = null)
+public ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null)
 ```
 
 | parameter | description |
 | --- | --- |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| op | An optional operation associated with the new Actor. |
+| group | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -26,7 +26,7 @@ The result is the actor id.
 
 * class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
-* class [Operation](../OperationType)
+* class [EventGroup](../EventGroupType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
@@ -38,7 +38,8 @@ The result is the actor id.
 Creates a new actor of the specified type, using the specified [`ActorId`](../ActorIdType). This method optionally passes an [`Event`](../../Microsoft.Coyote/EventType). This event is given to the InitializeAsync method on the new actor.
 
 ```csharp
-public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Operation op = null)
+public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, 
+    EventGroup group = null)
 ```
 
 | parameter | description |
@@ -46,7 +47,7 @@ public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, Ope
 | id | Unbound actor id. |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| op | An optional operation associated with the new Actor. |
+| group | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -56,7 +57,7 @@ The result is the actor id.
 
 * class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
-* class [Operation](../OperationType)
+* class [EventGroup](../EventGroupType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
@@ -68,7 +69,8 @@ The result is the actor id.
 Creates a new actor of the specified Type and name, and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
-public ActorId CreateActor(Type type, string name, Event initialEvent = null, Operation op = null)
+public ActorId CreateActor(Type type, string name, Event initialEvent = null, 
+    EventGroup group = null)
 ```
 
 | parameter | description |
@@ -76,7 +78,7 @@ public ActorId CreateActor(Type type, string name, Event initialEvent = null, Op
 | type | Type of the actor. |
 | name | Optional name used for logging. |
 | initialEvent | Optional event used during initialization. |
-| op | An optional operation associated with the new Actor. |
+| group | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -86,7 +88,7 @@ The result is the actor id.
 
 * class [ActorId](../ActorIdType)
 * class [Event](../../Microsoft.Coyote/EventType)
-* class [Operation](../OperationType)
+* class [EventGroup](../EventGroupType)
 * interface [IActorRuntime](../IActorRuntimeType)
 * namespace [Microsoft.Coyote.Actors](../IActorRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

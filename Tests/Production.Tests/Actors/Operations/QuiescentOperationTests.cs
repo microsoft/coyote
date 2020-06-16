@@ -80,12 +80,15 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 if (e is SpawnEvent s)
                 {
                     int count = s.Count;
-                    System.Diagnostics.Debug.WriteLine("Actor {0} creating {1} child actors", this.Id.Name, count);
-                    for (int i = 0; i < count; i++)
+                    if (count - 1 > 0)
                     {
-                        var a = this.CreateActor(typeof(NetworkActor));
-                        this.Halted.AddActor(a);
-                        this.SendEvent(a, new SpawnEvent() { Count = count - 1 });
+                        System.Diagnostics.Debug.WriteLine("Actor {0} creating {1} child actors", this.Id.Name, count);
+                        for (int i = 0; i < count; i++)
+                        {
+                            var a = this.CreateActor(typeof(NetworkActor));
+                            this.Halted.AddActor(a);
+                            this.SendEvent(a, new SpawnEvent() { Count = count - 1 });
+                        }
                     }
                 }
 
@@ -107,7 +110,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 op.AddActor(id);
 
                 // spawn 5 children, each child spawns 4 grand children and those spawn 3, etc.
-                // so we should get 1 + 5 + (5*4) + (5*4*3*2) + (5!) + (5!) actors in this network = 326
+                // so we should get 1 + 5 + (5*4) + (5*4*3) + (5*4*3*2) actors in this network = 206
                 // actors before they are all halted.
                 r.SendEvent(id, new SpawnEvent() { Count = 5 }, op);
                 var result = await this.GetResultAsync(op.Task);
@@ -115,8 +118,9 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 string dgml = graphBuilder.Graph.ToString();
 
                 // add one for the initial actor created here.
-                Assert.Equal(326, op.Count);
-            });
+                Assert.Equal(206, op.Count);
+            },
+            configuration: Configuration.Create().WithPCTStrategy(true));
         }
     }
 }

@@ -117,7 +117,6 @@ namespace Microsoft.Coyote.Coverage
                 {
                     var creatorId = this.GetResolveActorId(creatorName, creatorType);
                     GraphNode creator = this.Graph.GetOrCreateNode(creatorId);
-                    creator.Category = ActorCategory;
                     this.GetOrCreateEventLink(creator, node, new EventInfo() { Event = "CreateActor" });
                 }
             }
@@ -136,7 +135,6 @@ namespace Microsoft.Coyote.Coverage
                 {
                     var creatorId = this.GetResolveActorId(creatorName, creatorType);
                     GraphNode creator = this.Graph.GetOrCreateNode(creatorId);
-                    creator.Category = ActorCategory;
                     this.GetOrCreateEventLink(creator, node, new EventInfo() { Event = "CreateActor" });
                 }
             }

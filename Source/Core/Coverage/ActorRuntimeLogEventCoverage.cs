@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Coverage
         }
 
         public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
-            Event e, Guid opGroupId, bool isTargetHalted)
+            Event e, Guid eventGroupId, bool isTargetHalted)
         {
             string eventName = e.GetType().FullName;
             this.EventCoverage.AddEventSent(GetStateId(senderType, senderStateName), eventName);

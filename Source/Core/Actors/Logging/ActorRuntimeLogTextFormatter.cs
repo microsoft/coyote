@@ -288,13 +288,13 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         public virtual void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
-            Event e, Guid opGroupId, bool isTargetHalted)
+            Event e, Guid eventGroupId, bool isTargetHalted)
         {
-            var opGroupIdMsg = opGroupId != Guid.Empty ? $" (operation group '{opGroupId}')" : string.Empty;
+            var eventGroupIdMsg = eventGroupId != Guid.Empty ? $" (event group '{eventGroupId}')" : string.Empty;
             var isHalted = isTargetHalted ? $" which has halted" : string.Empty;
             var sender = senderName != null ? $"{senderName} in state '{senderStateName}'" : $"task '{Task.CurrentId}'";
             var eventName = e.GetType().FullName;
-            var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{opGroupIdMsg}.";
+            var text = $"<SendLog> {sender} sent event '{eventName}' to {targetActorId}{isHalted}{eventGroupIdMsg}.";
             this.Logger.WriteLine(text);
         }
 

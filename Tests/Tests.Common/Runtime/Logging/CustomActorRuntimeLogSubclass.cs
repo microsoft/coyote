@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         }
 
         public override void OnSendEvent(ActorId targetActorId, string senderName, string senderType,
-            string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
+            string senderStateName, Event e, Guid eventGroupId, bool isTargetHalted)
         {
         }
 

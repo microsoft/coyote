@@ -20,9 +20,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
-                await Task.Run(() =>
+                var g = this.CurrentEventGroup as AwaitableEventGroup<bool>;
+                await Task.Run(async () =>
                 {
+                    await Task.Yield();
                     this.SendEvent(this.Id, UnitEvent.Instance);
+                    g.SetResult(true);
                 });
             }
         }
@@ -30,19 +33,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTaskSendingEventInActor()
         {
-            this.TestWithError(r =>
+            this.TestWithError(async r =>
             {
+                var g = new AwaitableEventGroup<bool>();
                 r.CreateActor(typeof(A1));
+                await g;
             },
-            expectedErrors: new string[]
-            {
-                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
-                "make sure to avoid using concurrency APIs () inside actor handlers. If you are using external " +
-                "libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
-                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
-                "concurrently, you will need to mock them during testing.",
-            });
+            expectedErrors: GetUncontrolledTaskErrorMessages());
         }
 
         private class M1 : StateMachine
@@ -55,9 +52,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private async Task InitOnEntry()
             {
-                await Task.Run(() =>
+                var g = this.CurrentEventGroup as AwaitableEventGroup<bool>;
+                await Task.Run(async () =>
                 {
+                    await Task.Yield();
                     this.SendEvent(this.Id, UnitEvent.Instance);
+                    g.SetResult(true);
                 });
             }
         }
@@ -65,29 +65,25 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTaskSendingEventInStateMachine()
         {
-            this.TestWithError(r =>
+            this.TestWithError(async r =>
             {
-                r.CreateActor(typeof(M1));
+                var g = new AwaitableEventGroup<bool>();
+                r.CreateActor(typeof(M1), null, g);
+                await g;
             },
-            expectedErrors: new string[]
-            {
-                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
-                "make sure to avoid using concurrency APIs () inside actor handlers. If you are using external " +
-                "libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
-                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
-                "concurrently, you will need to mock them during testing.",
-            });
+            expectedErrors: GetUncontrolledTaskErrorMessages());
         }
 
         private class A2 : Actor
         {
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
+                var g = this.CurrentEventGroup as AwaitableEventGroup<bool>;
                 await Task.Run(async () =>
                 {
+                    await Task.Yield();
                     this.RandomBoolean();
-                    await Task.Delay(100);
+                    g.SetResult(true);
                 });
             }
         }
@@ -95,19 +91,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTaskInvokingRandomInActor()
         {
-            this.TestWithError(r =>
+            this.TestWithError(async r =>
             {
+                var g = new AwaitableEventGroup<bool>();
                 r.CreateActor(typeof(A2));
+                await g;
             },
-            expectedErrors: new string[]
-            {
-                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
-                "make sure to avoid using concurrency APIs () inside actor handlers. If you are using external " +
-                "libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
-                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
-                "concurrently, you will need to mock them during testing.",
-            });
+            expectedErrors: GetUncontrolledTaskErrorMessages());
         }
 
         private class M2 : StateMachine
@@ -120,10 +110,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private async Task InitOnEntry()
             {
+                var g = this.CurrentEventGroup as AwaitableEventGroup<bool>;
                 await Task.Run(async () =>
                 {
+                    await Task.Yield();
                     this.RandomBoolean();
-                    await Task.Delay(100);
+                    g.SetResult(true);
                 });
             }
         }
@@ -131,19 +123,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestUncontrolledTaskInvokingRandomInStateMachine()
         {
-            this.TestWithError(r =>
+            this.TestWithError(async r =>
             {
+                var g = new AwaitableEventGroup<bool>();
                 r.CreateActor(typeof(M2));
+                await g;
             },
-            expectedErrors: new string[]
-            {
-                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
-                "make sure to avoid using concurrency APIs () inside actor handlers. If you are using external " +
-                "libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
-                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
-                "concurrently, you will need to mock them during testing.",
-            });
+            expectedErrors: GetUncontrolledTaskErrorMessages());
         }
     }
 }

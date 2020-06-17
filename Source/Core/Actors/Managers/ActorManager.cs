@@ -26,17 +26,17 @@ namespace Microsoft.Coyote.Actors
         public bool IsEventHandlerRunning { get; set; }
 
         /// <inheritdoc/>
-        public Guid OperationGroupId { get; set; }
+        public EventGroup CurrentEventGroup { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorManager"/> class.
         /// </summary>
-        internal ActorManager(ActorRuntime runtime, Actor instance, Guid operationGroupId)
+        internal ActorManager(ActorRuntime runtime, Actor instance, EventGroup group)
         {
             this.Runtime = runtime;
             this.Instance = instance;
             this.IsEventHandlerRunning = true;
-            this.OperationGroupId = operationGroupId;
+            this.CurrentEventGroup = group;
         }
 
         /// <inheritdoc/>
@@ -44,11 +44,11 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventIgnored(Event e, Guid opGroupId, EventInfo eventInfo) => this.Instance.IsEventIgnored(e);
+        public bool IsEventIgnored(Event e, EventInfo eventInfo) => this.Instance.IsEventIgnored(e);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsEventDeferred(Event e, Guid opGroupId, EventInfo eventInfo) => false;
+        public bool IsEventDeferred(Event e, EventInfo eventInfo) => false;
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,12 +56,12 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnEnqueueEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public void OnEnqueueEvent(Event e, EventGroup group, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogEnqueueEvent(this.Instance.Id, e);
 
         //// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnRaiseEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public void OnRaiseEvent(Event e, EventGroup group, EventInfo eventInfo) =>
             this.Runtime.LogWriter.LogRaiseEvent(this.Instance.Id, default, e);
 
         /// <inheritdoc/>
@@ -70,12 +70,12 @@ namespace Microsoft.Coyote.Actors
             this.Runtime.NotifyWaitEvent(this.Instance, eventTypes);
 
         /// <inheritdoc/>
-        public void OnReceiveEvent(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnReceiveEvent(Event e, EventGroup group, EventInfo eventInfo)
         {
-            if (opGroupId != Guid.Empty)
+            if (group != null)
             {
-                // Inherit the operation group id of the receive operation, if it is non-empty.
-                this.OperationGroupId = opGroupId;
+                // Inherit the event group of the receive operation, if it is non-null.
+                this.CurrentEventGroup = group;
             }
 
             this.Runtime.NotifyReceivedEvent(this.Instance, e, eventInfo);
@@ -83,12 +83,12 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnReceiveEventWithoutWaiting(Event e, Guid opGroupId, EventInfo eventInfo)
+        public void OnReceiveEventWithoutWaiting(Event e, EventGroup group, EventInfo eventInfo)
         {
-            if (opGroupId != Guid.Empty)
+            if (group != null)
             {
-                // Inherit the operation group id of the receive operation, if it is non-empty.
-                this.OperationGroupId = opGroupId;
+                // Inherit the event group id of the receive operation, if it is non-null.
+                this.CurrentEventGroup = group;
             }
 
             this.Runtime.NotifyReceivedEventWithoutWaiting(this.Instance, e, eventInfo);
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Actors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnDropEvent(Event e, Guid opGroupId, EventInfo eventInfo) =>
+        public void OnDropEvent(Event e, EventGroup group, EventInfo eventInfo) =>
             this.Runtime.TryHandleDroppedEvent(e, this.Instance.Id);
 
         /// <inheritdoc/>

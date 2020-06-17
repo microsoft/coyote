@@ -48,10 +48,10 @@ namespace Microsoft.Coyote.Actors
         /// <param name="senderType">The type of the sender, if any.</param>
         /// <param name="senderStateName">The state name, if the sender is a state machine, else null.</param>
         /// <param name="e">The event being sent.</param>
-        /// <param name="opGroupId">The id used to identify the send operation.</param>
+        /// <param name="eventGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
         void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
-            Event e, Guid opGroupId, bool isTargetHalted);
+            Event e, Guid eventGroupId, bool isTargetHalted);
 
         /// <summary>
         /// Invoked when the specified state machine raises an event.

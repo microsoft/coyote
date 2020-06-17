@@ -103,16 +103,16 @@ namespace Microsoft.Coyote.Actors
         /// <param name="senderType">The type of the sender, if any.</param>
         /// <param name="senderState">The state name, if the sender is a state machine, else null.</param>
         /// <param name="e">The event being sent.</param>
-        /// <param name="opGroupId">The id used to identify the send operation.</param>
+        /// <param name="eventGroupId">The id used to identify the send operation.</param>
         /// <param name="isTargetHalted">Is the target actor halted.</param>
         public void LogSendEvent(ActorId targetActorId, string senderName, string senderType, string senderState,
-            Event e, Guid opGroupId, bool isTargetHalted)
+            Event e, Guid eventGroupId, bool isTargetHalted)
         {
             if (this.Logs.Count > 0)
             {
                 foreach (var log in this.Logs)
                 {
-                    log.OnSendEvent(targetActorId, senderName, senderType, senderState, e, opGroupId, isTargetHalted);
+                    log.OnSendEvent(targetActorId, senderName, senderType, senderState, e, eventGroupId, isTargetHalted);
                 }
             }
         }

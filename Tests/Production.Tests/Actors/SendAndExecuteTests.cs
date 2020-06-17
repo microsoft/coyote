@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Production.Tests.Actors.Operations
+namespace Microsoft.Coyote.Production.Tests.Actors
 {
     public class SendAndExecuteTests : BaseProductionTest
     {
@@ -137,7 +137,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M2 : StateMachine
@@ -171,7 +172,9 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
             private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var creator = (e as E2).Id;
+#pragma warning disable CS0618 // Type or member is obsolete
                 var handled = await this.Id.Runtime.SendEventAndExecuteAsync(creator, new E3());
+#pragma warning restore CS0618 // Type or member is obsolete
                 this.Assert(!handled);
             }
         }
@@ -193,7 +196,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M3 : StateMachine
@@ -284,7 +288,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-            }, config);
+            }, config, handleFailures: false);
         }
 
         private class M4 : StateMachine
@@ -357,7 +361,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-            });
+            },
+            handleFailures: false);
         }
 
         [Fact(Timeout = 5000)]
@@ -384,7 +389,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.StartsWith("Exception of type 'System.Exception' was thrown", message);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M5 : StateMachine
@@ -440,7 +446,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors.Operations
                 var className = this.GetType().FullName;
                 var expected = string.Format("{0}+N5(1) received event '{0}+E3' that cannot be handled.", className);
                 Assert.Equal(expected, message);
-            });
+            },
+            handleFailures: false);
         }
     }
 }

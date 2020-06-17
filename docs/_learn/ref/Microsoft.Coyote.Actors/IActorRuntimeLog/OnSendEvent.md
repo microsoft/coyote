@@ -10,7 +10,7 @@ Invoked when the specified event is sent to a target actor.
 
 ```csharp
 public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, 
-    string senderStateName, Event e, Guid opGroupId, bool isTargetHalted)
+    string senderStateName, Event e, Guid eventGroupId, bool isTargetHalted)
 ```
 
 | parameter | description |
@@ -20,7 +20,7 @@ public void OnSendEvent(ActorId targetActorId, string senderName, string senderT
 | senderType | The type of the sender, if any. |
 | senderStateName | The state name, if the sender is a state machine, else null. |
 | e | The event being sent. |
-| opGroupId | The id used to identify the send operation. |
+| eventGroupId | The id used to identify the send operation. |
 | isTargetHalted | Is the target actor halted. |
 
 ## See Also

@@ -97,19 +97,23 @@ namespace Microsoft.Coyote.Actors
         internal bool IsDefaultHandlerAvailable { get; private set; }
 
         /// <summary>
-        /// Id used to identify subsequent operations performed by this actor. This value
-        /// is initially either <see cref="Guid.Empty"/> or the <see cref="Guid"/> specified
-        /// upon creation. This value is automatically set to the operation group id of the
-        /// last dequeue or receive operation, if it is not <see cref="Guid.Empty"/>. This
-        /// value can also be manually set using the property.
+        /// An optional `EventGroup` associated with the current event being handled.
+        /// This is an optional argument provided to CreateActor or SendEvent.
         /// </summary>
-        protected internal virtual Guid OperationGroupId
+        public EventGroup CurrentEventGroup
         {
-            get => this.Manager.OperationGroupId;
+            get
+            {
+                if (this.Manager.CurrentEventGroup == EventGroup.NullEventGroup)
+                {
+                    return null;
+                }
 
+                return this.Manager.CurrentEventGroup;
+            }
             set
             {
-                this.Manager.OperationGroupId = value;
+                this.Manager.CurrentEventGroup = value;
             }
         }
 
@@ -171,10 +175,10 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         /// <param name="type">Type of the actor.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
+        /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
-        protected ActorId CreateActor(Type type, Event initialEvent = null, Guid opGroupId = default) =>
-            this.Runtime.CreateActor(null, type, null, initialEvent, this, opGroupId);
+        protected ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
+            this.Runtime.CreateActor(null, type, null, initialEvent, this, group);
 
         /// <summary>
         /// Creates a new actor of the specified type and name, and with the specified
@@ -184,10 +188,10 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
+        /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
-        protected ActorId CreateActor(Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
-            this.Runtime.CreateActor(null, type, name, initialEvent, this, opGroupId);
+        protected ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.Runtime.CreateActor(null, type, name, initialEvent, this, group);
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, using the specified
@@ -198,19 +202,19 @@ namespace Microsoft.Coyote.Actors
         /// <param name="type">Type of the actor.</param>
         /// <param name="name">Optional name used for logging.</param>
         /// <param name="initialEvent">Optional initialization event.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
-        protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, Guid opGroupId = default) =>
-            this.Runtime.CreateActor(id, type, name, initialEvent, this, opGroupId);
+        /// <param name="group">An optional event group associated with the new Actor.</param>
+        protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+            this.Runtime.CreateActor(id, type, name, initialEvent, this, group);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a target.
         /// </summary>
         /// <param name="id">The id of the target.</param>
         /// <param name="e">The event to send.</param>
-        /// <param name="opGroupId">Optional id that can be used to identify this operation.</param>
+        /// <param name="group">An optional event group associated with this Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
-        protected void SendEvent(ActorId id, Event e, Guid opGroupId = default, SendOptions options = null) =>
-            this.Runtime.SendEvent(id, e, this, opGroupId, options);
+        protected void SendEvent(ActorId id, Event e, EventGroup group = null, SendOptions options = null) =>
+            this.Runtime.SendEvent(id, e, this, group, options);
 
         /// <summary>
         /// Waits to receive an <see cref="Event"/> of the specified type
@@ -440,14 +444,14 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues the specified event and its metadata.
         /// </summary>
-        internal EnqueueStatus Enqueue(Event e, Guid opGroupId, EventInfo info)
+        internal EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
         {
             if (this.CurrentStatus is Status.Halted)
             {
                 return EnqueueStatus.Dropped;
             }
 
-            return this.Inbox.Enqueue(e, opGroupId, info);
+            return this.Inbox.Enqueue(e, group, info);
         }
 
         /// <summary>
@@ -459,11 +463,11 @@ namespace Microsoft.Coyote.Actors
             Event lastDequeuedEvent = null;
             while (this.CurrentStatus != Status.Halted && this.Runtime.IsRunning)
             {
-                (DequeueStatus status, Event e, Guid opGroupId, EventInfo info) = this.Inbox.Dequeue();
-                if (opGroupId != Guid.Empty)
+                (DequeueStatus status, Event e, EventGroup group, EventInfo info) = this.Inbox.Dequeue();
+
+                if (group != null)
                 {
-                    // Inherit the operation group id of the dequeued operation, if it is non-empty.
-                    this.Manager.OperationGroupId = opGroupId;
+                    this.Manager.CurrentEventGroup = group;
                 }
 
                 if (status is DequeueStatus.Success)

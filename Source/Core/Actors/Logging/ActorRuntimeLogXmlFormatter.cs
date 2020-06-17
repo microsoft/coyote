@@ -330,7 +330,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         public void OnSendEvent(ActorId targetActorId, string senderName, string senderType, string senderStateName,
-            Event e, Guid opGroupId, bool isTargetHalted)
+            Event e, Guid eventGroupId, bool isTargetHalted)
         {
             if (this.Closed)
             {
@@ -350,9 +350,9 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteAttributeString("senderState", senderStateName);
 
             this.Writer.WriteAttributeString("event", e.GetType().FullName);
-            if (opGroupId != Guid.Empty)
+            if (eventGroupId != Guid.Empty)
             {
-                this.Writer.WriteAttributeString("event", opGroupId.ToString());
+                this.Writer.WriteAttributeString("group", eventGroupId.ToString());
             }
 
             this.Writer.WriteAttributeString("isTargetHalted", isTargetHalted.ToString());

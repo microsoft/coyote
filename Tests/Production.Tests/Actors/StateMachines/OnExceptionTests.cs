@@ -82,7 +82,8 @@ namespace Microsoft.Coyote.Production.Tests
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
                 Assert.True(e.X == 1);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M1b : StateMachine
@@ -124,7 +125,8 @@ namespace Microsoft.Coyote.Production.Tests
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.True(e.X == 1);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M2a : StateMachine
@@ -177,7 +179,8 @@ namespace Microsoft.Coyote.Production.Tests
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
                 Assert.True(e.X == 1);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M2b : StateMachine
@@ -220,7 +223,8 @@ namespace Microsoft.Coyote.Production.Tests
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
                 Assert.True(e.X == 1);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M3 : StateMachine
@@ -267,7 +271,8 @@ namespace Microsoft.Coyote.Production.Tests
                 var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
                 Assert.False(failed);
-            });
+            },
+            handleFailures: false);
         }
 
         private class M4 : StateMachine
@@ -323,7 +328,8 @@ namespace Microsoft.Coyote.Production.Tests
                 var result = await this.GetResultAsync(tcs);
                 Assert.True(result);
                 Assert.False(failed);
-            });
+            },
+            handleFailures: false);
         }
     }
 }

@@ -5,17 +5,17 @@ using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Production.Tests.Tasks
+namespace Microsoft.Coyote.Production.Tests.Tasks.Scheduling
 {
-    public class RuntimeTests : BaseProductionTest
+    public class ExploreContextSwitchTests : BaseProductionTest
     {
-        public RuntimeTests(ITestOutputHelper output)
+        public ExploreContextSwitchTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExploreContextSwitchIsDisabled()
+        public void TestExploreContextSwitchIsDisabledInProduction()
         {
             Task.ExploreContextSwitch();
         }

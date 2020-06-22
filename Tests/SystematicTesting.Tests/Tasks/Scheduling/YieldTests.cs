@@ -3,15 +3,14 @@
 
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Production.Tests.Tasks
+namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks.Scheduling
 {
-    public class TestExploreContextSwitch : BaseTest
+    public class YieldTests : BaseSystematicTest
     {
-        public TestExploreContextSwitch(ITestOutputHelper output)
+        public YieldTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -23,17 +22,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public async Task A()
         {
             this.a = this.x + 1;
-            Task.ExploreContextSwitch();
+            await Task.Yield();
             this.x = this.a;
-            await Task.CompletedTask;
         }
 
         public async Task B()
         {
             this.b = this.x + 1;
-            Task.ExploreContextSwitch();
+            await Task.Yield();
             this.x = this.b;
-            await Task.CompletedTask;
         }
 
         [Fact(Timeout = 5000)]

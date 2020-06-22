@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class TestExploreContextSwitch : Production.Tests.Tasks.TestExploreContextSwitch
+    public class MethodSignaturesTests : Microsoft.Coyote.Production.Tests.Tasks.MethodSignaturesTests
     {
-        public TestExploreContextSwitch(ITestOutputHelper output)
+        public MethodSignaturesTests(ITestOutputHelper output)
             : base(output)
         {
         }

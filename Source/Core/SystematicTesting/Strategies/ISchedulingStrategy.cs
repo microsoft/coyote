@@ -11,13 +11,21 @@ namespace Microsoft.Coyote.SystematicTesting
     internal interface ISchedulingStrategy
     {
         /// <summary>
+        /// Initializes the next iteration.
+        /// </summary>
+        /// <param name="iteration">The id of the next iteration.</param>
+        /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
+        bool InitializeNextIteration(int iteration);
+
+        /// <summary>
         /// Returns the next asynchronous operation to schedule.
         /// </summary>
+        /// <param name="ops">Operations that can be scheduled.</param>
         /// <param name="current">The currently scheduled operation.</param>
-        /// <param name="ops">List of operations that can be scheduled.</param>
+        /// <param name="isYielding">True if the current operation is yielding, else false.</param>
         /// <param name="next">The next operation to schedule.</param>
         /// <returns>True if there is a next choice, else false.</returns>
-        bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next);
+        bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next);
 
         /// <summary>
         /// Returns the next boolean choice.
@@ -36,14 +44,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <param name="next">The next integer choice.</param>
         /// <returns>True if there is a next choice, else false.</returns>
         bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next);
-
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
-        /// <returns>True to start the next iteration.</returns>
-        bool PrepareForNextIteration();
 
         /// <summary>
         /// Returns the scheduled steps.

@@ -27,10 +27,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public override bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
-            var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOperations.Count == 0)
+            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            if (enabledOps.Count == 0)
             {
                 next = null;
                 return false;
@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
 
             this.ScheduledSteps++;
 
-            if (enabledOperations.Count > 1)
+            if (enabledOps.Count > 1)
             {
                 if (!this.ShouldCurrentMachineChange() && current.Status is AsyncOperationStatus.Enabled)
                 {
@@ -47,8 +47,8 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 }
             }
 
-            int idx = this.RandomValueGenerator.Next(enabledOperations.Count);
-            next = enabledOperations[idx];
+            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
+            next = enabledOps[idx];
 
             return true;
         }

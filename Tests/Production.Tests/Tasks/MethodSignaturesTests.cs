@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class TestMethodSignatures : BaseTest
+    public class MethodSignaturesTests : BaseTest
     {
-        public TestMethodSignatures(ITestOutputHelper output)
+        public MethodSignaturesTests(ITestOutputHelper output)
             : base(output)
         {
         }

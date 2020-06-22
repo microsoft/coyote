@@ -33,21 +33,29 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         {
             this.RandomValueGenerator = random;
             this.MaxScheduledSteps = maxSteps;
-            this.ScheduledSteps = 0;
         }
 
         /// <inheritdoc/>
-        public virtual bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public virtual bool InitializeNextIteration(int iteration)
         {
-            var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOperations.Count == 0)
+            // The random strategy just needs to reset the number of scheduled steps during
+            // the current iretation.
+            this.ScheduledSteps = 0;
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public virtual bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        {
+            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            if (enabledOps.Count == 0)
             {
                 next = null;
                 return false;
             }
 
-            int idx = this.RandomValueGenerator.Next(enabledOperations.Count);
-            next = enabledOperations[idx];
+            int idx = this.RandomValueGenerator.Next(enabledOps.Count);
+            next = enabledOps[idx];
 
             this.ScheduledSteps++;
 
@@ -73,13 +81,6 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         {
             next = this.RandomValueGenerator.Next(maxValue);
             this.ScheduledSteps++;
-            return true;
-        }
-
-        /// <inheritdoc/>
-        public virtual bool PrepareForNextIteration()
-        {
-            this.ScheduledSteps = 0;
             return true;
         }
 

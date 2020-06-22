@@ -401,18 +401,17 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.TestMethodInfo.InitializeAllIterations();
 
                     int maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.TestingIterations;
-                    for (int i = 0; i < maxIterations; i++)
+                    for (int iteration = 0; iteration < maxIterations; iteration++)
                     {
                         if (this.CancellationTokenSource.IsCancellationRequested)
                         {
                             break;
                         }
 
-                        // Runs a new testing iteration.
-                        this.RunNextIteration(i);
-
-                        if (this.IsReplayModeEnabled || (!this.Configuration.PerformFullExploration &&
-                            this.TestReport.NumOfFoundBugs > 0) || !this.Strategy.PrepareForNextIteration())
+                        // Runs the next iteration.
+                        bool runNext = this.RunNextIteration(iteration);
+                        if ((!this.Configuration.PerformFullExploration && this.TestReport.NumOfFoundBugs > 0) ||
+                            this.IsReplayModeEnabled || !runNext)
                         {
                             break;
                         }
@@ -460,8 +459,14 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the next testing iteration.
         /// </summary>
-        private void RunNextIteration(int iteration)
+        private bool RunNextIteration(int iteration)
         {
+            if (!this.Strategy.InitializeNextIteration(iteration))
+            {
+                // The next iteration cannot run, so stop exploring.
+                return false;
+            }
+
             if (!this.IsReplayModeEnabled && this.ShouldPrintIteration(iteration + 1))
             {
                 this.Logger.WriteLine($"..... Iteration #{iteration + 1}");
@@ -578,6 +583,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 runtimeLogger?.Dispose();
                 runtime?.Dispose();
             }
+
+            return true;
         }
 
         /// <summary>

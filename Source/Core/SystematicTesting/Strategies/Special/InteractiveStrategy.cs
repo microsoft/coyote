@@ -45,14 +45,25 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             this.ExploredSteps = 0;
         }
 
+        /// <summary>
+        /// Prepares for the next scheduling iteration. This is invoked
+        /// at the end of a scheduling iteration. It must return false
+        /// if the scheduling strategy should stop exploring.
+        /// </summary>
+        public bool InitializeNextIteration(int iteration)
+        {
+            this.ExploredSteps = 0;
+            return true;
+        }
+
         /// <inheritdoc/>
-        public bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             next = null;
 
-            var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
 
-            if (enabledOperations.Count == 0)
+            if (enabledOps.Count == 0)
             {
                 this.Logger.WriteLine(">> No available machines to schedule ...");
                 return false;
@@ -76,15 +87,15 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                         this.InputCache[this.ExploredSteps - 1] = "0";
                     }
 
-                    next = enabledOperations[idx];
+                    next = enabledOps[idx];
                     parsed = true;
                     break;
                 }
 
                 this.Logger.WriteLine(">> Available machines to schedule ...");
-                for (int idx = 0; idx < enabledOperations.Count; idx++)
+                for (int idx = 0; idx < enabledOps.Count; idx++)
                 {
-                    var op = enabledOperations[idx];
+                    var op = enabledOps[idx];
                     this.Logger.WriteLine($">> [{idx}] '{op.Name}'");
                 }
 
@@ -99,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
 
                     this.Configuration.TestingIterations++;
-                    this.PrepareForNextIteration();
+                    this.InitializeNextIteration(this.Configuration.TestingIterations);
                     return false;
                 }
                 else if (input.Equals("jump"))
@@ -124,7 +135,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                             continue;
                         }
 
-                        next = enabledOperations[idx];
+                        next = enabledOps[idx];
                         if (next is null)
                         {
                             this.Logger.WriteLine(">> Unexpected id, please retry ...");
@@ -139,7 +150,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 }
                 else
                 {
-                    next = enabledOperations[0];
+                    next = enabledOps[0];
                 }
 
                 this.InputCache.Add(input);
@@ -184,7 +195,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
 
                     this.Configuration.TestingIterations++;
-                    this.PrepareForNextIteration();
+                    this.InitializeNextIteration(this.Configuration.TestingIterations);
                     return false;
                 }
                 else if (input.Equals("jump"))
@@ -253,7 +264,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
 
                     this.Configuration.TestingIterations++;
-                    this.PrepareForNextIteration();
+                    this.InitializeNextIteration(this.Configuration.TestingIterations);
                     return false;
                 }
                 else if (input.Equals("jump"))
@@ -289,17 +300,6 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 parsed = true;
             }
 
-            return true;
-        }
-
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
-        public bool PrepareForNextIteration()
-        {
-            this.ExploredSteps = 0;
             return true;
         }
 

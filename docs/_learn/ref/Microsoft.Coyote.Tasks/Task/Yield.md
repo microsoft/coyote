@@ -12,6 +12,10 @@ Creates an awaitable that asynchronously yields back to the current context when
 public static YieldAwaitable Yield()
 ```
 
+## Remarks
+
+You can use `await Task.Yield()` in an asynchronous method to force the method to complete asynchronously. During systematic testing, the underlying scheduling strategy can use this as a hint on how to better prioritize this work relative to other work that may be pending.
+
 ## See Also
 
 * class [Task](../TaskType)

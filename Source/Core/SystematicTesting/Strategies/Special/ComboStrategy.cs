@@ -31,15 +31,23 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public bool InitializeNextIteration(int iteration)
+        {
+            bool doNext = this.PrefixStrategy.InitializeNextIteration(iteration);
+            doNext |= this.SuffixStrategy.InitializeNextIteration(iteration);
+            return doNext;
+        }
+
+        /// <inheritdoc/>
+        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
-                return this.SuffixStrategy.GetNextOperation(current, ops, out next);
+                return this.SuffixStrategy.GetNextOperation(ops, current, isYielding, out next);
             }
             else
             {
-                return this.PrefixStrategy.GetNextOperation(current, ops, out next);
+                return this.PrefixStrategy.GetNextOperation(ops, current, isYielding, out next);
             }
         }
 
@@ -67,14 +75,6 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             {
                 return this.PrefixStrategy.GetNextIntegerChoice(current, maxValue, out next);
             }
-        }
-
-        /// <inheritdoc/>
-        public bool PrepareForNextIteration()
-        {
-            bool doNext = this.PrefixStrategy.PrepareForNextIteration();
-            doNext |= this.SuffixStrategy.PrepareForNextIteration();
-            return doNext;
         }
 
         /// <inheritdoc/>

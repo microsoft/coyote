@@ -23,10 +23,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public override bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             this.CheckLivenessTemperature();
-            return this.SchedulingStrategy.GetNextOperation(current, ops, out next);
+            return this.SchedulingStrategy.GetNextOperation(ops, current, isYielding, out next);
         }
 
         /// <inheritdoc/>

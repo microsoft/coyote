@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// Implements a scheduler that serializes and schedules controlled operations.
+    /// Scheduler that controls the execution of asynchronous operations during systematic testing.
     /// </summary>
     /// <remarks>
-    /// Invoking methods of the scheduler is thread-safe.
+    /// Invoking the scheduler is thread-safe.
     /// </remarks>
 #if !DEBUG
     [DebuggerStepThrough]
@@ -26,6 +26,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private static readonly AsyncLocal<AsyncOperation> ExecutingOperation =
             new AsyncLocal<AsyncOperation>(OnAsyncLocalExecutingOperationValueChanged);
+
+        /// <summary>
+        /// The <see cref="OperationScheduler"/> associated with the currently executing runtime.
+        /// </summary>
+        public static OperationScheduler Current => ControlledRuntime.Current.Scheduler;
 
         /// <summary>
         /// The configuration used by the scheduler.
@@ -111,10 +116,29 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Schedules the next operation, which can include the currently executing operation.
-        /// Only operations that are not blocked nor completed can be scheduled.
+        /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
-        internal void ScheduleNextOperation()
+        /// <remarks>
+        /// An enabled operation is one that is not blocked nor completed.
+        /// </remarks>
+        internal void ScheduleNext() => this.ScheduleNextOperation();
+
+        /// <summary>
+        /// Yields execution to the next enabled operation, which can include the currently executing operation.
+        /// </summary>
+        /// <remarks>
+        /// An enabled operation is one that is not blocked nor completed.
+        /// </remarks>
+        internal void Yield() => this.ScheduleNextOperation(true);
+
+        /// <summary>
+        /// Schedules the next enabled operation, which can include the currently executing operation.
+        /// </summary>
+        /// <param name="isYielding">True if the current operation is yielding, else false.</param>
+        /// <remarks>
+        /// An enabled operation is one that is not blocked nor completed.
+        /// </remarks>
+        internal void ScheduleNextOperation(bool isYielding = false)
         {
             lock (this.SyncObject)
             {
@@ -157,7 +181,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                 }
 
-                if (!this.Strategy.GetNextOperation(current, ops, out AsyncOperation next))
+                if (!this.Strategy.GetNextOperation(ops, current, isYielding, out AsyncOperation next))
                 {
                     // Checks if the program has deadlocked.
                     this.CheckIfProgramHasDeadlocked(ops);

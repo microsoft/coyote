@@ -56,6 +56,23 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         {
         }
 
+        /// <inheritdoc/>
+        public bool InitializeNextIteration(int iteration)
+        {
+            this.ScheduledSteps = 0;
+
+            if (iteration is 0)
+            {
+                return true;
+            }
+            else if (this.SuffixStrategy != null)
+            {
+                return this.SuffixStrategy.InitializeNextIteration(iteration);
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplayStrategy"/> class.
         /// </summary>
@@ -71,12 +88,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             if (this.IsReplaying)
             {
-                var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-                if (enabledOperations.Count == 0)
+                var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+                if (enabledOps.Count == 0)
                 {
                     next = null;
                     return false;
@@ -97,7 +114,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                         throw new InvalidOperationException(this.ErrorText);
                     }
 
-                    next = enabledOperations.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
+                    next = enabledOps.FirstOrDefault(op => op.Id == nextStep.ScheduledOperationId);
                     if (next is null)
                     {
                         this.ErrorText = $"Trace is not reproducible: cannot detect id '{nextStep.ScheduledOperationId}'.";
@@ -119,7 +136,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     else
                     {
                         this.IsReplaying = false;
-                        return this.SuffixStrategy.GetNextOperation(current, ops, out next);
+                        return this.SuffixStrategy.GetNextOperation(ops, current, isYielding, out next);
                     }
                 }
 
@@ -127,7 +144,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 return true;
             }
 
-            return this.SuffixStrategy.GetNextOperation(current, ops, out next);
+            return this.SuffixStrategy.GetNextOperation(ops, current, isYielding, out next);
         }
 
         /// <inheritdoc/>
@@ -238,20 +255,6 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             }
 
             return this.SuffixStrategy.GetNextIntegerChoice(current, maxValue, out next);
-        }
-
-        /// <inheritdoc/>
-        public bool PrepareForNextIteration()
-        {
-            this.ScheduledSteps = 0;
-            if (this.SuffixStrategy != null)
-            {
-                return this.SuffixStrategy.PrepareForNextIteration();
-            }
-            else
-            {
-                return false;
-            }
         }
 
         /// <inheritdoc/>

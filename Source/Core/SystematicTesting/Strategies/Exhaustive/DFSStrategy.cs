@@ -62,10 +62,96 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next)
+        public virtual bool InitializeNextIteration(int iteration)
         {
-            var enabledOperations = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOperations.Count == 0)
+            if (iteration is 0)
+            {
+                // The first iteration has already been initialized.
+                return true;
+            }
+
+            if (this.ScheduleStack.All(scs => scs.All(val => val.IsDone)))
+            {
+                return false;
+            }
+
+            // DebugPrintSchedule();
+            this.ScheduledSteps = 0;
+
+            this.SchIndex = 0;
+            this.NondetIndex = 0;
+
+            for (int idx = this.BoolNondetStack.Count - 1; idx > 0; idx--)
+            {
+                if (!this.BoolNondetStack[idx].All(val => val.IsDone))
+                {
+                    break;
+                }
+
+                var previousChoice = this.BoolNondetStack[idx - 1].First(val => !val.IsDone);
+                previousChoice.IsDone = true;
+
+                this.BoolNondetStack.RemoveAt(idx);
+            }
+
+            for (int idx = this.IntNondetStack.Count - 1; idx > 0; idx--)
+            {
+                if (!this.IntNondetStack[idx].All(val => val.IsDone))
+                {
+                    break;
+                }
+
+                var previousChoice = this.IntNondetStack[idx - 1].First(val => !val.IsDone);
+                previousChoice.IsDone = true;
+
+                this.IntNondetStack.RemoveAt(idx);
+            }
+
+            if (this.BoolNondetStack.Count > 0 &&
+                this.BoolNondetStack.All(ns => ns.All(nsc => nsc.IsDone)))
+            {
+                this.BoolNondetStack.Clear();
+            }
+
+            if (this.IntNondetStack.Count > 0 &&
+                this.IntNondetStack.All(ns => ns.All(nsc => nsc.IsDone)))
+            {
+                this.IntNondetStack.Clear();
+            }
+
+            if (this.BoolNondetStack.Count == 0 &&
+                this.IntNondetStack.Count == 0)
+            {
+                for (int idx = this.ScheduleStack.Count - 1; idx > 0; idx--)
+                {
+                    if (!this.ScheduleStack[idx].All(val => val.IsDone))
+                    {
+                        break;
+                    }
+
+                    var previousChoice = this.ScheduleStack[idx - 1].First(val => !val.IsDone);
+                    previousChoice.IsDone = true;
+
+                    this.ScheduleStack.RemoveAt(idx);
+                }
+            }
+            else
+            {
+                var previousChoice = this.ScheduleStack.Last().LastOrDefault(val => val.IsDone);
+                if (previousChoice != null)
+                {
+                    previousChoice.IsDone = false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        {
+            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            if (enabledOps.Count == 0)
             {
                 next = null;
                 return false;
@@ -81,7 +167,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             else
             {
                 scs = new List<SChoice>();
-                foreach (var task in enabledOperations)
+                foreach (var task in enabledOps)
                 {
                     scs.Add(new SChoice(task.Id));
                 }
@@ -102,7 +188,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 previousChoice.IsDone = false;
             }
 
-            next = enabledOperations.Find(task => task.Id == nextChoice.Id);
+            next = enabledOps.Find(task => task.Id == nextChoice.Id);
             nextChoice.IsDone = true;
             this.SchIndex++;
 
@@ -203,86 +289,6 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool PrepareForNextIteration()
-        {
-            if (this.ScheduleStack.All(scs => scs.All(val => val.IsDone)))
-            {
-                return false;
-            }
-
-            // PrintSchedule();
-            this.ScheduledSteps = 0;
-
-            this.SchIndex = 0;
-            this.NondetIndex = 0;
-
-            for (int idx = this.BoolNondetStack.Count - 1; idx > 0; idx--)
-            {
-                if (!this.BoolNondetStack[idx].All(val => val.IsDone))
-                {
-                    break;
-                }
-
-                var previousChoice = this.BoolNondetStack[idx - 1].First(val => !val.IsDone);
-                previousChoice.IsDone = true;
-
-                this.BoolNondetStack.RemoveAt(idx);
-            }
-
-            for (int idx = this.IntNondetStack.Count - 1; idx > 0; idx--)
-            {
-                if (!this.IntNondetStack[idx].All(val => val.IsDone))
-                {
-                    break;
-                }
-
-                var previousChoice = this.IntNondetStack[idx - 1].First(val => !val.IsDone);
-                previousChoice.IsDone = true;
-
-                this.IntNondetStack.RemoveAt(idx);
-            }
-
-            if (this.BoolNondetStack.Count > 0 &&
-                this.BoolNondetStack.All(ns => ns.All(nsc => nsc.IsDone)))
-            {
-                this.BoolNondetStack.Clear();
-            }
-
-            if (this.IntNondetStack.Count > 0 &&
-                this.IntNondetStack.All(ns => ns.All(nsc => nsc.IsDone)))
-            {
-                this.IntNondetStack.Clear();
-            }
-
-            if (this.BoolNondetStack.Count == 0 &&
-                this.IntNondetStack.Count == 0)
-            {
-                for (int idx = this.ScheduleStack.Count - 1; idx > 0; idx--)
-                {
-                    if (!this.ScheduleStack[idx].All(val => val.IsDone))
-                    {
-                        break;
-                    }
-
-                    var previousChoice = this.ScheduleStack[idx - 1].First(val => !val.IsDone);
-                    previousChoice.IsDone = true;
-
-                    this.ScheduleStack.RemoveAt(idx);
-                }
-            }
-            else
-            {
-                var previousChoice = this.ScheduleStack.Last().LastOrDefault(val => val.IsDone);
-                if (previousChoice != null)
-                {
-                    previousChoice.IsDone = false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <inheritdoc/>
         public int GetScheduledSteps() => this.ScheduledSteps;
 
         /// <inheritdoc/>
@@ -303,9 +309,9 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         public string GetDescription() => "dfs";
 
         /// <summary>
-        /// Prints the schedule.
+        /// Prints the schedule, if debug is enabled.
         /// </summary>
-        private void PrintSchedule()
+        private void DebugPrintSchedule()
         {
             Debug.WriteLine("*******************");
             Debug.WriteLine("Schedule stack size: " + this.ScheduleStack.Count);

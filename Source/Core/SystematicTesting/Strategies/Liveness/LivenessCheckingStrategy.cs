@@ -39,7 +39,11 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public abstract bool GetNextOperation(AsyncOperation current, IEnumerable<AsyncOperation> ops, out AsyncOperation next);
+        public virtual bool InitializeNextIteration(int iteration) =>
+            this.SchedulingStrategy.InitializeNextIteration(iteration);
+
+        /// <inheritdoc/>
+        public abstract bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next);
 
         /// <inheritdoc/>
         public abstract bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next);
@@ -48,39 +52,19 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         public abstract bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next);
 
         /// <inheritdoc/>
-        public virtual bool PrepareForNextIteration()
-        {
-            return this.SchedulingStrategy.PrepareForNextIteration();
-        }
+        public virtual int GetScheduledSteps() => this.SchedulingStrategy.GetScheduledSteps();
 
         /// <inheritdoc/>
-        public virtual int GetScheduledSteps()
-        {
-            return this.SchedulingStrategy.GetScheduledSteps();
-        }
+        public virtual bool HasReachedMaxSchedulingSteps() =>
+            this.SchedulingStrategy.HasReachedMaxSchedulingSteps();
 
         /// <inheritdoc/>
-        public virtual bool HasReachedMaxSchedulingSteps()
-        {
-            return this.SchedulingStrategy.HasReachedMaxSchedulingSteps();
-        }
+        public virtual bool IsFair() => this.SchedulingStrategy.IsFair();
 
         /// <inheritdoc/>
-        public virtual bool IsFair()
-        {
-            return this.SchedulingStrategy.IsFair();
-        }
+        public virtual string GetDescription() => this.SchedulingStrategy.GetDescription();
 
         /// <inheritdoc/>
-        public virtual string GetDescription()
-        {
-            return this.SchedulingStrategy.GetDescription();
-        }
-
-        /// <inheritdoc/>
-        public virtual void Reset()
-        {
-            this.SchedulingStrategy.Reset();
-        }
+        public virtual void Reset() => this.SchedulingStrategy.Reset();
     }
 }

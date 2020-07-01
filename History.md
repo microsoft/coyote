@@ -1,3 +1,10 @@
+## v1.0.12
+- Introduced a new `EventGroup` API for actors, which replaces operation groups, that allows
+  improved tracing and awaiting of long running actor operations.
+- The `Task.Yield` API can now be used to de-prioritize the executing operation during testing.
+- Added missing APIs in the `Microsoft.Coyote.Tasks.Semaphore` type.
+- Fixed two bugs in the systematic testing scheduler.
+
 ## v1.0.11
 - Fixed an issue that did not allow systematic and non-systematic unit tests to run on the same
   process.

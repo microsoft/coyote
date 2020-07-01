@@ -8,8 +8,7 @@ using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
-    [ClrJob(baseline: true), CoreJob]
-    [MemoryDiagnoser]
+    // [MemoryDiagnoser, ThreadingDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class GotoTransitionThroughputBenchmark
@@ -88,18 +87,28 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             }
         }
 
-        [Params(1000, 10000, 100000)]
-        public int NumTransitions { get; set; }
+        public static int NumTransitions => 100000;
+
+        private IActorRuntime Runtime;
+
+        [IterationSetup]
+
+        public void IterationSetup()
+        {
+            if (this.Runtime == null)
+            {
+                var configuration = Configuration.Create();
+                this.Runtime = RuntimeFactory.Create(configuration);
+            }
+        }
 
         [Benchmark]
         public void MeasureGotoTransitionThroughput()
         {
-            var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.Create(configuration);
             var tcs = new TaskCompletionSource<bool>();
-            var e = new SetupEvent(tcs, this.NumTransitions);
-            runtime.CreateActor(typeof(M), null, e);
-            tcs.Task.Wait();
+            var setup = new SetupEvent(tcs, NumTransitions);
+            this.Runtime.CreateActor(typeof(M), null, setup);
+            setup.Tcs.Task.Wait();
         }
     }
 }

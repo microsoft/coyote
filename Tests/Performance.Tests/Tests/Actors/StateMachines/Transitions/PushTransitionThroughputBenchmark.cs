@@ -8,8 +8,7 @@ using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
-    [ClrJob(baseline: true), CoreJob]
-    [MemoryDiagnoser]
+    // [MemoryDiagnoser, ThreadingDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class PushTransitionThroughputBenchmark
@@ -78,41 +77,51 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 
             private void DoTransitionFromState(Type fromState)
             {
-                if (this.NumTransitions > 0 && fromState == typeof(Bottom))
-                {
-                    this.RaiseEvent(Trigger.Instance);
-                }
-                else if (this.NumTransitions > 0 && fromState == typeof(Middle))
-                {
-                    this.RaisePushStateEvent(typeof(Top));
-                }
-                else if (this.NumTransitions > 0 && fromState == typeof(Top))
-                {
-                    this.SendEvent(this.Id, Trigger.Instance);
-                    this.RaisePopStateEvent();
-                }
-                else if (this.NumTransitions == 0)
+                if (this.NumTransitions == 0)
                 {
                     this.RaiseHaltEvent();
                     this.Tcs.TrySetResult(true);
+                }
+                else if (fromState == typeof(Bottom))
+                {
+                    this.RaiseEvent(Trigger.Instance);
+                }
+                else if (fromState == typeof(Middle))
+                {
+                    this.RaisePushStateEvent(typeof(Top));
+                }
+                else if (fromState == typeof(Top))
+                {
+                    this.SendEvent(this.Id, Trigger.Instance);
+                    this.RaisePopStateEvent();
                 }
 
                 this.NumTransitions--;
             }
         }
 
-        [Params(1000, 10000, 100000)]
-        public int NumTransitions { get; set; }
+        public static int NumTransitions => 100000;
+
+        private IActorRuntime Runtime;
+
+        [IterationSetup]
+
+        public void IterationSetup()
+        {
+            if (this.Runtime == null)
+            {
+                var configuration = Configuration.Create();
+                this.Runtime = RuntimeFactory.Create(configuration);
+            }
+        }
 
         [Benchmark]
         public void MeasurePushTransitionThroughput()
         {
-            var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.Create(configuration);
             var tcs = new TaskCompletionSource<bool>();
-            var e = new SetupEvent(tcs, this.NumTransitions);
-            runtime.CreateActor(typeof(M), null, e);
-            tcs.Task.Wait();
+            var setup = new SetupEvent(tcs, NumTransitions);
+            this.Runtime.CreateActor(typeof(M), null, setup);
+            setup.Tcs.Task.Wait();
         }
     }
 }

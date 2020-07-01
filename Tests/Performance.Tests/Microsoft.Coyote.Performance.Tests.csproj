@@ -5,7 +5,7 @@
     <RootNamespace>Microsoft.Coyote.Performance.Tests</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Library</CoyoteTargetType>
-    <NoWarn>$(NoWarn),1591</NoWarn>
+    <NoWarn>$(NoWarn),1591;</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
@@ -13,6 +13,6 @@
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.4" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
   </ItemGroup>
 </Project>

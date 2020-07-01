@@ -58,7 +58,6 @@ namespace Microsoft.Coyote.Actors
         {
             this.ActorManager = actorManager;
             this.Queue = new LinkedList<(Event, EventGroup)>();
-            this.EventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             this.IsClosed = false;
         }
 

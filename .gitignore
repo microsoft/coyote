@@ -52,7 +52,7 @@ dlldata.c
 
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
-benchmark_results*/
+benchmark_*/
 
 # .NET Core
 project.lock.json
@@ -347,3 +347,5 @@ Gemfile.lock
 docs/assets/images/Thumbs.db
 docs/_data/sidebar-temp.yml
 docs/_learn/ref/toc.yml
+.ipynb_checkpoints/
+*-checkpoint.ipynb

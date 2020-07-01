@@ -116,8 +116,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var result = await this.GetResultAsync(op.Task);
 
                 string dgml = graphBuilder.Graph.ToString();
-
-                // add one for the initial actor created here.
                 Assert.Equal(206, op.Count);
             },
             configuration: Configuration.Create().WithPCTStrategy(true));

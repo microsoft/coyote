@@ -7,20 +7,17 @@ using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 {
-    [ClrJob(baseline: true), CoreJob]
-    [MemoryDiagnoser]
+    // [MemoryDiagnoser, ThreadingDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class ExchangeEventLatencyBenchmark
     {
         private class SetupTcsEvent : Event
         {
-            public TaskCompletionSource<bool> Tcs;
             public long NumMessages;
 
-            public SetupTcsEvent(TaskCompletionSource<bool> tcs, long numMessages)
+            public SetupTcsEvent(long numMessages)
             {
-                this.Tcs = tcs;
                 this.NumMessages = numMessages;
             }
         }
@@ -41,25 +38,51 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         {
         }
 
+        private class StartExchangeEventLatencyEvent : Event
+        {
+            public TaskCompletionSource<bool> Tcs;
+            public StartExchangeEventLatencyEvent(TaskCompletionSource<bool> tcs)
+            {
+                this.Tcs = tcs;
+            }
+        }
+
+        private class StartLatencyExchangeEventViaReceiveEvent : Event
+        {
+            public TaskCompletionSource<bool> Tcs;
+            public StartLatencyExchangeEventViaReceiveEvent(TaskCompletionSource<bool> tcs)
+            {
+                this.Tcs = tcs;
+            }
+        }
+
         private class M1 : StateMachine
         {
             private TaskCompletionSource<bool> Tcs;
             private ActorId Target;
             private long NumMessages;
             private long Counter = 0;
+            private readonly Message MessageInstance = new Message();
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(Message), nameof(SendMessage))]
+            [OnEventDoAction(typeof(StartExchangeEventLatencyEvent), nameof(StartExchangeEventLatency))]
+            [OnEventDoAction(typeof(StartLatencyExchangeEventViaReceiveEvent), nameof(StartLatencyExchangeEventViaReceive))]
             private class Init : State
             {
             }
 
             private void InitOnEntry(Event e)
             {
-                this.Tcs = (e as SetupTcsEvent).Tcs;
                 this.NumMessages = (e as SetupTcsEvent).NumMessages;
                 this.Target = this.CreateActor(typeof(M2), new SetupTargetEvent(this.Id, this.NumMessages));
+            }
+
+            private void StartExchangeEventLatency(Event e)
+            {
+                this.Counter = 0;
+                this.Tcs = (e as StartExchangeEventLatencyEvent).Tcs;
                 this.SendMessage();
             }
 
@@ -72,93 +95,85 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
                 else
                 {
                     this.Counter++;
-                    this.SendEvent(this.Target, new Message());
+                    this.SendEvent(this.Target, this.MessageInstance);
                 }
+            }
+
+            private async Task StartLatencyExchangeEventViaReceive(Event e)
+            {
+                this.Tcs = (e as StartLatencyExchangeEventViaReceiveEvent).Tcs;
+                this.SendEvent(this.Target, e);
+                var counter = 0;
+                while (counter < this.NumMessages)
+                {
+                    counter++;
+                    await this.ReceiveEventAsync(typeof(Message));
+                    this.SendEvent(this.Target, this.MessageInstance);
+                }
+
+                this.Tcs.SetResult(true);
             }
         }
 
         private class M2 : StateMachine
         {
             private ActorId Target;
+            private long NumMessages;
+            private readonly Message MessageInstance = new Message();
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(Message), nameof(SendMessage))]
+            [OnEventDoAction(typeof(StartLatencyExchangeEventViaReceiveEvent), nameof(StartLatencyExchangeEventViaReceive))]
             private class Init : State
             {
             }
 
             private void InitOnEntry(Event e)
             {
-                this.Target = (e as SetupTargetEvent).Target;
+                var s = (SetupTargetEvent)e;
+                this.Target = s.Target;
+                this.NumMessages = s.NumMessages;
             }
 
             private void SendMessage()
             {
-                this.SendEvent(this.Target, new Message());
-            }
-        }
-
-        private class M3 : StateMachine
-        {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
-            {
+                this.SendEvent(this.Target, this.MessageInstance);
             }
 
-            private async Task InitOnEntry(Event e)
+            private async Task StartLatencyExchangeEventViaReceive()
             {
-                var tcs = (e as SetupTcsEvent).Tcs;
-                var numMessages = (e as SetupTcsEvent).NumMessages;
-                var target = this.CreateActor(typeof(M4), new SetupTargetEvent(this.Id, numMessages));
-
                 var counter = 0;
-                while (counter < numMessages)
+                while (counter < this.NumMessages)
                 {
                     counter++;
-                    this.SendEvent(target, new Message());
+                    this.SendEvent(this.Target, this.MessageInstance);
                     await this.ReceiveEventAsync(typeof(Message));
                 }
-
-                tcs.SetResult(true);
             }
         }
 
-        private class M4 : StateMachine
+        public static int NumMessages => 100000;
+
+        private IActorRuntime Runtime;
+        private ActorId Master;
+
+        [IterationSetup]
+        public void IterationSetup()
         {
-            [Start]
-            [OnEntry(nameof(InitOnEntry))]
-            private class Init : State
+            if (this.Runtime == null)
             {
-            }
-
-            private async Task InitOnEntry(Event e)
-            {
-                var target = (e as SetupTargetEvent).Target;
-                var numMessages = (e as SetupTargetEvent).NumMessages;
-
-                var counter = 0;
-                while (counter < numMessages)
-                {
-                    counter++;
-                    await this.ReceiveEventAsync(typeof(Message));
-                    this.SendEvent(target, new Message());
-                }
+                var configuration = Configuration.Create();
+                this.Runtime = RuntimeFactory.Create(configuration);
+                this.Master = this.Runtime.CreateActor(typeof(M1), null, new SetupTcsEvent(NumMessages));
             }
         }
-
-        [Params(10000, 100000)]
-        public int NumMessages { get; set; }
 
         [Benchmark]
         public void MeasureExchangeEventLatency()
         {
             var tcs = new TaskCompletionSource<bool>();
-            var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.Create(configuration);
-            runtime.CreateActor(typeof(M1), null,
-                new SetupTcsEvent(tcs, this.NumMessages));
+            this.Runtime.SendEvent(this.Master, new StartExchangeEventLatencyEvent(tcs));
             tcs.Task.Wait();
         }
 
@@ -166,10 +181,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         public void MeasureLatencyExchangeEventViaReceive()
         {
             var tcs = new TaskCompletionSource<bool>();
-            var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.Create(configuration);
-            runtime.CreateActor(typeof(M3), null,
-                new SetupTcsEvent(tcs, this.NumMessages));
+            this.Runtime.SendEvent(this.Master, new StartLatencyExchangeEventViaReceiveEvent(tcs));
             tcs.Task.Wait();
         }
     }

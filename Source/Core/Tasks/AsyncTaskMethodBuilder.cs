@@ -33,16 +33,6 @@ namespace Microsoft.Coyote.Tasks
 #pragma warning restore IDE0044 // Add readonly modifier
 
         /// <summary>
-        /// True, if completed synchronously and successfully, else false.
-        /// </summary>
-        private bool IsCompleted;
-
-        /// <summary>
-        /// True, if the builder should be used for setting/getting the result, else false.
-        /// </summary>
-        private bool UseBuilder;
-
-        /// <summary>
         /// Gets the task for this builder.
         /// </summary>
         public Task Task
@@ -50,20 +40,10 @@ namespace Microsoft.Coyote.Tasks
             [DebuggerHidden]
             get
             {
-                if (this.IsCompleted)
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating completed builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Task.CurrentId);
-                    return Task.CompletedTask;
-                }
-                else
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Task.CurrentId);
-                    this.UseBuilder = true;
-                    this.TaskController?.OnAsyncTaskMethodBuilderTask();
-                    return new Task(this.TaskController, this.MethodBuilder.Task);
-                }
+                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
+                    this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Task.CurrentId);
+                this.TaskController?.OnAsyncTaskMethodBuilderTask();
+                return new Task(this.TaskController, this.MethodBuilder.Task);
             }
         }
 
@@ -74,8 +54,6 @@ namespace Microsoft.Coyote.Tasks
         {
             this.TaskController = taskManager;
             this.MethodBuilder = default;
-            this.IsCompleted = false;
-            this.UseBuilder = false;
         }
 
         /// <summary>
@@ -118,17 +96,9 @@ namespace Microsoft.Coyote.Tasks
         [DebuggerHidden]
         public void SetResult()
         {
-            if (this.UseBuilder)
-            {
-                IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
-                    this.MethodBuilder.Task.Id, Task.CurrentId);
-                this.MethodBuilder.SetResult();
-            }
-            else
-            {
-                IO.Debug.WriteLine("<AsyncBuilder> Set result (completed) from task '{0}'.", Task.CurrentId);
-                this.IsCompleted = true;
-            }
+            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
+                this.MethodBuilder.Task.Id, Task.CurrentId);
+            this.MethodBuilder.SetResult();
         }
 
         /// <summary>
@@ -145,7 +115,6 @@ namespace Microsoft.Coyote.Tasks
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.UseBuilder = true;
             this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
@@ -158,7 +127,6 @@ namespace Microsoft.Coyote.Tasks
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.UseBuilder = true;
             this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
@@ -186,21 +154,6 @@ namespace Microsoft.Coyote.Tasks
 #pragma warning restore IDE0044 // Add readonly modifier
 
         /// <summary>
-        /// The result for this builder, if it's completed before any awaits occur.
-        /// </summary>
-        private TResult Result;
-
-        /// <summary>
-        /// True, if completed synchronously and successfully, else false.
-        /// </summary>
-        private bool IsCompleted;
-
-        /// <summary>
-        /// True, if the builder should be used for setting/getting the result, else false.
-        /// </summary>
-        private bool UseBuilder;
-
-        /// <summary>
         /// Gets the task for this builder.
         /// </summary>
         public Task<TResult> Task
@@ -208,20 +161,10 @@ namespace Microsoft.Coyote.Tasks
             [DebuggerHidden]
             get
             {
-                if (this.IsCompleted)
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating completed builder task '{0}' (isCompleted {1}) from task '{2}'.",
+                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
                         this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Tasks.Task.CurrentId);
-                    return Tasks.Task.FromResult(this.Result);
-                }
-                else
-                {
-                    IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Tasks.Task.CurrentId);
-                    this.UseBuilder = true;
-                    this.TaskController?.OnAsyncTaskMethodBuilderTask();
-                    return new Task<TResult>(this.TaskController, this.MethodBuilder.Task);
-                }
+                this.TaskController?.OnAsyncTaskMethodBuilderTask();
+                return new Task<TResult>(this.TaskController, this.MethodBuilder.Task);
             }
         }
 
@@ -232,9 +175,6 @@ namespace Microsoft.Coyote.Tasks
         {
             this.TaskController = taskManager;
             this.MethodBuilder = default;
-            this.Result = default;
-            this.IsCompleted = false;
-            this.UseBuilder = false;
         }
 
         /// <summary>
@@ -280,18 +220,9 @@ namespace Microsoft.Coyote.Tasks
         [DebuggerHidden]
         public void SetResult(TResult result)
         {
-            if (this.UseBuilder)
-            {
-                IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
-                    this.MethodBuilder.Task.Id, Tasks.Task.CurrentId);
-                this.MethodBuilder.SetResult(result);
-            }
-            else
-            {
-                IO.Debug.WriteLine("<AsyncBuilder> Set result (completed) from task '{0}'.", Tasks.Task.CurrentId);
-                this.Result = result;
-                this.IsCompleted = true;
-            }
+            IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
+                this.MethodBuilder.Task.Id, Tasks.Task.CurrentId);
+            this.MethodBuilder.SetResult(result);
         }
 
         /// <summary>
@@ -308,7 +239,6 @@ namespace Microsoft.Coyote.Tasks
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.UseBuilder = true;
             this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
@@ -321,7 +251,6 @@ namespace Microsoft.Coyote.Tasks
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.UseBuilder = true;
             this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }

@@ -38,26 +38,11 @@ namespace Microsoft.Coyote.SystematicTesting
         internal int HashedProgramState;
 
         /// <summary>
-        /// True if the handler of the source of the operation is running, else false.
-        /// </summary>
-        internal bool IsHandlerRunning; // TODO: figure out if this can be replaced by status.
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AsyncOperation"/> class.
         /// </summary>
         internal AsyncOperation()
         {
             this.Status = AsyncOperationStatus.None;
-            this.IsHandlerRunning = false;
-        }
-
-        /// <summary>
-        /// Invoked when the operation has been enabled.
-        /// </summary>
-        internal void OnEnabled()
-        {
-            this.Status = AsyncOperationStatus.Enabled;
-            this.IsHandlerRunning = false;
         }
 
         /// <summary>
@@ -66,7 +51,6 @@ namespace Microsoft.Coyote.SystematicTesting
         internal virtual void OnCompleted()
         {
             this.Status = AsyncOperationStatus.Completed;
-            this.IsHandlerRunning = false;
         }
 
         /// <summary>

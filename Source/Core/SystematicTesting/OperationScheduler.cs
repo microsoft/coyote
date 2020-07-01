@@ -199,8 +199,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (current != next)
                 {
                     Monitor.PulseAll(this.SyncObject);
-                    if (!current.IsHandlerRunning)
+                    if (current.Status is AsyncOperationStatus.Completed ||
+                        current.Status is AsyncOperationStatus.Canceled)
                     {
+                        // The operation is completed or canceled, so no need to wait.
                         return;
                     }
 
@@ -312,16 +314,19 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Starts the execution of the specified asynchronous operation.
         /// </summary>
         /// <param name="op">The operation to start executing.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="WaitOperationStart"/>.
+        /// </remarks>
         internal void StartOperation(AsyncOperation op)
         {
             lock (this.SyncObject)
             {
                 IO.Debug.WriteLine($"<ScheduleDebug> Starting the operation of '{op.Name}' on task '{Task.CurrentId}'.");
 
-                // Store the operation in the async local context.
+                // Enable the operation and store it in the async local context.
+                op.Status = AsyncOperationStatus.Enabled;
                 ExecutingOperation.Value = op;
 
-                op.IsHandlerRunning = true;
                 Monitor.PulseAll(this.SyncObject);
                 while (op != this.ScheduledOperation && this.IsAttached)
                 {
@@ -338,13 +343,16 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Waits for the specified asynchronous operation to start executing.
         /// </summary>
         /// <param name="op">The operation to wait.</param>
+        /// <remarks>
+        /// This method performs a handshake with <see cref="StartOperation"/>.
+        /// </remarks>
         internal void WaitOperationStart(AsyncOperation op)
         {
             lock (this.SyncObject)
             {
                 if (this.OperationMap.Count > 1)
                 {
-                    while (!op.IsHandlerRunning && this.IsAttached)
+                    while (op.Status != AsyncOperationStatus.Enabled && this.IsAttached)
                     {
                         Monitor.Wait(this.SyncObject);
                     }
@@ -417,7 +425,7 @@ namespace Microsoft.Coyote.SystematicTesting
             lock (this.SyncObject)
             {
                 var op = ExecutingOperation.Value;
-                if (op is null || op != this.ScheduledOperation)
+                if (op is null)
                 {
                     this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
                         "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +

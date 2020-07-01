@@ -162,7 +162,6 @@ namespace Microsoft.Coyote.SystematicTesting
             ulong operationId = this.GetNextOperationId();
             var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
-            op.OnEnabled();
 
             Task task = new Task(async () =>
             {
@@ -465,8 +464,6 @@ namespace Microsoft.Coyote.SystematicTesting
         private void RunActorEventHandler(Actor actor, Event initialEvent, bool isFresh, Actor syncCaller)
         {
             var op = this.Scheduler.GetOperationWithId<ActorOperation>(actor.Id.Value);
-            op.OnEnabled();
-
             Task task = new Task(async () =>
             {
                 try

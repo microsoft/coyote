@@ -53,7 +53,6 @@ namespace Microsoft.Coyote.SystematicTesting
             ulong operationId = this.Runtime.GetNextOperationId();
             var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
-            op.OnEnabled();
 
             var task = new Task(() =>
             {
@@ -122,7 +121,6 @@ namespace Microsoft.Coyote.SystematicTesting
             ulong operationId = this.Runtime.GetNextOperationId();
             var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
-            op.OnEnabled();
 
             var task = new Task<Task>(() =>
             {
@@ -183,7 +181,6 @@ namespace Microsoft.Coyote.SystematicTesting
             ulong operationId = this.Runtime.GetNextOperationId();
             var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
-            op.OnEnabled();
 
             var task = new Task<Task<TResult>>(() =>
             {
@@ -243,7 +240,6 @@ namespace Microsoft.Coyote.SystematicTesting
             ulong operationId = this.Runtime.GetNextOperationId();
             var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
-            op.OnEnabled();
 
             var task = new Task<TResult>(() =>
             {

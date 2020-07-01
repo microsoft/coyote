@@ -45,9 +45,137 @@ namespace Microsoft.Coyote.Tasks
         public virtual void Wait() => this.Instance.Wait();
 
         /// <summary>
+        /// Blocks the current task until it can enter the semaphore, using a <see cref="TimeSpan"/>
+        /// that specifies the timeout.
+        /// </summary>
+        /// <param name="timeout">
+        /// A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/>
+        /// that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents
+        /// 0 milliseconds to test the wait handle and return immediately.
+        /// </param>
+        /// <returns>True if the current task successfully entered the semaphore, else false.</returns>
+        public virtual bool Wait(TimeSpan timeout) => this.Instance.Wait(timeout);
+
+        /// <summary>
+        /// Blocks the current task until it can enter the semaphore, using a 32-bit signed integer
+        /// that specifies the timeout.
+        /// </summary>
+        /// <param name="millisecondsTimeout">
+        /// The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely,
+        /// or zero to test the state of the wait handle and return immediately.
+        /// </param>
+        /// <returns>True if the current task successfully entered the semaphore, else false.</returns>
+        public virtual bool Wait(int millisecondsTimeout) => this.Instance.Wait(millisecondsTimeout);
+
+        /// <summary>
+        /// Blocks the current task until it can enter the semaphore, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        public virtual void Wait(CancellationToken cancellationToken) => this.Instance.Wait(cancellationToken);
+
+        /// <summary>
+        /// Blocks the current task until it can enter the semaphore, using a <see cref="TimeSpan"/>
+        /// that specifies the timeout, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="timeout">
+        /// A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/>
+        /// that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents
+        /// 0 milliseconds to test the wait handle and return immediately.
+        /// </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>True if the current task successfully entered the semaphore, else false.</returns>
+        public virtual bool Wait(TimeSpan timeout, CancellationToken cancellationToken) =>
+            this.Instance.Wait(timeout, cancellationToken);
+
+        /// <summary>
+        /// Blocks the current task until it can enter the semaphore, using a 32-bit signed integer
+        /// that specifies the timeout, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="millisecondsTimeout">
+        /// The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely,
+        /// or zero to test the state of the wait handle and return immediately.
+        /// </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>True if the current task successfully entered the semaphore, else false.</returns>
+        public virtual bool Wait(int millisecondsTimeout, CancellationToken cancellationToken) =>
+            this.Instance.Wait(millisecondsTimeout, cancellationToken);
+
+        /// <summary>
         /// Asynchronously waits to enter the semaphore.
         /// </summary>
+        /// <returns>A task that will complete when the semaphore has been entered.</returns>
         public virtual Task WaitAsync() => this.Instance.WaitAsync().WrapInControlledTask();
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, using a <see cref="TimeSpan"/>
+        /// that specifies the timeout.
+        /// </summary>
+        /// <param name="timeout">
+        /// A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/>
+        /// that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents
+        /// 0 milliseconds to test the wait handle and return immediately.
+        /// </param>
+        /// <returns>
+        /// A task that will complete with a result of true if the current thread successfully entered
+        /// the semaphore, otherwise with a result of false.
+        /// </returns>
+        public virtual Task<bool> WaitAsync(TimeSpan timeout) => this.Instance.WaitAsync(timeout).WrapInControlledTask();
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
+        /// that specifies the timeout.
+        /// </summary>
+        /// <param name="millisecondsTimeout">
+        /// The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely,
+        /// or zero to test the state of the wait handle and return immediately.
+        /// </param>
+        /// <returns>
+        /// A task that will complete with a result of true if the current thread successfully entered
+        /// the semaphore, otherwise with a result of false.
+        /// </returns>
+        public virtual Task<bool> WaitAsync(int millisecondsTimeout) =>
+            this.Instance.WaitAsync(millisecondsTimeout).WrapInControlledTask();
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A task that will complete when the semaphore has been entered.</returns>
+        public virtual Task WaitAsync(CancellationToken cancellationToken) =>
+            this.Instance.WaitAsync(cancellationToken).WrapInControlledTask();
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, using a <see cref="TimeSpan"/>
+        /// that specifies the timeout, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="timeout">
+        /// A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/>
+        /// that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents
+        /// 0 milliseconds to test the wait handle and return immediately.
+        /// </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A task that will complete with a result of true if the current thread successfully entered
+        /// the semaphore, otherwise with a result of false.
+        /// </returns>
+        public virtual Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken) =>
+            this.Instance.WaitAsync(timeout, cancellationToken).WrapInControlledTask();
+
+        /// <summary>
+        /// Asynchronously waits to enter the semaphore, using a 32-bit signed integer
+        /// that specifies the timeout, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="millisecondsTimeout">
+        /// The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely,
+        /// or zero to test the state of the wait handle and return immediately.
+        /// </param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A task that will complete with a result of true if the current thread successfully entered
+        /// the semaphore, otherwise with a result of false.
+        /// </returns>
+        public virtual Task<bool> WaitAsync(int millisecondsTimeout, CancellationToken cancellationToken) =>
+            this.Instance.WaitAsync(millisecondsTimeout, cancellationToken).WrapInControlledTask();
 
         /// <summary>
         /// Releases the semaphore.
@@ -120,8 +248,33 @@ namespace Microsoft.Coyote.Tasks
             }
 
             /// <inheritdoc/>
-            public override void Wait()
+            public override void Wait() => this.Wait(Timeout.Infinite, default);
+
+            /// <inheritdoc/>
+            public override bool Wait(TimeSpan timeout) => this.Wait(timeout, default);
+
+            /// <inheritdoc/>
+            public override bool Wait(int millisecondsTimeout) => this.Wait(millisecondsTimeout, default);
+
+            /// <inheritdoc/>
+            public override void Wait(CancellationToken cancellationToken) => this.Wait(Timeout.Infinite, cancellationToken);
+
+            /// <inheritdoc/>
+            public override bool Wait(TimeSpan timeout, CancellationToken cancellationToken)
             {
+                long totalMilliseconds = (long)timeout.TotalMilliseconds;
+                if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(timeout));
+                }
+
+                return this.Wait((int)totalMilliseconds, default);
+            }
+
+            /// <inheritdoc/>
+            public override bool Wait(int millisecondsTimeout, CancellationToken cancellationToken)
+            {
+                // TODO: support cancellations during testing.
                 this.Resource.Runtime.ScheduleNextOperation();
 
                 // We need this loop, because when a resource gets released it notifies all asynchronous
@@ -135,14 +288,30 @@ namespace Microsoft.Coyote.Tasks
                 }
 
                 this.NumAcquired++;
+
+                // TODO: support timeouts during testing, this would become false if there is a timeout.
+                return true;
             }
 
             /// <inheritdoc/>
-            public override Task WaitAsync()
-            {
-                this.Wait();
-                return Task.CompletedTask;
-            }
+            public override Task WaitAsync() => this.WaitAsync(Timeout.Infinite, default);
+
+            /// <inheritdoc/>
+            public override Task<bool> WaitAsync(TimeSpan timeout) => this.WaitAsync(timeout, default);
+
+            /// <inheritdoc/>
+            public override Task<bool> WaitAsync(int millisecondsTimeout) => this.WaitAsync(millisecondsTimeout, default);
+
+            /// <inheritdoc/>
+            public override Task WaitAsync(CancellationToken cancellationToken) => this.WaitAsync(Timeout.Infinite, cancellationToken);
+
+            /// <inheritdoc/>
+            public override Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken) =>
+                Task.FromResult(this.Wait(timeout, cancellationToken));
+
+            /// <inheritdoc/>
+            public override Task<bool> WaitAsync(int millisecondsTimeout, CancellationToken cancellationToken) =>
+                Task.FromResult(this.Wait(millisecondsTimeout, cancellationToken));
 
             /// <inheritdoc/>
             public override void Release()

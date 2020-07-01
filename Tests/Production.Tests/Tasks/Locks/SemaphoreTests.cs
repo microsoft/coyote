@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common;
 using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using SystemTasks = System.Threading;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
@@ -80,13 +82,13 @@ Actual value was 2."
             this.Test(async () =>
             {
                 Semaphore semaphore = Semaphore.Create(1, 1);
-                Specification.Assert(semaphore.CurrentCount == 1, "Semaphore count is {0} instead of 1.",
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
                     semaphore.CurrentCount);
                 await semaphore.WaitAsync();
-                Specification.Assert(semaphore.CurrentCount == 0, "Semaphore count is {0} instead of 0.",
+                Specification.Assert(semaphore.CurrentCount is 0, "Semaphore count is {0} instead of 0.",
                     semaphore.CurrentCount);
                 semaphore.Release();
-                Specification.Assert(semaphore.CurrentCount == 1, "Semaphore count is {0} instead of 1.",
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
                     semaphore.CurrentCount);
                 semaphore.Dispose();
             });
@@ -98,19 +100,19 @@ Actual value was 2."
             this.Test(async () =>
             {
                 Semaphore semaphore = Semaphore.Create(2, 2);
-                Specification.Assert(semaphore.CurrentCount == 2, "Semaphore count is {0} instead of 2.",
+                Specification.Assert(semaphore.CurrentCount is 2, "Semaphore count is {0} instead of 2.",
                     semaphore.CurrentCount);
                 await semaphore.WaitAsync();
-                Specification.Assert(semaphore.CurrentCount == 1, "Semaphore count is {0} instead of 1.",
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
                     semaphore.CurrentCount);
                 await semaphore.WaitAsync();
-                Specification.Assert(semaphore.CurrentCount == 0, "Semaphore count is {0} instead of 0.",
+                Specification.Assert(semaphore.CurrentCount is 0, "Semaphore count is {0} instead of 0.",
                     semaphore.CurrentCount);
                 semaphore.Release();
-                Specification.Assert(semaphore.CurrentCount == 1, "Semaphore count is {0} instead of 1.",
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
                     semaphore.CurrentCount);
                 semaphore.Release();
-                Specification.Assert(semaphore.CurrentCount == 2, "Semaphore count is {0} instead of 2.",
+                Specification.Assert(semaphore.CurrentCount is 2, "Semaphore count is {0} instead of 2.",
                     semaphore.CurrentCount);
                 semaphore.Dispose();
             });
@@ -122,16 +124,16 @@ Actual value was 2."
             this.Test(async () =>
             {
                 Semaphore semaphore = Semaphore.Create(1, 2);
-                Specification.Assert(semaphore.CurrentCount == 1, "Semaphore count is {0} instead of 1.",
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
                     semaphore.CurrentCount);
                 await semaphore.WaitAsync();
-                Specification.Assert(semaphore.CurrentCount == 0, "Semaphore count is {0} instead of 0.",
+                Specification.Assert(semaphore.CurrentCount is 0, "Semaphore count is {0} instead of 0.",
                     semaphore.CurrentCount);
                 semaphore.Release();
-                Specification.Assert(semaphore.CurrentCount == 1, "Semaphore count is {0} instead of 1.",
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
                     semaphore.CurrentCount);
                 semaphore.Release();
-                Specification.Assert(semaphore.CurrentCount == 2, "Semaphore count is {0} instead of 2.",
+                Specification.Assert(semaphore.CurrentCount is 2, "Semaphore count is {0} instead of 2.",
                     semaphore.CurrentCount);
                 semaphore.Dispose();
             });
@@ -193,7 +195,7 @@ Actual value was 2."
                 Task task1 = WriteAsync(3);
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
-                Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
+                Specification.Assert(entry.Value is 5, "Value is '{0}' instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -224,7 +226,7 @@ Actual value was 2."
                 });
 
                 await Task.WhenAll(task1, task2);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(entry.Value is 5, "Value is {0} instead of 5.", entry.Value);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -253,6 +255,73 @@ Actual value was 2."
                 await Task.WhenAll(task1, task2);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitReleaseAsyncWithIntTimeout()
+        {
+            // TODO: rewrite test once timeouts are properly supported during systematic testing.
+            this.Test(async () =>
+            {
+                Semaphore semaphore = Semaphore.Create(1, 1);
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
+                    semaphore.CurrentCount);
+                await semaphore.WaitAsync(1);
+                Specification.Assert(semaphore.CurrentCount is 0 || semaphore.CurrentCount is 1,
+                    "Semaphore count is {0} instead of 0 or 1.", semaphore.CurrentCount);
+                semaphore.Release();
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
+                    semaphore.CurrentCount);
+                semaphore.Dispose();
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitReleaseAsyncWithTimeSpanTimeout()
+        {
+            // TODO: rewrite test once timeouts are properly supported during systematic testing.
+            this.Test(async () =>
+            {
+                Semaphore semaphore = Semaphore.Create(1, 1);
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
+                    semaphore.CurrentCount);
+                await semaphore.WaitAsync(TimeSpan.FromMilliseconds(1));
+                Specification.Assert(semaphore.CurrentCount is 0 || semaphore.CurrentCount is 1,
+                    "Semaphore count is {0} instead of 0 or 1.", semaphore.CurrentCount);
+                semaphore.Release();
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
+                    semaphore.CurrentCount);
+                semaphore.Dispose();
+            });
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitReleaseAsyncWithCancellation()
+        {
+            // TODO: rewrite test once cancellation is properly supported during systematic testing.
+            this.Test(async () =>
+            {
+                Semaphore semaphore = Semaphore.Create(1, 1);
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
+                    semaphore.CurrentCount);
+
+                SystemTasks.CancellationTokenSource tokenSource = new SystemTasks.CancellationTokenSource();
+                Task task = Task.Run(async () =>
+                {
+                    await Task.Delay(1);
+                    tokenSource.Cancel();
+                });
+
+                await semaphore.WaitAsync(tokenSource.Token);
+                Specification.Assert(semaphore.CurrentCount is 0 || semaphore.CurrentCount is 1,
+                    "Semaphore count is {0} instead of 0 or 1.", semaphore.CurrentCount);
+                semaphore.Release();
+                Specification.Assert(semaphore.CurrentCount is 1, "Semaphore count is {0} instead of 1.",
+                    semaphore.CurrentCount);
+
+                await task;
+                semaphore.Dispose();
+            });
         }
     }
 }

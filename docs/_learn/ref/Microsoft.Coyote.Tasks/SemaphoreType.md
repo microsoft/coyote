@@ -21,7 +21,9 @@ public class Semaphore : IDisposable
 | [Dispose](Semaphore/Dispose)() | Releases resources used by the semaphore. |
 | virtual [Release](Semaphore/Release)() | Releases the semaphore. |
 | virtual [Wait](Semaphore/Wait)() | Blocks the current task until it can enter the semaphore. |
+| virtual [Wait](Semaphore/Wait)(…) | Blocks the current task until it can enter the semaphore, using a TimeSpan that specifies the timeout. (5 methods) |
 | virtual [WaitAsync](Semaphore/WaitAsync)() | Asynchronously waits to enter the semaphore. |
+| virtual [WaitAsync](Semaphore/WaitAsync)(…) | Asynchronously waits to enter the semaphore, using a TimeSpan that specifies the timeout. (5 methods) |
 
 ## Protected Members
 

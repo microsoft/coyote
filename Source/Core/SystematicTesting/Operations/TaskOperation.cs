@@ -7,8 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.Tasks;
-using SystemTasks = System.Threading.Tasks;
+using System.Threading.Tasks;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Set of tasks that this operation is waiting to join. All tasks
         /// in the set must complete before this operation can resume.
         /// </summary>
-        private readonly HashSet<SystemTasks.Task> JoinDependencies;
+        private readonly HashSet<Task> JoinDependencies;
 
         /// <summary>
         /// The root asynchronous method that is executed by this operation.
@@ -66,13 +66,13 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler = scheduler;
             this.Id = operationId;
             this.Name = $"Task({operationId})";
-            this.JoinDependencies = new HashSet<SystemTasks.Task>();
+            this.JoinDependencies = new HashSet<Task>();
         }
 
         /// <summary>
         /// Invoked when the operation is waiting to join the specified task.
         /// </summary>
-        internal void OnWaitTask(SystemTasks.Task task)
+        internal void OnWaitTask(Task task)
         {
             IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
             this.JoinDependencies.Add(task);
@@ -84,6 +84,27 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Invoked when the operation is waiting to join the specified tasks.
         /// </summary>
         internal void OnWaitTasks(IEnumerable<Task> tasks, bool waitAll)
+        {
+            foreach (var task in tasks)
+            {
+                if (!task.IsCompleted)
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
+                    this.JoinDependencies.Add(task);
+                }
+            }
+
+            if (this.JoinDependencies.Count > 0)
+            {
+                this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
+                this.Scheduler.ScheduleNextOperation();
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the operation is waiting to join the specified tasks.
+        /// </summary>
+        internal void OnWaitTasks(IEnumerable<CoyoteTasks.Task> tasks, bool waitAll)
         {
             foreach (var task in tasks)
             {

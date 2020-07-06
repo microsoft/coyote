@@ -93,6 +93,12 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | abstract class [Monitor](Microsoft.Coyote.Specifications/MonitorType) | Abstract class representing a specification monitor. |
 | static class [Specification](Microsoft.Coyote.Specifications/SpecificationType) | Provides static methods that are useful for writing specifications and interacting with the systematic testing engine. |
 
+## Microsoft.Coyote.SystematicTesting.Interception namespace
+
+| public type | description |
+| --- | --- |
+| static class [ControlledTask](Microsoft.Coyote.SystematicTesting.Interception/ControlledTaskType) | Provides methods for creating tasks that can be controlled during testing. |
+
 ## Microsoft.Coyote.Tasks namespace
 
 | public type | description |

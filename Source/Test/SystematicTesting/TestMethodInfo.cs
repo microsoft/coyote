@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.Tasks;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -51,14 +52,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
         /// </summary>
-        internal TestMethodInfo(Delegate method)
-        {
-            this.Method = method;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TestMethodInfo"/> class.
-        /// </summary>
         private TestMethodInfo(Assembly assembly, Delegate method, string name, MethodInfo initMethod,
             MethodInfo disposeMethod, MethodInfo iterationDisposeMethod)
         {
@@ -68,6 +61,26 @@ namespace Microsoft.Coyote.SystematicTesting
             this.InitMethod = initMethod;
             this.DisposeMethod = disposeMethod;
             this.IterationDisposeMethod = iterationDisposeMethod;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="TestMethodInfo"/> instance from the specified delegate.
+        /// </summary>
+        internal static TestMethodInfo Create(Delegate method) =>
+            new TestMethodInfo(method.GetMethodInfo().Module.Assembly, method, null, null, null, null);
+
+        /// <summary>
+        /// Creates a <see cref="TestMethodInfo"/> instance from assembly specified in the configuration.
+        /// </summary>
+        internal static TestMethodInfo Create(Configuration configuration)
+        {
+            Assembly assembly = Assembly.LoadFrom(configuration.AssemblyToBeAnalyzed);
+
+            var (testMethod, testName) = GetTestMethod(assembly, configuration.TestMethodName);
+            var initMethod = GetTestSetupMethod(assembly, typeof(TestInitAttribute));
+            var disposeMethod = GetTestSetupMethod(assembly, typeof(TestDisposeAttribute));
+            var iterationDisposeMethod = GetTestSetupMethod(assembly, typeof(TestIterationDisposeAttribute));
+            return new TestMethodInfo(assembly, testMethod, testName, initMethod, disposeMethod, iterationDisposeMethod);
         }
 
         /// <summary>
@@ -86,19 +99,6 @@ namespace Microsoft.Coyote.SystematicTesting
         internal void DisposeAllIterations() => this.DisposeMethod?.Invoke(null, Array.Empty<object>());
 
         /// <summary>
-        /// Returns the <see cref="TestMethodInfo"/> with the given name in the specified assembly.
-        /// </summary>
-        internal static TestMethodInfo GetFromAssembly(Assembly assembly, string methodName)
-        {
-            var (testMethod, testName) = GetTestMethod(assembly, methodName);
-            var initMethod = GetTestSetupMethod(assembly, typeof(TestInitAttribute));
-            var disposeMethod = GetTestSetupMethod(assembly, typeof(TestDisposeAttribute));
-            var iterationDisposeMethod = GetTestSetupMethod(assembly, typeof(TestIterationDisposeAttribute));
-
-            return new TestMethodInfo(assembly, testMethod, testName, initMethod, disposeMethod, iterationDisposeMethod);
-        }
-
-        /// <summary>
         /// Returns the test method with the specified name. A test method must
         /// be annotated with the <see cref="TestAttribute"/> attribute.
         /// </summary>
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting
             // Filter by test method name
             var filteredTestMethods = testMethods
                 .FindAll(mi => string.Format("{0}.{1}", mi.DeclaringType.FullName, mi.Name)
-                .EndsWith(methodName));
+                .EndsWith($".{methodName}"));
 
             if (filteredTestMethods.Count == 0)
             {
@@ -123,11 +123,11 @@ namespace Microsoft.Coyote.SystematicTesting
                         msg += string.Format("{0}.{1}{2}", mi.DeclaringType.FullName, mi.Name, Environment.NewLine);
                     }
 
-                    Error.ReportAndExit(msg);
+                    throw new InvalidOperationException(msg);
                 }
                 else
                 {
-                    Error.ReportAndExit("Cannot detect a Coyote test method. Use the " +
+                    throw new InvalidOperationException("Cannot detect a Coyote test method. Use the " +
                         $"attribute '[{typeof(TestAttribute).FullName}]' to declare a test method.");
                 }
             }
@@ -144,70 +144,87 @@ namespace Microsoft.Coyote.SystematicTesting
                     msg += string.Format("{0}.{1}{2}", mi.DeclaringType.FullName, mi.Name, Environment.NewLine);
                 }
 
-                Error.ReportAndExit(msg);
+                throw new InvalidOperationException(msg);
             }
 
             MethodInfo testMethod = filteredTestMethods[0];
             ParameterInfo[] testParams = testMethod.GetParameters();
 
-            bool hasVoidReturnType = testMethod.ReturnType == typeof(void) &&
-                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null;
-            bool hasAsyncReturnType = testMethod.ReturnType == typeof(Task) &&
-                testMethod.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
+            bool hasVoidReturnType = testMethod.ReturnType == typeof(void);
+            bool hasTaskReturnType = typeof(Task).IsAssignableFrom(testMethod.ReturnType);
+            bool hasControlledTaskReturnType = typeof(CoyoteTasks.Task).IsAssignableFrom(testMethod.ReturnType);
 
             bool hasNoInputParameters = testParams.Length is 0;
             bool hasActorInputParameters = testParams.Length is 1 && testParams[0].ParameterType == typeof(IActorRuntime);
             bool hasTaskInputParameters = testParams.Length is 1 && testParams[0].ParameterType == typeof(ICoyoteRuntime);
 
-            if (!((hasVoidReturnType || hasAsyncReturnType) && (hasNoInputParameters || hasActorInputParameters || hasTaskInputParameters) &&
+            if (!((hasVoidReturnType || hasTaskReturnType || hasControlledTaskReturnType) &&
+                (hasNoInputParameters || hasActorInputParameters || hasTaskInputParameters) &&
                 !testMethod.IsAbstract && !testMethod.IsVirtual && !testMethod.IsConstructor &&
                 !testMethod.ContainsGenericParameters && testMethod.IsPublic && testMethod.IsStatic))
             {
-                Error.ReportAndExit("Incorrect test method declaration. Please " +
-                    "use one of the following supported declarations:\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}() {{ ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}(ICoyoteRuntime runtime) {{ ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static void {testMethod.Name}(IActorRuntime runtime) {{ ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async {typeof(Task).FullName} {testMethod.Name}() {{ ... await ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async {typeof(Task).FullName} {testMethod.Name}(ICoyoteRuntime runtime) {{ ... await ... }}\n\n" +
-                    $"  [{typeof(TestAttribute).FullName}]\n" +
-                    $"  public static async {typeof(Task).FullName} {testMethod.Name}(IActorRuntime runtime) {{ ... await ... }}");
+                throw new InvalidOperationException("Incorrect test method declaration. Please " +
+                    $"make sure your [{typeof(TestAttribute).FullName}] methods have:\n\n" +
+                    $"Parameters:\n" +
+                    $"  ()\n" +
+                    $"  (ICoyoteRuntime runtime)\n" +
+                    $"  (IActorRuntime runtime)\n\n" +
+                    $"Return type:\n" +
+                    $"  void\n" +
+                    $"  {typeof(Task).FullName}\n" +
+                    $"  {typeof(Task).FullName}<T>\n" +
+                    $"  {typeof(CoyoteTasks.Task).FullName}\n" +
+                    $"  {typeof(CoyoteTasks.Task).FullName}<T>\n" +
+                    $"  async {typeof(Task).FullName}\n" +
+                    $"  async {typeof(Task).FullName}<T>\n" +
+                    $"  async {typeof(CoyoteTasks.Task).FullName}\n" +
+                    $"  async {typeof(CoyoteTasks.Task).FullName}<T>\n");
             }
 
             Delegate test;
-            if (hasAsyncReturnType)
+            if (hasTaskReturnType)
             {
                 if (hasActorInputParameters)
                 {
-                    test = Delegate.CreateDelegate(typeof(Func<IActorRuntime, Task>), testMethod);
+                    test = testMethod.CreateDelegate(typeof(Func<IActorRuntime, Task>));
                 }
                 else if (hasTaskInputParameters)
                 {
-                    test = Delegate.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>), testMethod);
+                    test = testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, Task>));
                 }
                 else
                 {
-                    test = Delegate.CreateDelegate(typeof(Func<Task>), testMethod);
+                    test = testMethod.CreateDelegate(typeof(Func<Task>));
+                }
+            }
+            else if (hasControlledTaskReturnType)
+            {
+                if (hasActorInputParameters)
+                {
+                    test = testMethod.CreateDelegate(typeof(Func<IActorRuntime, CoyoteTasks.Task>));
+                }
+                else if (hasTaskInputParameters)
+                {
+                    test = testMethod.CreateDelegate(typeof(Func<ICoyoteRuntime, CoyoteTasks.Task>));
+                }
+                else
+                {
+                    test = testMethod.CreateDelegate(typeof(Func<CoyoteTasks.Task>));
                 }
             }
             else
             {
                 if (hasActorInputParameters)
                 {
-                    test = Delegate.CreateDelegate(typeof(Action<IActorRuntime>), testMethod);
+                    test = testMethod.CreateDelegate(typeof(Action<IActorRuntime>));
                 }
                 else if (hasTaskInputParameters)
                 {
-                    test = Delegate.CreateDelegate(typeof(Action<ICoyoteRuntime>), testMethod);
+                    test = testMethod.CreateDelegate(typeof(Action<ICoyoteRuntime>));
                 }
                 else
                 {
-                    test = Delegate.CreateDelegate(typeof(Action), testMethod);
+                    test = testMethod.CreateDelegate(typeof(Action));
                 }
             }
 
@@ -229,7 +246,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (testMethods.Count > 1)
             {
-                Error.ReportAndExit("Only one test method to the Coyote program can " +
+                throw new InvalidOperationException("Only one test method to the Coyote program can " +
                     $"be declared with the attribute '{attribute.FullName}'. " +
                     $"'{testMethods.Count}' test methods were found instead.");
             }
@@ -241,7 +258,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 !testMethods[0].IsPublic || !testMethods[0].IsStatic ||
                 testMethods[0].GetParameters().Length != 0)
             {
-                Error.ReportAndExit("Incorrect test method declaration. Please " +
+                throw new InvalidOperationException("Incorrect test method declaration. Please " +
                     "declare the test method as follows:\n" +
                     $"  [{attribute.FullName}] public static void " +
                     $"{testMethods[0].Name}() {{ ... }}");

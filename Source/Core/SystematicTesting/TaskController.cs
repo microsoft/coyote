@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting.Interception;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.SystematicTesting
@@ -45,7 +46,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task ScheduleAction(Action action, Task predecessor, bool isYield, CancellationToken cancellationToken)
+        internal Task ScheduleAction(Action action, Task predecessor, bool isYield, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
             this.Assert(action != null, "The task cannot execute a null action.");
@@ -103,7 +104,66 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
 
-            return new CoyoteTasks.Task(this, task);
+            return task;
+        }
+
+        /// <summary>
+        /// Schedules the specified function to be executed asynchronously.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task ScheduleFunction(Func<Task> function, Task predecessor, CancellationToken cancellationToken)
+        {
+            // TODO: support cancellations during testing.
+            this.Assert(function != null, "The task cannot execute a null function.");
+
+            ulong operationId = this.Runtime.GetNextOperationId();
+            var op = new TaskOperation(operationId, this.Scheduler);
+            this.Scheduler.RegisterOperation(op);
+
+            var task = new Task<Task>(() =>
+            {
+                try
+                {
+                    // Update the current asynchronous control flow with the current runtime instance,
+                    // allowing future retrieval in the same asynchronous call stack.
+                    CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
+
+                    this.Scheduler.StartOperation(op);
+                    if (predecessor != null)
+                    {
+                        op.OnWaitTask(predecessor);
+                    }
+
+                    Task resultTask = function();
+                    this.OnWaitTask(operationId, resultTask);
+                    return resultTask;
+                }
+                catch (Exception ex)
+                {
+                    // Report the unhandled exception and rethrow it.
+                    ReportUnhandledExceptionInOperation(op, ex);
+                    throw;
+                }
+                finally
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                    op.OnCompleted();
+                }
+            }, cancellationToken);
+
+            Task innerTask = task.Unwrap();
+
+            // Schedule a task continuation that will schedule the next enabled operation upon completion.
+            innerTask.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
+
+            IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
+            task.Start();
+            this.Scheduler.WaitOperationStart(op);
+            this.Scheduler.ScheduleNextOperation();
+
+            return innerTask;
         }
 
         /// <summary>
@@ -172,6 +232,66 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
+        internal Task<TResult> ScheduleFunction<TResult>(Func<Task<TResult>> function, Task predecessor,
+            CancellationToken cancellationToken)
+        {
+            // TODO: support cancellations during testing.
+            this.Assert(function != null, "The task cannot execute a null function.");
+
+            ulong operationId = this.Runtime.GetNextOperationId();
+            var op = new TaskOperation(operationId, this.Scheduler);
+            this.Scheduler.RegisterOperation(op);
+
+            var task = new Task<Task<TResult>>(() =>
+            {
+                try
+                {
+                    // Update the current asynchronous control flow with the current runtime instance,
+                    // allowing future retrieval in the same asynchronous call stack.
+                    CoyoteRuntime.AssignAsyncControlFlowRuntime(this.Runtime);
+
+                    this.Scheduler.StartOperation(op);
+                    if (predecessor != null)
+                    {
+                        op.OnWaitTask(predecessor);
+                    }
+
+                    Task<TResult> resultTask = function();
+                    this.OnWaitTask(operationId, resultTask);
+                    return resultTask;
+                }
+                catch (Exception ex)
+                {
+                    // Report the unhandled exception and rethrow it.
+                    ReportUnhandledExceptionInOperation(op, ex);
+                    throw;
+                }
+                finally
+                {
+                    IO.Debug.WriteLine("<ScheduleDebug> Completed operation '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                    op.OnCompleted();
+                }
+            }, cancellationToken);
+
+            Task<TResult> innerTask = task.Unwrap();
+
+            // Schedule a task continuation that will schedule the next enabled operation upon completion.
+            innerTask.ContinueWith(t => this.Scheduler.ScheduleNextOperation(), TaskScheduler.Current);
+
+            IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
+            task.Start();
+            this.Scheduler.WaitOperationStart(op);
+            this.Scheduler.ScheduleNextOperation();
+
+            return innerTask;
+        }
+
+        /// <summary>
+        /// Schedules the specified function to be executed asynchronously.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
         internal CoyoteTasks.Task<TResult> ScheduleFunction<TResult>(Func<CoyoteTasks.Task<TResult>> function, Task predecessor,
             CancellationToken cancellationToken)
         {
@@ -232,7 +352,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<TResult> ScheduleDelegate<TResult>(Delegate work, Task predecessor, CancellationToken cancellationToken)
+        internal Task<TResult> ScheduleDelegate<TResult>(Delegate work, Task predecessor, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
             this.Assert(work != null, "The task cannot execute a null delegate.");
@@ -298,7 +418,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
 
-            return new CoyoteTasks.Task<TResult>(this, task);
+            return task;
         }
 
         /// <summary>
@@ -307,13 +427,13 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
+        internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
             if (delay.TotalMilliseconds == 0)
             {
                 // If the delay is 0, then complete synchronously.
-                return CoyoteTasks.Task.CompletedTask;
+                return Task.CompletedTask;
             }
 
             // TODO: cache the dummy delay action to optimize memory.
@@ -367,15 +487,54 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.Assert(callerOp != null,
-                    "Uncontrolled task '{0}' invoked a yield operation.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>");
+                this.AssertIsTaskControlled(callerOp, "Yield");
                 IO.Debug.WriteLine("<Task> '{0}' is executing a yield operation.", callerOp.Id);
                 this.ScheduleAction(continuation, null, true, default);
             }
             catch (ExecutionCanceledException)
             {
                 IO.Debug.WriteLine($"<Exception> ExecutionCanceledException was thrown from task '{Task.CurrentId}'.");
+            }
+        }
+
+        /// <summary>
+        /// Creates a controlled task that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task WhenAllTasksCompleteAsync(IEnumerable<Task> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.AssertIsTaskControlled(callerOp, "WhenAll");
+
+            callerOp.OnWaitTasks(tasks, waitAll: true);
+
+            List<Exception> exceptions = null;
+            foreach (var task in tasks)
+            {
+                if (task.IsFaulted)
+                {
+                    if (exceptions == null)
+                    {
+                        exceptions = new List<Exception>();
+                    }
+
+                    exceptions.Add(task.Exception);
+                }
+            }
+
+            if (exceptions != null)
+            {
+                return Task.FromException(new AggregateException(exceptions));
+            }
+            else
+            {
+                return Task.CompletedTask;
             }
         }
 
@@ -426,6 +585,36 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
+        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+
+            int taskCount = tasks.Count();
+            this.Assert(taskCount > 0, "Cannot wait for zero tasks to complete.");
+
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.AssertIsTaskControlled(callerOp, "WhenAll");
+
+            callerOp.OnWaitTasks(tasks, waitAll: true);
+
+            int idx = 0;
+            TResult[] result = new TResult[taskCount];
+            foreach (var task in tasks)
+            {
+                result[idx] = task.Result;
+                idx++;
+            }
+
+            return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Creates a controlled task that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
         internal CoyoteTasks.Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -446,14 +635,34 @@ namespace Microsoft.Coyote.SystematicTesting
             return CoyoteTasks.Task.FromResult(result);
         }
 
-        private void AssertIsTaskControlled(TaskOperation callerOp, string opName)
+        /// <summary>
+        /// Creates a controlled task that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task<Task> WhenAnyTaskCompletesAsync(IEnumerable<Task> tasks)
         {
-            if (callerOp == null)
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.AssertIsTaskControlled(callerOp, "WhenAny");
+
+            callerOp.OnWaitTasks(tasks, waitAll: false);
+
+            Task result = null;
+            foreach (var task in tasks)
             {
-                this.Assert(callerOp != null,
-                    "Uncontrolled task '{0}' invoked a {1} operation.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", opName);
+                if (task.IsCompleted)
+                {
+                    result = task;
+                    break;
+                }
             }
+
+            return Task.FromResult(result);
         }
 
         /// <summary>
@@ -492,6 +701,36 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
+        internal Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        {
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.AssertIsTaskControlled(callerOp, "WhenAny");
+
+            callerOp.OnWaitTasks(tasks, waitAll: false);
+
+            Task<TResult> result = null;
+            foreach (var task in tasks)
+            {
+                if (task.IsCompleted)
+                {
+                    result = task;
+                    break;
+                }
+            }
+
+            return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Creates a controlled task that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
         internal CoyoteTasks.Task<CoyoteTasks.Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
         {
             this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
@@ -518,6 +757,24 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Waits for all of the provided controlled task objects to complete execution within
         /// a specified number of milliseconds or until a cancellation token is cancelled.
         /// </summary>
+        internal bool WaitAllTasksComplete(Task[] tasks)
+        {
+            // TODO: support cancellations during testing.
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.AssertIsTaskControlled(callerOp, "WaitAll");
+            callerOp.OnWaitTasks(tasks, waitAll: true);
+
+            // TODO: support timeouts during testing, this would become false if there is a timeout.
+            return true;
+        }
+
+        /// <summary>
+        /// Waits for all of the provided controlled task objects to complete execution within
+        /// a specified number of milliseconds or until a cancellation token is cancelled.
+        /// </summary>
         internal bool WaitAllTasksComplete(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
@@ -530,6 +787,38 @@ namespace Microsoft.Coyote.SystematicTesting
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
             return true;
+        }
+
+        /// <summary>
+        /// Waits for any of the provided controlled task objects to complete execution within
+        /// a specified number of milliseconds or until a cancellation token is cancelled.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal int WaitAnyTaskCompletes(Task[] tasks)
+        {
+            // TODO: support cancellations during testing.
+            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            this.AssertIsTaskControlled(callerOp, "WaitAny");
+
+            callerOp.OnWaitTasks(tasks, waitAll: false);
+
+            int result = -1;
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                if (tasks[i].IsCompleted)
+                {
+                    result = i;
+                    break;
+                }
+            }
+
+            // TODO: support timeouts during testing, this would become false if there is a timeout.
+            return result;
         }
 
         /// <summary>
@@ -567,6 +856,21 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Waits for the task to complete execution. The wait terminates if a timeout interval
         /// elapses or a cancellation token is canceled before the task completes.
         /// </summary>
+        internal bool WaitTaskCompletes(Task task)
+        {
+            // TODO: return immediately if completed without errors.
+            // TODO: support timeouts and cancellation tokens.
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            IO.Debug.WriteLine("<Task> '{0}' is waiting task '{1}' to complete from task '{2}'.",
+                callerOp.Name, task.Id, Task.CurrentId);
+            callerOp.OnWaitTask(task);
+            return true;
+        }
+
+        /// <summary>
+        /// Waits for the task to complete execution. The wait terminates if a timeout interval
+        /// elapses or a cancellation token is canceled before the task completes.
+        /// </summary>
         internal bool WaitTaskCompletes(CoyoteTasks.Task task)
         {
             // TODO: return immediately if completed without errors.
@@ -576,6 +880,19 @@ namespace Microsoft.Coyote.SystematicTesting
                 callerOp.Name, task.Id, Task.CurrentId);
             callerOp.OnWaitTask(task.UncontrolledTask);
             return true;
+        }
+
+        /// <summary>
+        /// Waits for the task to complete execution and returns the result.
+        /// </summary>
+        internal TResult WaitTaskCompletes<TResult>(Task<TResult> task)
+        {
+            // TODO: return immediately if completed without errors.
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+            IO.Debug.WriteLine("<Task> '{0}' is waiting task '{1}' with result type '{2}' to complete from task '{3}'.",
+                callerOp.Name, task.Id, typeof(TResult), Task.CurrentId);
+            callerOp.OnWaitTask(task);
+            return task.Result;
         }
 
         /// <summary>
@@ -592,7 +909,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="CoyoteTasks.AsyncTaskMethodBuilder.Start"/> is called.
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Start"/> is called.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -611,7 +928,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="CoyoteTasks.AsyncTaskMethodBuilder.Task"/> is accessed.
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -627,8 +944,8 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="CoyoteTasks.AsyncTaskMethodBuilder.AwaitOnCompleted"/>
-        /// or <see cref="CoyoteTasks.AsyncTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.AwaitOnCompleted"/>
+        /// or <see cref="AsyncTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
@@ -636,13 +953,11 @@ namespace Microsoft.Coyote.SystematicTesting
         internal void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType)
         {
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            bool sameNamespace = awaiterType.Namespace == typeof(CoyoteTasks.Task).Namespace;
+            bool sameNamespace = awaiterType.Namespace == typeof(CoyoteTasks.TaskAwaiter).Namespace;
             if (!sameNamespace)
             {
-                this.Assert(false,
-                    "Controlled task '{0}' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                    "Please make sure to use Coyote APIs to express concurrency (e.g. Microsoft.Coyote.Tasks.Task " +
-                    "instead of System.Threading.Tasks.Task).",
+                this.Assert(false, "Controlled task '{0}' is trying to wait for an uncontrolled task or " +
+                    "awaiter to complete. Please make sure to use Coyote APIs to express concurrency.",
                     Task.CurrentId);
             }
 
@@ -655,10 +970,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal void OnYieldAwaiterGetResult()
-        {
-            this.Scheduler.ScheduleNextOperation();
-        }
+        internal void OnYieldAwaiterGetResult() => this.Scheduler.ScheduleNextOperation();
 
         /// <summary>
         /// Callback invoked when the executing operation is waiting for the specified task to complete.
@@ -685,6 +997,18 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 var op = this.Scheduler.GetOperationWithId<TaskOperation>(operationId);
                 op.OnWaitTask(task);
+            }
+        }
+
+        /// <summary>
+        /// Checks that the executing task is controlled.
+        /// </summary>
+        private void AssertIsTaskControlled(TaskOperation callerOp, string opName)
+        {
+            if (callerOp == null)
+            {
+                this.Assert(false, "Uncontrolled task '{0}' invoked a {1} operation.",
+                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", opName);
             }
         }
 

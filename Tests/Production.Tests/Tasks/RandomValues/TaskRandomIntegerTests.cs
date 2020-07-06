@@ -4,14 +4,12 @@
 using Microsoft.Coyote.Random;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common;
-using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class TaskRandomIntegerTests : BaseTest
+    public class TaskRandomIntegerTests : BaseProductionTest
     {
         public TaskRandomIntegerTests(ITestOutputHelper output)
             : base(output)

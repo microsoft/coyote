@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private const string LearnAboutTelemetryUrl = "http://aka.ms/coyote-telemetry";
 
         /// <summary>
-        /// Configuration.
+        /// The project configuration.
         /// </summary>
         private readonly Configuration Configuration;
 
@@ -136,22 +136,17 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
-        public static TestingEngine Create(Configuration configuration) =>
-            Create(configuration, LoadAssembly(configuration.AssemblyToBeAnalyzed));
-
-        /// <summary>
-        /// Creates a new systematic testing engine.
-        /// </summary>
-        public static TestingEngine Create(Configuration configuration, Assembly assembly)
+        public static TestingEngine Create(Configuration configuration)
         {
             TestMethodInfo testMethodInfo = null;
+
             try
             {
-                testMethodInfo = TestMethodInfo.GetFromAssembly(assembly, configuration.TestMethodName);
+                testMethodInfo = TestMethodInfo.Create(configuration);
             }
-            catch
+            catch (Exception ex)
             {
-                Error.ReportAndExit($"Failed to get test method '{configuration.TestMethodName}' from assembly '{assembly.FullName}'");
+                Error.ReportAndExit(ex.Message);
             }
 
             return new TestingEngine(configuration, testMethodInfo);
@@ -178,6 +173,24 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Creates a new systematic testing engine.
         /// </summary>
+        public static TestingEngine Create(Configuration configuration, Func<Task> test) =>
+            new TestingEngine(configuration, test);
+
+        /// <summary>
+        /// Creates a new systematic testing engine.
+        /// </summary>
+        public static TestingEngine Create(Configuration configuration, Func<ICoyoteRuntime, Task> test) =>
+            new TestingEngine(configuration, test);
+
+        /// <summary>
+        /// Creates a new systematic testing engine.
+        /// </summary>
+        public static TestingEngine Create(Configuration configuration, Func<IActorRuntime, Task> test) =>
+            new TestingEngine(configuration, test);
+
+        /// <summary>
+        /// Creates a new systematic testing engine.
+        /// </summary>
         public static TestingEngine Create(Configuration configuration, Func<CoyoteTasks.Task> test) =>
             new TestingEngine(configuration, test);
 
@@ -197,7 +210,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Initializes a new instance of the <see cref="TestingEngine"/> class.
         /// </summary>
         internal TestingEngine(Configuration configuration, Delegate test)
-            : this(configuration, new TestMethodInfo(test))
+            : this(configuration, TestMethodInfo.Create(test))
         {
         }
 

@@ -4,15 +4,13 @@
 using System;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common;
-using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class SemaphoreTests : BaseTest
+    public class SemaphoreTests : BaseProductionTest
     {
         public SemaphoreTests(ITestOutputHelper output)
             : base(output)

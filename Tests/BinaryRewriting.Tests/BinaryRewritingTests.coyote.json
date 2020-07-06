@@ -1,0 +1,10 @@
+{
+  "AssembliesPath": "../../bin/netcoreapp3.1",
+  "OutputPath": "../../bin/netcoreapp3.1",
+  "Assemblies": [
+    "Microsoft.Coyote.BinaryRewriting.Tests.dll"
+  ],
+  "Dependencies": [
+    "Microsoft.Coyote.Tests.Common.dll"
+  ]
+}

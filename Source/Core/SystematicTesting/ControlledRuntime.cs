@@ -15,6 +15,7 @@ using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting.Interception;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using EventInfo = Microsoft.Coyote.Actors.EventInfo;
@@ -79,10 +80,6 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, this.Configuration);
             this.TaskController = new TaskController(this, this.Scheduler);
-
-            // Update the current asynchronous control flow with this runtime instance,
-            // allowing future retrieval in the same asynchronous call stack.
-            AssignAsyncControlFlowRuntime(this);
         }
 
         /// <inheritdoc/>
@@ -181,13 +178,33 @@ namespace Microsoft.Coyote.SystematicTesting
                     {
                         action();
                     }
-                    else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime)
+                    else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
                     {
-                        await functionWithRuntime(this);
+                        Task resultTask = functionWithRuntime(this);
+                        if (!resultTask.IsCompleted)
+                        {
+                            op.OnWaitTask(resultTask);
+                        }
+
+                        await resultTask;
                     }
-                    else if (testMethod is Func<CoyoteTasks.Task> function)
+                    else if (testMethod is Func<Task> function)
                     {
-                        await function();
+                        Task resultTask = function();
+                        if (!resultTask.IsCompleted)
+                        {
+                            op.OnWaitTask(resultTask);
+                        }
+
+                        await resultTask;
+                    }
+                    else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime2)
+                    {
+                        await functionWithRuntime2(this);
+                    }
+                    else if (testMethod is Func<CoyoteTasks.Task> function2)
+                    {
+                        await function2();
                     }
                     else
                     {

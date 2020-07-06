@@ -3,7 +3,6 @@
 
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 

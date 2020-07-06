@@ -2,17 +2,23 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Specifications;
+#if BINARY_REWRITE
+using System.Threading.Tasks;
+#else
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common;
-using Microsoft.Coyote.Tests.Common.Tasks;
+#endif
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
+#if BINARY_REWRITE
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+#else
 namespace Microsoft.Coyote.Production.Tests.Tasks
+#endif
 {
-    public class TaskExceptionTests : BaseTest
+    public class TaskExceptionTests : BaseProductionTest
     {
         public TaskExceptionTests(ITestOutputHelper output)
             : base(output)

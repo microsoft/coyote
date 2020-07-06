@@ -2,17 +2,25 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+#if BINARY_REWRITE
+using System.Threading.Tasks;
+#endif
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.Specifications;
+#if !BINARY_REWRITE
 using Microsoft.Coyote.Tasks;
+#endif
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common;
-using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
+#if BINARY_REWRITE
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+#else
 namespace Microsoft.Coyote.Production.Tests.Tasks
+#endif
 {
-    public class TaskInterleavingsTests : BaseTest
+    public class TaskInterleavingsTests : BaseProductionTest
     {
         public TaskInterleavingsTests(ITestOutputHelper output)
             : base(output)

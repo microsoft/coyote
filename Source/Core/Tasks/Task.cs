@@ -166,7 +166,8 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.ScheduleAction(action, null, false, cancellationToken);
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task(controller, controller.ScheduleAction(action, null, false, cancellationToken));
             }
 
             return new Task(null, SystemTasks.Task.Run(action, cancellationToken));
@@ -253,7 +254,8 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.ScheduleDelegate<TResult>(function, null, cancellationToken);
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task<TResult>(controller, controller.ScheduleDelegate<TResult>(function, null, cancellationToken));
             }
 
             return new Task<TResult>(null, SystemTasks.Task.Run(function, cancellationToken));
@@ -282,7 +284,8 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken);
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task(controller, controller.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken));
             }
 
             return new Task(null, SystemTasks.Task.Delay(millisecondsDelay, cancellationToken));
@@ -313,7 +316,8 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.ScheduleDelay(delay, cancellationToken);
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task(controller, controller.ScheduleDelay(delay, cancellationToken));
             }
 
             return new Task(null, SystemTasks.Task.Delay(delay, cancellationToken));
@@ -628,15 +632,8 @@ namespace Microsoft.Coyote.Tasks
         /// as a hint on how to better prioritize this work relative to other work that may be pending.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static YieldAwaitable Yield()
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new YieldAwaitable(ControlledRuntime.Current.TaskController);
-            }
-
-            return new YieldAwaitable(null);
-        }
+        public static YieldAwaitable Yield() =>
+            new YieldAwaitable(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
 
         /// <summary>
         /// Waits for the task to complete execution.

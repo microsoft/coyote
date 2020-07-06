@@ -27,8 +27,8 @@ namespace Microsoft.Coyote.Utilities
                 "a reproducible bug-trace if a bug is found, and replay a bug-trace using the VS debugger.");
 
             var basicGroup = this.Parser.GetOrCreateGroup("Basic", "Basic options", true);
-            var commandArg = basicGroup.AddPositionalArgument("command", "The operation perform (test, replay)");
-            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay", "telemetry" });
+            var commandArg = basicGroup.AddPositionalArgument("command", "The operation perform (test, replay, rewrite)");
+            commandArg.AllowedValues = new List<string>(new string[] { "test", "replay", "rewrite", "telemetry" });
             basicGroup.AddPositionalArgument("path", "Path to the Coyote program to test");
             basicGroup.AddArgument("method", "m", "Suffix of the test method to execute");
             basicGroup.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
@@ -57,6 +57,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var replayOptions = this.Parser.GetOrCreateGroup("replayOptions", "Replay options");
             replayOptions.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "replay" };
             replayOptions.AddPositionalArgument("schedule", "Schedule file to replay");
+
+            var rewritingGroup = this.Parser.GetOrCreateGroup("rewritingGroup", "Binary rewriting options");
+            rewritingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "rewrite" };
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
@@ -164,7 +167,32 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.Timeout = (int)(uint)option.Value;
                     break;
                 case "path":
-                    configuration.AssemblyToBeAnalyzed = (string)option.Value;
+                    if (configuration.ToolCommand is "test" || configuration.ToolCommand is "replay")
+                    {
+                        // In the case of 'coyote test' or 'replay', the path is the assembly to be tested.
+                        configuration.AssemblyToBeAnalyzed = (string)option.Value;
+                    }
+                    else if (configuration.ToolCommand is "rewrite")
+                    {
+                        // In the case of 'coyote rewrite', the path is the JSON configuration file
+                        // with the binary rewriting options.
+                        string filename = (string)option.Value;
+                        string extension = Path.GetExtension(filename);
+                        if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            configuration.RewritingConfigurationFile = filename;
+                        }
+                        else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) == 0 ||
+                            string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            configuration.AssemblyToBeAnalyzed = filename;
+                        }
+                        else
+                        {
+                            Error.ReportAndExit("Please give a valid .dll or JSON configuration file for binary rewriting.");
+                        }
+                    }
+
                     break;
                 case "method":
                     configuration.TestMethodName = (string)option.Value;
@@ -187,7 +215,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "schedule":
                     {
                         string filename = (string)option.Value;
-                        string extension = System.IO.Path.GetExtension(filename);
+                        string extension = Path.GetExtension(filename);
                         if (!extension.Equals(".schedule"))
                         {
                             Error.ReportAndExit("Please give a valid schedule file " +

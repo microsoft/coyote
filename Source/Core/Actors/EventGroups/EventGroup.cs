@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Actors
 {

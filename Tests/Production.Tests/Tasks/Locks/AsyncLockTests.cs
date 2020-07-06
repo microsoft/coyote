@@ -3,14 +3,12 @@
 
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common;
-using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class AsyncLockTests : BaseTest
+    public class AsyncLockTests : BaseProductionTest
     {
         public AsyncLockTests(ITestOutputHelper output)
             : base(output)

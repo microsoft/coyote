@@ -40,8 +40,8 @@ namespace Microsoft.Coyote.Tasks
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                    this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Task.CurrentId);
+                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
+                    this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
                 this.TaskController?.OnAsyncTaskMethodBuilderTask();
                 return new Task(this.TaskController, this.MethodBuilder.Task);
             }
@@ -50,9 +50,9 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(TaskController taskManager)
+        private AsyncTaskMethodBuilder(TaskController taskController)
         {
-            this.TaskController = taskManager;
+            this.TaskController = taskController;
             this.MethodBuilder = default;
         }
 
@@ -60,15 +60,8 @@ namespace Microsoft.Coyote.Tasks
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
         [DebuggerHidden]
-        public static AsyncTaskMethodBuilder Create()
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new AsyncTaskMethodBuilder(ControlledRuntime.Current.TaskController);
-            }
-
-            return new AsyncTaskMethodBuilder(null);
-        }
+        public static AsyncTaskMethodBuilder Create() =>
+            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -161,8 +154,8 @@ namespace Microsoft.Coyote.Tasks
             [DebuggerHidden]
             get
             {
-                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' (isCompleted {1}) from task '{2}'.",
-                        this.MethodBuilder.Task.Id, this.MethodBuilder.Task.IsCompleted, Tasks.Task.CurrentId);
+                IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
+                    this.MethodBuilder.Task.Id, Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
                 this.TaskController?.OnAsyncTaskMethodBuilderTask();
                 return new Task<TResult>(this.TaskController, this.MethodBuilder.Task);
             }
@@ -171,9 +164,9 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(TaskController taskManager)
+        private AsyncTaskMethodBuilder(TaskController taskController)
         {
-            this.TaskController = taskManager;
+            this.TaskController = taskController;
             this.MethodBuilder = default;
         }
 
@@ -182,15 +175,8 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
         [DebuggerHidden]
-        public static AsyncTaskMethodBuilder<TResult> Create()
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                return new AsyncTaskMethodBuilder<TResult>(ControlledRuntime.Current.TaskController);
-            }
-
-            return new AsyncTaskMethodBuilder<TResult>(null);
-        }
+        public static AsyncTaskMethodBuilder<TResult> Create() =>
+            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>

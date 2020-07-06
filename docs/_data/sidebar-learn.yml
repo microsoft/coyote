@@ -986,6 +986,26 @@ learn-toc:
         subfolderitems:
         - name: HotAttribute
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
+    - name: Microsoft.Coyote.SystematicTesting.Interception
+      link: /learn/ref/MicrosoftCoyoteSystematicTestingInterceptionNamespace
+      subfolderitems:
+      - name: ControlledTask
+        link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTaskType
+        subfolderitems:
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/Run
+        - name: Delay
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/Delay
+        - name: WhenAll
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/WhenAll
+        - name: WhenAny
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/WhenAny
+        - name: GetAwaiter
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/GetAwaiter
+        - name: Yield
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/Yield
+        - name: ExploreContextSwitch
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask/ExploreContextSwitch
     - name: Microsoft.Coyote.Tasks
       link: /learn/ref/MicrosoftCoyoteTasksNamespace
       subfolderitems:

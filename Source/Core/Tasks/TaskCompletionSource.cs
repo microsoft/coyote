@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
-using TaskCanceledException = System.Threading.Tasks.TaskCanceledException;
 using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace Microsoft.Coyote.Tasks

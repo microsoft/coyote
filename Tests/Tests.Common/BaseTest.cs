@@ -6,14 +6,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.SystematicTesting.Strategies;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
+using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Tests.Common
 {
@@ -459,7 +459,7 @@ namespace Microsoft.Coyote.Tests.Common
                     var runtime = RuntimeFactory.Create(configuration);
                     runtime.SetLogger(logger);
 
-                    var errorTask = TaskCompletionSource.Create<Exception>();
+                    var errorTask = new TaskCompletionSource<Exception>();
                     if (handleFailures)
                     {
                         runtime.OnFailure += (e) =>
@@ -653,30 +653,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
-        protected static async Task<T> WaitAsync<T>(SystemTasks.Task<T> task, int millisecondsDelay = 5000)
-        {
-            if (Debugger.IsAttached)
-            {
-                millisecondsDelay = 500000;
-            }
-
-            await SystemTasks.Task.WhenAny(task, SystemTasks.Task.Delay(millisecondsDelay));
-            Assert.True(task.IsCompleted);
-            return task.Result;
-        }
-
-        protected static async Task WaitAsync(SystemTasks.Task task, int millisecondsDelay = 5000)
-        {
-            if (Debugger.IsAttached)
-            {
-                millisecondsDelay = 500000;
-            }
-
-            await SystemTasks.Task.WhenAny(task, SystemTasks.Task.Delay(millisecondsDelay));
-            Assert.True(task.IsCompleted);
-        }
-
-        protected async Task WaitAsync(Task task, int millisecondsDelay = 5000)
+        protected async CoyoteTasks.Task WaitAsync(CoyoteTasks.Task task, int millisecondsDelay = 5000)
         {
             if (Debugger.IsAttached)
             {
@@ -690,7 +667,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
             }
 
             if (task.IsFaulted)
@@ -703,12 +680,12 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(task.IsCompleted);
         }
 
-        protected async Task<TResult> GetResultAsync<TResult>(TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
+        protected async CoyoteTasks.Task<TResult> GetResultAsync<TResult>(CoyoteTasks.TaskCompletionSource<TResult> tcs, int millisecondsDelay = 5000)
         {
             return await this.GetResultAsync(tcs.Task, millisecondsDelay);
         }
 
-        protected async Task<TResult> GetResultAsync<TResult>(Task<TResult> task, int millisecondsDelay = 5000)
+        protected async CoyoteTasks.Task<TResult> GetResultAsync<TResult>(CoyoteTasks.Task<TResult> task, int millisecondsDelay = 5000)
         {
             if (Debugger.IsAttached)
             {
@@ -722,7 +699,7 @@ namespace Microsoft.Coyote.Tests.Common
             }
             else
             {
-                await Task.WhenAny(task, Task.Delay(millisecondsDelay));
+                await CoyoteTasks.Task.WhenAny(task, CoyoteTasks.Task.Delay(millisecondsDelay));
             }
 
             if (task.IsFaulted)

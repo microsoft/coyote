@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Source\Test\Test.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Coyote.Performance.Tests", "Tests\Performance.Tests\Microsoft.Coyote.Performance.Tests.csproj", "{1F4FD737-FEEF-47B0-86DC-3ED72596870B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryRewriting.Tests", "Tests\BinaryRewriting.Tests\BinaryRewriting.Tests.csproj", "{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +80,10 @@ Global
 		{1F4FD737-FEEF-47B0-86DC-3ED72596870B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F4FD737-FEEF-47B0-86DC-3ED72596870B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F4FD737-FEEF-47B0-86DC-3ED72596870B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{756F8C17-37FA-4A6E-8D87-3132FCE4A17D} = {9BC0914F-3068-4148-B778-4CA27D828D39}
 		{4B03C121-C1C9-4C08-A673-BFD5FC821983} = {83369B7E-5C21-4D49-A14C-E8A6A4892807}
 		{1F4FD737-FEEF-47B0-86DC-3ED72596870B} = {2012300C-6E5D-47A0-9D57-B3F0A73AA1D4}
+		{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF} = {2012300C-6E5D-47A0-9D57-B3F0A73AA1D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9407046-CB24-4B07-8031-2749696EC7D8}

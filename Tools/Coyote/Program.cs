@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.Telemetry;
 using Microsoft.Coyote.Utilities;
@@ -102,6 +104,9 @@ namespace Microsoft.Coyote
                 case "replay":
                     ReplayTest();
                     break;
+                case "rewrite":
+                    RewriteAssemblies();
+                    break;
                 case "telemetry":
                     RunServer();
                     break;
@@ -123,6 +128,9 @@ namespace Microsoft.Coyote
             }
         }
 
+        /// <summary>
+        /// Runs the test specified in the configuration.
+        /// </summary>
         private static void RunTest()
         {
             if (Configuration.RunAsParallelBugFindingTask)
@@ -167,6 +175,9 @@ namespace Microsoft.Coyote
             TestingProcessScheduler.Create(Configuration).Run();
         }
 
+        /// <summary>
+        /// Replays an execution that is specified in the configuration.
+        /// </summary>
         private static void ReplayTest()
         {
             // Set some replay specific options.
@@ -181,6 +192,36 @@ namespace Microsoft.Coyote
             TestingEngine engine = TestingEngine.Create(Configuration);
             engine.Run();
             Console.WriteLine(engine.GetReport());
+        }
+
+        /// <summary>
+        /// Rewrites the assemblies specified in the configuration.
+        /// </summary>
+        private static void RewriteAssemblies()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(Configuration.RewritingConfigurationFile))
+                {
+                    // We are rewriting a dll directly, so we fake up a default configuration for doing this.
+                    var fullPath = Path.GetFullPath(Configuration.AssemblyToBeAnalyzed);
+                    var assemblyDir = Path.GetDirectoryName(fullPath);
+
+                    Console.WriteLine($". Rewriting {fullPath}");
+                    AssemblyRewriter.Rewrite(Rewriting.Configuration.Create(assemblyDir, assemblyDir,
+                        new HashSet<string>(new string[] { fullPath }), new HashSet<string>()));
+                }
+                else
+                {
+                    Console.WriteLine($". Rewriting the assemblies specified in {Configuration.RewritingConfigurationFile}");
+                    AssemblyRewriter.Rewrite(Configuration.RewritingConfigurationFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                Error.ReportAndExit(ex.Message);
+            }
         }
 
         /// <summary>

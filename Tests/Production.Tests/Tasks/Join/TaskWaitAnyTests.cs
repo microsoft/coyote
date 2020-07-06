@@ -1,17 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Specifications;
+#if BINARY_REWRITE
+using System.Threading.Tasks;
+#else
 using Microsoft.Coyote.Tasks;
-using Microsoft.Coyote.Tests.Common;
-using Microsoft.Coyote.Tests.Common.Tasks;
+#endif
+using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
+#if BINARY_REWRITE
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+#else
 namespace Microsoft.Coyote.Production.Tests.Tasks
+#endif
 {
-    public class TaskWaitAnyTests : BaseTest
+    public class TaskWaitAnyTests : BaseProductionTest
     {
         public TaskWaitAnyTests(ITestOutputHelper output)
             : base(output)
@@ -104,7 +110,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task1 = entry.GetWriteResultAsync(5);
                 Task<int> task2 = entry.GetWriteResultAsync(3);
                 int index = Task.WaitAny(task1, task2);
-                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
+                SystemTasks.Task<int> result = index == 0 ? GetUncontrolledTask(task1) : GetUncontrolledTask(task2);
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert((task1.IsCompleted && !task2.IsCompleted) || (!task1.IsCompleted && task2.IsCompleted),
@@ -124,7 +130,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task1 = entry.GetWriteResultWithDelayAsync(5);
                 Task<int> task2 = entry.GetWriteResultWithDelayAsync(3);
                 int index = Task.WaitAny(task1, task2);
-                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
+                SystemTasks.Task<int> result = index == 0 ? GetUncontrolledTask(task1) : GetUncontrolledTask(task2);
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
                 Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
@@ -152,7 +158,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 });
 
                 int index = Task.WaitAny(task1, task2);
-                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
+                SystemTasks.Task<int> result = index == 0 ? GetUncontrolledTask(task1) : GetUncontrolledTask(task2);
 
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");
@@ -181,7 +187,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 });
 
                 int index = Task.WaitAny(task1, task2);
-                SystemTasks.Task<int> result = index == 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
+                SystemTasks.Task<int> result = index == 0 ? GetUncontrolledTask(task1) : GetUncontrolledTask(task2);
 
                 Specification.Assert(index == 0 || index == 1, $"Index is {index}.");
                 Specification.Assert(result.Result == 5 || result.Result == 3, "Found unexpected value.");

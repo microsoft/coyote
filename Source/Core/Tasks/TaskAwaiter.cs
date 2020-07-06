@@ -57,7 +57,11 @@ namespace Microsoft.Coyote.Tasks
         [DebuggerHidden]
         public void GetResult()
         {
-            this.TaskController?.OnWaitTask(this.AwaitedTask);
+            if (!this.IsCompleted)
+            {
+                this.TaskController?.OnWaitTask(this.AwaitedTask);
+            }
+
             this.Awaiter.GetResult();
         }
 
@@ -142,7 +146,11 @@ namespace Microsoft.Coyote.Tasks
         [DebuggerHidden]
         public TResult GetResult()
         {
-            this.TaskController?.OnWaitTask(this.AwaitedTask);
+            if (!this.IsCompleted)
+            {
+                this.TaskController?.OnWaitTask(this.AwaitedTask);
+            }
+
             return this.Awaiter.GetResult();
         }
 

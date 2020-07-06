@@ -440,45 +440,49 @@ namespace Microsoft.Coyote.Tests.Common
         {
             configuration = configuration ?? GetConfiguration();
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
+            int iterations = Math.Max(1, configuration.TestingIterations);
+            for (int i = 0; i < iterations; i++)
             {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
-
-            try
-            {
-                configuration.IsMonitoringEnabledInInProduction = true;
-                var runtime = RuntimeFactory.Create(configuration);
-                runtime.SetLogger(logger);
-
-                var errorTask = TaskCompletionSource.Create<Exception>();
-                if (handleFailures)
+                TextWriter logger;
+                if (configuration.IsVerbose)
                 {
-                    runtime.OnFailure += (e) =>
+                    logger = new TestOutputLogger(this.TestOutput, true);
+                }
+                else
+                {
+                    logger = TextWriter.Null;
+                }
+
+                try
+                {
+                    configuration.IsMonitoringEnabledInInProduction = true;
+                    var runtime = RuntimeFactory.Create(configuration);
+                    runtime.SetLogger(logger);
+
+                    var errorTask = TaskCompletionSource.Create<Exception>();
+                    if (handleFailures)
                     {
-                        errorTask.SetResult(Unwrap(e));
-                    };
-                }
+                        runtime.OnFailure += (e) =>
+                        {
+                            errorTask.SetResult(Unwrap(e));
+                        };
+                    }
 
-                await Task.WhenAny(test(runtime), errorTask.Task);
-                if (handleFailures && errorTask.Task.IsCompleted)
-                {
-                    Assert.False(true, errorTask.Task.Result.Message);
+                    await Task.WhenAny(test(runtime), errorTask.Task);
+                    if (handleFailures && errorTask.Task.IsCompleted)
+                    {
+                        Assert.False(true, errorTask.Task.Result.Message);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Exception e = Unwrap(ex);
-                Assert.False(true, e.Message + "\n" + e.StackTrace);
-            }
-            finally
-            {
-                logger.Dispose();
+                catch (Exception ex)
+                {
+                    Exception e = Unwrap(ex);
+                    Assert.False(true, e.Message + "\n" + e.StackTrace);
+                }
+                finally
+                {
+                    logger.Dispose();
+                }
             }
         }
 

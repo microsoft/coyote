@@ -9,7 +9,7 @@ Import-Module $PSScriptRoot\powershell\common.psm1
 $history = Invoke-Expression "git log --pretty=oneline -n 1"
 $words = $history.Split(' ')
 $commit = $words[0]
-if ($store -ne "") 
+if ($store -ne "")
 {
     $env:AZURE_COSMOSDB_ENDPOINT = $store
     $env:AZURE_STORAGE_PRIMARY_KEY = $key
@@ -50,7 +50,7 @@ Write-Comment -prefix "." -text "Done" -color "green"
 
 if ($local -ne "")
 {
-    # save the detailed perf results on the test machine with additional integer index to 
+    # save the detailed perf results on the test machine with additional integer index to
     # disambiguate duplicate runs for the same commit id.
     if (-not (Test-Path -Path $local))
     {
@@ -62,5 +62,5 @@ if ($local -ne "")
         $index = $index + 1
     }
 
-    Move-Item -Path $artifacts_dir -Destination "$saved\benchmark_$commit.$index"
+    Move-Item -Path $artifacts_dir -Destination "$local\benchmark_$commit.$index"
 }

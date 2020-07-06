@@ -20,6 +20,7 @@ namespace Microsoft.Coyote.Benchmarking
     {
         private const string CosmosDatabaseId = "actorperfdb";
         private const string SummaryTableName = "actorperfsummary";
+        private const string CommitLogTableName = "commitlog";
         // private const string DetailsTableName = "actorperfdetails";
 
         // Maximum number of operations in a transactional batch is 100
@@ -135,6 +136,28 @@ namespace Microsoft.Coyote.Benchmarking
             }
 
             return results;
+        }
+
+        internal async Task UploadLogAsync(List<CommitHistoryEntity> log)
+        {
+            if (this.CosmosDatabase == null)
+            {
+                await this.Connect();
+            }
+
+            if (this.CosmosDatabase == null)
+            {
+                return;
+            }
+
+            var response = await this.CosmosDatabase.CreateContainerIfNotExistsAsync(CommitLogTableName, "/PartitionKey");
+            var container = response.Container;
+
+            foreach (var item in log)
+            {
+                Console.WriteLine("===> Uploading commit info {0}...", item.Id);
+                await container.UpsertItemAsync<CommitHistoryEntity>(item, new PartitionKey(item.PartitionKey));
+            }
         }
     }
 
@@ -441,5 +464,37 @@ namespace Microsoft.Coyote.Benchmarking
                 this.RuntimeVersion = partitionKey.Substring(pos + 1);
             }
         }
+    }
+
+    /// <summary>
+    /// Entity representing a commit id.
+    /// </summary>
+    public class CommitHistoryEntity
+    {
+        /// <summary>
+        /// The row id.
+        /// </summary>
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
+
+        /// <summary>
+        /// The parition key for the data.
+        /// </summary>
+        public string PartitionKey { get; set; }
+
+        /// <summary>
+        /// The id of the commit.
+        /// </summary>
+        public string CommitId { get; set; }
+
+        /// <summary>
+        /// The UTC commit date.
+        /// </summary>
+        public DateTime Date { get; set; }
+
+        /// <summary>
+        /// The author of the commit.
+        /// </summary>
+        public string Author { get; set; }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
+using Microsoft.Diagnostics.Runtime.Interop;
 using StateMachineTests = Microsoft.Coyote.Performance.Tests.Actors.StateMachines;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
@@ -51,6 +53,7 @@ namespace Microsoft.Coyote.Benchmarking
         private readonly List<string> Filters = new List<string>();
         private readonly string RuntimeVersion;
         private readonly string MachineName;
+        private bool UploadCommits;
 
         public Program()
         {
@@ -100,6 +103,9 @@ namespace Microsoft.Coyote.Benchmarking
                             }
 
                             this.OutputDir = args[++i];
+                            break;
+                        case "upload_commit_log":
+                            this.UploadCommits = true;
                             break;
                         default:
                             break;
@@ -212,6 +218,11 @@ namespace Microsoft.Coyote.Benchmarking
                 return 0;
             }
 
+            if (this.UploadCommits)
+            {
+                return await UploadCommitHistory();
+            }
+
             if (string.IsNullOrEmpty(this.CommitId))
             {
                 this.CommitId = Guid.NewGuid().ToString().Replace("-", string.Empty);
@@ -254,6 +265,7 @@ namespace Microsoft.Coyote.Benchmarking
             else if (this.Cosmos)
             {
                 await storage.UploadAsync(results);
+                await UploadCommitHistory(1); // upload this commit id and it's commit date.
             }
 
             return 0;
@@ -347,7 +359,7 @@ namespace Microsoft.Coyote.Benchmarking
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Usage: BenchmarkRuner [-outdir name] [-commit id] [-cosmos] [filter]");
+            Console.WriteLine("Usage: BenchmarkRuner [-outdir name] [-commit id] [-cosmos] [filter] [-upload_commit_log");
             Console.WriteLine("Runs all benchmarks matching optional filter");
             Console.WriteLine("Writing output csv files to the specified outdir folder");
             Console.WriteLine("Benchmark names are:");
@@ -386,6 +398,140 @@ namespace Microsoft.Coyote.Benchmarking
 #elif NETFRAMEWORK
             return "net";
 #endif
+        }
+
+        private static async Task<string> RunCommandAsync(string cmd, string args)
+        {
+            StringBuilder sb = new StringBuilder();
+            string fullPath = FindProgram(cmd);
+            if (fullPath.Contains(' '))
+            {
+                fullPath = "\"" + fullPath + "\"";
+            }
+
+            ProcessStartInfo info = new ProcessStartInfo(fullPath, args);
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError = true;
+            info.UseShellExecute = false;
+            Process p = new Process();
+            p.StartInfo = info;
+            var outputEnded = new TaskCompletionSource<bool>();
+            var errorEnded = new TaskCompletionSource<bool>();
+            p.OutputDataReceived += (s, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    sb.AppendLine(e.Data);
+                }
+                else
+                {
+                    outputEnded.TrySetResult(true);
+                }
+            };
+            p.ErrorDataReceived += (s, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    sb.AppendLine(e.Data);
+                }
+                else
+                {
+                    errorEnded.TrySetResult(true);
+                }
+            };
+            if (!p.Start())
+            {
+                Console.WriteLine("Error running '{0} {1}'", fullPath, args);
+                return null;
+            }
+
+            p.BeginErrorReadLine();
+            p.BeginOutputReadLine();
+
+            if (!p.HasExited)
+            {
+                p.WaitForExit();
+            }
+
+            await Task.WhenAll(outputEnded.Task, errorEnded.Task);
+            return sb.ToString();
+        }
+
+        private static string FindProgram(string name)
+        {
+            string path = Environment.GetEnvironmentVariable("PATH");
+            foreach (var part in path.Split(Path.PathSeparator))
+            {
+                string fullPath = Path.Combine(part, name);
+                if (File.Exists(fullPath))
+                {
+                    return fullPath;
+                }
+
+                if (File.Exists(fullPath + ".exe"))
+                {
+                    return fullPath + ".exe";
+                }
+            }
+
+            return null;
+        }
+
+        private static async Task<int> UploadCommitHistory(int max = 0)
+        {
+            string args = "log --pretty=medium";
+            if (max != 0)
+            {
+                args += string.Format(" -n {0}", max);
+            }
+
+            var gitLog = await RunCommandAsync("git", args);
+            if (string.IsNullOrEmpty(gitLog))
+            {
+                return 1;
+            }
+
+            var log = ParseLog(gitLog);
+
+            Storage storage = new Storage();
+            await storage.UploadLogAsync(log);
+            return 0;
+        }
+
+        private static List<CommitHistoryEntity> ParseLog(string log)
+        {
+            List<CommitHistoryEntity> result = new List<CommitHistoryEntity>();
+
+            string commit = null;
+            string author = null;
+
+            foreach (string line in log.Split('\n'))
+            {
+                string trimmed = line.Trim('\r');
+                if (trimmed.StartsWith("commit "))
+                {
+                    commit = trimmed.Substring(7).Trim();
+                }
+                else if (trimmed.StartsWith("Author: "))
+                {
+                    author = trimmed.Substring(8).Trim();
+                }
+                else if (trimmed.StartsWith("Date:   "))
+                {
+                    string date_string = trimmed.Substring(5).Trim();
+                    DateTime dt = DateTime.ParseExact(date_string, "ddd MMM d HH:mm:ss yyyy zzz", null);
+                    result.Add(new CommitHistoryEntity()
+                    {
+                        Id = commit,
+                        CommitId = commit,
+                        Author = author,
+                        Date = dt.ToUniversalTime(),
+                        PartitionKey = "log"
+                    });
+                }
+            }
+
+            return result;
         }
     }
 }

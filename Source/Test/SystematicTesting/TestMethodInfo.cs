@@ -107,47 +107,61 @@ namespace Microsoft.Coyote.SystematicTesting
             BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
             List<MethodInfo> testMethods = FindTestMethodsWithAttribute(typeof(TestAttribute), flags, assembly);
 
-            // Filter by test method name
-            var filteredTestMethods = testMethods
-                .FindAll(mi => string.Format("{0}.{1}", mi.DeclaringType.FullName, mi.Name)
-                .EndsWith($".{methodName}"));
-
-            if (filteredTestMethods.Count == 0)
+            if (testMethods.Count > 0)
             {
-                if (testMethods.Count > 0)
+                List<MethodInfo> filteredTestMethods = null;
+                string error = null;
+
+                if (!string.IsNullOrEmpty(methodName))
                 {
-                    var msg = "Cannot detect a Coyote test method with name " + methodName +
-                        ". Possible options are: " + Environment.NewLine;
-                    foreach (var mi in testMethods)
+                    // Filter by test method name.
+                    filteredTestMethods = testMethods.FindAll(mi => string.Format("{0}.{1}",
+                        mi.DeclaringType.FullName, mi.Name).Contains($"{methodName}"));
+                    if (filteredTestMethods.Count is 0)
                     {
-                        msg += string.Format("{0}.{1}{2}", mi.DeclaringType.FullName, mi.Name, Environment.NewLine);
+                        error = $"Cannot detect a Coyote test method name containing {methodName}.";
+                    }
+                    else if (filteredTestMethods.Count > 1)
+                    {
+                        error = $"The method name '{methodName}' is ambiguous. Please specify the full test method name.";
+                    }
+                }
+                else if (testMethods.Count > 1)
+                {
+                    error = $"Found '{testMethods.Count}' test methods declared with the '{typeof(TestAttribute).FullName}' " +
+                        $"attribute. Provide --method (-m) flag to qualify the test method name you wish to use.";
+                }
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    error += " Possible methods are:" + Environment.NewLine;
+
+                    var possibleMethods = filteredTestMethods?.Count > 1 ? filteredTestMethods : testMethods;
+                    for (int idx = 0; idx < possibleMethods.Count; idx++)
+                    {
+                        var mi = possibleMethods[idx];
+                        error += string.Format("  {0}.{1}", mi.DeclaringType.FullName, mi.Name);
+                        if (idx < possibleMethods.Count - 1)
+                        {
+                            error += Environment.NewLine;
+                        }
                     }
 
-                    throw new InvalidOperationException(msg);
+                    throw new InvalidOperationException(error);
                 }
-                else
+
+                if (!string.IsNullOrEmpty(methodName))
                 {
-                    throw new InvalidOperationException("Cannot detect a Coyote test method. Use the " +
-                        $"attribute '[{typeof(TestAttribute).FullName}]' to declare a test method.");
+                    testMethods = filteredTestMethods;
                 }
             }
-            else if (filteredTestMethods.Count > 1)
+            else if (testMethods.Count is 0)
             {
-                var msg = "Only one test method to the Coyote program can " +
-                    $"be declared with the attribute '{typeof(TestAttribute).FullName}'. " +
-                    $"'{testMethods.Count}' test methods were found instead. Provide " +
-                    $"/method flag to qualify the test method name you wish to use. " +
-                    "Possible options are: " + Environment.NewLine;
-
-                foreach (var mi in testMethods)
-                {
-                    msg += string.Format("{0}.{1}{2}", mi.DeclaringType.FullName, mi.Name, Environment.NewLine);
-                }
-
-                throw new InvalidOperationException(msg);
+                throw new InvalidOperationException("Cannot detect a Coyote test method declared with the " +
+                    $"'[{typeof(TestAttribute).FullName}]' attribute.");
             }
 
-            MethodInfo testMethod = filteredTestMethods[0];
+            MethodInfo testMethod = testMethods[0];
             ParameterInfo[] testParams = testMethod.GetParameters();
 
             bool hasVoidReturnType = testMethod.ReturnType == typeof(void);

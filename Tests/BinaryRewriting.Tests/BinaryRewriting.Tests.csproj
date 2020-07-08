@@ -13,14 +13,15 @@
   <ItemGroup>
     <Compile Include="..\Production.Tests\BaseProductionTest.cs" Link="BaseProductionTest.cs" />
     <Compile Include="..\Production.Tests\Tasks\CompletedTaskTests.cs" Link="Tasks\CompletedTaskTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAllTests.cs" Link="Tasks\Join\TaskWhenAllTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAnyTests.cs" Link="Tasks\Join\TaskWhenAnyTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\TaskCompletionSourceTests.cs" Link="Tasks\TaskCompletionSourceTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskDelayTests.cs" Link="Tasks\TaskDelayTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskExceptionTests.cs" Link="Tasks\TaskExceptionTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskIdTests.cs" Link="Tasks\TaskIdTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskInterleavingsTests.cs" Link="Tasks\TaskInterleavingsTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskRunTests.cs" Link="Tasks\TaskRunTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskYieldTests.cs" Link="Tasks\TaskYieldTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAllTests.cs" Link="Tasks\Join\TaskWhenAllTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAnyTests.cs" Link="Tasks\Join\TaskWhenAnyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />

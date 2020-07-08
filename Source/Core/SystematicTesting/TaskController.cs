@@ -952,7 +952,6 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType)
         {
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             bool sameNamespace = awaiterType.Namespace == typeof(CoyoteTasks.TaskAwaiter).Namespace;
             if (!sameNamespace)
             {
@@ -961,6 +960,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     Task.CurrentId);
             }
 
+            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             callerOp.SetExecutingAsyncTaskStateMachineType(stateMachineType);
         }
 

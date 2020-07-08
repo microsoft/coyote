@@ -2,14 +2,23 @@
 // Licensed under the MIT License.
 
 using System;
+#if BINARY_REWRITE
+using System.Threading.Tasks;
+#endif
 using Microsoft.Coyote.Specifications;
+#if !BINARY_REWRITE
 using Microsoft.Coyote.Tasks;
+#endif
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;
 
+#if BINARY_REWRITE
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+#else
 namespace Microsoft.Coyote.Production.Tests.Tasks
+#endif
 {
     public class TaskCompletionSourceTests : BaseTest
     {
@@ -23,7 +32,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetResult(3);
                 int result = await tcs.Task;
                 Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
@@ -40,7 +49,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetResult(3);
                 bool check = tcs.TrySetResult(5);
                 int result = await tcs.Task;
@@ -59,7 +68,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
@@ -83,7 +92,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
@@ -107,7 +116,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 var task1 = Task.Run(async () =>
                 {
                     return await tcs.Task;
@@ -135,7 +144,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetCanceled();
 
                 int result = default;
@@ -165,7 +174,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetCanceled();
                 bool check = tcs.TrySetCanceled();
 
@@ -197,7 +206,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 var task = Task.Run(() =>
                 {
                     tcs.SetCanceled();
@@ -228,7 +237,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetException(new InvalidOperationException());
 
                 int result = default;
@@ -258,7 +267,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetException(new InvalidOperationException());
                 bool check = tcs.TrySetException(new NotImplementedException());
 
@@ -290,7 +299,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.Test(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 var task = Task.Run(() =>
                 {
                     tcs.SetException(new InvalidOperationException());
@@ -321,7 +330,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(() =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetResult(3);
 
                 Exception exception = null;
@@ -347,7 +356,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(() =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetResult(3);
 
                 Exception exception = null;
@@ -373,7 +382,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(() =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 tcs.SetResult(3);
 
                 Exception exception = null;
@@ -399,7 +408,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                var tcs = TaskCompletionSource.Create<int>();
+                var tcs = CreateTaskCompletionSource<int>();
                 var task = tcs.Task;
                 tcs.SetResult(3);
                 Specification.Assert(tcs.Task.IsCompleted, "Task is not completed.");
@@ -409,6 +418,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             },
             expectedError: "Reached test assertion.",
             replay: true);
+        }
+
+        private static TaskCompletionSource<T> CreateTaskCompletionSource<T>()
+        {
+#if BINARY_REWRITE
+            return new TaskCompletionSource<T>();
+#else
+            return TaskCompletionSource.Create<T>();
+#endif
         }
     }
 }

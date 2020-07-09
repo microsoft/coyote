@@ -16,4 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Transforms\" />
+  </ItemGroup>
 </Project>

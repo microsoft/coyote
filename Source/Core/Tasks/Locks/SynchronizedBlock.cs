@@ -25,6 +25,11 @@ namespace Microsoft.Coyote.Tasks
         protected readonly object SyncObject;
 
         /// <summary>
+        /// Whether the lock was taken.
+        /// </summary>
+        private bool LockTaken;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
         /// </summary>
         /// <param name="syncObject">The sync object to serialize access to.</param>
@@ -47,7 +52,7 @@ namespace Microsoft.Coyote.Tasks
         /// <returns>The synchronized block.</returns>
         protected virtual SynchronizedBlock EnterLock()
         {
-            SystemMonitor.Enter(this.SyncObject);
+            SystemMonitor.Enter(this.SyncObject, ref this.LockTaken);
             return this;
         }
 
@@ -97,7 +102,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && this.LockTaken)
             {
                 SystemMonitor.Exit(this.SyncObject);
             }

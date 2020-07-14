@@ -27,30 +27,7 @@ namespace Microsoft.Coyote.Telemetry
         public CoyoteTelemetryClient(Configuration configuration)
         {
             this.Enabled = configuration.EnableTelemetry && !configuration.RunAsParallelBugFindingTask;
-            if (string.IsNullOrEmpty(configuration.DotnetFrameworkVersion))
-            {
-#if NETSTANDARD2_1
-                this.Framework = "netstandard2.1";
-#elif NETSTANDARD2_0
-                this.Framework = "netstandard2.0";
-#elif NETSTANDARD
-                this.Framework = "netstandard";
-#elif NETCOREAPP3_1
-                this.Framework = "netcoreapp3.1";
-#elif NETCOREAPP
-                this.Framework = "netcoreapp";
-#elif NET48
-                this.Framework = "net48";
-#elif NET47
-                this.Framework = "net47";
-#elif NETFRAMEWORK
-                this.Framework = "net";
-#endif
-            }
-            else
-            {
-                this.Framework = configuration.DotnetFrameworkVersion;
-            }
+            this.Framework = configuration.PlatformVersion;
 
             if (this.Enabled)
             {

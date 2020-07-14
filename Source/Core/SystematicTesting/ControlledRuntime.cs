@@ -15,7 +15,6 @@ using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting.Interception;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using EventInfo = Microsoft.Coyote.Actors.EventInfo;

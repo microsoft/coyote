@@ -38,24 +38,6 @@ namespace Microsoft.Coyote
             Configuration = Configuration.Create();
             Configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
 
-#if NETSTANDARD2_1
-            Configuration.DotnetFrameworkVersion = "netstandard2.1";
-#elif NETSTANDARD2_0
-            Configuration.DotnetFrameworkVersion = "netstandard2.0";
-#elif NETSTANDARD
-            Configuration.DotnetFrameworkVersion = "netstandard";
-#elif NETCOREAPP3_1
-            Configuration.DotnetFrameworkVersion = "netcoreapp3.1";
-#elif NETCOREAPP
-            Configuration.DotnetFrameworkVersion = "netcoreapp";
-#elif NET48
-            Configuration.DotnetFrameworkVersion = "net48";
-#elif NET47
-            Configuration.DotnetFrameworkVersion = "net47";
-#elif NETFRAMEWORK
-            Configuration.DotnetFrameworkVersion = "net";
-#endif
-
             var result = CoyoteTelemetryClient.GetOrCreateMachineId().Result;
             bool firstTime = result.Item2;
 
@@ -70,6 +52,8 @@ namespace Microsoft.Coyote
 
                 Environment.Exit(1);
             }
+
+            Configuration.PlatformVersion = GetPlatformVersion();
 
             if (!Configuration.RunAsParallelBugFindingTask)
             {
@@ -208,13 +192,17 @@ namespace Microsoft.Coyote
                     var assemblyDir = Path.GetDirectoryName(fullPath);
 
                     Console.WriteLine($". Rewriting {fullPath}");
-                    AssemblyRewriter.Rewrite(Rewriting.Configuration.Create(assemblyDir, assemblyDir,
-                        new HashSet<string>(new string[] { fullPath }), new HashSet<string>()));
+                    var config = Rewriting.Configuration.Create(assemblyDir, assemblyDir,
+                        new HashSet<string>(new string[] { fullPath }), new HashSet<string>());
+                    config.PlatformVersion = Configuration.PlatformVersion;
+                    AssemblyRewriter.Rewrite(config);
                 }
                 else
                 {
                     Console.WriteLine($". Rewriting the assemblies specified in {Configuration.RewritingConfigurationFile}");
-                    AssemblyRewriter.Rewrite(Configuration.RewritingConfigurationFile);
+                    var config = Rewriting.Configuration.ParseFromJSON(Configuration.RewritingConfigurationFile);
+                    config.PlatformVersion = Configuration.PlatformVersion;
+                    AssemblyRewriter.Rewrite(config);
                 }
             }
             catch (Exception ex)
@@ -350,6 +338,30 @@ namespace Microsoft.Coyote
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the .NET platform version this assembly was compiled for.
+        /// </summary>
+        private static string GetPlatformVersion()
+        {
+#if NETSTANDARD2_1
+            return "netstandard2.1";
+#elif NETSTANDARD2_0
+            return "netstandard2.0";
+#elif NETSTANDARD
+            return "netstandard";
+#elif NETCOREAPP3_1
+            return "netcoreapp3.1";
+#elif NETCOREAPP
+            return "netcoreapp";
+#elif NET48
+            return "net48";
+#elif NET47
+            return "net47";
+#elif NETFRAMEWORK
+            return "net";
+#endif
         }
     }
 }

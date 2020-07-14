@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Coyote.Actors;

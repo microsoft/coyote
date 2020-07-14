@@ -44,13 +44,8 @@ namespace Microsoft.Coyote.Rewriting
         {
             this.Configuration = configuration;
             this.Transforms.Add(new TaskTransform());
-            this.Transforms.Add(new LockTransform());
+            this.Transforms.Add(new MonitorTransform());
         }
-
-        /// <summary>
-        /// Rewrites the assemblies specified in the configuration file.
-        /// </summary>
-        internal static void Rewrite(string configurationFile) => Rewrite(Configuration.ParseFromJSON(configurationFile));
 
         /// <summary>
         /// Rewrites the assemblies specified in the configuration.
@@ -83,8 +78,8 @@ namespace Microsoft.Coyote.Rewriting
             {
                 // Specify the search directory for resolving assemblies.
                 var assemblyResolver = new DefaultAssemblyResolver();
-                assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
                 assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(coyotePath));
+                assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
                 assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
 
                 var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters()

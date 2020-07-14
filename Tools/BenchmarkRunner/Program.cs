@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
-using Microsoft.Diagnostics.Runtime.Interop;
 using StateMachineTests = Microsoft.Coyote.Performance.Tests.Actors.StateMachines;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space

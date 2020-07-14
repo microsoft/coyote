@@ -275,6 +275,33 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Checks if the parameters of the two specified methods match.
+        /// </summary>
+        protected static bool CheckMethodParametersMatch(MethodDefinition left, MethodDefinition right)
+        {
+            if (left.Parameters.Count != right.Parameters.Count)
+            {
+                return false;
+            }
+
+            for (int idx = 0; idx < right.Parameters.Count; idx++)
+            {
+                var originalParam = right.Parameters[0];
+                var replacementParam = left.Parameters[0];
+                // TODO: make sure all necessary checks are in place!
+                if ((replacementParam.ParameterType.FullName != originalParam.ParameterType.FullName) ||
+                    (replacementParam.Name != originalParam.Name) ||
+                    (replacementParam.IsIn && !originalParam.IsIn) ||
+                    (replacementParam.IsOut && !originalParam.IsOut))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Returns the resolved definition of the specified <see cref="MethodReference"/>.
         /// </summary>
         protected static MethodDefinition Resolve(MethodReference method)

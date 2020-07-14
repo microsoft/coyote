@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +26,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 
             var config = RewritingConfiguration.ParseFromJSON(configPath);
             Assert.NotNull(config);
+            config.PlatformVersion = GetPlatformVersion();
 
             Assert.Equal(configDirectory, config.AssembliesDirectory);
             Assert.Equal(Path.Combine(configDirectory), config.OutputDirectory);
@@ -48,6 +48,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 
             var config = RewritingConfiguration.ParseFromJSON(configPath);
             Assert.NotNull(config);
+            config.PlatformVersion = GetPlatformVersion();
 
             Assert.Equal(Path.Combine(configDirectory, "Input"), config.AssembliesDirectory);
             Assert.Equal(Path.Combine(configDirectory, "Input", "Output"), config.OutputDirectory);
@@ -66,6 +67,30 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             string configDirectory = subDirectory is null ? binaryDirectory : Path.Combine(binaryDirectory, subDirectory);
             Assert.True(Directory.Exists(configDirectory));
             return configDirectory;
+        }
+
+        /// <summary>
+        /// Returns the .NET platform version this assembly was compiled for.
+        /// </summary>
+        private static string GetPlatformVersion()
+        {
+#if NETSTANDARD2_1
+            return "netstandard2.1";
+#elif NETSTANDARD2_0
+            return "netstandard2.0";
+#elif NETSTANDARD
+            return "netstandard";
+#elif NETCOREAPP3_1
+            return "netcoreapp3.1";
+#elif NETCOREAPP
+            return "netcoreapp";
+#elif NET48
+            return "net48";
+#elif NET47
+            return "net47";
+#elif NETFRAMEWORK
+            return "net";
+#endif
         }
     }
 }

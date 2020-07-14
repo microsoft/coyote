@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.SystematicTesting.Interception;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
@@ -206,13 +208,6 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestSynchronizedBlockWithInvalidUsage()
         {
-            if (!this.SystematicTest)
-            {
-                // bugbug: don't know why but the build machines are hanging on this test, but we cannot
-                // reproduce this hang locally.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 try
@@ -220,10 +215,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                     object syncObject = new object();
                     using (var monitor = SynchronizedBlock.Lock(syncObject))
                     {
-                        var t1 = Task.Run(monitor.Wait);
-                        var t2 = Task.Run(monitor.Pulse);
-                        var t3 = Task.Run(monitor.PulseAll);
-                        await Task.WhenAll(t1, t2, t3);
+                        await Task.Run(async () =>
+                        {
+                            // We yield to make sure the execution is asynchronous.
+                            await Task.Yield();
+                            monitor.Pulse();
+                        });
                     }
                 }
                 catch (Exception ex)
@@ -241,6 +238,46 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             },
             expectedError: "Expected exception thrown.",
             replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestControlledMonitor()
+        {
+            this.Test(async () =>
+            {
+                object syncObject = new object();
+                bool waiting = false;
+                List<string> log = new List<string>();
+                Task t1 = Task.Run(() =>
+                {
+                    ControlledMonitor.Enter(syncObject);
+                    log.Add("waiting");
+                    waiting = true;
+                    ControlledMonitor.Wait(syncObject);
+                    log.Add("received pulse");
+                    ControlledMonitor.Exit(syncObject);
+                });
+
+                Task t2 = Task.Run(async () =>
+                {
+                    while (!waiting)
+                    {
+                        await Task.Delay(1);
+                    }
+
+                    ControlledMonitor.Enter(syncObject);
+                    ControlledMonitor.Pulse(syncObject);
+                    log.Add("pulsed");
+                    ControlledMonitor.Exit(syncObject);
+                });
+
+                await Task.WhenAll(t1, t2);
+
+                string expected = "waiting, pulsed, received pulse";
+                string actual = string.Join(", ", log);
+                Specification.Assert(expected == actual, "ControlledMonitor out of order, '{0}' instead of '{1}'", actual, expected);
+            },
+            Configuration.Create());
         }
     }
 }

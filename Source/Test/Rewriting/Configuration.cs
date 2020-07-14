@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Microsoft.Coyote.IO;
@@ -39,6 +40,25 @@ namespace Microsoft.Coyote.Rewriting
         /// True if the input assemblies are being replaced by the rewritten ones.
         /// </summary>
         internal bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
+
+        /// <summary>
+        /// The .NET platform version that Coyote was compiled for.
+        /// </summary>
+        private string DotnetVersion;
+
+        /// <summary>
+        /// The .NET platform version that Coyote was compiled for.
+        /// </summary>
+        internal string PlatformVersion
+        {
+            get => this.DotnetVersion;
+
+            set
+            {
+                this.DotnetVersion = value;
+                this.ResolveVariables();
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
@@ -119,6 +139,34 @@ namespace Microsoft.Coyote.Rewriting
                 DependencyPaths = dependencyPaths
             };
         }
+
+        internal void ResolveVariables()
+        {
+            this.AssembliesDirectory = this.ResolvePath(this.AssembliesDirectory);
+            this.OutputDirectory = this.ResolvePath(this.OutputDirectory);
+
+            foreach (string path in this.AssemblyPaths.ToArray())
+            {
+                var newPath = this.ResolvePath(path);
+                if (newPath != path)
+                {
+                    this.AssemblyPaths.Remove(path);
+                    this.AssemblyPaths.Add(newPath);
+                }
+            }
+
+            foreach (string path in this.DependencyPaths.ToArray())
+            {
+                var newPath = this.ResolvePath(path);
+                if (newPath != path)
+                {
+                    this.DependencyPaths.Remove(path);
+                    this.DependencyPaths.Add(newPath);
+                }
+            }
+        }
+
+        private string ResolvePath(string path) => path.Replace("$(Platform)", this.PlatformVersion);
 
         /// <summary>
         /// Implements a JSON configuration object.

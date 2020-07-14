@@ -25,9 +25,9 @@ namespace Microsoft.Coyote.Tasks
         protected readonly object SyncObject;
 
         /// <summary>
-        /// Whether the lock was taken.
+        /// True if the lock was taken, else false.
         /// </summary>
-        private bool LockTaken;
+        internal bool IsLockTaken;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedBlock"/> class.
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Tasks
         /// <returns>The synchronized block.</returns>
         protected virtual SynchronizedBlock EnterLock()
         {
-            SystemMonitor.Enter(this.SyncObject, ref this.LockTaken);
+            SystemMonitor.Enter(this.SyncObject, ref this.IsLockTaken);
             return this;
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing && this.LockTaken)
+            if (disposing && this.IsLockTaken)
             {
                 SystemMonitor.Exit(this.SyncObject);
             }
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Mock implementation of <see cref="SynchronizedBlock"/> that can be controlled during systematic testing.
         /// </summary>
-        private class Mock : SynchronizedBlock
+        internal class Mock : SynchronizedBlock
         {
             /// <summary>
             /// Cache from synchronized objects to mock instances.
@@ -186,11 +186,40 @@ namespace Microsoft.Coyote.Tasks
                 this.UseCount = 0;
             }
 
+            /// <summary>
+            /// Creates a new mock for the specified synchronization object.
+            /// </summary>
             internal static Mock Create(object syncObject) =>
                 Cache.GetOrAdd(syncObject, key => new Lazy<Mock>(() => new Mock(key))).Value;
 
+            /// <summary>
+            /// Finds the mock associated with the specified synchronization object.
+            /// </summary>
+            internal static Mock Find(object syncObject) =>
+                Cache.TryGetValue(syncObject, out Lazy<Mock> lazyMock) ? lazyMock.Value : null;
+
+            /// <summary>
+            /// Determines whether the current thread holds the lock on the sync object.
+            /// </summary>
+            internal bool IsEntered()
+            {
+                if (this.Owner != null)
+                {
+                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                    return this.Owner == op;
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// For use by ControlledMonitor only.
+            /// </summary>
+            internal void Lock() => this.EnterLock();
+
             protected override SynchronizedBlock EnterLock()
             {
+                this.IsLockTaken = true;
                 Interlocked.Increment(ref this.UseCount);
 
                 if (this.Owner is null)
@@ -375,29 +404,34 @@ namespace Microsoft.Coyote.Tasks
                 }
             }
 
+            internal void Exit()
+            {
+                var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
+                this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op), "Cannot invoke Dispose without acquiring the lock.");
+
+                this.LockCountMap[op]--;
+                if (this.LockCountMap[op] is 0)
+                {
+                    // Only release the lock if the invocation is not reentrant.
+                    this.LockCountMap.Remove(op);
+                    this.UnlockNextReady();
+                    this.Resource.Runtime.ScheduleNextOperation();
+                }
+
+                int useCount = Interlocked.Decrement(ref this.UseCount);
+                if (useCount == 0 && Cache[this.SyncObject].Value == this)
+                {
+                    // It is safe to remove this instance from the cache.
+                    Cache.TryRemove(this.SyncObject, out _);
+                }
+            }
+
             /// <inheritdoc/>
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
                 {
-                    var op = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                    this.Resource.Runtime.Assert(this.LockCountMap.ContainsKey(op), "Cannot invoke Dispose without acquiring the lock.");
-
-                    this.LockCountMap[op]--;
-                    if (this.LockCountMap[op] is 0)
-                    {
-                        // Only release the lock if the invocation is not reentrant.
-                        this.LockCountMap.Remove(op);
-                        this.UnlockNextReady();
-                        this.Resource.Runtime.ScheduleNextOperation();
-                    }
-
-                    int useCount = Interlocked.Decrement(ref this.UseCount);
-                    if (useCount == 0 && Cache[this.SyncObject].Value == this)
-                    {
-                        // It is safe to remove this instance from the cache.
-                        Cache.TryRemove(this.SyncObject, out _);
-                    }
+                    this.Exit();
                 }
             }
 

@@ -74,10 +74,13 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal void OnWaitTask(Task task)
         {
-            IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
-            this.JoinDependencies.Add(task);
-            this.Status = AsyncOperationStatus.BlockedOnWaitAll;
-            this.Scheduler.ScheduleNextOperation();
+            if (!task.IsCompleted)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
+                this.JoinDependencies.Add(task);
+                this.Status = AsyncOperationStatus.BlockedOnWaitAll;
+                this.Scheduler.ScheduleNextOperation();
+            }
         }
 
         /// <summary>

@@ -4,11 +4,10 @@
 using System;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
-#endif
-using Microsoft.Coyote.Specifications;
-#if !BINARY_REWRITE
+#else
 using Microsoft.Coyote.Tasks;
 #endif
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;

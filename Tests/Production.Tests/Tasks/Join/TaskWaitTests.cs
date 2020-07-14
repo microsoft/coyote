@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
@@ -119,6 +120,83 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitWithTimeout()
+        {
+            // TODO: we do not yet support timeouts in testing, so we will improve this test later,
+            // for now we just want to make sure it executes under binary rewriting.
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry
+                {
+                    Value = 5
+                };
+
+                Task task = Task.Run(() =>
+                {
+                    entry.Value = 3;
+                });
+
+                task.Wait(10);
+                await task;
+
+                Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitWithCancellationToken()
+        {
+            // TODO: we do not yet support cancelation in testing, so we will improve this test later,
+            // for now we just want to make sure it executes under binary rewriting.
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry
+                {
+                    Value = 5
+                };
+
+                var tokenSource = new CancellationTokenSource();
+                Task task = Task.Run(() =>
+                {
+                    entry.Value = 3;
+                });
+
+                task.Wait(tokenSource.Token);
+                await task;
+
+                Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitWithTimeoutAndCancellationToken()
+        {
+            // TODO: we do not yet support timeout and cancelation in testing, so we will improve this test later,
+            // for now we just want to make sure it executes under binary rewriting.
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry
+                {
+                    Value = 5
+                };
+
+                var tokenSource = new CancellationTokenSource();
+                Task task = Task.Run(() =>
+                {
+                    entry.Value = 3;
+                });
+
+                task.Wait(10, tokenSource.Token);
+                await task;
+
+                Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
         }
     }
 }

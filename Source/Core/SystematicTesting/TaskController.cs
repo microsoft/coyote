@@ -860,9 +860,8 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             // TODO: return immediately if completed without errors.
             // TODO: support timeouts and cancellation tokens.
+            // int millisecondsTimeout, CancellationToken cancellationToken
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            IO.Debug.WriteLine("<Task> '{0}' is waiting task '{1}' to complete from task '{2}'.",
-                callerOp.Name, task.Id, Task.CurrentId);
             callerOp.OnWaitTask(task);
             return true;
         }
@@ -876,8 +875,6 @@ namespace Microsoft.Coyote.SystematicTesting
             // TODO: return immediately if completed without errors.
             // TODO: support timeouts and cancellation tokens.
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            IO.Debug.WriteLine("<Task> '{0}' is waiting task '{1}' to complete from task '{2}'.",
-                callerOp.Name, task.Id, Task.CurrentId);
             callerOp.OnWaitTask(task.UncontrolledTask);
             return true;
         }
@@ -889,8 +886,6 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             // TODO: return immediately if completed without errors.
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            IO.Debug.WriteLine("<Task> '{0}' is waiting task '{1}' with result type '{2}' to complete from task '{3}'.",
-                callerOp.Name, task.Id, typeof(TResult), Task.CurrentId);
             callerOp.OnWaitTask(task);
             return task.Result;
         }

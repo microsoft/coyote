@@ -239,20 +239,77 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
 
         /// <summary>
-        /// Returns a <see cref="CoyoteTasks.TaskAwaiter"/> for the specified <see cref="Task"/>.
+        /// Waits for the specified <see cref="Task"/> to complete execution.
         /// </summary>
-        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task) => new CoyoteTasks.TaskAwaiter(
-            CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
+        /// <param name="task">The task performing the wait operation.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Wait(Task task) => Wait(task, Timeout.Infinite, default);
 
         /// <summary>
-        /// Returns a <see cref="CoyoteTasks.TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
+        /// Waits for the specified <see cref="Task"/> to complete execution within a specified time interval.
         /// </summary>
-        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter<TResult>(Task<TResult> task) => new CoyoteTasks.TaskAwaiter<TResult>(
+        /// <param name="task">The task performing the wait operation.</param>
+        /// <param name="timeout">
+        /// A time span that represents the number of milliseconds to wait, or
+        /// TimeSpan.FromMilliseconds(-1) to wait indefinitely.
+        /// </param>
+        /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Wait(Task task, TimeSpan timeout)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return Wait(task, (int)totalMilliseconds, default);
+        }
+
+        /// <summary>
+        /// Waits for the specified <see cref="Task"/> to complete execution within a specified number of milliseconds.
+        /// </summary>
+        /// <param name="task">The task performing the wait operation.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Wait(Task task, int millisecondsTimeout) => Wait(task, millisecondsTimeout, default);
+
+        /// <summary>
+        /// Waits for the specified <see cref="Task"/> to complete execution. The wait terminates if a cancellation
+        /// token is canceled before the task completes.
+        /// </summary>
+        /// <param name="task">The task performing the wait operation.</param>
+        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Wait(Task task, CancellationToken cancellationToken) => Wait(task, Timeout.Infinite, cancellationToken);
+
+        /// <summary>
+        /// Waits for the specified <see cref="Task"/> to complete execution. The wait terminates if a timeout interval
+        /// elapses or a cancellation token is canceled before the task completes.
+        /// </summary>
+        /// <param name="task">The task performing the wait operation.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+        /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Wait(Task task, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current.TaskController.WaitTaskCompletes(task) :
+            task.Wait(millisecondsTimeout, cancellationToken);
+
+        /// <summary>
+        /// Returns a <see cref="CoyoteTasks.TaskAwaiter"/> for the specified <see cref="Task"/>.
+        /// </summary>
+        /// <param name="task">The task associated with the task awaiter.</param>
+        /// <returns>The task awaiter.</returns>
+        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task) => new CoyoteTasks.TaskAwaiter(
             CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
 
         /// <summary>
         /// Creates an awaitable that asynchronously yields back to the current context when awaited.
         /// </summary>
+        /// <returns>The yield awaitable.</returns>
         /// <remarks>
         /// You can use `await Task.Yield()` in an asynchronous method to force the method to complete
         /// asynchronously. During systematic testing, the underlying scheduling strategy can use this
@@ -266,5 +323,37 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ExploreContextSwitch() => ControlledRuntime.Current.ScheduleNextOperation();
+    }
+
+    /// <summary>
+    /// Provides methods for creating generic tasks that can be controlled during testing.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the produced result.</typeparam>
+    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    public static class ControlledTask<TResult>
+    {
+#pragma warning disable CA1000 // Do not declare static members on generic types
+        /// <summary>
+        /// Gets the result value of the specified <see cref="Task{TResult}"/>.
+        /// </summary>
+        /// <param name="task">The task producing the result value.</param>
+        /// <returns>The result value.</returns>
+#pragma warning disable CA1707 // Remove the underscores from member name
+#pragma warning disable SA1300 // Element should begin with an uppercase letter
+#pragma warning disable IDE1006 // Naming Styles
+        public static TResult get_Result(Task<TResult> task) => CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current.TaskController.WaitTaskCompletes(task) : task.Result;
+#pragma warning restore CA1707 // Remove the underscores from member name
+#pragma warning restore SA1300 // Element should begin with an uppercase letter
+#pragma warning restore IDE1006 // Naming Styles
+
+        /// <summary>
+        /// Returns a <see cref="CoyoteTasks.TaskAwaiter{TResult}"/> for the specified <see cref="Task{TResult}"/>.
+        /// </summary>
+        /// <param name="task">The task associated with the task awaiter.</param>
+        /// <returns>The task awaiter.</returns>
+        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) => new CoyoteTasks.TaskAwaiter<TResult>(
+            CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
+#pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

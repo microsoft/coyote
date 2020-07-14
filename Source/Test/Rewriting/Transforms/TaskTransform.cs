@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
@@ -11,10 +10,16 @@ using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
+#pragma warning disable SA1005 // Single line comments should begin with single space
 namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskTransform : AssemblyTransform
     {
+        /// <summary>
+        /// Cached generic task type name prefix.
+        /// </summary>
+        private const string GenericTaskTypeNamePrefix = "Task`";
+
         /// <summary>
         /// Cache from <see cref="SystemTasks"/> type names to types being replaced
         /// in the module that is currently being rewritten.
@@ -26,6 +31,11 @@ namespace Microsoft.Coyote.Rewriting
         /// in the module that is currently being rewritten.
         /// </summary>
         private readonly Dictionary<string, TypeReference> CompilerTypeCache;
+
+        /// <summary>
+        /// Cache from member names to rewritten member references.
+        /// </summary>
+        private readonly Dictionary<string, MethodReference> RewrittenMethodCache;
 
         /// <summary>
         /// The current module being transformed.
@@ -54,30 +64,30 @@ namespace Microsoft.Coyote.Rewriting
         {
             this.TaskTypeCache = new Dictionary<string, TypeReference>();
             this.CompilerTypeCache = new Dictionary<string, TypeReference>();
+            this.RewrittenMethodCache = new Dictionary<string, MethodReference>();
         }
 
-        /// <summary>
-        /// Cached generic task type name prefix.
-        /// </summary>
-        private const string GenericTaskTypeNamePrefix = "Task`";
-
+        /// <inheritdoc/>
         internal override void VisitModule(ModuleDefinition module)
         {
             this.Module = module;
             this.TaskTypeCache.Clear();
             this.CompilerTypeCache.Clear();
+            this.RewrittenMethodCache.Clear();
         }
 
-        internal override void VisitType(TypeDefinition typeDef)
+        /// <inheritdoc/>
+        internal override void VisitType(TypeDefinition type)
         {
-            this.TypeDef = typeDef;
+            this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
         }
 
+        /// <inheritdoc/>
         internal override void VisitField(FieldDefinition field)
         {
-            if (this.TryGetCompilerTypeReplacement(field.FieldType, this.TypeDef, out TypeReference newFieldType))
+            if (this.TryRewriteCompilerType(field.FieldType, out TypeReference newFieldType))
             {
                 Debug.WriteLine($"......... [-] field '{field}'");
                 field.FieldType = newFieldType;
@@ -85,6 +95,7 @@ namespace Microsoft.Coyote.Rewriting
             }
         }
 
+        /// <inheritdoc/>
         internal override void VisitMethod(MethodDefinition method)
         {
             this.Method = null;
@@ -99,7 +110,9 @@ namespace Microsoft.Coyote.Rewriting
             // bugbug: what if this is an override of an inherited virtual method?  For example, what if there
             // is an external base class that is a Task like type that implements a virtual GetAwaiter() that
             // is overridden by this method?
-            if (this.TryGetCompilerTypeReplacement(method.ReturnType, method, out TypeReference newReturnType))
+            // answer: I don't think we can really support task-like types, as their semantics can be arbitrary,
+            // but good to understand what that entails and give warnings/errors perhaps: work item #4678
+            if (this.TryRewriteCompilerType(method.ReturnType, out TypeReference newReturnType))
             {
                 Debug.WriteLine($"........... [-] return type '{method.ReturnType}'");
                 method.ReturnType = newReturnType;
@@ -107,18 +120,15 @@ namespace Microsoft.Coyote.Rewriting
             }
         }
 
-        internal override void VisitExceptionHandler(ExceptionHandler handler)
-        {
-        }
-
+        /// <inheritdoc/>
         internal override void VisitVariable(VariableDefinition variable)
         {
-            if (this.Method == null)
+            if (this.Method is null)
             {
                 return;
             }
 
-            if (this.TryGetCompilerTypeReplacement(variable.VariableType, this.Method, out TypeReference newVariableType))
+            if (this.TryRewriteCompilerType(variable.VariableType, out TypeReference newVariableType))
             {
                 Debug.WriteLine($"........... [-] variable '{variable.VariableType}'");
                 variable.VariableType = newVariableType;
@@ -126,25 +136,28 @@ namespace Microsoft.Coyote.Rewriting
             }
         }
 
+        /// <inheritdoc/>
         internal override Instruction VisitInstruction(Instruction instruction)
         {
-            if (this.Method == null)
+            if (this.Method is null)
             {
                 return instruction;
             }
 
+            // Note that the C# compiler is not generating `OpCodes.Calli` instructions:
+            // https://docs.microsoft.com/en-us/archive/blogs/shawnfa/calli-is-not-verifiable.
             // TODO: what about ldsfld, for static fields?
             if (instruction.OpCode == OpCodes.Stfld || instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Ldflda)
             {
                 if (instruction.Operand is FieldDefinition fd &&
-                    this.TryGetCompilerTypeReplacement(fd.FieldType, this.Method, out TypeReference newFieldType))
+                    this.TryRewriteCompilerType(fd.FieldType, out TypeReference newFieldType))
                 {
                     Debug.WriteLine($"........... [-] {instruction}");
                     fd.FieldType = newFieldType;
                     Debug.WriteLine($"........... [+] {instruction}");
                 }
                 else if (instruction.Operand is FieldReference fr &&
-                    this.TryGetCompilerTypeReplacement(fr.FieldType, this.Method, out newFieldType))
+                    this.TryRewriteCompilerType(fr.FieldType, out newFieldType))
                 {
                     Debug.WriteLine($"........... [-] {instruction}");
                     fr.FieldType = newFieldType;
@@ -153,81 +166,25 @@ namespace Microsoft.Coyote.Rewriting
             }
             else if (instruction.OpCode == OpCodes.Initobj)
             {
-                instruction = this.VisitInitobjProcessingOperation(instruction, this.Method);
+                instruction = this.VisitInitobjInstruction(instruction);
             }
             else if ((instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt) &&
                 instruction.Operand is MethodReference methodReference)
             {
-                instruction = this.VisitCallProcessingOperation(instruction, methodReference, this.Method);
+                instruction = this.VisitCallInstruction(instruction, methodReference);
             }
 
-            // return the last modified instruction or the same one if it was not changed.
             return instruction;
         }
 
         /// <summary>
-        /// Transform the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
+        /// Transforms the specified <see cref="OpCodes.Initobj"/> instruction.
         /// </summary>
-        /// <returns>The unmodified instruction or the last newly inserted instruction.</returns>
-        private Instruction VisitCallProcessingOperation(Instruction instruction, MethodReference method, IGenericParameterProvider provider)
-        {
-            TypeReference newType = null;
-            var opCode = instruction.OpCode;
-
-            if (IsSystemTaskType(method.DeclaringType))
-            {
-                // Special rules apply for methods under the Task namespace.
-                if (method.Name == nameof(SystemTasks.Task.Run) ||
-                    method.Name == nameof(SystemTasks.Task.Delay) ||
-                    method.Name == nameof(SystemTasks.Task.WhenAll) ||
-                    method.Name == nameof(SystemTasks.Task.WhenAny) ||
-                    method.Name == nameof(SystemTasks.Task.Yield) ||
-                    method.Name == nameof(SystemTasks.Task.GetAwaiter))
-                {
-                    newType = this.GetTaskTypeReplacement(method.DeclaringType);
-                }
-            }
-            else
-            {
-                newType = this.GetCompilerTypeReplacement(method.DeclaringType, provider);
-                if (newType == method.DeclaringType)
-                {
-                    newType = null;
-                }
-            }
-
-            // TODO: check if "new type is null" check is required.
-            if (newType is null || !this.TryGetReplacementMethod(newType, method, out MethodReference newMethod))
-            {
-                // There is nothing to rewrite, return with the none operation.
-                return instruction;
-            }
-
-            OpCode newOpCode = opCode;
-            if (newMethod.Name == nameof(ControlledTasks.ControlledTask.GetAwaiter))
-            {
-                // The OpCode must change for the GetAwaiter method.
-                newOpCode = OpCodes.Call;
-            }
-
-            // Create and return the new instruction.
-            Instruction newInstruction = Instruction.Create(newOpCode, newMethod);
-            Debug.WriteLine($"........... [-] {instruction}");
-            this.Processor.Replace(instruction, newInstruction);
-            Debug.WriteLine($"........... [+] {newInstruction}");
-            return newInstruction;
-        }
-
-        /// <summary>
-        /// Transform the specified <see cref="OpCodes.Initobj"/> instruction.
-        /// </summary>
-        /// <remarks>
-        /// Return the unmodified instruction, or the newly replaced instruction.
-        /// </remarks>
-        private Instruction VisitInitobjProcessingOperation(Instruction instruction, MethodDefinition method)
+        /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
+        private Instruction VisitInitobjInstruction(Instruction instruction)
         {
             TypeReference type = instruction.Operand as TypeReference;
-            if (this.TryGetCompilerTypeReplacement(type, method, out TypeReference newType))
+            if (this.TryRewriteCompilerType(type, out TypeReference newType))
             {
                 var newInstruction = Instruction.Create(instruction.OpCode, newType);
                 Debug.WriteLine($"........... [-] {instruction}");
@@ -240,272 +197,198 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Returns a method from the specified type that can replace the original method, if any.
+        /// Transforms the specified non-generic <see cref="OpCodes.Call"/> or <see cref="OpCodes.Callvirt"/> instruction.
         /// </summary>
-        private bool TryGetReplacementMethod(TypeReference replacementType, MethodReference originalMethod, out MethodReference result)
+        /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
+        private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
-            result = null;
-
-            TypeDefinition replacementTypeDef = replacementType.Resolve();
-            if (replacementTypeDef == null)
+            if (!this.RewrittenMethodCache.TryGetValue(method.FullName, out MethodReference newMethod))
             {
-                throw new Exception(string.Format("Error resolving type: {0}", replacementType.FullName));
+                // Not found in the cache, try to rewrite it.
+                newMethod = this.RewriteMethodReference(method, this.Module);
+                this.RewrittenMethodCache[method.FullName] = newMethod;
             }
 
-            MethodDefinition original = originalMethod.Resolve();
-
-            bool isGetControlledAwaiter = false;
-            foreach (var replacement in replacementTypeDef.Methods)
+            MethodDefinition resolvedMethod = Resolve(newMethod);
+            if (method.FullName == newMethod.FullName)
             {
-                // TODO: make sure all necessary checks are in place!
-                if (!(!replacement.IsConstructor &&
-                    replacement.Name == original.Name &&
-                    replacement.ReturnType.IsGenericInstance == original.ReturnType.IsGenericInstance &&
-                    replacement.IsPublic == original.IsPublic &&
-                    replacement.IsPrivate == original.IsPrivate &&
-                    replacement.IsAssembly == original.IsAssembly &&
-                    replacement.IsFamilyAndAssembly == original.IsFamilyAndAssembly))
-                {
-                    continue;
-                }
-
-                isGetControlledAwaiter = replacement.DeclaringType.Namespace == KnownNamespaces.ControlledTasksName &&
-                    replacement.Name == nameof(ControlledTasks.ControlledTask.GetAwaiter);
-                if (!isGetControlledAwaiter)
-                {
-                    // Only check that the parameters match for non-controlled awaiter methods.
-                    // That is because we do special rewriting for this method.
-                    if (!CheckMethodParametersMatch(replacement, original))
-                    {
-                        continue;
-                    }
-                }
-
-                // Import the method in the module that is being rewritten.
-                result = originalMethod.Module.ImportReference(replacement);
-                break;
+                // There is nothing to rewrite, return the original instruction.
+                return instruction;
             }
 
-            if (result is null)
-            {
-                // TODO: raise an error.
-                return false;
-            }
-
-            result.DeclaringType = replacementType;
-            if (originalMethod is GenericInstanceMethod genericMethod)
-            {
-                var newGenericMethod = new GenericInstanceMethod(result);
-
-                // The method is generic, so populate it with generic argument types and parameters.
-                foreach (var arg in genericMethod.GenericArguments)
-                {
-                    TypeReference newArgumentType = this.GetCompilerTypeReplacement(arg, newGenericMethod);
-                    newGenericMethod.GenericArguments.Add(newArgumentType);
-                }
-
-                result = newGenericMethod;
-            }
-            else if (isGetControlledAwaiter && originalMethod.DeclaringType is GenericInstanceType genericType)
-            {
-                // Special processing applies in this case, because we are converting the `Task<T>.GetAwaiter`
-                // non-generic instance method to the `ControlledTask.GetAwaiter<T>` generic static method.
-                var newGenericMethod = new GenericInstanceMethod(result);
-
-                // There is only a single argument type, which must be added to ma.
-                newGenericMethod.GenericArguments.Add(this.GetCompilerTypeReplacement(genericType.GenericArguments[0], newGenericMethod));
-
-                // The single generic argument type in the task parameter must be rewritten to the same
-                // generic argument type as the one in the return type of `GetAwaiter<T>`.
-                var parameterType = newGenericMethod.Parameters[0].ParameterType as GenericInstanceType;
-                parameterType.GenericArguments[0] = (newGenericMethod.ReturnType as GenericInstanceType).GenericArguments[0];
-
-                result = newGenericMethod;
-            }
-
-            // Rewrite the parameters of the method, if any.
-            for (int idx = 0; idx < originalMethod.Parameters.Count; idx++)
-            {
-                ParameterDefinition parameter = originalMethod.Parameters[idx];
-                TypeReference newParameterType = this.GetCompilerTypeReplacement(parameter.ParameterType, result);
-                ParameterDefinition newParameter = new ParameterDefinition(parameter.Name, parameter.Attributes, newParameterType);
-                result.Parameters[idx] = newParameter;
-            }
-
-            if (result.ReturnType.Namespace != KnownNamespaces.ControlledTasksName)
-            {
-                result.ReturnType = this.GetCompilerTypeReplacement(originalMethod.ReturnType, result);
-            }
-
-            return originalMethod.FullName != result.FullName;
+            // Create and return the new instruction.
+            Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
+            Debug.WriteLine($"........... [-] {instruction}");
+            this.Processor.Replace(instruction, newInstruction);
+            Debug.WriteLine($"........... [+] {newInstruction}");
+            return newInstruction;
         }
 
-        /// <summary>
-        /// Checks if the parameters of the two methods match.
-        /// </summary>
-        private static bool CheckMethodParametersMatch(MethodDefinition left, MethodDefinition right)
+        /// <inheritdoc/>
+        protected override ParameterDefinition RewriteParameterDefinition(ParameterDefinition parameter) =>
+            new ParameterDefinition(parameter.Name, parameter.Attributes, this.RewriteTypeReference(parameter.ParameterType));
+
+        /// <inheritdoc/>
+        protected override TypeReference RewriteDeclaringTypeReference(MethodReference method)
         {
-            if (left.Parameters.Count != right.Parameters.Count)
+            TypeReference result = method.DeclaringType;
+            if (IsSystemTaskType(result))
             {
-                return false;
-            }
-
-            for (int idx = 0; idx < right.Parameters.Count; idx++)
-            {
-                var originalParam = right.Parameters[0];
-                var replacementParam = left.Parameters[0];
-                // TODO: make sure all necessary checks are in place!
-                if ((replacementParam.ParameterType.FullName != originalParam.ParameterType.FullName) ||
-                    (replacementParam.Name != originalParam.Name) ||
-                    (replacementParam.IsIn && !originalParam.IsIn) ||
-                    (replacementParam.IsOut && !originalParam.IsOut))
+                // Special rules apply for `Task` methods, which are replaced with their `ControlledTask` counterparts.
+                if (IsSupportedTaskMethod(method.Name))
                 {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Returns the replacement type for the specified <see cref="SystemTasks"/> type, else null.
-        /// </summary>
-        private TypeReference GetTaskTypeReplacement(TypeReference type)
-        {
-            TypeReference result;
-
-            string fullName = type.FullName;
-            if (this.TaskTypeCache.ContainsKey(fullName))
-            {
-                result = this.TaskTypeCache[fullName];
-                if (result.Module != type.Module)
-                {
-                    result = type.Module.ImportReference(result);
-                    this.TaskTypeCache[fullName] = result;
+                    result = this.RewriteTaskType(result);
                 }
             }
             else
             {
-                result = type.Module.ImportReference(typeof(ControlledTasks.ControlledTask));
-                this.TaskTypeCache[fullName] = result;
+                result = this.RewriteCompilerType(result);
             }
 
             return result;
         }
 
+        /// <inheritdoc/>
+        protected override TypeReference RewriteTypeReference(TypeReference type) => this.RewriteCompilerType(type);
+
         /// <summary>
-        /// Tries to return the replacement type for the specified <see cref="SystemCompiler"/> type, if such a type exists.
+        /// Returns the rewritten type for the specified <see cref="SystemTasks"/> type, or returns the original
+        /// if there is nothing to rewrite.
         /// </summary>
-        private bool TryGetCompilerTypeReplacement(TypeReference type, IGenericParameterProvider provider, out TypeReference result)
+        private TypeReference RewriteTaskType(TypeReference type, bool isRoot = true)
         {
-            result = this.GetCompilerTypeReplacement(type, provider);
+            TypeReference result = null;
+
+            string fullName = type.FullName;
+            if (this.TaskTypeCache.ContainsKey(fullName))
+            {
+                // The result is already cached.
+                result = this.TaskTypeCache[fullName];
+                if (result.Module != type.Module)
+                {
+                    result = this.Module.ImportReference(result);
+                    this.TaskTypeCache[fullName] = result;
+                }
+
+                return result;
+            }
+
+            // The result is not cached, so lets try to construct it.
+            if (fullName == KnownSystemTypes.TaskFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask));
+            }
+            else if (fullName == KnownSystemTypes.GenericTaskFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask<>), type);
+            }
+            else if (type is GenericInstanceType genericType)
+            {
+                TypeReference elementType = this.RewriteTaskType(genericType.ElementType, false);
+                result = this.RewriteCompilerType(genericType, elementType);
+            }
+
+            if (result != null && isRoot)
+            {
+                // Resolve and cache the result.
+                Resolve(result);
+                this.TaskTypeCache[fullName] = result;
+            }
+
+            return result ?? type;
+        }
+
+        /// <summary>
+        /// Tries to return the rewritten type for the specified <see cref="SystemCompiler"/> type, or returns
+        /// false if there is nothing to rewrite.
+        /// </summary>
+        private bool TryRewriteCompilerType(TypeReference type, out TypeReference result)
+        {
+            result = this.RewriteCompilerType(type);
             return result.FullName != type.FullName;
         }
 
         /// <summary>
-        /// Returns the replacement type for the specified <see cref="SystemCompiler"/> type, else null.
+        /// Returns the rewritten type for the specified <see cref="SystemCompiler"/> type, or returns the original
+        /// if there is nothing to rewrite.
         /// </summary>
-        private TypeReference GetCompilerTypeReplacement(TypeReference type, IGenericParameterProvider provider)
+        private TypeReference RewriteCompilerType(TypeReference type, bool isRoot = true)
         {
-            TypeReference result = type;
+            TypeReference result = null;
 
             string fullName = type.FullName;
             if (this.CompilerTypeCache.ContainsKey(fullName))
             {
+                // The result is already cached.
                 result = this.CompilerTypeCache[fullName];
                 if (result.Module != type.Module)
                 {
-                    result = type.Module.ImportReference(result);
+                    result = this.Module.ImportReference(result);
                     this.CompilerTypeCache[fullName] = result;
                 }
+
+                return result;
             }
-            else if (type.IsGenericInstance &&
-                (type.Name == KnownSystemTypes.GenericAsyncTaskMethodBuilderName ||
-                type.Name == KnownSystemTypes.GenericTaskAwaiterName))
+
+            // The result is not cached, so lets try to construct it.
+            if (fullName == KnownSystemTypes.AsyncTaskMethodBuilderFullName)
             {
-                result = this.GetGenericTypeReplacement(type as GenericInstanceType, provider);
-                if (result.FullName != fullName)
-                {
-                    result = type.Module.ImportReference(result);
-                    this.CompilerTypeCache[fullName] = result;
-                }
-            }
-            else if (fullName == KnownSystemTypes.AsyncTaskMethodBuilderFullName)
-            {
-                result = this.ImportCompilerTypeReplacement(type, typeof(ControlledTasks.AsyncTaskMethodBuilder));
+                result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder));
             }
             else if (fullName == KnownSystemTypes.GenericAsyncTaskMethodBuilderFullName)
             {
-                result = this.ImportCompilerTypeReplacement(type, typeof(ControlledTasks.AsyncTaskMethodBuilder<>));
+                result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder<>), type);
             }
             else if (fullName == KnownSystemTypes.TaskAwaiterFullName)
             {
-                result = this.ImportCompilerTypeReplacement(type, typeof(CoyoteTasks.TaskAwaiter));
+                result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter));
             }
             else if (fullName == KnownSystemTypes.GenericTaskAwaiterFullName)
             {
-                result = this.ImportCompilerTypeReplacement(type, typeof(CoyoteTasks.TaskAwaiter<>));
+                result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter<>), type);
             }
             else if (fullName == KnownSystemTypes.YieldAwaitableFullName)
             {
-                result = this.ImportCompilerTypeReplacement(type, typeof(CoyoteTasks.YieldAwaitable));
+                result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable));
             }
             else if (fullName == KnownSystemTypes.YieldAwaiterFullName)
             {
-                result = this.ImportCompilerTypeReplacement(type, typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter));
+                result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter));
             }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Import the replacement coyote type and cache it in the CompilerTypeCache and make sure the type can be
-        /// fully resolved.
-        /// </summary>
-        private TypeReference ImportCompilerTypeReplacement(TypeReference originalType, Type coyoteType)
-        {
-            var result = originalType.Module.ImportReference(coyoteType);
-            this.CompilerTypeCache[originalType.FullName] = result;
-
-            TypeDefinition coyoteTypeDef = result.Resolve();
-            if (coyoteTypeDef == null)
+            else if (type is GenericInstanceType genericType)
             {
-                throw new Exception(string.Format("Unexpected error resolving type: {0}", coyoteType.FullName));
+                TypeReference elementType = this.RewriteCompilerType(genericType.ElementType, false);
+                result = this.RewriteCompilerType(genericType, elementType);
             }
 
-            return result;
+            if (result != null && isRoot)
+            {
+                // Resolve and cache the result.
+                Resolve(result);
+                this.CompilerTypeCache[fullName] = result;
+            }
+
+            return result ?? type;
         }
 
         /// <summary>
-        /// Returns the replacement type for the specified generic type, else null.
+        /// Returns the rewritten type for the specified generic <see cref="SystemCompiler"/> type, or returns
+        /// the original if there is nothing to rewrite.
         /// </summary>
-        private GenericInstanceType GetGenericTypeReplacement(GenericInstanceType type, IGenericParameterProvider provider)
+        private TypeReference RewriteCompilerType(GenericInstanceType type, TypeReference elementType)
         {
             GenericInstanceType result = type;
-            TypeReference genericType = this.GetCompilerTypeReplacement(type.ElementType, null);
-            if (type.ElementType.FullName != genericType.FullName)
+            if (type.ElementType.FullName != elementType.FullName)
             {
-                // The generic type must be rewritten.
-                result = new GenericInstanceType(type.Module.ImportReference(genericType));
-                foreach (var arg in type.GenericArguments)
+                // Try to rewrite the arguments of the generic type.
+                result = this.Module.ImportReference(elementType) as GenericInstanceType;
+                for (int idx = 0; idx < type.GenericArguments.Count; idx++)
                 {
-                    TypeReference newArgumentType;
-                    if (arg.IsGenericParameter)
-                    {
-                        GenericParameter parameter = new GenericParameter(arg.Name, provider ?? result);
-                        result.GenericParameters.Add(parameter);
-                        newArgumentType = parameter;
-                    }
-                    else
-                    {
-                        newArgumentType = this.GetCompilerTypeReplacement(arg, provider);
-                    }
-
-                    result.GenericArguments.Add(newArgumentType);
+                    result.GenericArguments[idx] = this.RewriteCompilerType(type.GenericArguments[idx], false);
                 }
             }
 
-            return result;
+            return this.Module.ImportReference(result);
         }
 
         /// <summary>
@@ -515,10 +398,25 @@ namespace Microsoft.Coyote.Rewriting
             (type.Name == typeof(SystemTasks.Task).Name || type.Name.StartsWith(GenericTaskTypeNamePrefix));
 
         /// <summary>
+        /// Checks if the <see cref="SystemTasks.Task"/> method with the specified name is supported.
+        /// </summary>
+        private static bool IsSupportedTaskMethod(string name) =>
+            name == "get_Result" ||
+            name == nameof(ControlledTasks.ControlledTask.Run) ||
+            name == nameof(ControlledTasks.ControlledTask.Delay) ||
+            name == nameof(ControlledTasks.ControlledTask.WhenAll) ||
+            name == nameof(ControlledTasks.ControlledTask.WhenAny) ||
+            name == nameof(ControlledTasks.ControlledTask.Yield) ||
+            name == nameof(ControlledTasks.ControlledTask.Wait) ||
+            name == nameof(ControlledTasks.ControlledTask.GetAwaiter);
+
+        /// <summary>
         /// Cache of known <see cref="SystemCompiler"/> type names.
         /// </summary>
         private static class KnownSystemTypes
         {
+            internal static string TaskFullName { get; } = typeof(SystemTasks.Task).FullName;
+            internal static string GenericTaskFullName { get; } = typeof(SystemTasks.Task<>).FullName;
             internal static string AsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
             internal static string GenericAsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).Name;
             internal static string GenericAsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;

@@ -766,14 +766,12 @@ namespace Microsoft.Coyote.Tasks
         {
             get
             {
+                if (this.TaskController is null)
                 {
-                    if (this.TaskController is null)
-                    {
-                        return this.UncontrolledTask.Result;
-                    }
-
-                    return this.TaskController.WaitTaskCompletes(this);
+                    return this.UncontrolledTask.Result;
                 }
+
+                return this.TaskController.WaitTaskCompletes(this);
             }
         }
 

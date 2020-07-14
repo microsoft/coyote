@@ -204,7 +204,6 @@ namespace Microsoft.Coyote.Rewriting
             // Only non-abstract method bodies can be rewritten.
             if (!method.IsAbstract)
             {
-                ILProcessor processor = method.Body.GetILProcessor();
                 foreach (var variable in method.Body.Variables)
                 {
                     foreach (var t in this.Transforms)

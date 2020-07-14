@@ -181,21 +181,13 @@ namespace Microsoft.Coyote.SystematicTesting
                     else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
                     {
                         Task resultTask = functionWithRuntime(this);
-                        if (!resultTask.IsCompleted)
-                        {
-                            op.OnWaitTask(resultTask);
-                        }
-
+                        op.OnWaitTask(resultTask);
                         await resultTask;
                     }
                     else if (testMethod is Func<Task> function)
                     {
                         Task resultTask = function();
-                        if (!resultTask.IsCompleted)
-                        {
-                            op.OnWaitTask(resultTask);
-                        }
-
+                        op.OnWaitTask(resultTask);
                         await resultTask;
                     }
                     else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime2)

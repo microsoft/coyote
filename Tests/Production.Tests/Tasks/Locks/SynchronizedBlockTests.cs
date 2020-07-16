@@ -5,14 +5,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+#if BINARY_REWRITE
+using System.Threading.Tasks;
+#else
+using Microsoft.Coyote.Tasks;
+#endif
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting.Interception;
-using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
+using SynchronizedBlock = Microsoft.Coyote.Tasks.SynchronizedBlock;
 
+#if BINARY_REWRITE
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+#else
 namespace Microsoft.Coyote.Production.Tests.Tasks
+#endif
 {
     public class SynchronizedBlockTests : BaseTest
     {
@@ -38,9 +47,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithException<SynchronizationLockException>(() =>
             {
-                object syncObject = new object();
                 SynchronizedBlock monitor;
-                using (monitor = SynchronizedBlock.Lock(syncObject))
+                using (monitor = SynchronizedBlock.Lock(new object()))
                 {
                 }
 
@@ -54,9 +62,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithException<SynchronizationLockException>(() =>
             {
-                object syncObject = new object();
                 SynchronizedBlock monitor;
-                using (monitor = SynchronizedBlock.Lock(syncObject))
+                using (monitor = SynchronizedBlock.Lock(new object()))
                 {
                 }
 
@@ -70,9 +77,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             this.TestWithException<SynchronizationLockException>(() =>
             {
-                object syncObject = new object();
                 SynchronizedBlock monitor;
-                using (monitor = SynchronizedBlock.Lock(syncObject))
+                using (monitor = SynchronizedBlock.Lock(new object()))
                 {
                 }
 
@@ -212,33 +218,52 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             {
                 try
                 {
-                    object syncObject = new object();
-                    using (var monitor = SynchronizedBlock.Lock(syncObject))
-                    {
-                        await Task.Run(async () =>
-                        {
-                            // We yield to make sure the execution is asynchronous.
-                            await Task.Yield();
-                            monitor.Pulse();
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    while (ex.InnerException != null)
-                    {
-                        ex = ex.InnerException;
-                    }
+                    var monitor = SynchronizedBlock.Lock(new object());
+                    // We yield to make sure the execution is asynchronous.
+                    await Task.Yield();
+                    monitor.Pulse();
 
-                    if (ex is SynchronizationLockException)
-                    {
-                        Specification.Assert(false, "Expected exception thrown.");
-                    }
+                    // We do not dispose inside a using statement, because the `SynchronizationLockException`
+                    // will trigger the disposal, which will fail because an await statement is not allowed
+                    // inside a synchronized block. The C# compiler normally prevents it when using the lock
+                    // statement, but we cannot prevent it when directly using the mock.
+                    monitor.Dispose();
+                }
+                catch (SynchronizationLockException)
+                {
+                    Specification.Assert(false, "Expected exception thrown.");
                 }
             },
             expectedError: "Expected exception thrown.",
             replay: true);
         }
+
+#if !BINARY_REWRITE
+        [Fact(Timeout = 5000)]
+        public void TestSynchronizedBlockWithAsyncExecution()
+        {
+            if (!this.IsSystematicTest)
+            {
+                return;
+            }
+
+            // We only test this without rewriting. With rewriting, we don't need to use synchronized block
+            // and the compiler will make sure that an await cannot exist inside a lock block.
+            this.TestWithError(async () =>
+            {
+                using (var monitor = SynchronizedBlock.Lock(new object()))
+                {
+                    // Normally, an await statement is not allowed inside a synchronized block.
+                    // The C# compiler normally prevents it when using the lock statement, but
+                    // we cannot prevent it when directly using the mock. Using it here fails
+                    // because `Dispose` is invoked from an asynchronized continuation.
+                    await Task.Yield();
+                }
+            },
+            expectedError: "Cannot invoke Dispose without acquiring the lock.",
+            replay: true);
+        }
+#endif
 
         [Fact(Timeout = 5000)]
         public void TestControlledMonitor()

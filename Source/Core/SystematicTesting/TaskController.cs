@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-#if !DEBUG
 using System.Diagnostics;
-#endif
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting.Interception;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
+using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -455,19 +455,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     "Task with id '{0}' that is not controlled by the runtime is executing controlled task '{1}'.",
                     Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", task.Id);
 
-                if (callerOp.IsExecutingInRootAsyncMethod())
+                if (IsCurrentOperationExecutingAsynchronously())
+                {
+                    IO.Debug.WriteLine("<Task> '{0}' is dispatching continuation of task '{1}'.", callerOp.Name, task.Id);
+                    this.ScheduleAction(continuation, task, false, default);
+                    IO.Debug.WriteLine("<Task> '{0}' dispatched continuation of task '{1}'.", callerOp.Name, task.Id);
+                }
+                else
                 {
                     IO.Debug.WriteLine("<Task> '{0}' is executing continuation of task '{1}' on task '{2}'.",
                         callerOp.Name, task.Id, Task.CurrentId);
                     continuation();
                     IO.Debug.WriteLine("<Task> '{0}' resumed after continuation of task '{1}' on task '{2}'.",
                         callerOp.Name, task.Id, Task.CurrentId);
-                }
-                else
-                {
-                    IO.Debug.WriteLine("<Task> '{0}' is dispatching continuation of task '{1}'.", callerOp.Name, task.Id);
-                    this.ScheduleAction(continuation, task, false, default);
-                    IO.Debug.WriteLine("<Task> '{0}' dispatched continuation of task '{1}'.", callerOp.Name, task.Id);
                 }
             }
             catch (ExecutionCanceledException)
@@ -904,25 +904,6 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Start"/> is called.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void OnAsyncTaskMethodBuilderStart(Type stateMachineType)
-        {
-            try
-            {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                callerOp.SetRootAsyncTaskStateMachine(stateMachineType);
-            }
-            catch (RuntimeException ex)
-            {
-                this.Assert(false, ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
         /// </summary>
 #if !DEBUG
@@ -945,7 +926,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType, Type stateMachineType)
+        internal void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType)
         {
             bool sameNamespace = awaiterType.Namespace == typeof(CoyoteTasks.TaskAwaiter).Namespace;
             if (!sameNamespace)
@@ -954,9 +935,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     "awaiter to complete. Please make sure to use Coyote APIs to express concurrency.",
                     Task.CurrentId);
             }
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.SetExecutingAsyncTaskStateMachineType(stateMachineType);
         }
 
         /// <summary>
@@ -993,6 +971,32 @@ namespace Microsoft.Coyote.SystematicTesting
                 var op = this.Scheduler.GetOperationWithId<TaskOperation>(operationId);
                 op.OnWaitTask(task);
             }
+        }
+
+        /// <summary>
+        /// Returns true if the current operation is executing an asynchronous state machine, else false.
+        /// </summary>
+        private static bool IsCurrentOperationExecutingAsynchronously()
+        {
+            StackTrace st = new StackTrace(false);
+            for (int i = 0; i < st.FrameCount; i++)
+            {
+                // Traverse the stack trace to find if the current operation is executing an asynchronous state machine.
+                MethodBase method = st.GetFrame(i).GetMethod();
+                if (typeof(SystemCompiler.IAsyncStateMachine).IsAssignableFrom(method.DeclaringType) && method.Name is "MoveNext")
+                {
+                    // The operation is executing the `MoveNext` of an asynchronous state machine.
+                    return true;
+                }
+                else if (method.DeclaringType == typeof(SystemCompiler.AsyncVoidMethodBuilder) &&
+                    (method.Name is "AwaitOnCompleted" || method.Name is "AwaitUnsafeOnCompleted"))
+                {
+                    // The operation is executing the root of an async void method, so we need to inline.
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

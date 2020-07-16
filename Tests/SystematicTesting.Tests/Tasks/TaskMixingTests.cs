@@ -17,6 +17,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        public override bool SystematicTest => false;
+        public override bool IsSystematicTest => false;
     }
 }

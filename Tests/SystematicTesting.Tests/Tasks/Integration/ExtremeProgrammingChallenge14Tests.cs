@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
         }
 
-        public override bool SystematicTest => true;
+        public override bool IsSystematicTest => true;
 
         internal class BoundedBuffer
         {

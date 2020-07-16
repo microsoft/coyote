@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     await Task.Yield();
                     entry = value;
-                    if (this.SystematicTest)
+                    if (this.IsSystematicTest)
                     {
                         Specification.Assert(entry == value, "Value is {0} instead of '{1}'.", entry, value);
                     }

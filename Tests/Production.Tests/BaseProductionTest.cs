@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Production.Tests
         }
 
 #if BINARY_REWRITE
-        public override bool SystematicTest => true;
+        public override bool IsSystematicTest => true;
 #endif
 
         public class SharedEntry

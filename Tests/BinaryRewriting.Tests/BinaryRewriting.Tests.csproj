@@ -24,6 +24,10 @@
     <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitTests.cs" Link="Tasks\Join\TaskWaitTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAllTests.cs" Link="Tasks\Join\TaskWhenAllTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAnyTests.cs" Link="Tasks\Join\TaskWhenAnyTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\Locks\SynchronizedBlockTests.cs" Link="Tasks\Locks\SynchronizedBlockTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\Scheduling\AsyncCallStackTests.cs" Link="Tasks\Scheduling\AsyncCallStackTests.cs" />
+    <Compile Include="..\SystematicTesting.Tests\BaseSystematicTest.cs" Link="BaseSystematicTest.cs" />
+    <Compile Include="..\SystematicTesting.Tests\Tasks\Logging\CustomTaskLogTests.cs" Link="Tasks\Logging\CustomTaskLogTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />

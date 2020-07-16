@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> result = await Task.WhenAny(task1, task2);
 
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(
                         (result.Id == task1.Id && result.Result == 5) ||

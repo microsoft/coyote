@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task task1 = WriteAsync(entry, 5);
                 Task task2 = WriteAsync(entry, 3);
                 await Task.WhenAll(task1, task2);
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
                 }
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task task1 = WriteWithDelayAsync(entry, 3);
                 Task task2 = WriteWithDelayAsync(entry, 5);
                 await Task.WhenAll(task1, task2);
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
                 }
@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await Task.WhenAll(task1, task2);
 
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
                 }
@@ -128,7 +128,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task2 = entry.GetWriteResultAsync(3);
                 int[] results = await Task.WhenAll(task1, task2);
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
                     Specification.Assert(results[0] == results[1], "Results are not equal.");
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task2 = entry.GetWriteResultWithDelayAsync(3);
                 int[] results = await Task.WhenAll(task1, task2);
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
                 }
@@ -190,7 +190,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 int[] results = await Task.WhenAll(task1, task2);
 
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(results[0] == 5, $"The first task result is {results[0]} instead of 5.");
                     Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
@@ -228,7 +228,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 int[] results = await Task.WhenAll(task1, task2);
 
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
                 }
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public void TestWhenAllWithException()
         {
             string expected = "Value is 3 instead of 5.";
-            if (!this.SystematicTest)
+            if (!this.IsSystematicTest)
             {
                 // bugbug: production WhenAll has different behavior, it does not aggregate the exceptions.
                 expected = "Operation is not valid due to the current state of the object.";

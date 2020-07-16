@@ -9,12 +9,12 @@ using Monitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks.Locks
 {
-    public class CSharpLockTests : BaseProductionTest
+    public class LockStatementTests : BaseProductionTest
     {
         private readonly object SyncObject1 = new object();
         private string Value;
 
-        public CSharpLockTests(ITestOutputHelper output)
+        public LockStatementTests(ITestOutputHelper output)
             : base(output)
         {
         }

@@ -12,6 +12,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
         }
 
-        public override bool SystematicTest => true;
+        public override bool IsSystematicTest => true;
     }
 }

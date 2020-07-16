@@ -16,6 +16,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     /// Provides methods for creating tasks that can be controlled during testing.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class ControlledTask
     {
         /// <summary>

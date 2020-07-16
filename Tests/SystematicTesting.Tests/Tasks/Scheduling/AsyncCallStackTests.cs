@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class TaskDelayTests : Production.Tests.Tasks.TaskDelayTests
+    public class AsyncCallStackTests : Production.Tests.Tasks.AsyncCallStackTests
     {
-        public TaskDelayTests(ITestOutputHelper output)
+        public AsyncCallStackTests(ITestOutputHelper output)
             : base(output)
         {
         }

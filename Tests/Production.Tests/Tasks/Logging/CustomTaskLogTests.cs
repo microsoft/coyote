@@ -11,9 +11,9 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Tasks
 {
-    public class CustomTaskRuntimeLogTests : BaseProductionTest
+    public class CustomTaskLogTests : BaseProductionTest
     {
-        public CustomTaskRuntimeLogTests(ITestOutputHelper output)
+        public CustomTaskLogTests(ITestOutputHelper output)
             : base(output)
         {
         }

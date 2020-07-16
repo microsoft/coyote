@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 Task.WaitAll(task1, task2);
 
-                if (this.SystematicTest)
+                if (this.IsSystematicTest)
                 {
                     Specification.Assert(task1.Result == 5, $"The first task result is {task1.Result} instead of 5.");
                     Specification.Assert(task2.Result == 3, $"The second task result is {task2.Result} instead of 3.");

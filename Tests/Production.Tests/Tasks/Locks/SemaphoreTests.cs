@@ -140,7 +140,7 @@ Actual value was 2."
         [Fact(Timeout = 5000)]
         public void TestWaitTwiceWithOneMaxRequest()
         {
-            if (!this.SystematicTest)
+            if (!this.IsSystematicTest)
             {
                 // .NET semaphores cannot detect deadlocks, that's why you need Coyote test :-)
                 return;

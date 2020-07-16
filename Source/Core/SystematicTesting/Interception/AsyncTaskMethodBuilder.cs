@@ -72,7 +72,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
-            this.TaskController?.OnAsyncTaskMethodBuilderStart(stateMachine.GetType());
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -108,7 +107,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -120,7 +119,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }
@@ -188,7 +187,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
-            this.TaskController?.OnAsyncTaskMethodBuilderStart(stateMachine.GetType());
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -225,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -237,7 +235,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType(), stateMachine.GetType());
+            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }

@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -245,7 +245,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -276,7 +276,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -310,7 +310,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     result = await tcs.Task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     tcs.SetResult(3);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -363,7 +363,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     tcs.SetCanceled();
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
@@ -389,7 +389,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     tcs.SetException(new InvalidOperationException());
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }

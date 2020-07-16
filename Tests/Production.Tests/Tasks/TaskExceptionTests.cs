@@ -10,7 +10,7 @@ using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
+using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 #if BINARY_REWRITE
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 var task = WriteAsync(entry, 5);
                 await task;
 
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 var task = WriteWithDelayAsync(entry, 5);
                 await task;
 
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await task;
 
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 });
                 await task;
 
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 var task = Task.Run(Func);
                 await task;
 
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -158,14 +158,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     await task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -185,14 +185,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     await task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -216,14 +216,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     await task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -248,14 +248,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     await task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },
@@ -282,14 +282,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     await task;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!(ex is ExecutionCanceledException))
                 {
                     exception = ex;
                 }
 
                 Specification.Assert(exception is InvalidOperationException,
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
-                Specification.Assert(task.Status == SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
             },

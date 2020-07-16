@@ -29,13 +29,14 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <summary>
-        /// Override this to run the test under the Coyote TestEngine (default false).
+        /// Override to true to run a systematic test under the <see cref="TestingEngine"/>.
+        /// By default this value is false.
         /// </summary>
-        public virtual bool SystematicTest => false;
+        public virtual bool IsSystematicTest => false;
 
         protected void Test(Action test, Configuration configuration = null)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.InternalTest(test, configuration);
             }
@@ -47,7 +48,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void Test(Action<IActorRuntime> test, Configuration configuration = null)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.InternalTest(test, configuration);
             }
@@ -59,7 +60,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void Test(Func<Task> test, Configuration configuration = null)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.InternalTest(test, configuration);
             }
@@ -71,7 +72,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void Test(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.InternalTest(test, configuration);
             }
@@ -130,7 +131,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action test, Configuration configuration = null, string expectedError = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
@@ -143,7 +144,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action<IActorRuntime> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
@@ -156,7 +157,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Func<Task> test, Configuration configuration = null, string expectedError = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
@@ -169,7 +170,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Func<IActorRuntime, Task> test, Configuration configuration = null,
             string expectedError = null, bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckSingleError(e, expectedError); }, replay);
             }
@@ -182,7 +183,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action test, Configuration configuration = null, string[] expectedErrors = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
@@ -195,7 +196,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action<IActorRuntime> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
@@ -208,7 +209,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Func<Task> test, Configuration configuration = null, string[] expectedErrors = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
@@ -221,7 +222,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Func<IActorRuntime, Task> test, Configuration configuration = null,
             string[] expectedErrors = null, bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, (e) => { CheckMultipleErrors(e, expectedErrors); }, replay);
             }
@@ -234,7 +235,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, errorChecker, replay);
             }
@@ -247,7 +248,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Action<IActorRuntime> test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, errorChecker, replay);
             }
@@ -260,7 +261,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Func<Task> test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, errorChecker, replay);
             }
@@ -273,7 +274,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithError(Func<IActorRuntime, Task> test, TestErrorChecker errorChecker, Configuration configuration = null,
             bool replay = false)
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.TestWithErrors(test, configuration, errorChecker, replay);
             }
@@ -326,7 +327,7 @@ namespace Microsoft.Coyote.Tests.Common
         protected void TestWithException<TException>(Action test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 this.InternalTestWithException<TException>(test, configuration, replay);
             }
@@ -660,7 +661,7 @@ namespace Microsoft.Coyote.Tests.Common
                 millisecondsDelay = 500000;
             }
 
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
                 await task;
@@ -692,7 +693,7 @@ namespace Microsoft.Coyote.Tests.Common
                 millisecondsDelay = 500000;
             }
 
-            if (this.SystematicTest)
+            if (this.IsSystematicTest)
             {
                 // The TestEngine will throw a Deadlock exception if this task can't possibly complete.
                 await task;

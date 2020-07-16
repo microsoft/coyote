@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestAcquireTwice()
         {
-            if (!this.SystematicTest)
+            if (!this.IsSystematicTest)
             {
                 // .NET cannot detect these deadlocks.
                 return;
@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                     await mutex.AcquireAsync();
                 });
             },
-            expectedError: "Deadlock detected. Task() is waiting for a task to complete, but no other " +
+            expectedError: "Deadlock detected. Task() and Task() are waiting for a task to complete, but no other " +
                 "controlled tasks are enabled. Task() is waiting to acquire a resource that is already " +
                 "acquired, but no other controlled tasks are enabled.",
             replay: true);

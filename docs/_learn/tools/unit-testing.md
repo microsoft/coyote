@@ -55,6 +55,7 @@ public class Test
         engine.Run();
         var report = engine.TestReport;
         Output.WriteLine("Coyote found {0} bug.", report.NumOfFoundBugs);
+        Assert.True(report.NumOfFoundBugs == 0, $"Coyote found {report.NumOfFoundBugs} bug(s).");
     }
 
     private async Task CoyoteTestMethod()

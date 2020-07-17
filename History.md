@@ -1,3 +1,7 @@
+## v1.0.13
+- Fixed a bug in the testing runtime for controlled tasks that could lead to a stack overflow.
+- Optimized various internals of the testing runtime.
+
 ## v1.0.12
 - Introduced a new `EventGroup` API for actors, which replaces operation groups, that allows
   improved tracing and awaiting of long running actor operations.

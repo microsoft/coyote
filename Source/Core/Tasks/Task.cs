@@ -757,7 +757,7 @@ namespace Microsoft.Coyote.Tasks
         /// The uncontrolled <see cref="SystemTasks.Task{TResult}"/> that is wrapped inside this
         /// controlled <see cref="Task{TResult}"/>.
         /// </summary>
-        internal new SystemTasks.Task<TResult> UncontrolledTask => this.InternalTask as SystemTasks.Task<TResult>;
+        public new SystemTasks.Task<TResult> UncontrolledTask => this.InternalTask as SystemTasks.Task<TResult>;
 
         /// <summary>
         /// Gets the result value of this task.

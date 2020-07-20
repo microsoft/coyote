@@ -97,7 +97,7 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 
 | public type | description |
 | --- | --- |
-| static class [ControlledTask](Microsoft.Coyote.SystematicTesting.Interception/ControlledTaskType) | Provides methods for creating tasks that can be controlled during testing. |
+| static class [ControlledTask&lt;TResult&gt;](Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1Type) | Provides methods for creating generic tasks that can be controlled during testing. |
 
 ## Microsoft.Coyote.Tasks namespace
 

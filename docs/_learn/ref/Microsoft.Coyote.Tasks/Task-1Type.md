@@ -21,6 +21,7 @@ public class Task<TResult> : Task
 | name | description |
 | --- | --- |
 | [Result](Task-1/Result) { get; } | Gets the result value of this task. |
+| [UncontrolledTask](Task-1/UncontrolledTask) { get; } | The uncontrolled Task that is wrapped inside this controlled [`Task`](Task-1Type). |
 | [ConfigureAwait](Task-1/ConfigureAwait)(…) | Configures an awaiter used to await this task. |
 | [GetAwaiter](Task-1/GetAwaiter)() | Gets an awaiter for this awaitable. |
 

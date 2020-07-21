@@ -47,8 +47,14 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitMethod(MethodDefinition method)
         {
-            this.Method = method;
-            this.Processor = method.Body.GetILProcessor();
+            this.Method = null;
+
+            // Only non-abstract method bodies can be rewritten.
+            if (!method.IsAbstract)
+            {
+                this.Method = method;
+                this.Processor = method.Body.GetILProcessor();
+            }
         }
 
         /// <inheritdoc/>

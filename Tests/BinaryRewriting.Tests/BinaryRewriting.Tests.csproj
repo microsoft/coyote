@@ -17,6 +17,7 @@
     <Compile Include="..\Production.Tests\Tasks\TaskDelayTests.cs" Link="Tasks\TaskDelayTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskExceptionTests.cs" Link="Tasks\TaskExceptionTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskIdTests.cs" Link="Tasks\TaskIdTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\TaskInterfaceTests.cs" Link="Tasks\TaskInterfaceTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskInterleavingsTests.cs" Link="Tasks\TaskInterleavingsTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskRunTests.cs" Link="Tasks\TaskRunTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskYieldTests.cs" Link="Tasks\TaskYieldTests.cs" />

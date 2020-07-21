@@ -193,7 +193,7 @@ namespace Microsoft.Coyote
 
                     Console.WriteLine($". Rewriting {fullPath}");
                     var config = Rewriting.Configuration.Create(assemblyDir, assemblyDir,
-                        new HashSet<string>(new string[] { fullPath }), new HashSet<string>());
+                        new HashSet<string>(new string[] { fullPath }));
                     config.PlatformVersion = Configuration.PlatformVersion;
                     AssemblyRewriter.Rewrite(config);
                 }
@@ -204,6 +204,8 @@ namespace Microsoft.Coyote
                     config.PlatformVersion = Configuration.PlatformVersion;
                     AssemblyRewriter.Rewrite(config);
                 }
+
+                Console.WriteLine($". Done rewriting");
             }
             catch (Exception ex)
             {

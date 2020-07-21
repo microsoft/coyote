@@ -33,10 +33,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             Assert.True(config.IsReplacingAssemblies);
 
             Assert.Single(config.AssemblyPaths);
-            Assert.Single(config.DependencyPaths);
-
             Assert.Equal(Path.Combine(config.AssembliesDirectory, "Microsoft.Coyote.BinaryRewriting.Tests.dll"), config.AssemblyPaths.First());
-            Assert.Equal(Path.Combine(config.AssembliesDirectory, "Microsoft.Coyote.Tests.Common.dll"), config.DependencyPaths.First());
         }
 
         [Fact(Timeout = 5000)]
@@ -55,10 +52,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             Assert.False(config.IsReplacingAssemblies);
 
             Assert.Single(config.AssemblyPaths);
-            Assert.Single(config.DependencyPaths);
-
             Assert.Equal(Path.Combine(config.AssembliesDirectory, "Test.dll"), config.AssemblyPaths.First());
-            Assert.Equal(Path.Combine(config.AssembliesDirectory, "Library.dll"), config.DependencyPaths.First());
         }
 
         private string GetJsonConfigurationDirectory(string subDirectory = null)

@@ -89,9 +89,9 @@ namespace Microsoft.Coyote.Rewriting
         {
             if (this.TryRewriteCompilerType(field.FieldType, out TypeReference newFieldType))
             {
-                Debug.WriteLine($"......... [-] field '{field}'");
+                Debug.WriteLine($"....... [-] field '{field}'");
                 field.FieldType = newFieldType;
-                Debug.WriteLine($"......... [+] field '{field}'");
+                Debug.WriteLine($"....... [+] field '{field}'");
             }
         }
 
@@ -114,9 +114,9 @@ namespace Microsoft.Coyote.Rewriting
             // but good to understand what that entails and give warnings/errors perhaps: work item #4678
             if (this.TryRewriteCompilerType(method.ReturnType, out TypeReference newReturnType))
             {
-                Debug.WriteLine($"........... [-] return type '{method.ReturnType}'");
+                Debug.WriteLine($"......... [-] return type '{method.ReturnType}'");
                 method.ReturnType = newReturnType;
-                Debug.WriteLine($"........... [+] return type '{method.ReturnType}'");
+                Debug.WriteLine($"......... [+] return type '{method.ReturnType}'");
             }
         }
 
@@ -130,9 +130,9 @@ namespace Microsoft.Coyote.Rewriting
 
             if (this.TryRewriteCompilerType(variable.VariableType, out TypeReference newVariableType))
             {
-                Debug.WriteLine($"........... [-] variable '{variable.VariableType}'");
+                Debug.WriteLine($"......... [-] variable '{variable.VariableType}'");
                 variable.VariableType = newVariableType;
-                Debug.WriteLine($"........... [+] variable '{variable.VariableType}'");
+                Debug.WriteLine($"......... [+] variable '{variable.VariableType}'");
             }
         }
 
@@ -152,16 +152,16 @@ namespace Microsoft.Coyote.Rewriting
                 if (instruction.Operand is FieldDefinition fd &&
                     this.TryRewriteCompilerType(fd.FieldType, out TypeReference newFieldType))
                 {
-                    Debug.WriteLine($"........... [-] {instruction}");
+                    Debug.WriteLine($"......... [-] {instruction}");
                     fd.FieldType = newFieldType;
-                    Debug.WriteLine($"........... [+] {instruction}");
+                    Debug.WriteLine($"......... [+] {instruction}");
                 }
                 else if (instruction.Operand is FieldReference fr &&
                     this.TryRewriteCompilerType(fr.FieldType, out newFieldType))
                 {
-                    Debug.WriteLine($"........... [-] {instruction}");
+                    Debug.WriteLine($"......... [-] {instruction}");
                     fr.FieldType = newFieldType;
-                    Debug.WriteLine($"........... [+] {instruction}");
+                    Debug.WriteLine($"......... [+] {instruction}");
                 }
             }
             else if (instruction.OpCode == OpCodes.Initobj)
@@ -187,9 +187,9 @@ namespace Microsoft.Coyote.Rewriting
             if (this.TryRewriteCompilerType(type, out TypeReference newType))
             {
                 var newInstruction = Instruction.Create(instruction.OpCode, newType);
-                Debug.WriteLine($"........... [-] {instruction}");
+                Debug.WriteLine($"......... [-] {instruction}");
                 this.Processor.Replace(instruction, newInstruction);
-                Debug.WriteLine($"........... [+] {newInstruction}");
+                Debug.WriteLine($"......... [+] {newInstruction}");
                 instruction = newInstruction;
             }
 
@@ -218,9 +218,9 @@ namespace Microsoft.Coyote.Rewriting
 
             // Create and return the new instruction.
             Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
-            Debug.WriteLine($"........... [-] {instruction}");
+            Debug.WriteLine($"......... [-] {instruction}");
             this.Processor.Replace(instruction, newInstruction);
-            Debug.WriteLine($"........... [+] {newInstruction}");
+            Debug.WriteLine($"......... [+] {newInstruction}");
             return newInstruction;
         }
 

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using CoyoteTasks = Microsoft.Coyote.Tasks;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -57,89 +57,71 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Performs the rewriting.
+        /// Performs the assembly rewriting.
         /// </summary>
         private void Rewrite()
         {
-            string coyotePath = typeof(CoyoteTasks.AsyncTaskMethodBuilder).Assembly.Location;
-            string outputDirectory = this.Configuration.IsReplacingAssemblies ?
-                Path.Combine(this.Configuration.OutputDirectory, TempDirectory) : this.Configuration.OutputDirectory;
-            Directory.CreateDirectory(outputDirectory);
-
-            // make sure target path also has Microsoft.Coyote.dll
-            string coyoteOutputPath = Path.Combine(this.Configuration.OutputDirectory, Path.GetFileName(coyotePath));
-            if (!File.Exists(coyoteOutputPath) || File.GetLastWriteTime(coyoteOutputPath) != File.GetLastWriteTime(coyotePath))
-            {
-                File.Copy(coyotePath, coyoteOutputPath, true);
-            }
+            // Create the output directory and copy any necessery files.
+            string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
 
             // Rewrite the assembly files to the output directory.
             foreach (string assemblyPath in this.Configuration.AssemblyPaths)
             {
-                // Specify the search directory for resolving assemblies.
-                var assemblyResolver = new DefaultAssemblyResolver();
-                assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(coyotePath));
-                assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
-                assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
-
-                var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters()
-                {
-                    AssemblyResolver = assemblyResolver,
-                    ReadSymbols = true
-                });
-
-                string assemblyName = Path.GetFileName(assemblyPath);
-                string outputPath = Path.Combine(outputDirectory, assemblyName);
-
-                Console.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
-                foreach (var module in assembly.Modules)
-                {
-                    Debug.WriteLine($"..... Rewriting the '{module.Name}' module ({module.FileName})");
-                    this.RewriteModule(module);
-                }
-
-                // Write the binary in the output path with portable symbols enabled.
-                Console.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
-                    $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
-                assembly.Write(outputPath, new WriterParameters()
-                {
-                    WriteSymbols = true,
-                    SymbolWriterProvider = new PortablePdbWriterProvider()
-                });
-
-                assembly.Dispose();
-                if (this.Configuration.IsReplacingAssemblies)
-                {
-                    File.Copy(outputPath, assemblyPath, true);
-                    string pdbFile = Path.Combine(Path.GetDirectoryName(outputPath), Path.GetFileNameWithoutExtension(outputPath) + ".pdb");
-                    string targetPdbFile = Path.Combine(Path.GetDirectoryName(assemblyPath), Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb");
-                    File.Copy(pdbFile, targetPdbFile, true);
-                }
+                this.RewriteAssembly(assemblyPath, outputDirectory);
             }
 
             if (this.Configuration.IsReplacingAssemblies)
             {
-                // Delete the temporary output directory.
+                // If we are replacing the original assemblies, then delete the temporary output directory.
                 Directory.Delete(outputDirectory, true);
             }
-            else
-            {
-                // Copy the dependency files to the output directory.
-                foreach (string dependencyPath in this.Configuration.DependencyPaths)
-                {
-                    string dependencyName = Path.GetFileName(dependencyPath);
-                    Console.WriteLine($"... Copying the '{dependencyName}' dependency file");
-                    File.Copy(dependencyPath, Path.Combine(outputDirectory, dependencyName), true);
-                }
-            }
-
-            Console.WriteLine($". Done rewriting");
         }
 
-        private static AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
+        /// <summary>
+        /// Rewrites the specified assembly definition.
+        /// </summary>
+        private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
-            Console.WriteLine("Error resolving assembly: " + reference.FullName);
-            return null;
+            // TODO: can we reuse it, or do we need a new one for each assembly?
+            // Specify the search directory for resolving assemblies.
+            var assemblyResolver = new DefaultAssemblyResolver();
+            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
+            assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
+            assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
+
+            var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters()
+            {
+                AssemblyResolver = assemblyResolver,
+                ReadSymbols = true
+            });
+
+            string assemblyName = Path.GetFileName(assemblyPath);
+            string outputPath = Path.Combine(outputDirectory, assemblyName);
+
+            Console.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
+            foreach (var module in assembly.Modules)
+            {
+                Debug.WriteLine($"..... Rewriting the '{module.Name}' module ({module.FileName})");
+                this.RewriteModule(module);
+            }
+
+            // Write the binary in the output path with portable symbols enabled.
+            Console.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
+                $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
+            assembly.Write(outputPath, new WriterParameters()
+            {
+                WriteSymbols = true,
+                SymbolWriterProvider = new PortablePdbWriterProvider()
+            });
+
+            assembly.Dispose();
+            if (this.Configuration.IsReplacingAssemblies)
+            {
+                File.Copy(outputPath, assemblyPath, true);
+                string pdbFile = Path.Combine(Path.GetDirectoryName(outputPath), Path.GetFileNameWithoutExtension(outputPath) + ".pdb");
+                string targetPdbFile = Path.Combine(Path.GetDirectoryName(assemblyPath), Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb");
+                File.Copy(pdbFile, targetPdbFile, true);
+            }
         }
 
         /// <summary>
@@ -163,7 +145,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteType(TypeDefinition type)
         {
-            Debug.WriteLine($"....... Rewriting type '{type.FullName}'");
+            Debug.WriteLine($"..... Rewriting type '{type.FullName}'");
 
             foreach (var t in this.Transforms)
             {
@@ -189,7 +171,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteMethod(MethodDefinition method)
         {
-            Debug.WriteLine($"......... Rewriting method '{method.FullName}'");
+            Debug.WriteLine($"....... Rewriting method '{method.FullName}'");
 
             foreach (var t in this.Transforms)
             {
@@ -233,6 +215,58 @@ namespace Microsoft.Coyote.Rewriting
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Creates the output directory, if it does not already exists, and copies all necessery files.
+        /// </summary>
+        /// <returns>The output directory path.</returns>
+        private string CreateOutputDirectoryAndCopyFiles()
+        {
+            string sourceDirectory = this.Configuration.AssembliesDirectory;
+            string outputDirectory = Directory.CreateDirectory(this.Configuration.IsReplacingAssemblies ?
+                Path.Combine(this.Configuration.OutputDirectory, TempDirectory) : this.Configuration.OutputDirectory).FullName;
+
+            if (!this.Configuration.IsReplacingAssemblies)
+            {
+                Console.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
+
+                // Copy all files to the output directory, while preserving directory structure.
+                foreach (string directoryPath in Directory.GetDirectories(sourceDirectory, "*", SearchOption.AllDirectories))
+                {
+                    // Avoid copying the output directory itself.
+                    if (!directoryPath.StartsWith(outputDirectory))
+                    {
+                        Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
+                        Directory.CreateDirectory(Path.Combine(outputDirectory, directoryPath.Substring(sourceDirectory.Length + 1)));
+                    }
+                }
+
+                foreach (string filePath in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
+                {
+                    // Avoid copying any files from the output directory.
+                    if (!filePath.StartsWith(outputDirectory))
+                    {
+                        Debug.WriteLine($"..... Copying the '{filePath}' file");
+                        File.Copy(filePath, Path.Combine(outputDirectory, filePath.Substring(sourceDirectory.Length + 1)), true);
+                    }
+                }
+            }
+
+            // Copy the `Microsoft.Coyote.dll` assembly to the output directory.
+            string coyoteAssemblyPath = typeof(ControlledTask).Assembly.Location;
+            File.Copy(coyoteAssemblyPath, Path.Combine(this.Configuration.OutputDirectory, Path.GetFileName(coyoteAssemblyPath)), true);
+
+            return outputDirectory;
+        }
+
+        /// <summary>
+        /// Handles an assembly resolution error.
+        /// </summary>
+        private static AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
+        {
+            Console.WriteLine("Error resolving assembly: " + reference.FullName);
+            return null;
         }
     }
 }

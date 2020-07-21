@@ -68,9 +68,9 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     // Since the method parameters match there's no need to modify the parameter setup code
                     // we can simply switch out the call.
-                    Debug.WriteLine($"........... [-] call '{method}'");
+                    Debug.WriteLine($"......... [-] call '{method}'");
                     var newInstruction = Instruction.Create(OpCodes.Call, newMethod);
-                    Debug.WriteLine($"........... [+] call '{newMethod}'");
+                    Debug.WriteLine($"......... [+] call '{newMethod}'");
                     this.Processor.Replace(instruction, newInstruction);
                     instruction = newInstruction;
                 }
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            Debug.WriteLine($"........... [?] Monitor method not found '{monitorMethod}'");
+            Debug.WriteLine($"......... [?] Monitor method not found '{monitorMethod}'");
             return null;
         }
     }

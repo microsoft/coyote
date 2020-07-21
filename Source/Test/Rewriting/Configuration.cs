@@ -32,11 +32,6 @@ namespace Microsoft.Coyote.Rewriting
         internal HashSet<string> AssemblyPaths { get; private set; }
 
         /// <summary>
-        /// The path to the dependencies, such as non-rewritten assemblies and configuration files.
-        /// </summary>
-        internal HashSet<string> DependencyPaths { get; private set; }
-
-        /// <summary>
         /// True if the input assemblies are being replaced by the rewritten ones.
         /// </summary>
         internal bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
@@ -70,15 +65,13 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Creates a <see cref="Configuration"/> instance from the specified parameters.
         /// </summary>
-        internal static Configuration Create(string assembliesDirectory, string outputDirectory,
-            HashSet<string> assemblyPaths, HashSet<string> dependencyPaths)
+        internal static Configuration Create(string assembliesDirectory, string outputDirectory, HashSet<string> assemblyPaths)
         {
             return new Configuration()
             {
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,
-                AssemblyPaths = assemblyPaths,
-                DependencyPaths = dependencyPaths
+                AssemblyPaths = assemblyPaths
             };
         }
 
@@ -92,7 +85,6 @@ namespace Microsoft.Coyote.Rewriting
             var assembliesDirectory = string.Empty;
             var outputDirectory = string.Empty;
             var assemblyPaths = new HashSet<string>();
-            var dependencyPaths = new HashSet<string>();
 
             string workingDirectory = Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar;
 
@@ -116,13 +108,6 @@ namespace Microsoft.Coyote.Rewriting
                         string assemblyFileName = resolvedUri.LocalPath;
                         assemblyPaths.Add(assemblyFileName);
                     }
-
-                    foreach (string dependency in configuration.Dependencies)
-                    {
-                        resolvedUri = new Uri(Path.Combine(assembliesDirectory, dependency));
-                        string dependencyFileName = resolvedUri.LocalPath;
-                        dependencyPaths.Add(dependencyFileName);
-                    }
                 }
             }
             catch (Exception ex)
@@ -135,8 +120,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,
-                AssemblyPaths = assemblyPaths,
-                DependencyPaths = dependencyPaths
+                AssemblyPaths = assemblyPaths
             };
         }
 
@@ -152,16 +136,6 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     this.AssemblyPaths.Remove(path);
                     this.AssemblyPaths.Add(newPath);
-                }
-            }
-
-            foreach (string path in this.DependencyPaths.ToArray())
-            {
-                var newPath = this.ResolvePath(path);
-                if (newPath != path)
-                {
-                    this.DependencyPaths.Remove(path);
-                    this.DependencyPaths.Add(newPath);
                 }
             }
         }
@@ -184,11 +158,6 @@ namespace Microsoft.Coyote.Rewriting
         ///     // The assemblies to rewrite. The paths are relative to 'AssembliesPath'.
         ///     "Assemblies": [
         ///         "Example.exe"
-        ///     ],
-        ///     // Dependencies, such as non-rewritten assemblies and configuration files.
-        ///     // The paths are relative to 'AssembliesPath'.
-        ///     "Dependencies": [
-        ///         "Libary.exe"
         ///     ]
         /// }
         /// </code>
@@ -204,9 +173,6 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "Assemblies", IsRequired = true)]
             public IList<string> Assemblies { get; set; }
-
-            [DataMember(Name = "Dependencies", IsRequired = true)]
-            public IList<string> Dependencies { get; set; }
         }
     }
 }

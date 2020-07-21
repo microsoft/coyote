@@ -3,8 +3,5 @@
   "OutputPath": "Input/Output",
   "Assemblies": [
     "Test.dll"
-  ],
-  "Dependencies": [
-    "Library.dll"
   ]
 }

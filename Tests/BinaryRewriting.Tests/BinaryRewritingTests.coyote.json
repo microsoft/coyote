@@ -3,8 +3,5 @@
     "OutputPath": "../../bin/$(Platform)",
     "Assemblies": [
         "Microsoft.Coyote.BinaryRewriting.Tests.dll"
-    ],
-    "Dependencies": [
-        "Microsoft.Coyote.Tests.Common.dll"
     ]
 }

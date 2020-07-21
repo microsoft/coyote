@@ -1,3 +1,7 @@
+## v1.0.14
+- Added missing `Task<TResult>.UncontrolledTask` API.
+- Fixed a bug in the testing runtime for controlled tasks.
+
 ## v1.0.13
 - Fixed a bug in the testing runtime for controlled tasks that could lead to a stack overflow.
 - Optimized various internals of the testing runtime.

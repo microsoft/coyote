@@ -209,12 +209,14 @@ namespace Microsoft.Coyote.Rewriting
                 this.RewrittenMethodCache[method.FullName] = newMethod;
             }
 
-            MethodDefinition resolvedMethod = Resolve(newMethod);
             if (method.FullName == newMethod.FullName)
             {
                 // There is nothing to rewrite, return the original instruction.
                 return instruction;
             }
+
+            // Make sure the method can be resolved.
+            MethodDefinition resolvedMethod = Resolve(newMethod);
 
             // Create and return the new instruction.
             Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);

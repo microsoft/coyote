@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Mocks;
@@ -159,7 +160,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var op = new TaskOperation(operationId, this.Scheduler);
             this.Scheduler.RegisterOperation(op);
 
-            Task task = new Task(async () =>
+            Task task = new Task(() =>
             {
                 try
                 {
@@ -169,6 +170,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     this.Scheduler.StartOperation(op);
 
+                    Task resultTask = null;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
                     {
                         actionWithRuntime(this);
@@ -179,27 +181,32 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                     else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
                     {
-                        Task resultTask = functionWithRuntime(this);
-                        op.OnWaitTask(resultTask);
-                        await resultTask;
+                        resultTask = functionWithRuntime(this);
                     }
                     else if (testMethod is Func<Task> function)
                     {
-                        Task resultTask = function();
-                        op.OnWaitTask(resultTask);
-                        await resultTask;
+                        resultTask = function();
                     }
                     else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime2)
                     {
-                        await functionWithRuntime2(this);
+                        resultTask = functionWithRuntime2(this).UncontrolledTask;
                     }
                     else if (testMethod is Func<CoyoteTasks.Task> function2)
                     {
-                        await function2();
+                        resultTask = function2().UncontrolledTask;
                     }
                     else
                     {
                         throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
+                    }
+
+                    if (resultTask != null)
+                    {
+                        op.OnWaitTask(resultTask);
+                        if (resultTask.Exception != null)
+                        {
+                            ExceptionDispatchInfo.Capture(resultTask.Exception).Throw();
+                        }
                     }
 
                     IO.Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", op.Name, Task.CurrentId);
@@ -519,35 +526,35 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
         {
-            Exception innerException = ex;
-            while (innerException is TargetInvocationException)
+            Exception exception = ex;
+            while (exception is TargetInvocationException)
             {
-                innerException = innerException.InnerException;
+                exception = exception.InnerException;
             }
 
-            if (innerException is AggregateException)
+            if (exception is AggregateException)
             {
-                innerException = innerException.InnerException;
+                exception = exception.InnerException;
             }
 
-            if (innerException is ExecutionCanceledException || innerException is TaskSchedulerException)
+            if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
             {
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                    innerException.GetType().Name, op.Name);
+                    exception.GetType().Name, op.Name);
             }
-            else if (innerException is ObjectDisposedException)
+            else if (exception is ObjectDisposedException)
             {
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
-                    innerException.GetType().Name, op.Name, ex.Message);
+                    exception.GetType().Name, op.Name, ex.Message);
             }
             else
             {
                 // Report the unhandled exception.
                 string message = string.Format(CultureInfo.InvariantCulture,
-                    $"Exception '{ex.GetType()}' was thrown in operation {op.Name}, " +
-                    $"'{ex.Source}':\n" +
-                    $"   {ex.Message}\n" +
-                    $"The stack trace is:\n{ex.StackTrace}");
+                    $"Exception '{exception.GetType()}' was thrown in operation {op.Name}, " +
+                    $"'{exception.Source}':\n" +
+                    $"   {exception.Message}\n" +
+                    $"The stack trace is:\n{exception.StackTrace}");
                 this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
             }
         }

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -24,21 +25,32 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
         }
 
         [Fact(Timeout = 5000)]
-        public void TestThrowExceptionTestFromEntryPoint()
+        public void TestThrowExceptionFromEntryPoint()
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
-                ActorId m = r.CreateActor(typeof(M));
                 throw new InvalidOperationException();
             },
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestThrowExceptionTestFromEntryPointNoMachines()
+        public void TestThrowExceptionFromAsyncEntryPoint()
+        {
+            this.TestWithException<InvalidOperationException>(async r =>
+            {
+                await Task.CompletedTask;
+                throw new InvalidOperationException();
+            },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestThrowExceptionFromEntryPointWithActor()
         {
             this.TestWithException<InvalidOperationException>(r =>
             {
+                ActorId m = r.CreateActor(typeof(M));
                 throw new InvalidOperationException();
             },
             replay: true);

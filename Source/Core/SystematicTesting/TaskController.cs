@@ -979,24 +979,28 @@ namespace Microsoft.Coyote.SystematicTesting
         private static bool IsCurrentOperationExecutingAsynchronously()
         {
             StackTrace st = new StackTrace(false);
+            bool result = false;
             for (int i = 0; i < st.FrameCount; i++)
             {
                 // Traverse the stack trace to find if the current operation is executing an asynchronous state machine.
                 MethodBase method = st.GetFrame(i).GetMethod();
-                if (typeof(SystemCompiler.IAsyncStateMachine).IsAssignableFrom(method.DeclaringType) && method.Name is "MoveNext")
-                {
-                    // The operation is executing the `MoveNext` of an asynchronous state machine.
-                    return true;
-                }
-                else if (method.DeclaringType == typeof(SystemCompiler.AsyncVoidMethodBuilder) &&
+                if (method.DeclaringType == typeof(SystemCompiler.AsyncVoidMethodBuilder) &&
                     (method.Name is "AwaitOnCompleted" || method.Name is "AwaitUnsafeOnCompleted"))
                 {
                     // The operation is executing the root of an async void method, so we need to inline.
-                    return false;
+                    break;
+                }
+                else if (method.Name is "MoveNext" &&
+                    method.DeclaringType.Namespace != typeof(ControlledRuntime).Namespace &&
+                    typeof(SystemCompiler.IAsyncStateMachine).IsAssignableFrom(method.DeclaringType))
+                {
+                    // The operation is executing the `MoveNext` of an asynchronous state machine.
+                    result = true;
+                    break;
                 }
             }
 
-            return false;
+            return result;
         }
 
         /// <summary>

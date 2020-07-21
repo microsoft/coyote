@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
@@ -190,7 +191,34 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         public void TestExploreAllInterleavings()
         {
             SortedSet<string> results = new SortedSet<string>();
-            bool found = false;
+
+            string success = "Explored interleavings.";
+            this.TestWithError(async (runtime) =>
+            {
+                InMemoryLogger log = new InMemoryLogger();
+
+                Task task1 = Task.Run(async () =>
+                {
+                    log.WriteLine(">foo");
+                    await Task.Delay(runtime.RandomInteger(10));
+                    log.WriteLine("<foo");
+                });
+
+                Task task2 = Task.Run(async () =>
+                {
+                    log.WriteLine(">bar");
+                    await Task.Delay(runtime.RandomInteger(10));
+                    log.WriteLine("<bar");
+                });
+
+                await Task.WhenAll(task1, task2);
+
+                results.Add(log.ToString());
+                Specification.Assert(results.Count < 6, success);
+            },
+            configuration: GetConfiguration().WithTestingIterations(1000),
+            expectedError: success);
+
             string expected = @">bar
 <bar
 >foo
@@ -222,41 +250,9 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 <bar
 ";
             expected = expected.NormalizeNewLines();
-            var success = "Found all interleavings";
 
-            this.TestWithError(async (runtime) =>
-            {
-                if (!found)
-                {
-                    InMemoryLogger log = new InMemoryLogger();
-
-                    Task task1 = Task.Run(async () =>
-                    {
-                        log.WriteLine(">foo");
-                        await Task.Delay(runtime.RandomInteger(10));
-                        log.WriteLine("<foo");
-                    });
-
-                    Task task2 = Task.Run(async () =>
-                    {
-                        log.WriteLine(">bar");
-                        await Task.Delay(runtime.RandomInteger(10));
-                        log.WriteLine("<bar");
-                    });
-
-                    await Task.WhenAll(task1, task2);
-
-                    results.Add(log.ToString());
-
-                    var temp = string.Join("\n", results).NormalizeNewLines();
-                    if (expected == temp)
-                    {
-                        throw new System.Exception(success);
-                    }
-                }
-            },
-            configuration: GetConfiguration().WithTestingIterations(1000).WithPCTStrategy(true),
-            errorChecker: (e) => e.Contains(success));
+            string actual = string.Join("\n", results).NormalizeNewLines();
+            Assert.Equal(expected, actual);
         }
     }
 }

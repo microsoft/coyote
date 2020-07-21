@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
@@ -41,8 +40,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                         frameCount = st.FrameCount;
                     }
 
-                    Specification.Assert(st.FrameCount <= frameCount,
-                        $"Async call stack size increased from {frameCount} to {st.FrameCount} in iteration {i}.");
+                    Specification.Assert(st.FrameCount < frameCount + 5, $"Call stack size of {st.FrameCount} in iteration {i}.");
                 }
             },
             configuration: GetConfiguration());

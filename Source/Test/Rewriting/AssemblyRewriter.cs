@@ -32,9 +32,14 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Configuration Configuration;
 
         /// <summary>
+        /// List of assemblies that are not allowed to be rewritten.
+        /// </summary>
+        private readonly List<string> DisallowedAssemblies;
+
+        /// <summary>
         /// List of transforms we are applying while rewriting.
         /// </summary>
-        private readonly List<AssemblyTransform> Transforms = new List<AssemblyTransform>();
+        private readonly List<AssemblyTransform> Transforms;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
@@ -43,8 +48,19 @@ namespace Microsoft.Coyote.Rewriting
         private AssemblyRewriter(Configuration configuration)
         {
             this.Configuration = configuration;
-            this.Transforms.Add(new TaskTransform());
-            this.Transforms.Add(new MonitorTransform());
+            this.DisallowedAssemblies = new List<string>()
+            {
+                "Microsoft.Coyote.dll",
+                "Microsoft.Coyote.Test.dll",
+                "System.Private.CoreLib.dll",
+                "mscorlib.dll"
+            };
+
+            this.Transforms = new List<AssemblyTransform>()
+            {
+                new TaskTransform(),
+                new MonitorTransform()
+            };
         }
 
         /// <summary>
@@ -96,7 +112,10 @@ namespace Microsoft.Coyote.Rewriting
             });
 
             string assemblyName = Path.GetFileName(assemblyPath);
-            string outputPath = Path.Combine(outputDirectory, assemblyName);
+            if (this.DisallowedAssemblies.Contains(assemblyName))
+            {
+                throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
+            }
 
             Console.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
             foreach (var module in assembly.Modules)
@@ -106,6 +125,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             // Write the binary in the output path with portable symbols enabled.
+            string outputPath = Path.Combine(outputDirectory, assemblyName);
             Console.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
                 $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
             assembly.Write(outputPath, new WriterParameters()

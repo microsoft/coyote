@@ -504,7 +504,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task WhenAllTasksCompleteAsync(IEnumerable<Task> tasks)
+        internal Task WhenAllTasksCompleteAsync(Task[] tasks)
         {
             return this.ScheduleAction(() =>
             {
@@ -512,7 +512,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     return;
                 }
@@ -545,7 +545,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task WhenAllTasksCompleteAsync(IEnumerable<CoyoteTasks.Task> tasks)
+        internal Task WhenAllTasksCompleteAsync(CoyoteTasks.Task[] tasks)
         {
             return this.ScheduleAction(() =>
             {
@@ -553,7 +553,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     return;
                 }
@@ -586,7 +586,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(Task<TResult>[] tasks)
         {
             Func<TResult[]> function = () =>
             {
@@ -594,7 +594,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     return Array.Empty<TResult>();
                 }
@@ -619,7 +619,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 int idx = 0;
-                TResult[] result = new TResult[tasks.Count()];
+                TResult[] result = new TResult[tasks.Length];
                 foreach (var task in tasks)
                 {
                     result[idx] = task.Result;
@@ -639,7 +639,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
+        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(CoyoteTasks.Task<TResult>[] tasks)
         {
             Func<TResult[]> function = () =>
             {
@@ -647,7 +647,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     return Array.Empty<TResult>();
                 }
@@ -672,7 +672,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 int idx = 0;
-                TResult[] result = new TResult[tasks.Count()];
+                TResult[] result = new TResult[tasks.Length];
                 foreach (var task in tasks)
                 {
                     result[idx] = task.Result;
@@ -692,7 +692,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task<Task> WhenAnyTaskCompletesAsync(IEnumerable<Task> tasks)
+        internal Task<Task> WhenAnyTaskCompletesAsync(Task[] tasks)
         {
             return this.ScheduleFunction(() =>
             {
@@ -700,13 +700,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     throw new ArgumentException("The tasks argument contains no tasks.");
                 }
-
-                this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-                this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 this.AssertIsTaskControlled(callerOp, "WhenAny");
@@ -733,7 +730,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<CoyoteTasks.Task> WhenAnyTaskCompletesAsync(IEnumerable<CoyoteTasks.Task> tasks)
+        internal CoyoteTasks.Task<CoyoteTasks.Task> WhenAnyTaskCompletesAsync(CoyoteTasks.Task[] tasks)
         {
             return this.ScheduleFunction(() =>
             {
@@ -741,13 +738,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     throw new ArgumentException("The tasks argument contains no tasks.");
                 }
-
-                this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-                this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
 
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 this.AssertIsTaskControlled(callerOp, "WhenAny");
@@ -774,7 +768,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        internal Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(Task<TResult>[] tasks)
         {
             return this.ScheduleFunction(() =>
             {
@@ -782,7 +776,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     throw new ArgumentException("The tasks argument contains no tasks.");
                 }
@@ -812,7 +806,7 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<CoyoteTasks.Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
+        internal CoyoteTasks.Task<CoyoteTasks.Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(CoyoteTasks.Task<TResult>[] tasks)
         {
             return this.ScheduleFunction(() =>
             {
@@ -820,7 +814,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     throw new ArgumentNullException(nameof(tasks));
                 }
-                else if (tasks.Count() is 0)
+                else if (tasks.Length is 0)
                 {
                     throw new ArgumentException("The tasks argument contains no tasks.");
                 }

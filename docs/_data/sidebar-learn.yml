@@ -1067,10 +1067,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAll
         - name: WhenAny
           link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAny
-        - name: WhenAnyTaskCompletesAsync
-          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAnyTaskCompletesAsync
-        - name: WhenAnyTaskCompletesInProductionAsync
-          link: /learn/ref/Microsoft.Coyote.Tasks/Task/WhenAnyTaskCompletesInProductionAsync
         - name: WaitAll
           link: /learn/ref/Microsoft.Coyote.Tasks/Task/WaitAll
         - name: WaitAny

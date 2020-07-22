@@ -330,30 +330,30 @@ namespace Microsoft.Coyote.Tasks
         /// <param name="tasks">The tasks to wait for completion.</param>
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WhenAll(params Task[] tasks) => WhenAllTasksCompleteAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WhenAll(IEnumerable<Task> tasks) => WhenAllTasksCompleteAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Task WhenAllTasksCompleteAsync(IEnumerable<Task> tasks)
+        public static Task WhenAll(params Task[] tasks)
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var controller = ControlledRuntime.Current.TaskController;
                 return new Task(controller, controller.WhenAllTasksCompleteAsync(tasks));
+            }
+
+            return new Task(null, SystemTasks.Task.WhenAll(tasks.Select(t => t.InternalTask)));
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task WhenAll(IEnumerable<Task> tasks)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task(controller, controller.WhenAllTasksCompleteAsync(tasks.ToArray()));
             }
 
             return new Task(null, SystemTasks.Task.WhenAll(tasks.Select(t => t.InternalTask)));
@@ -367,27 +367,7 @@ namespace Microsoft.Coyote.Tasks
         /// <param name="tasks">The tasks to wait for completion.</param>
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) => WhenAllTasksCompleteAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <typeparam name="TResult">The result type of the task.</typeparam>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => WhenAllTasksCompleteAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when all tasks
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <typeparam name="TResult">The result type of the task.</typeparam>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks)
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
@@ -399,32 +379,51 @@ namespace Microsoft.Coyote.Tasks
         }
 
         /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when all tasks
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        /// <typeparam name="TResult">The result type of the task.</typeparam>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <returns>Task that represents the completion of all of the specified tasks.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task<TResult[]>(controller, controller.WhenAllTasksCompleteAsync(tasks.ToArray()));
+            }
+
+            return new Task<TResult[]>(null, SystemTasks.Task.WhenAll(tasks.Select(t => t.UncontrolledTask)));
+        }
+
+        /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified array have completed.
         /// </summary>
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(params Task[] tasks) => WhenAnyTaskCompletesAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task> WhenAny(IEnumerable<Task> tasks) => WhenAnyTaskCompletesAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Task<Task> WhenAnyTaskCompletesAsync(IEnumerable<Task> tasks)
+        public static Task<Task> WhenAny(params Task[] tasks)
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 return ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks);
+            }
+
+            return WhenAnyTaskCompletesInProductionAsync(tasks);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Task> WhenAny(IEnumerable<Task> tasks)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                return ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks.ToArray());
             }
 
             return WhenAnyTaskCompletesInProductionAsync(tasks);
@@ -447,25 +446,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) =>
-            WhenAnyTaskCompletesAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) =>
-            WhenAnyTaskCompletesAsync(tasks);
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when any task
-        /// in the specified enumerable collection have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait for completion.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks)
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
@@ -480,7 +461,23 @@ namespace Microsoft.Coyote.Tasks
         /// in the specified enumerable collection have completed.
         /// </summary>
         /// <param name="tasks">The tasks to wait for completion.</param>
-        public static async Task<Task<TResult>> WhenAnyTaskCompletesInProductionAsync<TResult>(IEnumerable<Task<TResult>> tasks)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                return ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks.ToArray());
+            }
+
+            return WhenAnyTaskCompletesInProductionAsync(tasks);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when any task
+        /// in the specified enumerable collection have completed.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        private static async Task<Task<TResult>> WhenAnyTaskCompletesInProductionAsync<TResult>(IEnumerable<Task<TResult>> tasks)
         {
             var result = await SystemTasks.Task.WhenAny(tasks.Select(t => t.UncontrolledTask));
             return tasks.First(task => task.Id == result.Id);

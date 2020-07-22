@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Invoked when the operation is waiting to join the specified tasks.
         /// </summary>
-        internal void OnWaitTasks(IEnumerable<Task> tasks, bool waitAll)
+        internal void OnWaitTasks(Task[] tasks, bool waitAll)
         {
             foreach (var task in tasks)
             {
@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Invoked when the operation is waiting to join the specified tasks.
         /// </summary>
-        internal void OnWaitTasks(IEnumerable<CoyoteTasks.Task> tasks, bool waitAll)
+        internal void OnWaitTasks(CoyoteTasks.Task[] tasks, bool waitAll)
         {
             foreach (var task in tasks)
             {

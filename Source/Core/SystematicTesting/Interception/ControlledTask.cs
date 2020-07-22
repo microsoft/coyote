@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
@@ -179,7 +180,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WhenAll(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+            ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
@@ -201,7 +202,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+            ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
@@ -219,7 +220,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task> WhenAny(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+            ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
@@ -237,7 +238,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+            ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
 
         /// <summary>
         /// Waits for the specified <see cref="Task"/> to complete execution.

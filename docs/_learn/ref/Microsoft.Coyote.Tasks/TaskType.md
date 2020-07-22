@@ -45,8 +45,6 @@ public class Task : IDisposable
 | static [WhenAll&lt;TResult&gt;](Task/WhenAll)(…) | Creates a [`Task`](TaskType) that will complete when all tasks in the specified array have completed. (2 methods) |
 | static [WhenAny](Task/WhenAny)(…) | Creates a [`Task`](TaskType) that will complete when any task in the specified array have completed. (2 methods) |
 | static [WhenAny&lt;TResult&gt;](Task/WhenAny)(…) | Creates a [`Task`](TaskType) that will complete when any task in the specified array have completed. (2 methods) |
-| static [WhenAnyTaskCompletesAsync&lt;TResult&gt;](Task/WhenAnyTaskCompletesAsync)(…) | Creates a [`Task`](TaskType) that will complete when any task in the specified enumerable collection have completed. |
-| static [WhenAnyTaskCompletesInProductionAsync&lt;TResult&gt;](Task/WhenAnyTaskCompletesInProductionAsync)(…) | Creates a [`Task`](TaskType) that will complete when any task in the specified enumerable collection have completed. |
 | static [Yield](Task/Yield)() | Creates an awaitable that asynchronously yields back to the current context when awaited. |
 
 ## Protected Members

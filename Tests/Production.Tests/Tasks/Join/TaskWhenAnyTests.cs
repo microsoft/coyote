@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
@@ -207,21 +208,75 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAnyWithException()
+        public void TestWhenAnyWithAsyncCaller()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
+                Func<Task> whenAny = async () =>
+                {
+                    List<Task> tasks = new List<Task>();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        tasks.Add(Task.Delay(1));
+                    }
 
+                    entry.Value = 3;
+                    await Task.WhenAny(tasks);
+                    entry.Value = 1;
+                };
+
+                var task = whenAny();
+                Specification.Assert(entry.Value is 1, "Value is {0} instead of 1.", entry.Value);
+                await task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 1.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAnyWithResultAndAsyncCaller()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                Func<Task> whenAll = async () =>
+                {
+                    List<Task<int>> tasks = new List<Task<int>>();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        tasks.Add(Task.Run(() => 1));
+                    }
+
+                    entry.Value = 3;
+                    await Task.WhenAny(tasks);
+                    entry.Value = 1;
+                };
+
+                var task = whenAll();
+                Specification.Assert(entry.Value is 1, "Value is {0} instead of 1.", entry.Value);
+                await task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 1.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAnyWithException()
+        {
+            this.TestWithError(async () =>
+            {
                 Task task1 = Task.Run(async () =>
                 {
-                    await WriteAsync(entry, 3);
+                    await Task.CompletedTask;
                     throw new InvalidOperationException();
                 });
 
                 Task task2 = Task.Run(async () =>
                 {
-                    await WriteAsync(entry, 5);
+                    await Task.CompletedTask;
                     throw new NotSupportedException();
                 });
 
@@ -232,10 +287,41 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                     (task1.IsFaulted && task1.Exception.InnerException.GetType() == typeof(InvalidOperationException)) ||
                     (task2.IsFaulted && task2.Exception.InnerException.GetType() == typeof(NotSupportedException)),
                     "The exception is not of the expected type.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAnyWithResultsAndException()
+        {
+            this.TestWithError(async () =>
+            {
+                Task<int> task1 = Task.Run<int>(async () =>
+                {
+                    await Task.CompletedTask;
+                    throw new InvalidOperationException();
+                });
+
+                Task<int> task2 = Task.Run<int>(async () =>
+                {
+                    await Task.CompletedTask;
+                    throw new NotSupportedException();
+                });
+
+                Task result = await Task.WhenAny(task1, task2);
+
+                Specification.Assert(result.IsFaulted, "No task has faulted.");
+                Specification.Assert(
+                    (task1.IsFaulted && task1.Exception.InnerException.GetType() == typeof(InvalidOperationException)) ||
+                    (task2.IsFaulted && task2.Exception.InnerException.GetType() == typeof(NotSupportedException)),
+                    "The exception is not of the expected type.");
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
             replay: true);
         }
     }

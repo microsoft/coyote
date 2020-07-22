@@ -352,7 +352,8 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks);
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task(controller, controller.WhenAllTasksCompleteAsync(tasks));
             }
 
             return new Task(null, SystemTasks.Task.WhenAll(tasks.Select(t => t.InternalTask)));
@@ -390,7 +391,8 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return ControlledRuntime.Current.TaskController.WhenAllTasksCompleteAsync(tasks);
+                var controller = ControlledRuntime.Current.TaskController;
+                return new Task<TResult[]>(controller, controller.WhenAllTasksCompleteAsync(tasks));
             }
 
             return new Task<TResult[]>(null, SystemTasks.Task.WhenAll(tasks.Select(t => t.UncontrolledTask)));

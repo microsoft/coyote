@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
@@ -245,42 +247,101 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWhenAllWithException()
+        public void TestWhenAllWithAsyncCaller()
         {
-            string expected = "Value is 3 instead of 5.";
-            if (!this.IsSystematicTest)
-            {
-                // bugbug: production WhenAll has different behavior, it does not aggregate the exceptions.
-                expected = "Operation is not valid due to the current state of the object.";
-            }
-
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
+                Func<Task> whenAll = async () =>
+                {
+                    List<Task> tasks = new List<Task>();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        tasks.Add(Task.Delay(1));
+                    }
 
+                    entry.Value = 3;
+                    await Task.WhenAll(tasks);
+                    entry.Value = 1;
+                };
+
+                var task = whenAll();
+                Specification.Assert(entry.Value is 1, "Value is {0} instead of 1.", entry.Value);
+                await task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 1.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAllWithResultAndAsyncCaller()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                Func<Task> whenAll = async () =>
+                {
+                    List<Task<int>> tasks = new List<Task<int>>();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        tasks.Add(Task.Run(() => 1));
+                    }
+
+                    entry.Value = 3;
+                    await Task.WhenAll(tasks);
+                    entry.Value = 1;
+                };
+
+                var task = whenAll();
+                Specification.Assert(entry.Value is 1, "Value is {0} instead of 1.", entry.Value);
+                await task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Value is 3 instead of 1.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAllWithException()
+        {
+            this.TestWithError(async () =>
+            {
                 Task task1 = Task.Run(async () =>
                 {
-                    await WriteAsync(entry, 3);
+                    await Task.CompletedTask;
                     throw new InvalidOperationException();
                 });
 
                 Task task2 = Task.Run(async () =>
                 {
-                    await WriteAsync(entry, 5);
+                    await Task.CompletedTask;
                     throw new NotSupportedException();
                 });
+
+                Exception exception = null;
 
                 try
                 {
                     await Task.WhenAll(task1, task2);
                 }
-                catch (AggregateException ex)
+                catch (Exception ex)
                 {
-                    Specification.Assert(ex.InnerExceptions.Count == 2, "Expected two exceptions.");
-                    Specification.Assert(ex.InnerExceptions[0].InnerException.GetType() == typeof(InvalidOperationException),
-                        "The first exception is not of the expected type.");
-                    Specification.Assert(ex.InnerExceptions[1].InnerException.GetType() == typeof(NotSupportedException),
-                        "The second exception is not of the expected type.");
+                    exception = ex;
+                }
+
+                Specification.Assert(exception != null, "Expected an `AggregateException`.");
+                if (exception is AggregateException aex)
+                {
+                    Specification.Assert(aex.InnerExceptions.Any(e => e is InvalidOperationException),
+                        "The exception is not of the expected type.");
+                    Specification.Assert(aex.InnerExceptions.Any(e => e is NotSupportedException),
+                        "The exception is not of the expected type.");
+                }
+                else
+                {
+                    Specification.Assert(exception is InvalidOperationException || exception is NotSupportedException,
+                        "The exception is not of the expected type.");
                 }
 
                 Specification.Assert(task1.IsFaulted && task2.IsFaulted, "One task has not faulted.");
@@ -288,10 +349,64 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                     "The first task exception is not of the expected type.");
                 Specification.Assert(task2.Exception.InnerException.GetType() == typeof(NotSupportedException),
                     "The second task exception is not of the expected type.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: expected,
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAllWithResultsAndException()
+        {
+            this.TestWithError(async () =>
+            {
+                Task<int> task1 = Task.Run<int>(async () =>
+                {
+                    await Task.CompletedTask;
+                    throw new InvalidOperationException();
+                });
+
+                Task<int> task2 = Task.Run<int>(async () =>
+                {
+                    await Task.CompletedTask;
+                    throw new NotSupportedException();
+                });
+
+                Exception exception = null;
+
+                try
+                {
+                    await Task.WhenAll(task1, task2);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+
+                Specification.Assert(exception != null, "Expected an `AggregateException`.");
+                if (exception is AggregateException aex)
+                {
+                    Specification.Assert(aex.InnerExceptions.Any(e => e is InvalidOperationException),
+                        "The exception is not of the expected type.");
+                    Specification.Assert(aex.InnerExceptions.Any(e => e is NotSupportedException),
+                        "The exception is not of the expected type.");
+                }
+                else
+                {
+                    Specification.Assert(exception is InvalidOperationException || exception is NotSupportedException,
+                        "The exception is not of the expected type.");
+                }
+
+                Specification.Assert(task1.IsFaulted && task2.IsFaulted, "One task has not faulted.");
+                Specification.Assert(task1.Exception.InnerException.GetType() == typeof(InvalidOperationException),
+                    "The first task exception is not of the expected type.");
+                Specification.Assert(task2.Exception.InnerException.GetType() == typeof(NotSupportedException),
+                    "The second task exception is not of the expected type.");
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
             replay: true);
         }
     }

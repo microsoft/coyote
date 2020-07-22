@@ -506,36 +506,36 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal Task WhenAllTasksCompleteAsync(IEnumerable<Task> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAll");
-
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            List<Exception> exceptions = null;
-            foreach (var task in tasks)
+            return this.ScheduleAction(() =>
             {
-                if (task.IsFaulted)
+                if (tasks is null)
                 {
-                    if (exceptions == null)
-                    {
-                        exceptions = new List<Exception>();
-                    }
-
-                    exceptions.Add(task.Exception);
+                    throw new ArgumentNullException(nameof(tasks));
                 }
-            }
+                else if (tasks.Count() is 0)
+                {
+                    return;
+                }
 
-            if (exceptions != null)
-            {
-                return Task.FromException(new AggregateException(exceptions));
-            }
-            else
-            {
-                return Task.CompletedTask;
-            }
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAll");
+                callerOp.OnWaitTasks(tasks, waitAll: true);
+
+                List<Exception> exceptions = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsFaulted)
+                    {
+                        exceptions ??= new List<Exception>();
+                        exceptions.Add(task.Exception is AggregateException aex ? aex.InnerException : task.Exception);
+                    }
+                }
+
+                if (exceptions != null)
+                {
+                    throw new AggregateException(exceptions);
+                }
+            }, null, false, default);
         }
 
         /// <summary>
@@ -545,37 +545,38 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task WhenAllTasksCompleteAsync(IEnumerable<CoyoteTasks.Task> tasks)
+        internal Task WhenAllTasksCompleteAsync(IEnumerable<CoyoteTasks.Task> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAll");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            List<Exception> exceptions = null;
-            foreach (var task in tasks)
+            return this.ScheduleAction(() =>
             {
-                if (task.IsFaulted)
+                if (tasks is null)
                 {
-                    if (exceptions == null)
-                    {
-                        exceptions = new List<Exception>();
-                    }
-
-                    exceptions.Add(task.Exception);
+                    throw new ArgumentNullException(nameof(tasks));
                 }
-            }
+                else if (tasks.Count() is 0)
+                {
+                    return;
+                }
 
-            if (exceptions != null)
-            {
-                return CoyoteTasks.Task.FromException(new AggregateException(exceptions));
-            }
-            else
-            {
-                return CoyoteTasks.Task.CompletedTask;
-            }
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAll");
+                callerOp.OnWaitTasks(tasks, waitAll: true);
+
+                List<Exception> exceptions = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsFaulted)
+                    {
+                        exceptions ??= new List<Exception>();
+                        exceptions.Add(task.Exception is AggregateException aex ? aex.InnerException : task.Exception);
+                    }
+                }
+
+                if (exceptions != null)
+                {
+                    throw new AggregateException(exceptions);
+                }
+            }, null, false, default);
         }
 
         /// <summary>
@@ -587,25 +588,48 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<Task<TResult>> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-
-            int taskCount = tasks.Count();
-            this.Assert(taskCount > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAll");
-
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            int idx = 0;
-            TResult[] result = new TResult[taskCount];
-            foreach (var task in tasks)
+            Func<TResult[]> function = () =>
             {
-                result[idx] = task.Result;
-                idx++;
-            }
+                if (tasks is null)
+                {
+                    throw new ArgumentNullException(nameof(tasks));
+                }
+                else if (tasks.Count() is 0)
+                {
+                    return Array.Empty<TResult>();
+                }
 
-            return Task.FromResult(result);
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAll");
+                callerOp.OnWaitTasks(tasks, waitAll: true);
+
+                List<Exception> exceptions = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsFaulted)
+                    {
+                        exceptions ??= new List<Exception>();
+                        exceptions.Add(task.Exception is AggregateException aex ? aex.InnerException : task.Exception);
+                    }
+                }
+
+                if (exceptions != null)
+                {
+                    throw new AggregateException(exceptions);
+                }
+
+                int idx = 0;
+                TResult[] result = new TResult[tasks.Count()];
+                foreach (var task in tasks)
+                {
+                    result[idx] = task.Result;
+                    idx++;
+                }
+
+                return result;
+            };
+
+            return this.ScheduleDelegate<TResult[]>(function, null, default);
         }
 
         /// <summary>
@@ -615,24 +639,50 @@ namespace Microsoft.Coyote.SystematicTesting
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
+        internal Task<TResult[]> WhenAllTasksCompleteAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAll");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
-
-            int idx = 0;
-            TResult[] result = new TResult[tasks.Count()];
-            foreach (var task in tasks)
+            Func<TResult[]> function = () =>
             {
-                result[idx] = task.Result;
-                idx++;
-            }
+                if (tasks is null)
+                {
+                    throw new ArgumentNullException(nameof(tasks));
+                }
+                else if (tasks.Count() is 0)
+                {
+                    return Array.Empty<TResult>();
+                }
 
-            return CoyoteTasks.Task.FromResult(result);
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAll");
+                callerOp.OnWaitTasks(tasks, waitAll: true);
+
+                List<Exception> exceptions = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsFaulted)
+                    {
+                        exceptions ??= new List<Exception>();
+                        exceptions.Add(task.Exception is AggregateException aex ? aex.InnerException : task.Exception);
+                    }
+                }
+
+                if (exceptions != null)
+                {
+                    throw new AggregateException(exceptions);
+                }
+
+                int idx = 0;
+                TResult[] result = new TResult[tasks.Count()];
+                foreach (var task in tasks)
+                {
+                    result[idx] = task.Result;
+                    idx++;
+                }
+
+                return result;
+            };
+
+            return this.ScheduleDelegate<TResult[]>(function, null, default);
         }
 
         /// <summary>
@@ -644,25 +694,36 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal Task<Task> WhenAnyTaskCompletesAsync(IEnumerable<Task> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAny");
-
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            Task result = null;
-            foreach (var task in tasks)
+            return this.ScheduleFunction(() =>
             {
-                if (task.IsCompleted)
+                if (tasks is null)
                 {
-                    result = task;
-                    break;
+                    throw new ArgumentNullException(nameof(tasks));
                 }
-            }
+                else if (tasks.Count() is 0)
+                {
+                    throw new ArgumentException("The tasks argument contains no tasks.");
+                }
 
-            return Task.FromResult(result);
+                this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+                this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAny");
+                callerOp.OnWaitTasks(tasks, waitAll: false);
+
+                Task result = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsCompleted)
+                    {
+                        result = task;
+                        break;
+                    }
+                }
+
+                return Task.FromResult(result);
+            }, null, default);
         }
 
         /// <summary>
@@ -674,24 +735,36 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal CoyoteTasks.Task<CoyoteTasks.Task> WhenAnyTaskCompletesAsync(IEnumerable<CoyoteTasks.Task> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAny");
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            CoyoteTasks.Task result = null;
-            foreach (var task in tasks)
+            return this.ScheduleFunction(() =>
             {
-                if (task.IsCompleted)
+                if (tasks is null)
                 {
-                    result = task;
-                    break;
+                    throw new ArgumentNullException(nameof(tasks));
                 }
-            }
+                else if (tasks.Count() is 0)
+                {
+                    throw new ArgumentException("The tasks argument contains no tasks.");
+                }
 
-            return CoyoteTasks.Task.FromResult(result);
+                this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
+                this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAny");
+                callerOp.OnWaitTasks(tasks, waitAll: false);
+
+                CoyoteTasks.Task result = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsCompleted)
+                    {
+                        result = task;
+                        break;
+                    }
+                }
+
+                return CoyoteTasks.Task.FromResult(result);
+            }, null, default);
         }
 
         /// <summary>
@@ -703,25 +776,33 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal Task<Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<Task<TResult>> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAny");
-
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            Task<TResult> result = null;
-            foreach (var task in tasks)
+            return this.ScheduleFunction(() =>
             {
-                if (task.IsCompleted)
+                if (tasks is null)
                 {
-                    result = task;
-                    break;
+                    throw new ArgumentNullException(nameof(tasks));
                 }
-            }
+                else if (tasks.Count() is 0)
+                {
+                    throw new ArgumentException("The tasks argument contains no tasks.");
+                }
 
-            return Task.FromResult(result);
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAny");
+                callerOp.OnWaitTasks(tasks, waitAll: false);
+
+                Task<TResult> result = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsCompleted)
+                    {
+                        result = task;
+                        break;
+                    }
+                }
+
+                return Task.FromResult(result);
+            }, null, default);
         }
 
         /// <summary>
@@ -733,24 +814,33 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal CoyoteTasks.Task<CoyoteTasks.Task<TResult>> WhenAnyTaskCompletesAsync<TResult>(IEnumerable<CoyoteTasks.Task<TResult>> tasks)
         {
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
-
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WhenAny");
-            callerOp.OnWaitTasks(tasks, waitAll: false);
-
-            CoyoteTasks.Task<TResult> result = null;
-            foreach (var task in tasks)
+            return this.ScheduleFunction(() =>
             {
-                if (task.IsCompleted)
+                if (tasks is null)
                 {
-                    result = task;
-                    break;
+                    throw new ArgumentNullException(nameof(tasks));
                 }
-            }
+                else if (tasks.Count() is 0)
+                {
+                    throw new ArgumentException("The tasks argument contains no tasks.");
+                }
 
-            return CoyoteTasks.Task.FromResult(result);
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                this.AssertIsTaskControlled(callerOp, "WhenAny");
+                callerOp.OnWaitTasks(tasks, waitAll: false);
+
+                CoyoteTasks.Task<TResult> result = null;
+                foreach (var task in tasks)
+                {
+                    if (task.IsCompleted)
+                    {
+                        result = task;
+                        break;
+                    }
+                }
+
+                return CoyoteTasks.Task.FromResult(result);
+            }, null, default);
         }
 
         /// <summary>
@@ -760,8 +850,14 @@ namespace Microsoft.Coyote.SystematicTesting
         internal bool WaitAllTasksComplete(Task[] tasks)
         {
             // TODO: support cancellations during testing.
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+            if (tasks is null)
+            {
+                throw new ArgumentNullException(nameof(tasks));
+            }
+            else if (tasks.Length is 0)
+            {
+                return true;
+            }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.AssertIsTaskControlled(callerOp, "WaitAll");
@@ -778,8 +874,14 @@ namespace Microsoft.Coyote.SystematicTesting
         internal bool WaitAllTasksComplete(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+            if (tasks is null)
+            {
+                throw new ArgumentNullException(nameof(tasks));
+            }
+            else if (tasks.Length is 0)
+            {
+                return true;
+            }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.AssertIsTaskControlled(callerOp, "WaitAll");
@@ -799,8 +901,14 @@ namespace Microsoft.Coyote.SystematicTesting
         internal int WaitAnyTaskCompletes(Task[] tasks)
         {
             // TODO: support cancellations during testing.
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+            if (tasks is null)
+            {
+                throw new ArgumentNullException(nameof(tasks));
+            }
+            else if (tasks.Length is 0)
+            {
+                throw new ArgumentException("The tasks argument contains no tasks.");
+            }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.AssertIsTaskControlled(callerOp, "WaitAny");
@@ -831,8 +939,14 @@ namespace Microsoft.Coyote.SystematicTesting
         internal int WaitAnyTaskCompletes(CoyoteTasks.Task[] tasks)
         {
             // TODO: support cancellations during testing.
-            this.Assert(tasks != null, "Cannot wait for a null array of tasks to complete.");
-            this.Assert(tasks.Count() > 0, "Cannot wait for zero tasks to complete.");
+            if (tasks is null)
+            {
+                throw new ArgumentNullException(nameof(tasks));
+            }
+            else if (tasks.Length is 0)
+            {
+                throw new ArgumentException("The tasks argument contains no tasks.");
+            }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             this.AssertIsTaskControlled(callerOp, "WaitAny");

@@ -98,16 +98,9 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
-            // TODO: can we reuse it, or do we need a new one for each assembly?
-            // Specify the search directory for resolving assemblies.
-            var assemblyResolver = new DefaultAssemblyResolver();
-            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
-            assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
-            assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
-
             var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters()
             {
-                AssemblyResolver = assemblyResolver,
+                AssemblyResolver = this.GetAssemblyResolver(),
                 ReadSymbols = true
             });
 
@@ -278,6 +271,23 @@ namespace Microsoft.Coyote.Rewriting
             File.Copy(coyoteAssemblyPath, Path.Combine(this.Configuration.OutputDirectory, Path.GetFileName(coyoteAssemblyPath)), true);
 
             return outputDirectory;
+        }
+
+        /// <summary>
+        /// Returns a new assembly resolver.
+        /// </summary>
+        private IAssemblyResolver GetAssemblyResolver()
+        {
+            // TODO: can we reuse it, or do we need a new one for each assembly?
+            var assemblyResolver = new DefaultAssemblyResolver();
+
+            // Add known search directories for resolving assemblies.
+            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
+            assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
+
+            // Add the assembly resolution error handler.
+            assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
+            return assemblyResolver;
         }
 
         /// <summary>

@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                     int count = s.Count;
                     if (count - 1 > 0)
                     {
-                        System.Diagnostics.Debug.WriteLine("Actor {0} creating {1} child actors", this.Id.Name, count);
+                        this.Logger.WriteLine("Actor {0} creating {1} child actors", this.Id.Name, count);
                         for (int i = 0; i < count; i++)
                         {
                             var a = this.CreateActor(typeof(NetworkActor));

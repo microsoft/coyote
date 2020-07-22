@@ -316,7 +316,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private TypeReference RewriteCompilerType(TypeReference type, bool isRoot = true)
         {
-            TypeReference result = null;
+            TypeReference result = type;
 
             string fullName = type.FullName;
             if (this.CompilerTypeCache.ContainsKey(fullName))
@@ -363,14 +363,14 @@ namespace Microsoft.Coyote.Rewriting
                 result = this.RewriteCompilerType(genericType, elementType);
             }
 
-            if (result != null && isRoot)
+            if (isRoot && result != type)
             {
                 // Resolve and cache the result.
                 Resolve(result);
                 this.CompilerTypeCache[fullName] = result;
             }
 
-            return result ?? type;
+            return result;
         }
 
         /// <summary>

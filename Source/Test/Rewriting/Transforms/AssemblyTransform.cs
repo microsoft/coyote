@@ -88,9 +88,15 @@ namespace Microsoft.Coyote.Rewriting
         protected MethodReference RewriteMethodReference(MethodReference method, ModuleDefinition module)
         {
             MethodReference result = method;
-            MethodDefinition resolvedMethod = Resolve(method);
 
             TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
+            if (method.DeclaringType == declaringType)
+            {
+                // We are not rewriting this method.
+                return result;
+            }
+
+            MethodDefinition resolvedMethod = Resolve(method);
             TypeDefinition resolvedDeclaringType = Resolve(declaringType);
 
             // This is an extra initial parameter that we have when converting an instance to a static method.

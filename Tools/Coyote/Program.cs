@@ -209,7 +209,7 @@ namespace Microsoft.Coyote
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                Debug.WriteLine(ex.StackTrace);
                 Error.ReportAndExit(ex.Message);
             }
         }

@@ -1,3 +1,9 @@
+## v1.0.15
+- Fixed the `Task.WhenAny` and `Task.WhenAll` APIs so that they execute asynchronously during
+  systematic testing.
+- Fixed the `Task.WhenAny` and `Task.WhenAll` APIs so that they throw the proper argument exceptions
+  during systematic testing.
+
 ## v1.0.14
 - Added missing `Task<TResult>.UncontrolledTask` API.
 - Fixed a bug in the testing runtime for controlled tasks.
@@ -75,4 +81,4 @@
 - Fixed an issue in the runtime (there should always be a default task runtime instance).
 
 ## v1.0.0
-- The initial release of the Coyote framework and test tools.
+- The initial release of the Coyote set of libraries and test tools.

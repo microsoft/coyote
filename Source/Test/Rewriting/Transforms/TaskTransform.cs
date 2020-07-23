@@ -21,18 +21,6 @@ namespace Microsoft.Coyote.Rewriting
         private const string GenericTaskTypeNamePrefix = "Task`";
 
         /// <summary>
-        /// Cache from <see cref="SystemTasks"/> type names to types being replaced
-        /// in the module that is currently being rewritten.
-        /// </summary>
-        private readonly Dictionary<string, TypeReference> TaskTypeCache;
-
-        /// <summary>
-        /// Cache from <see cref="SystemCompiler"/> type names to types being replaced
-        /// in the module that is currently being rewritten.
-        /// </summary>
-        private readonly Dictionary<string, TypeReference> CompilerTypeCache;
-
-        /// <summary>
         /// Cache from member names to rewritten member references.
         /// </summary>
         private readonly Dictionary<string, MethodReference> RewrittenMethodCache;
@@ -62,8 +50,6 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         internal TaskTransform()
         {
-            this.TaskTypeCache = new Dictionary<string, TypeReference>();
-            this.CompilerTypeCache = new Dictionary<string, TypeReference>();
             this.RewrittenMethodCache = new Dictionary<string, MethodReference>();
         }
 
@@ -71,8 +57,6 @@ namespace Microsoft.Coyote.Rewriting
         internal override void VisitModule(ModuleDefinition module)
         {
             this.Module = module;
-            this.TaskTypeCache.Clear();
-            this.CompilerTypeCache.Clear();
             this.RewrittenMethodCache.Clear();
         }
 
@@ -152,16 +136,16 @@ namespace Microsoft.Coyote.Rewriting
                 if (instruction.Operand is FieldDefinition fd &&
                     this.TryRewriteCompilerType(fd.FieldType, out TypeReference newFieldType))
                 {
-                    Debug.WriteLine($"........... [-] {instruction}");
+                    Debug.WriteLine($"............. [-] {instruction}");
                     fd.FieldType = newFieldType;
-                    Debug.WriteLine($"........... [+] {instruction}");
+                    Debug.WriteLine($"............. [+] {instruction}");
                 }
                 else if (instruction.Operand is FieldReference fr &&
                     this.TryRewriteCompilerType(fr.FieldType, out newFieldType))
                 {
-                    Debug.WriteLine($"........... [-] {instruction}");
+                    Debug.WriteLine($"............. [-] {instruction}");
                     fr.FieldType = newFieldType;
-                    Debug.WriteLine($"........... [+] {instruction}");
+                    Debug.WriteLine($"............. [+] {instruction}");
                 }
             }
             else if (instruction.OpCode == OpCodes.Initobj)
@@ -263,24 +247,15 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private TypeReference RewriteTaskType(TypeReference type, bool isRoot = true)
         {
-            TypeReference result = null;
+            TypeReference result = type;
 
             string fullName = type.FullName;
-            if (this.TaskTypeCache.ContainsKey(fullName))
+            if (type is GenericInstanceType genericType)
             {
-                // The result is already cached.
-                result = this.TaskTypeCache[fullName];
-                if (result.Module != type.Module)
-                {
-                    result = this.Module.ImportReference(result);
-                    this.TaskTypeCache[fullName] = result;
-                }
-
-                return result;
+                TypeReference elementType = this.RewriteTaskType(genericType.ElementType, false);
+                result = this.RewriteCompilerType(genericType, elementType);
             }
-
-            // The result is not cached, so lets try to construct it.
-            if (fullName == KnownSystemTypes.TaskFullName)
+            else if (fullName == KnownSystemTypes.TaskFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask));
             }
@@ -288,20 +263,14 @@ namespace Microsoft.Coyote.Rewriting
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask<>), type);
             }
-            else if (type is GenericInstanceType genericType)
-            {
-                TypeReference elementType = this.RewriteTaskType(genericType.ElementType, false);
-                result = this.RewriteCompilerType(genericType, elementType);
-            }
 
-            if (result != null && isRoot)
+            if (isRoot && result != type)
             {
-                // Resolve and cache the result.
+                // Try resolve the new type.
                 Resolve(result);
-                this.TaskTypeCache[fullName] = result;
             }
 
-            return result ?? type;
+            return result;
         }
 
         /// <summary>
@@ -323,21 +292,13 @@ namespace Microsoft.Coyote.Rewriting
             TypeReference result = type;
 
             string fullName = type.FullName;
-            if (this.CompilerTypeCache.ContainsKey(fullName))
+            if (type is GenericInstanceType genericType)
             {
-                // The result is already cached.
-                result = this.CompilerTypeCache[fullName];
-                if (result.Module != type.Module)
-                {
-                    result = this.Module.ImportReference(result);
-                    this.CompilerTypeCache[fullName] = result;
-                }
-
-                return result;
+                TypeReference elementType = this.RewriteCompilerType(genericType.ElementType, false);
+                result = this.RewriteCompilerType(genericType, elementType);
+                result = this.Module.ImportReference(result);
             }
-
-            // The result is not cached, so lets try to construct it.
-            if (fullName == KnownSystemTypes.AsyncTaskMethodBuilderFullName)
+            else if (fullName == KnownSystemTypes.AsyncTaskMethodBuilderFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder));
             }
@@ -361,17 +322,11 @@ namespace Microsoft.Coyote.Rewriting
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter));
             }
-            else if (type is GenericInstanceType genericType)
-            {
-                TypeReference elementType = this.RewriteCompilerType(genericType.ElementType, false);
-                result = this.RewriteCompilerType(genericType, elementType);
-            }
 
             if (isRoot && result != type)
             {
-                // Resolve and cache the result.
+                // Try resolve the new type.
                 Resolve(result);
-                this.CompilerTypeCache[fullName] = result;
             }
 
             return result;

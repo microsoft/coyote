@@ -220,6 +220,8 @@ namespace Microsoft.Coyote.Rewriting
 
             // Create and return the new instruction.
             Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);
+            newInstruction.Offset = instruction.Offset;
+
             Debug.WriteLine($"......... [-] {instruction}");
             this.Processor.Replace(instruction, newInstruction);
             Debug.WriteLine($"......... [+] {newInstruction}");

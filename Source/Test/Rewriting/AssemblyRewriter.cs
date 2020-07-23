@@ -58,8 +58,8 @@ namespace Microsoft.Coyote.Rewriting
 
             this.Transforms = new List<AssemblyTransform>()
             {
-                new TaskTransform(),
-                new MonitorTransform()
+                 new TaskTransform(),
+                 new MonitorTransform()
             };
         }
 
@@ -111,10 +111,14 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             Console.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
-            foreach (var module in assembly.Modules)
+            foreach (var transform in this.Transforms)
             {
-                Debug.WriteLine($"..... Rewriting the '{module.Name}' module ({module.FileName})");
-                this.RewriteModule(module);
+                // Traverse the assembly to apply each transformation pass.
+                Debug.WriteLine($"..... Applying the '{transform.GetType().Name}' transform");
+                foreach (var module in assembly.Modules)
+                {
+                    RewriteModule(module, transform);
+                }
             }
 
             // Write the binary in the output path with portable symbols enabled.
@@ -138,68 +142,51 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the specified module definition.
+        /// Rewrites the specified module definition using the specified transform.
         /// </summary>
-        private void RewriteModule(ModuleDefinition module)
+        private static void RewriteModule(ModuleDefinition module, AssemblyTransform transform)
         {
-            foreach (var t in this.Transforms)
-            {
-                t.VisitModule(module);
-            }
-
+            Debug.WriteLine($"....... Module: {module.Name} ({module.FileName})");
+            transform.VisitModule(module);
             foreach (var type in module.GetTypes())
             {
-                this.RewriteType(type);
+                RewriteType(type, transform);
             }
         }
 
         /// <summary>
-        /// Rewrites the specified type definition.
+        /// Rewrites the specified type definition using the specified transform.
         /// </summary>
-        private void RewriteType(TypeDefinition type)
+        private static void RewriteType(TypeDefinition type, AssemblyTransform transform)
         {
-            Debug.WriteLine($"..... Rewriting type '{type.FullName}'");
-
-            foreach (var t in this.Transforms)
-            {
-                t.VisitType(type);
-            }
-
+            Debug.WriteLine($"......... Type: {type.FullName}");
+            transform.VisitType(type);
             foreach (var field in type.Fields)
             {
-                foreach (var t in this.Transforms)
-                {
-                    t.VisitField(field);
-                }
+                Debug.WriteLine($"........... Field: {field.FullName}");
+                transform.VisitField(field);
             }
 
             foreach (var method in type.Methods)
             {
-                this.RewriteMethod(method);
+                RewriteMethod(method, transform);
             }
         }
 
         /// <summary>
-        /// Rewrites the specified method definition.
+        /// Rewrites the specified method definition using the specified transform.
         /// </summary>
-        private void RewriteMethod(MethodDefinition method)
+        private static void RewriteMethod(MethodDefinition method, AssemblyTransform transform)
         {
-            Debug.WriteLine($"....... Rewriting method '{method.FullName}'");
-
-            foreach (var t in this.Transforms)
-            {
-                t.VisitMethod(method);
-            }
+            Debug.WriteLine($"........... Method {method.FullName}");
+            transform.VisitMethod(method);
 
             // Only non-abstract method bodies can be rewritten.
             if (!method.IsAbstract)
             {
                 foreach (var variable in method.Body.Variables)
                 {
-                    foreach (var t in this.Transforms)
-                    {
-                        t.VisitVariable(variable);
-                    }
+                    transform.VisitVariable(variable);
                 }
 
                 // Do exception handlers before the method instructions because they are a
@@ -207,25 +194,18 @@ namespace Microsoft.Coyote.Rewriting
                 // raw instructions.
                 if (method.Body.HasExceptionHandlers)
                 {
-                    foreach (var t in this.Transforms)
+                    foreach (var handler in method.Body.ExceptionHandlers)
                     {
-                        foreach (var handler in method.Body.ExceptionHandlers)
-                        {
-                            t.VisitExceptionHandler(handler);
-                        }
+                        transform.VisitExceptionHandler(handler);
                     }
                 }
 
-                // in this case run each transform as separate passes over the method body
-                // so they don't trip over each other's edits.
-                foreach (var t in this.Transforms)
+                // Rewrite the method body instructions.
+                Instruction instruction = method.Body.Instructions.FirstOrDefault();
+                while (instruction != null)
                 {
-                    Instruction instruction = method.Body.Instructions.FirstOrDefault();
-                    while (instruction != null)
-                    {
-                        instruction = t.VisitInstruction(instruction);
-                        instruction = instruction.Next;
-                    }
+                    instruction = transform.VisitInstruction(instruction);
+                    instruction = instruction.Next;
                 }
             }
         }

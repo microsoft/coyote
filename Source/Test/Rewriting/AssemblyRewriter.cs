@@ -98,10 +98,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
+            var isSymbolFileAvailable = IsSymbolFileAvailable(assemblyPath);
             var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters()
             {
                 AssemblyResolver = this.GetAssemblyResolver(),
-                ReadSymbols = true
+                ReadSymbols = isSymbolFileAvailable
             });
 
             string assemblyName = Path.GetFileName(assemblyPath);
@@ -127,7 +128,7 @@ namespace Microsoft.Coyote.Rewriting
                 $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
             assembly.Write(outputPath, new WriterParameters()
             {
-                WriteSymbols = true,
+                WriteSymbols = isSymbolFileAvailable,
                 SymbolWriterProvider = new PortablePdbWriterProvider()
             });
 
@@ -135,9 +136,12 @@ namespace Microsoft.Coyote.Rewriting
             if (this.Configuration.IsReplacingAssemblies)
             {
                 File.Copy(outputPath, assemblyPath, true);
-                string pdbFile = Path.Combine(Path.GetDirectoryName(outputPath), Path.GetFileNameWithoutExtension(outputPath) + ".pdb");
-                string targetPdbFile = Path.Combine(Path.GetDirectoryName(assemblyPath), Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb");
-                File.Copy(pdbFile, targetPdbFile, true);
+                if (isSymbolFileAvailable)
+                {
+                    string pdbFile = Path.ChangeExtension(outputPath, "pdb");
+                    string targetPdbFile = Path.ChangeExtension(assemblyPath, "pdb");
+                    File.Copy(pdbFile, targetPdbFile, true);
+                }
             }
         }
 
@@ -269,6 +273,12 @@ namespace Microsoft.Coyote.Rewriting
             assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
             return assemblyResolver;
         }
+
+        /// <summary>
+        /// Checks if the symbol file for the specified assembly is available.
+        /// </summary>
+        private static bool IsSymbolFileAvailable(string assemblyPath) =>
+            File.Exists(Path.ChangeExtension(assemblyPath, "pdb"));
 
         /// <summary>
         /// Handles an assembly resolution error.

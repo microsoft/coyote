@@ -30,4 +30,4 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'filePath'
-    filePath: 'Script/run-tests.ps1'
+    filePath: 'Scripts/run-tests.ps1'

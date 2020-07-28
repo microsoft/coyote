@@ -27,7 +27,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+- powershell: PowerShell@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    targetType: 'filePath'
+    filePath: 'Script/run-tests.ps1'

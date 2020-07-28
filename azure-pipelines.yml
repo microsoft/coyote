@@ -9,25 +9,44 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-
 steps:
 - task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
 
-- task: NuGetCommand@2
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'
   inputs:
-    restoreSolution: '$(solution)'
+    useGlobalJson: true
 
-- task: VSBuild@1
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+  displayName: 'Run PoliCheck'
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    targetType: F
 
 - task: PowerShell@2
+  displayName: 'Build Coyote projects'
   inputs:
-    targetType: 'filePath'
-    filePath: 'Scripts/run-tests.ps1'
+    targetType: filePath
+    filePath: ./Scripts/build.ps1
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: 'Run Coyote Tests'
+  inputs:
+    targetType: filePath
+    filePath: './Scripts/run-tests.ps1'
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: 'Build Coyote NuGet package'
+  inputs:
+    targetType: filePath
+    filePath: './Scripts\create-nuget-packages.ps1'
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: 'Test Coyote.CLI NuGet package'
+  inputs:
+    targetType: filePath
+    filePath: './Scripts/test-cli-package.ps1'
+    failOnStderr: true

@@ -364,7 +364,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Gets the <see cref="AsyncOperation"/> associated with the specified
         /// unique id, or null if no such operation exists.
         /// </summary>
+#if !DEBUG
         [DebuggerStepThrough]
+#endif
         internal TAsyncOperation GetOperationWithId<TAsyncOperation>(ulong id)
             where TAsyncOperation : AsyncOperation
         {

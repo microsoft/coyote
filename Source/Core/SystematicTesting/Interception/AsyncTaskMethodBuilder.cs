@@ -59,7 +59,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
-        [DebuggerHidden]
         public static AsyncTaskMethodBuilder Create() =>
             new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
 
@@ -78,14 +77,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Associates the builder with the specified state machine.
         /// </summary>
-        [DebuggerHidden]
         public void SetStateMachine(IAsyncStateMachine stateMachine) =>
             this.MethodBuilder.SetStateMachine(stateMachine);
 
         /// <summary>
         /// Marks the task as successfully completed.
         /// </summary>
-        [DebuggerHidden]
         public void SetResult()
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
@@ -96,13 +93,17 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Marks the task as failed and binds the specified exception to the task.
         /// </summary>
-        [DebuggerHidden]
-        public void SetException(Exception exception) => this.MethodBuilder.SetException(exception);
+        public void SetException(Exception exception)
+        {
+            this.TaskController?.OnAsyncTaskMethodBuilderSetException(exception);
+            this.MethodBuilder.SetException(exception);
+        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
         [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
@@ -115,6 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
         [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
@@ -173,7 +175,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
-        [DebuggerHidden]
         public static AsyncTaskMethodBuilder<TResult> Create() =>
             new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
 #pragma warning restore CA1000 // Do not declare static members on generic types
@@ -193,7 +194,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Associates the builder with the specified state machine.
         /// </summary>
-        [DebuggerHidden]
         public void SetStateMachine(IAsyncStateMachine stateMachine) =>
             this.MethodBuilder.SetStateMachine(stateMachine);
 
@@ -201,7 +201,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Marks the task as successfully completed.
         /// </summary>
         /// <param name="result">The result to use to complete the task.</param>
-        [DebuggerHidden]
         public void SetResult(TResult result)
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
@@ -212,16 +211,20 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Marks the task as failed and binds the specified exception to the task.
         /// </summary>
-        [DebuggerHidden]
-        public void SetException(Exception exception) => this.MethodBuilder.SetException(exception);
+        public void SetException(Exception exception)
+        {
+            this.TaskController?.OnAsyncTaskMethodBuilderSetException(exception);
+            this.MethodBuilder.SetException(exception);
+        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
         [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
-            where TAwaiter : INotifyCompletion
-            where TStateMachine : IAsyncStateMachine
+                where TAwaiter : INotifyCompletion
+                where TStateMachine : IAsyncStateMachine
         {
             this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
@@ -231,6 +234,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
         /// </summary>
         [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine

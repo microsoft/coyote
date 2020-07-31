@@ -23,9 +23,11 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
         }
 
-        [Fact(Timeout = 5000)]
+        [Fact(Skip = "[Low priority] Requires binary rewriting support.", Timeout = 5000)]
         public void TestExpectedIdInTaskWithAction()
         {
+            // TODO: this scenario can be enabled with binary rewriting, but its low priority as .NET
+            // does not recommend using task ids besides logging (as there can be duplicates).
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
@@ -45,9 +47,11 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             replay: true);
         }
 
-        [Fact(Timeout = 5000)]
+        [Fact(Skip = "[Low priority] Requires binary rewriting support.", Timeout = 5000)]
         public void TestExpectedIdInTaskWithFunction()
         {
+            // TODO: this scenario can be enabled with binary rewriting, but its low priority as .NET
+            // does not recommend using task ids besides logging (as there can be duplicates).
             this.TestWithError(async () =>
             {
                 var task = Task.Run(() =>

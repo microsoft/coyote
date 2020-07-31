@@ -167,7 +167,7 @@ namespace Microsoft.Coyote.Tasks
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var controller = ControlledRuntime.Current.TaskController;
-                return new Task(controller, controller.ScheduleAction(action, null, false, cancellationToken));
+                return new Task(controller, controller.ScheduleAction(action, null, false, false, cancellationToken));
             }
 
             return new Task(null, SystemTasks.Task.Run(action, cancellationToken));
@@ -255,7 +255,7 @@ namespace Microsoft.Coyote.Tasks
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var controller = ControlledRuntime.Current.TaskController;
-                return new Task<TResult>(controller, controller.ScheduleDelegate<TResult>(function, null, cancellationToken));
+                return new Task<TResult>(controller, controller.ScheduleFunction(function, null, cancellationToken));
             }
 
             return new Task<TResult>(null, SystemTasks.Task.Run(function, cancellationToken));

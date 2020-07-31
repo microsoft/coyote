@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestExpectedIdInTaskWithAction()
+        public void TestAsyncInvocation()
         {
             this.TestWithError(async () =>
             {

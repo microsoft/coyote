@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -36,6 +37,17 @@ namespace Microsoft.Coyote.SystematicTesting
         /// in the set must complete before this operation can resume.
         /// </summary>
         private readonly HashSet<Task> JoinDependencies;
+
+        /// <summary>
+        /// The <see cref="Exception"/> that caused this operation to end prematurely.
+        /// If the operation completed successfully or has not yet thrown any exceptions,
+        /// this will be null.
+        /// </summary>
+        /// <remarks>
+        /// Only an exception thrown during the execution of an asynchronous state machine
+        /// is currently being captured by this property.
+        /// </remarks>
+        internal Exception Exception { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
@@ -135,5 +147,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Status = AsyncOperationStatus.Enabled;
             }
         }
+
+        /// <summary>
+        /// Sets the <see cref="Exception"/> that caused this operation to end prematurely.
+        /// </summary>
+        internal void SetException(Exception exception) => this.Exception = exception;
     }
 }

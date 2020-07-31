@@ -149,6 +149,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the specified test method.
         /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
         internal void RunTest(Delegate testMethod, string testName)
         {
             testName = string.IsNullOrEmpty(testName) ? string.Empty : $" '{testName}'";
@@ -156,10 +159,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Assert(testMethod != null, "Unable to execute a null test method.");
             this.Assert(Task.CurrentId != null, "The test must execute inside a controlled task.");
 
-            ulong operationId = this.GetNextOperationId();
-            var op = new TaskOperation(operationId, this.Scheduler);
-            this.Scheduler.RegisterOperation(op);
-
+            TaskOperation op = this.CreateTaskOperation();
             Task task = new Task(() =>
             {
                 try
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                     this.Scheduler.StartOperation(op);
 
-                    Task resultTask = null;
+                    Task testMethodTask = null;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
                     {
                         actionWithRuntime(this);
@@ -181,38 +181,44 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                     else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
                     {
-                        resultTask = functionWithRuntime(this);
+                        testMethodTask = functionWithRuntime(this);
                     }
                     else if (testMethod is Func<Task> function)
                     {
-                        resultTask = function();
+                        testMethodTask = function();
                     }
                     else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime2)
                     {
-                        resultTask = functionWithRuntime2(this).UncontrolledTask;
+                        testMethodTask = functionWithRuntime2(this).UncontrolledTask;
                     }
                     else if (testMethod is Func<CoyoteTasks.Task> function2)
                     {
-                        resultTask = function2().UncontrolledTask;
+                        testMethodTask = function2().UncontrolledTask;
                     }
                     else
                     {
                         throw new InvalidOperationException($"Unsupported test delegate of type '{testMethod.GetType()}'.");
                     }
 
-                    if (resultTask != null)
+                    if (testMethodTask != null)
                     {
-                        op.OnWaitTask(resultTask);
-                        if (resultTask.Exception != null)
+                        // The test method is asynchronous, so wait on the task to complete.
+                        op.OnWaitTask(testMethodTask);
+                        if (testMethodTask.Exception != null)
                         {
-                            ExceptionDispatchInfo.Capture(resultTask.Exception).Throw();
+                            // The test method failed with an unhandled exception.
+                            ExceptionDispatchInfo.Capture(testMethodTask.Exception).Throw();
+                        }
+                        else if (testMethodTask.IsCanceled)
+                        {
+                            throw new TaskCanceledException(testMethodTask);
                         }
                     }
 
                     IO.Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", op.Name, Task.CurrentId);
                     op.OnCompleted();
 
-                    // Task has completed, schedule the next enabled operation.
+                    // Task has completed, schedule the next enabled operation, which terminates exploration.
                     this.Scheduler.ScheduleNextOperation();
                 }
                 catch (Exception ex)
@@ -223,6 +229,17 @@ namespace Microsoft.Coyote.SystematicTesting
 
             task.Start();
             this.Scheduler.WaitOperationStart(op);
+        }
+
+        /// <summary>
+        /// Creates a new task operation.
+        /// </summary>
+        internal TaskOperation CreateTaskOperation()
+        {
+            ulong operationId = this.GetNextOperationId();
+            var op = new TaskOperation(operationId, this.Scheduler);
+            this.Scheduler.RegisterOperation(op);
+            return op;
         }
 
         /// <summary>
@@ -526,6 +543,43 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void ProcessUnhandledExceptionInOperation(AsyncOperation op, Exception ex)
         {
+            string message = null;
+            Exception exception = UnwrapException(ex);
+            if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
+            {
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
+                    exception.GetType().Name, op.Name);
+            }
+            else if (exception is ObjectDisposedException)
+            {
+                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
+                    exception.GetType().Name, op.Name, ex.Message);
+            }
+            else if (op is ActorOperation actorOp)
+            {
+                message = string.Format(CultureInfo.InvariantCulture,
+                    $"Unhandled exception. {exception.GetType()} was thrown in actor {actorOp.Name}, " +
+                    $"'{exception.Source}':\n" +
+                    $"   {exception.Message}\n" +
+                    $"The stack trace is:\n{exception.StackTrace}");
+            }
+            else
+            {
+                message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {exception}");
+            }
+
+            if (message != null)
+            {
+                // Report the unhandled exception.
+                this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
+            }
+        }
+
+        /// <summary>
+        /// Unwraps the specified exception.
+        /// </summary>
+        internal static Exception UnwrapException(Exception ex)
+        {
             Exception exception = ex;
             while (exception is TargetInvocationException)
             {
@@ -537,26 +591,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 exception = exception.InnerException;
             }
 
-            if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
-            {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
-                    exception.GetType().Name, op.Name);
-            }
-            else if (exception is ObjectDisposedException)
-            {
-                IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
-                    exception.GetType().Name, op.Name, ex.Message);
-            }
-            else
-            {
-                // Report the unhandled exception.
-                string message = string.Format(CultureInfo.InvariantCulture,
-                    $"Exception '{exception.GetType()}' was thrown in operation {op.Name}, " +
-                    $"'{exception.Source}':\n" +
-                    $"   {exception.Message}\n" +
-                    $"The stack trace is:\n{exception.StackTrace}");
-                this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
-            }
+            return exception;
         }
 
         /// <inheritdoc/>

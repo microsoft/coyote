@@ -13,9 +13,11 @@
   <ItemGroup>
     <Compile Include="..\Production.Tests\BaseProductionTest.cs" Link="BaseProductionTest.cs" />
     <Compile Include="..\Production.Tests\Tasks\CompletedTaskTests.cs" Link="Tasks\CompletedTaskTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\TaskCancellationTests.cs" Link="Tasks\TaskCancellationTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskCompletionSourceTests.cs" Link="Tasks\TaskCompletionSourceTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskDelayTests.cs" Link="Tasks\TaskDelayTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskExceptionTests.cs" Link="Tasks\TaskExceptionTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\TaskFactoryTests.cs" Link="Tasks\TaskFactoryTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskIdTests.cs" Link="Tasks\TaskIdTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskInterfaceTests.cs" Link="Tasks\TaskInterfaceTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskInterleavingsTests.cs" Link="Tasks\TaskInterleavingsTests.cs" />
@@ -48,5 +50,8 @@
     <None Update="BinaryRewritingTests.coyote.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Threading\" />
   </ItemGroup>
 </Project>

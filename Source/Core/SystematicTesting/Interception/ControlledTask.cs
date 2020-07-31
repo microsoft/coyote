@@ -21,6 +21,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     public static class ControlledTask
     {
         /// <summary>
+        /// Provides access to factory methods for creating controlled <see cref="Task"/>
+        /// and <see cref="Task{TResult}"/> instances.
+        /// </summary>
+        public static TaskFactory Factory { get; } = new TaskFactory();
+
+        /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
         /// object that represents that work. A cancellation token allows the work to be cancelled.
         /// </summary>
@@ -38,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.ScheduleAction(action, null, false, cancellationToken) :
+            ControlledRuntime.Current.TaskController.ScheduleAction(action, null, false, false, cancellationToken) :
             Task.Run(action, cancellationToken);
 
         /// <summary>
@@ -59,9 +65,17 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="cancellationToken">Cancellation token that can be used to cancel the work.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task Run(Func<Task> function, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.ScheduleFunction(function, null, cancellationToken) :
-            Task.Run(function, cancellationToken);
+        public static Task Run(Func<Task> function, CancellationToken cancellationToken)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var controller = ControlledRuntime.Current.TaskController;
+                var task = controller.ScheduleFunction(function, null, cancellationToken);
+                return controller.UnwrapTask(task);
+            }
+
+            return Task.Run(function, cancellationToken);
+        }
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a proxy for the
@@ -83,10 +97,17 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="cancellationToken">Cancellation token that can be used to cancel the work.</param>
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TResult> Run<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.ScheduleFunction(function, null, cancellationToken) :
-            Task.Run(function, cancellationToken);
+        public static Task<TResult> Run<TResult>(Func<Task<TResult>> function, CancellationToken cancellationToken)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var controller = ControlledRuntime.Current.TaskController;
+                var task = controller.ScheduleFunction(function, null, cancellationToken);
+                return controller.UnwrapTask(task);
+            }
+
+            return Task.Run(function, cancellationToken);
+        }
 
         /// <summary>
         /// Queues the specified work to run on the thread pool and returns a <see cref="Task"/>
@@ -109,7 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.TaskController.ScheduleDelegate<TResult>(function, null, cancellationToken) :
+            ControlledRuntime.Current.TaskController.ScheduleFunction(function, null, cancellationToken) :
             Task.Run(function, cancellationToken);
 
         /// <summary>

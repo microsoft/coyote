@@ -9,17 +9,13 @@ using ControlledTasks = Microsoft.Coyote.SystematicTesting.Interception;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
+using SystemThreading = System.Threading;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
 namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskTransform : AssemblyTransform
     {
-        /// <summary>
-        /// Cached generic task type name prefix.
-        /// </summary>
-        private const string GenericTaskTypeNamePrefix = "Task`";
-
         /// <summary>
         /// Cache from member names to rewritten member references.
         /// </summary>
@@ -322,6 +318,18 @@ namespace Microsoft.Coyote.Rewriting
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter));
             }
+            else if (fullName == KnownSystemTypes.TaskExtensionsFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.TaskExtensions), type);
+            }
+            else if (fullName == KnownSystemTypes.TaskFactoryFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory));
+            }
+            else if (fullName == KnownSystemTypes.ThreadPoolFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.ThreadPool));
+            }
 
             if (isRoot && result != type)
             {
@@ -356,12 +364,13 @@ namespace Microsoft.Coyote.Rewriting
         /// Checks if the specified type is the <see cref="SystemTasks.Task"/> type.
         /// </summary>
         private static bool IsSystemTaskType(TypeReference type) => type.Namespace == KnownNamespaces.SystemTasksName &&
-            (type.Name == typeof(SystemTasks.Task).Name || type.Name.StartsWith(GenericTaskTypeNamePrefix));
+            (type.Name == typeof(SystemTasks.Task).Name || type.Name.StartsWith("Task`"));
 
         /// <summary>
         /// Checks if the <see cref="SystemTasks.Task"/> method with the specified name is supported.
         /// </summary>
         private static bool IsSupportedTaskMethod(string name) =>
+            name == "get_Factory" ||
             name == "get_Result" ||
             name == nameof(ControlledTasks.ControlledTask.Run) ||
             name == nameof(ControlledTasks.ControlledTask.Delay) ||
@@ -386,6 +395,9 @@ namespace Microsoft.Coyote.Rewriting
             internal static string GenericTaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
             internal static string YieldAwaitableFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName;
             internal static string YieldAwaiterFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
+            internal static string TaskExtensionsFullName { get; } = typeof(SystemTasks.TaskExtensions).FullName;
+            internal static string TaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory).FullName;
+            internal static string ThreadPoolFullName { get; } = typeof(SystemThreading.ThreadPool).FullName;
         }
 
         /// <summary>

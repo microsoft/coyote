@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.SystematicTesting;
 using SystemCompiler = System.Runtime.CompilerServices;
@@ -43,7 +42,6 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        [DebuggerStepThrough]
         internal TaskAwaiter(TaskController taskController, SystemTasks.Task awaitedTask)
         {
             this.TaskController = taskController;
@@ -54,7 +52,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
-        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult()
         {
             if (!this.IsCompleted)
@@ -68,7 +66,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
-        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Action continuation)
         {
             if (this.TaskController is null)
@@ -84,7 +82,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
-        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation)
         {
             if (this.TaskController is null)
@@ -132,7 +130,6 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
         /// </summary>
-        [DebuggerStepThrough]
         internal TaskAwaiter(TaskController taskController, SystemTasks.Task<TResult> awaitedTask)
         {
             this.TaskController = taskController;
@@ -143,7 +140,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Ends the wait for the completion of the controlled task.
         /// </summary>
-        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TResult GetResult()
         {
             if (!this.IsCompleted)
@@ -157,7 +154,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Sets the action to perform when the controlled task completes.
         /// </summary>
-        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Action continuation)
         {
             if (this.TaskController is null)
@@ -173,7 +170,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Schedules the continuation action that is invoked when the controlled task completes.
         /// </summary>
-        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation)
         {
             if (this.TaskController is null)

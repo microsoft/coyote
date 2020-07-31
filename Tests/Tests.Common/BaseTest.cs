@@ -341,20 +341,41 @@ namespace Microsoft.Coyote.Tests.Common
             bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test, configuration, replay);
+            if (this.IsSystematicTest)
+            {
+                this.InternalTestWithException<TException>(test, configuration, replay);
+            }
+            else
+            {
+                this.RunWithException<TException>(test, configuration);
+            }
         }
 
         protected void TestWithException<TException>(Func<Task> test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test, configuration, replay);
+            if (this.IsSystematicTest)
+            {
+                this.InternalTestWithException<TException>(test, configuration, replay);
+            }
+            else
+            {
+                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
+            }
         }
 
         protected void TestWithException<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null,
             bool replay = false)
             where TException : Exception
         {
-            this.InternalTestWithException<TException>(test, configuration, replay);
+            if (this.IsSystematicTest)
+            {
+                this.InternalTestWithException<TException>(test, configuration, replay);
+            }
+            else
+            {
+                this.RunWithExceptionAsync<TException>(test, configuration).Wait();
+            }
         }
 
         private void InternalTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
@@ -654,6 +675,80 @@ namespace Microsoft.Coyote.Tests.Common
             }
         }
 
+        protected async Task RunWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
+        {
+            configuration = configuration ?? GetConfiguration();
+
+            Type exceptionType = typeof(TException);
+            Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
+                $"Type '{exceptionType}' is not an exception type.");
+
+            TextWriter logger;
+            if (configuration.IsVerbose)
+            {
+                logger = new TestOutputLogger(this.TestOutput, true);
+            }
+            else
+            {
+                logger = TextWriter.Null;
+            }
+
+            try
+            {
+                var runtime = RuntimeFactory.Create(configuration);
+                runtime.SetLogger(logger);
+                for (int i = 0; i < configuration.TestingIterations; i++)
+                {
+                    await test(runtime);
+                }
+            }
+            catch (Exception ex)
+            {
+                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+            }
+            finally
+            {
+                logger.Dispose();
+            }
+        }
+
+        protected async Task RunWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
+        {
+            configuration = configuration ?? GetConfiguration();
+
+            Type exceptionType = typeof(TException);
+            Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
+                $"Type '{exceptionType}' is not an exception type.");
+
+            TextWriter logger;
+            if (configuration.IsVerbose)
+            {
+                logger = new TestOutputLogger(this.TestOutput, true);
+            }
+            else
+            {
+                logger = TextWriter.Null;
+            }
+
+            try
+            {
+                var runtime = RuntimeFactory.Create(configuration);
+                runtime.SetLogger(logger);
+                for (int i = 0; i < configuration.TestingIterations; i++)
+                {
+                    await test();
+                }
+            }
+            catch (Exception ex)
+            {
+                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+            }
+            finally
+            {
+                logger.Dispose();
+            }
+        }
+
         protected async CoyoteTasks.Task WaitAsync(CoyoteTasks.Task task, int millisecondsDelay = 5000)
         {
             if (Debugger.IsAttached)
@@ -754,7 +849,7 @@ namespace Microsoft.Coyote.Tests.Common
         private static void CheckErrors(TestingEngine engine, Type exceptionType)
         {
             Assert.Equal(1, engine.TestReport.NumOfFoundBugs);
-            Assert.Contains("'" + exceptionType.FullName + "'",
+            Assert.Contains(exceptionType.FullName,
                 engine.TestReport.BugReports.First().Split(new[] { '\r', '\n' }).FirstOrDefault());
         }
 

@@ -26,7 +26,7 @@ The following code snippet creates and initializes a `SharedRegister`. It then s
 a different actor `m` by stashing it as part of the payload of an event.
 
 ```c#
-SharedRegister<int> register = SharedRegister.Create<int>(this.Runtime);
+SharedRegister<int> register = SharedRegister.Create<int>(this.Id.Runtime);
 register.SetValue(100);
 this.SendEvent(m, new MyEvent(register, ...));
 var v = register.GetValue();
@@ -70,3 +70,14 @@ intention is to only do read operations on that object).
 
 The same note holds for `SharedRegister<T>` when `T` is a `struct` type with reference fields inside
 it.
+
+## What about System.Collections.Concurrent?
+
+Yes, you can use the .NET thread safe collections to share information across actors but not the
+`BlockingCollection` as this can block and Coyote will not know about that which will lead to
+deadlocks during testing. The other thread safe collections do not have uncontrolled
+non-determinism, either from Task.Run, or from retry loops, timers or waits.
+
+The caveat is that Coyote has not instrumented the .NET concurrent collections, and so coyote does
+not systematically explore thread switching in the middle of these operations, therefore Coyote
+will not always find all data race conditions related to concurrent access on these collections.

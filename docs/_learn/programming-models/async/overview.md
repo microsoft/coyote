@@ -30,6 +30,8 @@ between controlled `Task` objects. In production, a controlled `Task` executes e
 simple wrapper over a native `Task`, with operations being pass-through (Coyote takes control only
 during testing).
 
+[![image](../../../assets/images/channel9_tasks.png)](https://channel9.msdn.com/Shows/On-NET/Reliable-Async-Systems-with-Coyote-Part-1)
+
 ## Overview
 
 The core of the Coyote asynchronous tasks programming model is the controlled `Task` and `Task<T>`
@@ -94,50 +96,62 @@ Say that you have the following simple C# program:
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Specifications;
 
-public class SharedEntry
+public class Program
 {
     public int Value = 0;
-}
 
-public async Task WriteWithDelayAsync(SharedEntry entry, int value)
-{
-    await Task.Delay(100);
-    entry.Value = value;
-}
+  public async Task WriteWithDelayAsync(int value)
+  {
+      await Task.Delay(100);
+      this.Value = value;
+  }
 
-public async Task RunAsync()
-{
-    SharedEntry entry = new SharedEntry();
+  public async Task RunAsync()
+  {
+      Task task1 = WriteWithDelayAsync(3);
+      Task task2 = WriteWithDelayAsync(5);
 
-    Task task1 = WriteWithDelayAsync(entry, 3);
-    Task task2 = WriteWithDelayAsync(entry, 5);
+      await Task.WhenAll(task1, task2);
 
-    await Task.WhenAll(task1, task2);
-
-    Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
+      Specification.Assert(this.Value == 5, "Value is '{0}' instead of 5.", this.Value);
+  }
 }
 ```
 
-The above program contains a `SharedEntry` type that implements a shared container for an `int`
-value. The `WriteWithDelayAsync` is a C# `async` method that asynchronously waits for a controlled
-`Task` to complete after `100`ms (created via the `Task.Delay(100)` call), and then modifies the
-value of the `SharedEntry` object.
+The above program contains a `int Value` that is updated by the `WriteWithDelayAsync` method. This
+is a C# `async` method that asynchronously waits for a controlled `Task` to complete after `100`ms
+(created via the `Task.Delay(100)` call), and then modifies the Value field.
 
-The `RunAsync` asynchronous method is creating a new `SharedEntry` object, and then twice invokes
-the `WriteWithDelayAsync` method by passing the values `3` and `5` respectively. Each method call
-returns a controlled `Task` object, which can be awaited using `await`. The `RunAsync` method first
-invokes the two asynchronous method calls and then calls `Task.WhenAll(...)` to `await` on the
-completion of both tasks.
+The asynchronous `RunAsync` method twice invokes the `WriteWithDelayAsync` method by passing the
+values `3` and `5` respectively. Each method call returns a controlled `Task` object, which can be
+awaited using `await`. The `RunAsync` method first invokes the two asynchronous method calls and
+then calls `Task.WhenAll(...)` to `await` on the completion of both tasks.
 
-Because `WriteWithDelayAsync` method awaits a `Task.Delay` to complete, it will yield control to the
-caller of the method, which is the `RunAsync` method. However, the `RunAsync` method is not awaiting
-immediately upon invoking the `WriteWithDelayAsync` method calls. This means that the two calls can
-happen _asynchronously_, and thus the value in the `SharedEntry` object can be either `3` or `5`
-after `Task.WhenAll(...)` completes.
+Because `WriteWithDelayAsync` method awaits a `Task.Delay` to complete, it will yield control to
+the caller of the method, which is the `RunAsync` method. However, the `RunAsync` method is not
+awaiting immediately upon invoking the `WriteWithDelayAsync` method calls. This means that the two
+calls can happen _asynchronously_, and thus the resulting Value can be either `3` or `5` after
+`Task.WhenAll(...)` completes.
 
 Using `Specification.Assert`, Coyote allows you to write assertions that check these kinds of safety
-properties. In this case, the assertion will check if the value is `5` or not, and if not it will
+properties. In this case, the assertion will check if the Value is `5` or not, and if not it will
 throw an exception, or report an error together with a reproducible trace during testing.
+
+## What about System.Collections.Concurrent?
+
+Yes, you can use the .NET thread safe collections to share information across tasks, but not the
+`BlockingCollection` as this can block and Coyote will not know about that which will lead to
+deadlocks during testing. The other thread safe collections do not have uncontrolled
+non-determinism, either from Task.Run, or from retry loops, timers or waits.
+
+The caveat is that Coyote has not instrumented the .NET concurrent collections, and so coyote does
+not systematically explore thread switching in the middle of these operations, therefore Coyote
+will not always find all data race conditions related to concurrent access on these collections.
+For example, two tasks calling `TryAdd` with the same key, one task will succeed the other will
+not, but Coyote will not systematically explore all possible orderings around this operation. You
+can help Coyote do better by using [ExploreContextSwitch](interleavings).
+
+## Samples
 
 To try out more samples built using the _asynchronous tasks_ programming model see the following:
 

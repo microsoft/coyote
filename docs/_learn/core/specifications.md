@@ -18,14 +18,16 @@ using a `Monitor`.
 Safety property specifications generalize the notion of source code assertions. A safety property
 violation is a finite execution that leads a system to an erroneous state. Coyote provides an API
 for writing assertions that specify safety properties that are local to a Coyote actor or task. In
-the `Task` programming model, you should use `Specification.Assert` and in the `Actor` programming
-model the corresponding API is `Actor.Assert`. In addition, Coyote also provides a way to specify
+the `Task` programming model, you should use `Specification.Assert` (see [Specification
+API](../ref/Microsoft.Coyote.Specifications/SpecificationType)) and in the `Actor` programming model
+the corresponding API is `Actor.Assert`. In addition, Coyote also provides a way to specify
 _global_ assertions that can describe the relationship across tasks or actors.
 
-Coyote provides the notion of a `Monitor`. It is a special kind of actor that can receive events but
-cannot send events to other actors. So it can only observe the execution of a program but not
-influence it: a desirable property when writing specifications in code. A `Monitor` is declared as
-follows:
+Coyote provides the notion of a `Monitor` (see [Monitor
+API](../ref/Microsoft.Coyote.Specifications/MonitorType)). It is a special kind of actor that
+can receive events but cannot send events to other actors. So it can only observe the execution of
+a program but not influence it: a desirable property when writing specifications in code. A
+`Monitor` is declared as follows:
 
 ```c#
 class GlobalSpec : Monitor { ... }

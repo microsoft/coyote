@@ -80,5 +80,8 @@ Bugs involving `System.Threading.Monitor` can be extremely tricky to debug due t
 and can given you clear 100% reproducible bug schedules that you can replay as slowly as you need
 to see what is really going on leading up to such bugs.
 
-For a complete example see the [BoundedBuffer
-sample](https://github.com/microsoft/coyote-samples/tree/master/BoundedBuffer).
+## Sample
+
+For a complete example see the [Extreme Programming meets systematic testing using
+Coyote](https://cloudblogs.microsoft.com/opensource/2020/07/14/extreme-programming-meets-systematic-testing-using-coyote/)
+and the associated [BoundedBuffer example source code](https://github.com/microsoft/coyote-samples/tree/master/BoundedBuffer).

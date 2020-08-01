@@ -193,7 +193,7 @@ You can now use [coyote test](/coyote/learn/tools/testing) to exercise the code 
 can be found. From the `coyote-samples` folder:
 
 ```
-coyote test ./bin/netcoreapp3.1/CoffeeMachineTasks.dll -i 100 -ms 2000 --sch-pct 10
+coyote test ./bin/netcoreapp3.1/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-pct 10
 ```
 
 Chances are this will find a bug quickly, one of the safety assertions will fire and you will see
@@ -286,7 +286,7 @@ different kinds of bugs. The following command line shows how to use `--sch-port
 processes:
 
 ```
-coyote test ./bin/netcoreapp3.1/CoffeeMachineTasks.dll -i 100 -ms 2000 --sch-portfolio --parallel 8
+coyote test ./bin/netcoreapp3.1/CoffeeMachineTasks.dll -i 1000 -ms 500 --sch-portfolio --parallel 8
 ```
 
 which outputs the following:

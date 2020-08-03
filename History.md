@@ -1,3 +1,7 @@
+## v1.0.16
+- Added support for cancellations in `Task.Run` APIs.
+- Optimized various internals of the task testing runtime.
+
 ## v1.0.15
 - Fixed the `Task.WhenAny` and `Task.WhenAll` APIs so that they execute asynchronously during
   systematic testing.

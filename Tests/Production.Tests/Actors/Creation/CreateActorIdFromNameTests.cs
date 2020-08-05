@@ -163,6 +163,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName6()
         {
+            if (!this.IsSystematicTest)
+            {
+                // production runtime just drops the event, no errors are raised.
+                return;
+            }
+
             this.TestWithError(r =>
             {
                 var m = r.CreateActorIdFromName(typeof(M2), "M2");
@@ -176,6 +182,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName7()
         {
+            if (!this.IsSystematicTest)
+            {
+                // production runtime allows reuse of a machine id because it does not keep track
+                // of halted machines.
+                return;
+            }
+
             this.TestWithError(async r =>
             {
                 var setup = new SetupEvent();
@@ -243,14 +256,19 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestCreateActorIdFromName8()
         {
+            if (!this.IsSystematicTest)
+            {
+                // production runtime just drops the event, no errors are raised.
+                return;
+            }
+
             var configuration = Configuration.Create().WithProductionMonitorEnabled();
             configuration.TestingIterations = 100;
 
-            this.TestWithError(async r =>
+            this.TestWithError(r =>
             {
                 var m = r.CreateActorIdFromName(typeof(M4), "M4");
                 r.CreateActor(typeof(M5), new E2(m));
-                await Task.Delay(10);
             },
             configuration,
             expectedError: "Cannot send event 'Events.UnitEvent' to actor id '' that is not bound to an actor instance.",
@@ -281,18 +299,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
                 this.CreateActor(m, typeof(M4), "friendly");
             }
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestCreateActorIdFromName10()
-        {
-            this.TestWithError(r =>
-            {
-                r.CreateActor(typeof(M6));
-                r.CreateActor(typeof(M6));
-            },
-            expectedError: "Actor id '' is used by an existing or previously halted actor.",
-            replay: true);
         }
 
         private class M7 : StateMachine

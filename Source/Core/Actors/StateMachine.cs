@@ -371,6 +371,7 @@ namespace Microsoft.Coyote.Actors
                         // Allow StateMachine to have class level OnEventDoActions the same way Actor allows.
                         this.Runtime.NotifyInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName, e);
                         await this.InvokeActionAsync(handler, e);
+                        await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
                     }
                     else
                     {

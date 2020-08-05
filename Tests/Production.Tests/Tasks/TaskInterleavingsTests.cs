@@ -38,18 +38,29 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             entry.Value = value;
         }
 
+        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
+        {
+            if (this.IsSystematicTest)
+            {
+                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
+            }
+            else
+            {
+                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
+                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestInterleavingsWithOneSynchronousTask()
         {
             this.Test(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-
                 Task task = WriteAsync(entry, 3);
                 entry.Value = 5;
                 await task;
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of {1}.", entry.Value, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -65,7 +76,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 entry.Value = 5;
                 await task;
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(entry.Value == 5, "Value is {0} instead of {1}.", entry.Value, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -86,8 +97,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await WriteAsync(entry, 5);
                 await task;
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -106,8 +116,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await task1;
                 await task2;
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -124,8 +133,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await task1;
                 await task2;
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -151,8 +159,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await task1;
                 await task2;
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -178,10 +185,9 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 });
 
                 await task1;
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(500),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
         }

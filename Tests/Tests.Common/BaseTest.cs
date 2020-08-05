@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
@@ -441,6 +442,7 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
@@ -486,10 +488,12 @@ namespace Microsoft.Coyote.Tests.Common
                     {
                         runtime.OnFailure += (e) =>
                         {
-                            errorTask.SetResult(Unwrap(e));
+                            errorTask.TrySetResult(Unwrap(e));
                         };
                     }
 
+                    // BUGBUG: but is this actually letting the test complete in the case
+                    // of actors which run completely asynchronously?
                     await Task.WhenAny(test(runtime), errorTask.Task);
                     if (handleFailures && errorTask.Task.IsCompleted)
                     {
@@ -523,10 +527,33 @@ namespace Microsoft.Coyote.Tests.Common
             return e;
         }
 
+        private static string ExtractErrorMessage(Exception ex)
+        {
+            if (ex is ActionExceptionFilterException actionException)
+            {
+                ex = actionException.InnerException;
+            }
+
+            var msg = ex.Message;
+            if (ex is AggregateException ae)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var e in ae.InnerExceptions)
+                {
+                    sb.AppendLine(e.Message);
+                }
+
+                msg = sb.ToString();
+            }
+
+            return msg;
+        }
+
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
         {
             configuration = configuration ?? GetConfiguration();
 
+            string errorMessage = string.Empty;
             TextWriter logger;
             if (configuration.IsVerbose)
             {
@@ -539,39 +566,47 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                var errorTask = new TaskCompletionSource<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorTask.TrySetResult(e);
+                };
+
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
+                    if (configuration.TestingIterations == 1)
+                    {
+                        Assert.True(errorTask.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        errorMessage = ExtractErrorMessage(errorTask.Task.Result);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
-                if (ex is AggregateException ae)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var e in ae.InnerExceptions)
-                    {
-                        sb.AppendLine(e.Message);
-                    }
-
-                    msg = sb.ToString();
-                }
-
-                errorChecker(msg);
+                errorMessage = ExtractErrorMessage(ex);
             }
             finally
             {
                 logger.Dispose();
             }
+
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+            }
+
+            errorChecker(errorMessage);
         }
 
         private async Task RunWithErrorsAsync(Func<IActorRuntime, Task> test, Configuration configuration, TestErrorChecker errorChecker)
         {
             configuration = configuration ?? GetConfiguration();
 
+            string errorMessage = string.Empty;
             TextWriter logger;
             if (configuration.IsVerbose)
             {
@@ -584,27 +619,47 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                var errorCompletion = new TaskCompletionSource<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorCompletion.TrySetResult(e);
+                };
+
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test(runtime);
+                    if (configuration.TestingIterations == 1)
+                    {
+                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        errorMessage = ExtractErrorMessage(errorCompletion.Task.Result);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                errorChecker(GetFirstLine(ex.Message));
+                errorMessage = ExtractErrorMessage(ex);
             }
             finally
             {
                 logger.Dispose();
             }
+
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+            }
+
+            errorChecker(errorMessage);
         }
 
         protected void RunWithException<TException>(Action<IActorRuntime> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
+            Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
@@ -621,27 +676,46 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                var errorCompletion = new TaskCompletionSource<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorCompletion.TrySetResult(e);
+                };
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
+                    if (configuration.TestingIterations == 1)
+                    {
+                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        actualException = errorCompletion.Task.Result;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+                actualException = ex;
             }
             finally
             {
                 logger.Dispose();
             }
+
+            if (actualException == null)
+            {
+                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+            }
+
+            Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
         protected void RunWithException<TException>(Action test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
+            Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
@@ -658,27 +732,46 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                var errorCompletion = new TaskCompletionSource<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorCompletion.TrySetResult(e);
+                };
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test();
+                    if (configuration.TestingIterations == 1)
+                    {
+                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        actualException = errorCompletion.Task.Result;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+                actualException = ex;
             }
             finally
             {
                 logger.Dispose();
             }
+
+            if (actualException == null)
+            {
+                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+            }
+
+            Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
         protected async Task RunWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
+            Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
@@ -695,27 +788,48 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                var errorCompletion = new TaskCompletionSource<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorCompletion.TrySetResult(e);
+                };
+
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test(runtime);
+
+                    if (configuration.TestingIterations == 1)
+                    {
+                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        actualException = errorCompletion.Task.Result;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+                actualException = ex;
             }
             finally
             {
                 logger.Dispose();
             }
+
+            if (actualException == null)
+            {
+                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+            }
+
+            Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
         protected async Task RunWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
         {
             configuration = configuration ?? GetConfiguration();
 
+            Exception actualException = null;
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
@@ -732,29 +846,56 @@ namespace Microsoft.Coyote.Tests.Common
 
             try
             {
+                configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
+                var errorCompletion = new TaskCompletionSource<Exception>();
+                runtime.OnFailure += (e) =>
+                {
+                    errorCompletion.TrySetResult(e);
+                };
+
                 runtime.SetLogger(logger);
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test();
+
+                    if (configuration.TestingIterations == 1)
+                    {
+                        Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
+                        actualException = errorCompletion.Task.Result;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Assert.True(ex.GetType() == exceptionType, ex.Message + "\n" + ex.StackTrace);
+                actualException = ex;
             }
             finally
             {
                 logger.Dispose();
             }
+
+            if (actualException == null)
+            {
+                Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
+            }
+
+            Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
         }
 
-        protected async CoyoteTasks.Task WaitAsync(CoyoteTasks.Task task, int millisecondsDelay = 5000)
+        private static int GetExceptionTimeout(int millisecondsDelay = 5000)
         {
             if (Debugger.IsAttached)
             {
                 millisecondsDelay = 500000;
             }
+
+            return millisecondsDelay;
+        }
+
+        protected async CoyoteTasks.Task WaitAsync(CoyoteTasks.Task task, int millisecondsDelay = 5000)
+        {
+            millisecondsDelay = GetExceptionTimeout(millisecondsDelay);
 
             if (this.IsSystematicTest)
             {
@@ -783,10 +924,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async CoyoteTasks.Task<TResult> GetResultAsync<TResult>(CoyoteTasks.Task<TResult> task, int millisecondsDelay = 5000)
         {
-            if (Debugger.IsAttached)
-            {
-                millisecondsDelay = 500000;
-            }
+            millisecondsDelay = GetExceptionTimeout(millisecondsDelay);
 
             if (this.IsSystematicTest)
             {

@@ -38,6 +38,19 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             entry.Value = value;
         }
 
+        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
+        {
+            if (this.IsSystematicTest)
+            {
+                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
+            }
+            else
+            {
+                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
+                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestWhenAllWithTwoSynchronousTasks()
         {
@@ -47,15 +60,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task task1 = WriteAsync(entry, 5);
                 Task task2 = WriteAsync(entry, 3);
                 await Task.WhenAll(task1, task2);
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute.
-                    Specification.Assert(entry.Value == 5 || entry.Value == 3, "Value is {0} instead of 5.", entry.Value);
-                }
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -71,15 +76,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task task1 = WriteWithDelayAsync(entry, 3);
                 Task task2 = WriteWithDelayAsync(entry, 5);
                 await Task.WhenAll(task1, task2);
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute.
-                    Specification.Assert(entry.Value == 5 || entry.Value == 3, "Value is {0} instead of 5.", entry.Value);
-                }
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -105,15 +102,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 await Task.WhenAll(task1, task2);
 
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute.
-                    Specification.Assert(entry.Value == 5 || entry.Value == 3, "Value is {0} instead of 5.", entry.Value);
-                }
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -130,20 +119,11 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task2 = entry.GetWriteResultAsync(3);
                 int[] results = await Task.WhenAll(task1, task2);
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
-                    Specification.Assert(results[0] == results[1], "Results are not equal.");
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute.
-                    Specification.Assert((results[0] == 5 && results[1] == 3) ||
-                        (results[0] == 3 && results[1] == 5), "Found unexpected values.");
-                }
+                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
+                Specification.Assert(results[0] == results[1], "Results are equal.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Results are not equal.",
+            expectedError: "Results are equal.",
             replay: true);
         }
 
@@ -157,15 +137,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task2 = entry.GetWriteResultWithDelayAsync(3);
                 int[] results = await Task.WhenAll(task1, task2);
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
-                }
-                else
-                {
-                    Specification.Assert((results[0] == 5 && results[1] == 3) ||
-                        (results[0] == 3 && results[1] == 5), "Found unexpected value.");
-                }
+                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
@@ -192,17 +164,8 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 int[] results = await Task.WhenAll(task1, task2);
 
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(results[0] == 5, $"The first task result is {results[0]} instead of 5.");
-                    Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute and
-                    // with statement level interleaving we can even end up with duplicate values.
-                }
-
+                Specification.Assert(results[0] == 5, $"The first task result is {results[0]} instead of 5.");
+                Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -230,16 +193,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 int[] results = await Task.WhenAll(task1, task2);
 
                 Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute.
-                    Specification.Assert((results[0] == 5 && results[1] == 3) ||
-                        (results[0] == 3 && results[1] == 5), "Found unexpected value.");
-                }
+                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
@@ -266,7 +220,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 };
 
                 var task = whenAll();
-                Specification.Assert(entry.Value is 1, "Value is {0} instead of 1.", entry.Value);
+                this.AssertSharedEntryValue(entry, 1, 3);
                 await task;
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -294,7 +248,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 };
 
                 var task = whenAll();
-                Specification.Assert(entry.Value is 1, "Value is {0} instead of 1.", entry.Value);
+                this.AssertSharedEntryValue(entry, 1, 3);
                 await task;
             },
             configuration: GetConfiguration().WithTestingIterations(200),

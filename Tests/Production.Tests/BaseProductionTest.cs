@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.Production.Tests
             public async Task<int> GetWriteResultWithDelayAsync(int value)
             {
                 this.Value = value;
-                await Task.Delay(1);
+                await Task.Delay(5);
                 return this.Value;
             }
         }

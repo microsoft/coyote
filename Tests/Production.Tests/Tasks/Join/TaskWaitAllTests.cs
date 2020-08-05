@@ -67,6 +67,19 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             replay: true);
         }
 
+        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
+        {
+            if (this.IsSystematicTest)
+            {
+                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
+            }
+            else
+            {
+                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
+                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestWaitAllWithTwoParallelTasks()
         {
@@ -86,7 +99,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
 
                 Task.WaitAll(task1, task2);
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",

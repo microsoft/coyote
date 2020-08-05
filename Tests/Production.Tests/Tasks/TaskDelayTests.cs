@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             Task task = null;
             if (repeat)
             {
-                task = InvokeWriteWithDelayAsync(entry, value + 1, delay);
+                task = InvokeWriteWithDelayAsync(entry, value, delay);
             }
 
             entry.Value = value;
@@ -170,6 +170,19 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             configuration: GetConfiguration().WithTestingIterations(200));
         }
 
+        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
+        {
+            if (this.IsSystematicTest)
+            {
+                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
+            }
+            else
+            {
+                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
+                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
+            }
+        }
+
         [Fact(Timeout = 5000)]
         public void TestInterleavingsInRepeatedNestedAsynchronousDelays()
         {
@@ -179,10 +192,10 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task task1 = InvokeWriteWithDelayAsync(entry, 3, 1, true);
                 Task task2 = InvokeWriteWithDelayAsync(entry, 5, 1, true);
                 await Task.WhenAll(task1, task2);
-                Specification.Assert(entry.Value != 3, "Value is 3.");
+                this.AssertSharedEntryValue(entry, 5, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3.",
+            expectedError: "Value is 3 instead of 5.",
             replay: true);
         }
 

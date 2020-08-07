@@ -135,11 +135,12 @@ namespace Microsoft.Coyote.Rewriting
             assembly.Dispose();
             if (this.Configuration.IsReplacingAssemblies)
             {
+                string targetPath = Path.Combine(this.Configuration.AssembliesDirectory, assemblyName);
                 File.Copy(outputPath, assemblyPath, true);
                 if (isSymbolFileAvailable)
                 {
                     string pdbFile = Path.ChangeExtension(outputPath, "pdb");
-                    string targetPdbFile = Path.ChangeExtension(assemblyPath, "pdb");
+                    string targetPdbFile = Path.ChangeExtension(targetPath, "pdb");
                     File.Copy(pdbFile, targetPdbFile, true);
                 }
             }

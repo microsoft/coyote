@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,7 +23,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         {
             string configDirectory = this.GetJsonConfigurationDirectory();
             string configPath = Path.Combine(configDirectory, "BinaryRewritingTests.coyote.json");
-            Assert.True(File.Exists(configPath));
+            Assert.True(File.Exists(configPath), "File not found: " + configPath);
 
             var config = RewritingConfiguration.ParseFromJSON(configPath);
             Assert.NotNull(config);
@@ -59,7 +60,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         {
             string binaryDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string configDirectory = subDirectory is null ? binaryDirectory : Path.Combine(binaryDirectory, subDirectory);
-            Assert.True(Directory.Exists(configDirectory));
+            Assert.True(Directory.Exists(configDirectory), "Directory not found: " + configDirectory);
             return configDirectory;
         }
 

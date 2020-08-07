@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
@@ -194,6 +195,7 @@ namespace Microsoft.Coyote
                     Console.WriteLine($". Rewriting {fullPath}");
                     var config = Rewriting.Configuration.Create(assemblyDir, assemblyDir,
                         new HashSet<string>(new string[] { fullPath }));
+                    config.StrongNameKeyFile = Configuration.StrongNameKeyFile;
                     config.PlatformVersion = Configuration.PlatformVersion;
                     AssemblyRewriter.Rewrite(config);
                 }
@@ -202,6 +204,11 @@ namespace Microsoft.Coyote
                     Console.WriteLine($". Rewriting the assemblies specified in {Configuration.RewritingConfigurationFile}");
                     var config = Rewriting.Configuration.ParseFromJSON(Configuration.RewritingConfigurationFile);
                     config.PlatformVersion = Configuration.PlatformVersion;
+                    if (string.IsNullOrEmpty(config.StrongNameKeyFile))
+                    {
+                        config.StrongNameKeyFile = Configuration.StrongNameKeyFile;
+                    }
+
                     AssemblyRewriter.Rewrite(config);
                 }
 

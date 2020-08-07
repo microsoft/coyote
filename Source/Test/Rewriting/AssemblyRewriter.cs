@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
@@ -126,11 +127,22 @@ namespace Microsoft.Coyote.Rewriting
             string outputPath = Path.Combine(outputDirectory, assemblyName);
             Console.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
                 $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
-            assembly.Write(outputPath, new WriterParameters()
+
+            var writeParams = new WriterParameters()
             {
                 WriteSymbols = isSymbolFileAvailable,
                 SymbolWriterProvider = new PortablePdbWriterProvider()
-            });
+            };
+
+            if (!string.IsNullOrEmpty(this.Configuration.StrongNameKeyFile))
+            {
+                using (FileStream fs = File.Open(this.Configuration.StrongNameKeyFile, FileMode.Open))
+                {
+                    writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
+                }
+            }
+
+            assembly.Write(outputPath, writeParams);
 
             assembly.Dispose();
             if (this.Configuration.IsReplacingAssemblies)

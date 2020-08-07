@@ -195,6 +195,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestExploreAllInterleavings()
         {
+            if (!this.IsSystematicTest)
+            {
+                // production version cannot always find all combinations.
+                return;
+            }
+
             SortedSet<string> results = new SortedSet<string>();
 
             string success = "Explored interleavings.";

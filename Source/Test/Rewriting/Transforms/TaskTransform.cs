@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -62,6 +63,7 @@ namespace Microsoft.Coyote.Rewriting
             this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
+            RewriteTestRewrittenAttribute(type);
         }
 
         /// <inheritdoc/>
@@ -358,6 +360,21 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return this.Module.ImportReference(result);
+        }
+
+        /// <summary>
+        /// Changes the boolean flag in TestRewrittenAttributes to true.
+        /// </summary>
+        /// <param name="type">The type that might have a TestRewrittenAttribute.</param>
+        private static void RewriteTestRewrittenAttribute(TypeDefinition type)
+        {
+            CustomAttribute attr = (from a in type.CustomAttributes where a.AttributeType.Name == "TestRewrittenAttribute" select a).FirstOrDefault();
+            if (attr != null)
+            {
+                // found it!
+                var arg = attr.ConstructorArguments[0];
+                attr.ConstructorArguments[0] = new CustomAttributeArgument(arg.Type, true);
+            }
         }
 
         /// <summary>

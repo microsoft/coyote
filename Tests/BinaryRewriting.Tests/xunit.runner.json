@@ -2,5 +2,6 @@
     "parallelizeAssembly": false,
     "parallelizeTestCollections": false,
     "diagnosticMessages": true,
-    "longRunningTestSeconds": 5
+    "longRunningTestSeconds": 5,
+    "shadowCopy":  false
 }

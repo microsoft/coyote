@@ -21,6 +21,7 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
 
 # Runs the specified tool command.
 function Invoke-ToolCommand([String]$tool, [String]$command, [String]$error_msg) {
+    Write-Host "Invoking $tool $command"
     Invoke-Expression "$tool $command"
     if (-not ($LASTEXITCODE -eq 0)) {
         Write-Error $error_msg
@@ -156,4 +157,25 @@ function FindDotNetSdk($dotnet_path)
 
         return $matching_version
     }
+}
+
+function Rewrite($framework, $target, $keyFile)
+{
+    Write-Host -ForegroundColor Yellow "Rewriting: $target"
+    if ($framework -eq "netcoreapp3.1") {
+        $tool = $dotnet
+        $command = "./bin/$f/coyote.dll rewrite $target"
+    } else {
+        $tool = "./bin/$f/coyote.exe"
+        $command = "rewrite $target"
+    }
+
+    if ($framework -ne "netcoreapp3.1" -and [System.Environment]::OSVersion.Platform -eq "Win32NT")
+    {
+        # note: Mono.Cecil cannot sign assemblies on unix platforms.
+        $command = $command + " --key $key_file"
+    }
+
+    $error_msg = "Failed to rewrite using $target"
+    Invoke-ToolCommand -tool $tool -command $command -error_msg $error_msg
 }

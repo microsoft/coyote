@@ -18,10 +18,10 @@ using Xunit.Abstractions;
 #if BINARY_REWRITE
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 #else
-namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
+namespace Microsoft.Coyote.Production.Tests.Tasks
 #endif
 {
-    public class CustomTaskLogTests : BaseSystematicTest
+    public class CustomTaskLogTests : BaseProductionTest
     {
         public CustomTaskLogTests(ITestOutputHelper output)
             : base(output)
@@ -82,6 +82,12 @@ Hi mom!
         [Fact(Timeout = 5000)]
         public void TestCustomTaskRuntimeLog()
         {
+            if (!this.IsSystematicTest)
+            {
+                // assembly has not been rewritten, so skip this test.
+                return;
+            }
+
             var config = GetConfiguration().WithRandomGeneratorSeed(0);
             TestingEngine engine = TestingEngine.Create(config, this.RunAsync);
 

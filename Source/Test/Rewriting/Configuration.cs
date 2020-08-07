@@ -42,6 +42,11 @@ namespace Microsoft.Coyote.Rewriting
         private string DotnetVersion;
 
         /// <summary>
+        /// Path of strong name key to use for signing new assembly.
+        /// </summary>
+        internal string StrongNameKeyFile;
+
+        /// <summary>
         /// The .NET platform version that Coyote was compiled for.
         /// </summary>
         internal string PlatformVersion

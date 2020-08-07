@@ -51,4 +51,25 @@ namespace Microsoft.Coyote.SystematicTesting
     internal sealed class TestRuntimeCreateAttribute : Attribute
     {
     }
+
+    /// <summary>
+    /// Attribute for monitoring when an assembly is rewritten
+    /// by coyote.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class TestRewrittenAttribute : Attribute
+    {
+        /// <summary>
+        /// Whether assembly has been rewritten.
+        /// </summary>
+        public bool Rewritten;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestRewrittenAttribute"/> class.
+        /// </summary>
+        public TestRewrittenAttribute(bool rewritten)
+        {
+            this.Rewritten = rewritten;
+        }
+    }
 }

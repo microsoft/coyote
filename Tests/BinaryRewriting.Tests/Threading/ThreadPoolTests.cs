@@ -5,12 +5,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 {
-    public class ThreadPoolTests : BaseSystematicTest
+    public class ThreadPoolTests : BaseProductionTest
     {
         public ThreadPoolTests(ITestOutputHelper output)
             : base(output)
@@ -70,12 +71,22 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItemWithException()
         {
-            this.TestWithError(() =>
+            if (!this.IsSystematicTest)
+            {
+                // production version of this test results in an unhandled exception.
+                // bugbug: can we rewrite this test so it works both in production and systematic testing modes?
+                // TestQueueUserWorkItemWithAsyncException makes a lot more sense to me.
+                return;
+            }
+
+            this.TestWithError(async () =>
             {
                 ThreadPool.QueueUserWorkItem(_ =>
                 {
                     ThrowException();
                 }, null);
+
+                await Task.Delay(10);
             },
             configuration: GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
@@ -145,6 +156,14 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItemWithException()
         {
+            if (!this.IsSystematicTest)
+            {
+                // production version of this test results in an unhandled exception.
+                // bugbug: can we rewrite this test so it works both in production and systematic testing modes?
+                // TestUnsafeQueueUserWorkItemWithAsyncException makes a lot more sense to me.
+                return;
+            }
+
             this.TestWithError(() =>
             {
                 ThreadPool.UnsafeQueueUserWorkItem(_ =>

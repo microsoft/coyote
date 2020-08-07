@@ -2,7 +2,7 @@ param(
     [string]$dotnet="dotnet",
     [ValidateSet("all","netcoreapp3.1","net47","net48")]
     [string]$framework="all",
-    [ValidateSet("all","production","rewriting","testing")]
+    [ValidateSet("all","production","rewriting","testing","standalone")]
     [string]$test="all",
     [string]$filter="",
     [string]$logger="",
@@ -18,6 +18,7 @@ $targets = [ordered]@{
     "production" = "Production.Tests"
     "rewriting" = "BinaryRewriting.Tests"
     "testing" = "SystematicTesting.Tests"
+    "standalone" = "Standalone.Tests"
 }
 
 [System.Environment]::SetEnvironmentVariable('COYOTE_CLI_TELEMETRY_OPTOUT','1')
@@ -33,20 +34,30 @@ foreach ($kvp in $targets.GetEnumerator()) {
             continue
         }
 
-        if ($($kvp.Name) -eq "rewriting") {
-            if ($f -ne "netcoreapp3.1") {
-                # We only currently support testing .NET Core binary rewriting.
-                continue
-            }
-
-            $config_file = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/netcoreapp3.1/BinaryRewritingTests.coyote.json"
-            $command = "./bin/$f/coyote.dll rewrite $config_file"
-            $error_msg = "Failed to rewrite using 'BinaryRewritingTests.coyote.json'"
-            Invoke-ToolCommand -tool $dotnet -command $command -error_msg $error_msg
-        }
-        
         $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
         Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+
+        if ($($kvp.Name) -eq "rewriting") {
+            $key_file = "$PSScriptRoot/../Common/Key.snk"
+            $config_file = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/BinaryRewritingTests.coyote.json"
+
+            Rewrite -framework $f -target $config_file -keyFile $key_file
+
+            # now run the rewritten test.
+            $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
+            Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+        }
+
+        if ($($kvp.Name) -eq "standalone") {
+            $key_file = "$PSScriptRoot/../Common/Key.snk"
+            $target_file = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Standalone.Tests.dll"
+
+            Rewrite -framework $f -target $target_file -keyFile $key_file
+
+            # now run the rewritten test.
+            $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
+            Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+        }
     }
 }
 

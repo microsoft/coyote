@@ -324,6 +324,11 @@ namespace Microsoft.Coyote
         internal string TelemetryServerPath;
 
         /// <summary>
+        /// Path of strong name key to use for signing new assembly.
+        /// </summary>
+        internal string StrongNameKeyFile;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
         /// </summary>
         protected Configuration()
@@ -587,6 +592,15 @@ namespace Microsoft.Coyote
         internal Configuration WithProductionMonitorEnabled(bool isEnabled = true)
         {
             this.IsMonitoringEnabledInInProduction = isEnabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Enable resigning of assemblies..
+        /// </summary>
+        internal Configuration WithStrongNameKeyFile(string keyFile)
+        {
+            this.StrongNameKeyFile = keyFile;
             return this;
         }
 

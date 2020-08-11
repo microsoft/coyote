@@ -374,6 +374,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="type">The type that might have a TestRewrittenAttribute.</param>
         private static void RewriteTestRewrittenAttribute(TypeDefinition type)
         {
+            // TODO: this should go to a different rewriting pass, its not specific to tasks rewriting.
             CustomAttribute attr = (from a in type.CustomAttributes where a.AttributeType.Name == "TestRewrittenAttribute" select a).FirstOrDefault();
             if (attr != null)
             {
@@ -399,8 +400,10 @@ namespace Microsoft.Coyote.Rewriting
             name == nameof(ControlledTasks.ControlledTask.Delay) ||
             name == nameof(ControlledTasks.ControlledTask.WhenAll) ||
             name == nameof(ControlledTasks.ControlledTask.WhenAny) ||
-            name == nameof(ControlledTasks.ControlledTask.Yield) ||
+            name == nameof(ControlledTasks.ControlledTask.WaitAll) ||
+            name == nameof(ControlledTasks.ControlledTask.WaitAny) ||
             name == nameof(ControlledTasks.ControlledTask.Wait) ||
+            name == nameof(ControlledTasks.ControlledTask.Yield) ||
             name == nameof(ControlledTasks.ControlledTask.GetAwaiter);
 
         /// <summary>

@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         /// <param name="delay">
-        /// The time span to wait before completing the returned task, or TimeSpan.FromMilliseconds(-1)
+        /// The time span to wait before completing the returned task, or Timeout.InfiniteTimeSpan
         /// to wait indefinitely.
         /// </param>
         /// <returns>Task that represents the time delay.</returns>
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
         /// </summary>
         /// <param name="delay">
-        /// The time span to wait before completing the returned task, or TimeSpan.FromMilliseconds(-1)
+        /// The time span to wait before completing the returned task, or Timeout.InfiniteTimeSpan
         /// to wait indefinitely.
         /// </param>
         /// <param name="cancellationToken">Cancellation token that can be used to cancel the delay.</param>
@@ -262,6 +262,135 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
 
         /// <summary>
+        /// Waits for all of the provided <see cref="Task"/> objects to complete execution.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WaitAll(params Task[] tasks) => WaitAll(tasks, Timeout.Infinite, default);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="Task"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="timeout">
+        /// A time span that represents the number of milliseconds to wait, or
+        /// Timeout.InfiniteTimeSpan to wait indefinitely.
+        /// </param>
+        /// <returns>True if all tasks completed execution within the allotted time; otherwise, false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool WaitAll(Task[] tasks, TimeSpan timeout)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return WaitAll(tasks, (int)totalMilliseconds, default);
+        }
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="Task"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <returns>True if all tasks completed execution within the allotted time; otherwise, false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool WaitAll(Task[] tasks, int millisecondsTimeout) => WaitAll(tasks, millisecondsTimeout, default);
+
+        /// <summary>
+        /// Waits for all of the provided <see cref="Task"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WaitAll(Task[] tasks, CancellationToken cancellationToken) =>
+            WaitAll(tasks, Timeout.Infinite, cancellationToken);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="Task"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        /// <returns>True if all tasks completed execution within the allotted time; otherwise, false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool WaitAll(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current.TaskController.WaitAllTasksComplete(tasks) :
+            Task.WaitAll(tasks, millisecondsTimeout, cancellationToken);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="Task"/> objects to complete execution.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <returns>The index of the completed task in the tasks array.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int WaitAny(params Task[] tasks) => WaitAny(tasks, Timeout.Infinite, default);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="Task"/> objects to complete
+        /// execution within a specified time interval.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="timeout">
+        /// A time span that represents the number of milliseconds to wait, or
+        /// Timeout.InfiniteTimeSpan to wait indefinitely.
+        /// </param>
+        /// <returns>The index of the completed task in the tasks array, or -1 if the timeout occurred.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int WaitAny(Task[] tasks, TimeSpan timeout)
+        {
+            long totalMilliseconds = (long)timeout.TotalMilliseconds;
+            if (totalMilliseconds < -1 || totalMilliseconds > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+
+            return WaitAny(tasks, (int)totalMilliseconds, default);
+        }
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="Task"/> objects to complete
+        /// execution within a specified number of milliseconds.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <returns>The index of the completed task in the tasks array, or -1 if the timeout occurred.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int WaitAny(Task[] tasks, int millisecondsTimeout) => WaitAny(tasks, millisecondsTimeout, default);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="Task"/> objects to complete
+        /// execution unless the wait is cancelled.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        /// <returns>The index of the completed task in the tasks array.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int WaitAny(Task[] tasks, CancellationToken cancellationToken) => WaitAny(tasks, Timeout.Infinite, cancellationToken);
+
+        /// <summary>
+        /// Waits for any of the provided <see cref="Task"/> objects to complete
+        /// execution within a specified number of milliseconds or until a cancellation
+        /// token is cancelled.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait for completion.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel the wait.</param>
+        /// <returns>The index of the completed task in the tasks array, or -1 if the timeout occurred.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int WaitAny(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
+            CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current.TaskController.WaitAnyTaskCompletes(tasks) :
+            Task.WaitAny(tasks, millisecondsTimeout, cancellationToken);
+
+        /// <summary>
         /// Waits for the specified <see cref="Task"/> to complete execution.
         /// </summary>
         /// <param name="task">The task performing the wait operation.</param>
@@ -274,7 +403,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="task">The task performing the wait operation.</param>
         /// <param name="timeout">
         /// A time span that represents the number of milliseconds to wait, or
-        /// TimeSpan.FromMilliseconds(-1) to wait indefinitely.
+        /// Timeout.InfiniteTimeSpan to wait indefinitely.
         /// </param>
         /// <returns>True if the task completed execution within the allotted time; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

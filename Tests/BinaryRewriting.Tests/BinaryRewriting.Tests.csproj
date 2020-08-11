@@ -24,6 +24,8 @@
     <Compile Include="..\Production.Tests\Tasks\TaskRunTests.cs" Link="Tasks\TaskRunTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\TaskYieldTests.cs" Link="Tasks\TaskYieldTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\Join\TaskResultTests.cs" Link="Tasks\Join\TaskResultTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitAllTests.cs" Link="Tasks\Join\TaskWaitAllTests.cs" />
+    <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitAnyTests.cs" Link="Tasks\Join\TaskWaitAnyTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitTests.cs" Link="Tasks\Join\TaskWaitTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAllTests.cs" Link="Tasks\Join\TaskWhenAllTests.cs" />
     <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAnyTests.cs" Link="Tasks\Join\TaskWhenAnyTests.cs" />

@@ -2,14 +2,14 @@
 # test that is currently checked out, up to some given -max number of commits
 param(    
     # The filter passed through to same arg on BenchmarkRunner.    
-    [string]$filter="",
+    [string]$filter = "",
     # The maximum number of commits.
-    [int]$max=0  
+    [int]$max = 0  
 )
 
 $ScriptDir = $PSScriptRoot
 $RootDir = "$ScriptDir\.."
-Import-Module $ScriptDir\powershell\common.psm1
+Import-Module $ScriptDir\powershell\common.psm1 -Force
 
 # save the current benchmark code in a temp folder.
 $source = "$ENV:TEMP\Benchmark"
@@ -29,8 +29,7 @@ Write-Host "Saving current benchmark source code"
 Copy-Item "$RootDir\Tests\Performance.Tests" -Recurse "$source\Tests\Performance.Tests"
 Copy-Item "$RootDir\Tools\BenchmarkRunner" -Recurse "$source\Tools\BenchmarkRunner"
 
-function RestoreBenchmark()
-{
+function RestoreBenchmark() {
     Write-Host "Restoring latest benchmark source code"
     Remove-Item "$RootDir\Tests\Performance.Tests" -Recurse -Force
     Copy-Item "$source\Tests\Performance.Tests" -Recurse "$RootDir\Tests\Performance.Tests"
@@ -43,15 +42,14 @@ $benchmarks_dir = "$RootDir\Tools\BenchmarkRunner\bin\netcoreapp3.1"
 $benchmark_runner = "BenchmarkRunner.exe"
 $index = 0
 
-function ProcessCommit($commit)
-{
+function ProcessCommit($commit) {
     Write-Host "===> checking out $commit"
     Invoke-Expression  "git reset --hard"
     Invoke-Expression "git checkout $commit"
     RestoreBenchmark
-    Invoke-ToolCommand -tool "dotnet" -command "build -c release"
+    Invoke-ToolCommand -tool "dotnet" -cmd "build -c release"
     Sleep 5
-    Invoke-ToolCommand -tool "dotnet" -command "build-server shutdown"
+    Invoke-ToolCommand -tool "dotnet" -cmd "build-server shutdown"
     Sleep 5
     $artifacts_dir = "$RootDir\benchmark_$commit"
     Invoke-Expression "$benchmarks_dir\$benchmark_runner -outdir $artifacts_dir -commit $commit -cosmos $filter"
@@ -71,8 +69,7 @@ foreach ($line in $history) {
     $commit = $words[0]
     ProcessCommit $commit
     $index = $index + 1
-    if (($max -ne 0) -And ($index -eq $max))
-    {
+    if (($max -ne 0) -And ($index -eq $max)) {
         Write-Host "Terminating after max tests: $max"
         break
     }

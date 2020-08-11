@@ -1,3 +1,24 @@
+# Invokes the specified coyote tool command on the specified target.
+function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [String]$target, [String]$key) {
+    Write-Comment -prefix "..." -text "Rewriting '$target' ($framework)" -color "white"
+    if ($framework -eq "netcoreapp3.1") {
+        $tool = $dotnet
+        $command = "./bin/$framework/coyote.dll $cmd $target"
+    }
+    else {
+        $tool = "./bin/$framework/coyote.exe"
+        $command = "$cmd $target"
+    }
+    
+    if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and [System.Environment]::OSVersion.Platform -eq "Win32NT") {
+        # note: Mono.Cecil cannot sign assemblies on unix platforms.
+        $command = "$command --key $key"
+    }
+    Write-Comment -prefix "..." -text "$tool" -color "white"
+    $error_msg = "Failed to $cmd '$target'"
+    Invoke-ToolCommand -tool $tool -cmd $command -error_msg $error_msg
+}
+
 # Runs the specified .NET test using the specified framework.
 function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [string]$filter, [string]$framework, [string]$logger, [string]$verbosity) {
     Write-Comment -prefix "..." -text "Testing '$project' ($framework)" -color "white"
@@ -16,13 +37,13 @@ function Invoke-DotnetTest([String]$dotnet, [String]$project, [String]$target, [
     }
 
     $error_msg = "Failed to test '$project'"
-    Invoke-ToolCommand -tool $dotnet -command $command -error_msg $error_msg
+    Invoke-ToolCommand -tool $dotnet -cmd $command -error_msg $error_msg
 }
 
 # Runs the specified tool command.
-function Invoke-ToolCommand([String]$tool, [String]$command, [String]$error_msg) {
-    Write-Host "Invoking $tool $command"
-    Invoke-Expression "$tool $command"
+function Invoke-ToolCommand([String]$tool, [String]$cmd, [String]$error_msg) {
+    Write-Host "Invoking $tool $cmd"
+    Invoke-Expression "$tool $cmd"
     if (-not ($LASTEXITCODE -eq 0)) {
         Write-Error $error_msg
         exit $LASTEXITCODE
@@ -37,11 +58,9 @@ function Write-Error([String]$text) {
     Write-Host "Error: $text" -b "black" -f "red"
 }
 
-function TraverseLink($path)
-{
+function TraverseLink($path) {
     $item = Get-Item $path
-    if ($item.LinkType -eq "SymbolicLink")
-    {
+    if ($item.LinkType -eq "SymbolicLink") {
         $target = $item.Target
         Write-Host "Traversing link $target"
         return TraverseLink($target)
@@ -49,8 +68,7 @@ function TraverseLink($path)
     return $path
 }
 
-function GetMajorVersion($version)
-{
+function GetMajorVersion($version) {
     $parts = $version.Split('.')
     if ($parts.Length -gt 1) {
         return  $parts[0] + "." + $parts[1]
@@ -58,8 +76,7 @@ function GetMajorVersion($version)
     return $version
 }
 
-function GetMinorVersion($version)
-{
+function GetMinorVersion($version) {
     $parts = $version.Split('.')
     $len = $parts.Length
     if ($len -gt 2) {
@@ -69,19 +86,16 @@ function GetMinorVersion($version)
     return 0
 }
 
-function FindDotNet($dotnet)
-{
+function FindDotNet($dotnet) {
     $dotnet_path = $ENV:PATH.split([System.IO.Path]::PathSeparator) | ForEach-Object {
         if (Test-Path -Path "$_\$dotnet.exe") {
             return $_
         }
         $candidate = [System.IO.Path]::Combine($_, "dotnet")
-        if (Test-Path -Path $candidate)
-        {
+        if (Test-Path -Path $candidate) {
             Write-Host "Found path $candidate"
             $candidate = TraverseLink($candidate)
-            if (Test-Path -Path $candidate -PathType Leaf)
-            {
+            if (Test-Path -Path $candidate -PathType Leaf) {
                 Write-Host "Found dotnet app $candidate"
                 $candidate = [System.IO.Path]::GetDirectoryname($candidate)
                 Write-Host "Returning path $candidate"
@@ -90,14 +104,13 @@ function FindDotNet($dotnet)
         }
     }
 
-    if ($dotnet_path -is [array]){
+    if ($dotnet_path -is [array]) {
         $dotnet_path = $dotnet_path[0]
     }
     return $dotnet_path
 }
 
-function FindDotNetSdk($dotnet_path)
-{
+function FindDotNetSdk($dotnet_path) {
     $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
     $globalJson = "$PSScriptRoot/../../global.json"
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
@@ -108,30 +121,23 @@ function FindDotNetSdk($dotnet_path)
     $matching_version = $null
     $best_match = $null
     $exact_match = $false
-    if ("" -ne $dotnet_path)
-    {
-        foreach($item in Get-ChildItem "$sdkpath"  -directory)
-        {
+    if ("" -ne $dotnet_path) {
+        foreach ($item in Get-ChildItem "$sdkpath"  -directory) {
             $name = $item.Name
-            if (-not $name.Contains("-preview"))
-            {
+            if (-not $name.Contains("-preview")) {
                 $found_prefix = GetMajorVersion($name)
                 $found_version = GetMinorVersion($name)
-                if ($prefix -eq $found_prefix)
-                {
-                    if ($null -eq $best_match)
-                    {
+                if ($prefix -eq $found_prefix) {
+                    if ($null -eq $best_match) {
                         $best_match = $found_version
                         $matching_version = $name
                     }
-                    elseif ($found_version -eq $version)
-                    {
+                    elseif ($found_version -eq $version) {
                         $exact_match = $true
                         $best_match = $found_version
                         $matching_version = $name
                     }
-                    elseif ($found_version -gt $best_match -and $exact_match -eq $false)
-                    {
+                    elseif ($found_version -gt $best_match -and $exact_match -eq $false) {
                         # use the newest version then.
                         $best_match = $found_version
                         $matching_version = $name
@@ -140,14 +146,11 @@ function FindDotNetSdk($dotnet_path)
             }
         }
 
-        if ($null -ne $best_match)
-        {
-            if ($global_version -eq $matching_version)
-            {
+        if ($null -ne $best_match) {
+            if ($global_version -eq $matching_version) {
                 Write-Host "Found the correct SDK version $matching_version"
             }
-            else
-            {
+            else {
                 Write-Comment -text "Updating global.json to select version $matching_version" -color "yellow"
                 $json.sdk.version = $matching_version
                 $new_content = $json | ConvertTo-Json
@@ -157,25 +160,4 @@ function FindDotNetSdk($dotnet_path)
 
         return $matching_version
     }
-}
-
-function Rewrite($framework, $target, $keyFile)
-{
-    Write-Host -ForegroundColor Yellow "Rewriting: $target"
-    if ($framework -eq "netcoreapp3.1") {
-        $tool = $dotnet
-        $command = "./bin/$f/coyote.dll rewrite $target"
-    } else {
-        $tool = "./bin/$f/coyote.exe"
-        $command = "rewrite $target"
-    }
-
-    if ($framework -ne "netcoreapp3.1" -and [System.Environment]::OSVersion.Platform -eq "Win32NT")
-    {
-        # note: Mono.Cecil cannot sign assemblies on unix platforms.
-        $command = $command + " --key $key_file"
-    }
-
-    $error_msg = "Failed to rewrite using $target"
-    Invoke-ToolCommand -tool $tool -command $command -error_msg $error_msg
 }

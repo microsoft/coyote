@@ -80,6 +80,12 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestSynchronizeTwoParallelTasks()
         {
+            if (!this.IsSystematicTest)
+            {
+                // .NET cannot guarantee it will find this condition even with 200 iterations.
+                return;
+            }
+
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();

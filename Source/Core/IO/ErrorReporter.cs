@@ -35,8 +35,7 @@ namespace Microsoft.Coyote.IO
         /// </summary>
         public void WriteErrorLine(string value)
         {
-            this.Write("Error: ", ConsoleColor.Red);
-            this.Write(value, ConsoleColor.Yellow);
+            this.Write("Error: " + value, ConsoleColor.Red);
             this.Logger.WriteLine(string.Empty);
         }
 

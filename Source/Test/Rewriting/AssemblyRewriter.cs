@@ -43,6 +43,11 @@ namespace Microsoft.Coyote.Rewriting
         private readonly List<AssemblyTransform> Transforms;
 
         /// <summary>
+        /// The output log.
+        /// </summary>
+        private readonly ConsoleLogger Log = new ConsoleLogger();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
         /// <param name="configuration">The configuration for this rewriter.</param>
@@ -59,8 +64,9 @@ namespace Microsoft.Coyote.Rewriting
 
             this.Transforms = new List<AssemblyTransform>()
             {
-                 new TaskTransform(),
-                 new MonitorTransform()
+                 new TaskTransform(this.Log),
+                 new MonitorTransform(this.Log),
+                 new ExceptionFilterTransform(this.Log)
             };
         }
 
@@ -81,13 +87,22 @@ namespace Microsoft.Coyote.Rewriting
             // Create the output directory and copy any necessery files.
             string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
 
+            int errors = 0;
             // Rewrite the assembly files to the output directory.
             foreach (string assemblyPath in this.Configuration.AssemblyPaths)
             {
-                this.RewriteAssembly(assemblyPath, outputDirectory);
+                try
+                {
+                    this.RewriteAssembly(assemblyPath, outputDirectory);
+                }
+                catch (Exception ex)
+                {
+                    this.Log.WriteErrorLine(ex.Message);
+                    errors++;
+                }
             }
 
-            if (this.Configuration.IsReplacingAssemblies)
+            if (errors == 0 && this.Configuration.IsReplacingAssemblies)
             {
                 // If we are replacing the original assemblies, then delete the temporary output directory.
                 Directory.Delete(outputDirectory, true);
@@ -112,7 +127,7 @@ namespace Microsoft.Coyote.Rewriting
                 throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
             }
 
-            Console.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
+            this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
             foreach (var transform in this.Transforms)
             {
                 // Traverse the assembly to apply each transformation pass.
@@ -125,7 +140,7 @@ namespace Microsoft.Coyote.Rewriting
 
             // Write the binary in the output path with portable symbols enabled.
             string outputPath = Path.Combine(outputDirectory, assemblyName);
-            Console.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
+            this.Log.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
                 $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
 
             var writeParams = new WriterParameters()
@@ -195,6 +210,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private static void RewriteMethod(MethodDefinition method, AssemblyTransform transform)
         {
+            if (method.Body == null)
+            {
+                return;
+            }
+
             Debug.WriteLine($"........... Method {method.FullName}");
             transform.VisitMethod(method);
 
@@ -239,7 +259,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if (!this.Configuration.IsReplacingAssemblies)
             {
-                Console.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
+                this.Log.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
 
                 // Copy all files to the output directory, while preserving directory structure.
                 foreach (string directoryPath in Directory.GetDirectories(sourceDirectory, "*", SearchOption.AllDirectories))
@@ -283,7 +303,7 @@ namespace Microsoft.Coyote.Rewriting
             assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
 
             // Add the assembly resolution error handler.
-            assemblyResolver.ResolveFailure += OnResolveAssemblyFailure;
+            assemblyResolver.ResolveFailure += this.OnResolveAssemblyFailure;
             return assemblyResolver;
         }
 
@@ -296,9 +316,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Handles an assembly resolution error.
         /// </summary>
-        private static AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
+        private AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
         {
-            Console.WriteLine("Error resolving assembly: " + reference.FullName);
+            this.Log.WriteErrorLine("Error resolving assembly: " + reference.FullName);
             return null;
         }
     }

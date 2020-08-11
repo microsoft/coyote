@@ -57,6 +57,13 @@ foreach ($kvp in $targets.GetEnumerator()) {
             # now run the rewritten test.
             $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
             Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+            
+            # test that we can also rewrite a rewritten assembly and do no damage!
+            Rewrite -framework $f -target $target_file -keyFile $key_file
+
+            # now run the rewritten test again.
+            $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
+            Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
         }
     }
 }

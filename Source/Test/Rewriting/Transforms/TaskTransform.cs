@@ -43,10 +43,16 @@ namespace Microsoft.Coyote.Rewriting
         private ILProcessor Processor;
 
         /// <summary>
+        /// Console output writer.
+        /// </summary>
+        private readonly ConsoleLogger Log;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TaskTransform"/> class.
         /// </summary>
-        internal TaskTransform()
+        internal TaskTransform(ConsoleLogger log)
         {
+            this.Log = log;
             this.RewrittenMethodCache = new Dictionary<string, MethodReference>();
         }
 

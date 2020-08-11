@@ -53,5 +53,29 @@ namespace Microsoft.Coyote.IO
         {
             Console.WriteLine(value);
         }
+
+        /// <summary>
+        /// Reports an error, followed by the current line terminator.
+        /// </summary>
+        /// <param name="value">The string to write.</param>
+#pragma warning disable CA1822 // Mark members as static
+        public void WriteErrorLine(string value)
+#pragma warning restore CA1822 // Mark members as static
+        {
+            Error.Write(Console.Out, ConsoleColor.Red, value);
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Reports an warning, followed by the current line terminator.
+        /// </summary>
+        /// <param name="value">The string to write.</param>
+#pragma warning disable CA1822 // Mark members as static
+        public void WriteWarningLine(string value)
+#pragma warning restore CA1822 // Mark members as static
+        {
+            Error.Write(Console.Out, ConsoleColor.Yellow, value);
+            Console.WriteLine();
+        }
     }
 }

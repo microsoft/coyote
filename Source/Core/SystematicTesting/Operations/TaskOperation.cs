@@ -80,19 +80,26 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal void OnWaitTasks(Task[] tasks, bool waitAll)
         {
-            foreach (var task in tasks)
+            // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
+            // tasks are not completed. If that is the case, then we add all tasks to `JoinDependencies` and wait
+            // at least one to complete. If, however, even one task is completed, then we should not wait, as it
+            // can cause potential deadlocks.
+            if (waitAll || tasks.All(task => !task.IsCompleted))
             {
-                if (!task.IsCompleted)
+                foreach (var task in tasks)
                 {
-                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
-                    this.JoinDependencies.Add(task);
+                    if (!task.IsCompleted)
+                    {
+                        IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
+                        this.JoinDependencies.Add(task);
+                    }
                 }
-            }
 
-            if (this.JoinDependencies.Count > 0)
-            {
-                this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                this.Scheduler.ScheduleNextOperation();
+                if (this.JoinDependencies.Count > 0)
+                {
+                    this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
+                    this.Scheduler.ScheduleNextOperation();
+                }
             }
         }
 
@@ -101,19 +108,22 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal void OnWaitTasks(CoyoteTasks.Task[] tasks, bool waitAll)
         {
-            foreach (var task in tasks)
+            if (waitAll || tasks.All(task => !task.IsCompleted))
             {
-                if (!task.IsCompleted)
+                foreach (var task in tasks)
                 {
-                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
-                    this.JoinDependencies.Add(task.UncontrolledTask);
+                    if (!task.IsCompleted)
+                    {
+                        IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
+                        this.JoinDependencies.Add(task.UncontrolledTask);
+                    }
                 }
-            }
 
-            if (this.JoinDependencies.Count > 0)
-            {
-                this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
-                this.Scheduler.ScheduleNextOperation();
+                if (this.JoinDependencies.Count > 0)
+                {
+                    this.Status = waitAll ? AsyncOperationStatus.BlockedOnWaitAll : AsyncOperationStatus.BlockedOnWaitAny;
+                    this.Scheduler.ScheduleNextOperation();
+                }
             }
         }
 

@@ -363,5 +363,53 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedError: "Reached test assertion.",
             replay: true);
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAllDeadlock()
+        {
+            if (!this.IsSystematicTest)
+            {
+                // .NET cannot detect these deadlocks.
+                return;
+            }
+
+            this.TestWithError(async () =>
+            {
+                // Test that `WhenAll` deadlocks because one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                await Task.WhenAll(tcs.Task, Task.Delay(1));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+            },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAllWithResultsAndDeadlock()
+        {
+            if (!this.IsSystematicTest)
+            {
+                // .NET cannot detect these deadlocks.
+                return;
+            }
+
+            this.TestWithError(async () =>
+            {
+                // Test that `WhenAll` deadlocks because one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                await Task.WhenAll(tcs.Task, Task.FromResult(true));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+            },
+            replay: true);
+        }
     }
 }

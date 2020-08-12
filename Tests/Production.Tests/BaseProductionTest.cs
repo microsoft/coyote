@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Production.Tests
             }
         }
 
-        public class SharedEntry
+        protected class SharedEntry
         {
             public volatile int Value = 0;
 
@@ -53,10 +53,19 @@ namespace Microsoft.Coyote.Production.Tests
             }
         }
 
+        protected static TaskCompletionSource<T> CreateTaskCompletionSource<T>()
+        {
+#if BINARY_REWRITE
+            return new TaskCompletionSource<T>();
+#else
+            return TaskCompletionSource.Create<T>();
+#endif
+        }
+
         /// <summary>
         /// Unwrap the Coyote controlled Task.
         /// </summary>
-        internal static System.Threading.Tasks.Task<T> GetUncontrolledTask<T>(Task<T> task)
+        protected static System.Threading.Tasks.Task<T> GetUncontrolledTask<T>(Task<T> task)
         {
 #if BINARY_REWRITE
             return task;
@@ -68,7 +77,7 @@ namespace Microsoft.Coyote.Production.Tests
         /// <summary>
         /// For tests expecting uncontrolled task assertions, use these as the expectedErrors array.
         /// </summary>
-        public static string[] GetUncontrolledTaskErrorMessages()
+        protected static string[] GetUncontrolledTaskErrorMessages()
         {
             return new string[]
             {

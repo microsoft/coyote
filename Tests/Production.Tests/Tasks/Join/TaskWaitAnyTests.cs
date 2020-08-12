@@ -198,6 +198,34 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             replay: true);
         }
 
+        [Fact(Timeout = 5000)]
+        public void TestWaitAnyWithIncompleteTask()
+        {
+            this.Test(async () =>
+            {
+                // Test that `WaitAny` can complete even if one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                Task.WaitAny(tcs.Task, Task.Delay(1));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAnyWithIncompleteGenericTask()
+        {
+            this.Test(async () =>
+            {
+                // Test that `WaitAny` can complete even if one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                Task.WaitAny(tcs.Task, Task.FromResult(true));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
         private void AssertCompleted(Task task1, Task task2)
         {
             if (this.IsSystematicTest)

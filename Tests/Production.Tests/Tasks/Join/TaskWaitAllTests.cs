@@ -201,5 +201,53 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedError: "Found unexpected value.",
             replay: true);
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAllDeadlock()
+        {
+            if (!this.IsSystematicTest)
+            {
+                // .NET cannot detect these deadlocks.
+                return;
+            }
+
+            this.TestWithError(async () =>
+            {
+                // Test that `WaitAll` deadlocks because one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                Task.WaitAll(tcs.Task, Task.Delay(1));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+            },
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAllWithResultsAndDeadlock()
+        {
+            if (!this.IsSystematicTest)
+            {
+                // .NET cannot detect these deadlocks.
+                return;
+            }
+
+            this.TestWithError(async () =>
+            {
+                // Test that `WaitAll` deadlocks because one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                Task.WaitAll(tcs.Task, Task.FromResult(true));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+            },
+            replay: true);
+        }
     }
 }

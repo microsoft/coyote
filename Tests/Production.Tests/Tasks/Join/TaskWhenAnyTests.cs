@@ -355,5 +355,33 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             expectedError: "Reached test assertion.",
             replay: true);
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAnyWithIncompleteTask()
+        {
+            this.Test(async () =>
+            {
+                // Test that `WhenAny` can complete even if one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                await Task.WhenAny(tcs.Task, Task.Delay(1));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWhenAnyWithIncompleteGenericTask()
+        {
+            this.Test(async () =>
+            {
+                // Test that `WhenAny` can complete even if one of the tasks cannot complete until later.
+                var tcs = CreateTaskCompletionSource<bool>();
+                await Task.WhenAny(tcs.Task, Task.FromResult(true));
+                tcs.SetResult(true);
+                await tcs.Task;
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
     }
 }

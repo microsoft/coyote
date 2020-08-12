@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 namespace Microsoft.Coyote.Production.Tests.Tasks
 #endif
 {
-    public class TaskCompletionSourceTests : BaseTest
+    public class TaskCompletionSourceTests : BaseProductionTest
     {
         public TaskCompletionSourceTests(ITestOutputHelper output)
             : base(output)
@@ -417,15 +417,6 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             },
             expectedError: "Reached test assertion.",
             replay: true);
-        }
-
-        private static TaskCompletionSource<T> CreateTaskCompletionSource<T>()
-        {
-#if BINARY_REWRITE
-            return new TaskCompletionSource<T>();
-#else
-            return TaskCompletionSource.Create<T>();
-#endif
         }
     }
 }

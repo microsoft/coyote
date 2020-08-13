@@ -843,6 +843,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/Write
         - name: WriteLine
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteLine
+        - name: WriteErrorLine
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteErrorLine
+        - name: WriteWarningLine
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteWarningLine
         - name: ConsoleLogger
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/ConsoleLogger
         - name: Encoding
@@ -1144,6 +1148,38 @@ learn-toc:
         subfolderitems:
         - name: Dispose
           link: /learn/ref/Microsoft.Coyote.Tasks/AsyncLock.Releaser/Dispose
+    - name: Microsoft.Coyote.Rewriting
+      link: /learn/ref/MicrosoftCoyoteRewritingNamespace
+      subfolderitems:
+      - name: AssemblyRewriter
+        link: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriterType
+        subfolderitems:
+        - name: Rewrite
+          link: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriter/Rewrite
+        - name: IsAssemblyRewritten
+          link: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriter/IsAssemblyRewritten
+      - name: IsAssemblyRewrittenAttribute
+        link: /learn/ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttributeType
+        subfolderitems:
+        - name: IsAssemblyRewrittenAttribute
+          link: /learn/ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/IsAssemblyRewrittenAttribute
+        - name: Version
+          link: /learn/ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/Version
+      - name: RewritingOptions
+        link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptionsType
+        subfolderitems:
+        - name: Create
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Create
+        - name: ParseFromJSON
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/ParseFromJSON
+        - name: AssembliesDirectory
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDirectory
+        - name: OutputDirectory
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirectory
+        - name: AssemblyPaths
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths
+        - name: IsReplacingAssemblies
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsReplacingAssemblies
     - name: Microsoft.Coyote.SystematicTesting
       link: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
       subfolderitems:
@@ -1182,6 +1218,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
         - name: RegisterPerIterationCallBack
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
+        - name: IsTestRewritten
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten
         - name: SetLogger
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
         - name: TestReport

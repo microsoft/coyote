@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewrites an assembly for systematic testing.
     /// </summary>
-    internal class AssemblyRewriter
+    public class AssemblyRewriter
     {
         /// <summary>
         /// Temporary directory that is used to write the rewritten assemblies
@@ -28,9 +28,9 @@ namespace Microsoft.Coyote.Rewriting
         private const string TempDirectory = "__temp_coyote__";
 
         /// <summary>
-        /// Configuration for rewriting assemblies.
+        /// Options for rewriting assemblies.
         /// </summary>
-        private readonly Configuration Configuration;
+        private readonly RewritingOptions Options;
 
         /// <summary>
         /// List of assemblies that are not allowed to be rewritten.
@@ -50,10 +50,10 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
-        /// <param name="configuration">The configuration for this rewriter.</param>
-        private AssemblyRewriter(Configuration configuration)
+        /// <param name="options">The options for this rewriter.</param>
+        private AssemblyRewriter(RewritingOptions options)
         {
-            this.Configuration = configuration;
+            this.Options = options;
             this.DisallowedAssemblies = new List<string>()
             {
                 "Microsoft.Coyote.dll",
@@ -71,11 +71,11 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the assemblies specified in the configuration.
+        /// Rewrites the assemblies specified in the rewriting options.
         /// </summary>
-        internal static void Rewrite(Configuration configuration)
+        public static void Rewrite(RewritingOptions options)
         {
-            var binaryRewriter = new AssemblyRewriter(configuration);
+            var binaryRewriter = new AssemblyRewriter(options);
             binaryRewriter.Rewrite();
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Coyote.Rewriting
 
             int errors = 0;
             // Rewrite the assembly files to the output directory.
-            foreach (string assemblyPath in this.Configuration.AssemblyPaths)
+            foreach (string assemblyPath in this.Options.AssemblyPaths)
             {
                 try
                 {
@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            if (errors == 0 && this.Configuration.IsReplacingAssemblies)
+            if (errors == 0 && this.Options.IsReplacingAssemblies)
             {
                 // If we are replacing the original assemblies, then delete the temporary output directory.
                 Directory.Delete(outputDirectory, true);
@@ -128,6 +128,14 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
+            if (IsAssemblyRewritten(assembly))
+            {
+                // The assembly has been already rewritten by this version of Coyote, so skip it.
+                this.Log.WriteWarningLine($"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
+                return;
+            }
+
+            ApplyIsAssemblyRewrittenAttribute(assembly);
             foreach (var transform in this.Transforms)
             {
                 // Traverse the assembly to apply each transformation pass.
@@ -141,7 +149,7 @@ namespace Microsoft.Coyote.Rewriting
             // Write the binary in the output path with portable symbols enabled.
             string outputPath = Path.Combine(outputDirectory, assemblyName);
             this.Log.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
-                $"{(this.Configuration.IsReplacingAssemblies ? assemblyPath : outputPath)}");
+                $"{(this.Options.IsReplacingAssemblies ? assemblyPath : outputPath)}");
 
             var writeParams = new WriterParameters()
             {
@@ -149,9 +157,9 @@ namespace Microsoft.Coyote.Rewriting
                 SymbolWriterProvider = new PortablePdbWriterProvider()
             };
 
-            if (!string.IsNullOrEmpty(this.Configuration.StrongNameKeyFile))
+            if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
             {
-                using (FileStream fs = File.Open(this.Configuration.StrongNameKeyFile, FileMode.Open))
+                using (FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open))
                 {
                     writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
                 }
@@ -160,9 +168,9 @@ namespace Microsoft.Coyote.Rewriting
             assembly.Write(outputPath, writeParams);
 
             assembly.Dispose();
-            if (this.Configuration.IsReplacingAssemblies)
+            if (this.Options.IsReplacingAssemblies)
             {
-                string targetPath = Path.Combine(this.Configuration.AssembliesDirectory, assemblyName);
+                string targetPath = Path.Combine(this.Options.AssembliesDirectory, assemblyName);
                 File.Copy(outputPath, assemblyPath, true);
                 if (isSymbolFileAvailable)
                 {
@@ -248,16 +256,41 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
+        /// Applies the <see cref="IsAssemblyRewrittenAttribute"/> attribute to the specified assembly. This attribute
+        /// indicates that the assembly has been rewritten with the current version of Coyote.
+        /// </summary>
+        private static void ApplyIsAssemblyRewrittenAttribute(AssemblyDefinition assembly)
+        {
+            CustomAttribute attribute = GetCustomAttribute(assembly, typeof(IsAssemblyRewrittenAttribute));
+            var attributeArgument = new CustomAttributeArgument(
+                assembly.MainModule.ImportReference(typeof(string)),
+                GetAssemblyRewritterVersion().ToString());
+
+            if (attribute is null)
+            {
+                MethodReference attributeConstructor = assembly.MainModule.ImportReference(
+                    typeof(IsAssemblyRewrittenAttribute).GetConstructor(new Type[] { typeof(string) }));
+                attribute = new CustomAttribute(attributeConstructor);
+                attribute.ConstructorArguments.Add(attributeArgument);
+                assembly.CustomAttributes.Add(attribute);
+            }
+            else
+            {
+                attribute.ConstructorArguments[0] = attributeArgument;
+            }
+        }
+
+        /// <summary>
         /// Creates the output directory, if it does not already exists, and copies all necessery files.
         /// </summary>
         /// <returns>The output directory path.</returns>
         private string CreateOutputDirectoryAndCopyFiles()
         {
-            string sourceDirectory = this.Configuration.AssembliesDirectory;
-            string outputDirectory = Directory.CreateDirectory(this.Configuration.IsReplacingAssemblies ?
-                Path.Combine(this.Configuration.OutputDirectory, TempDirectory) : this.Configuration.OutputDirectory).FullName;
+            string sourceDirectory = this.Options.AssembliesDirectory;
+            string outputDirectory = Directory.CreateDirectory(this.Options.IsReplacingAssemblies ?
+                Path.Combine(this.Options.OutputDirectory, TempDirectory) : this.Options.OutputDirectory).FullName;
 
-            if (!this.Configuration.IsReplacingAssemblies)
+            if (!this.Options.IsReplacingAssemblies)
             {
                 this.Log.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
 
@@ -285,7 +318,7 @@ namespace Microsoft.Coyote.Rewriting
 
             // Copy the `Microsoft.Coyote.dll` assembly to the output directory.
             string coyoteAssemblyPath = typeof(ControlledTask).Assembly.Location;
-            File.Copy(coyoteAssemblyPath, Path.Combine(this.Configuration.OutputDirectory, Path.GetFileName(coyoteAssemblyPath)), true);
+            File.Copy(coyoteAssemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(coyoteAssemblyPath)), true);
 
             return outputDirectory;
         }
@@ -300,12 +333,46 @@ namespace Microsoft.Coyote.Rewriting
 
             // Add known search directories for resolving assemblies.
             assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
-            assemblyResolver.AddSearchDirectory(this.Configuration.AssembliesDirectory);
+            assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
 
             // Add the assembly resolution error handler.
             assemblyResolver.ResolveFailure += this.OnResolveAssemblyFailure;
             return assemblyResolver;
         }
+
+        /// <summary>
+        /// Checks if the specified assembly has been already rewritten with the current version of Coyote.
+        /// </summary>
+        /// <param name="assembly">The assembly to check.</param>
+        /// <returns>True if the assembly has been rewritten, else false.</returns>
+        public static bool IsAssemblyRewritten(Assembly assembly) =>
+            assembly.GetCustomAttribute(typeof(IsAssemblyRewrittenAttribute)) is IsAssemblyRewrittenAttribute attribute &&
+            attribute.Version == GetAssemblyRewritterVersion().ToString();
+
+        /// <summary>
+        /// Checks if the specified assembly has been already rewritten with the current version of Coyote.
+        /// </summary>
+        /// <param name="assembly">The assembly to check.</param>
+        /// <returns>True if the assembly has been rewritten, else false.</returns>
+        private static bool IsAssemblyRewritten(AssemblyDefinition assembly)
+        {
+            var attribute = GetCustomAttribute(assembly, typeof(IsAssemblyRewrittenAttribute));
+            return attribute != null && (string)attribute.ConstructorArguments[0].Value == GetAssemblyRewritterVersion().ToString();
+        }
+
+        /// <summary>
+        /// Returns the first found custom attribute with the specified type, if such an attribute
+        /// is applied to the specified assembly, else null.
+        /// </summary>
+        private static CustomAttribute GetCustomAttribute(AssemblyDefinition assembly, Type attributeType) =>
+            assembly.CustomAttributes.FirstOrDefault(
+                attr => attr.AttributeType.Namespace == attributeType.Namespace &&
+                attr.AttributeType.Name == attributeType.Name);
+
+        /// <summary>
+        /// Returns the version of the assembly rewritter.
+        /// </summary>
+        private static Version GetAssemblyRewritterVersion() => Assembly.GetExecutingAssembly().GetName().Version;
 
         /// <summary>
         /// Checks if the symbol file for the specified assembly is available.

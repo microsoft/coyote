@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Coyote.Performanc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryRewriting.Tests", "Tests\BinaryRewriting.Tests\BinaryRewriting.Tests.csproj", "{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standalone.Tests", "Tests\Standalone.Tests\Standalone.Tests.csproj", "{E719FD60-9CDE-4DE9-BD2C-5DB1053AC552}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standalone.Tests", "Tests\Standalone.Tests\Standalone.Tests.csproj", "{E719FD60-9CDE-4DE9-BD2C-5DB1053AC552}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

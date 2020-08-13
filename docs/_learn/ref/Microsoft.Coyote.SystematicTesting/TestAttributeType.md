@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestAttributeType
 ---
 # TestAttribute class
 
-Attribute for declaring the entry point to a Coyote program test.
+Attribute for declaring the entry point to a Coyote test.
 
 ```csharp
 [AttributeUsage(AttributeTargets.Method)]

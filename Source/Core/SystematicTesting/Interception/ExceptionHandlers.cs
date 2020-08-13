@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel;
-using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.SystematicTesting.Interception
 {

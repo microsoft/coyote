@@ -16,6 +16,7 @@ using System.Xml;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using Microsoft.Coyote.Telemetry;
@@ -980,6 +981,12 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return iteration % this.PrintGuard == 0;
         }
+
+        /// <summary>
+        /// Checks if the test executed by the testing engine has been rewritten.
+        /// </summary>
+        /// <returns>True if the test has been rewritten, else false.</returns>
+        public bool IsTestRewritten() => AssemblyRewriter.IsAssemblyRewritten(this.TestMethodInfo.Assembly);
 
         /// <summary>
         /// Installs the specified <see cref="TextWriter"/>.

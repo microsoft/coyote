@@ -21,6 +21,7 @@ public sealed class TestingEngine
 | [ReproducableTrace](TestingEngine/ReproducableTrace) { get; } | The reproducable trace, if any. |
 | [TestReport](TestingEngine/TestReport) { get; set; } | Data structure containing information gathered during testing. |
 | [GetReport](TestingEngine/GetReport)() | Returns a report with the testing results. |
+| [IsTestRewritten](TestingEngine/IsTestRewritten)() | Checks if the test executed by the testing engine has been rewritten. |
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |
 | [Run](TestingEngine/Run)() | Runs the testing engine. |
 | [SetLogger](TestingEngine/SetLogger)(…) | Installs the specified TextWriter. |

@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Coyote.Rewriting;
 using Xunit;
 using Xunit.Abstractions;
-using RewritingConfiguration = Microsoft.Coyote.Rewriting.Configuration;
 
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 {
@@ -25,16 +24,16 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             string configPath = Path.Combine(configDirectory, "BinaryRewritingTests.coyote.json");
             Assert.True(File.Exists(configPath), "File not found: " + configPath);
 
-            var config = RewritingConfiguration.ParseFromJSON(configPath);
-            Assert.NotNull(config);
-            config.PlatformVersion = GetPlatformVersion();
+            var options = RewritingOptions.ParseFromJSON(configPath);
+            Assert.NotNull(options);
+            options.PlatformVersion = GetPlatformVersion();
 
-            Assert.Equal(configDirectory, config.AssembliesDirectory);
-            Assert.Equal(Path.Combine(configDirectory), config.OutputDirectory);
-            Assert.True(config.IsReplacingAssemblies);
+            Assert.Equal(configDirectory, options.AssembliesDirectory);
+            Assert.Equal(Path.Combine(configDirectory), options.OutputDirectory);
+            Assert.True(options.IsReplacingAssemblies);
 
-            Assert.Single(config.AssemblyPaths);
-            Assert.Equal(Path.Combine(config.AssembliesDirectory, "Microsoft.Coyote.BinaryRewriting.Tests.dll"), config.AssemblyPaths.First());
+            Assert.Single(options.AssemblyPaths);
+            Assert.Equal(Path.Combine(options.AssembliesDirectory, "Microsoft.Coyote.BinaryRewriting.Tests.dll"), options.AssemblyPaths.First());
         }
 
         [Fact(Timeout = 5000)]
@@ -44,16 +43,16 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             string configPath = Path.Combine(configDirectory, "Test.coyote.json");
             Assert.True(File.Exists(configPath));
 
-            var config = RewritingConfiguration.ParseFromJSON(configPath);
-            Assert.NotNull(config);
-            config.PlatformVersion = GetPlatformVersion();
+            var options = RewritingOptions.ParseFromJSON(configPath);
+            Assert.NotNull(options);
+            options.PlatformVersion = GetPlatformVersion();
 
-            Assert.Equal(Path.Combine(configDirectory, "Input"), config.AssembliesDirectory);
-            Assert.Equal(Path.Combine(configDirectory, "Input", "Output"), config.OutputDirectory);
-            Assert.False(config.IsReplacingAssemblies);
+            Assert.Equal(Path.Combine(configDirectory, "Input"), options.AssembliesDirectory);
+            Assert.Equal(Path.Combine(configDirectory, "Input", "Output"), options.OutputDirectory);
+            Assert.False(options.IsReplacingAssemblies);
 
-            Assert.Single(config.AssemblyPaths);
-            Assert.Equal(Path.Combine(config.AssembliesDirectory, "Test.dll"), config.AssemblyPaths.First());
+            Assert.Single(options.AssemblyPaths);
+            Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test.dll"), options.AssemblyPaths.First());
         }
 
         private string GetJsonConfigurationDirectory(string subDirectory = null)

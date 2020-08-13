@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -12,7 +11,6 @@ using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 using SystemThreading = System.Threading;
 
-#pragma warning disable SA1005 // Single line comments should begin with single space
 namespace Microsoft.Coyote.Rewriting
 {
     internal class TaskTransform : AssemblyTransform
@@ -69,7 +67,6 @@ namespace Microsoft.Coyote.Rewriting
             this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
-            RewriteTestRewrittenAttribute(type);
         }
 
         /// <inheritdoc/>
@@ -366,22 +363,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return this.Module.ImportReference(result);
-        }
-
-        /// <summary>
-        /// Changes the boolean flag in TestRewrittenAttributes to true.
-        /// </summary>
-        /// <param name="type">The type that might have a TestRewrittenAttribute.</param>
-        private static void RewriteTestRewrittenAttribute(TypeDefinition type)
-        {
-            // TODO: this should go to a different rewriting pass, its not specific to tasks rewriting.
-            CustomAttribute attr = (from a in type.CustomAttributes where a.AttributeType.Name == "TestRewrittenAttribute" select a).FirstOrDefault();
-            if (attr != null)
-            {
-                // found it!
-                var arg = attr.ConstructorArguments[0];
-                attr.ConstructorArguments[0] = new CustomAttributeArgument(arg.Type, true);
-            }
         }
 
         /// <summary>

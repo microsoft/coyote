@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Tasks;
 #endif
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;

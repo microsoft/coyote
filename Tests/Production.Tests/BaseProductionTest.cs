@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Reflection;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
 using Microsoft.Coyote.Tasks;
 #endif
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Tests.Common;
 using Xunit.Abstractions;
 
@@ -17,7 +16,6 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests
 namespace Microsoft.Coyote.Production.Tests
 #endif
 {
-    [TestRewritten(false)]
     public abstract class BaseProductionTest : BaseTest
     {
         public BaseProductionTest(ITestOutputHelper output)
@@ -25,14 +23,7 @@ namespace Microsoft.Coyote.Production.Tests
         {
         }
 
-        public override bool IsSystematicTest
-        {
-            get
-            {
-                var attr = this.GetType().GetCustomAttribute(typeof(TestRewrittenAttribute)) as TestRewrittenAttribute;
-                return attr.Rewritten;
-            }
-        }
+        public override bool IsSystematicTest => AssemblyRewriter.IsAssemblyRewritten(this.GetType().Assembly);
 
         protected class SharedEntry
         {

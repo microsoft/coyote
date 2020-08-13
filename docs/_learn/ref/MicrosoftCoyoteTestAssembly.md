@@ -6,11 +6,19 @@ permalink: /learn/ref/MicrosoftCoyoteTestAssembly
 ---
 # Microsoft.Coyote.Test assembly
 
+## Microsoft.Coyote.Rewriting namespace
+
+| public type | description |
+| --- | --- |
+| class [AssemblyRewriter](Microsoft.Coyote.Rewriting/AssemblyRewriterType) | Rewrites an assembly for systematic testing. |
+| class [IsAssemblyRewrittenAttribute](Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttributeType) | Attribute for checking if an assembly has been rewritten by Coyote. If this attribute is applied to an assembly, it denotes that the assembly has been rewritten. |
+| class [RewritingOptions](Microsoft.Coyote.Rewriting/RewritingOptionsType) | Options for rewriting binaries. |
+
 ## Microsoft.Coyote.SystematicTesting namespace
 
 | public type | description |
 | --- | --- |
-| class [TestAttribute](Microsoft.Coyote.SystematicTesting/TestAttributeType) | Attribute for declaring the entry point to a Coyote program test. |
+| class [TestAttribute](Microsoft.Coyote.SystematicTesting/TestAttributeType) | Attribute for declaring the entry point to a Coyote test. |
 | class [TestDisposeAttribute](Microsoft.Coyote.SystematicTesting/TestDisposeAttributeType) | Attribute for declaring a cleanup method to be called when all test iterations terminate. |
 | class [TestingEngine](Microsoft.Coyote.SystematicTesting/TestingEngineType) | Testing engine that can run a controlled concurrency test using a specified configuration. |
 | class [TestInitAttribute](Microsoft.Coyote.SystematicTesting/TestInitAttributeType) | Attribute for declaring the initialization method to be called before testing starts. |

@@ -79,6 +79,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var initMethod = GetTestSetupMethod(assembly, typeof(TestInitAttribute));
             var disposeMethod = GetTestSetupMethod(assembly, typeof(TestDisposeAttribute));
             var iterationDisposeMethod = GetTestSetupMethod(assembly, typeof(TestIterationDisposeAttribute));
+
             return new TestMethodInfo(assembly, testMethod, testName, initMethod, disposeMethod, iterationDisposeMethod);
         }
 

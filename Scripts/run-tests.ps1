@@ -52,15 +52,11 @@ foreach ($kvp in $targets.GetEnumerator()) {
             # First rewrite the test.
             $assembly = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Standalone.Tests.dll"
             Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $assembly -key $key_file
-
-            # Run the rewritten test.
-            $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-            Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
             
-            # Test that we can also rewrite a rewritten assembly and do no damage!
+            # Try rewrite again to test that we skip a rewritten assembly and do no damage!
             Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $assembly -key $key_file
 
-            # Run the rewritten test again.
+            # Run the rewritten test.
             $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
             Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
         }

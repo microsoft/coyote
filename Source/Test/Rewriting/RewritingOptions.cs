@@ -12,29 +12,29 @@ using Microsoft.Coyote.IO;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Configuration for rewriting binaries.
+    /// Options for rewriting binaries.
     /// </summary>
-    internal class Configuration
+    public class RewritingOptions
     {
         /// <summary>
         /// The directory with the assemblies to rewrite.
         /// </summary>
-        internal string AssembliesDirectory { get; private set; }
+        public string AssembliesDirectory { get; private set; }
 
         /// <summary>
         /// The output directory where rewritten assemblies are placed.
         /// </summary>
-        internal string OutputDirectory { get; private set; }
+        public string OutputDirectory { get; private set; }
 
         /// <summary>
         /// The path to the assemblies to rewrite.
         /// </summary>
-        internal HashSet<string> AssemblyPaths { get; private set; }
+        public HashSet<string> AssemblyPaths { get; private set; }
 
         /// <summary>
         /// True if the input assemblies are being replaced by the rewritten ones.
         /// </summary>
-        internal bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
+        public bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
 
         /// <summary>
         /// The .NET platform version that Coyote was compiled for.
@@ -61,29 +61,27 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Configuration"/> class.
+        /// Initializes a new instance of the <see cref="RewritingOptions"/> class.
         /// </summary>
-        private Configuration()
+        private RewritingOptions()
         {
         }
 
         /// <summary>
-        /// Creates a <see cref="Configuration"/> instance from the specified parameters.
+        /// Creates a <see cref="RewritingOptions"/> instance from the specified parameters.
         /// </summary>
-        internal static Configuration Create(string assembliesDirectory, string outputDirectory, HashSet<string> assemblyPaths)
-        {
-            return new Configuration()
+        public static RewritingOptions Create(string assembliesDirectory, string outputDirectory, HashSet<string> assemblyPaths) =>
+            new RewritingOptions()
             {
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,
                 AssemblyPaths = assemblyPaths
             };
-        }
 
         /// <summary>
-        /// Parses the <see cref="Configuration"/> from the specified JSON file.
+        /// Parses the <see cref="RewritingOptions"/> from the specified JSON configuration file.
         /// </summary>
-        internal static Configuration ParseFromJSON(string configurationPath)
+        public static RewritingOptions ParseFromJSON(string configurationPath)
         {
             // TODO: replace with the new 'System.Text.Json' when .NET 5 comes out.
 
@@ -121,7 +119,7 @@ namespace Microsoft.Coyote.Rewriting
                 throw new InvalidOperationException($"Unexpected JSON format in the '{configurationPath}' configuration file.\n{ex.Message}");
             }
 
-            return new Configuration()
+            return new RewritingOptions()
             {
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,

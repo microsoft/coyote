@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tests.Common.Events;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Actors

@@ -19,7 +19,9 @@ public sealed class ConsoleLogger : TextWriter
 | [ConsoleLogger](ConsoleLogger/ConsoleLogger)() | Initializes a new instance of the [`ConsoleLogger`](ConsoleLoggerType) class. |
 | override [Encoding](ConsoleLogger/Encoding) { get; } | When overridden in a derived class, returns the character encoding in which the output is written. |
 | override [Write](ConsoleLogger/Write)(…) | Writes the specified Unicode character value to the standard output stream. (2 methods) |
+| [WriteErrorLine](ConsoleLogger/WriteErrorLine)(…) | Reports an error, followed by the current line terminator. |
 | override [WriteLine](ConsoleLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. |
+| [WriteWarningLine](ConsoleLogger/WriteWarningLine)(…) | Reports an warning, followed by the current line terminator. |
 
 ## Remarks
 

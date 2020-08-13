@@ -60,7 +60,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
 
             var rewritingGroup = this.Parser.GetOrCreateGroup("rewritingGroup", "Binary rewriting options");
             rewritingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "rewrite" };
-            rewritingGroup.AddArgument("key", null, "Path to strong name signing key");
+            rewritingGroup.AddArgument("strong-name-key-file", "snk", "Path to strong name signing key");
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
@@ -334,7 +334,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "instrument-list":
                     configuration.AdditionalCodeCoverageAssemblies[(string)option.Value] = true;
                     break;
-                case "key":
+                case "strong-name-key-file":
                     configuration.StrongNameKeyFile = (string)option.Value;
                     break;
                 case "timeout-delay":

@@ -12,7 +12,7 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
     
     if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and [System.Environment]::OSVersion.Platform -eq "Win32NT") {
         # note: Mono.Cecil cannot sign assemblies on unix platforms.
-        $command = "$command --key $key"
+        $command = "$command -snk $key"
     }
     Write-Comment -prefix "..." -text "$tool" -color "white"
     $error_msg = "Failed to $cmd '$target'"

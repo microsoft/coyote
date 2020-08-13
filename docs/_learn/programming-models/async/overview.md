@@ -67,6 +67,11 @@ details of how `await` works are further explained in the C#
 During testing, using `await` allows the Coyote runtime to automatically inject scheduling points
 and thoroughly explore asynchronous interleavings to find concurrency bugs.
 
+You can choose to use the `Microsoft.Coyote.Tasks.Task` directly in your programs or you can use
+the automatic [rewriting](rewriting) feature which will rewrite your compiled binaries that use
+`System.Threading.Tasks.Task` and inject the required Coyote controls so you can run `coyote test`
+on the rewritten binaries.
+
 ## What happens under the covers
 
 The C# compiler transforms an `async` method into a state machine (literally called

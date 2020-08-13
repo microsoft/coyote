@@ -201,6 +201,12 @@ Actual value was 2."
         [Fact(Timeout = 5000)]
         public void TestSynchronizeTwoParallelTasksAndOneMaxRequest()
         {
+            if (!this.IsSystematicTest)
+            {
+                // .NET semaphores cannot detect deadlocks, that's why you need Coyote test :-)
+                return;
+            }
+
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();

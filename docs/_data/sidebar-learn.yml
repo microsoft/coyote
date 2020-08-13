@@ -47,6 +47,8 @@ learn-toc:
           link: /learn/programming-models/async/synchronized-block
         - name: Improving coverage of fine-grained interleavings
           link: /learn/programming-models/async/interleavings
+        - name: Rewriting binaries
+          link: /learn/programming-models/async/rewriting
     - name: Asynchronous actors
       link: /learn/programming-models/actors/overview
       subfolderitems:
@@ -90,6 +92,8 @@ learn-toc:
   subfolderitems:
     - name: Testing
       link: /learn/tools/testing
+    - name: Rewriting tool
+      link: /learn/tools/rewriting
     - name: Unit testing
       link: /learn/tools/unit-testing
     - name: Tester requirements

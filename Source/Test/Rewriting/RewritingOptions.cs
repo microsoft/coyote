@@ -87,6 +87,7 @@ namespace Microsoft.Coyote.Rewriting
 
             var assembliesDirectory = string.Empty;
             var outputDirectory = string.Empty;
+            string strongNameKeyFile = null;
             var assemblyPaths = new HashSet<string>();
 
             string workingDirectory = Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar;
@@ -101,9 +102,17 @@ namespace Microsoft.Coyote.Rewriting
                     Uri baseUri = new Uri(workingDirectory);
                     Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
                     assembliesDirectory = resolvedUri.LocalPath;
+                    strongNameKeyFile = configuration.StrongNameKeyFile;
 
-                    resolvedUri = new Uri(baseUri, configuration.OutputPath);
-                    outputDirectory = resolvedUri.LocalPath;
+                    if (string.IsNullOrEmpty(configuration.OutputPath))
+                    {
+                        outputDirectory = assembliesDirectory;
+                    }
+                    else
+                    {
+                        resolvedUri = new Uri(baseUri, configuration.OutputPath);
+                        outputDirectory = resolvedUri.LocalPath;
+                    }
 
                     foreach (string assembly in configuration.Assemblies)
                     {
@@ -123,7 +132,8 @@ namespace Microsoft.Coyote.Rewriting
             {
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,
-                AssemblyPaths = assemblyPaths
+                AssemblyPaths = assemblyPaths,
+                StrongNameKeyFile = strongNameKeyFile
             };
         }
 
@@ -171,11 +181,14 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "AssembliesPath", IsRequired = true)]
             public string AssembliesPath { get; set; }
 
-            [DataMember(Name = "OutputPath", IsRequired = true)]
+            [DataMember(Name = "OutputPath")]
             public string OutputPath { get; set; }
 
             [DataMember(Name = "Assemblies", IsRequired = true)]
             public IList<string> Assemblies { get; set; }
+
+            [DataMember(Name = "StrongNameKeyFile")]
+            public string StrongNameKeyFile { get; set; }
         }
     }
 }

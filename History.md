@@ -1,3 +1,7 @@
+## v1.0.17
+- Fixed a bug in the `Actor` logic related to event handlers.
+- Fixed a bug in `Microsoft.Coyote.Task.WhenAny`.
+
 ## v1.0.16
 - Added support for cancellations in `Task.Run` APIs.
 - Optimized various internals of the task testing runtime.

@@ -36,30 +36,25 @@ foreach ($kvp in $targets.GetEnumerator()) {
             continue
         }
 
-        $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-        Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
-
+        $rewriting_target = ""
         if ($($kvp.Name) -eq "rewriting") {
-            # First rewrite the test.
-            $config_file = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/BinaryRewritingTests.coyote.json"
-            Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $config_file -keyFile $key_file
-
-            # Run the rewritten test.
-            $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-            Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+            $rewriting_target = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/BinaryRewritingTests.coyote.json"
         }
         elseif ($($kvp.Name) -eq "standalone") {
-            # First rewrite the test.
-            $assembly = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Standalone.Tests.dll"
-            Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $assembly -key $key_file
-            
-            # Try rewrite again to test that we skip a rewritten assembly and do no damage!
-            Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $assembly -key $key_file
-
-            # Run the rewritten test.
-            $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
-            Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
+            $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Standalone.Tests.dll"
         }
+
+        if ($rewriting_target -ne "") {
+            # Rewrite the test.
+            Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
+            
+            # Try rewrite again to make sure we can skip a rewritten assembly and do no damage!
+            Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
+        }
+
+        # Run the (rewritten) test.
+        $target = "$PSScriptRoot/../Tests/$($kvp.Value)/$($kvp.Value).csproj"
+        Invoke-DotnetTest -dotnet $dotnet -project $($kvp.Name) -target $target -filter $filter -logger $logger -framework $f -verbosity $v
     }
 }
 

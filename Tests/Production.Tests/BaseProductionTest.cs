@@ -8,6 +8,7 @@ using Microsoft.Coyote.Tasks;
 #endif
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Tests.Common;
+using Xunit;
 using Xunit.Abstractions;
 
 #if BINARY_REWRITE
@@ -23,7 +24,18 @@ namespace Microsoft.Coyote.Production.Tests
         {
         }
 
-        public override bool IsSystematicTest => AssemblyRewriter.IsAssemblyRewritten(this.GetType().Assembly);
+        public override bool IsSystematicTest
+        {
+            get
+            {
+                var assembly = this.GetType().Assembly;
+                bool result = AssemblyRewriter.IsAssemblyRewritten(assembly);
+#if BINARY_REWRITE
+                Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
+#endif
+                return result;
+            }
+        }
 
         protected class SharedEntry
         {

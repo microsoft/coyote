@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.OnAsyncTaskMethodBuilderTask();
+                this.TaskController?.CheckExecutingOperationIsControlled();
                 return this.MethodBuilder.Task;
             }
         }
@@ -71,6 +71,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", Task.CurrentId);
+            this.TaskController?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -87,6 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
                 this.MethodBuilder.Task.Id, Task.CurrentId);
+            this.TaskController?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.SetResult();
         }
 
@@ -106,11 +108,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : INotifyCompletion
-            where TStateMachine : IAsyncStateMachine
-        {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
+            where TStateMachine : IAsyncStateMachine =>
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -119,11 +118,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
-            where TStateMachine : IAsyncStateMachine
-        {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
+            where TStateMachine : IAsyncStateMachine =>
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
-        }
     }
 
     /// <summary>
@@ -157,7 +153,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.OnAsyncTaskMethodBuilderTask();
+                this.TaskController?.CheckExecutingOperationIsControlled();
                 return this.MethodBuilder.Task;
             }
         }
@@ -188,6 +184,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             where TStateMachine : IAsyncStateMachine
         {
             IO.Debug.WriteLine("<AsyncBuilder> Start state machine from task '{0}'.", System.Threading.Tasks.Task.CurrentId);
+            this.TaskController?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.Start(ref stateMachine);
         }
 
@@ -205,6 +202,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             IO.Debug.WriteLine("<AsyncBuilder> Set result of task '{0}' from task '{1}'.",
                 this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId);
+            this.TaskController?.CheckExecutingOperationIsControlled();
             this.MethodBuilder.SetResult(result);
         }
 
@@ -224,11 +222,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
                 where TAwaiter : INotifyCompletion
-                where TStateMachine : IAsyncStateMachine
-        {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
+                where TStateMachine : IAsyncStateMachine =>
             this.MethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-        }
 
         /// <summary>
         /// Schedules the state machine to proceed to the next action when the specified awaiter completes.
@@ -237,10 +232,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
-            where TStateMachine : IAsyncStateMachine
-        {
-            this.TaskController?.OnAsyncTaskMethodBuilderAwaitCompleted(awaiter.GetType());
+            where TStateMachine : IAsyncStateMachine =>
             this.MethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
-        }
     }
 }

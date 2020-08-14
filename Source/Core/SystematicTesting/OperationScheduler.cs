@@ -155,8 +155,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
-                    // Checks if concurrency not controlled by the runtime was used.
-                    this.CheckNoExternalConcurrencyUsed();
+                    // Checks if the current operation is controlled by the runtime.
+                    this.CheckExecutingOperationIsControlled();
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -227,8 +227,8 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
-                // Checks if concurrency not controlled by the runtime was used.
-                this.CheckNoExternalConcurrencyUsed();
+                // Checks if the current operation is controlled by the runtime.
+                this.CheckExecutingOperationIsControlled();
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -259,8 +259,8 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
-                // Checks if concurrency not controlled by the runtime was used.
-                this.CheckNoExternalConcurrencyUsed();
+                // Checks if the current operation is controlled by the runtime.
+                this.CheckExecutingOperationIsControlled();
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -417,12 +417,12 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Checks that no task that is not controlled by the runtime is currently executing.
+        /// Checks if the currently executing operation is controlled by the runtime.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void CheckNoExternalConcurrencyUsed()
+        internal void CheckExecutingOperationIsControlled()
         {
             lock (this.SyncObject)
             {

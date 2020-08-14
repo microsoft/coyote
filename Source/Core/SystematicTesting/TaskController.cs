@@ -993,37 +993,19 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
+        /// Checks if the currently executing operation is controlled by the runtime.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void OnAsyncTaskMethodBuilderTask()
+        internal void CheckExecutingOperationIsControlled()
         {
             if (!this.Scheduler.IsAttached)
             {
                 throw new ExecutionCanceledException();
             }
 
-            this.Scheduler.CheckNoExternalConcurrencyUsed();
-        }
-
-        /// <summary>
-        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.AwaitOnCompleted"/>
-        /// or <see cref="AsyncTaskMethodBuilder.AwaitUnsafeOnCompleted"/> is called.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void OnAsyncTaskMethodBuilderAwaitCompleted(Type awaiterType)
-        {
-            bool sameNamespace = awaiterType.Namespace == typeof(CoyoteTasks.TaskAwaiter).Namespace;
-            if (!sameNamespace)
-            {
-                this.Assert(false, "Controlled task '{0}' is trying to wait for an uncontrolled task or " +
-                    "awaiter to complete. Please make sure to use Coyote APIs to express concurrency.",
-                    Task.CurrentId);
-            }
+            this.Scheduler.CheckExecutingOperationIsControlled();
         }
 
         /// <summary>

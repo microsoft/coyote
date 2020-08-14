@@ -691,7 +691,7 @@ namespace Microsoft.Coyote.Tasks
                 return this.InternalTask.Wait(millisecondsTimeout, cancellationToken);
             }
 
-            return this.TaskController.WaitTaskCompletes(this);
+            return this.TaskController.WaitTaskCompletes(this.InternalTask);
         }
 
         /// <summary>
@@ -770,7 +770,7 @@ namespace Microsoft.Coyote.Tasks
                     return this.UncontrolledTask.Result;
                 }
 
-                return this.TaskController.WaitTaskCompletes(this);
+                return this.TaskController.WaitTaskCompletes(this.UncontrolledTask);
             }
         }
 

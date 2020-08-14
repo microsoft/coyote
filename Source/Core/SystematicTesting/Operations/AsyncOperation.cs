@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Tries to enable the operation, if it was not already enabled.
+        /// Tries to enable the operation, if it is not already enabled.
         /// </summary>
         internal virtual void TryEnable()
         {

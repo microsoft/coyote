@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Linq;
 using System.Threading;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
@@ -123,7 +125,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWaitWithTimeout()
+        public void TestWaitTaskWithTimeout()
         {
             // TODO: we do not yet support timeouts in testing, so we will improve this test later,
             // for now we just want to make sure it executes under binary rewriting.
@@ -148,7 +150,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWaitWithCancellationToken()
+        public void TestWaitTaskWithCancellationToken()
         {
             // TODO: we do not yet support cancelation in testing, so we will improve this test later,
             // for now we just want to make sure it executes under binary rewriting.
@@ -174,7 +176,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestWaitWithTimeoutAndCancellationToken()
+        public void TestWaitTaskWithTimeoutAndCancellationToken()
         {
             // TODO: we do not yet support timeout and cancelation in testing, so we will improve this test later,
             // for now we just want to make sure it executes under binary rewriting.
@@ -197,6 +199,75 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitTaskWithException()
+        {
+            this.TestWithError(() =>
+            {
+                var task = Task.Run(() =>
+                {
+                    ThrowException<InvalidOperationException>();
+                });
+
+                AggregateException exception = null;
+
+                try
+                {
+                    task.Wait();
+                }
+                catch (Exception ex)
+                {
+                    exception = ex as AggregateException;
+                }
+
+                Specification.Assert(exception != null, "Expected an `AggregateException`.");
+
+                Exception innerException = exception.InnerExceptions.FirstOrDefault();
+                Specification.Assert(innerException is InvalidOperationException,
+                    $"The inner exception is `{innerException.GetType()}`.");
+
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(1),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestWaitAsyncTaskWithException()
+        {
+            this.TestWithError(() =>
+            {
+                var task = Task.Run(async () =>
+                {
+                    await Task.Delay(1);
+                    ThrowException<InvalidOperationException>();
+                });
+
+                AggregateException exception = null;
+
+                try
+                {
+                    task.Wait();
+                }
+                catch (Exception ex)
+                {
+                    exception = ex as AggregateException;
+                }
+
+                Specification.Assert(exception != null, "Expected an `AggregateException`.");
+
+                Exception innerException = exception.InnerExceptions.FirstOrDefault();
+                Specification.Assert(innerException is InvalidOperationException,
+                    $"The inner exception is `{innerException.GetType()}`.");
+
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(1),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
     }
 }

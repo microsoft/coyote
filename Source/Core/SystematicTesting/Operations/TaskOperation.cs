@@ -127,32 +127,12 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
-        /// <summary>
-        /// Tries to enable the operation, if it was not already enabled.
-        /// </summary>
+        /// <inheritdoc/>
         internal override void TryEnable()
         {
-            if (this.Status == AsyncOperationStatus.BlockedOnWaitAll)
+            if ((this.Status == AsyncOperationStatus.BlockedOnWaitAll && this.JoinDependencies.All(task => task.IsCompleted)) ||
+                (this.Status == AsyncOperationStatus.BlockedOnWaitAny && this.JoinDependencies.Any(task => task.IsCompleted)))
             {
-                IO.Debug.WriteLine("<ScheduleDebug> Try enable operation '{0}'.", this.Id);
-                if (!this.JoinDependencies.All(task => task.IsCompleted))
-                {
-                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for all join tasks to complete.", this.Id);
-                    return;
-                }
-
-                this.JoinDependencies.Clear();
-                this.Status = AsyncOperationStatus.Enabled;
-            }
-            else if (this.Status == AsyncOperationStatus.BlockedOnWaitAny)
-            {
-                IO.Debug.WriteLine("<ScheduleDebug> Try enable operation '{0}'.", this.Id);
-                if (!this.JoinDependencies.Any(task => task.IsCompleted))
-                {
-                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for any join task to complete.", this.Id);
-                    return;
-                }
-
                 this.JoinDependencies.Clear();
                 this.Status = AsyncOperationStatus.Enabled;
             }

@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
-using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -926,24 +925,17 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal bool WaitTaskCompletes(Task task)
         {
-            // TODO: return immediately if completed without errors.
             // TODO: support timeouts and cancellation tokens.
             // int millisecondsTimeout, CancellationToken cancellationToken
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             callerOp.OnWaitTask(task);
-            return true;
-        }
 
-        /// <summary>
-        /// Waits for the task to complete execution. The wait terminates if a timeout interval
-        /// elapses or a cancellation token is canceled before the task completes.
-        /// </summary>
-        internal bool WaitTaskCompletes(CoyoteTasks.Task task)
-        {
-            // TODO: return immediately if completed without errors.
-            // TODO: support timeouts and cancellation tokens.
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.OnWaitTask(task.UncontrolledTask);
+            if (task.IsFaulted)
+            {
+                // Propagate the failing exception by rethrowing it.
+                ExceptionDispatchInfo.Capture(task.Exception).Throw();
+            }
+
             return true;
         }
 
@@ -952,23 +944,16 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal TResult WaitTaskCompletes<TResult>(Task<TResult> task)
         {
-            // TODO: return immediately if completed without errors.
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
             callerOp.OnWaitTask(task);
-            return task.Result;
-        }
 
-        /// <summary>
-        /// Waits for the task to complete execution and returns the result.
-        /// </summary>
-        internal TResult WaitTaskCompletes<TResult>(CoyoteTasks.Task<TResult> task)
-        {
-            // TODO: return immediately if completed without errors.
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            IO.Debug.WriteLine("<Task> '{0}' is waiting task '{1}' with result type '{2}' to complete from task '{3}'.",
-                callerOp.Name, task.Id, typeof(TResult), Task.CurrentId);
-            callerOp.OnWaitTask(task.UncontrolledTask);
-            return task.UncontrolledTask.Result;
+            if (task.IsFaulted)
+            {
+                // Propagate the failing exception by rethrowing it.
+                ExceptionDispatchInfo.Capture(task.Exception).Throw();
+            }
+
+            return task.Result;
         }
 
         /// <summary>
@@ -1055,7 +1040,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 // Traverse the stack trace to find if the current operation is executing an asynchronous state machine.
                 MethodBase method = st.GetFrame(i).GetMethod();
-                if (method.DeclaringType == typeof(SystemCompiler.AsyncVoidMethodBuilder) &&
+                if (method.DeclaringType == typeof(AsyncVoidMethodBuilder) &&
                     (method.Name is "AwaitOnCompleted" || method.Name is "AwaitUnsafeOnCompleted"))
                 {
                     // The operation is executing the root of an async void method, so we need to inline.
@@ -1063,7 +1048,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
                 else if (method.Name is "MoveNext" &&
                     method.DeclaringType.Namespace != typeof(ControlledRuntime).Namespace &&
-                    typeof(SystemCompiler.IAsyncStateMachine).IsAssignableFrom(method.DeclaringType))
+                    typeof(IAsyncStateMachine).IsAssignableFrom(method.DeclaringType))
                 {
                     // The operation is executing the `MoveNext` of an asynchronous state machine.
                     result = true;

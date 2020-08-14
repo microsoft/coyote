@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.Production.Tests
                 var tcs = (e as SetupEvent).Tcs;
                 try
                 {
-                    throw new InvalidOperationException();
+                    ThrowException<InvalidOperationException>();
                 }
                 finally
                 {

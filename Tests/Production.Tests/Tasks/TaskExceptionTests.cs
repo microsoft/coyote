@@ -135,14 +135,14 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             await Task.CompletedTask;
             entry.Value = value;
-            throw new InvalidOperationException();
+            ThrowException<InvalidOperationException>();
         }
 
         private static async Task WriteWithDelayedExceptionAsync(SharedEntry entry, int value)
         {
             await Task.Delay(1);
             entry.Value = value;
-            throw new InvalidOperationException();
+            ThrowException<InvalidOperationException>();
         }
 
         [Fact(Timeout = 5000)]
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 var task = Task.Run(() =>
                 {
                     entry.Value = 5;
-                    throw new InvalidOperationException();
+                    ThrowException<InvalidOperationException>();
                 });
 
                 Exception exception = null;
@@ -240,7 +240,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     entry.Value = 5;
                     await Task.Delay(1);
-                    throw new InvalidOperationException();
+                    ThrowException<InvalidOperationException>();
                 });
 
                 Exception exception = null;
@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 {
                     entry.Value = 5;
                     await Task.Delay(1);
-                    throw new InvalidOperationException();
+                    ThrowException<InvalidOperationException>();
                 }
 
                 var task = Task.Run(Func);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
@@ -76,6 +77,14 @@ namespace Microsoft.Coyote.Production.Tests
             return task.UncontrolledTask;
 #endif
         }
+
+        /// <summary>
+        /// Throw an exception of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of the exception.</typeparam>
+        protected static void ThrowException<T>()
+            where T : Exception, new() =>
+            throw new T();
 
         /// <summary>
         /// For tests expecting uncontrolled task assertions, use these as the expectedErrors array.

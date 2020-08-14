@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Linq;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else
@@ -126,6 +128,77 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTaskResultWithException()
+        {
+            this.TestWithError(() =>
+            {
+                var task = Task.Run(() =>
+                {
+                    ThrowException<InvalidOperationException>();
+                    return 3;
+                });
+
+                AggregateException exception = null;
+
+                try
+                {
+                    _ = task.Result;
+                }
+                catch (Exception ex)
+                {
+                    exception = ex as AggregateException;
+                }
+
+                Specification.Assert(exception != null, "Expected an `AggregateException`.");
+
+                Exception innerException = exception.InnerExceptions.FirstOrDefault();
+                Specification.Assert(innerException is InvalidOperationException,
+                    $"The inner exception is `{innerException.GetType()}`.");
+
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(1),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestAsyncTaskResultWithException()
+        {
+            this.TestWithError(() =>
+            {
+                var task = Task.Run(async () =>
+                {
+                    await Task.Delay(1);
+                    ThrowException<InvalidOperationException>();
+                    return 3;
+                });
+
+                AggregateException exception = null;
+
+                try
+                {
+                    _ = task.Result;
+                }
+                catch (Exception ex)
+                {
+                    exception = ex as AggregateException;
+                }
+
+                Specification.Assert(exception != null, "Expected an `AggregateException`.");
+
+                Exception innerException = exception.InnerExceptions.FirstOrDefault();
+                Specification.Assert(innerException is InvalidOperationException,
+                    $"The inner exception is `{innerException.GetType()}`.");
+
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(1),
+            expectedError: "Reached test assertion.",
             replay: true);
         }
     }

@@ -171,15 +171,8 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Get and order the operations by their id.
                 var ops = this.OperationMap.Values.OrderBy(op => op.Id);
 
-                // Try enable any operation that is currently waiting, but has its dependencies already satisfied.
-                foreach (var op in ops)
-                {
-                    if (op is AsyncOperation machineOp)
-                    {
-                        machineOp.TryEnable();
-                        IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
-                    }
-                }
+                // Enable any blocked operation that has its dependencies already satisfied.
+                EnableBlockedOperations(ops);
 
                 if (!this.Strategy.GetNextOperation(ops, current, isYielding, out AsyncOperation next))
                 {
@@ -357,6 +350,19 @@ namespace Microsoft.Coyote.SystematicTesting
                         Monitor.Wait(this.SyncObject);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Enables any blocked operation that has its dependencies already satisfied.
+        /// </summary>
+        private static void EnableBlockedOperations(IEnumerable<AsyncOperation> operations)
+        {
+            IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operations with satisfied dependencies.");
+            foreach (var op in operations)
+            {
+                op.TryEnable();
+                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
             }
         }
 

@@ -25,8 +25,6 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             tcs.SetResult(7);
         }
 
-        private static void ThrowException() => throw new InvalidOperationException();
-
         private static async Task ThrowExceptionAsync()
         {
             await Task.Delay(1);
@@ -82,7 +80,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             {
                 ThreadPool.QueueUserWorkItem(_ =>
                 {
-                    ThrowException();
+                    ThrowException<InvalidOperationException>();
                 }, null);
 
                 await Task.Delay(10);
@@ -167,7 +165,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             {
                 ThreadPool.UnsafeQueueUserWorkItem(_ =>
                 {
-                    ThrowException();
+                    ThrowException<InvalidOperationException>();
                 }, null);
             },
             configuration: GetConfiguration().WithTestingIterations(10),

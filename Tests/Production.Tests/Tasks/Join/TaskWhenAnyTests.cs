@@ -302,13 +302,13 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task task1 = Task.Run(async () =>
                 {
                     await Task.CompletedTask;
-                    throw new InvalidOperationException();
+                    ThrowException<InvalidOperationException>();
                 });
 
                 Task task2 = Task.Run(async () =>
                 {
                     await Task.CompletedTask;
-                    throw new NotSupportedException();
+                    ThrowException<NotSupportedException>();
                 });
 
                 Task result = await Task.WhenAny(task1, task2);
@@ -333,13 +333,15 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Task<int> task1 = Task.Run<int>(async () =>
                 {
                     await Task.CompletedTask;
-                    throw new InvalidOperationException();
+                    ThrowException<InvalidOperationException>();
+                    return 1;
                 });
 
                 Task<int> task2 = Task.Run<int>(async () =>
                 {
                     await Task.CompletedTask;
-                    throw new NotSupportedException();
+                    ThrowException<NotSupportedException>();
+                    return 3;
                 });
 
                 Task result = await Task.WhenAny(task1, task2);

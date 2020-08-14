@@ -1,0 +1,216 @@
+pool:
+  name: Coyote
+steps:
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet.exe'
+  inputs:
+    versionSpec: 5.4.0
+
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'
+  inputs:
+    useGlobalJson: true
+
+- task: PowerShell@2
+  displayName: 'Build Coyote projects'
+  inputs:
+    targetType: filePath
+    filePath: ./Scripts/build.ps1
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: 'Update the XML documentation'
+  inputs:
+    targetType: filePath
+    filePath: './Scripts/gen-docs.ps1'
+    failOnStderr: true
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning .NET Standard 2.0'
+  inputs:
+    ConnectedServiceName: NuGetCodeSignConnection
+    FolderPath: bin/netstandard2.0
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolSign",
+             "Parameters": {
+                 "OpusName": "Microsoft.Coyote",
+                 "OpusInfo": "https://github.com/Microsoft/Coyote",
+                 "FileDigest": "/fd \"SHA256\"",
+                 "PageHash": "/PH",
+                 "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             },
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         },
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolVerify",
+             "Parameters": {},
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         }
+     ]
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning .NET Standard 2.1'
+  inputs:
+    ConnectedServiceName: NuGetCodeSignConnection
+    FolderPath: bin/netstandard2.1
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolSign",
+             "Parameters": {
+                 "OpusName": "Microsoft.Coyote",
+                 "OpusInfo": "https://github.com/Microsoft/Coyote",
+                 "FileDigest": "/fd \"SHA256\"",
+                 "PageHash": "/PH",
+                 "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             },
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         },
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolVerify",
+             "Parameters": {},
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         }
+     ]
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning .NET Core 3.1'
+  inputs:
+    ConnectedServiceName: NuGetCodeSignConnection
+    FolderPath: bin/netcoreapp3.1
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolSign",
+             "Parameters": {
+                 "OpusName": "Microsoft.Coyote",
+                 "OpusInfo": "https://github.com/Microsoft/Coyote",
+                 "FileDigest": "/fd \"SHA256\"",
+                 "PageHash": "/PH",
+                 "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             },
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         },
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolVerify",
+             "Parameters": {},
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         }
+     ]
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning .NET 4.7'
+  inputs:
+    ConnectedServiceName: NuGetCodeSignConnection
+    FolderPath: bin/net47
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolSign",
+             "Parameters": {
+                 "OpusName": "Microsoft.Coyote",
+                 "OpusInfo": "https://github.com/Microsoft/Coyote",
+                 "FileDigest": "/fd \"SHA256\"",
+                 "PageHash": "/PH",
+                 "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             },
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         },
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolVerify",
+             "Parameters": {},
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         }
+     ]
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning .NET 4.8'
+  inputs:
+    ConnectedServiceName: NuGetCodeSignConnection
+    FolderPath: bin/net48
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolSign",
+             "Parameters": {
+                 "OpusName": "Microsoft.Coyote",
+                 "OpusInfo": "https://github.com/Microsoft/Coyote",
+                 "FileDigest": "/fd \"SHA256\"",
+                 "PageHash": "/PH",
+                 "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+             },
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         },
+         {
+             "KeyCode": "CP-230012",
+             "OperationCode": "SigntoolVerify",
+             "Parameters": {},
+             "ToolName": "sign",
+             "ToolVersion": "1.0"
+         }
+     ]
+
+- task: PowerShell@2
+  displayName: 'Create NuGet package'
+  inputs:
+    targetType: filePath
+    filePath: './Scripts\create-nuget-packages.ps1'
+    failOnStderr: true
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning NuGet package'
+  inputs:
+    ConnectedServiceName: NuGetCodeSignConnection
+    FolderPath: bin/nuget
+    Pattern: '*.nupkg'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-401405",
+         "operationSetCode": "NuGetSign",
+         "parameters": [ ],
+         "toolName": "sign",
+         "toolVersion": "1.0"
+       },
+       {
+         "keyCode": "CP-401405",
+         "operationSetCode": "NuGetVerify",
+         "parameters": [ ],
+         "toolName": "sign",
+         "toolVersion": "1.0"
+       }
+     ]
+
+- task: NuGetCommand@2
+  displayName: 'Publish NuGet packages'
+  inputs:
+    command: push
+    packagesToPush: 'bin/nuget/*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'Coyote NuGet.org'

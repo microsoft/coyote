@@ -135,10 +135,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
+        /// <param name="retries">Denotes number of available retries to schedule the next operation.</param>
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(bool isYielding = false)
+        internal void ScheduleNextOperation(bool isYielding = false, int retries = 5)
         {
             lock (this.SyncObject)
             {
@@ -176,6 +177,21 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (!this.Strategy.GetNextOperation(ops, current, isYielding, out AsyncOperation next))
                 {
+                    // If any operation is blocked on an uncontrolled dependency, then retry scheduling
+                    // the next operation after a delay to try give time to the dependency to complete.
+                    // We only do a limited number of retries, after which we check for a deadlock.
+                    if (ops.Any(op => op.IsBlockedOnUncontrolledDependency()) && retries > 0)
+                    {
+                        Task.Run(async () =>
+                        {
+                            System.Console.WriteLine("Retrying...");
+                            await Task.Delay(10);
+                            this.ScheduleNextOperation(isYielding, retries - 1);
+                        });
+
+                        return;
+                    }
+
                     // Checks if the program has deadlocked.
                     this.CheckIfProgramHasDeadlocked(ops);
 

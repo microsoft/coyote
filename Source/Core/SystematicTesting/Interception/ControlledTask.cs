@@ -243,6 +243,28 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static Task<Task> WhenAny(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
             ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
 
+#if NET5_0
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when either of the
+        /// two tasks have completed.
+        /// </summary>
+        /// <param name="t1">The first task to wait for completion.</param>
+        /// <param name="t2">The second task to wait for completion.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Task> WhenAny(Task t1, Task t2) => CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(new Task[] { t1, t2 }) : Task.WhenAny(t1, t2);
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when either of the
+        /// two tasks have completed.
+        /// </summary>
+        /// <param name="t1">The first task to wait for completion.</param>
+        /// <param name="t2">The second task to wait for completion.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => CoyoteRuntime.IsExecutionControlled ?
+            ControlledRuntime.Current.TaskController.WhenAnyTaskCompletesAsync(new Task<TResult>[] { t1, t2 }) : Task.WhenAny(t1, t2);
+#endif
+
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
         /// in the specified array have completed.

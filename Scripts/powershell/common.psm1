@@ -1,15 +1,15 @@
 # Invokes the specified coyote tool command on the specified target.
 function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [String]$target, [String]$key) {
     Write-Comment -prefix "..." -text "Rewriting '$target' ($framework)" -color "white"
-    if ($framework -eq "netcoreapp3.1") {
+
+    $tool = "./bin/$framework/coyote.exe"
+    $command = "$cmd $target"
+
+    if (-not (Test-Path $tool)) {
         $tool = $dotnet
         $command = "./bin/$framework/coyote.dll $cmd $target"
     }
-    else {
-        $tool = "./bin/$framework/coyote.exe"
-        $command = "$cmd $target"
-    }
-    
+
     if ($command -eq "rewrite" -and $framework -ne "netcoreapp3.1" -and [System.Environment]::OSVersion.Platform -eq "Win32NT") {
         # note: Mono.Cecil cannot sign assemblies on unix platforms.
         $command = "$command -snk $key"
@@ -80,7 +80,7 @@ function GetMinorVersion($version) {
     $parts = $version.Split('.')
     $len = $parts.Length
     if ($len -gt 2) {
-        $number = $parts[2]
+        $number = $parts[2].Split('-')[0]
         return [int]::Parse($number)
     }
     return 0
@@ -109,6 +109,49 @@ function FindDotNet($dotnet) {
     }
     return $dotnet_path
 }
+# find the closest match for installed dotnet SDK, for example:
+# FindInstalledDotNetSdk -dotnet_path "c:\program files\dotnet" -major "3.1" -minor 0
+# returns "3.1.401" assuming that is the newest 3.1 version installed.
+function FindInstalledDotNetSdk($dotnet_path, $major, $minor) {
+    $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
+    $matching_version = $null
+    $best_match = $null
+    $exact_match = $false
+    if ("" -ne $dotnet_path) {
+        foreach ($item in Get-ChildItem "$sdkpath"  -directory) {
+            $name = $item.Name
+            $global_version = $name
+            if ($name.Contains("-preview")) {
+                # For the string to be legal in global.json it must
+                # be major.minor.patch or major.minor.patch-preview.
+                # So we have to remove any preview version like you see
+                # in "5.0.100-preview.7.20366.6"
+                $name = $name.Split("-preview")[0]
+                $global_version = "$name-preview"
+            }
+            $found_major = GetMajorVersion($name)
+            $found_version = GetMinorVersion($name)
+            if ($major -eq $found_major) {
+                if ($null -eq $best_match) {
+                    $best_match = $found_version
+                    $matching_version = $global_version
+                }
+                elseif ($found_version -eq $minor) {
+                    $exact_match = $true
+                    $best_match = $found_version
+                    $matching_version = $global_version
+                }
+                elseif ($found_version -gt $best_match -and $exact_match -eq $false) {
+                    # use the newest version then.
+                    $best_match = $found_version
+                    $matching_version = $global_version
+                }
+            }
+        }
+
+        return $matching_version
+    }
+}
 
 function FindDotNetSdk($dotnet_path) {
     $sdkpath = Join-Path -Path $dotnet_path -ChildPath "sdk"
@@ -116,48 +159,21 @@ function FindDotNetSdk($dotnet_path) {
     $json = Get-Content $globalJson | Out-String | ConvertFrom-Json
     $global_version = $json.sdk.version
     Write-Host "Searching SDK path $sdkpath for version matching global.json: $global_version"
-    $prefix = GetMajorVersion($global_version)
-    $version = GetMinorVersion($global_version)
-    $matching_version = $null
-    $best_match = $null
-    $exact_match = $false
-    if ("" -ne $dotnet_path) {
-        foreach ($item in Get-ChildItem "$sdkpath"  -directory) {
-            $name = $item.Name
-            if (-not $name.Contains("-preview")) {
-                $found_prefix = GetMajorVersion($name)
-                $found_version = GetMinorVersion($name)
-                if ($prefix -eq $found_prefix) {
-                    if ($null -eq $best_match) {
-                        $best_match = $found_version
-                        $matching_version = $name
-                    }
-                    elseif ($found_version -eq $version) {
-                        $exact_match = $true
-                        $best_match = $found_version
-                        $matching_version = $name
-                    }
-                    elseif ($found_version -gt $best_match -and $exact_match -eq $false) {
-                        # use the newest version then.
-                        $best_match = $found_version
-                        $matching_version = $name
-                    }
-                }
-            }
-        }
+    $major = GetMajorVersion($global_version)
+    $minor = GetMinorVersion($global_version)
 
-        if ($null -ne $best_match) {
-            if ($global_version -eq $matching_version) {
-                Write-Host "Found the correct SDK version $matching_version"
-            }
-            else {
-                Write-Comment -text "Updating global.json to select version $matching_version" -color "yellow"
-                $json.sdk.version = $matching_version
-                $new_content = $json | ConvertTo-Json
-                Set-Content $globalJson $new_content
-            }
-        }
+    $matching_version = FindInstalledDotNetSdk -dotnet_path $dotnet_path -major $major -minor $minor
 
-        return $matching_version
+    if ($null -ne $matching_version) {
+        if ($global_version -eq $matching_version) {
+            Write-Host "Found the correct SDK version $matching_version"
+        }
+        else {
+            Write-Comment -text "Updating global.json to select version $matching_version" -color "yellow"
+            $json.sdk.version = $matching_version
+            $new_content = $json | ConvertTo-Json
+            Set-Content $globalJson $new_content
+        }
     }
+    return $matching_version
 }

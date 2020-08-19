@@ -25,23 +25,31 @@
     <NetCore21Installed>false</NetCore21Installed>
     <NetCore22Installed>false</NetCore22Installed>
     <NetCore31Installed>false</NetCore31Installed>
+    <NetCore50Installed>false</NetCore50Installed>
     <Framework47Installed>false</Framework47Installed>
     <Framework48Installed>false</Framework48Installed>
     <NetCore21Installed Condition="$(GlobalVersion.StartsWith('2.1'))">true</NetCore21Installed>
     <NetCore22Installed Condition="$(GlobalVersion.StartsWith('2.2'))">true</NetCore22Installed>
     <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
+    <NetCore31Installed Condition="'$(DOTNET31)'=='yes'">true</NetCore31Installed>
+    <NetCore50Installed Condition="$(GlobalVersion.StartsWith('5.0'))">true</NetCore50Installed>
+    <TargetFrameworks></TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(VSAPPIDNAME)'==''">
+    <!-- only if we are not building from inside of VS, include legacy frameworks -->
     <Framework47Installed Condition="Exists($(Framework47Dir))">true</Framework47Installed>
     <Framework48Installed Condition="Exists($(Framework48Dir))">true</Framework48Installed>
-    <TargetFrameworks></TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(NetCore31Installed)">$(TargetFrameworks);netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
     <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
     <TargetFrameworks Condition='$(NetCore22Installed)'>$(TargetFrameworks);netcoreapp2.2</TargetFrameworks>
     <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
     <TargetFrameworks Condition="$(Framework47Installed) and $(Framework47Supported)">$(TargetFrameworks);net47</TargetFrameworks>
     <TargetFrameworks Condition="$(Framework48Installed)">$(TargetFrameworks);net48</TargetFrameworks>
   </PropertyGroup>
@@ -49,6 +57,7 @@
     <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
     <TargetFrameworks Condition='$(NetCore22Installed)'>$(TargetFrameworks);netcoreapp2.2</TargetFrameworks>
     <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
   <!-- <Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
     <Message Text="Building for .NET $(TargetFrameworks) and GlobalVersion=$(GlobalVersion)" Importance="high"/>

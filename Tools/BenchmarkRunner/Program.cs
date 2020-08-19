@@ -380,7 +380,13 @@ namespace Microsoft.Coyote.Benchmarking
 
         public static string GetRuntimeVersion()
         {
-#if NETSTANDARD2_1
+#if NET5_0
+            return "net5.0";
+#elif NET48
+            return "net48";
+#elif NET47
+            return "net47";
+#elif NETSTANDARD2_1
             return "netstandard2.1";
 #elif NETSTANDARD2_0
             return "netstandard2.0";
@@ -390,10 +396,6 @@ namespace Microsoft.Coyote.Benchmarking
             return "netcoreapp3.1";
 #elif NETCOREAPP
             return "netcoreapp";
-#elif NET48
-            return "net48";
-#elif NET47
-            return "net47";
 #elif NETFRAMEWORK
             return "net";
 #endif

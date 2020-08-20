@@ -114,11 +114,14 @@ namespace Microsoft.Coyote.Rewriting
                         outputDirectory = resolvedUri.LocalPath;
                     }
 
-                    foreach (string assembly in configuration.Assemblies)
+                    if (configuration.Assemblies != null)
                     {
-                        resolvedUri = new Uri(Path.Combine(assembliesDirectory, assembly));
-                        string assemblyFileName = resolvedUri.LocalPath;
-                        assemblyPaths.Add(assemblyFileName);
+                        foreach (string assembly in configuration.Assemblies)
+                        {
+                            resolvedUri = new Uri(Path.Combine(assembliesDirectory, assembly));
+                            string assemblyFileName = resolvedUri.LocalPath;
+                            assemblyPaths.Add(assemblyFileName);
+                        }
                     }
                 }
             }
@@ -184,7 +187,7 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "OutputPath")]
             public string OutputPath { get; set; }
 
-            [DataMember(Name = "Assemblies", IsRequired = true)]
+            [DataMember(Name = "Assemblies")]
             public IList<string> Assemblies { get; set; }
 
             [DataMember(Name = "StrongNameKeyFile")]

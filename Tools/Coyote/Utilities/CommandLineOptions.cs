@@ -178,19 +178,27 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         // In the case of 'coyote rewrite', the path is the JSON configuration file
                         // with the binary rewriting options.
                         string filename = (string)option.Value;
-                        string extension = Path.GetExtension(filename);
-                        if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) == 0)
+                        if (Directory.Exists(filename))
                         {
-                            configuration.RewritingConfigurationFile = filename;
-                        }
-                        else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) == 0 ||
-                            string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            configuration.AssemblyToBeAnalyzed = filename;
+                            // then we want to rewrite a whole folder full of dll's.
+                            configuration.RewritingOptionsPath = filename;
                         }
                         else
                         {
-                            Error.ReportAndExit("Please give a valid .dll or JSON configuration file for binary rewriting.");
+                            string extension = Path.GetExtension(filename);
+                            if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) == 0)
+                            {
+                                configuration.RewritingOptionsPath = filename;
+                            }
+                            else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) == 0 ||
+                                string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) == 0)
+                            {
+                                configuration.AssemblyToBeAnalyzed = filename;
+                            }
+                            else
+                            {
+                                Error.ReportAndExit("Please give a valid .dll or JSON configuration file for binary rewriting.");
+                            }
                         }
                     }
 

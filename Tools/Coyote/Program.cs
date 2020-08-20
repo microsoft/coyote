@@ -185,23 +185,33 @@ namespace Microsoft.Coyote
         {
             try
             {
-                if (string.IsNullOrEmpty(Configuration.RewritingConfigurationFile))
+                string assemblyDir = null;
+                var fileList = new HashSet<string>();
+                if (!string.IsNullOrEmpty(Configuration.AssemblyToBeAnalyzed))
                 {
-                    // We are rewriting a dll directly, so we fake up a default configuration for doing this.
                     var fullPath = Path.GetFullPath(Configuration.AssemblyToBeAnalyzed);
-                    var assemblyDir = Path.GetDirectoryName(fullPath);
-
                     Console.WriteLine($". Rewriting {fullPath}");
-                    var config = RewritingOptions.Create(assemblyDir, assemblyDir,
-                        new HashSet<string>(new string[] { fullPath }));
+                    assemblyDir = Path.GetDirectoryName(fullPath);
+                    fileList.Add(fullPath);
+                }
+                else if (Directory.Exists(Configuration.RewritingOptionsPath))
+                {
+                    assemblyDir = Path.GetFullPath(Configuration.RewritingOptionsPath);
+                    Console.WriteLine($". Rewriting the assemblies specified in {assemblyDir}");
+                }
+
+                if (!string.IsNullOrEmpty(assemblyDir))
+                {
+                    // Create a new RewritingOptions object from scratch
+                    var config = RewritingOptions.Create(assemblyDir, assemblyDir, fileList);
                     config.StrongNameKeyFile = Configuration.StrongNameKeyFile;
                     config.PlatformVersion = Configuration.PlatformVersion;
                     AssemblyRewriter.Rewrite(config);
                 }
                 else
                 {
-                    Console.WriteLine($". Rewriting the assemblies specified in {Configuration.RewritingConfigurationFile}");
-                    var config = RewritingOptions.ParseFromJSON(Configuration.RewritingConfigurationFile);
+                    var config = RewritingOptions.ParseFromJSON(Configuration.RewritingOptionsPath);
+                    Console.WriteLine($". Rewriting the assemblies specified in {config}");
                     config.PlatformVersion = Configuration.PlatformVersion;
                     if (string.IsNullOrEmpty(config.StrongNameKeyFile))
                     {

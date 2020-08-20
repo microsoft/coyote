@@ -51,10 +51,10 @@ namespace Microsoft.Coyote
         internal string AssemblyToBeAnalyzed;
 
         /// <summary>
-        /// The path to the binary rewriting configuration file.
+        /// The path to the binary rewriting configuration file or a folder containing assemblies to rewrite.
         /// </summary>
         [DataMember]
-        internal string RewritingConfigurationFile;
+        internal string RewritingOptionsPath;
 
         /// <summary>
         /// Test method to be used.
@@ -339,7 +339,7 @@ namespace Microsoft.Coyote
             this.RuntimeGeneration = 0;
 
             this.AssemblyToBeAnalyzed = string.Empty;
-            this.RewritingConfigurationFile = string.Empty;
+            this.RewritingOptionsPath = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";

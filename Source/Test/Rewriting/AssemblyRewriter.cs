@@ -68,6 +68,23 @@ namespace Microsoft.Coyote.Rewriting
                  new MonitorTransform(this.Log),
                  new ExceptionFilterTransform(this.Log)
             };
+
+            // expand folder
+            if (this.Options.AssemblyPaths == null || this.Options.AssemblyPaths.Count == 0)
+            {
+                // Expand to include all .dll files in AssemblyPaths.
+                foreach (var file in Directory.GetFiles(this.Options.AssembliesDirectory, "*.dll"))
+                {
+                    if (!this.DisallowedAssemblies.Contains(Path.GetFileName(file)))
+                    {
+                        this.Options.AssemblyPaths.Add(file);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Skipping " + file);
+                    }
+                }
+            }
         }
 
         /// <summary>

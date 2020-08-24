@@ -130,6 +130,9 @@ You can attach the Visual Studio debugger on this trace by using `--break`. When
 Coyote will automatically instrument a breakpoint when the bug is found. You can also insert your
 own breakpoints in the source code as usual.
 
+`--break` uses `System.Diagnostics.Debugger.Launch` which does not seem to work on MacOS or Linux,
+see troubleshooting below for an alternate way of debugging replay schedules.
+
 See the replay options section of the help output from invoking `coyote -?`.
 
 ## Graphing the results
@@ -154,3 +157,19 @@ highlight the bug found.
 ## Unit Testing
 
 To use Coyote tester in a unit test environment see [Unit Testing](unit-testing.md).
+
+## Troubleshooting
+
+**--break does not seem to work on MacOS or Linux**
+
+`--break` depends on `System.Diagnostics.Debugger.Launch` and it seems that this is not supported
+on MacOS or Linux. So another way to debug a replay is to follow these steps:
+
+1. Create a new Run Configuration
+
+2. Execute the coyote binary, which you can find in ~/.dotnet/tools/coyote if you installed the
+`dotnet tool` called `Microsoft.Coyote.CLI`.
+
+3. Add the arguments ${YOUR_PROGRAM} ${SCHEDULE_TRACE}.schedule
+
+4. Insert the breakpoints where needed and start debugging.

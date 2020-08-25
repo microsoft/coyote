@@ -328,9 +328,14 @@ namespace Microsoft.Coyote.Rewriting
         protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
         {
             resolved = method.Resolve();
-            this.Log.WriteWarningLine($"Error resolving '{method.FullName}' method. The method might be unsupported, or a " +
-                "user-defined extension method, or the .NET platform of coyote and the target assembly do not match.");
-            return resolved != null;
+            if (resolved is null)
+            {
+                this.Log.WriteWarningLine($"Unable to resolve '{method.FullName}' method. The method is either unsupported by Coyote, " +
+                    "or a user-defined extension method, or the .NET platform of Coyote and the target assembly do not match.");
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

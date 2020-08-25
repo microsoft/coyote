@@ -37,14 +37,9 @@ namespace Microsoft.Coyote.Rewriting
 
         private const string MonitorClassName = "System.Threading.Monitor";
 
-        /// <summary>
-        /// Console output writer.
-        /// </summary>
-        private readonly ConsoleLogger Log;
-
         internal MonitorTransform(ConsoleLogger log)
+            : base(log)
         {
-            this.Log = log;
         }
 
         /// <inheritdoc/>

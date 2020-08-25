@@ -87,6 +87,28 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             return SystemThreading.ThreadPool.QueueUserWorkItem(callBack, state);
         }
 
+#if NET5_0 || NETCOREAPP3_1 || NETSTANDARD2_1
+        /// <summary>
+        /// Queues a method specified by an <see cref="Action{T}"/> delegate for execution, and provides data
+        /// to be used by the method. The method executes when a thread pool thread becomes available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool QueueUserWorkItem<TState>(Action<TState> callBack, TState state, bool preferLocal)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                // TODO: check if we need to capture the execution context.
+
+                // We set `failException` to true to mimic the production behavior of treating an unhandled
+                // exception as an error that crashes the application.
+                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack(state), null, false, true, default);
+                return true;
+            }
+
+            return SystemThreading.ThreadPool.QueueUserWorkItem(callBack, state, preferLocal);
+        }
+#endif
+
         /// <summary>
         /// Queues the specified delegate to the thread pool, but does not propagate the calling stack to the worker thread.
         /// </summary>
@@ -104,6 +126,46 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
             return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, state);
         }
+
+#if NET5_0 || NETCOREAPP3_1
+        /// <summary>
+        /// Queues the specified work item object to the thread pool.
+        /// </summary>
+        public static bool UnsafeQueueUserWorkItem(IThreadPoolWorkItem callBack, bool preferLocal)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                // TODO: check if we need to capture the execution context.
+
+                // We set `failException` to true to mimic the production behavior of treating an unhandled
+                // exception as an error that crashes the application.
+                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack.Execute(), null, false, true, default);
+                return true;
+            }
+
+            return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, preferLocal);
+        }
+
+        /// <summary>
+        /// Queues a method specified by an <see cref="Action{T}"/> delegate for execution, and provides data
+        /// to be used by the method. The method executes when a thread pool thread becomes available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool UnsafeQueueUserWorkItem<TState>(Action<TState> callBack, TState state, bool preferLocal)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                // TODO: check if we need to capture the execution context.
+
+                // We set `failException` to true to mimic the production behavior of treating an unhandled
+                // exception as an error that crashes the application.
+                ControlledRuntime.Current.TaskController.ScheduleAction(() => callBack(state), null, false, true, default);
+                return true;
+            }
+
+            return SystemThreading.ThreadPool.UnsafeQueueUserWorkItem(callBack, state, preferLocal);
+        }
+#endif
 
         /// <summary>
         /// Binds an operating system handle to the <see cref="ThreadPool"/>.

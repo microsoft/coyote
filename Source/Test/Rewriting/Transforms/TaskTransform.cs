@@ -41,16 +41,11 @@ namespace Microsoft.Coyote.Rewriting
         private ILProcessor Processor;
 
         /// <summary>
-        /// Console output writer.
-        /// </summary>
-        private readonly ConsoleLogger Log;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TaskTransform"/> class.
         /// </summary>
         internal TaskTransform(ConsoleLogger log)
+            : base(log)
         {
-            this.Log = log;
             this.RewrittenMethodCache = new Dictionary<string, MethodReference>();
         }
 
@@ -196,14 +191,12 @@ namespace Microsoft.Coyote.Rewriting
                 this.RewrittenMethodCache[method.FullName] = newMethod;
             }
 
-            if (method.FullName == newMethod.FullName)
+            if (method.FullName == newMethod.FullName ||
+                !this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
                 // There is nothing to rewrite, return the original instruction.
                 return instruction;
             }
-
-            // Make sure the method can be resolved.
-            MethodDefinition resolvedMethod = Resolve(newMethod);
 
             // Create and return the new instruction.
             Instruction newInstruction = Instruction.Create(resolvedMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, newMethod);

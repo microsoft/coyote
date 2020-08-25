@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// The output log.
         /// </summary>
-        private readonly ConsoleLogger Log = new ConsoleLogger();
+        private readonly ConsoleLogger Log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
@@ -53,6 +53,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="options">The options for this rewriter.</param>
         private AssemblyRewriter(RewritingOptions options)
         {
+            this.Log = new ConsoleLogger();
             this.Options = options;
             this.DisallowedAssemblies = new List<string>()
             {

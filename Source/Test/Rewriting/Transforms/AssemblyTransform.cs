@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -15,6 +16,19 @@ namespace Microsoft.Coyote.Rewriting
     /// </summary>
     internal abstract class AssemblyTransform
     {
+        /// <summary>
+        /// Console output writer.
+        /// </summary>
+        protected readonly ConsoleLogger Log;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AssemblyTransform"/> class.
+        /// </summary>
+        protected AssemblyTransform(ConsoleLogger log)
+        {
+            this.Log = log;
+        }
+
         /// <summary>
         /// Visits the specified <see cref="ModuleDefinition"/> inside the <see cref="AssemblyDefinition"/>
         /// that was visited by the <see cref="AssemblyRewriter"/>.
@@ -90,13 +104,13 @@ namespace Microsoft.Coyote.Rewriting
             MethodReference result = method;
 
             TypeReference declaringType = this.RewriteDeclaringTypeReference(method);
-            if (method.DeclaringType == declaringType)
+            if (method.DeclaringType == declaringType ||
+                !this.TryResolve(method, out MethodDefinition resolvedMethod))
             {
                 // We are not rewriting this method.
                 return result;
             }
 
-            MethodDefinition resolvedMethod = Resolve(method);
             TypeDefinition resolvedDeclaringType = Resolve(declaringType);
 
             // This is an extra initial parameter that we have when converting an instance to a static method.
@@ -308,18 +322,15 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Returns the resolved definition of the specified <see cref="MethodReference"/>.
+        /// Returns true if the specified <see cref="MethodReference"/> can be resolved,
+        /// as well as the resolved method definition, else return false.
         /// </summary>
-        protected static MethodDefinition Resolve(MethodReference method)
+        protected bool TryResolve(MethodReference method, out MethodDefinition resolved)
         {
-            MethodDefinition result = method.Resolve();
-            if (result is null)
-            {
-                throw new Exception($"Error resolving '{method.FullName}' method. Please check that " +
-                    "the .NET platform of coyote and the target assembly match.");
-            }
-
-            return result;
+            resolved = method.Resolve();
+            this.Log.WriteWarningLine($"Error resolving '{method.FullName}' method. The method might be unsupported, or a " +
+                "user-defined extension method, or the .NET platform of coyote and the target assembly do not match.");
+            return resolved != null;
         }
 
         /// <summary>

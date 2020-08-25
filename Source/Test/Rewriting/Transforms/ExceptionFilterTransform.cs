@@ -12,11 +12,6 @@ namespace Microsoft.Coyote.Rewriting
     internal class ExceptionFilterTransform : AssemblyTransform
     {
         /// <summary>
-        /// Console output writer.
-        /// </summary>
-        private readonly ConsoleLogger Log;
-
-        /// <summary>
         /// The type being transformed.
         /// </summary>
         private TypeDefinition TypeDef;
@@ -32,8 +27,9 @@ namespace Microsoft.Coyote.Rewriting
         private MethodDefinition Method;
 
         internal ExceptionFilterTransform(ConsoleLogger log)
+
+            : base(log)
         {
-            this.Log = log;
         }
 
         /// <inheritdoc/>

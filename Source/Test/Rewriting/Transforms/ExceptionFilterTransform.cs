@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -103,6 +104,11 @@ namespace Microsoft.Coyote.Rewriting
             {
                 handler.TryEnd = handler.HandlerStart;
             }
+
+            // Now because we have now inserted new code into this method, it is possible some short branch instructions
+            // are now out of range, and need to be switch to long branches.  This fixes that.
+            this.Method.Body.SimplifyMacros();
+            this.Method.Body.OptimizeMacros();
         }
 
         private static List<Instruction> GetHandlerInstructions(ExceptionHandler handler)

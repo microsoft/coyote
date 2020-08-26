@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Text;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -338,6 +339,38 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             // The non-rewritten code should rethrow the exception
             // and the rewritten code should be the same because the code should not be rewritten.
             this.RunWithException<ExecutionCanceledException>(TestRethrowMethod2);
+        }
+
+        private static void TestConditionalTryCatchMethod()
+        {
+            // Test conditional branch around try/catch is fixed up when the rewritten code
+            // causes this branch instruction to have to be modified from brtrue_s to brtrue.
+            StringBuilder sb = new StringBuilder();
+            bool something = true;
+            if (something)
+            {
+                try
+                {
+                    sb.AppendLine(string.Format("This is the try block {0}, {1}", "foo", 123));
+                    throw new InvalidOperationException();
+                }
+                catch (Exception ex)
+                {
+                    sb.AppendLine(string.Format("This is the catch block {0}, {1}", ex.Message, 123));
+                    if (ex.InnerException != null)
+                    {
+                        sb.AppendLine(string.Format("This is the inner exception {0}, {1}", ex.InnerException.Message, 123));
+                    }
+
+                    throw;
+                }
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestConditionalTryCatch()
+        {
+            this.RunWithException<InvalidOperationException>(TestConditionalTryCatchMethod);
         }
     }
 }

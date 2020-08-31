@@ -1,16 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-var awaInitialized = false;
+var siteConsent = null;
+var telemetryInitialized = false;
 
-function addTelemetryTag() {
-    if (!awaInitialized) {
-        awaInitialized = true;
-        // awaConfig is defined in awa.html.
-        awaConfig.userConsented = true;
-        // awa.init(awaConfig);
+function enableTelemetry() {
+    if (!telemetryInitialized) {
+        telemetryInitialized = true;
 
-        // also enable google analytics.
+        // enable google analytics.
+        window['ga-disable-UA-161403370-1'] = false;
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
@@ -18,19 +17,46 @@ function addTelemetryTag() {
     }
 }
 
-function hideBanner(){
-    $(".cookie-banner").hide();
+function disableTelemetry() {
+    if (telemetryInitialized) {
+        telemetryInitialized = false;
+        window['ga-disable-UA-161403370-1'] = true;
+    }
+}
+
+function wcp_ready(err, _siteConsent){
+    if (err != undefined) {
+        return error;
+    } else {
+        siteConsent = _siteConsent;
+        onConsentChanged();
+    }
+}
+
+function onConsentChanged() {
+    var userConsent = siteConsent.getConsentFor(WcpConsent.consentCategories.Analytics);
+    if (!siteConsent.isConsentRequired){
+        // force the dialog just for testing...
+        // todo: remove this when we are done testing...
+        siteConsent.manageConsent();
+    }
+    else if(userConsent) {
+        enableTelemetry();
+    }
+    else {
+        disableTelemetry()
+    }
+}
+
+function manageCookies() {
+    siteConsent.manageConsent();
+    window.scroll({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
 }
 
 $(document).ready(function () {
-
-    // cookie banner callbacks, if consent is enabled, then we can enable the analytics.
-    if (typeof (mscc) === 'undefined' || mscc.hasConsent()) {
-        addTelemetryTag();
-        hideBanner();
-    } else {
-        mscc.on('consent', addTelemetryTag);
-        mscc.on('hide', hideBanner);
-    }
-
+    WcpConsent.init("en-US", "cookie-banner", wcp_ready, onConsentChanged);
 });

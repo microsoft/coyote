@@ -35,3 +35,6 @@ footnote:
 - name: License
   link: https://github.com/microsoft/coyote/blob/master/LICENSE
   external: true
+- name: Cookies
+  link: javascript:manageCookies()
+  external: true

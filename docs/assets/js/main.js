@@ -4,10 +4,8 @@ jQuery(document).ready(function ($) {
   $(window).scroll(function () {
     if ($(document).scrollTop() > 20) {
       $('.navbar-default').addClass('shrink');
-      $('.cookie-banner').addClass('shrink');
     } else {
       $('.navbar-default').removeClass('shrink');
-      $('.cookie-banner').removeClass('shrink');
     };
     if ($(document).scrollTop() > 320) {
       $('.brand-home').addClass('slide-out-top');

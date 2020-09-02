@@ -18,3 +18,7 @@
 *.PDF   diff=astextplain
 *.rtf   diff=astextplain
 *.RTF   diff=astextplain
+
+# Ignored paths for language reporting
+docs/* linguist-vendored
+Scripts/Notebooks/* linguist-vendored

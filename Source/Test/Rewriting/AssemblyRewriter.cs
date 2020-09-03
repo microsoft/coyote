@@ -252,17 +252,6 @@ namespace Microsoft.Coyote.Rewriting
                     transform.VisitVariable(variable);
                 }
 
-                // Do exception handlers before the method instructions because they are a
-                // higher level concept and it's handy to pre-process them before seeing the
-                // raw instructions.
-                if (method.Body.HasExceptionHandlers)
-                {
-                    foreach (var handler in method.Body.ExceptionHandlers)
-                    {
-                        transform.VisitExceptionHandler(handler);
-                    }
-                }
-
                 // Rewrite the method body instructions.
                 Instruction instruction = method.Body.Instructions.FirstOrDefault();
                 while (instruction != null)

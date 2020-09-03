@@ -27,6 +27,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private MethodDefinition Method;
 
+        /// <summary>
+        /// Whether the current method has modified handlers.
+        /// </summary>
+        private bool ModifiedHandlers;
+
         internal ExceptionFilterTransform(ConsoleLogger log)
 
             : base(log)
@@ -44,10 +49,33 @@ namespace Microsoft.Coyote.Rewriting
         internal override void VisitMethod(MethodDefinition method)
         {
             this.Method = method;
+            this.ModifiedHandlers = false;
+
+            // Do exception handlers before the method instructions because they are a
+            // higher level concept and it's handy to pre-process them before seeing the
+            // raw instructions.
+            if (method.Body.HasExceptionHandlers)
+            {
+                foreach (var handler in method.Body.ExceptionHandlers)
+                {
+                    this.VisitExceptionHandler(handler);
+                }
+            }
+
+            if (this.ModifiedHandlers)
+            {
+                this.FixupInstructionOffsets();
+            }
         }
 
-        /// <inheritdoc/>
-        internal override void VisitExceptionHandler(ExceptionHandler handler)
+        /// <summary>
+        /// Visits the specified <see cref="ExceptionHandler"/> inside the body of the <see cref="MethodDefinition"/>
+        /// that was visited by the last <see cref="VisitMethod"/>.
+        /// </summary>
+        /// <remarks>
+        /// In the case of nested try/catch blocks the inner block is visited first before the outer block.
+        /// </remarks>
+        internal void VisitExceptionHandler(ExceptionHandler handler)
         {
             if (this.IsStateMachine)
             {
@@ -57,9 +85,9 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             // Trivial case, if the exception handler is just a rethrow!
-            var handlerInstruction = GetHandlerInstructions(handler);
-            if (handlerInstruction.Count == 2 && handlerInstruction[0].OpCode.Code == Code.Pop &&
-                handlerInstruction[1].OpCode.Code == Code.Rethrow)
+            var handlerInstructions = GetHandlerInstructions(handler);
+            if (handlerInstructions.Count == 2 && handlerInstructions[0].OpCode.Code == Code.Pop &&
+                handlerInstructions[1].OpCode.Code == Code.Rethrow)
             {
                 // ok then, doesn't matter what the filter is doing since it is just rethrowing anyway.
                 return;
@@ -89,6 +117,14 @@ namespace Microsoft.Coyote.Rewriting
 
         private void AddThrowIfExecutionCanceledException(ExceptionHandler handler)
         {
+            if (!this.ModifiedHandlers)
+            {
+                // A previous transform may have replaced some instructions, and if so, we need to recompute
+                // the instruction indexes before we operate on the try catch.
+                this.FixupInstructionOffsets();
+                this.ModifiedHandlers = true;
+            }
+
             Debug.WriteLine($"............. [+] inserting ExecutionCanceledException check into existing handler.");
 
             var handlerType = this.Method.Module.ImportReference(typeof(Microsoft.Coyote.SystematicTesting.Interception.ExceptionHandlers)).Resolve();
@@ -97,16 +133,32 @@ namespace Microsoft.Coyote.Rewriting
 
             var processor = this.Method.Body.GetILProcessor();
             var newStart = Instruction.Create(OpCodes.Dup);
+            var previousStart = handler.HandlerStart;
             processor.InsertBefore(handler.HandlerStart, newStart);
             processor.InsertBefore(handler.HandlerStart, Instruction.Create(OpCodes.Call, handlerMethod));
             handler.HandlerStart = newStart;
-            if (handler.FilterStart == null)
-            {
-                handler.TryEnd = handler.HandlerStart;
-            }
 
+            // fix up any other handler end position that points to previousStart instruction.
+            foreach (var other in this.Method.Body.ExceptionHandlers)
+            {
+                // we are the first (or most nested) try/catch
+                if (other.TryEnd == previousStart)
+                {
+                    other.TryEnd = newStart;
+                }
+
+                if (other.HandlerEnd == previousStart)
+                {
+                    other.HandlerEnd = newStart;
+                }
+            }
+        }
+
+        private void FixupInstructionOffsets()
+        {
             // Now because we have now inserted new code into this method, it is possible some short branch instructions
-            // are now out of range, and need to be switch to long branches.  This fixes that.
+            // are now out of range, and need to be switch to long branches.  This fixes that and it also
+            // recomputes instruction indexes which is also needed for valid write assembly operation.
             this.Method.Body.SimplifyMacros();
             this.Method.Body.OptimizeMacros();
         }

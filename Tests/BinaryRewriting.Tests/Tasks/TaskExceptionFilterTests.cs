@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using Microsoft.Coyote.Tasks;
 using Xunit;
@@ -371,6 +372,132 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         public void TestConditionalTryCatch()
         {
             this.RunWithException<InvalidOperationException>(TestConditionalTryCatchMethod);
+        }
+
+        private static void TestMultiCatchBlockMethod()
+        {
+            // Test we can handle multiple catch blocks.
+            try
+            {
+                throw new InvalidOperationException();
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("exception handled");
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMultiCatchBlock()
+        {
+            this.RunWithException<InvalidOperationException>(TestMultiCatchBlockMethod);
+        }
+
+        private static void TestMultiCatchFilterMethod()
+        {
+            // Test we can handle multiple catch blocks with a filter.
+            try
+            {
+                throw new InvalidOperationException();
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception e) when (!(e is NullReferenceException))
+            {
+                Console.WriteLine("exception handled");
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMultiCatchFilter()
+        {
+            this.RunWithException<InvalidOperationException>(TestMultiCatchFilterMethod);
+        }
+
+        private static void TestMultiCatchBlockWithFilterMethod()
+        {
+            // Test we can handle multiple catch blocks with a filter.
+            try
+            {
+                throw new InvalidOperationException();
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception e) when (!(e is NullReferenceException))
+            {
+                Console.WriteLine("exception handled");
+            }
+            catch (NullReferenceException)
+            {
+                Console.WriteLine("Don't care!");
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestMultiCatchBlockWithFilter()
+        {
+            this.RunWithException<InvalidOperationException>(TestMultiCatchBlockWithFilterMethod);
+        }
+
+        private static void TestExceptionHandlerInsideLockMethod()
+        {
+            object l = new object();
+
+            lock (l)
+            {
+                try
+                {
+                    throw new InvalidOperationException();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("exception handled");
+                    throw;
+                }
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestExceptionHandlerInsideLock()
+        {
+            this.RunWithException<InvalidOperationException>(TestExceptionHandlerInsideLockMethod);
+        }
+
+        private static void TestTryUsingTryMethod()
+        {
+            try
+            {
+                using (var s = new StringWriter())
+                {
+                    try
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    catch (Exception)
+                    {
+                        s.Close();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("exception handled");
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestTryUsingTry()
+        {
+            this.Test(TestTryUsingTryMethod);
         }
     }
 }

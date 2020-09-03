@@ -83,17 +83,6 @@ namespace Microsoft.Coyote.Rewriting
         internal virtual Instruction VisitInstruction(Instruction instruction) => instruction;
 
         /// <summary>
-        /// Visits the specified <see cref="ExceptionHandler"/> inside the body of the <see cref="MethodDefinition"/>
-        /// that was visited by the last <see cref="VisitMethod"/>.
-        /// </summary>
-        /// <remarks>
-        /// In the case of nested try/catch blocks the inner block is visited first before the outer block.
-        /// </remarks>
-        internal virtual void VisitExceptionHandler(ExceptionHandler handler)
-        {
-        }
-
-        /// <summary>
         /// Rewrites the specified <see cref="MethodReference"/>.
         /// </summary>
         /// <param name="method">The method reference to rewrite.</param>
@@ -306,8 +295,8 @@ namespace Microsoft.Coyote.Rewriting
 
             for (int idx = 0; idx < right.Parameters.Count; idx++)
             {
-                var originalParam = right.Parameters[0];
-                var replacementParam = left.Parameters[0];
+                var originalParam = right.Parameters[idx];
+                var replacementParam = left.Parameters[idx];
                 // TODO: make sure all necessary checks are in place!
                 if ((replacementParam.ParameterType.FullName != originalParam.ParameterType.FullName) ||
                     (replacementParam.Name != originalParam.Name) ||

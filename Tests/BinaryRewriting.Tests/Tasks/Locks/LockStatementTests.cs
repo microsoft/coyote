@@ -79,5 +79,23 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks.Locks
                 Monitor.Pulse(this.SyncObject1);
             }
         }
+
+        [Fact(Timeout = 5000)]
+        public void TestMonitorWithLockTaken()
+        {
+            this.Test(() =>
+            {
+                object obj = new object();
+                bool lockTaken = false;
+                Monitor.TryEnter(obj, ref lockTaken);
+                if (lockTaken)
+                {
+                    Monitor.Exit(obj);
+                }
+
+                Specification.Assert(lockTaken, "lockTaken is false");
+            },
+            Configuration.Create());
+        }
     }
 }

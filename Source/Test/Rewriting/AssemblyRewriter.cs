@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
@@ -115,7 +116,15 @@ namespace Microsoft.Coyote.Rewriting
                 }
                 catch (Exception ex)
                 {
-                    this.Log.WriteErrorLine(ex.Message);
+                    if (ex is AggregateException ae && ae.InnerException != null)
+                    {
+                        this.Log.WriteErrorLine(ae.InnerException.Message);
+                    }
+                    else
+                    {
+                        this.Log.WriteErrorLine(ex.Message);
+                    }
+
                     errors++;
                 }
             }
@@ -132,69 +141,95 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
+            string assemblyName = Path.GetFileName(assemblyPath);
+            string outputPath = Path.Combine(outputDirectory, assemblyName);
             var isSymbolFileAvailable = IsSymbolFileAvailable(assemblyPath);
-            var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters()
+            var readParams = new ReaderParameters()
             {
                 AssemblyResolver = this.GetAssemblyResolver(),
                 ReadSymbols = isSymbolFileAvailable
-            });
-
-            string assemblyName = Path.GetFileName(assemblyPath);
-            if (this.DisallowedAssemblies.Contains(assemblyName))
-            {
-                throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
-            }
-
-            this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
-            if (IsAssemblyRewritten(assembly))
-            {
-                // The assembly has been already rewritten by this version of Coyote, so skip it.
-                this.Log.WriteWarningLine($"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
-                return;
-            }
-
-            ApplyIsAssemblyRewrittenAttribute(assembly);
-            foreach (var transform in this.Transforms)
-            {
-                // Traverse the assembly to apply each transformation pass.
-                Debug.WriteLine($"..... Applying the '{transform.GetType().Name}' transform");
-                foreach (var module in assembly.Modules)
-                {
-                    RewriteModule(module, transform);
-                }
-            }
-
-            // Write the binary in the output path with portable symbols enabled.
-            string outputPath = Path.Combine(outputDirectory, assemblyName);
-            this.Log.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
-                $"{(this.Options.IsReplacingAssemblies ? assemblyPath : outputPath)}");
-
-            var writeParams = new WriterParameters()
-            {
-                WriteSymbols = isSymbolFileAvailable,
-                SymbolWriterProvider = new PortablePdbWriterProvider()
             };
 
-            if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
+            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
             {
-                using (FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open))
+                if (this.DisallowedAssemblies.Contains(assemblyName))
                 {
-                    writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
+                    throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
                 }
+
+                this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
+                if (IsAssemblyRewritten(assembly))
+                {
+                    // The assembly has been already rewritten by this version of Coyote, so skip it.
+                    this.Log.WriteWarningLine($"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
+                    return;
+                }
+
+                ApplyIsAssemblyRewrittenAttribute(assembly);
+                foreach (var transform in this.Transforms)
+                {
+                    // Traverse the assembly to apply each transformation pass.
+                    Debug.WriteLine($"..... Applying the '{transform.GetType().Name}' transform");
+                    foreach (var module in assembly.Modules)
+                    {
+                        RewriteModule(module, transform);
+                    }
+                }
+
+                // Write the binary in the output path with portable symbols enabled.
+                this.Log.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
+                    $"{(this.Options.IsReplacingAssemblies ? assemblyPath : outputPath)}");
+
+                var writeParams = new WriterParameters()
+                {
+                    WriteSymbols = isSymbolFileAvailable,
+                    SymbolWriterProvider = new PortablePdbWriterProvider()
+                };
+
+                if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
+                {
+                    using (FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open))
+                    {
+                        writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
+                    }
+                }
+
+                assembly.Write(outputPath, writeParams);
             }
 
-            assembly.Write(outputPath, writeParams);
+            // dispose any resolved assemblies also!
+            using var r = readParams.AssemblyResolver;
 
-            assembly.Dispose();
             if (this.Options.IsReplacingAssemblies)
             {
                 string targetPath = Path.Combine(this.Options.AssembliesDirectory, assemblyName);
-                File.Copy(outputPath, assemblyPath, true);
+                this.CopyWithRetriesAsync(outputPath, assemblyPath).Wait();
                 if (isSymbolFileAvailable)
                 {
                     string pdbFile = Path.ChangeExtension(outputPath, "pdb");
                     string targetPdbFile = Path.ChangeExtension(targetPath, "pdb");
-                    File.Copy(pdbFile, targetPdbFile, true);
+                    this.CopyWithRetriesAsync(pdbFile, targetPdbFile).Wait();
+                }
+            }
+        }
+
+        private async Task CopyWithRetriesAsync(string srcFile, string targetFile)
+        {
+            for (int retries = 10; retries >= 0; retries--)
+            {
+                try
+                {
+                    File.Copy(srcFile, targetFile, true);
+                }
+                catch (Exception)
+                 {
+                    if (retries == 0)
+                    {
+                        throw;
+                    }
+
+                    await Task.Delay(100);
+                    this.Log.WriteLine($"... Retrying write to {targetFile}");
                 }
             }
         }
@@ -326,6 +361,10 @@ namespace Microsoft.Coyote.Rewriting
             // Copy the `Microsoft.Coyote.dll` assembly to the output directory.
             string coyoteAssemblyPath = typeof(ControlledTask).Assembly.Location;
             File.Copy(coyoteAssemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(coyoteAssemblyPath)), true);
+
+            // Copy the `Microsoft.Coyote.Test.dll` assembly to the output directory.
+            string coyoteTestAssemblyPath = typeof(AssemblyRewriter).Assembly.Location;
+            File.Copy(coyoteTestAssemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(coyoteTestAssemblyPath)), true);
 
             return outputDirectory;
         }

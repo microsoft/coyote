@@ -14,27 +14,40 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Options for rewriting binaries.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/tools/rewriting">Coyote rewriting tool</see> for more information.
+    /// </remarks>
     public class RewritingOptions
     {
         /// <summary>
-        /// The directory with the assemblies to rewrite.
+        /// The directory containing the assemblies to rewrite.
         /// </summary>
-        public string AssembliesDirectory { get; private set; }
+        public string AssembliesDirectory { get; internal set; }
 
         /// <summary>
         /// The output directory where rewritten assemblies are placed.
+        /// If this is the same as the <see cref="AssembliesDirectory"/> then
+        /// the rewritten assemblies will replace the original assemblies.
         /// </summary>
-        public string OutputDirectory { get; private set; }
+        public string OutputDirectory { get; internal set; }
 
         /// <summary>
-        /// The path to the assemblies to rewrite.
+        /// The file names of the assemblies to rewrite.  If this list is empty then it will
+        /// rewrite all assemblies in the <see cref="AssembliesDirectory"/>.
         /// </summary>
-        public HashSet<string> AssemblyPaths { get; private set; }
+        public HashSet<string> AssemblyPaths { get; internal set; }
+
+        /// <summary>
+        /// The file name of assemblies to ignore when rewriting dependencies or a whole directory.
+        /// This list automatically includes the following "Microsoft.Coyote.dll",
+        /// "Microsoft.Coyote.Test.dll", "System.Private.CoreLib.dll", "mscorlib.dll".
+        /// </summary>
+        public HashSet<string> DisallowedAssemblies { get; internal set; }
 
         /// <summary>
         /// True if the input assemblies are being replaced by the rewritten ones.
         /// </summary>
-        public bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
+        internal bool IsReplacingAssemblies => this.AssembliesDirectory == this.OutputDirectory;
 
         /// <summary>
         /// The .NET platform version that Coyote was compiled for.
@@ -42,9 +55,14 @@ namespace Microsoft.Coyote.Rewriting
         private string DotnetVersion;
 
         /// <summary>
-        /// Path of strong name key to use for signing new assembly.
+        /// Path of strong name key to use for signing rewritten assemblies.
         /// </summary>
-        internal string StrongNameKeyFile;
+        public string StrongNameKeyFile { get; internal set; }
+
+        /// <summary>
+        /// Whether to also rewrite dependent assemblies that are found in the same location.
+        /// </summary>
+        public bool IsRewritingDependencies { get; internal set; }
 
         /// <summary>
         /// The .NET platform version that Coyote was compiled for.
@@ -63,20 +81,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="RewritingOptions"/> class.
         /// </summary>
-        private RewritingOptions()
+        internal RewritingOptions()
         {
         }
-
-        /// <summary>
-        /// Creates a <see cref="RewritingOptions"/> instance from the specified parameters.
-        /// </summary>
-        public static RewritingOptions Create(string assembliesDirectory, string outputDirectory, HashSet<string> assemblyPaths) =>
-            new RewritingOptions()
-            {
-                AssembliesDirectory = assembliesDirectory,
-                OutputDirectory = outputDirectory,
-                AssemblyPaths = assemblyPaths
-            };
 
         /// <summary>
         /// Parses the <see cref="RewritingOptions"/> from the specified JSON configuration file.
@@ -88,7 +95,9 @@ namespace Microsoft.Coyote.Rewriting
             var assembliesDirectory = string.Empty;
             var outputDirectory = string.Empty;
             string strongNameKeyFile = null;
+            bool dependencies = false;
             var assemblyPaths = new HashSet<string>();
+            var disallowed = new HashSet<string>();
 
             string workingDirectory = Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar;
 
@@ -103,6 +112,7 @@ namespace Microsoft.Coyote.Rewriting
                     Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
                     assembliesDirectory = resolvedUri.LocalPath;
                     strongNameKeyFile = configuration.StrongNameKeyFile;
+                    dependencies = configuration.IsRewritingDependencies;
 
                     if (string.IsNullOrEmpty(configuration.OutputPath))
                     {
@@ -123,6 +133,11 @@ namespace Microsoft.Coyote.Rewriting
                             assemblyPaths.Add(assemblyFileName);
                         }
                     }
+
+                    if (configuration.DisallowedAssemblies != null)
+                    {
+                        disallowed = new HashSet<string>(configuration.DisallowedAssemblies);
+                    }
                 }
             }
             catch (Exception ex)
@@ -136,7 +151,9 @@ namespace Microsoft.Coyote.Rewriting
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,
                 AssemblyPaths = assemblyPaths,
-                StrongNameKeyFile = strongNameKeyFile
+                StrongNameKeyFile = strongNameKeyFile,
+                IsRewritingDependencies = dependencies,
+                DisallowedAssemblies = disallowed
             };
         }
 
@@ -192,6 +209,12 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "StrongNameKeyFile")]
             public string StrongNameKeyFile { get; set; }
+
+            [DataMember(Name = "IsRewritingDependencies")]
+            public bool IsRewritingDependencies { get; set; }
+
+            [DataMember(Name = "DisallowedAssemblies")]
+            public IList<string> DisallowedAssemblies { get; set; }
         }
     }
 }

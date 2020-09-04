@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: IsReplacingAssemblies
-permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsReplacingAssemblies
+title: StrongNameKeyFile
+permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
 ---
-# RewritingOptions.IsReplacingAssemblies property
+# RewritingOptions.StrongNameKeyFile property
 
-True if the input assemblies are being replaced by the rewritten ones.
+Path of strong name key to use for signing rewritten assemblies.
 
 ```csharp
-public bool IsReplacingAssemblies { get; }
+public string StrongNameKeyFile { get; }
 ```
 
 ## See Also

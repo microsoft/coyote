@@ -19,6 +19,10 @@ public class AssemblyRewriter
 | static [IsAssemblyRewritten](AssemblyRewriter/IsAssemblyRewritten)(…) | Checks if the specified assembly has been already rewritten with the current version of Coyote. |
 | static [Rewrite](AssemblyRewriter/Rewrite)(…) | Rewrites the assemblies specified in the rewriting options. |
 
+## Remarks
+
+See [Coyote rewriting tool](/coyote/learn/tools/rewriting) for more information.
+
 ## See Also
 
 * namespace [Microsoft.Coyote.Rewriting](../MicrosoftCoyoteRewritingNamespace)

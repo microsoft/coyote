@@ -17,6 +17,9 @@ namespace Microsoft.Coyote.Rewriting
     /// <summary>
     /// Rewrites an assembly for systematic testing.
     /// </summary>
+    /// <remarks>
+    /// See <see href="/coyote/learn/tools/rewriting">Coyote rewriting tool</see> for more information.
+    /// </remarks>
     public class AssemblyRewriter
     {
         /// <summary>
@@ -36,7 +39,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// List of assemblies that are not allowed to be rewritten.
         /// </summary>
-        private readonly List<string> DisallowedAssemblies;
+        private readonly HashSet<string> DisallowedAssemblies;
 
         /// <summary>
         /// List of transforms we are applying while rewriting.
@@ -44,25 +47,46 @@ namespace Microsoft.Coyote.Rewriting
         private readonly List<AssemblyTransform> Transforms;
 
         /// <summary>
+        /// Map from assembly name to full name definition of the rewritten assemblies.
+        /// </summary>
+        private readonly Dictionary<string, AssemblyNameDefinition> RewrittenAssemblies;
+
+        /// <summary>
         /// The output log.
         /// </summary>
         private readonly ConsoleLogger Log;
 
         /// <summary>
+        /// List of assemblies to be rewritten.
+        /// </summary>
+        private Queue<string> Pending = new Queue<string>();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
-        /// <param name="options">The options for this rewriter.</param>
+        /// <param name="options">The <see cref="RewritingOptions"/> for this rewriter.</param>
         private AssemblyRewriter(RewritingOptions options)
         {
             this.Log = new ConsoleLogger();
             this.Options = options;
-            this.DisallowedAssemblies = new List<string>()
+            this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
+            if (options.DisallowedAssemblies == null)
+            {
+                this.DisallowedAssemblies = new HashSet<string>();
+            }
+            else
+            {
+                this.DisallowedAssemblies = new HashSet<string>(options.DisallowedAssemblies);
+            }
+
+            this.DisallowedAssemblies.UnionWith(new string[]
             {
                 "Microsoft.Coyote.dll",
                 "Microsoft.Coyote.Test.dll",
+                "Newtonsoft.Json.dll",
                 "System.Private.CoreLib.dll",
                 "mscorlib.dll"
-            };
+            });
 
             this.Transforms = new List<AssemblyTransform>()
             {
@@ -103,15 +127,23 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void Rewrite()
         {
-            // Create the output directory and copy any necessery files.
+            // Create the output directory and copy any necessary files.
             string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
+
+            this.Pending = new Queue<string>();
 
             int errors = 0;
             // Rewrite the assembly files to the output directory.
             foreach (string assemblyPath in this.Options.AssemblyPaths)
             {
+                this.Pending.Enqueue(assemblyPath);
+            }
+
+            while (this.Pending.Count > 0)
+            {
                 try
                 {
+                    var assemblyPath = this.Pending.Dequeue();
                     this.RewriteAssembly(assemblyPath, outputDirectory);
                 }
                 catch (Exception ex)
@@ -141,7 +173,13 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
-            string assemblyName = Path.GetFileName(assemblyPath);
+            string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+            if (this.RewrittenAssemblies.ContainsKey(assemblyName))
+            {
+                // already done!
+                return;
+            }
+
             string outputPath = Path.Combine(outputDirectory, assemblyName);
             var isSymbolFileAvailable = IsSymbolFileAvailable(assemblyPath);
             var readParams = new ReaderParameters()
@@ -158,12 +196,23 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
+                if (this.Options.IsRewritingDependencies)
+                {
+                    // check for dependencies and if those are found in the same folder then rewrite them also, and fix up the
+                    // version numbers so the rewritten assemblies are bound to these versions.
+                    this.AddLocalDependencies(assemblyPath, assembly);
+                }
+
+                this.RewrittenAssemblies[assembly.Name.Name] = assembly.Name;
+
                 if (IsAssemblyRewritten(assembly))
                 {
                     // The assembly has been already rewritten by this version of Coyote, so skip it.
                     this.Log.WriteWarningLine($"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
                     return;
                 }
+
+                this.FixAssemblyReferences(assembly);
 
                 ApplyIsAssemblyRewrittenAttribute(assembly);
                 foreach (var transform in this.Transforms)
@@ -222,7 +271,7 @@ namespace Microsoft.Coyote.Rewriting
                     File.Copy(srcFile, targetFile, true);
                 }
                 catch (Exception)
-                 {
+                {
                     if (retries == 0)
                     {
                         throw;
@@ -230,6 +279,46 @@ namespace Microsoft.Coyote.Rewriting
 
                     await Task.Delay(100);
                     this.Log.WriteLine($"... Retrying write to {targetFile}");
+                }
+            }
+        }
+
+        private void FixAssemblyReferences(AssemblyDefinition assembly)
+        {
+            foreach (var module in assembly.Modules)
+            {
+                for (int i = 0, n = module.AssemblyReferences.Count; i < n; i++)
+                {
+                    var ar = module.AssemblyReferences[i];
+                    var name = ar.Name;
+                    if (this.RewrittenAssemblies.TryGetValue(name, out AssemblyNameDefinition rewrittenName))
+                    {
+                        // rewrite this reference to point to the newly rewritten assembly.
+                        var refName = AssemblyNameReference.Parse(rewrittenName.FullName);
+                        module.AssemblyReferences[i] = refName;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enqueue any dependent assemblies that also exist in the assemblyPath and have not
+        /// already been rewritten.
+        /// </summary>
+        private void AddLocalDependencies(string assemblyPath, AssemblyDefinition assembly)
+        {
+            var assemblyDir = Path.GetDirectoryName(assemblyPath);
+            foreach (var module in assembly.Modules)
+            {
+                foreach (var ar in module.AssemblyReferences)
+                {
+                    var name = ar.Name;
+                    var localName = Path.Combine(assemblyDir, name + ".dll");
+                    if (!this.DisallowedAssemblies.Contains(name + ".dll") && !this.RewrittenAssemblies.ContainsKey(name) &&
+                        File.Exists(localName) && !this.Pending.Contains(localName))
+                    {
+                        this.Pending.Enqueue(localName);
+                    }
                 }
             }
         }

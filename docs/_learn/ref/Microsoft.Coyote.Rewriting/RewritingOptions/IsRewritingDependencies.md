@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: AssembliesDirectory
-permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDirectory
+title: IsRewritingDependencies
+permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
 ---
-# RewritingOptions.AssembliesDirectory property
+# RewritingOptions.IsRewritingDependencies property
 
-The directory containing the assemblies to rewrite.
+Whether to also rewrite dependent assemblies that are found in the same location.
 
 ```csharp
-public string AssembliesDirectory { get; }
+public bool IsRewritingDependencies { get; }
 ```
 
 ## See Also

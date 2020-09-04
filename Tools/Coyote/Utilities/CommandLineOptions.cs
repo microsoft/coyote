@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Rewriting;
 
 namespace Microsoft.Coyote.Utilities
 {
@@ -61,6 +62,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             var rewritingGroup = this.Parser.GetOrCreateGroup("rewritingGroup", "Binary rewriting options");
             rewritingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "rewrite" };
             rewritingGroup.AddArgument("strong-name-key-file", "snk", "Path to strong name signing key");
+            rewritingGroup.AddArgument("rewrite-dependencies", null, "Rewrite all dependent assemblies that are found in the same location as the given path", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
@@ -106,7 +108,8 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         /// </summary>
         /// <param name="args">The command line arguments to parse.</param>
         /// <param name="configuration">The Configuration object populated with the parsed command line options.</param>
-        internal bool Parse(string[] args, Configuration configuration)
+        /// <param name="options">The optional rewriting options.</param>
+        internal bool Parse(string[] args, Configuration configuration, RewritingOptions options)
         {
             try
             {
@@ -115,7 +118,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 {
                     foreach (var arg in result)
                     {
-                        UpdateConfigurationWithParsedArgument(configuration, arg);
+                        UpdateConfigurationWithParsedArgument(configuration, options, arg);
                     }
 
                     SanitizeConfiguration(configuration);
@@ -147,7 +150,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         /// <summary>
         /// Updates the configuration with the specified parsed argument.
         /// </summary>
-        private static void UpdateConfigurationWithParsedArgument(Configuration configuration, CommandLineArgument option)
+        private static void UpdateConfigurationWithParsedArgument(Configuration configuration, RewritingOptions options, CommandLineArgument option)
         {
             switch (option.LongName)
             {
@@ -343,7 +346,10 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.AdditionalCodeCoverageAssemblies[(string)option.Value] = true;
                     break;
                 case "strong-name-key-file":
-                    configuration.StrongNameKeyFile = (string)option.Value;
+                    options.StrongNameKeyFile = (string)option.Value;
+                    break;
+                case "rewrite-dependencies":
+                    options.IsRewritingDependencies = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;

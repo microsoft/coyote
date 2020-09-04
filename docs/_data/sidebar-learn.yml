@@ -1172,8 +1172,6 @@ learn-toc:
       - name: RewritingOptions
         link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptionsType
         subfolderitems:
-        - name: Create
-          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Create
         - name: ParseFromJSON
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/ParseFromJSON
         - name: AssembliesDirectory
@@ -1182,8 +1180,12 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirectory
         - name: AssemblyPaths
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths
-        - name: IsReplacingAssemblies
-          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsReplacingAssemblies
+        - name: DisallowedAssemblies
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/DisallowedAssemblies
+        - name: StrongNameKeyFile
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
+        - name: IsRewritingDependencies
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
     - name: Microsoft.Coyote.SystematicTesting
       link: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
       subfolderitems:

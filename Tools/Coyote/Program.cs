@@ -17,7 +17,6 @@ namespace Microsoft.Coyote
     /// </summary>
     internal class Program
     {
-        private static Configuration Configuration;
         private static CoyoteTelemetryClient TelemetryClient;
         private static TextWriter StdOut;
         private static TextWriter StdError;
@@ -33,19 +32,20 @@ namespace Microsoft.Coyote
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             Console.CancelKeyPress += OnProcessCanceled;
 
-            // Parses the command line options to get the configuration.
+            // Parses the command line options to get the configuration and rewritingOptions.
 
-            Configuration = Configuration.Create();
-            Configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
+            var configuration = Configuration.Create();
+            configuration.TelemetryServerPath = typeof(Program).Assembly.Location;
+            var rewritingOptions = new RewritingOptions();
 
             var result = CoyoteTelemetryClient.GetOrCreateMachineId().Result;
             bool firstTime = result.Item2;
 
             var options = new CommandLineOptions();
-            if (!options.Parse(args, Configuration))
+            if (!options.Parse(args, configuration, rewritingOptions))
             {
                 options.PrintHelp(Console.Out);
-                if (!firstTime && Configuration.EnableTelemetry)
+                if (!firstTime && configuration.EnableTelemetry)
                 {
                     CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
                 }
@@ -53,21 +53,21 @@ namespace Microsoft.Coyote
                 Environment.Exit(1);
             }
 
-            Configuration.PlatformVersion = GetPlatformVersion();
+            configuration.PlatformVersion = GetPlatformVersion();
 
-            if (!Configuration.RunAsParallelBugFindingTask)
+            if (!configuration.RunAsParallelBugFindingTask)
             {
                 if (firstTime)
                 {
                     string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
                     Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
                     Console.WriteLine("----------------------------{0}", new string('-', version.Length));
-                    if (Configuration.EnableTelemetry)
+                    if (configuration.EnableTelemetry)
                     {
                         CoyoteTelemetryClient.PrintTelemetryMessage(Console.Out);
                     }
 
-                    TelemetryClient = new CoyoteTelemetryClient(Configuration);
+                    TelemetryClient = new CoyoteTelemetryClient(configuration);
                     TelemetryClient.TrackEventAsync("welcome").Wait();
                 }
 
@@ -78,28 +78,28 @@ namespace Microsoft.Coyote
                 Console.WriteLine();
             }
 
-            SetEnvironment(Configuration);
+            SetEnvironment(configuration);
 
-            switch (Configuration.ToolCommand.ToLower())
+            switch (configuration.ToolCommand.ToLower())
             {
                 case "test":
-                    RunTest();
+                    RunTest(configuration);
                     break;
                 case "replay":
-                    ReplayTest();
+                    ReplayTest(configuration);
                     break;
                 case "rewrite":
-                    RewriteAssemblies();
+                    RewriteAssemblies(configuration, rewritingOptions);
                     break;
                 case "telemetry":
-                    RunServer();
+                    RunServer(configuration);
                     break;
             }
         }
 
-        public static void RunServer()
+        public static void RunServer(Configuration configuration)
         {
-            CoyoteTelemetryServer server = new CoyoteTelemetryServer(Configuration.IsVerbose);
+            CoyoteTelemetryServer server = new CoyoteTelemetryServer(configuration.IsVerbose);
             server.RunServerAsync().Wait();
         }
 
@@ -115,65 +115,65 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Runs the test specified in the configuration.
         /// </summary>
-        private static void RunTest()
+        private static void RunTest(Configuration configuration)
         {
-            if (Configuration.RunAsParallelBugFindingTask)
+            if (configuration.RunAsParallelBugFindingTask)
             {
                 // This is being run as the child test process.
-                if (Configuration.ParallelDebug)
+                if (configuration.ParallelDebug)
                 {
                     Console.WriteLine("Attach the debugger and press ENTER to continue...");
                     Console.ReadLine();
                 }
 
                 // Load the configuration of the assembly to be tested.
-                LoadAssemblyConfiguration(Configuration.AssemblyToBeAnalyzed);
+                LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
-                TestingProcess testingProcess = TestingProcess.Create(Configuration);
+                TestingProcess testingProcess = TestingProcess.Create(configuration);
                 testingProcess.Run();
                 return;
             }
 
-            if (Configuration.ReportCodeCoverage || Configuration.ReportActivityCoverage)
+            if (configuration.ReportCodeCoverage || configuration.ReportActivityCoverage)
             {
                 // This has to be here because both forms of coverage require it.
-                CodeCoverageInstrumentation.SetOutputDirectory(Configuration, makeHistory: true);
+                CodeCoverageInstrumentation.SetOutputDirectory(configuration, makeHistory: true);
             }
 
-            if (Configuration.ReportCodeCoverage)
+            if (configuration.ReportCodeCoverage)
             {
                 // Instruments the program under test for code coverage.
-                CodeCoverageInstrumentation.Instrument(Configuration);
+                CodeCoverageInstrumentation.Instrument(configuration);
 
                 // Starts monitoring for code coverage.
-                CodeCoverageMonitor.Start(Configuration);
+                CodeCoverageMonitor.Start(configuration);
             }
 
-            Console.WriteLine(". Testing " + Configuration.AssemblyToBeAnalyzed);
-            if (!string.IsNullOrEmpty(Configuration.TestMethodName))
+            Console.WriteLine(". Testing " + configuration.AssemblyToBeAnalyzed);
+            if (!string.IsNullOrEmpty(configuration.TestMethodName))
             {
-                Console.WriteLine("... Method {0}", Configuration.TestMethodName);
+                Console.WriteLine("... Method {0}", configuration.TestMethodName);
             }
 
             // Creates and runs the testing process scheduler.
-            TestingProcessScheduler.Create(Configuration).Run();
+            TestingProcessScheduler.Create(configuration).Run();
         }
 
         /// <summary>
         /// Replays an execution that is specified in the configuration.
         /// </summary>
-        private static void ReplayTest()
+        private static void ReplayTest(Configuration configuration)
         {
             // Set some replay specific options.
-            Configuration.SchedulingStrategy = "replay";
-            Configuration.EnableColoredConsoleOutput = true;
-            Configuration.DisableEnvironmentExit = false;
+            configuration.SchedulingStrategy = "replay";
+            configuration.EnableColoredConsoleOutput = true;
+            configuration.DisableEnvironmentExit = false;
 
             // Load the configuration of the assembly to be replayed.
-            LoadAssemblyConfiguration(Configuration.AssemblyToBeAnalyzed);
+            LoadAssemblyConfiguration(configuration.AssemblyToBeAnalyzed);
 
-            Console.WriteLine($". Replaying {Configuration.ScheduleFile}");
-            TestingEngine engine = TestingEngine.Create(Configuration);
+            Console.WriteLine($". Replaying {configuration.ScheduleFile}");
+            TestingEngine engine = TestingEngine.Create(configuration);
             engine.Run();
             Console.WriteLine(engine.GetReport());
         }
@@ -181,46 +181,54 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Rewrites the assemblies specified in the configuration.
         /// </summary>
-        private static void RewriteAssemblies()
+        private static void RewriteAssemblies(Configuration configuration, RewritingOptions options)
         {
             try
             {
                 string assemblyDir = null;
                 var fileList = new HashSet<string>();
-                if (!string.IsNullOrEmpty(Configuration.AssemblyToBeAnalyzed))
+                if (!string.IsNullOrEmpty(configuration.AssemblyToBeAnalyzed))
                 {
-                    var fullPath = Path.GetFullPath(Configuration.AssemblyToBeAnalyzed);
+                    var fullPath = Path.GetFullPath(configuration.AssemblyToBeAnalyzed);
                     Console.WriteLine($". Rewriting {fullPath}");
                     assemblyDir = Path.GetDirectoryName(fullPath);
                     fileList.Add(fullPath);
                 }
-                else if (Directory.Exists(Configuration.RewritingOptionsPath))
+                else if (Directory.Exists(configuration.RewritingOptionsPath))
                 {
-                    assemblyDir = Path.GetFullPath(Configuration.RewritingOptionsPath);
+                    assemblyDir = Path.GetFullPath(configuration.RewritingOptionsPath);
                     Console.WriteLine($". Rewriting the assemblies specified in {assemblyDir}");
                 }
 
+                RewritingOptions config = options;
+
                 if (!string.IsNullOrEmpty(assemblyDir))
                 {
-                    // Create a new RewritingOptions object from scratch
-                    var config = RewritingOptions.Create(assemblyDir, assemblyDir, fileList);
-                    config.StrongNameKeyFile = Configuration.StrongNameKeyFile;
-                    config.PlatformVersion = Configuration.PlatformVersion;
-                    AssemblyRewriter.Rewrite(config);
+                    // Create a new RewritingOptions object from command line args only.
+                    config.AssembliesDirectory = assemblyDir;
+                    config.OutputDirectory = assemblyDir;
+                    config.AssemblyPaths = fileList;
                 }
                 else
                 {
-                    var config = RewritingOptions.ParseFromJSON(Configuration.RewritingOptionsPath);
+                    // Load options from JSON file.
+                    config = RewritingOptions.ParseFromJSON(configuration.RewritingOptionsPath);
                     Console.WriteLine($". Rewriting the assemblies specified in {config}");
-                    config.PlatformVersion = Configuration.PlatformVersion;
-                    if (string.IsNullOrEmpty(config.StrongNameKeyFile))
+                    config.PlatformVersion = configuration.PlatformVersion;
+
+                    // allow command line options to override the json file.
+                    if (!string.IsNullOrEmpty(options.StrongNameKeyFile))
                     {
-                        config.StrongNameKeyFile = Configuration.StrongNameKeyFile;
+                        config.StrongNameKeyFile = options.StrongNameKeyFile;
                     }
 
-                    AssemblyRewriter.Rewrite(config);
+                    if (options.IsRewritingDependencies )
+                    {
+                        config.IsRewritingDependencies = options.IsRewritingDependencies;
+                    }
                 }
 
+                AssemblyRewriter.Rewrite(config);
                 Console.WriteLine($". Done rewriting");
             }
             catch (Exception ex)
@@ -322,7 +330,7 @@ namespace Microsoft.Coyote
         /// </summary>
         private static void Shutdown()
         {
-            if (Configuration != null && Configuration.ReportCodeCoverage && CodeCoverageMonitor.IsRunning)
+            if (CodeCoverageMonitor.IsRunning)
             {
                 Console.WriteLine(". Shutting down the code coverage monitor, this may take a few seconds...");
 

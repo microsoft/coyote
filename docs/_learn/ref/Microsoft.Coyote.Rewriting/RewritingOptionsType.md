@@ -16,12 +16,17 @@ public class RewritingOptions
 
 | name | description |
 | --- | --- |
-| static [Create](RewritingOptions/Create)(…) | Creates a [`RewritingOptions`](RewritingOptionsType) instance from the specified parameters. |
 | static [ParseFromJSON](RewritingOptions/ParseFromJSON)(…) | Parses the [`RewritingOptions`](RewritingOptionsType) from the specified JSON configuration file. |
-| [AssembliesDirectory](RewritingOptions/AssembliesDirectory) { get; } | The directory with the assemblies to rewrite. |
-| [AssemblyPaths](RewritingOptions/AssemblyPaths) { get; } | The path to the assemblies to rewrite. |
-| [IsReplacingAssemblies](RewritingOptions/IsReplacingAssemblies) { get; } | True if the input assemblies are being replaced by the rewritten ones. |
-| [OutputDirectory](RewritingOptions/OutputDirectory) { get; } | The output directory where rewritten assemblies are placed. |
+| [AssembliesDirectory](RewritingOptions/AssembliesDirectory) { get; } | The directory containing the assemblies to rewrite. |
+| [AssemblyPaths](RewritingOptions/AssemblyPaths) { get; } | The file names of the assemblies to rewrite. If this list is empty then it will rewrite all assemblies in the [`AssembliesDirectory`](RewritingOptions/AssembliesDirectory). |
+| [DisallowedAssemblies](RewritingOptions/DisallowedAssemblies) { get; } | The file name of assemblies to ignore when rewriting dependencies or a whole directory. This list automatically includes the following "Microsoft.Coyote.dll", "Microsoft.Coyote.Test.dll", "System.Private.CoreLib.dll", "mscorlib.dll". |
+| [IsRewritingDependencies](RewritingOptions/IsRewritingDependencies) { get; } | Whether to also rewrite dependent assemblies that are found in the same location. |
+| [OutputDirectory](RewritingOptions/OutputDirectory) { get; } | The output directory where rewritten assemblies are placed. If this is the same as the [`AssembliesDirectory`](RewritingOptions/AssembliesDirectory) then the rewritten assemblies will replace the original assemblies. |
+| [StrongNameKeyFile](RewritingOptions/StrongNameKeyFile) { get; } | Path of strong name key to use for signing rewritten assemblies. |
+
+## Remarks
+
+See [Coyote rewriting tool](/coyote/learn/tools/rewriting) for more information.
 
 ## See Also
 

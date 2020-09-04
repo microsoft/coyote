@@ -41,7 +41,7 @@ $target = "$CoyoteRoot\docs\_learn\ref"
 $installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
 
 # install xmldocmd
-$installed = InstallToolVersion -name "xmldocmd" -version "2.1.0-beta1"
+$installed = InstallToolVersion -name "xmldocmd" -version "2.3.0"
 
 $frameworks = Get-ChildItem -Path "$CoyoteRoot/bin" | where Name -ne "nuget" | select -expand Name
 foreach ($name in $frameworks) {

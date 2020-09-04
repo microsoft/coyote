@@ -508,6 +508,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     {
 #pragma warning disable CA1000 // Do not declare static members on generic types
         /// <summary>
+        /// Provides access to factory methods for creating controlled <see cref="Task"/>
+        /// and <see cref="Task{TResult}"/> instances.
+        /// </summary>
+        public static TaskFactory<TResult> Factory { get; } = new TaskFactory<TResult>();
+
+        /// <summary>
         /// Gets the result value of the specified <see cref="Task{TResult}"/>.
         /// </summary>
         /// <param name="task">The task producing the result value.</param>

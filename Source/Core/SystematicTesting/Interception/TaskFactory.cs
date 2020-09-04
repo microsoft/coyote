@@ -598,6 +598,284 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
             Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
     }
+
+    /// <summary>
+    /// Provides support for creating and scheduling controlled <see cref="Task{TResult}"/> objects.
+    /// </summary>
+    /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public class TaskFactory<TResult>
+    {
+        // Note: we are only intercepting and modeling a very limited set of APIs to enable specific scenarios such
+        // as ASP.NET rewriting. Most `TaskFactory` APIs are not supported by our modeling, and we do not currently
+        // aim to support user applications with code that explicitly uses the `TaskFactory`.
+
+        /// <summary>
+        /// The default task continuation options for this task factory.
+        /// </summary>
+        public TaskContinuationOptions ContinuationOptions => Task<TResult>.Factory.ContinuationOptions;
+
+        /// <summary>
+        /// The default task cancellation token for this task factory.
+        /// </summary>
+        public CancellationToken CancellationToken => Task<TResult>.Factory.CancellationToken;
+
+        /// <summary>
+        /// The default task creation options for this task factory.
+        /// </summary>
+        public TaskCreationOptions CreationOptions => Task<TResult>.Factory.CreationOptions;
+
+        /// <summary>
+        /// The default task scheduler for this task factory.
+        /// </summary>
+        public TaskScheduler Scheduler => Task<TResult>.Factory.Scheduler;
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<TResult> function) =>
+            ControlledTask.Factory.StartNew(function);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<TResult> function, CancellationToken cancellationToken) =>
+            ControlledTask.Factory.StartNew(function, cancellationToken);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<TResult> function, TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.StartNew(function, creationOptions);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<TResult> function, CancellationToken cancellationToken, TaskCreationOptions creationOptions,
+            TaskScheduler scheduler) =>
+            ControlledTask.Factory.StartNew(function, cancellationToken, creationOptions, scheduler);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<object, TResult> function, object state) =>
+            ControlledTask.Factory.StartNew(function, state);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<object, TResult> function, object state, CancellationToken cancellationToken) =>
+            ControlledTask.Factory.StartNew(function, state, cancellationToken);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<object, TResult> function, object state, TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.StartNew(function, state, creationOptions);
+
+        /// <summary>
+        /// Creates and starts a <see cref="Task"/>.
+        /// </summary>
+        public Task<TResult> StartNew(Func<object, TResult> function, object state, CancellationToken cancellationToken,
+            TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
+            ControlledTask.Factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll(Task[] tasks, Func<Task[], TResult> continuationFunction) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll(Task[] tasks, Func<Task[], TResult> continuationFunction,
+            CancellationToken cancellationToken) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll(Task[] tasks, Func<Task[], TResult> continuationFunction,
+            TaskContinuationOptions continuationOptions) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction, continuationOptions);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll(Task[] tasks, Func<Task[], TResult> continuationFunction,
+            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>[], TResult> continuationFunction) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>[], TResult> continuationFunction, CancellationToken cancellationToken) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>[], TResult> continuationFunction, TaskContinuationOptions continuationOptions) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction, continuationOptions);
+
+        /// <summary>
+        /// Creates a continuation task that starts when a set of specified tasks has completed.
+        /// </summary>
+        public Task<TResult> ContinueWhenAll<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>[], TResult> continuationFunction, CancellationToken cancellationToken,
+            TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
+            ControlledTask.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny(Task[] tasks, Func<Task, TResult> continuationFunction) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny(Task[] tasks, Func<Task, TResult> continuationFunction,
+            CancellationToken cancellationToken) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny(Task[] tasks, Func<Task, TResult> continuationFunction,
+            TaskContinuationOptions continuationOptions) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction, continuationOptions);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny(Task[] tasks, Func<Task, TResult> continuationFunction,
+            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>, TResult> continuationFunction) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>, TResult> continuationFunction, CancellationToken cancellationToken) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>, TResult> continuationFunction, TaskContinuationOptions continuationOptions) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction, continuationOptions);
+
+        /// <summary>
+        /// Creates a continuation task that will be started upon the completion of any task in the provided set.
+        /// </summary>
+        public Task<TResult> ContinueWhenAny<TAntecedentResult>(Task<TAntecedentResult>[] tasks,
+            Func<Task<TAntecedentResult>, TResult> continuationFunction, CancellationToken cancellationToken,
+            TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
+            ControlledTask.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync(Func<AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, object state) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, state);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync(Func<AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, object state, TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync<TArg1>(Func<TArg1, AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, object state) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, arg1, state);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync<TArg1>(Func<TArg1, AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, object state, TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync<TArg1, TArg2>(Func<TArg1, TArg2, AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, object state) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync<TArg1, TArg2>(Func<TArg1, TArg2, AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync<TArg1, TArg2, TArg3>(Func<TArg1, TArg2, TArg3, AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state);
+
+        /// <summary>
+        /// Creates a task that represents a pair of begin and end methods that conform
+        /// to the Asynchronous Programming Model pattern.
+        /// </summary>
+        public Task<TResult> FromAsync<TArg1, TArg2, TArg3>(Func<TArg1, TArg2, TArg3, AsyncCallback, object, IAsyncResult> beginMethod,
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
+
+        /// <summary>
+        /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
+        /// </summary>
+        public Task<TResult> FromAsync(IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod) =>
+            ControlledTask.Factory.FromAsync(asyncResult, endMethod);
+
+        /// <summary>
+        /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
+        /// </summary>
+        public Task<TResult> FromAsync(IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod,
+            TaskCreationOptions creationOptions) =>
+            ControlledTask.Factory.FromAsync(asyncResult, endMethod, creationOptions);
+
+        /// <summary>
+        /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
+        /// </summary>
+        public Task<TResult> FromAsync(IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod,
+            TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
+            ControlledTask.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
+    }
 #pragma warning restore CA1068 // CancellationToken parameters must come last
 #pragma warning restore CA1822 // Mark members as static
 }

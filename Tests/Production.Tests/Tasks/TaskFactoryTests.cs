@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestStartNewTask()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 await Task.Factory.StartNew(() =>
@@ -34,32 +34,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 });
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewTaskFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                await Task.Factory.StartNew(() =>
-                {
-                    entry.Value = 3;
-                });
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewTaskWithSynchronousAwait()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 await Task.Factory.StartNew(async () =>
@@ -69,33 +54,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewTaskWithSynchronousFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                await Task.Factory.StartNew(async () =>
-                {
-                    await Task.CompletedTask;
-                    entry.Value = 3;
-                }).Unwrap();
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewTaskWithAsynchronousAwait()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 await Task.Factory.StartNew(async () =>
@@ -105,33 +74,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewTaskWithAsynchronousFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                await Task.Factory.StartNew(async () =>
-                {
-                    await Task.Delay(1);
-                    entry.Value = 3;
-                }).Unwrap();
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewNestedTaskWithSynchronousAwait()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 await Task.Factory.StartNew(async () =>
@@ -146,38 +99,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestAwaitNestedTaskWithSynchronousFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                await Task.Factory.StartNew(async () =>
-                {
-                    await Task.Factory.StartNew(async () =>
-                    {
-                        await Task.CompletedTask;
-                        entry.Value = 5;
-                    }).Unwrap();
-
-                    entry.Value = 3;
-                }).Unwrap();
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestAwaitNestedTaskWithAsynchronousAwait()
+        public void TestStartNewNestedTaskWithAsynchronousAwait()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 await Task.Factory.StartNew(async () =>
@@ -192,38 +124,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestAwaitNestedTaskWithAsynchronousFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                await Task.Factory.StartNew(async () =>
-                {
-                    await Task.Factory.StartNew(async () =>
-                    {
-                        await Task.Delay(1);
-                        entry.Value = 5;
-                    }).Unwrap();
-
-                    entry.Value = 3;
-                }).Unwrap();
-
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewTaskWithResult()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Factory.StartNew(() =>
@@ -233,33 +144,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 });
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewTaskWithResultFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                int value = await Task.Factory.StartNew(() =>
-                {
-                    entry.Value = 3;
-                    return entry.Value;
-                });
-
-                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewTaskWithSynchronousResult()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Factory.StartNew(async () =>
@@ -270,34 +165,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewTaskWithSynchronousResultFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                int value = await Task.Factory.StartNew(async () =>
-                {
-                    await Task.CompletedTask;
-                    entry.Value = 3;
-                    return entry.Value;
-                }).Unwrap();
-
-                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewTaskWithAsynchronousResult()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Factory.StartNew(async () =>
@@ -308,34 +186,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewTaskWithAsynchronousResultFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                int value = await Task.Factory.StartNew(async () =>
-                {
-                    await Task.Delay(1);
-                    entry.Value = 3;
-                    return entry.Value;
-                }).Unwrap();
-
-                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewNestedTaskWithSynchronousResult()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Factory.StartNew(async () =>
@@ -349,37 +210,17 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestStartNewNestedTaskWithSynchronousResultFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-                int value = await Task.Factory.StartNew(async () =>
-                {
-                    return await Task.Factory.StartNew(async () =>
-                    {
-                        await Task.CompletedTask;
-                        entry.Value = 3;
-                        return entry.Value;
-                    }).Unwrap();
-                }).Unwrap();
-
-                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 
         [Fact(Timeout = 5000)]
         public void TestStartNewNestedTaskWithAsynchronousResult()
         {
-            this.Test(async () =>
+            this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Factory.StartNew(async () =>
@@ -393,30 +234,120 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }).Unwrap();
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
+            replay: true);
         }
 
         [Fact(Timeout = 5000)]
-        public void TestStartNewNestedTaskWithAsynchronousResultFailure()
+        public void TestGenericStartNewTaskWithResult()
         {
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
-                int value = await Task.Factory.StartNew(async () =>
+                int value = await Task<int>.Factory.StartNew(() =>
                 {
-                    return await Task.Factory.StartNew(async () =>
+                    entry.Value = 5;
+                    return entry.Value;
+                });
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGenericStartNewTaskWithSynchronousResult()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task<Task<int>>.Factory.StartNew(async () =>
+                {
+                    await Task.CompletedTask;
+                    entry.Value = 5;
+                    return entry.Value;
+                }).Unwrap();
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGenericStartNewTaskWithAsynchronousResult()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task<Task<int>>.Factory.StartNew(async () =>
+                {
+                    await Task.Delay(1);
+                    entry.Value = 5;
+                    return entry.Value;
+                }).Unwrap();
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGenericStartNewNestedTaskWithSynchronousResult()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task<Task<int>>.Factory.StartNew(async () =>
+                {
+                    return await Task<Task<int>>.Factory.StartNew(async () =>
                     {
-                        await Task.Delay(1);
-                        entry.Value = 3;
+                        await Task.CompletedTask;
+                        entry.Value = 5;
                         return entry.Value;
                     }).Unwrap();
                 }).Unwrap();
 
                 Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
-            expectedError: "Value is 3 instead of 5.",
+            expectedError: "Reached test assertion.",
+            replay: true);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestGenericStartNewNestedTaskWithAsynchronousResult()
+        {
+            this.TestWithError(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+                int value = await Task<Task<int>>.Factory.StartNew(async () =>
+                {
+                    return await Task<Task<int>>.Factory.StartNew(async () =>
+                    {
+                        await Task.Delay(1);
+                        entry.Value = 5;
+                        return entry.Value;
+                    }).Unwrap();
+                }).Unwrap();
+
+                Specification.Assert(value == 5, "Value is {0} instead of 5.", value);
+                Specification.Assert(false, "Reached test assertion.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200),
+            expectedError: "Reached test assertion.",
             replay: true);
         }
 

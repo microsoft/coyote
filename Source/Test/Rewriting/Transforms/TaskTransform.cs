@@ -324,6 +324,10 @@ namespace Microsoft.Coyote.Rewriting
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory));
             }
+            else if (fullName == KnownSystemTypes.GenericTaskFactoryFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory<>), type);
+            }
             else if (fullName == KnownSystemTypes.ThreadPoolFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ThreadPool));
@@ -397,6 +401,7 @@ namespace Microsoft.Coyote.Rewriting
             internal static string YieldAwaiterFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
             internal static string TaskExtensionsFullName { get; } = typeof(SystemTasks.TaskExtensions).FullName;
             internal static string TaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory).FullName;
+            internal static string GenericTaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
             internal static string ThreadPoolFullName { get; } = typeof(SystemThreading.ThreadPool).FullName;
         }
 

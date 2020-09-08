@@ -173,8 +173,8 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
-            string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-            if (this.RewrittenAssemblies.ContainsKey(assemblyName))
+            string assemblyName = Path.GetFileName(assemblyPath);
+            if (this.RewrittenAssemblies.ContainsKey(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 // already done!
                 return;

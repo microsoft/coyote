@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Interception;
@@ -39,7 +41,18 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// List of assemblies that are not allowed to be rewritten.
         /// </summary>
-        private readonly HashSet<string> DisallowedAssemblies;
+        private readonly Regex DisallowedAssemblies;
+
+        private readonly string[] DefaultDisallowedList = new string[]
+        {
+            @"Newtonsoft\.Json",
+            @"Microsoft\.Coyote\.dll",
+            @"Microsoft\.Coyote.Test\.dll",
+            @"Microsoft\.VisualStudio\.TestPlatform.*",
+            @"Microsoft\.TestPlatform.*",
+            @"System\.Private\.CoreLib",
+            @"mscorlib"
+        };
 
         /// <summary>
         /// List of transforms we are applying while rewriting.
@@ -70,23 +83,31 @@ namespace Microsoft.Coyote.Rewriting
             this.Log = new ConsoleLogger();
             this.Options = options;
             this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
-            if (options.DisallowedAssemblies == null)
+            var userList = options.DisallowedAssemblies ?? Array.Empty<string>();
+            StringBuilder combined = new StringBuilder();
+            foreach (var e in this.DefaultDisallowedList.Concat(userList))
             {
-                this.DisallowedAssemblies = new HashSet<string>();
-            }
-            else
-            {
-                this.DisallowedAssemblies = new HashSet<string>(options.DisallowedAssemblies);
+                if (combined.Length == 0)
+                {
+                    combined.Append("(");
+                }
+                else
+                {
+                    combined.Append("|");
+                }
+
+                combined.Append(e);
             }
 
-            this.DisallowedAssemblies.UnionWith(new string[]
+            combined.Append(")");
+            try
             {
-                "Microsoft.Coyote.dll",
-                "Microsoft.Coyote.Test.dll",
-                "Newtonsoft.Json.dll",
-                "System.Private.CoreLib.dll",
-                "mscorlib.dll"
-            });
+                this.DisallowedAssemblies = new Regex(combined.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("DisallowedAssemblies not a valid regular expression\n" + ex.Message);
+            }
 
             this.Transforms = new List<AssemblyTransform>()
             {
@@ -101,7 +122,7 @@ namespace Microsoft.Coyote.Rewriting
                 // Expand to include all .dll files in AssemblyPaths.
                 foreach (var file in Directory.GetFiles(this.Options.AssembliesDirectory, "*.dll"))
                 {
-                    if (!this.DisallowedAssemblies.Contains(Path.GetFileName(file)))
+                    if (this.IsDisallowed(Path.GetFileNameWithoutExtension(file)))
                     {
                         this.Options.AssemblyPaths.Add(file);
                     }
@@ -111,6 +132,16 @@ namespace Microsoft.Coyote.Rewriting
                     }
                 }
             }
+        }
+
+        private bool IsDisallowed(string assemblyName)
+        {
+            if (this.DisallowedAssemblies == null)
+            {
+                return false;
+            }
+
+            return this.DisallowedAssemblies.IsMatch(assemblyName);
         }
 
         /// <summary>
@@ -190,7 +221,7 @@ namespace Microsoft.Coyote.Rewriting
 
             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
             {
-                if (this.DisallowedAssemblies.Contains(assemblyName))
+                if (this.IsDisallowed(assemblyName))
                 {
                     throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
                 }
@@ -314,7 +345,7 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     var name = ar.Name;
                     var localName = Path.Combine(assemblyDir, name + ".dll");
-                    if (!this.DisallowedAssemblies.Contains(name + ".dll") && !this.RewrittenAssemblies.ContainsKey(name) &&
+                    if (!this.IsDisallowed(name) &&
                         File.Exists(localName) && !this.Pending.Contains(localName))
                     {
                         this.Pending.Enqueue(localName);

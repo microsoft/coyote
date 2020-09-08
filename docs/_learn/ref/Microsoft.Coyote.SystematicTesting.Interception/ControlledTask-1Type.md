@@ -20,6 +20,7 @@ public static class ControlledTask<TResult>
 
 | name | description |
 | --- | --- |
+| static [Factory](ControlledTask-1/Factory) { get; } | Provides access to factory methods for creating controlled Task and Task instances. |
 | static [GetAwaiter](ControlledTask-1/GetAwaiter)(…) | Returns a TaskAwaiter for the specified Task. |
 | static [get_Result](ControlledTask-1/get_Result)(…) | Gets the result value of the specified Task. |
 

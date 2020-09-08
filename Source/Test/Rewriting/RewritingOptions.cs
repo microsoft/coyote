@@ -38,11 +38,19 @@ namespace Microsoft.Coyote.Rewriting
         public HashSet<string> AssemblyPaths { get; internal set; }
 
         /// <summary>
-        /// The file name of assemblies to ignore when rewriting dependencies or a whole directory.
-        /// This list automatically includes the following "Microsoft.Coyote.dll",
-        /// "Microsoft.Coyote.Test.dll", "System.Private.CoreLib.dll", "mscorlib.dll".
+        /// The regular expressions used to match against assembly names to determine which assemblies
+        /// to ignore when rewriting dependencies or a whole directory.
         /// </summary>
-        public HashSet<string> DisallowedAssemblies { get; internal set; }
+        /// <remarks>
+        /// The list automatically includes the following expressions:
+        /// Microsoft\.Coyote.*
+        /// Microsoft\.TestPlatform.*
+        /// Microsoft\.VisualStudio\.TestPlatform.*
+        /// Newtonsoft\.Json.*
+        /// System\.Private\.CoreLib
+        /// mscorlib.
+        /// </remarks>
+        public IList<string> DisallowedAssemblies { get; internal set; }
 
         /// <summary>
         /// True if the input assemblies are being replaced by the rewritten ones.
@@ -97,7 +105,7 @@ namespace Microsoft.Coyote.Rewriting
             string strongNameKeyFile = null;
             bool dependencies = false;
             var assemblyPaths = new HashSet<string>();
-            var disallowed = new HashSet<string>();
+            IList<string> disallowed = null;
 
             string workingDirectory = Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar;
 
@@ -136,7 +144,7 @@ namespace Microsoft.Coyote.Rewriting
 
                     if (configuration.DisallowedAssemblies != null)
                     {
-                        disallowed = new HashSet<string>(configuration.DisallowedAssemblies);
+                        disallowed = configuration.DisallowedAssemblies;
                     }
                 }
             }

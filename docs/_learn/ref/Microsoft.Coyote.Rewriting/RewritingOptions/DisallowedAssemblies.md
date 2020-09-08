@@ -6,11 +6,15 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/DisallowedAsse
 ---
 # RewritingOptions.DisallowedAssemblies property
 
-The file name of assemblies to ignore when rewriting dependencies or a whole directory. This list automatically includes the following "Microsoft.Coyote.dll", "Microsoft.Coyote.Test.dll", "System.Private.CoreLib.dll", "mscorlib.dll".
+The regular expressions used to match against assembly names to determine which assemblies to ignore when rewriting dependencies or a whole directory.
 
 ```csharp
-public HashSet<string> DisallowedAssemblies { get; }
+public IList<string> DisallowedAssemblies { get; }
 ```
+
+## Remarks
+
+The list automatically includes the following expressions: Microsoft\.Coyote.* Microsoft\.TestPlatform.* Microsoft\.VisualStudio\.TestPlatform.* Newtonsoft\.Json.* System\.Private\.CoreLib mscorlib.
 
 ## See Also
 

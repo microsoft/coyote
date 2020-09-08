@@ -1004,6 +1004,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1/get_Result
         - name: GetAwaiter
           link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1/GetAwaiter
+        - name: Factory
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1/Factory
     - name: Microsoft.Coyote.Tasks
       link: /learn/ref/MicrosoftCoyoteTasksNamespace
       subfolderitems:

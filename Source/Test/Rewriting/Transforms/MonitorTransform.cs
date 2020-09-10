@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -59,6 +60,7 @@ namespace Microsoft.Coyote.Rewriting
             {
                 this.Method = method;
                 this.Processor = method.Body.GetILProcessor();
+                this.VisitInstructions(method);
             }
         }
 

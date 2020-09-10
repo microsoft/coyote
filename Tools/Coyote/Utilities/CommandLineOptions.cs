@@ -63,6 +63,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             rewritingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "rewrite" };
             rewritingGroup.AddArgument("strong-name-key-file", "snk", "Path to strong name signing key");
             rewritingGroup.AddArgument("rewrite-dependencies", null, "Rewrite all dependent assemblies that are found in the same location as the given path", typeof(bool));
+            rewritingGroup.AddArgument("rewrite-unit-tests", null, "Rewrite unit tests to run in the scope of the Coyote testing engine", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
@@ -350,6 +351,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "rewrite-dependencies":
                     options.IsRewritingDependencies = true;
+                    break;
+                case "rewrite-unit-tests":
+                    options.IsRewritingUnitTests = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;

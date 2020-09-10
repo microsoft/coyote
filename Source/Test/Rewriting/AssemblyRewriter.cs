@@ -9,6 +9,10 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
@@ -115,6 +119,13 @@ namespace Microsoft.Coyote.Rewriting
                  new MonitorTransform(this.Log),
                  new ExceptionFilterTransform(this.Log)
             };
+
+            if (this.Options.IsRewritingUnitTests)
+            {
+                // We are running this pass last, as we are rewriting the original method, and
+                // we need the other rewriting passes to happen before this pass.
+                this.Transforms.Add(new MSTestTransform(this.Log));
+            }
 
             // expand folder
             if (this.Options.AssemblyPaths == null || this.Options.AssemblyPaths.Count == 0)
@@ -374,13 +385,13 @@ namespace Microsoft.Coyote.Rewriting
         {
             Debug.WriteLine($"......... Type: {type.FullName}");
             transform.VisitType(type);
-            foreach (var field in type.Fields)
+            foreach (var field in type.Fields.ToArray())
             {
                 Debug.WriteLine($"........... Field: {field.FullName}");
                 transform.VisitField(field);
             }
 
-            foreach (var method in type.Methods)
+            foreach (var method in type.Methods.ToArray())
             {
                 RewriteMethod(method, transform);
             }
@@ -398,23 +409,6 @@ namespace Microsoft.Coyote.Rewriting
 
             Debug.WriteLine($"........... Method {method.FullName}");
             transform.VisitMethod(method);
-
-            // Only non-abstract method bodies can be rewritten.
-            if (!method.IsAbstract)
-            {
-                foreach (var variable in method.Body.Variables)
-                {
-                    transform.VisitVariable(variable);
-                }
-
-                // Rewrite the method body instructions.
-                Instruction instruction = method.Body.Instructions.FirstOrDefault();
-                while (instruction != null)
-                {
-                    instruction = transform.VisitInstruction(instruction);
-                    instruction = instruction.Next;
-                }
-            }
         }
 
         /// <summary>
@@ -478,13 +472,20 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            // Copy the `Microsoft.Coyote.dll` assembly to the output directory.
-            string coyoteAssemblyPath = typeof(ControlledTask).Assembly.Location;
-            File.Copy(coyoteAssemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(coyoteAssemblyPath)), true);
-
-            // Copy the `Microsoft.Coyote.Test.dll` assembly to the output directory.
-            string coyoteTestAssemblyPath = typeof(AssemblyRewriter).Assembly.Location;
-            File.Copy(coyoteTestAssemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(coyoteTestAssemblyPath)), true);
+            // Copy all the dependent assemblies
+            foreach (var type in new Type[]
+                {
+                    typeof(ControlledTask),
+                    typeof(AssemblyRewriter),
+                    typeof(TelemetryConfiguration),
+                    typeof(EventTelemetry),
+                    typeof(ITelemetry),
+                    typeof(TelemetryClient)
+                })
+            {
+                string assemblyPath = type.Assembly.Location;
+                File.Copy(assemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(assemblyPath)), true);
+            }
 
             return outputDirectory;
         }

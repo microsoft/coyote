@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -85,6 +86,12 @@ namespace Microsoft.Coyote.Rewriting
             {
                 this.Method = method;
                 this.Processor = method.Body.GetILProcessor();
+
+                // rewrite the variable declarations.
+                this.VisitVariables(method);
+
+                // Rewrite the method body instructions.
+                this.VisitInstructions(method);
             }
 
             // bugbug: what if this is an override of an inherited virtual method?  For example, what if there

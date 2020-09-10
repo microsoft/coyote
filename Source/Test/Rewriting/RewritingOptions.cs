@@ -73,6 +73,17 @@ namespace Microsoft.Coyote.Rewriting
         public bool IsRewritingDependencies { get; internal set; }
 
         /// <summary>
+        /// True if rewriting of unit test methods is enabled, else false.
+        /// </summary>
+        /// <remarks>
+        /// If unit test rewriting is enabled, Coyote will instrument the binary to run unit test
+        /// methods in the scope of the Coyote testing engine. Note that this rewriting does not
+        /// change the semantics of the original test. For example, if the test is sequential it
+        /// will remain sequential, limiting the concurrency coverage that Coyote can achieve.
+        /// </remarks>
+        public bool IsRewritingUnitTests { get; internal set; }
+
+        /// <summary>
         /// The .NET platform version that Coyote was compiled for.
         /// </summary>
         internal string PlatformVersion
@@ -103,7 +114,8 @@ namespace Microsoft.Coyote.Rewriting
             var assembliesDirectory = string.Empty;
             var outputDirectory = string.Empty;
             string strongNameKeyFile = null;
-            bool dependencies = false;
+            bool isRewritingDependencies = false;
+            bool isRewritingUnitTests = false;
             var assemblyPaths = new HashSet<string>();
             IList<string> disallowed = null;
 
@@ -120,7 +132,8 @@ namespace Microsoft.Coyote.Rewriting
                     Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
                     assembliesDirectory = resolvedUri.LocalPath;
                     strongNameKeyFile = configuration.StrongNameKeyFile;
-                    dependencies = configuration.IsRewritingDependencies;
+                    isRewritingDependencies = configuration.IsRewritingDependencies;
+                    isRewritingUnitTests = configuration.IsRewritingUnitTests;
 
                     if (string.IsNullOrEmpty(configuration.OutputPath))
                     {
@@ -160,7 +173,8 @@ namespace Microsoft.Coyote.Rewriting
                 OutputDirectory = outputDirectory,
                 AssemblyPaths = assemblyPaths,
                 StrongNameKeyFile = strongNameKeyFile,
-                IsRewritingDependencies = dependencies,
+                IsRewritingDependencies = isRewritingDependencies,
+                IsRewritingUnitTests = isRewritingUnitTests,
                 DisallowedAssemblies = disallowed
             };
         }
@@ -220,6 +234,9 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "IsRewritingDependencies")]
             public bool IsRewritingDependencies { get; set; }
+
+            [DataMember(Name = "IsRewritingUnitTests")]
+            public bool IsRewritingUnitTests { get; set; }
 
             [DataMember(Name = "DisallowedAssemblies")]
             public IList<string> DisallowedAssemblies { get; set; }

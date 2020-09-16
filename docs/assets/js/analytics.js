@@ -35,12 +35,10 @@ function wcp_ready(err, _siteConsent){
 
 function onConsentChanged() {
     var userConsent = siteConsent.getConsentFor(WcpConsent.consentCategories.Analytics);
-    if (!siteConsent.isConsentRequired){
-        // force the dialog just for testing...
-        // todo: remove this when we are done testing...
-        siteConsent.manageConsent();
+    if (!siteConsent.isConsentRequired) {
+        enableTelemetry();
     }
-    else if(userConsent) {
+    else if (userConsent) {
         enableTelemetry();
     }
     else {

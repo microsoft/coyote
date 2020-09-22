@@ -457,7 +457,7 @@ namespace Microsoft.Coyote.Rewriting
                     if (!directoryPath.StartsWith(outputDirectory))
                     {
                         Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
-                        Directory.CreateDirectory(Path.Combine(outputDirectory, directoryPath.Substring(sourceDirectory.Length + 1)));
+                        Directory.CreateDirectory(Path.Combine(outputDirectory, Path.GetDirectoryName(directoryPath)));
                     }
                 }
 
@@ -467,7 +467,7 @@ namespace Microsoft.Coyote.Rewriting
                     if (!filePath.StartsWith(outputDirectory))
                     {
                         Debug.WriteLine($"..... Copying the '{filePath}' file");
-                        File.Copy(filePath, Path.Combine(outputDirectory, filePath.Substring(sourceDirectory.Length + 1)), true);
+                        File.Copy(filePath, Path.Combine(outputDirectory, Path.GetFileName(filePath)), true);
                     }
                 }
             }

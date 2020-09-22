@@ -30,7 +30,7 @@ jobs:
           COYOTE_CLI_TELEMETRY_OPTOUT: 1
       
       - name: Build Coyote NuGet package
-        run: ./Scripts/create-nuget-packages.ps1
+        run: dotnet pack ./Tools/Coyote/Coyote.csproj
         shell: pwsh
       
       - name: Test Coyote.CLI NuGet package

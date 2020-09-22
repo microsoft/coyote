@@ -214,7 +214,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     Task.Run(async () =>
                     {
                         await Task.Delay(10);
-                        Monitor.PulseAll(this.SyncObject);
+                        lock (this.SyncObject)
+                        {
+                            Monitor.PulseAll(this.SyncObject);
+                        }
                     });
 
                     // Pause the current operation until the scheduler retries.

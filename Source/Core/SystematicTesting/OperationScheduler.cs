@@ -135,11 +135,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Schedules the next enabled operation, which can include the currently executing operation.
         /// </summary>
         /// <param name="isYielding">True if the current operation is yielding, else false.</param>
-        /// <param name="retries">Denotes number of available retries to schedule the next operation.</param>
         /// <remarks>
         /// An enabled operation is one that is not blocked nor completed.
         /// </remarks>
-        internal void ScheduleNextOperation(bool isYielding = false, int retries = 5)
+        internal void ScheduleNextOperation(bool isYielding = false)
         {
             lock (this.SyncObject)
             {
@@ -169,42 +168,12 @@ namespace Microsoft.Coyote.SystematicTesting
                     current.HashedProgramState = this.Runtime.GetProgramState();
                 }
 
-                // Get and order the operations by their id.
-                var ops = this.OperationMap.Values.OrderBy(op => op.Id);
-
-                // Enable any blocked operation that has its dependencies already satisfied.
-                EnableBlockedOperations(ops);
-
-                if (!this.Strategy.GetNextOperation(ops, current, isYielding, out AsyncOperation next))
+                // Choose the next operation to schedule, if there is one enabled.
+                if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
-                    // Either the execution has naturally terminated, or there is a potential deadlock because
-                    // there are no enabled operations to schedule, but there is at least one blocked operation.
-                    if (ops.Any(op => op.IsBlockedOnUncontrolledDependency()) && retries > 0)
-                    {
-                        // At least one operation is blocked due to uncontrolled concurrency. To try defend against
-                        // this, retry scheduling after a delay to give some time to the dependency to complete.
-                        // We only do a limited number of retries, after which we report a deadlock.
-                        Task.Run(async () =>
-                        {
-                            await Task.Delay(10);
-                            this.ScheduleNextOperation(isYielding, retries - 1);
-                        });
-
-                        // Pause the current operation until the scheduler retries.
-                        Monitor.Wait(this.SyncObject);
-                        this.ThrowExecutionCanceledExceptionIfDetached();
-                    }
-                    else
-                    {
-                        // Checks if the execution has deadlocked.
-                        this.CheckIfExecutionHasDeadlocked(ops);
-
-                        IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
-                        this.HasFullyExploredSchedule = true;
-                        this.Detach();
-                    }
-
-                    return;
+                    IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
+                    this.HasFullyExploredSchedule = true;
+                    this.Detach();
                 }
 
                 IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
@@ -216,6 +185,56 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.PauseOperation(current);
                 }
             }
+        }
+
+        private bool TryGetNextEnabledOperation(AsyncOperation current, bool isYielding, out AsyncOperation next)
+        {
+            // Get and order the operations by their id.
+            var ops = this.OperationMap.Values.OrderBy(op => op.Id);
+
+            // The scheduler might need to retry choosing a next operation in the presence of uncontrolled
+            // concurrency, as explained below. In this case, we implement a simple retry logic.
+            int retries = 0;
+            do
+            {
+                // Enable any blocked operation that has its dependencies already satisfied.
+                IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operation with satisfied dependencies.");
+                foreach (var op in ops)
+                {
+                    op.TryEnable();
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                }
+
+                // Choose the next operation to schedule, if there is one enabled.
+                if (!this.Strategy.GetNextOperation(ops, current, isYielding, out next) &&
+                    ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
+                {
+                    // At least one operation is blocked due to uncontrolled concurrency. To try defend against
+                    // this, retry after an asynchronous delay to give some time to the dependency to complete.
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(10);
+                        Monitor.PulseAll(this.SyncObject);
+                    });
+
+                    // Pause the current operation until the scheduler retries.
+                    Monitor.Wait(this.SyncObject);
+                    retries++;
+                    continue;
+                }
+
+                break;
+            }
+            while (retries < 5);
+
+            if (next is null)
+            {
+                // Checks if the execution has deadlocked.
+                this.CheckIfExecutionHasDeadlocked(ops);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -375,19 +394,6 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             this.ThrowExecutionCanceledExceptionIfDetached();
-        }
-
-        /// <summary>
-        /// Enables any blocked operation that has its dependencies already satisfied.
-        /// </summary>
-        private static void EnableBlockedOperations(IEnumerable<AsyncOperation> operations)
-        {
-            IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operations with satisfied dependencies.");
-            foreach (var op in operations)
-            {
-                op.TryEnable();
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
-            }
         }
 
         /// <summary>

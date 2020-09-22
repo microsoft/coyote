@@ -184,7 +184,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     {
                         Task.Run(async () =>
                         {
-                            System.Console.WriteLine("Retrying...");
                             await Task.Delay(10);
                             this.ScheduleNextOperation(isYielding, retries - 1);
                         });

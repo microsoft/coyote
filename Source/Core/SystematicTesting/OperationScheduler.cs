@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (next is null)
             {
-                // Checks if the execution has deadlocked.
+                // Check if the execution has deadlocked.
                 this.CheckIfExecutionHasDeadlocked(ops);
                 return false;
             }

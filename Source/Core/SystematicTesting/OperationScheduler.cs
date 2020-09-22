@@ -186,12 +186,10 @@ namespace Microsoft.Coyote.SystematicTesting
                         // We only do a limited number of retries, after which we report a deadlock.
                         Task.Run(async () =>
                         {
-                            IO.Debug.WriteLine("<ScheduleDebug> !! Retrying...");
                             await Task.Delay(10);
                             this.ScheduleNextOperation(isYielding, retries - 1);
                         });
 
-                        IO.Debug.WriteLine($"<ScheduleDebug> Retrying ... (op: {current.Id}, sch: {this.ScheduledOperation.Id})");
                         // Pause the current operation until the scheduler retries.
                         Monitor.Wait(this.SyncObject);
                         this.ThrowExecutionCanceledExceptionIfDetached();

@@ -24,19 +24,19 @@ if ($version_suffix) {
 
 Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote' package" -color "white"
 
-$command = "pack $PSScriptRoot\NuGet\Coyote.nuspec $cmd_options"
+$command = "pack $PSScriptRoot/NuGet/Coyote.nuspec $cmd_options"
 $error_msg = "Failed to create the Coyote NuGet package"
 Invoke-ToolCommand -tool $nuget -cmd $command -error_msg $error_msg
 
 Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote.Test' package" -color "white"
 
-$command = "pack $PSScriptRoot\NuGet\Coyote.Test.nuspec $cmd_options"
+$command = "pack $PSScriptRoot/NuGet/Coyote.Test.nuspec $cmd_options"
 $error_msg = "Failed to create the Coyote Test NuGet package"
 Invoke-ToolCommand -tool $nuget -cmd $command -error_msg $error_msg
 
 Write-Comment -prefix "..." -text "Creating the 'Microsoft.Coyote.CLI' package" -color "white"
 
-$command = "pack $PSScriptRoot\NuGet\Coyote.CLI.nuspec $cmd_options -Tool"
+$command = "pack $PSScriptRoot/NuGet/Coyote.CLI.nuspec $cmd_options -Tool"
 $error_msg = "Failed to create the Coyote CLI NuGet package"
 Invoke-ToolCommand -tool $nuget -cmd $command -error_msg $error_msg
 

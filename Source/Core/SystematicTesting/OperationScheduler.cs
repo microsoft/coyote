@@ -168,47 +168,79 @@ namespace Microsoft.Coyote.SystematicTesting
                     current.HashedProgramState = this.Runtime.GetProgramState();
                 }
 
-                // Get and order the operations by their id.
-                var ops = this.OperationMap.Values.OrderBy(op => op.Id);
-
-                // Enable any blocked operation that has its dependencies already satisfied.
-                EnableBlockedOperations(ops);
-
-                if (!this.Strategy.GetNextOperation(ops, current, isYielding, out AsyncOperation next))
+                // Choose the next operation to schedule, if there is one enabled.
+                if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
-                    // Checks if the program has deadlocked.
-                    this.CheckIfProgramHasDeadlocked(ops);
-
                     IO.Debug.WriteLine("<ScheduleDebug> Schedule explored.");
                     this.HasFullyExploredSchedule = true;
                     this.Detach();
                 }
 
-                this.ScheduledOperation = next;
-                this.ScheduleTrace.AddSchedulingChoice(next.Id);
-
                 IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
-
+                this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
-                    Monitor.PulseAll(this.SyncObject);
-                    if (current.Status is AsyncOperationStatus.Completed ||
-                        current.Status is AsyncOperationStatus.Canceled)
-                    {
-                        // The operation is completed or canceled, so no need to wait.
-                        return;
-                    }
-
-                    while (current != this.ScheduledOperation && this.IsAttached)
-                    {
-                        IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", current.Name, Task.CurrentId);
-                        Monitor.Wait(this.SyncObject);
-                        IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", current.Name, Task.CurrentId);
-                    }
-
-                    this.ThrowExecutionCanceledExceptionIfDetached();
+                    // Pause the currently scheduled operation, and enable the next one.
+                    this.ScheduledOperation = next;
+                    this.PauseOperation(current);
                 }
             }
+        }
+
+        /// <summary>
+        /// Tries to get the next enabled operation to schedule.
+        /// </summary>
+        private bool TryGetNextEnabledOperation(AsyncOperation current, bool isYielding, out AsyncOperation next)
+        {
+            // Get and order the operations by their id.
+            var ops = this.OperationMap.Values.OrderBy(op => op.Id);
+
+            // The scheduler might need to retry choosing a next operation in the presence of uncontrolled
+            // concurrency, as explained below. In this case, we implement a simple retry logic.
+            int retries = 0;
+            do
+            {
+                // Enable any blocked operation that has its dependencies already satisfied.
+                IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operation with satisfied dependencies.");
+                foreach (var op in ops)
+                {
+                    op.TryEnable();
+                    IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                }
+
+                // Choose the next operation to schedule, if there is one enabled.
+                if (!this.Strategy.GetNextOperation(ops, current, isYielding, out next) &&
+                    ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
+                {
+                    // At least one operation is blocked due to uncontrolled concurrency. To try defend against
+                    // this, retry after an asynchronous delay to give some time to the dependency to complete.
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(10);
+                        lock (this.SyncObject)
+                        {
+                            Monitor.PulseAll(this.SyncObject);
+                        }
+                    });
+
+                    // Pause the current operation until the scheduler retries.
+                    Monitor.Wait(this.SyncObject);
+                    retries++;
+                    continue;
+                }
+
+                break;
+            }
+            while (retries < 5);
+
+            if (next is null)
+            {
+                // Check if the execution has deadlocked.
+                this.CheckIfExecutionHasDeadlocked(ops);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -319,16 +351,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // Enable the operation and store it in the async local context.
                 op.Status = AsyncOperationStatus.Enabled;
                 ExecutingOperation.Value = op;
-
-                Monitor.PulseAll(this.SyncObject);
-                while (op != this.ScheduledOperation && this.IsAttached)
-                {
-                    IO.Debug.WriteLine($"<ScheduleDebug> Sleeping the operation of '{op.Name}' on task '{Task.CurrentId}'.");
-                    Monitor.Wait(this.SyncObject);
-                    IO.Debug.WriteLine($"<ScheduleDebug> Waking up the operation of '{op.Name}' on task '{Task.CurrentId}'.");
-                }
-
-                this.ThrowExecutionCanceledExceptionIfDetached();
+                this.PauseOperation(op);
             }
         }
 
@@ -354,16 +377,29 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Enables any blocked operation that has its dependencies already satisfied.
+        /// Pauses the specified operation.
         /// </summary>
-        private static void EnableBlockedOperations(IEnumerable<AsyncOperation> operations)
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
+        /// </remarks>
+        private void PauseOperation(AsyncOperation op)
         {
-            IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operations with satisfied dependencies.");
-            foreach (var op in operations)
+            Monitor.PulseAll(this.SyncObject);
+            if (op.Status is AsyncOperationStatus.Completed ||
+                op.Status is AsyncOperationStatus.Canceled)
             {
-                op.TryEnable();
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
+                // The operation is completed or canceled, so no need to wait.
+                return;
             }
+
+            while (op != this.ScheduledOperation && this.IsAttached)
+            {
+                IO.Debug.WriteLine("<ScheduleDebug> Sleeping the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+                Monitor.Wait(this.SyncObject);
+                IO.Debug.WriteLine("<ScheduleDebug> Waking up the operation of '{0}' on task '{1}'.", op.Name, Task.CurrentId);
+            }
+
+            this.ThrowExecutionCanceledExceptionIfDetached();
         }
 
         /// <summary>
@@ -446,14 +482,13 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Checks for a deadlock. This happens when there are no more enabled operations,
-        /// but there is one or more blocked operations that are waiting to receive an event
-        /// or for a task to complete.
+        /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
+        /// but there is one or more blocked operations that are waiting some resource to complete.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        private void CheckIfProgramHasDeadlocked(IEnumerable<AsyncOperation> ops)
+        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
         {
             var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||

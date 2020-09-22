@@ -128,14 +128,34 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <inheritdoc/>
-        internal override void TryEnable()
+        internal override bool TryEnable()
         {
             if ((this.Status == AsyncOperationStatus.BlockedOnWaitAll && this.JoinDependencies.All(task => task.IsCompleted)) ||
                 (this.Status == AsyncOperationStatus.BlockedOnWaitAny && this.JoinDependencies.Any(task => task.IsCompleted)))
             {
                 this.JoinDependencies.Clear();
                 this.Status = AsyncOperationStatus.Enabled;
+                return true;
             }
+
+            return false;
+        }
+
+        /// <inheritdoc/>
+        internal override bool IsBlockedOnUncontrolledDependency()
+        {
+            if (this.JoinDependencies.Count > 0)
+            {
+                foreach (var task in this.JoinDependencies)
+                {
+                    if (!(task.AsyncState is OperationContext))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

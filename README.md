@@ -4,7 +4,7 @@
 </div>
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Coyote.svg)](https://www.nuget.org/packages/Microsoft.Coyote/)
-![Windows CI](https://github.com/microsoft/coyote/workflows/Build%20and%20test%20on%20Windows/badge.svg)
+![Build and test on Windows](https://github.com/microsoft/coyote/workflows/Build%20and%20test%20on%20Windows/badge.svg)
 [![Join the chat at https://gitter.im/Microsoft/coyote](https://badges.gitter.im/Microsoft/coyote.svg)](https://gitter.im/Microsoft/coyote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Coyote is a set of libraries and tools for building reliable asynchronous software. Coyote ensures

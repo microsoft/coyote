@@ -150,7 +150,6 @@ namespace Microsoft.Coyote.SystematicTesting
                 {
                     if (!(task.AsyncState is OperationContext))
                     {
-                        Console.WriteLine("<ScheduleDebug> Operation '{0}' waiting a non-controlled task '{1}'.", this.Id, task.Id);
                         return true;
                     }
                 }

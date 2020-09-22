@@ -1188,6 +1188,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
         - name: IsRewritingDependencies
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
+        - name: IsRewritingUnitTests
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests
+        - name: IsRewritingThreads
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingThreads
     - name: Microsoft.Coyote.SystematicTesting
       link: /learn/ref/MicrosoftCoyoteSystematicTestingNamespace
       subfolderitems:
@@ -1222,6 +1226,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop
         - name: GetReport
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
+        - name: RethrowUnhandledException
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RethrowUnhandledException
         - name: TryEmitTraces
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
         - name: RegisterPerIterationCallBack

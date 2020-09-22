@@ -52,7 +52,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Threading\" />
-  </ItemGroup>
 </Project>

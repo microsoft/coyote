@@ -463,7 +463,7 @@ namespace Microsoft.Coyote.Tests.Common
         {
             configuration = configuration ?? GetConfiguration();
 
-            int iterations = Math.Max(1, configuration.TestingIterations);
+            uint iterations = Math.Max(1, configuration.TestingIterations);
             for (int i = 0; i < iterations; i++)
             {
                 TextWriter logger;

@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// at the end of a scheduling iteration. It must return false
         /// if the scheduling strategy should stop exploring.
         /// </summary>
-        public bool InitializeNextIteration(int iteration)
+        public bool InitializeNextIteration(uint iteration)
         {
             this.ExploredSteps = 0;
             return true;

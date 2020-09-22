@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool InitializeNextIteration(int iteration)
+        public bool InitializeNextIteration(uint iteration)
         {
             // The first iteration has no knowledge of the execution, so only initialize from the second
             // iteration and onwards. Note that although we could initialize the first length based on a

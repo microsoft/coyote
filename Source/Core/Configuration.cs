@@ -72,7 +72,7 @@ namespace Microsoft.Coyote
         /// Number of testing iterations.
         /// </summary>
         [DataMember]
-        public int TestingIterations { get; internal set; }
+        public uint TestingIterations { get; internal set; }
 
         /// <summary>
         /// Custom seed to be used by the random value generator. By default,
@@ -458,7 +458,7 @@ namespace Microsoft.Coyote
         /// <param name="iterations">The number of iterations to run.</param>
         public Configuration WithTestingIterations(uint iterations)
         {
-            this.TestingIterations = (int)iterations;
+            this.TestingIterations = iterations;
             return this;
         }
 

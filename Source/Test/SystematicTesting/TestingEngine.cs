@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Set of callbacks to invoke at the end
         /// of each iteration.
         /// </summary>
-        private readonly ISet<Action<int>> PerIterationCallbacks;
+        private readonly ISet<Action<uint>> PerIterationCallbacks;
 
         /// <summary>
         /// The program exploration strategy.
@@ -147,7 +147,14 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             catch (Exception ex)
             {
-                Error.ReportAndExit(ex.Message);
+                if (configuration.DisableEnvironmentExit)
+                {
+                    throw;
+                }
+                else
+                {
+                    Error.ReportAndExit(ex.Message);
+                }
             }
 
             return new TestingEngine(configuration, testMethodInfo);
@@ -228,7 +235,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.ErrorReporter = new ErrorReporter(configuration, this.Logger);
             this.Profiler = new Profiler();
 
-            this.PerIterationCallbacks = new HashSet<Action<int>>();
+            this.PerIterationCallbacks = new HashSet<Action<uint>>();
 
             // Initializes scheduling strategy specific components.
             this.RandomValueGenerator = new RandomValueGenerator(configuration);
@@ -287,8 +294,16 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (configuration.SchedulingStrategy is "portfolio")
             {
-                Error.ReportAndExit("Portfolio testing strategy is only " +
-                    "available in parallel testing.");
+                var msg = "Portfolio testing strategy is only " +
+                    "available in parallel testing.";
+                if (configuration.DisableEnvironmentExit)
+                {
+                    throw new Exception(msg);
+                }
+                else
+                {
+                    Error.ReportAndExit(msg);
+                }
             }
 
             if (configuration.SchedulingStrategy != "replay" &&
@@ -353,11 +368,25 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (aex.InnerException is FileNotFoundException)
                 {
-                    Error.ReportAndExit($"{aex.InnerException.Message}");
+                    if (this.Configuration.DisableEnvironmentExit)
+                    {
+                        throw aex.InnerException;
+                    }
+                    else
+                    {
+                        Error.ReportAndExit($"{aex.InnerException.Message}");
+                    }
                 }
 
-                Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
+                if (this.Configuration.DisableEnvironmentExit)
+                {
+                    throw aex.InnerException;
+                }
+                else
+                {
+                    Error.ReportAndExit("Exception thrown during testing outside the context of an actor, " +
                     "possibly in a test method. Please use /debug /v:2 to print more information.");
+                }
             }
             catch (Exception ex)
             {
@@ -414,8 +443,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     this.TestMethodInfo.InitializeAllIterations();
 
-                    int maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.TestingIterations;
-                    for (int iteration = 0; iteration < maxIterations; iteration++)
+                    uint maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.TestingIterations;
+                    for (uint iteration = 0; iteration < maxIterations; iteration++)
                     {
                         if (this.CancellationTokenSource.IsCancellationRequested)
                         {
@@ -473,7 +502,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Runs the next testing iteration.
         /// </summary>
-        private bool RunNextIteration(int iteration)
+        private bool RunNextIteration(uint iteration)
         {
             if (!this.Strategy.InitializeNextIteration(iteration))
             {
@@ -629,6 +658,17 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
+        /// If an iteration catches an unhandled exception then this method will rethrow that exception.
+        /// </summary>
+        public void RethrowUnhandledException()
+        {
+            if (this.TestReport.ThrownException != null)
+            {
+                throw this.TestReport.ThrownException;
+            }
+        }
+
+        /// <summary>
         /// Tries to emit the testing traces, if any.
         /// </summary>
         public IEnumerable<string> TryEmitTraces(string directory, string file)
@@ -700,7 +740,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Registers a callback to invoke at the end of each iteration. The callback takes as
         /// a parameter an integer representing the current iteration.
         /// </summary>
-        public void RegisterPerIterationCallBack(Action<int> callback)
+        public void RegisterPerIterationCallBack(Action<uint> callback)
         {
             this.PerIterationCallbacks.Add(callback);
         }
@@ -782,25 +822,6 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Loads and returns the specified assembly.
-        /// </summary>
-        private static Assembly LoadAssembly(string assemblyFile)
-        {
-            Assembly assembly = null;
-
-            try
-            {
-                assembly = Assembly.LoadFrom(assemblyFile);
-            }
-            catch (FileNotFoundException ex)
-            {
-                Error.ReportAndExit(ex.Message);
-            }
-
-            return assembly;
-        }
-
-        /// <summary>
         /// Gathers the exploration strategy statistics from the specified runtimne.
         /// </summary>
         private void GatherTestingStatistics(ControlledRuntime runtime)
@@ -830,6 +851,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (scheduler.BugFound)
                 {
+                    report.ThrownException = scheduler.UnhandledException;
                     report.NumOfFoundBugs++;
                     report.BugReports.Add(scheduler.BugReport);
                 }
@@ -970,7 +992,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Returns true if the engine should print the current iteration.
         /// </summary>
-        private bool ShouldPrintIteration(int iteration)
+        private bool ShouldPrintIteration(uint iteration)
         {
             if (iteration > this.PrintGuard * 10)
             {

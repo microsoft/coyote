@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -26,11 +27,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private static readonly AsyncLocal<AsyncOperation> ExecutingOperation =
             new AsyncLocal<AsyncOperation>(OnAsyncLocalExecutingOperationValueChanged);
-
-        /// <summary>
-        /// The <see cref="OperationScheduler"/> associated with the currently executing runtime.
-        /// </summary>
-        public static OperationScheduler Current => ControlledRuntime.Current.Scheduler;
 
         /// <summary>
         /// The configuration used by the scheduler.
@@ -96,6 +92,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Bug report.
         /// </summary>
         internal string BugReport { get; private set; }
+
+        /// <summary>
+        /// Associated with the bug report is an optional unhandled exception.
+        /// </summary>
+        internal Exception UnhandledException { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
@@ -587,6 +588,19 @@ namespace Microsoft.Coyote.SystematicTesting
                     IO.Debug.WriteLine($"<ScheduleDebug> {message}");
                     this.Detach();
                 }
+            }
+        }
+
+        internal void NotifyUnhandledException(Exception ex, string message)
+        {
+            lock (this.SyncObject)
+            {
+                if (this.UnhandledException is null)
+                {
+                    this.UnhandledException = ex;
+                }
+
+                this.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
             }
         }
 

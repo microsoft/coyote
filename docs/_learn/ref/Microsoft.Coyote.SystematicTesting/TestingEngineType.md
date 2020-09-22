@@ -23,6 +23,7 @@ public sealed class TestingEngine
 | [GetReport](TestingEngine/GetReport)() | Returns a report with the testing results. |
 | [IsTestRewritten](TestingEngine/IsTestRewritten)() | Checks if the test executed by the testing engine has been rewritten. |
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |
+| [RethrowUnhandledException](TestingEngine/RethrowUnhandledException)() | If an iteration catches an unhandled exception then this method will rethrow that exception. |
 | [Run](TestingEngine/Run)() | Runs the testing engine. |
 | [SetLogger](TestingEngine/SetLogger)(…) | Installs the specified TextWriter. |
 | [Stop](TestingEngine/Stop)() | Stops the testing engine. |

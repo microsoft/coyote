@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         /// <param name="iteration">The id of the next iteration.</param>
         /// <returns>True to start the specified iteration, else false to stop exploring.</returns>
-        bool InitializeNextIteration(int iteration);
+        bool InitializeNextIteration(uint iteration);
 
         /// <summary>
         /// Returns the next asynchronous operation to schedule.

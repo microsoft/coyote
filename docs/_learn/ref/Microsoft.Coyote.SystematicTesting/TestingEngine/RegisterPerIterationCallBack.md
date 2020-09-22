@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterP
 Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration.
 
 ```csharp
-public void RegisterPerIterationCallBack(Action<int> callback)
+public void RegisterPerIterationCallBack(Action<uint> callback)
 ```
 
 ## See Also

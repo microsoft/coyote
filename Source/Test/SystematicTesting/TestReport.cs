@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
@@ -105,6 +106,11 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly object Lock;
 
         /// <summary>
+        /// Unhandled exception caught by RunNextIteration.
+        /// </summary>
+        internal Exception ThrownException { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TestReport"/> class.
         /// </summary>
         public TestReport(Configuration configuration)
@@ -170,6 +176,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.MaxFairStepsHitInFairTests += testReport.MaxFairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInFairTests += testReport.MaxUnfairStepsHitInFairTests;
                 this.MaxUnfairStepsHitInUnfairTests += testReport.MaxUnfairStepsHitInUnfairTests;
+
+                if (this.ThrownException == null)
+                {
+                    this.ThrownException = testReport.ThrownException;
+                }
 
                 this.InternalErrors.UnionWith(testReport.InternalErrors);
             }

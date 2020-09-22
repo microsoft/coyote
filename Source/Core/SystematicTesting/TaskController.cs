@@ -37,6 +37,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             this.Runtime = runtime;
             this.Scheduler = scheduler;
+            Interception.ControlledThread.ClearCache();
         }
 
         /// <summary>
@@ -53,7 +54,6 @@ namespace Microsoft.Coyote.SystematicTesting
             OperationExecutionOptions options = OperationContext.CreateOperationExecutionOptions(failException, isYield);
             var context = new OperationContext<Action, object>(op, action, predecessor, options, cancellationToken);
             var task = new Task(this.ExecuteOperation, context, cancellationToken);
-
             this.ScheduleTaskOperation(op, task);
             return context.ResultSource.Task;
         }
@@ -73,7 +73,6 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<Task>, Task, Task>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<Task>(this.ExecuteOperation<Func<Task>, Task, Task>, context, cancellationToken);
-
             this.ScheduleTaskOperation(op, task);
             return context.ExecutorSource.Task;
         }
@@ -93,7 +92,6 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-
             this.ScheduleTaskOperation(op, task);
             return context.ExecutorSource.Task;
         }
@@ -113,7 +111,6 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<CoyoteTasks.Task>, Task, Task>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<Task>(this.ExecuteOperation<Func<CoyoteTasks.Task>, Task, Task>, context, cancellationToken);
-
             this.ScheduleTaskOperation(op, task);
             return new CoyoteTasks.Task(this, context.ResultSource.Task);
         }
@@ -134,7 +131,6 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-
             this.ScheduleTaskOperation(op, task);
             return new CoyoteTasks.Task<TResult>(this, context.ResultSource.Task);
         }
@@ -153,7 +149,6 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new OperationContext<Func<TResult>, TResult>(op, function, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             var task = new Task<TResult>(this.ExecuteOperation<Func<TResult>, TResult, TResult>, context, cancellationToken);
-
             this.ScheduleTaskOperation(op, task);
             return context.ResultSource.Task;
         }
@@ -161,7 +156,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Schedules the specified task operation for execution.
         /// </summary>
-        private void ScheduleTaskOperation(TaskOperation op, Task task)
+        internal void ScheduleTaskOperation(TaskOperation op, Task task)
         {
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             task.Start();
@@ -172,7 +167,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Execute the operation with the specified context.
         /// </summary>
-        private void ExecuteOperation(object state)
+        internal void ExecuteOperation(object state)
         {
             // Extract the expected operation context from the task state.
             var context = state as OperationContext<Action, object>;

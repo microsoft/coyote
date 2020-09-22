@@ -222,13 +222,23 @@ namespace Microsoft.Coyote
                         config.StrongNameKeyFile = options.StrongNameKeyFile;
                     }
 
-                    if (options.IsRewritingDependencies )
+                    if (options.IsRewritingDependencies)
                     {
                         config.IsRewritingDependencies = options.IsRewritingDependencies;
                     }
+
+                    if (options.IsRewritingThreads)
+                    {
+                        config.IsRewritingThreads = options.IsRewritingThreads;
+                    }
+
+                    if (options.IsRewritingUnitTests)
+                    {
+                        config.IsRewritingUnitTests = options.IsRewritingUnitTests;
+                    }
                 }
 
-                AssemblyRewriter.Rewrite(config);
+                AssemblyRewriter.Rewrite(configuration, config);
                 Console.WriteLine($". Done rewriting");
             }
             catch (Exception ex)

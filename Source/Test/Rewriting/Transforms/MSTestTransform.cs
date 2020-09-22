@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting;
@@ -14,6 +15,11 @@ namespace Microsoft.Coyote.Rewriting
     internal class MSTestTransform : AssemblyTransform
     {
         /// <summary>
+        /// The test configuration to use when rewriting unit tests.
+        /// </summary>
+        private readonly Configuration Configuration;
+
+        /// <summary>
         /// The current module being transformed.
         /// </summary>
         private ModuleDefinition Module;
@@ -21,9 +27,10 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MSTestTransform"/> class.
         /// </summary>
-        internal MSTestTransform(ConsoleLogger log)
+        internal MSTestTransform(Configuration configuration, ConsoleLogger log)
             : base(log)
         {
+            this.Configuration = configuration;
         }
 
         /// <inheritdoc/>
@@ -73,13 +80,17 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         internal MethodDefinition CloneMethod(MethodDefinition method)
         {
-            string newName = $"{method.Name}_";
+            int index = 1;
+            string newName = $"{method.Name}_{index}";
             while (method.DeclaringType.Methods.Any(m => m.Name == newName))
             {
-                newName += "_";
+                index++;
+                newName = $"{method.Name}_{index}";
             }
 
             MethodDefinition newMethod = new MethodDefinition(newName, method.Attributes, method.ReturnType);
+            newMethod.Body.InitLocals = method.Body.InitLocals;
+
             foreach (var variable in method.Body.Variables)
             {
                 newMethod.Body.Variables.Add(variable);
@@ -89,6 +100,13 @@ namespace Microsoft.Coyote.Rewriting
             {
                 newMethod.Body.Instructions.Add(instruction);
             }
+
+            foreach (var handler in method.Body.ExceptionHandlers)
+            {
+                newMethod.Body.ExceptionHandlers.Add(handler);
+            }
+
+            newMethod.Body.OptimizeMacros();
 
             return newMethod;
         }
@@ -121,6 +139,14 @@ namespace Microsoft.Coyote.Rewriting
 
             method.Body.Variables.Clear();
             method.Body.Instructions.Clear();
+            method.Body.ExceptionHandlers.Clear();
+
+            MethodReference launchMethod = null;
+            if (this.Configuration.AttachDebugger)
+            {
+                var debuggerType = this.Module.ImportReference(typeof(System.Diagnostics.Debugger)).Resolve();
+                launchMethod = FindMatchingMethod(debuggerType, "Launch");
+            }
 
             TypeReference actionType;
             if (isAsyncMethod)
@@ -152,25 +178,133 @@ namespace Microsoft.Coyote.Rewriting
             MethodReference createEngineMethod = this.Module.ImportReference(
                 FindMatchingMethod(resolvedEngineType, "Create", configurationType, actionType));
 
-            MethodReference runEngineMethod = this.Module.ImportReference(
-                resolvedEngineType.Methods.FirstOrDefault(m => m.Name is "Run"));
-
             // The emitted IL corresponds to a method body such as:
             //   Configuration configuration = Configuration.Create();
             //   TestingEngine engine = TestingEngine.Create(configuration, new Action(Test));
             //   engine.Run();
+            //   engine.RethrowUnhandledException();
+            //
+            // With optional calls to setup some of the configuration options based on Coyote command line:
+            // including:
+            //   configuration.WithTestingIterations(n);
+            //   configuration.WithMaxSchedulingSteps(x, y);
+            //   configuration.WithProbabilisticStrategy(x);
+            //   configuration.WithPCTStrategy(x);
+            //   configuration.SchedulingStrategy(x);
+            //   configuration.WithLivenessTemperatureThreshold(x);
+            //   configuration.WithTimeoutDelay(x);
+            //   configuration.WithRandomGeneratorSeed(x);
+            //   configuration.WithVerbosityEnabled(x);
+            //   configuration.WithTelemetryEnabled(x);
             var processor = method.Body.GetILProcessor();
-            processor.Emit(OpCodes.Nop);
+            if (launchMethod != null)
+            {
+                processor.Emit(OpCodes.Call, this.Module.ImportReference(launchMethod));
+                processor.Emit(OpCodes.Pop);
+            }
+
             processor.Emit(OpCodes.Call, createConfigurationMethod);
+            if (this.Configuration.TestingIterations != 1)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTestingIterations", this.Configuration.TestingIterations);
+            }
+
+            if (this.Configuration.MaxUnfairSchedulingSteps != 10000 || this.Configuration.MaxFairSchedulingSteps != 100000)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithMaxSchedulingSteps", this.Configuration.MaxUnfairSchedulingSteps, this.Configuration.MaxFairSchedulingSteps);
+            }
+
+            if (this.Configuration.SchedulingStrategy != "random")
+            {
+                switch (this.Configuration.SchedulingStrategy)
+                {
+                    case "fairpct":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithProbabilisticStrategy", this.Configuration.StrategyBound);
+                        break;
+                    case "pct":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPCTStrategy", false, this.Configuration.StrategyBound);
+                        break;
+                    case "dfs":
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "SchedulingStrategy", this.Configuration.ScheduleTrace);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (this.Configuration.UserExplicitlySetLivenessTemperatureThreshold)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithLivenessTemperatureThreshold", this.Configuration.LivenessTemperatureThreshold);
+            }
+
+            if (this.Configuration.TimeoutDelay != 10)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTimeoutDelay", this.Configuration.TimeoutDelay);
+            }
+
+            if (this.Configuration.RandomGeneratorSeed.HasValue)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithRandomGeneratorSeed", this.Configuration.RandomGeneratorSeed.Value);
+            }
+
+            if (this.Configuration.IsVerbose)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled", this.Configuration.IsVerbose);
+            }
+
+            if (!this.Configuration.EnableTelemetry)
+            {
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithTelemetryEnabled", this.Configuration.EnableTelemetry);
+            }
+
             processor.Emit(OpCodes.Ldarg_0);
             processor.Emit(OpCodes.Ldftn, testMethod);
             processor.Emit(OpCodes.Newobj, actionConstructor);
             processor.Emit(OpCodes.Call, createEngineMethod);
-            processor.Emit(OpCodes.Callvirt, runEngineMethod);
-            processor.Emit(OpCodes.Nop);
+            processor.Emit(OpCodes.Dup);
+            this.EmitMethodCall(processor, resolvedEngineType, "Run");
+            this.EmitMethodCall(processor, resolvedEngineType, "RethrowUnhandledException");
             processor.Emit(OpCodes.Ret);
 
             method.Body.OptimizeMacros();
+        }
+
+        private void EmitMethodCall(ILProcessor processor, TypeDefinition typedef, string methodName, params object[] arguments)
+        {
+            List<TypeReference> typeRefs = new List<TypeReference>();
+            foreach (var arg in arguments)
+            {
+                Type t = arg.GetType();
+                if (t == typeof(bool))
+                {
+                    int i = ((bool)arg) ? 1 : 0;
+                    processor.Emit(OpCodes.Ldc_I4, i);
+                }
+                else if (t == typeof(int))
+                {
+                    var i = (int)arg;
+                    processor.Emit(OpCodes.Ldc_I4, i);
+                }
+                else if (t == typeof(uint))
+                {
+                    var i = (int)(uint)arg;
+                    processor.Emit(OpCodes.Ldc_I4, i);
+                }
+                else
+                {
+                    throw new Exception(string.Format("Argument type '{0}' is not supported", t.FullName));
+                }
+
+                typeRefs.Add(this.Module.ImportReference(t));
+            }
+
+            var method = FindMatchingMethod(typedef, methodName, typeRefs.ToArray());
+            if (method == null)
+            {
+                throw new Exception(string.Format("Internal error looking for method '{0}' on type '{1}'", methodName, typedef.FullName));
+            }
+
+            processor.Emit(OpCodes.Call, this.Module.ImportReference(method));
         }
     }
 }

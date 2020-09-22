@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool InitializeNextIteration(int iteration)
+        public virtual bool InitializeNextIteration(uint iteration)
         {
             // The random strategy just needs to reset the number of scheduled steps during
             // the current iretation.

@@ -571,7 +571,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (message != null)
             {
                 // Report the unhandled exception.
-                this.Scheduler.NotifyAssertionFailure(message, killTasks: true, cancelExecution: false);
+                this.Scheduler.NotifyUnhandledException(exception, message);
             }
         }
 

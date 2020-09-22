@@ -84,6 +84,16 @@ namespace Microsoft.Coyote.Rewriting
         public bool IsRewritingUnitTests { get; internal set; }
 
         /// <summary>
+        /// True if rewriting Threads as controlled tasks.
+        /// </summary>
+        /// <remarks>
+        /// Normally Thread is not supported by Coyote, but this experimental feature wraps the
+        /// thread in a Task so that Coyote knows about it which avoids uncontrolled concurrency
+        /// errors in some cases.
+        /// </remarks>
+        public bool IsRewritingThreads { get; internal set; }
+
+        /// <summary>
         /// The .NET platform version that Coyote was compiled for.
         /// </summary>
         internal string PlatformVersion
@@ -116,6 +126,7 @@ namespace Microsoft.Coyote.Rewriting
             string strongNameKeyFile = null;
             bool isRewritingDependencies = false;
             bool isRewritingUnitTests = false;
+            bool isRewritingThreads = false;
             var assemblyPaths = new HashSet<string>();
             IList<string> disallowed = null;
 
@@ -134,7 +145,7 @@ namespace Microsoft.Coyote.Rewriting
                     strongNameKeyFile = configuration.StrongNameKeyFile;
                     isRewritingDependencies = configuration.IsRewritingDependencies;
                     isRewritingUnitTests = configuration.IsRewritingUnitTests;
-
+                    isRewritingThreads = configuration.IsRewritingThreads;
                     if (string.IsNullOrEmpty(configuration.OutputPath))
                     {
                         outputDirectory = assembliesDirectory;
@@ -175,6 +186,7 @@ namespace Microsoft.Coyote.Rewriting
                 StrongNameKeyFile = strongNameKeyFile,
                 IsRewritingDependencies = isRewritingDependencies,
                 IsRewritingUnitTests = isRewritingUnitTests,
+                IsRewritingThreads = isRewritingThreads,
                 DisallowedAssemblies = disallowed
             };
         }
@@ -237,6 +249,9 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "IsRewritingUnitTests")]
             public bool IsRewritingUnitTests { get; set; }
+
+            [DataMember(Name = "IsRewritingThreads")]
+            public bool IsRewritingThreads { get; set; }
 
             [DataMember(Name = "DisallowedAssemblies")]
             public IList<string> DisallowedAssemblies { get; set; }

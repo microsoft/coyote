@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool InitializeNextIteration(int iteration)
+        public bool InitializeNextIteration(uint iteration)
         {
             this.ScheduledSteps = 0;
 

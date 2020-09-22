@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool InitializeNextIteration(int iteration) =>
+        public virtual bool InitializeNextIteration(uint iteration) =>
             this.SchedulingStrategy.InitializeNextIteration(iteration);
 
         /// <inheritdoc/>

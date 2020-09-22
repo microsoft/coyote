@@ -64,6 +64,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
             rewritingGroup.AddArgument("strong-name-key-file", "snk", "Path to strong name signing key");
             rewritingGroup.AddArgument("rewrite-dependencies", null, "Rewrite all dependent assemblies that are found in the same location as the given path", typeof(bool));
             rewritingGroup.AddArgument("rewrite-unit-tests", null, "Rewrite unit tests to run in the scope of the Coyote testing engine", typeof(bool));
+            rewritingGroup.AddArgument("rewrite-threads", null, "Intercept Thread.Start, Sleep, Yield and Join so Coyote testing can work with it", typeof(bool));
 
             var coverageGroup = this.Parser.GetOrCreateGroup("coverageGroup", "Code and activity coverage options");
             var coverageArg = coverageGroup.AddArgument("coverage", "c", @"Generate code coverage statistics (via VS instrumentation) with zero or more values equal to:
@@ -247,7 +248,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.AttachDebugger = true;
                     break;
                 case "iterations":
-                    configuration.TestingIterations = (int)(uint)option.Value;
+                    configuration.TestingIterations = (uint)option.Value;
                     break;
                 case "parallel":
                     configuration.ParallelBugFindingTasks = (uint)option.Value;
@@ -354,6 +355,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "rewrite-unit-tests":
                     options.IsRewritingUnitTests = true;
+                    break;
+                case "rewrite-threads":
+                    options.IsRewritingThreads = true;
                     break;
                 case "timeout-delay":
                     configuration.TimeoutDelay = (uint)option.Value;

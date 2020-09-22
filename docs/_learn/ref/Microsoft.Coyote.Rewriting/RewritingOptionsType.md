@@ -21,6 +21,8 @@ public class RewritingOptions
 | [AssemblyPaths](RewritingOptions/AssemblyPaths) { get; } | The file names of the assemblies to rewrite. If this list is empty then it will rewrite all assemblies in the [`AssembliesDirectory`](RewritingOptions/AssembliesDirectory). |
 | [DisallowedAssemblies](RewritingOptions/DisallowedAssemblies) { get; } | The regular expressions used to match against assembly names to determine which assemblies to ignore when rewriting dependencies or a whole directory. |
 | [IsRewritingDependencies](RewritingOptions/IsRewritingDependencies) { get; } | Whether to also rewrite dependent assemblies that are found in the same location. |
+| [IsRewritingThreads](RewritingOptions/IsRewritingThreads) { get; } | True if rewriting Threads as controlled tasks. |
+| [IsRewritingUnitTests](RewritingOptions/IsRewritingUnitTests) { get; } | True if rewriting of unit test methods is enabled, else false. |
 | [OutputDirectory](RewritingOptions/OutputDirectory) { get; } | The output directory where rewritten assemblies are placed. If this is the same as the [`AssembliesDirectory`](RewritingOptions/AssembliesDirectory) then the rewritten assemblies will replace the original assemblies. |
 | [StrongNameKeyFile](RewritingOptions/StrongNameKeyFile) { get; } | Path of strong name key to use for signing rewritten assemblies. |
 

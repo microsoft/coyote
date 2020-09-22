@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool InitializeNextIteration(int iteration)
+        public bool InitializeNextIteration(uint iteration)
         {
             bool doNext = this.PrefixStrategy.InitializeNextIteration(iteration);
             doNext |= this.SuffixStrategy.InitializeNextIteration(iteration);

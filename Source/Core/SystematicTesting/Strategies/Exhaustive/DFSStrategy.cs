@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool InitializeNextIteration(int iteration)
+        public virtual bool InitializeNextIteration(uint iteration)
         {
             if (iteration is 0)
             {

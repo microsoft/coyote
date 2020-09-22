@@ -43,6 +43,11 @@ namespace Microsoft.Coyote.Rewriting
         private readonly RewritingOptions Options;
 
         /// <summary>
+        /// The test configuration to use when rewriting unit tests.
+        /// </summary>
+        private readonly Configuration Configuration;
+
+        /// <summary>
         /// List of assemblies that are not allowed to be rewritten.
         /// </summary>
         private readonly Regex DisallowedAssemblies;
@@ -81,9 +86,11 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
         /// </summary>
+        /// <param name="configuration">The test configuration to use when rewriting unit tests.</param>
         /// <param name="options">The <see cref="RewritingOptions"/> for this rewriter.</param>
-        private AssemblyRewriter(RewritingOptions options)
+        private AssemblyRewriter(Configuration configuration, RewritingOptions options)
         {
+            this.Configuration = configuration;
             this.Log = new ConsoleLogger();
             this.Options = options;
             this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
@@ -120,11 +127,16 @@ namespace Microsoft.Coyote.Rewriting
                  new ExceptionFilterTransform(this.Log)
             };
 
+            if (this.Options.IsRewritingThreads)
+            {
+                this.Transforms.Add(new ThreadTransform(this.Log));
+            }
+
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and
                 // we need the other rewriting passes to happen before this pass.
-                this.Transforms.Add(new MSTestTransform(this.Log));
+                this.Transforms.Add(new MSTestTransform(this.Configuration, this.Log));
             }
 
             // expand folder
@@ -158,9 +170,9 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Rewrites the assemblies specified in the rewriting options.
         /// </summary>
-        public static void Rewrite(RewritingOptions options)
+        public static void Rewrite(Configuration configuration, RewritingOptions options)
         {
-            var binaryRewriter = new AssemblyRewriter(options);
+            var binaryRewriter = new AssemblyRewriter(configuration, options);
             binaryRewriter.Rewrite();
         }
 

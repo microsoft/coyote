@@ -14,6 +14,7 @@ function Invoke-CoyoteTool([String]$cmd, [String]$dotnet, [String]$framework, [S
         # note: Mono.Cecil cannot sign assemblies on unix platforms.
         $command = "$command -snk $key"
     }
+    
     Write-Comment -prefix "..." -text "$tool" -color "white"
     $error_msg = "Failed to $cmd '$target'"
     Invoke-ToolCommand -tool $tool -cmd $command -error_msg $error_msg

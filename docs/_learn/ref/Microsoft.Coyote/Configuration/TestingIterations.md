@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/TestingIterations
 Number of testing iterations.
 
 ```csharp
-public int TestingIterations { get; }
+public uint TestingIterations { get; }
 ```
 
 ## See Also

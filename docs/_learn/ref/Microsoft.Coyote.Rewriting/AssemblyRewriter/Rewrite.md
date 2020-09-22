@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriter/Rewrite
 Rewrites the assemblies specified in the rewriting options.
 
 ```csharp
-public static void Rewrite(RewritingOptions options)
+public static void Rewrite(Configuration configuration, RewritingOptions options)
 ```
 
 ## See Also

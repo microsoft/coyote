@@ -187,6 +187,9 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
+        /// <summary>
+        /// Tries to get the next enabled operation to schedule.
+        /// </summary>
         private bool TryGetNextEnabledOperation(AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             // Get and order the operations by their id.

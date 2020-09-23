@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// The installed logger.
         /// </summary>
-        private readonly TextWriter Logger;
+        private readonly ILogger Logger;
 
         /// <summary>
         /// The input cache.
@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="InteractiveStrategy"/> class.
         /// </summary>
-        public InteractiveStrategy(Configuration configuration, TextWriter logger)
+        public InteractiveStrategy(Configuration configuration, ILogger logger)
         {
             this.Logger = logger ?? new ConsoleLogger();
             this.Configuration = configuration;
@@ -131,20 +131,20 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                         var idx = Convert.ToInt32(input);
                         if (idx < 0)
                         {
-                            this.Logger.WriteLine(">> Expected positive integer, please retry ...");
+                            this.Logger.WriteLine(LogSeverity.Warning, ">> Expected positive integer, please retry ...");
                             continue;
                         }
 
                         next = enabledOps[idx];
                         if (next is null)
                         {
-                            this.Logger.WriteLine(">> Unexpected id, please retry ...");
+                            this.Logger.WriteLine(LogSeverity.Warning, ">> Unexpected id, please retry ...");
                             continue;
                         }
                     }
                     catch (FormatException)
                     {
-                        this.Logger.WriteLine(">> Wrong format, please retry ...");
+                        this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
                         continue;
                     }
                 }
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
                     catch (FormatException)
                     {
-                        this.Logger.WriteLine(">> Wrong format, please retry ...");
+                        this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
                         continue;
                     }
                 }
@@ -286,7 +286,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
                     catch (FormatException)
                     {
-                        this.Logger.WriteLine(">> Wrong format, please retry ...");
+                        this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
                         continue;
                     }
                 }
@@ -343,7 +343,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 var steps = Convert.ToInt32(Console.ReadLine());
                 if (steps < 0)
                 {
-                    this.Logger.WriteLine(">> Expected positive integer, please retry ...");
+                    this.Logger.WriteLine(LogSeverity.Warning, ">> Expected positive integer, please retry ...");
                     result = false;
                 }
 
@@ -351,7 +351,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             }
             catch (FormatException)
             {
-                this.Logger.WriteLine(">> Wrong format, please retry ...");
+                this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
                 result = false;
             }
 
@@ -372,7 +372,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 var steps = Convert.ToInt32(Console.ReadLine());
                 if (steps < this.ExploredSteps)
                 {
-                    this.Logger.WriteLine(">> Expected integer greater than " +
+                    this.Logger.WriteLine(LogSeverity.Warning, ">> Expected integer greater than " +
                         $"{this.ExploredSteps}, please retry ...");
                     result = false;
                 }
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             }
             catch (FormatException)
             {
-                this.Logger.WriteLine(">> Wrong format, please retry ...");
+                this.Logger.WriteLine(LogSeverity.Warning, " >> Wrong format, please retry ...");
                 result = false;
             }
 

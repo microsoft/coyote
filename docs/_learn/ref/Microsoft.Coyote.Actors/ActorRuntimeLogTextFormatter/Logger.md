@@ -6,14 +6,19 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/ActorRuntimeLogTextFormatter/Logge
 ---
 # ActorRuntimeLogTextFormatter.Logger property
 
-Get or set the TextWriter to write to.
+Get or set the [`ILogger`](../../Microsoft.Coyote.IO/ILoggerType) interface to the logger.
 
 ```csharp
-public TextWriter Logger { get; set; }
+public ILogger Logger { get; set; }
 ```
+
+## Remarks
+
+If you want Coyote to log to an existing TextWriter, then use the TextWriterLogger object but that will have a minor performance overhead, so it is better to use [`ILogger`](../../Microsoft.Coyote.IO/ILoggerType) directly.
 
 ## See Also
 
+* interface [ILogger](../../Microsoft.Coyote.IO/ILoggerType)
 * class [ActorRuntimeLogTextFormatter](../ActorRuntimeLogTextFormatterType)
 * namespace [Microsoft.Coyote.Actors](../ActorRuntimeLogTextFormatterType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

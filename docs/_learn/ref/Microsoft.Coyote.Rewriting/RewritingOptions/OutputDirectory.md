@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirector
 The output directory where rewritten assemblies are placed. If this is the same as the [`AssembliesDirectory`](AssembliesDirectory) then the rewritten assemblies will replace the original assemblies.
 
 ```csharp
-public string OutputDirectory { get; }
+public string OutputDirectory { get; set; }
 ```
 
 ## See Also

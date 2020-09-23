@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths
 The file names of the assemblies to rewrite. If this list is empty then it will rewrite all assemblies in the [`AssembliesDirectory`](AssembliesDirectory).
 
 ```csharp
-public HashSet<string> AssemblyPaths { get; }
+public HashSet<string> AssemblyPaths { get; set; }
 ```
 
 ## See Also

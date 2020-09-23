@@ -16,7 +16,7 @@ public interface ICoyoteRuntime : IDisposable
 
 | name | description |
 | --- | --- |
-| [Logger](ICoyoteRuntime/Logger) { get; } | Used to log messages. Use [`SetLogger`](ICoyoteRuntime/SetLogger) to replace the logger with a custom one. |
+| [Logger](ICoyoteRuntime/Logger) { get; set; } | Get or set the [`ILogger`](../Microsoft.Coyote.IO/ILoggerType) used to log messages. |
 | event [OnFailure](ICoyoteRuntime/OnFailure) | Callback that is fired when the runtime throws an exception which includes failed assertions. |
 | [Assert](ICoyoteRuntime/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [Monitor&lt;T&gt;](ICoyoteRuntime/Monitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
@@ -24,7 +24,6 @@ public interface ICoyoteRuntime : IDisposable
 | [RandomBoolean](ICoyoteRuntime/RandomBoolean)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |
 | [RandomInteger](ICoyoteRuntime/RandomInteger)(…) | Returns a nondeterministic integer choice, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |
 | [RegisterMonitor&lt;T&gt;](ICoyoteRuntime/RegisterMonitor)() | Registers a new specification monitor of the specified Type. |
-| [SetLogger](ICoyoteRuntime/SetLogger)(…) | Use this method to override the default TextWriter for logging messages. |
 | [Stop](ICoyoteRuntime/Stop)() | Terminates the runtime and notifies each active actor to halt execution. |
 
 ## See Also

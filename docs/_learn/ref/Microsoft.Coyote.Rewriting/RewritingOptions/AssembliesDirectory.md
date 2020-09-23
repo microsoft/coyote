@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDire
 The directory containing the assemblies to rewrite.
 
 ```csharp
-public string AssembliesDirectory { get; }
+public string AssembliesDirectory { get; set; }
 ```
 
 ## See Also

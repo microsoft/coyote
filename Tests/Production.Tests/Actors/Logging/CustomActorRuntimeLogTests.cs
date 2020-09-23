@@ -4,6 +4,7 @@
 using System.IO;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common;
@@ -134,7 +135,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 using (CustomLogger logger = new CustomLogger())
                 {
-                    runtime.SetLogger(logger);
+                    runtime.Logger = logger;
                     var tcs = TaskCompletionSource.Create<bool>();
                     runtime.RegisterMonitor<TestMonitor>();
                     runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
@@ -182,7 +183,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 using (CustomLogger logger = new CustomLogger())
                 {
-                    runtime.SetLogger(logger);
+                    runtime.Logger = logger;
                     var tcs = TaskCompletionSource.Create<bool>();
                     runtime.RegisterMonitor<TestMonitor>();
                     runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
@@ -232,13 +233,13 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             Configuration config = Configuration.Create();
             this.Test(async runtime =>
             {
-                runtime.SetLogger(TextWriter.Null);
+                runtime.Logger = new NullLogger();
                 var tcs = TaskCompletionSource.Create<bool>();
                 runtime.RegisterMonitor<TestMonitor>();
                 runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
                 runtime.CreateActor(typeof(M));
                 await this.WaitAsync(tcs.Task);
-                Assert.Equal("System.IO.TextWriter+NullTextWriter", runtime.Logger.ToString());
+                Assert.Equal("Microsoft.Coyote.IO.NullLogger", runtime.Logger.ToString());
             }, config);
         }
 
@@ -251,10 +252,10 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 var tcs = TaskCompletionSource.Create<bool>();
                 runtime.RegisterMonitor<TestMonitor>();
                 runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
-                runtime.SetLogger(null);
+                runtime.Logger = null;
                 runtime.CreateActor(typeof(M));
                 await this.WaitAsync(tcs.Task);
-                Assert.Equal("System.IO.TextWriter+NullTextWriter", runtime.Logger.ToString());
+                Assert.Equal("Microsoft.Coyote.IO.NullLogger", runtime.Logger.ToString());
             }, config);
         }
 
@@ -268,7 +269,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 runtime.RegisterMonitor<TestMonitor>();
                 runtime.Monitor<TestMonitor>(new SetupEvent(tcs));
                 runtime.RegisterMonitor<S>();
-                runtime.SetLogger(null);
+                runtime.Logger = null;
 
                 var logger = new CustomActorRuntimeLog();
                 runtime.RegisterLog(logger);
@@ -383,7 +384,7 @@ StateTransition";
             {
                 using (CustomLogger logger = new CustomLogger())
                 {
-                    runtime.SetLogger(logger);
+                    runtime.Logger = logger;
 
                     var graphBuilder = new ActorRuntimeLogGraphBuilder(false);
 
@@ -419,7 +420,7 @@ StateTransition";
             {
                 using (CustomLogger logger = new CustomLogger())
                 {
-                    runtime.SetLogger(logger);
+                    runtime.Logger = logger;
 
                     var graphBuilder = new ActorRuntimeLogGraphBuilder(false)
                     {

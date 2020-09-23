@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Logger
 The logger installed to the runtime.
 
 ```csharp
-protected TextWriter Logger { get; }
+protected ILogger Logger { get; }
 ```
 
 ## Remarks
@@ -18,6 +18,7 @@ See [Logging](/coyote/learn/core/logging) for more information.
 
 ## See Also
 
+* interface [ILogger](../../Microsoft.Coyote.IO/ILoggerType)
 * class [Monitor](../MonitorType)
 * namespace [Microsoft.Coyote.Specifications](../MonitorType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

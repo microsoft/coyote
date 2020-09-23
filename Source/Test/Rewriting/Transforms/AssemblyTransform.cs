@@ -20,12 +20,12 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Console output writer.
         /// </summary>
-        protected readonly ConsoleLogger Log;
+        protected readonly ILogger Log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyTransform"/> class.
         /// </summary>
-        protected AssemblyTransform(ConsoleLogger log)
+        protected AssemblyTransform(ILogger log)
         {
             this.Log = log;
         }
@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.Rewriting
             resolved = method.Resolve();
             if (resolved is null)
             {
-                this.Log.WriteWarningLine($"Unable to resolve '{method.FullName}' method. The method is either unsupported by Coyote, " +
+                this.Log.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. The method is either unsupported by Coyote, " +
                     "or a user-defined extension method, or the .NET platform of Coyote and the target assembly do not match.");
                 return false;
             }

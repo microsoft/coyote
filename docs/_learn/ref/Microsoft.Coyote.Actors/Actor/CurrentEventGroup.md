@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/CurrentEventGroup
 ---
 # Actor.CurrentEventGroup property
 
-An optional `EventGroup` associated with the current event being handled. This is an optional argument provided to CreateActor or SendEvent.
+An optional [`EventGroup`](../EventGroupType) associated with the current event being handled. This is an optional argument provided to CreateActor or SendEvent.
 
 ```csharp
 public EventGroup CurrentEventGroup { get; set; }

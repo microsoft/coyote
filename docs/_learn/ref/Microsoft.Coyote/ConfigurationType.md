@@ -21,6 +21,7 @@ public class Configuration
 | [IsVerbose](Configuration/IsVerbose) { get; } | If true, then messages are logged. |
 | [IsXmlLogEnabled](Configuration/IsXmlLogEnabled) { get; } | Produce an XML formatted runtime log file. |
 | [LivenessTemperatureThreshold](Configuration/LivenessTemperatureThreshold) { get; } | The liveness temperature threshold. If it is 0 then it is disabled. By default this value is assigned to [`MaxFairSchedulingSteps`](Configuration/MaxFairSchedulingSteps) / 2. |
+| [LogLevel](Configuration/LogLevel) { get; } | The level of detail to provide in verbose logging. |
 | [MaxFairSchedulingSteps](Configuration/MaxFairSchedulingSteps) { get; } | The maximum scheduling steps to explore for fair schedulers. By default this is set to 100,000 steps. |
 | [MaxUnfairSchedulingSteps](Configuration/MaxUnfairSchedulingSteps) { get; } | The maximum scheduling steps to explore for unfair schedulers. By default this is set to 10,000 steps. |
 | [RandomGeneratorSeed](Configuration/RandomGeneratorSeed) { get; } | Custom seed to be used by the random value generator. By default, this value is null indicating that no seed has been set. |

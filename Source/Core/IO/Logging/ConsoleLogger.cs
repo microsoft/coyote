@@ -13,7 +13,7 @@ namespace Microsoft.Coyote.IO
     /// <remarks>
     /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
     /// </remarks>
-    public sealed class ConsoleLogger : TextWriter
+    public sealed class ConsoleLogger : TextWriter, ILogger
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleLogger"/> class.
@@ -22,6 +22,9 @@ namespace Microsoft.Coyote.IO
         {
         }
 
+        /// <inheritdoc/>
+        public TextWriter TextWriter => this;
+
         /// <summary>
         /// When overridden in a derived class, returns the character encoding in which the
         /// output is written.
@@ -29,53 +32,115 @@ namespace Microsoft.Coyote.IO
         public override Encoding Encoding => Console.OutputEncoding;
 
         /// <summary>
-        /// Writes the specified Unicode character value to the standard output stream.
+        /// The level of detail to report.
         /// </summary>
-        /// <param name="value">The Unicode character.</param>
-        public override void Write(char value)
-        {
-            Console.Write(value);
-        }
+        public LogSeverity LogLevel { get; set; }
 
-        /// <summary>
-        /// Writes the specified string value.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Write(string value)
         {
-            Console.Write(value);
+            this.Write(LogSeverity.Informational, value);
         }
 
-        /// <summary>
-        /// Writes a string followed by a line terminator to the text string or stream.
-        /// </summary>
-        /// <param name="value">The string to write.</param>
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string value)
+        {
+            switch (severity)
+            {
+                case LogSeverity.Informational:
+                    if (this.LogLevel <= LogSeverity.Informational)
+                    {
+                        Console.Write(value);
+                    }
+
+                    break;
+                case LogSeverity.Warning:
+                    if (this.LogLevel <= LogSeverity.Warning)
+                    {
+                        Error.Write(Console.Out, ConsoleColor.Yellow, value);
+                    }
+
+                    break;
+                case LogSeverity.Error:
+                    if (this.LogLevel <= LogSeverity.Error)
+                    {
+                        Error.Write(Console.Out, ConsoleColor.Red, value);
+                    }
+
+                    break;
+
+                case LogSeverity.Important:
+                    Console.Write(value);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string format, params object[] args)
+        {
+            string value = string.Format(format, args);
+            this.Write(severity, value);
+        }
+
+        /// <inheritdoc/>
         public override void WriteLine(string value)
         {
-            Console.WriteLine(value);
+            this.WriteLine(LogSeverity.Informational, value);
         }
 
-        /// <summary>
-        /// Reports an error, followed by the current line terminator.
-        /// </summary>
-        /// <param name="value">The string to write.</param>
-#pragma warning disable CA1822 // Mark members as static
-        public void WriteErrorLine(string value)
-#pragma warning restore CA1822 // Mark members as static
+        /// <inheritdoc/>
+        public override void WriteLine(string format, params object[] args)
         {
-            Error.Write(Console.Out, ConsoleColor.Red, value);
-            Console.WriteLine();
+            string value = string.Format(format, args);
+            this.WriteLine(LogSeverity.Informational, value);
         }
 
-        /// <summary>
-        /// Reports an warning, followed by the current line terminator.
-        /// </summary>
-        /// <param name="value">The string to write.</param>
-#pragma warning disable CA1822 // Mark members as static
-        public void WriteWarningLine(string value)
-#pragma warning restore CA1822 // Mark members as static
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string value)
         {
-            Error.Write(Console.Out, ConsoleColor.Yellow, value);
-            Console.WriteLine();
+            switch (severity)
+            {
+                case LogSeverity.Informational:
+                    if (this.LogLevel <= LogSeverity.Informational)
+                    {
+                        Console.WriteLine(value);
+                    }
+
+                    break;
+                case LogSeverity.Warning:
+                    if (this.LogLevel <= LogSeverity.Warning)
+                    {
+                        Error.Write(Console.Out, ConsoleColor.Yellow, value);
+                        Console.WriteLine();
+                    }
+
+                    break;
+                case LogSeverity.Error:
+                    if (this.LogLevel <= LogSeverity.Error)
+                    {
+                        Error.Write(Console.Out, ConsoleColor.Red, value);
+                        Console.WriteLine();
+                    }
+
+                    break;
+
+                case LogSeverity.Important:
+                    Console.WriteLine(value);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        {
+            string value = string.Format(format, args);
+            this.WriteLine(severity, value);
         }
     }
 }

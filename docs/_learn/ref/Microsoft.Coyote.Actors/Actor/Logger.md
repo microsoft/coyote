@@ -6,10 +6,10 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/Logger
 ---
 # Actor.Logger property
 
-The installed runtime logger.
+The installed runtime logger as an [`ILogger`](../../Microsoft.Coyote.IO/ILoggerType). If you need a TextWriter then use Logger.TextWriter.
 
 ```csharp
-protected TextWriter Logger { get; }
+protected ILogger Logger { get; }
 ```
 
 ## Remarks
@@ -18,6 +18,7 @@ See [Logging](/coyote/learn/core/logging) for more information.
 
 ## See Also
 
+* interface [ILogger](../../Microsoft.Coyote.IO/ILoggerType)
 * class [Actor](../ActorType)
 * namespace [Microsoft.Coyote.Actors](../ActorType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

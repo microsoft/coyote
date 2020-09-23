@@ -7,7 +7,7 @@ permalink: /learn/core/logging
 
 ## Logging
 
-The Coyote runtime provides a `System.IO.TextWriter` for logging so that your program output can be
+The Coyote runtime provides a `Microsoft.Coyote.IO.ILogger` interface for logging so that your program output can be
 captured and included in `coyote` test tool output logs.  A default `Logger` is provided and can be
 accessed like this:
 
@@ -17,36 +17,81 @@ accessed like this:
 | `Actor` based program | `Microsoft.Coyote.Runtime.RuntimeFactory.Create().Logger` <br/> `Actor.Logger`, `StateMachine.Logger`, `Monitor.Logger` |
 
 The default `Logger` is a `ConsoleLogger` which is used to write output to the `System.Console`.
-You can provide your own implementation of `System.IO.TextWriter` by calling the `SetLogger` method on the
+You can provide your own implementation of `Microsoft.Coyote.IO.ILogger` by setting the `Logger` property on the
 `ICoyoteRuntime` or `IActorRuntime`.
 
 The `IActorRuntime` also provides a higher level logging interface called [`IActorRuntimeLog`](/coyote/learn/core/logging#iactorruntimelog) for
 logging `Actor` and `StateMachine` activity.
 
-## Example of custom TextWriter
+## Example of custom ILogger
 
 It is possible to replace the default logger with a custom one. The following example captures all log output in a `StringBuilder`:
 
 ```c#
-public class CustomLogger : TextWriter
+public class CustomLogger : ILogger
 {
     private StringBuilder StringBuilder;
+
+    public TextWriter TextWriter => throw new NotImplementedException();
 
     public CustomLogger()
     {
         this.StringBuilder = new StringBuilder();
     }
 
-    public override Encoding Encoding => Encoding.Unicode;
-
-    public override void Write(string value)
+    public void Write(string value)
     {
-        this.StringBuilder.Append(value);
+        this.Write(LogSeverity.Informational, value);
     }
 
-    public override void WriteLine(string value)
+    public void WriteLine(string value)
     {
-        this.StringBuilder.AppendLine(value);
+        this.WriteLine(LogSeverity.Informational, value);
+    }
+
+    public void Write(string format, params object[] args)
+    {
+        this.Write(LogSeverity.Informational, format, args);
+    }
+
+    public void WriteLine(string format, params object[] args)
+    {
+        this.WriteLine(LogSeverity.Informational, format, args);
+    }
+
+    public void Write(LogSeverity severity, string format, object[] args)
+    {
+        this.Write(severity, string.Format(format, args));
+    }
+
+    public void WriteLine(LogSeverity severity, string format, object[] args)
+    {
+        this.WriteLine(severity, string.Format(format, args));
+    }
+
+    public void Write(LogSeverity severity, string value)
+    {
+        switch (severity)
+        {
+            case LogSeverity.Informational:
+                this.StringBuilder.Append("<info>" + value);
+                break;
+            case LogSeverity.Warning:
+                this.StringBuilder.Append("<warning>" + value);
+                break;
+            case LogSeverity.Error:
+                this.StringBuilder.Append("<error>" + value);
+                break;
+            case LogSeverity.Important:
+                this.StringBuilder.Append("<important>" + value);
+                break;
+        }
+    }
+
+    public void WriteLine(LogSeverity severity, string value)
+    {
+        this.Write(severity, value);
+        this.StringBuilder.AppendLine();
     }
 
     public override string ToString()
@@ -54,15 +99,9 @@ public class CustomLogger : TextWriter
         return this.StringBuilder.ToString();
     }
 
-    protected override void Dispose(bool disposing)
+    public void Dispose()
     {
-        if (disposing)
-        {
-            this.StringBuilder.Clear();
-            this.StringBuilder = null;
-        }
-
-        base.Dispose(disposing);
+        // todo      
     }
 }
 ```
@@ -70,20 +109,23 @@ public class CustomLogger : TextWriter
 To replace the default logger, call the following `IActorRuntime` method:
 
 ```c#
-using (var oldLogger = runtime.SetLogger(new CustomLogger()))
-{
-  // disposes the old logger.
-}
+runtime.Logger = new CustomLogger();
 ```
 
 The above method replaces the previously installed logger with the specified one and returns the
 previously installed logger.
 
-Note that `SetLogger` does not `Dispose` the previously installed logger. This allows the logger to
-be accessed and used after being removed from the Coyote runtime, so it is your responsibility to
-call Dispose, which can be done with a `using` block.
+Note that the old `Logger` might be disposable, so if you care about disposing the old logger at
+the same time you may need to write this instead:
 
-You could write a custom `Logger` to intercept all logging messages and send them to an Azure Log
+```c#
+using (var oldLogger = runtime.Logger) 
+{
+   runtime.Logger = new CustomLogger();
+}
+```
+
+You could write a custom `ILogger` to intercept all logging messages and send them to an Azure Log
 table, or over a TCP socket.
 
 ## IActorRuntimeLog
@@ -100,13 +142,13 @@ graph representing all activities that happened during the execution of your act
 coverage](../tools/coverage) for an example graph output. The `coyote` test tool sets this up for
 you when you specify `--graph` or `--coverage activity` command line options.
 
-The `--verbose` command line option can also affect the default logging behavior. When `--verbose`
-is specified all log output is written to the `System.Console`. This can result in a lot of output
-especially if the test is performing many iterations. It is usually more useful to only capture the
-output of the one failing iteration in a given test run and this is done by the testing runtime
-automatically when `--verbose` is not set. In the latter case, all logging is redirected into an
-`NullTextWriter` and only when a bug is found is the iteration run again with your real log writers
-activated to capture the full log for that iteration.
+The `--verbosity` command line option can also affect the default logging behavior. When
+`--verbosity` is specified all log output is written to the `System.Console` by default, but you
+can specify different levels of output using `--verbosity quiet` to get no output, `--verbosity
+minimal` to see only error messages and `--verbosity normal` to get errors and warnings. This can
+produce a lot of output especially if you run many testing iterations. It is usually more useful to
+only capture the output of the one failing iteration in a log file and this is done automatically
+by the testing runtime when `--verbosity` is not specified.
 
 See [IActorRuntimeLog API documentation](/coyote/learn/ref/Microsoft.Coyote.Actors/IActorRuntimeLogType).
 

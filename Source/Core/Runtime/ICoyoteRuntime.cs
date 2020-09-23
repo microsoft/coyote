@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.Runtime
@@ -13,13 +14,12 @@ namespace Microsoft.Coyote.Runtime
     public interface ICoyoteRuntime : IDisposable
     {
         /// <summary>
-        /// Used to log messages. Use <see cref="SetLogger"/>
-        /// to replace the logger with a custom one.
+        /// Get or set the  <see cref="ILogger"/> used to log messages.
         /// </summary>
         /// <remarks>
         /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
-        TextWriter Logger { get; }
+        ILogger Logger { get; set; }
 
         /// <summary>
         /// Callback that is fired when the runtime throws an exception which includes failed assertions.
@@ -120,11 +120,17 @@ namespace Microsoft.Coyote.Runtime
         void Assert(bool predicate, string s, params object[] args);
 
         /// <summary>
-        /// Use this method to override the default <see cref="TextWriter"/> for logging messages.
+        /// The old way of setting the <see cref="Logger"/> property.
         /// </summary>
-        /// <param name="logger">The logger to install.</param>
+        /// <remarks>
+        /// The new way is to just set the Logger property to an <see cref="ILogger"/> object.
+        /// This method is only here for compatibility and has a minor perf impact as it has to
+        /// wrap the writer in an object that implements the <see cref="ILogger"/> interface.
+        /// </remarks>
+        /// <param name="writer">The writer to use for logging.</param>
         /// <returns>The previously installed logger.</returns>
-        TextWriter SetLogger(TextWriter logger);
+        [Obsolete("Please set the Logger property directory instead of calling this method.")]
+        TextWriter SetLogger(TextWriter writer);
 
         /// <summary>
         /// Terminates the runtime and notifies each active actor to halt execution.

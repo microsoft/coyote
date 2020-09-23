@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.IO;
@@ -18,9 +17,13 @@ namespace Microsoft.Coyote.Actors
     public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
     {
         /// <summary>
-        /// Get or set the TextWriter to write to.
+        /// Get or set the <see cref="ILogger"/> interface to the logger.
         /// </summary>
-        public TextWriter Logger { get; set; }
+        /// <remarks>
+        /// If you want Coyote to log to an existing TextWriter, then use the <see cref="TextWriterLogger"/> object
+        /// but that will have a minor performance overhead, so it is better to use <see cref="ILogger"/> directly.
+        /// </remarks>
+        public ILogger Logger { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorRuntimeLogTextFormatter"/> class.
@@ -33,7 +36,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnAssertionFailure(string error)
         {
-            this.Logger.WriteLine(error);
+            this.Logger.WriteLine(LogSeverity.Error, error);
         }
 
         /// <inheritdoc/>
@@ -131,7 +134,7 @@ namespace Microsoft.Coyote.Actors
                 text = $"<ExceptionLog> {id} running action '{actionName}' in state '{stateName}' chose to handle exception '{ex.GetType().Name}'.";
             }
 
-            this.Logger.WriteLine(text);
+            this.Logger.WriteLine(LogSeverity.Warning, text);
         }
 
         /// <inheritdoc/>
@@ -147,7 +150,7 @@ namespace Microsoft.Coyote.Actors
                 text = $"<ExceptionLog> {id} running action '{actionName}' in state '{stateName}' threw exception '{ex.GetType().Name}'.";
             }
 
-            this.Logger.WriteLine(text);
+            this.Logger.WriteLine(LogSeverity.Warning, text);
         }
 
         /// <inheritdoc/>
@@ -225,6 +228,7 @@ namespace Microsoft.Coyote.Actors
         /// <inheritdoc/>
         public virtual void OnMonitorError(string monitorType, string stateName, bool? isInHotState)
         {
+            this.Logger.WriteLine(LogSeverity.Error, $"<MonitorLog> {monitorType} found an error in state {stateName}.");
         }
 
         /// <inheritdoc/>

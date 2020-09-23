@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 #else
 using Microsoft.Coyote.Tasks;
 #endif
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting;
@@ -31,7 +32,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestCustomLogger()
         {
-            StringWriter log = new StringWriter();
+            InMemoryLogger log = new InMemoryLogger();
 
             var config = Configuration.Create().WithVerbosityEnabled().WithTestingIterations(3);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
@@ -39,7 +40,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 runtime.Logger.WriteLine("Hi mom!");
             });
 
-            engine.SetLogger(log);
+            engine.Logger = log;
             engine.Run();
 
             var result = log.ToString();

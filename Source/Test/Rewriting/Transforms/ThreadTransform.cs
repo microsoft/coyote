@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="ThreadTransform"/> class.
         /// </summary>
-        internal ThreadTransform(ConsoleLogger log)
+        internal ThreadTransform(ILogger log)
             : base(log)
         {
         }

@@ -22,20 +22,20 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// The directory containing the assemblies to rewrite.
         /// </summary>
-        public string AssembliesDirectory { get; internal set; }
+        public string AssembliesDirectory { get; set; }
 
         /// <summary>
         /// The output directory where rewritten assemblies are placed.
         /// If this is the same as the <see cref="AssembliesDirectory"/> then
         /// the rewritten assemblies will replace the original assemblies.
         /// </summary>
-        public string OutputDirectory { get; internal set; }
+        public string OutputDirectory { get; set; }
 
         /// <summary>
         /// The file names of the assemblies to rewrite.  If this list is empty then it will
         /// rewrite all assemblies in the <see cref="AssembliesDirectory"/>.
         /// </summary>
-        public HashSet<string> AssemblyPaths { get; internal set; }
+        public HashSet<string> AssemblyPaths { get; set; }
 
         /// <summary>
         /// The regular expressions used to match against assembly names to determine which assemblies
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.Rewriting
         /// System\.Private\.CoreLib
         /// mscorlib.
         /// </remarks>
-        public IList<string> DisallowedAssemblies { get; internal set; }
+        public IList<string> DisallowedAssemblies { get; set; }
 
         /// <summary>
         /// True if the input assemblies are being replaced by the rewritten ones.
@@ -65,12 +65,22 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Path of strong name key to use for signing rewritten assemblies.
         /// </summary>
-        public string StrongNameKeyFile { get; internal set; }
+        public string StrongNameKeyFile { get; set; }
 
         /// <summary>
         /// Whether to also rewrite dependent assemblies that are found in the same location.
         /// </summary>
-        public bool IsRewritingDependencies { get; internal set; }
+        public bool IsRewritingDependencies { get; set; }
+
+        /// <summary>
+        /// Log output from rewriter (default is Console output).
+        /// </summary>
+        public ILogger Log { get; set; }
+
+        /// <summary>
+        /// The amount of log output to produce.
+        /// </summary>
+        public LogSeverity LogLevel { get; set; }
 
         /// <summary>
         /// True if rewriting of unit test methods is enabled, else false.
@@ -105,13 +115,6 @@ namespace Microsoft.Coyote.Rewriting
                 this.DotnetVersion = value;
                 this.ResolveVariables();
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RewritingOptions"/> class.
-        /// </summary>
-        internal RewritingOptions()
-        {
         }
 
         /// <summary>

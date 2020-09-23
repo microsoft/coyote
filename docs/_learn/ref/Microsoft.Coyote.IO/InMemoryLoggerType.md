@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.IO/InMemoryLoggerType
 Thread safe logger that writes text to an in-memory buffer. The buffered text can be extracted using the ToString() method.
 
 ```csharp
-public sealed class InMemoryLogger : TextWriter
+public sealed class InMemoryLogger : TextWriter, ILogger
 ```
 
 ## Public Members
@@ -18,9 +18,12 @@ public sealed class InMemoryLogger : TextWriter
 | --- | --- |
 | [InMemoryLogger](InMemoryLogger/InMemoryLogger)() | Initializes a new instance of the [`InMemoryLogger`](InMemoryLoggerType) class. |
 | override [Encoding](InMemoryLogger/Encoding) { get; } | When overridden in a derived class, returns the character encoding in which the output is written. |
+| [TextWriter](InMemoryLogger/TextWriter) { get; } | This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter. |
 | override [ToString](InMemoryLogger/ToString)() | Returns the logged text as a string. |
-| override [Write](InMemoryLogger/Write)(…) | Writes the specified Unicode character value to the standard output stream. (2 methods) |
-| override [WriteLine](InMemoryLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. |
+| override [Write](InMemoryLogger/Write)(…) | Writes an informational string to the log. |
+| [Write](InMemoryLogger/Write)(…) | Writes a string to the log. (2 methods) |
+| override [WriteLine](InMemoryLogger/WriteLine)(…) | Writes an informational string to the log. |
+| [WriteLine](InMemoryLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. (2 methods) |
 
 ## Remarks
 
@@ -28,6 +31,7 @@ See [Logging](/coyote/learn/core/logging) for more information.
 
 ## See Also
 
+* interface [ILogger](ILoggerType)
 * namespace [Microsoft.Coyote.IO](../MicrosoftCoyoteIONamespace)
 * assembly [Microsoft.Coyote](../MicrosoftCoyoteAssembly)
 

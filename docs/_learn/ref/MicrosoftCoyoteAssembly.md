@@ -70,7 +70,9 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | public type | description |
 | --- | --- |
 | class [ConsoleLogger](Microsoft.Coyote.IO/ConsoleLoggerType) | Logger that writes text to the console. |
+| interface [ILogger](Microsoft.Coyote.IO/ILoggerType) | A logger is used to capture messages, warnings and errors. |
 | class [InMemoryLogger](Microsoft.Coyote.IO/InMemoryLoggerType) | Thread safe logger that writes text to an in-memory buffer. The buffered text can be extracted using the ToString() method. |
+| enum [LogSeverity](Microsoft.Coyote.IO/LogSeverityType) | Flag indicating the type of logging information being provided to the [`ILogger`](Microsoft.Coyote.IO/ILoggerType). |
 
 ## Microsoft.Coyote.Random namespace
 

@@ -17,6 +17,7 @@ public sealed class TestingEngine
 | name | description |
 | --- | --- |
 | static [Create](TestingEngine/Create)(…) | Creates a new systematic testing engine. (10 methods) |
+| [Logger](TestingEngine/Logger) { get; set; } | Get or set the ILogger used to log messages during testing. |
 | [ReadableTrace](TestingEngine/ReadableTrace) { get; } | The readable trace, if any. |
 | [ReproducableTrace](TestingEngine/ReproducableTrace) { get; } | The reproducable trace, if any. |
 | [TestReport](TestingEngine/TestReport) { get; set; } | Data structure containing information gathered during testing. |
@@ -25,7 +26,6 @@ public sealed class TestingEngine
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |
 | [RethrowUnhandledException](TestingEngine/RethrowUnhandledException)() | If an iteration catches an unhandled exception then this method will rethrow that exception. |
 | [Run](TestingEngine/Run)() | Runs the testing engine. |
-| [SetLogger](TestingEngine/SetLogger)(…) | Installs the specified TextWriter. |
 | [Stop](TestingEngine/Stop)() | Stops the testing engine. |
 | [TryEmitTraces](TestingEngine/TryEmitTraces)(…) | Tries to emit the testing traces, if any. |
 

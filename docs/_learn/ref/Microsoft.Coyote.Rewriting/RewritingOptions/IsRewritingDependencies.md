@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDep
 Whether to also rewrite dependent assemblies that are found in the same location.
 
 ```csharp
-public bool IsRewritingDependencies { get; }
+public bool IsRewritingDependencies { get; set; }
 ```
 
 ## See Also

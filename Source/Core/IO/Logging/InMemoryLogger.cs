@@ -14,7 +14,7 @@ namespace Microsoft.Coyote.IO
     /// <remarks>
     /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
     /// </remarks>
-    public sealed class InMemoryLogger : TextWriter
+    public sealed class InMemoryLogger : TextWriter, ILogger
     {
         /// <summary>
         /// Underlying string builder.
@@ -29,7 +29,10 @@ namespace Microsoft.Coyote.IO
         /// <summary>
         /// Optional logger provided by the user to delegate logging to.
         /// </summary>
-        internal TextWriter UserLogger { get; set; }
+        internal ILogger UserLogger { get; set; }
+
+        /// <inheritdoc/>
+        public TextWriter TextWriter => this;
 
         /// <summary>
         /// When overridden in a derived class, returns the character encoding in which the
@@ -46,34 +49,15 @@ namespace Microsoft.Coyote.IO
             this.Lock = new object();
         }
 
-        /// <summary>
-        /// Writes the specified Unicode character value to the standard output stream.
-        /// </summary>
-        /// <param name="value">The Unicode character.</param>
-        public override void Write(char value)
-        {
-            try
-            {
-                lock (this.Lock)
-                {
-                    this.Builder.Append(value);
-                    if (this.UserLogger != null)
-                    {
-                        this.UserLogger.WriteLine(value);
-                    }
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                // The writer was disposed.
-            }
-        }
-
-        /// <summary>
-        /// Writes the specified string value.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Write(string value)
         {
+            this.Write(LogSeverity.Informational, value);
+        }
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string value)
+        {
             try
             {
                 lock (this.Lock)
@@ -81,7 +65,7 @@ namespace Microsoft.Coyote.IO
                     this.Builder.Append(value);
                     if (this.UserLogger != null)
                     {
-                        this.UserLogger.WriteLine(value);
+                        this.UserLogger.Write(severity, value);
                     }
                 }
             }
@@ -91,11 +75,21 @@ namespace Microsoft.Coyote.IO
             }
         }
 
-        /// <summary>
-        /// Writes a string followed by a line terminator to the text string or stream.
-        /// </summary>
-        /// <param name="value">The string to write.</param>
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string format, params object[] args)
+        {
+            string msg = string.Format(format, args);
+            this.Write(severity, msg);
+        }
+
+        /// <inheritdoc/>
         public override void WriteLine(string value)
+        {
+            this.WriteLine(LogSeverity.Informational, value);
+        }
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string value)
         {
             try
             {
@@ -104,7 +98,7 @@ namespace Microsoft.Coyote.IO
                     this.Builder.AppendLine(value);
                     if (this.UserLogger != null)
                     {
-                        this.UserLogger.WriteLine(value);
+                        this.UserLogger.WriteLine(severity, value);
                     }
                 }
             }
@@ -112,6 +106,13 @@ namespace Microsoft.Coyote.IO
             {
                 // The writer was disposed.
             }
+        }
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        {
+            string msg = string.Format(format, args);
+            this.WriteLine(severity, msg);
         }
 
         /// <summary>

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.SystematicTesting.Strategies;
 using Xunit;
@@ -97,16 +98,7 @@ namespace Microsoft.Coyote.Tests.Common
         private TestingEngine InternalTest(Delegate test, Configuration configuration)
         {
             configuration = configuration ?? GetConfiguration();
-
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             TestingEngine engine = null;
 
@@ -287,16 +279,7 @@ namespace Microsoft.Coyote.Tests.Common
         private void TestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
         {
             configuration = configuration ?? GetConfiguration();
-
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -387,15 +370,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -429,21 +404,13 @@ namespace Microsoft.Coyote.Tests.Common
         {
             configuration = configuration ?? GetConfiguration();
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
                 configuration.IsMonitoringEnabledInInProduction = true;
                 var runtime = RuntimeFactory.Create(configuration);
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
@@ -466,21 +433,13 @@ namespace Microsoft.Coyote.Tests.Common
             uint iterations = Math.Max(1, configuration.TestingIterations);
             for (int i = 0; i < iterations; i++)
             {
-                TextWriter logger;
-                if (configuration.IsVerbose)
-                {
-                    logger = new TestOutputLogger(this.TestOutput, true);
-                }
-                else
-                {
-                    logger = TextWriter.Null;
-                }
+                ILogger logger = this.GetLogger(configuration);
 
                 try
                 {
                     configuration.IsMonitoringEnabledInInProduction = true;
                     var runtime = RuntimeFactory.Create(configuration);
-                    runtime.SetLogger(logger);
+                    runtime.Logger = logger;
 
                     var errorTask = new TaskCompletionSource<Exception>();
                     if (handleFailures)
@@ -553,15 +512,7 @@ namespace Microsoft.Coyote.Tests.Common
             configuration = configuration ?? GetConfiguration();
 
             string errorMessage = string.Empty;
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -573,7 +524,7 @@ namespace Microsoft.Coyote.Tests.Common
                     errorTask.TrySetResult(e);
                 };
 
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
@@ -606,15 +557,7 @@ namespace Microsoft.Coyote.Tests.Common
             configuration = configuration ?? GetConfiguration();
 
             string errorMessage = string.Empty;
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -626,7 +569,7 @@ namespace Microsoft.Coyote.Tests.Common
                     errorCompletion.TrySetResult(e);
                 };
 
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test(runtime);
@@ -663,15 +606,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -682,7 +617,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     errorCompletion.TrySetResult(e);
                 };
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
@@ -719,15 +654,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -738,7 +665,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     errorCompletion.TrySetResult(e);
                 };
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test();
@@ -775,15 +702,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -795,7 +714,7 @@ namespace Microsoft.Coyote.Tests.Common
                     errorCompletion.TrySetResult(e);
                 };
 
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test(runtime);
@@ -833,15 +752,7 @@ namespace Microsoft.Coyote.Tests.Common
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
                 $"Type '{exceptionType}' is not an exception type.");
 
-            TextWriter logger;
-            if (configuration.IsVerbose)
-            {
-                logger = new TestOutputLogger(this.TestOutput, true);
-            }
-            else
-            {
-                logger = TextWriter.Null;
-            }
+            ILogger logger = this.GetLogger(configuration);
 
             try
             {
@@ -853,7 +764,7 @@ namespace Microsoft.Coyote.Tests.Common
                     errorCompletion.TrySetResult(e);
                 };
 
-                runtime.SetLogger(logger);
+                runtime.Logger = logger;
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test();
@@ -880,6 +791,21 @@ namespace Microsoft.Coyote.Tests.Common
             }
 
             Assert.True(actualException.GetType() == exceptionType, actualException.Message + "\n" + actualException.StackTrace);
+        }
+
+        private ILogger GetLogger(Configuration configuration)
+        {
+            ILogger logger;
+            if (configuration.IsVerbose)
+            {
+                logger = new TestOutputLogger(this.TestOutput, true);
+            }
+            else
+            {
+                logger = new NullLogger();
+            }
+
+            return logger;
         }
 
         private static int GetExceptionTimeout(int millisecondsDelay = 5000)
@@ -946,10 +872,10 @@ namespace Microsoft.Coyote.Tests.Common
             return await task;
         }
 
-        private static TestingEngine RunTest(Delegate test, Configuration configuration, TextWriter logger)
+        private static TestingEngine RunTest(Delegate test, Configuration configuration, ILogger logger)
         {
             var engine = new TestingEngine(configuration, test);
-            engine.SetLogger(logger);
+            engine.Logger = logger;
             engine.Run();
             return engine;
         }

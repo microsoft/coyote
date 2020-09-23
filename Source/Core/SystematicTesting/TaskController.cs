@@ -1071,14 +1071,14 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void ReportThrownException(Exception exception)
         {
-            if (!(exception is ExecutionCanceledException))
+            if (!(exception is ExecutionCanceledException) && !(exception is TaskCanceledException) && !(exception is OperationCanceledException))
             {
                 string message = string.Format(CultureInfo.InvariantCulture,
                     $"Exception '{exception.GetType()}' was thrown in task '{Task.CurrentId}', " +
                     $"'{exception.Source}':\n" +
                     $"   {exception.Message}\n" +
                     $"The stack trace is:\n{exception.StackTrace}");
-                this.Runtime.Logger.WriteLine($"<ExceptionLog> {message}");
+                this.Runtime.Logger.WriteLine(IO.LogSeverity.Warning, $"<ExceptionLog> {message}");
             }
         }
 

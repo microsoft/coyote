@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/DisallowedAsse
 The regular expressions used to match against assembly names to determine which assemblies to ignore when rewriting dependencies or a whole directory.
 
 ```csharp
-public IList<string> DisallowedAssemblies { get; }
+public IList<string> DisallowedAssemblies { get; set; }
 ```
 
 ## Remarks

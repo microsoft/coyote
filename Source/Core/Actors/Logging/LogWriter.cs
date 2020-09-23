@@ -24,7 +24,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Used to log messages.
         /// </summary>
-        internal TextWriter Logger { get; private set; }
+        internal ILogger Logger { get; private set; }
+
+        /// <summary>
+        /// The log level to report.
+        /// </summary>
+        private LogSeverity LogLevel { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogWriter"/> class.
@@ -33,13 +38,15 @@ namespace Microsoft.Coyote.Actors
         {
             this.Logs = new HashSet<IActorRuntimeLog>();
 
+            this.LogLevel = configuration.LogLevel;
+
             if (configuration.IsVerbose)
             {
                 this.GetOrCreateTextLog();
             }
             else
             {
-                this.Logger = TextWriter.Null;
+                this.Logger = new NullLogger();
             }
         }
 
@@ -599,14 +606,14 @@ namespace Microsoft.Coyote.Actors
             this.Logs.OfType<TActorRuntimeLog>();
 
         /// <summary>
-        /// Use this method to override the default <see cref="TextWriter"/> for logging messages.
+        /// Use this method to override the default <see cref="ILogger"/> for logging messages.
         /// </summary>
-        internal TextWriter SetLogger(TextWriter logger)
+        internal ILogger SetLogger(ILogger logger)
         {
             var prevLogger = this.Logger;
             if (logger == null)
             {
-                this.Logger = TextWriter.Null;
+                this.Logger = new NullLogger();
 
                 var textLog = this.GetLogsOfType<ActorRuntimeLogTextFormatter>().FirstOrDefault();
                 if (textLog != null)
@@ -633,7 +640,7 @@ namespace Microsoft.Coyote.Actors
             {
                 if (this.Logger == null)
                 {
-                    this.Logger = new ConsoleLogger();
+                    this.Logger = new ConsoleLogger() { LogLevel = this.LogLevel };
                 }
 
                 textLog = new ActorRuntimeLogTextFormatter

@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskTransform"/> class.
         /// </summary>
-        internal TaskTransform(ConsoleLogger log)
+        internal TaskTransform(ILogger log)
             : base(log)
         {
             this.RewrittenMethodCache = new Dictionary<string, MethodReference>();

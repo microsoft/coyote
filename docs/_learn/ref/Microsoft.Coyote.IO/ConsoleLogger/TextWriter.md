@@ -1,20 +1,16 @@
 ---
 layout: reference
 section: learn
-title: WriteErrorLine
-permalink: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteErrorLine
+title: TextWriter
+permalink: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/TextWriter
 ---
-# ConsoleLogger.WriteErrorLine method
+# ConsoleLogger.TextWriter property
 
-Reports an error, followed by the current line terminator.
+This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter.
 
 ```csharp
-public void WriteErrorLine(string value)
+public TextWriter TextWriter { get; }
 ```
-
-| parameter | description |
-| --- | --- |
-| value | The string to write. |
 
 ## See Also
 

@@ -54,13 +54,13 @@ namespace Microsoft.Coyote.Rewriting
 
         private readonly string[] DefaultDisallowedList = new string[]
         {
-            @"Newtonsoft\.Json",
+            @"Newtonsoft\.Json\.dll",
             @"Microsoft\.Coyote\.dll",
             @"Microsoft\.Coyote.Test\.dll",
             @"Microsoft\.VisualStudio\.TestPlatform.*",
             @"Microsoft\.TestPlatform.*",
-            @"System\.Private\.CoreLib",
-            @"mscorlib"
+            @"System\.Private\.CoreLib\.dll",
+            @"mscorlib\.dll"
         };
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// The output log.
         /// </summary>
-        private readonly ConsoleLogger Log;
+        private readonly ILogger Log;
 
         /// <summary>
         /// List of assemblies to be rewritten.
@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Rewriting
         private AssemblyRewriter(Configuration configuration, RewritingOptions options)
         {
             this.Configuration = configuration;
-            this.Log = new ConsoleLogger();
+            this.Log = options.Log ?? new ConsoleLogger() { LogLevel = options.LogLevel };
             this.Options = options;
             this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
             var userList = options.DisallowedAssemblies ?? Array.Empty<string>();
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Rewriting
                 // Expand to include all .dll files in AssemblyPaths.
                 foreach (var file in Directory.GetFiles(this.Options.AssembliesDirectory, "*.dll"))
                 {
-                    if (this.IsDisallowed(Path.GetFileNameWithoutExtension(file)))
+                    if (this.IsDisallowed(Path.GetFileName(file)))
                     {
                         this.Options.AssemblyPaths.Add(file);
                     }
@@ -172,6 +172,21 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         public static void Rewrite(Configuration configuration, RewritingOptions options)
         {
+            if (string.IsNullOrEmpty(options.AssembliesDirectory))
+            {
+                throw new Exception("Please provide RewritingOptions.AssembliesDirectory");
+            }
+
+            if (string.IsNullOrEmpty(options.OutputDirectory))
+            {
+                throw new Exception("Please provide RewritingOptions.OutputDirectory");
+            }
+
+            if (options.AssemblyPaths == null || options.AssemblyPaths.Count == 0)
+            {
+                throw new Exception("Please provide RewritingOptions.AssemblyPaths");
+            }
+
             var binaryRewriter = new AssemblyRewriter(configuration, options);
             binaryRewriter.Rewrite();
         }
@@ -204,11 +219,11 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     if (ex is AggregateException ae && ae.InnerException != null)
                     {
-                        this.Log.WriteErrorLine(ae.InnerException.Message);
+                        this.Log.WriteLine(LogSeverity.Error, ae.InnerException.Message);
                     }
                     else
                     {
-                        this.Log.WriteErrorLine(ex.Message);
+                        this.Log.WriteLine(LogSeverity.Error, ex.Message);
                     }
 
                     errors++;
@@ -262,7 +277,7 @@ namespace Microsoft.Coyote.Rewriting
                 if (IsAssemblyRewritten(assembly))
                 {
                     // The assembly has been already rewritten by this version of Coyote, so skip it.
-                    this.Log.WriteWarningLine($"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
+                    this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
                     return;
                 }
 
@@ -332,7 +347,7 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     await Task.Delay(100);
-                    this.Log.WriteLine($"... Retrying write to {targetFile}");
+                    this.Log.WriteLine(LogSeverity.Warning, $"... Retrying write to {targetFile}");
                 }
             }
         }
@@ -366,8 +381,8 @@ namespace Microsoft.Coyote.Rewriting
             {
                 foreach (var ar in module.AssemblyReferences)
                 {
-                    var name = ar.Name;
-                    var localName = Path.Combine(assemblyDir, name + ".dll");
+                    var name = ar.Name + ".dll";
+                    var localName = Path.Combine(assemblyDir, name);
                     if (!this.IsDisallowed(name) &&
                         File.Exists(localName) && !this.Pending.Contains(localName))
                     {
@@ -564,7 +579,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
         {
-            this.Log.WriteErrorLine("Error resolving assembly: " + reference.FullName);
+            this.Log.WriteLine(LogSeverity.Warning, "Error resolving assembly: " + reference.FullName);
             return null;
         }
     }

@@ -4,17 +4,17 @@ section: learn
 title: Write
 permalink: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/Write
 ---
-# InMemoryLogger.Write method (1 of 2)
+# InMemoryLogger.Write method (1 of 3)
 
-Writes the specified Unicode character value to the standard output stream.
+Writes an informational string to the log.
 
 ```csharp
-public override void Write(char value)
+public override void Write(string value)
 ```
 
 | parameter | description |
 | --- | --- |
-| value | The Unicode character. |
+| value | The string to write. |
 
 ## See Also
 
@@ -24,16 +24,45 @@ public override void Write(char value)
 
 ---
 
-# InMemoryLogger.Write method (2 of 2)
+# InMemoryLogger.Write method (2 of 3)
 
-Writes the specified string value.
+Writes a string to the log.
 
 ```csharp
-public override void Write(string value)
+public void Write(LogSeverity severity, string value)
 ```
+
+| parameter | description |
+| --- | --- |
+| severity | The severity of the issue being logged. |
+| value | The string to write. |
 
 ## See Also
 
+* enum [LogSeverity](../LogSeverityType)
+* class [InMemoryLogger](../InMemoryLoggerType)
+* namespace [Microsoft.Coyote.IO](../InMemoryLoggerType)
+* assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
+
+---
+
+# InMemoryLogger.Write method (3 of 3)
+
+Writes a string to the log.
+
+```csharp
+public void Write(LogSeverity severity, string format, params object[] args)
+```
+
+| parameter | description |
+| --- | --- |
+| severity | The severity of the issue being logged. |
+| format | The string format to write. |
+| args | The arguments needed to format the string. |
+
+## See Also
+
+* enum [LogSeverity](../LogSeverityType)
 * class [InMemoryLogger](../InMemoryLoggerType)
 * namespace [Microsoft.Coyote.IO](../InMemoryLoggerType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

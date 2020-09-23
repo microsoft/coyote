@@ -97,6 +97,11 @@ namespace Microsoft.Coyote.Utilities
         public object Value;
 
         /// <summary>
+        /// The default value to use if no value provided.
+        /// </summary>
+        public string DefaultValue;
+
+        /// <summary>
         /// This is the print help option.
         /// </summary>
         public bool PrintFullHelp;
@@ -270,6 +275,7 @@ namespace Microsoft.Coyote.Utilities
                 DataType = this.DataType,
                 Description = this.Description,
                 IsRequired = this.IsRequired,
+                DefaultValue = this.DefaultValue,
                 Group = this.Group,
                 IsHidden = this.IsHidden,
                 AllowedValues = this.AllowedValues,
@@ -344,6 +350,14 @@ namespace Microsoft.Coyote.Utilities
             newList[i] = (T)value2;
             return newList;
         }
+
+        internal void CheckDefaultValue()
+        {
+            if (this.Value == null && !string.IsNullOrEmpty(this.DefaultValue))
+            {
+                this.AddParsedValue(this.DefaultValue);
+            }
+        }
     }
 
     /// <summary>
@@ -415,15 +429,16 @@ namespace Microsoft.Coyote.Utilities
         /// <param name="dataType">Optional datatype (default string). Supported datatypes are primitive types
         /// only (e.g. int, float, string, bool).</param>
         /// <param name="required">Whether the argument is required or not.</param>
+        /// <param name="defaultValue">The default value to use if no value is provided.</param>
         /// <returns>The new <see cref="CommandLineArgument"/> object.</returns>
-        public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false)
+        public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false, string defaultValue = null)
         {
             if (dataType == null)
             {
                 dataType = typeof(string);
             }
 
-            var argument = this.Parser.AddArgument(longName, shortName, description, dataType, required);
+            var argument = this.Parser.AddArgument(longName, shortName, description, dataType, required, defaultValue);
             argument.IsHidden = this.IsHidden;
             argument.Group = this.Name;
             return argument;
@@ -537,8 +552,9 @@ namespace Microsoft.Coyote.Utilities
         /// <param name="dataType">Optional datatype (default string). Supported datatypes are primitive types
         /// only (e.g. int, float, string, bool).</param>
         /// <param name="required">Whether argument is required.</param>
+        /// <param name="defaultValue">The default value to use if no value is provided.</param>
         /// <returns>The new option or throws <see cref="System.Data.DuplicateNameException"/>.</returns>
-        public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false)
+        public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false, string defaultValue = null)
         {
             if (this.Arguments.TryGetValue(longName, out CommandLineArgument argument))
             {
@@ -561,6 +577,7 @@ namespace Microsoft.Coyote.Utilities
                 DataType = dataType,
                 Description = description,
                 IsRequired = required,
+                DefaultValue = defaultValue
             };
             this.Arguments[longName] = argument;
             this.LongNames.Add(longName);
@@ -646,12 +663,14 @@ namespace Microsoft.Coyote.Utilities
                 {
                     if (arg.StartsWith("--"))
                     {
+                        current?.CheckDefaultValue();
                         var name = arg.Substring(2);
                         current = null;
                         this.Arguments.TryGetValue(name, out current);
                     }
                     else if (arg.StartsWith("-"))
                     {
+                        current?.CheckDefaultValue();
                         current = null;
                         var name = arg.Substring(1);
                         // Note that "/" is not supported as an argument delimiter because it conflicts with unix file paths.
@@ -721,6 +740,8 @@ namespace Microsoft.Coyote.Utilities
                 }
             }
 
+            current?.CheckDefaultValue();
+
             foreach (var arg in this.Arguments.Values)
             {
                 if (this.IsRequired(arg) && !(from r in result where r.LongName == arg.LongName select r).Any())
@@ -738,7 +759,7 @@ namespace Microsoft.Coyote.Utilities
 
             foreach (var arg in result)
             {
-                if (!arg.IsPositional && arg.Value == null && arg.DataType != typeof(bool) && !arg.AllowedValues.Contains(string.Empty))
+                if (!arg.IsPositional && arg.Value == null && string.IsNullOrEmpty(arg.DefaultValue) && arg.DataType != typeof(bool) && !arg.AllowedValues.Contains(string.Empty))
                 {
                     throw new CommandLineException(string.Format("Missing value for argument: '--{0}'", arg.LongName), result);
                 }

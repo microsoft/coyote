@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -34,7 +35,8 @@ namespace Microsoft.Coyote.Utilities
             basicGroup.AddArgument("method", "m", "Suffix of the test method to execute");
             basicGroup.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
             basicGroup.AddArgument("outdir", "o", "Dump output to directory x (absolute path or relative to current directory");
-            basicGroup.AddArgument("verbose", "v", "Enable verbose log output during testing", typeof(bool));
+            var verbosityArg = basicGroup.AddArgument("verbosity", "v", "Enable verbose log output during testing providing the level of logging you want to see: quiet, minimal, normal, detailed.  Using -v with no argument defaults to 'detailed'", typeof(string), defaultValue: "detailed");
+            verbosityArg.AllowedValues = new List<string>(new string[] { "quiet", "minimal", "normal", "detailed" });
             basicGroup.AddArgument("debug", "d", "Enable debugging", typeof(bool)).IsHidden = true;
             basicGroup.AddArgument("break", "b", "Attaches the debugger and also adds a breakpoint when an assertion fails (disabled during parallel testing)", typeof(bool));
             basicGroup.AddArgument("version", null, "Show tool version", typeof(bool));
@@ -162,12 +164,32 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                 case "outdir":
                     configuration.OutputFilePath = (string)option.Value;
                     break;
-                case "verbose":
-                    configuration.IsVerbose = true;
-                    break;
                 case "debug":
                     configuration.EnableDebugging = true;
                     Debug.IsEnabled = true;
+                    break;
+                case "verbosity":
+                    configuration.IsVerbose = true;
+                    string verbosity = (string)option.Value;
+                    switch (verbosity)
+                    {
+                        case "quiet":
+                            configuration.IsVerbose = false;
+                            break;
+                        case "detailed":
+                            configuration.LogLevel = options.LogLevel = LogSeverity.Informational;
+                            break;
+                        case "normal":
+                            configuration.LogLevel = options.LogLevel = LogSeverity.Warning;
+                            break;
+                        case "minimal":
+                            configuration.LogLevel = options.LogLevel = LogSeverity.Error;
+                            break;
+                        default:
+                            Error.ReportAndExit($"Please give a valid value for 'verbosity' must be one of 'errors', 'warnings', or 'info', but found {verbosity}.");
+                            break;
+                    }
+
                     break;
                 case "timeout":
                     configuration.Timeout = (int)(uint)option.Value;

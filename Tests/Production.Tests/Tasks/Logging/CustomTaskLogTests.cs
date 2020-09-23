@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             Configuration config = Configuration.Create().WithVerbosityEnabled();
 
             ICoyoteRuntime runtime = RuntimeFactory.Create(config);
-            runtime.SetLogger(logger);
+            runtime.Logger = logger;
 
             Generator generator = Generator.Create();
 

@@ -169,6 +169,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/LivenessTemperatureThreshold
         - name: IsVerbose
           link: /learn/ref/Microsoft.Coyote/Configuration/IsVerbose
+        - name: LogLevel
+          link: /learn/ref/Microsoft.Coyote/Configuration/LogLevel
         - name: ReportActivityCoverage
           link: /learn/ref/Microsoft.Coyote/Configuration/ReportActivityCoverage
         - name: IsDgmlGraphEnabled
@@ -849,14 +851,23 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/Write
         - name: WriteLine
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteLine
-        - name: WriteErrorLine
-          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteErrorLine
-        - name: WriteWarningLine
-          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/WriteWarningLine
         - name: ConsoleLogger
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/ConsoleLogger
+        - name: TextWriter
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/TextWriter
         - name: Encoding
           link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/Encoding
+        - name: LogLevel
+          link: /learn/ref/Microsoft.Coyote.IO/ConsoleLogger/LogLevel
+      - name: ILogger
+        link: /learn/ref/Microsoft.Coyote.IO/ILoggerType
+        subfolderitems:
+        - name: Write
+          link: /learn/ref/Microsoft.Coyote.IO/ILogger/Write
+        - name: WriteLine
+          link: /learn/ref/Microsoft.Coyote.IO/ILogger/WriteLine
+        - name: TextWriter
+          link: /learn/ref/Microsoft.Coyote.IO/ILogger/TextWriter
       - name: InMemoryLogger
         link: /learn/ref/Microsoft.Coyote.IO/InMemoryLoggerType
         subfolderitems:
@@ -868,8 +879,12 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/ToString
         - name: InMemoryLogger
           link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/InMemoryLogger
+        - name: TextWriter
+          link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/TextWriter
         - name: Encoding
           link: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/Encoding
+      - name: LogSeverity
+        link: /learn/ref/Microsoft.Coyote.IO/LogSeverityType
     - name: Microsoft.Coyote.Random
       link: /learn/ref/MicrosoftCoyoteRandomNamespace
       subfolderitems:
@@ -898,8 +913,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/RandomInteger
         - name: Assert
           link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Assert
-        - name: SetLogger
-          link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/SetLogger
         - name: Stop
           link: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Stop
         - name: Logger
@@ -1178,6 +1191,8 @@ learn-toc:
         subfolderitems:
         - name: ParseFromJSON
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/ParseFromJSON
+        - name: RewritingOptions
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/RewritingOptions
         - name: AssembliesDirectory
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssembliesDirectory
         - name: OutputDirectory
@@ -1190,6 +1205,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
         - name: IsRewritingDependencies
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
+        - name: Log
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Log
+        - name: LogLevel
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel
         - name: IsRewritingUnitTests
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingUnitTests
         - name: IsRewritingThreads
@@ -1236,14 +1255,14 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RegisterPerIterationCallBack
         - name: IsTestRewritten
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten
-        - name: SetLogger
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/SetLogger
         - name: TestReport
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
         - name: ReadableTrace
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
         - name: ReproducableTrace
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducableTrace
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger
       - name: TestReport
         link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReportType
         subfolderitems:

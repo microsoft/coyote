@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
@@ -34,7 +35,11 @@ namespace Microsoft.Coyote.Actors
         /// Used to log text messages. Use <see cref="ICoyoteRuntime.SetLogger"/>
         /// to replace the logger with a custom one.
         /// </summary>
-        public override TextWriter Logger => this.LogWriter.Logger;
+        public override ILogger Logger
+        {
+            get { return this.LogWriter.Logger; }
+            set { using var v = this.LogWriter.SetLogger(value); }
+        }
 
         /// <summary>
         /// Callback that is fired when a Coyote event is dropped. This happens when
@@ -651,7 +656,17 @@ namespace Microsoft.Coyote.Actors
         internal void TryHandleDroppedEvent(Event e, ActorId id) => this.OnEventDropped?.Invoke(e, id);
 
         /// <inheritdoc/>
-        public override TextWriter SetLogger(TextWriter logger) => this.LogWriter.SetLogger(logger);
+        [Obsolete("Please set the Logger property directory instead of calling this method.")]
+        public override TextWriter SetLogger(TextWriter logger)
+        {
+            var result = this.LogWriter.SetLogger(new TextWriterLogger(logger));
+            if (result != null)
+            {
+                return result.TextWriter;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Use this method to register an <see cref="IActorRuntimeLog"/>.

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote
 {
@@ -198,6 +199,12 @@ namespace Microsoft.Coyote
         public bool IsVerbose { get; internal set; }
 
         /// <summary>
+        /// The level of detail to provide in verbose logging.
+        /// </summary>
+        [DataMember]
+        public LogSeverity LogLevel { get; internal set; }
+
+        /// <summary>
         /// Enables code coverage reporting of a Coyote program.
         /// </summary>
         [DataMember]
@@ -371,6 +378,7 @@ namespace Microsoft.Coyote
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
+            this.LogLevel = LogSeverity.Informational;
             this.EnableDebugging = false;
 
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
@@ -536,9 +544,11 @@ namespace Microsoft.Coyote
         /// Updates the configuration with verbose output enabled or disabled.
         /// </summary>
         /// <param name="isVerbose">If true, then messages are logged.</param>
-        public Configuration WithVerbosityEnabled(bool isVerbose = true)
+        /// <param name="logLevel">The level of detail to provide in verbose logging.</param>
+        public Configuration WithVerbosityEnabled(bool isVerbose = true, LogSeverity logLevel = LogSeverity.Informational)
         {
             this.IsVerbose = isVerbose;
+            this.LogLevel = logLevel;
             return this;
         }
 

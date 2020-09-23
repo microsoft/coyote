@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyF
 Path of strong name key to use for signing rewritten assemblies.
 
 ```csharp
-public string StrongNameKeyFile { get; }
+public string StrongNameKeyFile { get; set; }
 ```
 
 ## See Also

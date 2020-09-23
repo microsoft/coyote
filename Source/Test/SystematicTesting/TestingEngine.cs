@@ -65,22 +65,17 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
-        /// The error reporter.
-        /// </summary>
-        private readonly ErrorReporter ErrorReporter;
-
-        /// <summary>
         /// The installed logger.
         /// </summary>
         /// <remarks>
         /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
-        private TextWriter Logger;
+        private ILogger Log;
 
         /// <summary>
         /// The default logger that is used during testing.
         /// </summary>
-        private readonly TextWriter DefaultLogger;
+        private readonly ILogger DefaultLogger;
 
         /// <summary>
         /// The profiler.
@@ -230,9 +225,8 @@ namespace Microsoft.Coyote.SystematicTesting
             this.Configuration = configuration;
             this.TestMethodInfo = testMethodInfo;
 
-            this.DefaultLogger = new ConsoleLogger();
+            this.DefaultLogger = new ConsoleLogger() { LogLevel = configuration.LogLevel };
             this.Logger = this.DefaultLogger;
-            this.ErrorReporter = new ErrorReporter(configuration, this.Logger);
             this.Profiler = new Profiler();
 
             this.PerIterationCallbacks = new HashSet<Action<uint>>();
@@ -354,7 +348,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 if (this.CancellationTokenSource.IsCancellationRequested)
                 {
-                    this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} timed out.");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"... Task {this.Configuration.TestingProcessId} timed out.");
                 }
             }
             catch (AggregateException aex)
@@ -390,7 +384,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             catch (Exception ex)
             {
-                this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} failed due to an internal error: {ex}");
+                this.Logger.WriteLine(LogSeverity.Error, $"... Task {this.Configuration.TestingProcessId} failed due to an internal error: {ex}");
                 this.TestReport.InternalErrors.Add(ex.ToString());
             }
             finally
@@ -423,12 +417,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 options = $" (seed:{this.RandomValueGenerator.Seed})";
             }
 
-            this.Logger.WriteLine($"... Task {this.Configuration.TestingProcessId} is " +
+            this.Logger.WriteLine(LogSeverity.Important, $"... Task {this.Configuration.TestingProcessId} is " +
                 $"using '{this.Configuration.SchedulingStrategy}' strategy{options}.");
 
             if (this.Configuration.EnableTelemetry)
             {
-                this.Logger.WriteLine($"... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
+                this.Logger.WriteLine(LogSeverity.Important, $"... Telemetry is enabled, see {LearnAboutTelemetryUrl}.");
             }
 
             return new Task(() =>
@@ -512,7 +506,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             if (!this.IsReplayModeEnabled && this.ShouldPrintIteration(iteration + 1))
             {
-                this.Logger.WriteLine($"..... Iteration #{iteration + 1}");
+                this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1}");
 
                 // Flush when logging to console.
                 if (this.Logger is ConsoleLogger)
@@ -547,7 +541,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         runtimeLogger.UserLogger = this.Logger;
                     }
 
-                    runtime.SetLogger(runtimeLogger);
+                    runtime.Logger = runtimeLogger;
 
                     var writer = TextWriter.Null;
                     Console.SetOut(writer);
@@ -555,7 +549,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
                 else if (this.Logger != this.DefaultLogger)
                 {
-                    runtime.SetLogger(this.Logger);
+                    runtime.Logger = this.Logger;
                 }
 
                 this.InitializeCustomLogging(runtime);
@@ -582,7 +576,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (runtime.Scheduler.BugFound)
                 {
-                    this.ErrorReporter.WriteErrorLine(runtime.Scheduler.BugReport);
+                    this.Logger.WriteLine(LogSeverity.Error, runtime.Scheduler.BugReport);
                 }
 
                 runtime.LogWriter.LogCompletion();
@@ -617,7 +611,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (!this.IsReplayModeEnabled && this.Configuration.PerformFullExploration && runtime.Scheduler.BugFound)
                 {
-                    this.Logger.WriteLine($"..... Iteration #{iteration + 1} " +
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Iteration #{iteration + 1} " +
                         $"triggered bug #{this.TestReport.NumOfFoundBugs} " +
                         $"[task-{this.Configuration.TestingProcessId}]");
                 }
@@ -699,7 +693,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (!string.IsNullOrEmpty(this.ReadableTrace))
                 {
                     string readableTracePath = Path.Combine(directory, file + "_" + index + ".txt");
-                    this.Logger.WriteLine($"..... Writing {readableTracePath}");
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {readableTracePath}");
                     File.WriteAllText(readableTracePath, this.ReadableTrace);
                     yield return readableTracePath;
                 }
@@ -708,7 +702,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (this.Configuration.IsXmlLogEnabled)
             {
                 string xmlPath = Path.Combine(directory, file + "_" + index + ".trace.xml");
-                this.Logger.WriteLine($"..... Writing {xmlPath}");
+                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {xmlPath}");
                 File.WriteAllText(xmlPath, this.XmlLog.ToString());
                 yield return xmlPath;
             }
@@ -717,7 +711,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 string graphPath = Path.Combine(directory, file + "_" + index + ".dgml");
                 this.Graph.SaveDgml(graphPath, true);
-                this.Logger.WriteLine($"..... Writing {graphPath}");
+                this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {graphPath}");
                 yield return graphPath;
             }
 
@@ -727,13 +721,13 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (!string.IsNullOrEmpty(this.ReproducableTrace))
                 {
                     string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");
-                    this.Logger.WriteLine($"..... Writing {reproTracePath}");
+                    this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reproTracePath}");
                     File.WriteAllText(reproTracePath, this.ReproducableTrace);
                     yield return reproTracePath;
                 }
             }
 
-            this.Logger.WriteLine($"... Elapsed {this.Profiler.Results()} sec.");
+            this.Logger.WriteLine(LogSeverity.Important, $"... Elapsed {this.Profiler.Results()} sec.");
         }
 
         /// <summary>
@@ -815,7 +809,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             catch (Exception ex)
             {
-                this.Logger.WriteLine(ex.Message);
+                this.Logger.WriteLine(LogSeverity.Error, ex.Message);
             }
 
             return null;
@@ -1011,29 +1005,60 @@ namespace Microsoft.Coyote.SystematicTesting
         public bool IsTestRewritten() => AssemblyRewriter.IsAssemblyRewritten(this.TestMethodInfo.Assembly);
 
         /// <summary>
-        /// Installs the specified <see cref="TextWriter"/>.
+        /// Get or set the <see cref="ILogger"/> used to log messages during testing.
         /// </summary>
-        /// <param name="logger">The logger to install.</param>
-        /// <returns>The previously installed logger.</returns>
-        public TextWriter SetLogger(TextWriter logger)
+        /// <remarks>
+        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
+        /// </remarks>
+        public ILogger Logger
         {
-            TextWriter oldLoger = null;
-            if (this.Logger != this.DefaultLogger)
+            get
             {
-                oldLoger = this.Logger;
+                return this.Log;
             }
 
-            if (logger is null)
+            set
             {
-                this.Logger = TextWriter.Null;
+                var old = this.Log;
+                if (value is null)
+                {
+                    this.Log = new NullLogger();
+                }
+                else
+                {
+                    this.Log = value;
+                }
+
+                using var v = old;
             }
-            else
+        }
+
+        /// <summary>
+        /// Teh old way of installing a TextWriter for logging.
+        /// </summary>
+        /// <remarks>
+        /// This writer will be wrapped in an object that implements the <see cref="ILogger"/> interface which
+        /// will have a minor performance overhead, so it is better to set the <see cref="Logger"/> property instead.
+        /// </remarks>
+        /// <param name="writer">The writer to use for logging.</param>
+        /// <returns>The previously installed logger.</returns>
+        [Obsolete("Use the new ILogger version of SetLogger")]
+        public TextWriter SetLogger(TextWriter writer)
+        {
+            ILogger oldLogger = this.Logger;
+            if (oldLogger == this.DefaultLogger)
             {
-                this.Logger = logger;
+                oldLogger = null;
             }
 
-            this.ErrorReporter.Logger = logger;
-            return oldLoger;
+            this.Logger = new TextWriterLogger(writer);
+
+            if (oldLogger != null)
+            {
+                return oldLogger.TextWriter;
+            }
+
+            return null;
         }
     }
 }

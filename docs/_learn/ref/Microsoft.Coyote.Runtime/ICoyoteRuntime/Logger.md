@@ -6,10 +6,10 @@ permalink: /learn/ref/Microsoft.Coyote.Runtime/ICoyoteRuntime/Logger
 ---
 # ICoyoteRuntime.Logger property
 
-Used to log messages. Use [`SetLogger`](SetLogger) to replace the logger with a custom one.
+Get or set the [`ILogger`](../../Microsoft.Coyote.IO/ILoggerType) used to log messages.
 
 ```csharp
-public TextWriter Logger { get; }
+public ILogger Logger { get; set; }
 ```
 
 ## Remarks
@@ -18,6 +18,7 @@ See [Logging](/coyote/learn/core/logging) for more information.
 
 ## See Also
 
+* interface [ILogger](../../Microsoft.Coyote.IO/ILoggerType)
 * interface [ICoyoteRuntime](../ICoyoteRuntimeType)
 * namespace [Microsoft.Coyote.Runtime](../ICoyoteRuntimeType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -21,7 +22,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             DropEvent
         }
 
-        private readonly TextWriter Logger;
+        private readonly ILogger Logger;
         private readonly Action<Notification, Event, EventInfo> Notify;
         private readonly Type[] IgnoredEvents;
         private readonly Type[] DeferredEvents;
@@ -31,7 +32,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
         public EventGroup CurrentEventGroup { get; set; }
 
-        internal MockActorManager(TextWriter logger, Action<Notification, Event, EventInfo> notify,
+        internal MockActorManager(ILogger logger, Action<Notification, Event, EventInfo> notify,
             Type[] ignoredEvents = null, Type[] deferredEvents = null, bool isDefaultHandlerInstalled = false)
         {
             this.Logger = logger;

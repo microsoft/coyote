@@ -13,7 +13,7 @@ Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
 $dotnet = "dotnet"
 $dotnet_path = FindDotNet($dotnet)
 $version31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -major "3.1" -minor 0
-$sdk_version = FindDotNetSdk($dotnet_path);
+$sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
 
 if ($null -eq $sdk_version) {
     Write-Error "The global.json file is pointing to version '$sdk_version' but no matching version was found."

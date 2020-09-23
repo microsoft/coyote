@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -97,7 +96,7 @@ namespace Microsoft.Coyote.Actors
         internal bool IsDefaultHandlerAvailable { get; private set; }
 
         /// <summary>
-        /// An optional `EventGroup` associated with the current event being handled.
+        /// An optional <see cref="EventGroup"/> associated with the current event being handled.
         /// This is an optional argument provided to CreateActor or SendEvent.
         /// </summary>
         public EventGroup CurrentEventGroup
@@ -118,12 +117,13 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// The installed runtime logger.
+        /// The installed runtime logger as an <see cref="ILogger"/>.  If you need a TextWriter
+        /// then use Logger.TextWriter.
         /// </summary>
         /// <remarks>
         /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
-        protected TextWriter Logger => this.Runtime.Logger;
+        protected ILogger Logger => this.Runtime.Logger;
 
         /// <summary>
         /// User-defined hashed state of the actor. Override to improve the

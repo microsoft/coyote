@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -227,7 +228,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
                 catch (AssertionFailureException ex)
                 {
-                    this.Logger.WriteLine(ex.Message);
+                    this.Logger.WriteLine(LogSeverity.Error, ex.Message);
                     tcs.SetResult(true);
                     this.RaiseHaltEvent();
                     return;
@@ -268,7 +269,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
                 catch (AssertionFailureException ex)
                 {
-                    this.Logger.WriteLine(ex.Message);
+                    this.Logger.WriteLine(LogSeverity.Error, ex.Message);
                     tcs.SetResult(true);
                     this.RaiseHaltEvent();
                     return;
@@ -341,7 +342,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
                 catch (AssertionFailureException ex)
                 {
-                    this.Logger.WriteLine(ex.Message);
+                    this.Logger.WriteLine(LogSeverity.Error, ex.Message);
                     ce.Tcs.SetResult(expectError == true);
                     this.RaiseHaltEvent();
                 }
@@ -355,7 +356,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 }
                 else
                 {
-                    this.Logger.WriteLine("Unexpected event type {0}", e.GetType().FullName);
+                    this.Logger.WriteLine(LogSeverity.Error, "Unexpected event type {0}", e.GetType().FullName);
                     this.Config.Tcs.SetResult(false);
                 }
 

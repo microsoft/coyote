@@ -17,7 +17,7 @@ public class ActorRuntimeLogTextFormatter : IActorRuntimeLog
 | name | description |
 | --- | --- |
 | [ActorRuntimeLogTextFormatter](ActorRuntimeLogTextFormatter/ActorRuntimeLogTextFormatter)() | Initializes a new instance of the [`ActorRuntimeLogTextFormatter`](ActorRuntimeLogTextFormatterType) class. |
-| [Logger](ActorRuntimeLogTextFormatter/Logger) { get; set; } | Get or set the TextWriter to write to. |
+| [Logger](ActorRuntimeLogTextFormatter/Logger) { get; set; } | Get or set the [`ILogger`](../Microsoft.Coyote.IO/ILoggerType) interface to the logger. |
 | virtual [OnAssertionFailure](ActorRuntimeLogTextFormatter/OnAssertionFailure)(…) | Invoked when the specified assertion failure has occurred. |
 | virtual [OnCompleted](ActorRuntimeLogTextFormatter/OnCompleted)() | Invoked when a log is complete (and is about to be closed). |
 | virtual [OnCreateActor](ActorRuntimeLogTextFormatter/OnCreateActor)(…) | Invoked when the specified actor has been created. |

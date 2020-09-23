@@ -3,10 +3,11 @@
 
 using System.IO;
 using System.Text;
+using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Tests.Common
 {
-    public class CustomLogger : TextWriter
+    public class CustomLogger : TextWriter, ILogger
     {
         private StringBuilder StringBuilder;
 
@@ -15,28 +16,13 @@ namespace Microsoft.Coyote.Tests.Common
             this.StringBuilder = new StringBuilder();
         }
 
-        /// <summary>
-        /// When overridden in a derived class, returns the character encoding in which the
-        /// output is written.
-        /// </summary>
+        /// <inheritdoc/>
+        public TextWriter TextWriter => this;
+
+        /// <inheritdoc/>
         public override Encoding Encoding => Encoding.Unicode;
 
-        public override void Write(string value)
-        {
-            if (this.StringBuilder != null)
-            {
-                this.StringBuilder.Append(value);
-            }
-        }
-
-        public override void WriteLine(string value)
-        {
-            if (this.StringBuilder != null)
-            {
-                this.StringBuilder.AppendLine(value);
-            }
-        }
-
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (this.StringBuilder != null)
@@ -47,6 +33,67 @@ namespace Microsoft.Coyote.Tests.Common
             return string.Empty;
         }
 
+        /// <inheritdoc/>
+        public override void Write(string value)
+        {
+            this.Write(LogSeverity.Informational, value);
+        }
+
+        /// <inheritdoc/>
+        public override void Write(string format, params object[] args)
+        {
+            this.Write(LogSeverity.Informational, string.Format(format, args));
+        }
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string value)
+        {
+            if (this.StringBuilder != null)
+            {
+                this.StringBuilder.Append(value);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Write(LogSeverity severity, string format, params object[] args)
+        {
+            if (this.StringBuilder != null)
+            {
+                this.StringBuilder.Append(string.Format(format, args));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void WriteLine(string value)
+        {
+            this.WriteLine(LogSeverity.Informational, value);
+        }
+
+        /// <inheritdoc/>
+        public override void WriteLine(string format, params object[] args)
+        {
+            this.WriteLine(LogSeverity.Informational, string.Format(format, args));
+        }
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string value)
+        {
+            if (this.StringBuilder != null)
+            {
+                this.StringBuilder.AppendLine(value);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteLine(LogSeverity severity, string format, params object[] args)
+        {
+            if (this.StringBuilder != null)
+            {
+                this.StringBuilder.AppendLine(string.Format(format, args));
+            }
+        }
+
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -54,8 +101,6 @@ namespace Microsoft.Coyote.Tests.Common
                 this.StringBuilder.Clear();
                 this.StringBuilder = null;
             }
-
-            base.Dispose(disposing);
         }
     }
 }

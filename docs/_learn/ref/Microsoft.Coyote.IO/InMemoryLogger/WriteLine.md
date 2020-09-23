@@ -4,9 +4,9 @@ section: learn
 title: WriteLine
 permalink: /learn/ref/Microsoft.Coyote.IO/InMemoryLogger/WriteLine
 ---
-# InMemoryLogger.WriteLine method
+# InMemoryLogger.WriteLine method (1 of 3)
 
-Writes a string followed by a line terminator to the text string or stream.
+Writes an informational string to the log.
 
 ```csharp
 public override void WriteLine(string value)
@@ -18,6 +18,51 @@ public override void WriteLine(string value)
 
 ## See Also
 
+* class [InMemoryLogger](../InMemoryLoggerType)
+* namespace [Microsoft.Coyote.IO](../InMemoryLoggerType)
+* assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
+
+---
+
+# InMemoryLogger.WriteLine method (2 of 3)
+
+Writes a string followed by a line terminator to the text string or stream.
+
+```csharp
+public void WriteLine(LogSeverity severity, string value)
+```
+
+| parameter | description |
+| --- | --- |
+| severity | The severity of the issue being logged. |
+| value | The string to write. |
+
+## See Also
+
+* enum [LogSeverity](../LogSeverityType)
+* class [InMemoryLogger](../InMemoryLoggerType)
+* namespace [Microsoft.Coyote.IO](../InMemoryLoggerType)
+* assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
+
+---
+
+# InMemoryLogger.WriteLine method (3 of 3)
+
+Writes a string followed by a line terminator to the text string or stream.
+
+```csharp
+public void WriteLine(LogSeverity severity, string format, params object[] args)
+```
+
+| parameter | description |
+| --- | --- |
+| severity | The severity of the issue being logged. |
+| format | The string format to write. |
+| args | The arguments needed to format the string. |
+
+## See Also
+
+* enum [LogSeverity](../LogSeverityType)
 * class [InMemoryLogger](../InMemoryLoggerType)
 * namespace [Microsoft.Coyote.IO](../InMemoryLoggerType)
 * assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)

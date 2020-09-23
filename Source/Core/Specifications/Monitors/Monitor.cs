@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Specifications
         /// <remarks>
         /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
-        protected TextWriter Logger => this.Runtime.Logger;
+        protected ILogger Logger => this.Runtime.Logger;
 
         /// <summary>
         /// Gets the current state.

@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.IO/ConsoleLoggerType
 Logger that writes text to the console.
 
 ```csharp
-public sealed class ConsoleLogger : TextWriter
+public sealed class ConsoleLogger : TextWriter, ILogger
 ```
 
 ## Public Members
@@ -18,10 +18,12 @@ public sealed class ConsoleLogger : TextWriter
 | --- | --- |
 | [ConsoleLogger](ConsoleLogger/ConsoleLogger)() | Initializes a new instance of the [`ConsoleLogger`](ConsoleLoggerType) class. |
 | override [Encoding](ConsoleLogger/Encoding) { get; } | When overridden in a derived class, returns the character encoding in which the output is written. |
-| override [Write](ConsoleLogger/Write)(…) | Writes the specified Unicode character value to the standard output stream. (2 methods) |
-| [WriteErrorLine](ConsoleLogger/WriteErrorLine)(…) | Reports an error, followed by the current line terminator. |
-| override [WriteLine](ConsoleLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. |
-| [WriteWarningLine](ConsoleLogger/WriteWarningLine)(…) | Reports an warning, followed by the current line terminator. |
+| [LogLevel](ConsoleLogger/LogLevel) { get; set; } | The level of detail to report. |
+| [TextWriter](ConsoleLogger/TextWriter) { get; } | This property provides a TextWriter that implements ILogger which is handy if you have existing code that requires a TextWriter. |
+| override [Write](ConsoleLogger/Write)(…) | Writes an informational string to the log. |
+| [Write](ConsoleLogger/Write)(…) | Writes a string to the log. (2 methods) |
+| override [WriteLine](ConsoleLogger/WriteLine)(…) | Writes an informational string to the log. (2 methods) |
+| [WriteLine](ConsoleLogger/WriteLine)(…) | Writes a string followed by a line terminator to the text string or stream. (2 methods) |
 
 ## Remarks
 
@@ -29,6 +31,7 @@ See [Logging](/coyote/learn/core/logging) for more information.
 
 ## See Also
 
+* interface [ILogger](ILoggerType)
 * namespace [Microsoft.Coyote.IO](../MicrosoftCoyoteIONamespace)
 * assembly [Microsoft.Coyote](../MicrosoftCoyoteAssembly)
 

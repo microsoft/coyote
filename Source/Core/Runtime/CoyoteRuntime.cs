@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.IO;
 using Monitor = Microsoft.Coyote.Specifications.Monitor;
 
 namespace Microsoft.Coyote.Runtime
@@ -80,11 +81,8 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         protected internal volatile bool IsRunning;
 
-        /// <summary>
-        /// Used to log text messages. Use <see cref="SetLogger"/>
-        /// to replace the logger with a custom one.
-        /// </summary>
-        public abstract TextWriter Logger { get; }
+        /// <inheritdoc/>
+        public abstract ILogger Logger { get; set; }
 
         /// <summary>
         /// Callback that is fired when the Coyote program throws an exception which includes failed assertions.
@@ -258,10 +256,9 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
 
-        /// <summary>
-        /// Use this method to override the default <see cref="TextWriter"/> for logging messages.
-        /// </summary>
-        public abstract TextWriter SetLogger(TextWriter logger);
+        /// <inheritdoc/>
+        [Obsolete("Please set the Logger property directory instead of calling this method.")]
+        public abstract TextWriter SetLogger(TextWriter writer);
 
         /// <summary>
         /// Raises the <see cref="OnFailure"/> event with the specified <see cref="Exception"/>.

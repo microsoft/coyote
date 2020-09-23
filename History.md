@@ -1,3 +1,8 @@
+## v1.1.0
+- Added experimental support for testing unmodified task-based programs using binary rewriting.
+- Added support for log severity in the logger and converted to an `ILogger` interface.
+- Optimized various internals of the task testing runtime.
+
 ## v1.0.17
 - Fixed a bug in the `Actor` logic related to event handlers.
 - Fixed a bug in `Microsoft.Coyote.Task.WhenAny`.

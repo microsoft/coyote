@@ -72,7 +72,7 @@ To run the `CoffeeMachine` example, you will need to:
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
-## Build the sample
+## Build the samples
 
 Build the `coyote-samples` repo by running the following command:
 
@@ -389,8 +389,8 @@ of production code using Coyote.
 
 In this tutorial you learned:
 
-- How to do failover testing in the Coyote controlled `Task` programming model.
-- How to use Coyote in a firmware/sensor scenario.
-- How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
-- How `Assert` helps find violations of safety properties during testing.
-- How to write a `LivenessMonitor`.
+1. How to do failover testing in the Coyote controlled `Task` programming model.
+2. How to use Coyote in a firmware/sensor scenario.
+3. How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
+4. How `Assert` helps find violations of safety properties during testing.
+5. How to write a `LivenessMonitor`.

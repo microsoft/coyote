@@ -123,7 +123,7 @@ To run the `DrinksServingRobotActors` example, you will need to:
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
-## Build the sample
+## Build the samples
 
 Build the `coyote-samples` repo by running the following command:
 
@@ -685,14 +685,14 @@ someone needs to test failover logic of production actors using Coyote.
 
 In this tutorial you learned:
 
-- How to do failover testing using a Coyote `FailoverDriver` state machine.
-- How to use Coyote to test failover in a service.
-- How to use `--sch-pct` testing on multiple processes to find tricky bugs more quickly.
-- How to specify the `--graph-bug` argument so that the coyote test tool would produce a
+1. How to do failover testing using a Coyote `FailoverDriver` state machine.
+2. How to use Coyote to test failover in a service.
+3. How to use `--sch-pct` testing on multiple processes to find tricky bugs more quickly.
+4. How to specify the `--graph-bug` argument so that the coyote test tool would produce a
   snapshot-DGML diagram of the final state of the system when the bug was found.
-- How to use `RaisePushStateEvent()` and `RaisePopStateEvent()` to achieve additional simplicity in
+5. How to use `RaisePushStateEvent()` and `RaisePopStateEvent()` to achieve additional simplicity in
   handling common events in one place.
-- How `Assert` helps find violations of safety properties during testing.
-- How to ensure graceful termination of one state machine (before creating a new one) via the
+6. How `Assert` helps find violations of safety properties during testing.
+7. How to ensure graceful termination of one state machine (before creating a new one) via the
   TerminateEvent and HaltedEvent handshake between the FailoverDriver and the Navigator.
-- How to write and use a `LivenessMonitor` in order to discover tricky liveness bugs.
+8. How to write and use a `LivenessMonitor` in order to discover tricky liveness bugs.

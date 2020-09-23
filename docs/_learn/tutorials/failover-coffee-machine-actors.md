@@ -76,7 +76,7 @@ To run the `CoffeeMachine` example, you will need to:
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
-## Build the sample
+## Build the samples
 
 Build the `coyote-samples` repo by running the following command:
 
@@ -423,11 +423,11 @@ to test failover logic of production actors using Coyote.
 
 In this tutorial you learned:
 
-- How to do failover testing using Coyote `FailoverDriver` state machines.
-- How to use Coyote in a firmware/sensor scenario.
-- How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
-- How `Assert` helps find violations of safety properties during testing.
-- How to ensure full termination of one state machine before creating a new one.
-- How to use class level event handlers in a `StateMachine` to define an event handler
+1. How to do failover testing using Coyote `FailoverDriver` state machines.
+2. How to use Coyote in a firmware/sensor scenario.
+3. How to use `--sch-portfolio` testing on multiple processes to find tricky bugs more quickly.
+4. How `Assert` helps find violations of safety properties during testing.
+5. How to ensure full termination of one state machine before creating a new one.
+6. How to use class level event handlers in a `StateMachine` to define an event handler
 in one place that is invoked no matter what state the machine is in.
-- How to write a `LivenessMonitor`.
+7. How to write a `LivenessMonitor`.

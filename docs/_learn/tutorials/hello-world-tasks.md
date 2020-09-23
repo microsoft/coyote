@@ -20,7 +20,7 @@ To run the Hello World Tasks  example, you will need to:
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 
-## Build the sample
+## Build the samples
 
 Build the `coyote-samples` repo by running the following command:
 

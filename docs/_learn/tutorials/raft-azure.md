@@ -58,7 +58,7 @@ Portal](http://portal.azure.com), find the message bus resource you created abov
 access policies` and select the `RootManageSharedAccessKey` and wait for the keys to load, then copy
 the contents of the field named `Primary Connection String`.
 
-## Build the sample
+## Build the samples
 
 Build the `coyote-samples` repo by running the following command:
 

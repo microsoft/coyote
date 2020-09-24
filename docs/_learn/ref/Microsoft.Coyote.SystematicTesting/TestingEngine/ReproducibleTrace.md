@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: ReproducableTrace
-permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducableTrace
+title: ReproducibleTrace
+permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace
 ---
-# TestingEngine.ReproducableTrace property
+# TestingEngine.ReproducibleTrace property
 
 The reproducable trace, if any.
 
 ```csharp
-public string ReproducableTrace { get; }
+public string ReproducibleTrace { get; }
 ```
 
 ## See Also

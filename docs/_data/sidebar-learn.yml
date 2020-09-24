@@ -1259,8 +1259,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
         - name: ReadableTrace
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
-        - name: ReproducableTrace
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducableTrace
+        - name: ReproducibleTrace
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace
         - name: Logger
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger
       - name: TestReport

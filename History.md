@@ -70,7 +70,7 @@
 - Added a --version argument to the `coyote` command line tool.
 - Added a dotnet tool package called `Microsoft.Coyote.CLI` to install the `coyote` command line
   tool and running it without an explicit path.
-- Exposed the `ReadableTrace` and `ReproducableTrace` members of
+- Exposed the `ReadableTrace` and `ReproducibleTrace` members of
   `Microsoft.Coyote.SystematicTesting.TestingEngine` as public.
 - Fixed a bug in activity coverage reporting for `netcoreapp3.1`.
 - Fixed some bugs in parallel testing.

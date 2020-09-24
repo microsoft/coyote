@@ -19,7 +19,7 @@ public sealed class TestingEngine
 | static [Create](TestingEngine/Create)(…) | Creates a new systematic testing engine. (10 methods) |
 | [Logger](TestingEngine/Logger) { get; set; } | Get or set the ILogger used to log messages during testing. |
 | [ReadableTrace](TestingEngine/ReadableTrace) { get; } | The readable trace, if any. |
-| [ReproducableTrace](TestingEngine/ReproducableTrace) { get; } | The reproducable trace, if any. |
+| [ReproducibleTrace](TestingEngine/ReproducibleTrace) { get; } | The reproducable trace, if any. |
 | [TestReport](TestingEngine/TestReport) { get; set; } | Data structure containing information gathered during testing. |
 | [GetReport](TestingEngine/GetReport)() | Returns a report with the testing results. |
 | [IsTestRewritten](TestingEngine/IsTestRewritten)() | Checks if the test executed by the testing engine has been rewritten. |

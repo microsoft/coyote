@@ -162,7 +162,7 @@ var trace = ...
 var config = Configuration.Create().WithReplayStrategy(trace);
 ```
 The input to the `WithReplayStrategy` method should either be the contents of a `.schedule` file or
-the `string` value of `TestingEngine.ReproducableTrace` (from a previous run).
+the `string` value of `TestingEngine.ReproducibleTrace` (from a previous run).
 
 Then you add breakpoints to debug and replay as follows:
 

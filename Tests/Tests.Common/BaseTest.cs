@@ -288,7 +288,7 @@ namespace Microsoft.Coyote.Tests.Common
 
                 if (replay)
                 {
-                    configuration.WithReplayStrategy(engine.ReproducableTrace);
+                    configuration.WithReplayStrategy(engine.ReproducibleTrace);
 
                     engine = RunTest(test, configuration, logger);
 
@@ -381,7 +381,7 @@ namespace Microsoft.Coyote.Tests.Common
                 if (replay)
                 {
                     configuration.SchedulingStrategy = "replay";
-                    configuration.ScheduleTrace = engine.ReproducableTrace;
+                    configuration.ScheduleTrace = engine.ReproducibleTrace;
 
                     engine = RunTest(test, configuration, logger);
 

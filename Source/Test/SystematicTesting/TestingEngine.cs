@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The reproducable trace, if any.
         /// </summary>
-        public string ReproducableTrace { get; private set; }
+        public string ReproducibleTrace { get; private set; }
 
         /// <summary>
         /// Checks if the systematic testing engine is running in replay mode.
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             this.TestReport = new TestReport(configuration);
             this.ReadableTrace = string.Empty;
-            this.ReproducableTrace = string.Empty;
+            this.ReproducibleTrace = string.Empty;
 
             this.CancellationTokenSource = new CancellationTokenSource();
             this.PrintGuard = 1;
@@ -597,7 +597,7 @@ namespace Microsoft.Coyote.SystematicTesting
                         this.ReadableTrace += this.TestReport.GetText(this.Configuration, "<StrategyLog>");
                     }
 
-                    this.ConstructReproducableTrace(runtime);
+                    this.ConstructReproducibleTrace(runtime);
                 }
             }
             finally
@@ -718,11 +718,11 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!this.Configuration.PerformFullExploration)
             {
                 // Emits the reproducable trace, if it exists.
-                if (!string.IsNullOrEmpty(this.ReproducableTrace))
+                if (!string.IsNullOrEmpty(this.ReproducibleTrace))
                 {
                     string reproTracePath = Path.Combine(directory, file + "_" + index + ".schedule");
                     this.Logger.WriteLine(LogSeverity.Important, $"..... Writing {reproTracePath}");
-                    File.WriteAllText(reproTracePath, this.ReproducableTrace);
+                    File.WriteAllText(reproTracePath, this.ReproducibleTrace);
                     yield return reproTracePath;
                 }
             }
@@ -893,7 +893,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Constructs a reproducable trace.
         /// </summary>
-        private void ConstructReproducableTrace(ControlledRuntime runtime)
+        private void ConstructReproducibleTrace(ControlledRuntime runtime)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -938,7 +938,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            this.ReproducableTrace = stringBuilder.ToString();
+            this.ReproducibleTrace = stringBuilder.ToString();
         }
 
         /// <summary>

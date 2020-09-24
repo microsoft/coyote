@@ -7,6 +7,8 @@ permalink: /learn/tutorials/image-gallery-aspnet
 
 ## Systematic testing of an unmodified ASP.NET service
 
+![Rewriting is experimental](https://img.shields.io/static/v1?style=flat&color=red&label=&message=experimental)
+
 This sample shows how to use Coyote to **systematically test** an ASP.NET service. The sample
 ASP.NET service included here implements a simple **image gallery**. Please note that this sample
 service is *not* fully-fledged and contains some interesting *bugs* on purpose. You can run the unit
@@ -20,7 +22,7 @@ You will also need to:
 - Install the [.NET Core 3.1 version of the `coyote` tool](/coyote/learn/get-started/install#installing-the-net-core-31-coyote-tool).
 - Clone the [Coyote Samples git repo](http://github.com/microsoft/coyote-samples).
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
-- Be familiar with the `coyote rewrite` tool. See [Testing](/coyote/learn/tools/rewriting).
+- Be familiar with the `coyote rewrite` tool. See [Rewriting](/coyote/learn/tools/rewriting).
 
 ## Sample structure
 
@@ -156,9 +158,9 @@ dotnet test ImageGalleryTests.Coyote.dll
 
 Note: this is `./ImageGalleryAspNet/bin/coyote` and not `./ImageGalleryAspNet/bin/netcoreapp3.1`.
 
-This will run the tests inside the Coyote testing engine, up to 1000 iterations each, and report any
-found bugs. The bug should be found most of the time after just a few iterations (as they are not
-too deep).
+This will [rewrite](/coyote/learn/tools/rewriting) the tests, and then run the tests inside the
+Coyote testing engine, up to 1000 iterations each, and report any found bugs. The bug should be
+found most of the time after just a few iterations (as they are not too deep).
 
 Besides the error output, you should see a bug error such as:
 ```

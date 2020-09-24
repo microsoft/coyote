@@ -7,8 +7,7 @@ permalink: /learn/programming-models/async/rewriting
 
 ## Rewriting binaries
 
-![Rewriting tasks is currently
-in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview)
+![Experimental](https://img.shields.io/static/v1?style=flat&color=red&label=&message=experimental)
 
 The [asynchronous tasks programming model](overview) shows how Coyote can control the concurrency
 of asynchronous operations using the special Coyote Task types. You can choose to use this

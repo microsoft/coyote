@@ -54,7 +54,7 @@ function handle_resize()
             var search_top = $(".search-wrapper").offset().top;
             var search_offset = search_top - window.scrollY;
             var top = wrapper.offset().top;
-            var search_height = search_offset + top - search_top;
+            var search_height = search_offset + top - search_top + 100;
             var scroller_height = height - search_height;
             wrapper.height(scroller_height);
         } else {

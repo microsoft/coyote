@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Rewriting
             //   Configuration configuration = Configuration.Create();
             //   TestingEngine engine = TestingEngine.Create(configuration, new Action(Test));
             //   engine.Run();
-            //   engine.RethrowUnhandledException();
+            //   engine.ThrowIfBugFound();
             //
             // With optional calls to setup some of the configuration options based on Coyote command line:
             // including:
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Rewriting
             processor.Emit(OpCodes.Call, createEngineMethod);
             processor.Emit(OpCodes.Dup);
             this.EmitMethodCall(processor, resolvedEngineType, "Run");
-            this.EmitMethodCall(processor, resolvedEngineType, "RethrowUnhandledException");
+            this.EmitMethodCall(processor, resolvedEngineType, "ThrowIfBugFound");
             processor.Emit(OpCodes.Ret);
 
             method.Body.OptimizeMacros();

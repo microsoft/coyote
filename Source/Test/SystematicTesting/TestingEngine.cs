@@ -652,10 +652,16 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// If an iteration catches an unhandled exception then this method will rethrow that exception.
+        /// Throws either an <see cref="AssertionFailureException"/>, if a bug was found,
+        /// or an unhandled <see cref="Exception"/>, if one was thrown.
         /// </summary>
-        public void RethrowUnhandledException()
+        public void ThrowIfBugFound()
         {
+            if (this.TestReport.NumOfFoundBugs > 0)
+            {
+                throw new AssertionFailureException(this.TestReport.BugReports.FirstOrDefault());
+            }
+
             if (this.TestReport.ThrownException != null)
             {
                 throw this.TestReport.ThrownException;

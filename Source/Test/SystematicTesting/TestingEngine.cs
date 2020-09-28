@@ -659,12 +659,12 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             if (this.TestReport.NumOfFoundBugs > 0)
             {
-                throw new AssertionFailureException(this.TestReport.BugReports.FirstOrDefault());
-            }
+                if (this.TestReport.ThrownException != null)
+                {
+                    ExceptionDispatchInfo.Capture(this.TestReport.ThrownException).Throw();
+                }
 
-            if (this.TestReport.ThrownException != null)
-            {
-                throw this.TestReport.ThrownException;
+                throw new AssertionFailureException(this.TestReport.BugReports.FirstOrDefault());
             }
         }
 
@@ -851,8 +851,8 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 if (scheduler.BugFound)
                 {
-                    report.ThrownException = scheduler.UnhandledException;
                     report.NumOfFoundBugs++;
+                    report.ThrownException = scheduler.UnhandledException;
                     report.BugReports.Add(scheduler.BugReport);
                 }
 

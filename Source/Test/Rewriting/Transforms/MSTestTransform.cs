@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if (this.Configuration.IsVerbose)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled", this.Configuration.IsVerbose);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithVerbosityEnabled", this.Configuration.IsVerbose, this.Configuration.LogLevel);
             }
 
             if (!this.Configuration.EnableTelemetry)
@@ -280,14 +280,14 @@ namespace Microsoft.Coyote.Rewriting
                     int i = ((bool)arg) ? 1 : 0;
                     processor.Emit(OpCodes.Ldc_I4, i);
                 }
-                else if (t == typeof(int))
+                else if (t == typeof(int) || t.IsEnum)
                 {
-                    var i = (int)arg;
+                    int i = (int)arg;
                     processor.Emit(OpCodes.Ldc_I4, i);
                 }
                 else if (t == typeof(uint))
                 {
-                    var i = (int)(uint)arg;
+                    int i = (int)(uint)arg;
                     processor.Emit(OpCodes.Ldc_I4, i);
                 }
                 else

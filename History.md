@@ -1,3 +1,7 @@
+## v1.1.1
+- Renamed `TestingEngine.ReproducibleTrace` to fix typo in the API name.
+- Fixed some bugs in `coyote rewrite`.
+
 ## v1.1.0
 - Added experimental support for testing unmodified task-based programs using binary rewriting.
 - Added support for log severity in the logger and converted to an `ILogger` interface.

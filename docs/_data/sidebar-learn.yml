@@ -88,7 +88,7 @@ learn-toc:
       link: /learn/tutorials/raft-azure
     - name: Raft actor service (mocked)
       link: /learn/tutorials/raft-mocking
-    - name: Image gallery ASP.NET service (mocked)
+    - name: Image gallery in ASP.NET (tasks)
       link: /learn/tutorials/image-gallery-aspnet
 - title: Tools
   subfolderitems:
@@ -1247,8 +1247,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Stop
         - name: GetReport
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/GetReport
-        - name: RethrowUnhandledException
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RethrowUnhandledException
+        - name: ThrowIfBugFound
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound
         - name: TryEmitTraces
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TryEmitTraces
         - name: RegisterPerIterationCallBack

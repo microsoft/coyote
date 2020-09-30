@@ -1,11 +1,11 @@
 ---
 layout: reference
 section: learn
-title: ASP.NET Image Gallery
+title: Image gallery in ASP.NET
 permalink: /learn/tutorials/image-gallery-aspnet
 ---
 
-## Systematic testing of an unmodified ASP.NET service
+## Image gallery in ASP.NET
 
 ![Rewriting is experimental](https://img.shields.io/static/v1?style=flat&color=red&label=&message=experimental)
 
@@ -14,6 +14,8 @@ ASP.NET service included here implements a simple **image gallery**. Please note
 service is *not* fully-fledged and contains some interesting *bugs* on purpose. You can run the unit
 tests with and without Coyote, but you cannot actually deploy the sample (as some production logic
 is missing).
+
+<img class="img-responsive" src="/coyote/assets/images/ImageGallery.png" alt="screenshot">
 
 ## What you will need
 
@@ -24,22 +26,62 @@ You will also need to:
 - Be familiar with the `coyote test` tool. See [Testing](/coyote/learn/tools/testing).
 - Be familiar with the `coyote rewrite` tool. See [Rewriting](/coyote/learn/tools/rewriting).
 
+If you want to actually run the sample (rather than just running the unit tests) then you will also
+need the following:
+
+- [Azure Storage
+Emulator](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) must be
+installed and running.
+- [Azure Cosmos
+Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator?tabs=cli%2Cssl-netstd21)
+must be installed and running.
+- Open Azure Cosmos Data Explorer from taskbar tray and copy the `Primary Connection String` from
+there into `~/ImageGalleryAspNet/ImageGalleryService/appsettings.json`.
+
+## Running the sample
+
+You do not need to do this unless you really want to, you can do all the unit testing using coyote
+without running the development version of the service. But some people like to see the code
+running before they think about how to test it.
+
+Once all the above prerequisites are complete (including the storage emulators) you can run this
+app using two separate console windows as follows:
+
+```shell
+cd  ..\ImageGalleryService
+dotnet run
+```
+
+And in the second window:
+
+```shell
+cd ..\ImageGallery
+dotnet run
+```
+
+Navigate your web browser to `http://localhost:5000/` and you will see the empty ImageGallery site.
+Upload some of your favorite photos (you can do more than one at a time) and you will see them
+appear. The "dotnet run" consoles will also show logging output that shows you what is happening
+behind the scenes.
+
 ## Sample structure
 
-The `ImageGallery.sln` solution consists of four projects (all will be discussed below):
-- `ImageGalleryService`, this is the ASP.NET service.
-- `Tests`, this contains two regular unit tests that use `MSTest`.
-- `Tests.Coyote`, this invokes the two tests in `Tests` wrapping them with the Coyote systematic
+The `ImageGallery.sln` solution consists of five projects (all will be discussed below):
+- `ImageGallery` - this is the web front end that uses the API service.
+- `ImageGalleryService` - this is the ASP.NET API service.
+- `ImageGalleryClient` - a helper API for talking to the service.
+- `Tests` - this contains two regular unit tests that use `MSTest`.
+- `Tests.Coyote` - this invokes the two tests in `Tests` wrapping them with the Coyote systematic
   testing engine.
-- `TraceReplayer`, makes it easy to reproduce the bugs found by `coyote test`.
+- `TraceReplayer` - makes it easy to reproduce the bugs found by `coyote test`.
 
 ## The Image Gallery sample service
 
-This service is based on a 3-tier architecture: (1) a client (implemented by the unit tests), (2)
-two ASP.NET controllers, one for managing accounts (`AccountController`) and one for managing image
-galleries (`GalleryController`) associated with these accounts, and (3) two backend storage systems
-used by the controllers (Cosmos DB, which stores accounts, and Azure Blob Storage, which stores
-images).
+This service is based on a 3-tier architecture: (1) a client (implemented by the unit tests and by
+the ImageGallery web front end), (2) two ASP.NET API services, one for managing accounts
+(`AccountController`) and one for managing image galleries (`GalleryController`) associated with
+these accounts, and (3) two backend storage systems used by these API services (Cosmos DB to
+stores accounts, and Azure Blob Storage to stores images).
 
 The `AccountController` has 4 APIs to `Create`, `Update`, `Get` and `Delete` an account. `Create`
 first checks if the account already exists, and if not it creates it in Cosmos DB. Similarly,
@@ -52,7 +94,8 @@ The `GalleryController` is similar. It has 3 APIs to `Store`, `Get` and `Delete`
 first checks if the account already exists in Cosmos DB and, if it does, it stores the image in
 Azure Blob Storage. `Get` is simple, it checks if the image blob exists, if it it does, it returns
 the image. Finally, `Delete` first checks if the account already exists in Cosmos DB and, if it
-does, it deletes the image blob from Azure Blob Storage.
+does, it deletes the image blob from Azure Blob Storage. There is also a `GetList` API to enumerate
+the images in an account.
 
 ## Bugs in the service
 
@@ -116,12 +159,21 @@ powershell -f build.ps1
 ## How to run the unit tests
 
 Just run them from inside Visual Studio, or run the following:
+
 ```
-cd ./ImageGalleryAspNet/bin/netcoreapp3.1
-dotnet test ImageGalleryTests.dll
+cd ImageGalleryAspNet
+dotnet test bin/netcoreapp3.1/ImageGalleryTests.dll
 ```
 
-The tests may or may not trigger the bug! Now if you try to debug them, the bugs may or may not
+The tests may or may not trigger the bug! Most likely you will see this output:
+
+```
+Test Run Successful.
+Total tests: 3
+Passed: 3
+```
+
+And even if you do get them to fail, if you try to debug them, the bugs may or may not
 manifest (as they are Heizenbugs). We surely want some better way of testing concurrent code, right?
 
 ## Coyote is here to help
@@ -150,13 +202,15 @@ our website), as it makes things so much easier to use Coyote.
 Please do not run the MSTest from inside Visual Studio, as it will currently run the un-rewritten
 binaries (requires a post build task to get around this). Instead, once you build the service and
 the tests, run the following from the root directory of the repo:
+
 ```
-coyote rewrite ./ImageGalleryAspNet/rewrite.coyote.json
-cd ./ImageGalleryAspNet/bin/coyote
+coyote rewrite rewrite.coyote.json
+cd "bin/coyote"
 dotnet test ImageGalleryTests.Coyote.dll
+cd "../.."
 ```
 
-Note: this is `./ImageGalleryAspNet/bin/coyote` and not `./ImageGalleryAspNet/bin/netcoreapp3.1`.
+**Note:** this is `./ImageGalleryAspNet/bin/coyote` and not `./ImageGalleryAspNet/bin/netcoreapp3.1`.
 
 This will [rewrite](/coyote/learn/tools/rewriting) the tests, and then run the tests inside the
 Coyote testing engine, up to 1000 iterations each, and report any found bugs. The bug should be
@@ -188,28 +242,44 @@ TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.sc
 
 You will also see that the trace output contains logs such as:
 ```
-[0cad9c28-519e-434f-9c86-9095eaea0dfe] Getting container 'Accounts' from database 'ImageGalleryDB'.
-[0cad9c28-519e-434f-9c86-9095eaea0dfe] Creating account with id '0' (name: 'alice', email: 'alice@coyote.com').
-[0cad9c28-519e-434f-9c86-9095eaea0dfe] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
-[0cad9c28-519e-434f-9c86-9095eaea0dfe] Creating new item with partition key '0' and id '0' in container 'Accounts' of database 'ImageGalleryDB'.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Getting container 'Accounts' from database 'ImageGalleryDB'.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Creating or updating image with name 'beach' and acccount id '0'.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Creating container 'Gallery_0' if it does not exist.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Creating blob 'beach' in container 'Gallery_0'.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Reading item with partition key '0' and id '0' in container 'Accounts' of database 'ImageGalleryDB'.
-[1ca3b47e-a33c-4908-b73f-6eb9ca74d4c7] Replacing item with partition key '0' and id '0' in container 'Accounts' of database 'ImageGalleryDB'.
-[e870b22a-5c31-4244-afc3-2dc25e342034] Getting container 'Accounts' from database 'ImageGalleryDB'.
-[e870b22a-5c31-4244-afc3-2dc25e342034] Deleting container with account id '0'.
-[09ee84d9-c44e-4e88-9e4f-14ae36bfff37] Getting container 'Accounts' from database 'ImageGalleryDB'.
-[09ee84d9-c44e-4e88-9e4f-14ae36bfff37] Deleting account with id '0'.
-[09ee84d9-c44e-4e88-9e4f-14ae36bfff37] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
-[09ee84d9-c44e-4e88-9e4f-14ae36bfff37] Deleting item with partition key '0' and id '0' in container 'Accounts' of database 'ImageGalleryDB'.
-[e870b22a-5c31-4244-afc3-2dc25e342034] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
+[0HM34OD7O65E5] Creating account with id '0' (name: 'alice', email: 'alice@coyote.com').
+[0HM34OD7O65E5] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
+[0HM34OD7O65E5] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
+[0HM34OD7O65E5] Creating new item with partition key '0' and id '0' in container 'Accounts' of database 'ImageGalleryDB'.
+[0HM34OD7O65E7] Storing image with name 'beach' and acccount id '0'.
+[0HM34OD7O65E6] Deleting account with id '0'.
+[0HM34OD7O65E6] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
+[0HM34OD7O65E7] Creating container 'Accounts' in database 'ImageGalleryDB' if it does not exist.
+[0HM34OD7O65E7] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
+[0HM34OD7O65E6] Checking if item with partition key '0' and id '0' exists in container 'Accounts' of database 'ImageGalleryDB'.
+[0HM34OD7O65E6] Deleting item with partition key '0' and id '0' in container 'Accounts' of database 'ImageGalleryDB'.
+[0HM34OD7O65E7] Creating container 'gallery-0' if it does not exist.
+[0HM34OD7O65E6] Deleting container 'gallery-0' if it exists.
+[0HM34OD7O65E7] Creating blob 'beach' in container 'gallery-0'.
 ```
 
-In the above logs, the `GUID` is unique per request to make it easier to see how Coyote explores
-various interleaving during testing, and while you are debugging it.
+In the above logs, the `[0HM34OD7O65E5]` prefix is the `HttpContext.TraceIdentifier` which is a
+unique id per HTTP request. This makes it easier to see how Coyote explores lots of async
+interleaving during testing and debugging. In this example we see it bouncing between 3 async tasks
+`[0HM34OD7O65E5]`, `[0HM34OD7O65E6]` and `[0HM34OD7O65E7]` and this controlled interleaving of
+tasks can help find lots of bugs.
+
+## Rewriting unit tests
+
+The `Test.Coyote` project is included to show you how to run a Coyote test, but `coyote rewrite`
+can also wrap your unit tests in a coyote `TestEngine` automatically. To demonstrate this, run the
+following:
+
+```
+coyote rewrite rewrite.coyote.json --rewrite-unit-tests --iterations 100
+cd "bin/coyote"
+dotnet test ImageGalleryTests.dll
+cd "../.."
+```
+
+This changes the non-Coyote unit tests so that they first create a Coyote `TestEngine` then run the
+original unit test.  
+
 
 ## Summary
 

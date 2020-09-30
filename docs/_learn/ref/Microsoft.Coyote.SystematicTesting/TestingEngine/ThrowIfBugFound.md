@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: RethrowUnhandledException
-permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/RethrowUnhandledException
+title: ThrowIfBugFound
+permalink: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ThrowIfBugFound
 ---
-# TestingEngine.RethrowUnhandledException method
+# TestingEngine.ThrowIfBugFound method
 
-If an iteration catches an unhandled exception then this method will rethrow that exception.
+Throws either an AssertionFailureException, if a bug was found, or an unhandled Exception, if one was thrown.
 
 ```csharp
-public void RethrowUnhandledException()
+public void ThrowIfBugFound()
 ```
 
 ## See Also

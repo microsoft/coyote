@@ -203,26 +203,28 @@ namespace Microsoft.Coyote.Rewriting
                 processor.Emit(OpCodes.Pop);
             }
 
+            var defaultConfig = Configuration.Create();
+
             processor.Emit(OpCodes.Call, createConfigurationMethod);
-            if (this.Configuration.TestingIterations != 1)
+            if (this.Configuration.TestingIterations != defaultConfig.TestingIterations)
             {
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithTestingIterations", this.Configuration.TestingIterations);
             }
 
-            if (this.Configuration.MaxUnfairSchedulingSteps != 10000 || this.Configuration.MaxFairSchedulingSteps != 100000)
+            if (this.Configuration.MaxUnfairSchedulingSteps != defaultConfig.MaxUnfairSchedulingSteps || this.Configuration.MaxFairSchedulingSteps != defaultConfig.MaxFairSchedulingSteps)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithMaxSchedulingSteps", this.Configuration.MaxUnfairSchedulingSteps, this.Configuration.MaxFairSchedulingSteps);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithMaxSchedulingSteps", (uint)this.Configuration.MaxUnfairSchedulingSteps, (uint)this.Configuration.MaxFairSchedulingSteps);
             }
 
-            if (this.Configuration.SchedulingStrategy != "random")
+            if (this.Configuration.SchedulingStrategy != defaultConfig.SchedulingStrategy)
             {
                 switch (this.Configuration.SchedulingStrategy)
                 {
                     case "fairpct":
-                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithProbabilisticStrategy", this.Configuration.StrategyBound);
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithProbabilisticStrategy", (uint)this.Configuration.StrategyBound);
                         break;
                     case "pct":
-                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPCTStrategy", false, this.Configuration.StrategyBound);
+                        this.EmitMethodCall(processor, resolvedConfigurationType, "WithPCTStrategy", false, (uint)this.Configuration.StrategyBound);
                         break;
                     case "dfs":
                         this.EmitMethodCall(processor, resolvedConfigurationType, "SchedulingStrategy", this.Configuration.ScheduleTrace);
@@ -234,10 +236,10 @@ namespace Microsoft.Coyote.Rewriting
 
             if (this.Configuration.UserExplicitlySetLivenessTemperatureThreshold)
             {
-                this.EmitMethodCall(processor, resolvedConfigurationType, "WithLivenessTemperatureThreshold", this.Configuration.LivenessTemperatureThreshold);
+                this.EmitMethodCall(processor, resolvedConfigurationType, "WithLivenessTemperatureThreshold", (uint)this.Configuration.LivenessTemperatureThreshold);
             }
 
-            if (this.Configuration.TimeoutDelay != 10)
+            if (this.Configuration.TimeoutDelay != defaultConfig.TimeoutDelay)
             {
                 this.EmitMethodCall(processor, resolvedConfigurationType, "WithTimeoutDelay", this.Configuration.TimeoutDelay);
             }

@@ -24,9 +24,9 @@ public sealed class TestingEngine
 | [GetReport](TestingEngine/GetReport)() | Returns a report with the testing results. |
 | [IsTestRewritten](TestingEngine/IsTestRewritten)() | Checks if the test executed by the testing engine has been rewritten. |
 | [RegisterPerIterationCallBack](TestingEngine/RegisterPerIterationCallBack)(…) | Registers a callback to invoke at the end of each iteration. The callback takes as a parameter an integer representing the current iteration. |
-| [RethrowUnhandledException](TestingEngine/RethrowUnhandledException)() | If an iteration catches an unhandled exception then this method will rethrow that exception. |
 | [Run](TestingEngine/Run)() | Runs the testing engine. |
 | [Stop](TestingEngine/Stop)() | Stops the testing engine. |
+| [ThrowIfBugFound](TestingEngine/ThrowIfBugFound)() | Throws either an AssertionFailureException, if a bug was found, or an unhandled Exception, if one was thrown. |
 | [TryEmitTraces](TestingEngine/TryEmitTraces)(…) | Tries to emit the testing traces, if any. |
 
 ## See Also

@@ -11,9 +11,8 @@ permalink: /learn/tutorials/image-gallery-aspnet
 
 This sample shows how to use Coyote to **systematically test** an ASP.NET service. The sample
 ASP.NET service included here implements a simple **image gallery**. Please note that this sample
-service is *not* fully-fledged and contains some interesting *bugs* on purpose. You can run the unit
-tests with and without Coyote, but you cannot actually deploy the sample (as some production logic
-is missing).
+service contains some interesting *bugs* on purpose. You can run the unit tests with and without
+Coyote and you can run the web front end using the Azure storage emulators.
 
 <img class="img-responsive" src="/coyote/assets/images/ImageGallery.png" alt="screenshot">
 
@@ -38,6 +37,16 @@ must be installed and running.
 - Open Azure Cosmos Data Explorer from taskbar tray and copy the `Primary Connection String` from
 there into `~/ImageGalleryAspNet/ImageGalleryService/appsettings.json`.
 
+## Build the sample
+
+After cloning the [Coyote Samples](http://github.com/microsoft/coyote-samples) git repo run the
+following command:
+
+```
+cd ImageGalleryAspNet
+dotnet build
+```
+
 ## Running the sample
 
 You do not need to do this unless you really want to, you can do all the unit testing using coyote
@@ -48,21 +57,21 @@ Once all the above prerequisites are complete (including the storage emulators) 
 app using two separate console windows as follows:
 
 ```shell
-cd  ..\ImageGalleryService
+cd ImageGalleryService
 dotnet run
 ```
 
 And in the second window:
 
 ```shell
-cd ..\ImageGallery
+cd ImageGallery
 dotnet run
 ```
 
 Navigate your web browser to `http://localhost:5000/` and you will see the empty ImageGallery site.
-Upload some of your favorite photos (you can do more than one at a time) and you will see them
-appear. The "dotnet run" consoles will also show logging output that shows you what is happening
-behind the scenes.
+Create a new test account and upload some of your favorite photos (you can do more than one at a
+time) and you will see them appear. The "dotnet run" consoles will also show logging output that
+shows you what is happening behind the scenes.
 
 ## Sample structure
 
@@ -81,7 +90,7 @@ This service is based on a 3-tier architecture: (1) a client (implemented by the
 the ImageGallery web front end), (2) two ASP.NET API services, one for managing accounts
 (`AccountController`) and one for managing image galleries (`GalleryController`) associated with
 these accounts, and (3) two backend storage systems used by these API services (Cosmos DB to
-stores accounts, and Azure Blob Storage to stores images).
+store accounts, and Azure Blob Storage to store images).
 
 The `AccountController` has 4 APIs to `Create`, `Update`, `Get` and `Delete` an account. `Create`
 first checks if the account already exists, and if not it creates it in Cosmos DB. Similarly,
@@ -90,21 +99,21 @@ accordingly. Finally, `Delete` first checks if the account exists, and if it doe
 Cosmos DB and then also deletes the associated image container for this account from Azure Blob
 Storage.
 
-The `GalleryController` is similar. It has 3 APIs to `Store`, `Get` and `Delete` an image. `Store`
+The `GalleryController` is similar. It has 4 APIs: `Store`, `Get`, `Delete` `GetList`. `Store`
 first checks if the account already exists in Cosmos DB and, if it does, it stores the image in
 Azure Blob Storage. `Get` is simple, it checks if the image blob exists, if it it does, it returns
 the image. Finally, `Delete` first checks if the account already exists in Cosmos DB and, if it
-does, it deletes the image blob from Azure Blob Storage. There is also a `GetList` API to enumerate
-the images in an account.
+does, it deletes the image blob from Azure Blob Storage. `GetList` can be used to enumerate
+the images in an account in pages.
 
 ## Bugs in the service
 
-As mentioned above, this service was designed in purpose to be contain some interesting bugs to
+As mentioned above, this service was designed in purpose to contain some interesting bugs to
 showcase systematic testing with Coyote. You can read the comments in the controllers for more
 details about the bugs, but briefly a lot of the above APIs have race conditions. For example, the
-controller checks that the account exists, and tries to update it, but another request deletes the
-account after the exists check but before the update, resulting in an unhandled exception, and thus
-a 500 internal server error, which is a bad bug. The service should never return a 500 to its users!
+controller checks that the account exists, and tries to update it, but another request could delete
+the account between those two operations, resulting in an unhandled exception, and thus a 500
+internal server error, which is a bad bug. The service should never return a 500 to its users!
 
 These kind of bugs involving race conditions between concurrent requests are hard to test. Unit
 tests are typically tailored to test sequential programs. Async race conditions can result in flaky
@@ -115,26 +124,27 @@ We wrote two unit tests (using `MSTest` and `Microsoft.AspNetCore.Mvc.Testing`) 
 service and uncover bugs: `TestConcurrentAccountRequests` and
 `TestConcurrentAccountAndImageRequests`. The former only tests the `AccountController`, while the
 later tests both controllers at the same time. You can read more details in the comments for these
-tests, but let us quickly summarize what these tests do and what the bugs are:
+tests, but let us quickly summarize what these tests do and what the bugs are.
 
 The `TestConcurrentAccountRequests` method initializes the mocks and injects them into the ASP.NET
 service, then creates a client, which does a `Create` account request to create a new account for
 Alice. It waits for this request to complete. It then *concurrently* invokes two requests: `Update`
 account and `Delete` account, and waits for both to complete. These requests are now racing, and
 because there is a race condition in the `AccountController` controller logic, the update request
-can nondeterministically (not every time you run the test!) fail due to an unhandled exception (500
-error code). The issue is that the controller first checks if the account exists and, if it does, it
-then updates it. But after the "does account exists check", the delete request could run, deleting
-the account! The update then tries to happen and BAM there is a bug! Interestingly the non-coyote
-test run rarely finds this bug.
+can fail due to an unhandled exception (500 error code) and this failure is nondeterministic. The
+issue is that the controller first checks if the account exists and, if it does, it then updates
+it. But after the "does account exists check", the delete request could run, deleting the account!
+The update then tries to run which triggers the bug! Interestingly the non-coyote test run rarely
+finds this bug although it is possible to see it with teh ImageGallery web front end if you use 
+multiple browser windows and do batch upload and delete operations in each.
 
 The `TestConcurrentAccountAndImageRequests` initializes the mocks and injects them into the ASP.NET
 service, then creates a client, which does a `Create` account request to create a new account for
 Alice. It waits for this request to complete. It then *concurrently* invokes two requests: `Store`
 image and `Delete` account, and waits for both to complete. Similar to the above test, these
 requests are now racing, and because there is a race condition in the controller logic, the store
-request can nondeterministically store the image in an "orphan" container in Azure Storage, even if
-the associated account was deleted. This is more subtle bug because the request itself is not
+request can nondeterministically store the image in an "orphan" container in Azure Storage, even
+if the associated account was deleted. This is more subtle bug because the request itself is not
 throwing an unhandled exception, it is just a sneaky race when trying to read/write from/to two
 backend systems at the same time. This issue is also a data race and you can see the detail in the
 controller logic.
@@ -148,14 +158,6 @@ the request failed.
 
 Before going further (and into Coyote), lets build and run the tests!
 
-## Build the samples
-
-Build the `coyote-samples` repo by running the following command:
-
-```
-powershell -f build.ps1
-```
-
 ## How to run the unit tests
 
 Just run them from inside Visual Studio, or run the following:
@@ -168,9 +170,9 @@ dotnet test bin/netcoreapp3.1/ImageGalleryTests.dll
 The tests may or may not trigger the bug! Most likely you will see this output:
 
 ```
-Test Run Successful.
-Total tests: 3
-Passed: 3
+Total tests: 2
+     Passed: 2
+ Total time: 1.2053 Seconds
 ```
 
 And even if you do get them to fail, if you try to debug them, the bugs may or may not
@@ -183,19 +185,16 @@ You can learn more about the systematic testing capabilities of Coyote
 to get quickly in action.
 
 Coyote serializes the execution of a concurrent program (i.e., only executes a single task at at
-time). A Coyote test executes this serialized program lots of times (we call these testing
+time). A Coyote test executes this serialized program lots of times (called testing
 iterations), each time exploring different interleavings in a clever manner. If a bug is found,
 Coyote gives a trace that allows you to deterministically reproduce the bug. You can use the VS
 Debugger to go over the trace as many times as required to fix the bug.
 
-To be able to test this service, we use Coyote's binary rewriting capabilities to instrument
+To be able to test this service, use Coyote's binary rewriting capabilities to instrument
 concurrency primitives (Coyote primarily supports common task-related types like `Task` and
 `TaskCompletionSource`, the `lock` statement, and some
 [more](https://microsoft.github.io/coyote/learn/programming-models/async/rewriting)). This is
-handled by our build script above. If you end up reading our website, or see some of the production
-code that uses Coyote today, you will notice they are using a custom task type
-`Microsoft.Coyote.Tasks.Task`, this is being replaced by the binary rewriting described here (and in
-our website), as it makes things so much easier to use Coyote.
+handled by the build script above.
 
 ## How to run the Coyote systematic tests
 
@@ -205,12 +204,8 @@ the tests, run the following from the root directory of the repo:
 
 ```
 coyote rewrite rewrite.coyote.json
-cd "bin/coyote"
-dotnet test ImageGalleryTests.Coyote.dll
-cd "../.."
+dotnet test bin/coyote/ImageGalleryTests.Coyote.dll
 ```
-
-**Note:** this is `./ImageGalleryAspNet/bin/coyote` and not `./ImageGalleryAspNet/bin/netcoreapp3.1`.
 
 This will [rewrite](/coyote/learn/tools/rewriting) the tests, and then run the tests inside the
 Coyote testing engine, up to 1000 iterations each, and report any found bugs. The bug should be
@@ -232,13 +227,11 @@ Which also tells you how to reliably reproduce the bug using Coyote.
 As you can see above, the `TestConcurrentAccountRequests` failed. This bug is nondeterministic, and
 if you try debug it without Coyote it might not always happen. However, Coyote gives you a reliable
 repro. Right now, someone can use the replay functionality from the `coyote replay` tool or
-programmatically through our replay API, but for the purposes of this sample, we put together a
-simple `TraceReplayer` executable that takes the name of the test and the trace file produced by
-Coyote, and replays it in the VS debugger. To do this, just invoke the command mentioned in the
-error above (change the paths to the ones on your machine):
-```
-TraceReplayer.exe TestConcurrentAccountRequests TestConcurrentAccountRequests.schedule
-```
+programmatically through the replay API, but for the purposes of this sample there is a simple
+`TraceReplayer` executable that takes the name of the test and the trace file produced by Coyote,
+and replays it in the VS debugger. To do this, just invoke the command mentioned in the error above
+(change the paths to the ones on your machine): ``` TraceReplayer.exe TestConcurrentAccountRequests
+TestConcurrentAccountRequests.schedule ```
 
 You will also see that the trace output contains logs such as:
 ```
@@ -260,9 +253,9 @@ You will also see that the trace output contains logs such as:
 
 In the above logs, the `[0HM34OD7O65E5]` prefix is the `HttpContext.TraceIdentifier` which is a
 unique id per HTTP request. This makes it easier to see how Coyote explores lots of async
-interleaving during testing and debugging. In this example we see it bouncing between 3 async tasks
-`[0HM34OD7O65E5]`, `[0HM34OD7O65E6]` and `[0HM34OD7O65E7]` and this controlled interleaving of
-tasks can help find lots of bugs.
+interleaving during testing and debugging. In this example you can see it bouncing between 3 async
+tasks `[0HM34OD7O65E5]`, `[0HM34OD7O65E6]` and `[0HM34OD7O65E7]` and this controlled interleaving
+of tasks can help find lots of bugs.
 
 ## Rewriting unit tests
 
@@ -272,14 +265,32 @@ following:
 
 ```
 coyote rewrite rewrite.coyote.json --rewrite-unit-tests --iterations 100
-cd "bin/coyote"
-dotnet test ImageGalleryTests.dll
-cd "../.."
+dotnet test bin/coyote/ImageGalleryTests.dll
 ```
 
 This changes the non-Coyote unit tests so that they first create a Coyote `TestEngine` then run the
-original unit test.  
+original unit test.  You will find that this also finds the same bugs, you should see output like this:
 
+```
+  X TestConcurrentAccountAndImageRequestsAsync [252ms]
+  Error Message:
+   The image was not deleted from Azure Blob Storage.
+```
+
+## Troubleshooting
+
+**Login fails with an unhandled exception has occurred while executing the request.**
+
+Make sure the Azure storage emulators are running. 
+
+**SocketException: No connection could be made because the target machine actively refused it.**
+
+Make sure the Azure storage emulators are running. 
+
+**System.AggregateException: 'Retry failed after 6 tries**
+
+Make sure the Azure storage emulators are running. Make sure you can then connect to the azure
+storage emulator from the Azure storage `explorer`.
 
 ## Summary
 
@@ -292,3 +303,4 @@ In this tutorial you learned:
 4. How to replay a buggy trace of unmodified code with Coyote.
 
 Happy debugging!
+

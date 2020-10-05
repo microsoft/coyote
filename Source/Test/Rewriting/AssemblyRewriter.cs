@@ -477,24 +477,27 @@ namespace Microsoft.Coyote.Rewriting
             {
                 this.Log.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
 
-                // Copy all files to the output directory, while preserving directory structure.
+                // Copy all files to the output directory, skipping any nested directory files.
+                foreach (string filePath in Directory.GetFiles(sourceDirectory, "*"))
+                {
+                    Debug.WriteLine($"..... Copying the '{filePath}' file");
+                    File.Copy(filePath, Path.Combine(outputDirectory, Path.GetFileName(filePath)), true);
+                }
+
+                // Copy all nested directories to the output directory, while preserving directory structure.
                 foreach (string directoryPath in Directory.GetDirectories(sourceDirectory, "*", SearchOption.AllDirectories))
                 {
                     // Avoid copying the output directory itself.
                     if (!directoryPath.StartsWith(outputDirectory))
                     {
                         Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
-                        Directory.CreateDirectory(Path.Combine(outputDirectory, Path.GetDirectoryName(directoryPath)));
-                    }
-                }
-
-                foreach (string filePath in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
-                {
-                    // Avoid copying any files from the output directory.
-                    if (!filePath.StartsWith(outputDirectory))
-                    {
-                        Debug.WriteLine($"..... Copying the '{filePath}' file");
-                        File.Copy(filePath, Path.Combine(outputDirectory, Path.GetFileName(filePath)), true);
+                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length));
+                        Directory.CreateDirectory(path);
+                        foreach (string filePath in Directory.GetFiles(directoryPath, "*"))
+                        {
+                            Debug.WriteLine($"....... Copying the '{filePath}' file");
+                            File.Copy(filePath, Path.Combine(path, Path.GetFileName(filePath)), true);
+                        }
                     }
                 }
             }

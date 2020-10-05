@@ -9,7 +9,7 @@
   </div>
     <div class="carousel-inner" role="listbox"  aria-label="Autoplay carousel" itemscope="" itemtype="https://schema.org/ItemList">
       {% for item in include.carousel.items %}
-        <div class="item {% if forloop.first == true %}active{% endif %}" itemtype="https://schema.org/Product" role="https://schema.org/itemListElement">
+        <div class="item {% if forloop.first == true %}active{% endif %}" itemtype="https://schema.org/Product" role="listitem" id="hero-slide-{{ forloop.index0 }}">
             <img src="{{ item.img | relative_url }}" class="fade-in" alt="{{ item.title }}">
             <div class="carousel-caption">
                 <h1 class="slide-in-fwd-center">{{ item.title }}</h1>

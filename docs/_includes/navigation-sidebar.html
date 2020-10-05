@@ -37,20 +37,21 @@
               <li class="pt-5 pb-5" >
 
                 {% if entry.subfolderitems %}
-                    <div class="panel-group" id="accordion-{{ entry.name | downcase | slugify }}" role="tablist" aria-multiselectable="true">
+                    {% assign item_id = entry.link | downcase | slugify | replace: '/', '-' %}
+                    <div class="panel-group" id="accordion-{{ item_id }}" role="tablist" aria-multiselectable="true">
                     {% if entry.link %}
                     <a href="{{ entry.link  | relative_url  }}" permalink="{{entry.link}}"
-                        {% capture secondary-collapse %}{{ entry.name | downcase | slugify }}{% endcapture %}
+                        {% capture secondary-collapse %}{{ item_id }}{% endcapture %}
                         capture="{{ secondary-collapse }}"
                         title="{{ entry.name }}">{{ entry.name | escape }}</a>
                     {% else %}
                     <a  role="button"
                         data-toggle="collapse"
-                        data-parent="#accordion-{{ entry.name | downcase | slugify }}"
-                        href="#collapse-{{ entry.name | downcase | slugify }}"
-                        aria-controls="collapse-{{ entry.name | downcase | slugify }}"
+                        data-parent="#accordion-{{ item_id }}"
+                        href="#collapse-{{ item_id }}"
+                        aria-controls="collapse-{{ item_id }}"
                         permalink="{{entry.link}}"
-                        {% capture secondary-collapse %}{{ entry.name | downcase | slugify }}{% endcapture %}
+                        {% capture secondary-collapse %}{{ item_id }}{% endcapture %}
                         capture="{{ secondary-collapse }}"
                         title="{{ entry.name }}">{{ entry.name | escape }}</a>
                     {% endif %}
@@ -70,21 +71,22 @@
                   <li class="pt-6 pb-6">
 
                     {% if item.subfolderitems %}
-                       <div class="panel-group" id="accordion-{{ item.name | downcase | slugify }}" role="tablist" aria-multiselectable="true">
+                       {% assign item_id = entry.link | downcase | slugify | replace: '/', '-' %}
+                       <div class="panel-group" id="accordion-{{ item_id }}" role="tablist" aria-multiselectable="true">
                         {% if item.link %}
                         <a href="{{ item.link  | relative_url }}" permalink="{{item.link}}"
-                            {% capture tertiary-collapse %}{{ item.name | downcase | slugify }}{% endcapture %}
+                            {% capture tertiary-collapse %}{{ item_id }}{% endcapture %}
                             capture="{{ tertiary-collapse }}"
                             title="{{ item.name }}">{{ item.name | escape }}</a>
                         {% else %}
                         <a
                             role="button"
                             data-toggle="collapse"
-                            data-parent="#accordion-{{ item.name | downcase | slugify }}"
-                            href="#collapse-{{ item.name | downcase | slugify }}"
-                            aria-controls="collapse-{{ item.name | downcase | slugify }}"
+                            data-parent="#accordion-{{ item_id }}"
+                            href="#collapse-{{ item_id }}"
+                            aria-controls="collapse-{{ item_id }}"
                             permalink="{{item.link}}"
-                            {% capture tertiary-collapse %}{{ item.name | downcase | slugify }}{% endcapture %}
+                            {% capture tertiary-collapse %}{{ item_id }}{% endcapture %}
                             capture="{{ tertiary-collapse }}"
                             title="{{ item.name }}">{{ item.name | escape }}</a>
                         {% endif %}

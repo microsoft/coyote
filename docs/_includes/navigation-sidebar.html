@@ -9,10 +9,10 @@
   {% if page.section == 'learn' %}
   <div class="nav-left-wrapper">
     <ul id="results-container"></ul>
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div class="panel-group" id="accordion" aria-multiselectable="true">
       {% for item in site.data.sidebar-learn.learn-toc %}
       <div class="panel panel-default">
-        <div class="panel-heading pl-0" role="tab" id="heading-{{ item.title | downcase | slugify }}">
+        <div class="panel-heading pl-0" id="heading-{{ item.title | downcase | slugify }}">
           <h4 class="panel-title">
             <a
               role="button"
@@ -26,23 +26,22 @@
         <div
           id="collapse-{{ item.title | downcase | slugify }}"
           class="panel-collapse collapse"
-          role="tabpanel"
-          aria-labelledby="heading-{{ item.title | downcase | slugify }}">
+          {% if entry.subfolderitems %}          
+          aria-labelledby="heading-{{ item.title | downcase | slugify }}"
+          {% endif %}
+          >
           <div class="panel-body p-0">
 
             <!-- secondary - begin folder inception -->
             <ul class="list-unstyled">
-
               {% for entry in item.subfolderitems %}
-              <li class="pt-5 pb-5" >
-
+              {% assign item_id = entry.link | downcase | slugify %}
+              <li class="pt-5 pb-5">
                 {% if entry.subfolderitems %}
-                    {% assign item_id = entry.link | downcase | slugify | replace: '/', '-' %}
-                    <div class="panel-group" id="accordion-{{ item_id }}" role="tablist" aria-multiselectable="true">
+                    <div class="panel-group" id="accordion-{{ item_id }}" aria-multiselectable="true">
                     {% if entry.link %}
                     <a href="{{ entry.link  | relative_url  }}" permalink="{{entry.link}}"
-                        {% capture secondary-collapse %}{{ item_id }}{% endcapture %}
-                        capture="{{ secondary-collapse }}"
+                        id="{{ item_id }}"
                         title="{{ entry.name }}">{{ entry.name | escape }}</a>
                     {% else %}
                     <a  role="button"
@@ -51,8 +50,7 @@
                         href="#collapse-{{ item_id }}"
                         aria-controls="collapse-{{ item_id }}"
                         permalink="{{entry.link}}"
-                        {% capture secondary-collapse %}{{ item_id }}{% endcapture %}
-                        capture="{{ secondary-collapse }}"
+                        id="{{ item_id }}"
                         title="{{ entry.name }}">{{ entry.name | escape }}</a>
                     {% endif %}
 
@@ -61,22 +59,22 @@
                 {% endif %}
 
                 {% if entry.subfolderitems %}
-                <div id="collapse-{{ secondary-collapse }}"
-                class="panel-collapse collapse"
-                role="tabpanel"
-                aria-labelledby="heading-{{ secondary-collapse }}">
+                <div id="collapse-{{ item_id }}"
+                class="panel-collapse collapse"                
+                aria-labelledby="{{ item_id }}">
                 <!-- tertiary -->
                 <ul class="learn-tertiary">
                   {% for item in entry.subfolderitems %}
+                  {% assign item_id = item.link | downcase | slugify %}                  
                   <li class="pt-6 pb-6">
-
                     {% if item.subfolderitems %}
-                       {% assign item_id = entry.link | downcase | slugify | replace: '/', '-' %}
-                       <div class="panel-group" id="accordion-{{ item_id }}" role="tablist" aria-multiselectable="true">
+                       <div class="panel-group" id="accordion-{{ item_id }}" 
+                          {% if item.subfolderitems %}
+                          aria-multiselectable="true"
+                          {% endif %}>
                         {% if item.link %}
                         <a href="{{ item.link  | relative_url }}" permalink="{{item.link}}"
-                            {% capture tertiary-collapse %}{{ item_id }}{% endcapture %}
-                            capture="{{ tertiary-collapse }}"
+                            id="{{ item_id }}
                             title="{{ item.name }}">{{ item.name | escape }}</a>
                         {% else %}
                         <a
@@ -86,8 +84,7 @@
                             href="#collapse-{{ item_id }}"
                             aria-controls="collapse-{{ item_id }}"
                             permalink="{{item.link}}"
-                            {% capture tertiary-collapse %}{{ item_id }}{% endcapture %}
-                            capture="{{ tertiary-collapse }}"
+                            id="{{ item_id }}"
                             title="{{ item.name }}">{{ item.name | escape }}</a>
                         {% endif %}
 
@@ -98,15 +95,13 @@
                     <!-- quaternary -->
                     {% if item.subfolderitems %}
                     <!-- tertiary collapse -->
-                    <div id="collapse-{{ tertiary-collapse }}"
+                    <div id="collapse-{{ item_id }}"
                     class="panel-collapse collapse"
-                    role="tabpanel"
-                    aria-labelledby="heading-{{ tertiary-collapse }}">
+                    aria-labelledby="heading-{{ item_id }}">
                       <ul class="learn-quaternary">
                         {% for entry in item.subfolderitems %}
                         <li class="pt-6 pb-6">
                           <a href="{{ entry.link  | relative_url }}" permalink="{{entry.link}}" title="{{ entry.name }}">{{ entry.name | escape }}</a>
-
 
                           {% if entry.subfolderitems %}
                           <!-- quinary -->

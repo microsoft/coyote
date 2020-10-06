@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Rewriting
             string assemblyName = Path.GetFileName(assemblyPath);
             if (this.RewrittenAssemblies.ContainsKey(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
-                // The assembly is already rewritten.
+                // The assembly is already rewritten, so skip it.
                 return;
             }
 

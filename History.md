@@ -1,3 +1,7 @@
+## v1.1.2
+- Added basic support for the `System.Threading.Tasks.Parallel` type during rewriting.
+- Fixed a bug in `coyote rewrite` that was incorrectly copying dependencies after rewriting.
+
 ## v1.1.1
 - Renamed `TestingEngine.ReproducibleTrace` to fix typo in the API name.
 - Fixed some bugs in `coyote rewrite`.

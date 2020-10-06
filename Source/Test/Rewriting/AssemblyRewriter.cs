@@ -210,9 +210,10 @@ namespace Microsoft.Coyote.Rewriting
 
             while (this.Pending.Count > 0)
             {
+                var assemblyPath = this.Pending.Dequeue();
+
                 try
                 {
-                    var assemblyPath = this.Pending.Dequeue();
                     this.RewriteAssembly(assemblyPath, outputDirectory);
                 }
                 catch (Exception ex)
@@ -227,6 +228,9 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     errors++;
+
+                    // Make sure to copy the original file to avoid any corruptions due to a rewriting error.
+                    CopyFile(assemblyPath, outputDirectory);
                 }
             }
 
@@ -245,7 +249,7 @@ namespace Microsoft.Coyote.Rewriting
             string assemblyName = Path.GetFileName(assemblyPath);
             if (this.RewrittenAssemblies.ContainsKey(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
-                // already done!
+                // The assembly is already rewritten.
                 return;
             }
 
@@ -267,8 +271,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
                 if (this.Options.IsRewritingDependencies)
                 {
-                    // check for dependencies and if those are found in the same folder then rewrite them also, and fix up the
-                    // version numbers so the rewritten assemblies are bound to these versions.
+                    // Check for dependencies and if those are found in the same folder then rewrite them also,
+                    // and fix up the version numbers so the rewritten assemblies are bound to these versions.
                     this.AddLocalDependencies(assemblyPath, assembly);
                 }
 
@@ -278,6 +282,12 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     // The assembly has been already rewritten by this version of Coyote, so skip it.
                     this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
+                    return;
+                }
+                else if (!IsAssemblyILOnly(assembly))
+                {
+                    // Mono.Cecil does not support writing mixed-mode assemblies.
+                    this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: rewriting a mixed-mode assembly is not supported)");
                     return;
                 }
 
@@ -481,7 +491,7 @@ namespace Microsoft.Coyote.Rewriting
                 foreach (string filePath in Directory.GetFiles(sourceDirectory, "*"))
                 {
                     Debug.WriteLine($"..... Copying the '{filePath}' file");
-                    File.Copy(filePath, Path.Combine(outputDirectory, Path.GetFileName(filePath)), true);
+                    CopyFile(filePath, outputDirectory);
                 }
 
                 // Copy all nested directories to the output directory, while preserving directory structure.
@@ -496,7 +506,7 @@ namespace Microsoft.Coyote.Rewriting
                         foreach (string filePath in Directory.GetFiles(directoryPath, "*"))
                         {
                             Debug.WriteLine($"....... Copying the '{filePath}' file");
-                            File.Copy(filePath, Path.Combine(path, Path.GetFileName(filePath)), true);
+                            CopyFile(filePath, path);
                         }
                     }
                 }
@@ -514,11 +524,17 @@ namespace Microsoft.Coyote.Rewriting
                 })
             {
                 string assemblyPath = type.Assembly.Location;
-                File.Copy(assemblyPath, Path.Combine(this.Options.OutputDirectory, Path.GetFileName(assemblyPath)), true);
+                CopyFile(assemblyPath, this.Options.OutputDirectory);
             }
 
             return outputDirectory;
         }
+
+        /// <summary>
+        /// Copies the specified file to the destination.
+        /// </summary>
+        private static void CopyFile(string filePath, string destination) =>
+            File.Copy(filePath, Path.Combine(destination, Path.GetFileName(filePath)), true);
 
         /// <summary>
         /// Returns a new assembly resolver.
@@ -555,6 +571,24 @@ namespace Microsoft.Coyote.Rewriting
         {
             var attribute = GetCustomAttribute(assembly, typeof(IsAssemblyRewrittenAttribute));
             return attribute != null && (string)attribute.ConstructorArguments[0].Value == GetAssemblyRewritterVersion().ToString();
+        }
+
+        /// <summary>
+        /// Checks if the specified assembly only contains IL.
+        /// </summary>
+        /// <param name="assembly">The assembly to check.</param>
+        /// <returns>True if the assembly only contains IL, else false.</returns>
+        private static bool IsAssemblyILOnly(AssemblyDefinition assembly)
+        {
+            foreach (var module in assembly.Modules)
+            {
+                if ((module.Attributes & ModuleAttributes.ILOnly) == 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

@@ -284,7 +284,7 @@ namespace Microsoft.Coyote.Rewriting
                     this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
                     return;
                 }
-                else if (!IsAssemblyILOnly(assembly))
+                else if (IsMixedModeAssembly(assembly))
                 {
                     // Mono.Cecil does not support writing mixed-mode assemblies.
                     this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: rewriting a mixed-mode assembly is not supported)");
@@ -574,21 +574,21 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified assembly only contains IL.
+        /// Checks if the specified assembly is a mixed-mode assembly.
         /// </summary>
         /// <param name="assembly">The assembly to check.</param>
         /// <returns>True if the assembly only contains IL, else false.</returns>
-        private static bool IsAssemblyILOnly(AssemblyDefinition assembly)
+        private static bool IsMixedModeAssembly(AssemblyDefinition assembly)
         {
             foreach (var module in assembly.Modules)
             {
                 if ((module.Attributes & ModuleAttributes.ILOnly) == 0)
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
         /// <summary>

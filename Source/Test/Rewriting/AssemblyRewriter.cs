@@ -218,6 +218,12 @@ namespace Microsoft.Coyote.Rewriting
                 }
                 catch (Exception ex)
                 {
+                    if (!this.Options.IsReplacingAssemblies)
+                    {
+                        // Make sure to copy the original assembly to avoid any corruptions.
+                        CopyFile(assemblyPath, outputDirectory);
+                    }
+
                     if (ex is AggregateException ae && ae.InnerException != null)
                     {
                         this.Log.WriteLine(LogSeverity.Error, ae.InnerException.Message);
@@ -228,9 +234,6 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     errors++;
-
-                    // Make sure to copy the original file to avoid any corruptions due to a rewriting error.
-                    CopyFile(assemblyPath, outputDirectory);
                 }
             }
 

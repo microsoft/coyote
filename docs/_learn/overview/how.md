@@ -9,7 +9,7 @@ permalink: /learn/overview/how
 
 There are two parts to how Coyote works.  First you need to write some code that uses the Coyote
 programming model.  This code then provides the metadata needed to enable the `coyote test` tool to
-do it's magic.
+do its magic.
 
 The `coyote test` tool takes over the scheduling of a Coyote program. It is able to do this reliably
 because it deeply understands the required [Coyote programming

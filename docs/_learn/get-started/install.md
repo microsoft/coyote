@@ -55,6 +55,12 @@ Now you can run the `coyote test` tool without having to build Coyote from sourc
 --help` to see if it is working. The dotnet tool install can also install coyote to a `--local`
 folder if you prefer that.
 
+You can update the global `coyote` tool by running the following command:
+
+```
+dotnet tool update --global Microsoft.Coyote.CLI
+```
+
 You can remove the global `coyote` tool by running the following command:
 
 ```

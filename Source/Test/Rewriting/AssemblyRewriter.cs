@@ -98,15 +98,7 @@ namespace Microsoft.Coyote.Rewriting
             StringBuilder combined = new StringBuilder();
             foreach (var e in this.DefaultDisallowedList.Concat(userList))
             {
-                if (combined.Length == 0)
-                {
-                    combined.Append("(");
-                }
-                else
-                {
-                    combined.Append("|");
-                }
-
+                combined.Append(combined.Length is 0 ? "(" : "|");
                 combined.Append(e);
             }
 
@@ -140,7 +132,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             // expand folder
-            if (this.Options.AssemblyPaths == null || this.Options.AssemblyPaths.Count == 0)
+            if (this.Options.AssemblyPaths is null || this.Options.AssemblyPaths.Count is 0)
             {
                 // Expand to include all .dll files in AssemblyPaths.
                 foreach (var file in Directory.GetFiles(this.Options.AssembliesDirectory, "*.dll"))
@@ -155,16 +147,6 @@ namespace Microsoft.Coyote.Rewriting
                     }
                 }
             }
-        }
-
-        private bool IsDisallowed(string assemblyName)
-        {
-            if (this.DisallowedAssemblies == null)
-            {
-                return false;
-            }
-
-            return this.DisallowedAssemblies.IsMatch(assemblyName);
         }
 
         /// <summary>
@@ -182,7 +164,7 @@ namespace Microsoft.Coyote.Rewriting
                 throw new Exception("Please provide RewritingOptions.OutputDirectory");
             }
 
-            if (options.AssemblyPaths == null || options.AssemblyPaths.Count == 0)
+            if (options.AssemblyPaths is null || options.AssemblyPaths.Count is 0)
             {
                 throw new Exception("Please provide RewritingOptions.AssemblyPaths");
             }
@@ -237,7 +219,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
             }
 
-            if (errors == 0 && this.Options.IsReplacingAssemblies)
+            if (errors is 0 && this.Options.IsReplacingAssemblies)
             {
                 // If we are replacing the original assemblies, then delete the temporary output directory.
                 Directory.Delete(outputDirectory, true);
@@ -354,7 +336,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
                 catch (Exception)
                 {
-                    if (retries == 0)
+                    if (retries is 0)
                     {
                         throw;
                     }
@@ -442,7 +424,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private static void RewriteMethod(MethodDefinition method, AssemblyTransform transform)
         {
-            if (method.Body == null)
+            if (method.Body is null)
             {
                 return;
             }
@@ -504,7 +486,7 @@ namespace Microsoft.Coyote.Rewriting
                     if (!directoryPath.StartsWith(outputDirectory))
                     {
                         Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
-                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length));
+                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length + 1));
                         Directory.CreateDirectory(path);
                         foreach (string filePath in Directory.GetFiles(directoryPath, "*"))
                         {
@@ -540,21 +522,10 @@ namespace Microsoft.Coyote.Rewriting
             File.Copy(filePath, Path.Combine(destination, Path.GetFileName(filePath)), true);
 
         /// <summary>
-        /// Returns a new assembly resolver.
+        /// Checks if the assembly with the specified name is not allowed.
         /// </summary>
-        private IAssemblyResolver GetAssemblyResolver()
-        {
-            // TODO: can we reuse it, or do we need a new one for each assembly?
-            var assemblyResolver = new DefaultAssemblyResolver();
-
-            // Add known search directories for resolving assemblies.
-            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
-            assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
-
-            // Add the assembly resolution error handler.
-            assemblyResolver.ResolveFailure += this.OnResolveAssemblyFailure;
-            return assemblyResolver;
-        }
+        private bool IsDisallowed(string assemblyName) => this.DisallowedAssemblies is null ? false :
+            this.DisallowedAssemblies.IsMatch(assemblyName);
 
         /// <summary>
         /// Checks if the specified assembly has been already rewritten with the current version of Coyote.
@@ -585,7 +556,7 @@ namespace Microsoft.Coyote.Rewriting
         {
             foreach (var module in assembly.Modules)
             {
-                if ((module.Attributes & ModuleAttributes.ILOnly) == 0)
+                if ((module.Attributes & ModuleAttributes.ILOnly) is 0)
                 {
                     return true;
                 }
@@ -593,6 +564,12 @@ namespace Microsoft.Coyote.Rewriting
 
             return false;
         }
+
+        /// <summary>
+        /// Checks if the symbol file for the specified assembly is available.
+        /// </summary>
+        private static bool IsSymbolFileAvailable(string assemblyPath) =>
+            File.Exists(Path.ChangeExtension(assemblyPath, "pdb"));
 
         /// <summary>
         /// Returns the first found custom attribute with the specified type, if such an attribute
@@ -609,10 +586,21 @@ namespace Microsoft.Coyote.Rewriting
         private static Version GetAssemblyRewritterVersion() => Assembly.GetExecutingAssembly().GetName().Version;
 
         /// <summary>
-        /// Checks if the symbol file for the specified assembly is available.
+        /// Returns a new assembly resolver.
         /// </summary>
-        private static bool IsSymbolFileAvailable(string assemblyPath) =>
-            File.Exists(Path.ChangeExtension(assemblyPath, "pdb"));
+        private IAssemblyResolver GetAssemblyResolver()
+        {
+            // TODO: can we reuse it, or do we need a new one for each assembly?
+            var assemblyResolver = new DefaultAssemblyResolver();
+
+            // Add known search directories for resolving assemblies.
+            assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
+            assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
+
+            // Add the assembly resolution error handler.
+            assemblyResolver.ResolveFailure += this.OnResolveAssemblyFailure;
+            return assemblyResolver;
+        }
 
         /// <summary>
         /// Handles an assembly resolution error.

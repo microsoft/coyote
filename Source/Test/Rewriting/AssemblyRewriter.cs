@@ -486,7 +486,7 @@ namespace Microsoft.Coyote.Rewriting
                     if (!directoryPath.StartsWith(outputDirectory))
                     {
                         Debug.WriteLine($"..... Copying the '{directoryPath}' directory");
-                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length + 1));
+                        string path = Path.Combine(outputDirectory, directoryPath.Remove(0, sourceDirectory.Length).TrimStart('\\', '/'));
                         Directory.CreateDirectory(path);
                         foreach (string filePath in Directory.GetFiles(directoryPath, "*"))
                         {

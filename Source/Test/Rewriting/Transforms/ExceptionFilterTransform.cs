@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Rewriting
                 this.ModifiedHandlers = true;
             }
 
-            Debug.WriteLine($"............. [+] inserting ExecutionCanceledException check into existing handler.");
+            Debug.WriteLine($"............. [+] inserting ExecutionCanceledException check into catch block");
 
             var handlerType = this.Method.Module.ImportReference(typeof(Microsoft.Coyote.SystematicTesting.Interception.ExceptionHandlers)).Resolve();
             MethodReference handlerMethod = (from m in handlerType.Methods where m.Name == "ThrowIfCoyoteRuntimeException" select m).FirstOrDefault();

@@ -311,7 +311,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }
                 catch (Exception ex)
                 {
-                    Specification.Assert(ex is null, $"Must not catch '{typeof(ExecutionCanceledException)}'.");
+                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
                 }
             },
             configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 }
                 catch (Exception ex)
                 {
-                    Specification.Assert(ex is null, $"Must not catch '{typeof(ExecutionCanceledException)}'.");
+                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
                 }
             },
             configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));

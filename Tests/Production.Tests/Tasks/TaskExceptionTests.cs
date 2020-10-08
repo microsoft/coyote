@@ -295,47 +295,5 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
-
-#if BINARY_REWRITE
-        [Fact(Timeout = 5000)]
-        public void TestConsumeExecutionCanceledException()
-        {
-            this.Test(() =>
-            {
-                try
-                {
-                    while (true)
-                    {
-                        Task.Delay(1).Wait();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
-                }
-            },
-            configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestConsumeExecutionCanceledExceptionAsync()
-        {
-            this.Test(async () =>
-            {
-                try
-                {
-                    while (true)
-                    {
-                        await Task.Delay(1);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Specification.Assert(!(ex is ExecutionCanceledException), $"Must not catch '{typeof(ExecutionCanceledException)}'.");
-                }
-            },
-            configuration: GetConfiguration().WithTestingIterations(1).WithMaxSchedulingSteps(10));
-        }
-#endif
     }
 }

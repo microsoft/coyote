@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Interception;
@@ -20,17 +19,17 @@ namespace Microsoft.Coyote.Rewriting
         private TypeDefinition TypeDef;
 
         /// <summary>
-        /// Is part of an async state machine.
-        /// </summary>
-        private bool IsAsyncStateMachineType;
-
-        /// <summary>
         /// The current method being transformed.
         /// </summary>
         private MethodDefinition Method;
 
         /// <summary>
-        /// Whether the current method has modified handlers.
+        /// True if the visited type is a generated async state machine.
+        /// </summary>
+        private bool IsAsyncStateMachineType;
+
+        /// <summary>
+        /// True if the current method has modified handlers.
         /// </summary>
         private bool ModifiedHandlers;
 
@@ -54,9 +53,6 @@ namespace Microsoft.Coyote.Rewriting
             this.Method = method;
             this.ModifiedHandlers = false;
 
-            // Do exception handlers before the method instructions because they are a
-            // higher level concept and it's handy to pre-process them before seeing the
-            // raw instructions.
             if (method.Body.HasExceptionHandlers)
             {
                 foreach (var handler in method.Body.ExceptionHandlers)
@@ -80,19 +76,11 @@ namespace Microsoft.Coyote.Rewriting
         /// </remarks>
         internal void VisitExceptionHandler(ExceptionHandler handler)
         {
-            var handlerInstructions = GetHandlerInstructions(handler);
-            if (handlerInstructions.Count == 2 && handlerInstructions[0].OpCode.Code == Code.Pop &&
-                handlerInstructions[1].OpCode.Code == Code.Rethrow)
+            if ((this.IsAsyncStateMachineType && IsAsyncStateMachineHandler(handler)) ||
+                IsRethrowHandler(handler))
             {
-                // Trivial case, the exception handler is just a rethrow.
-                return;
-            }
-
-            if (this.IsAsyncStateMachineType &&
-                handlerInstructions.Any(instruction => IsAsyncStateMachineInstruction(instruction)))
-            {
-                // We do not want to instrument the compiler generated
-                // catch block of an async state machine.
+                // Do not instrument the compiler generated catch block of an async state machine,
+                // or an exception handler that is just a rethrow.
                 return;
             }
 
@@ -128,10 +116,10 @@ namespace Microsoft.Coyote.Rewriting
                 this.ModifiedHandlers = true;
             }
 
-            Debug.WriteLine($"............. [+] inserting ExecutionCanceledException check into catch block");
+            Debug.WriteLine($"............. [+] rewriting catch block to rethrow an ExecutionCanceledException");
 
-            var handlerType = this.Method.Module.ImportReference(typeof(Microsoft.Coyote.SystematicTesting.Interception.ExceptionHandlers)).Resolve();
-            MethodReference handlerMethod = (from m in handlerType.Methods where m.Name == "ThrowIfCoyoteRuntimeException" select m).FirstOrDefault();
+            var handlerType = this.Method.Module.ImportReference(typeof(ExceptionHandlers)).Resolve();
+            MethodReference handlerMethod = handlerType.Methods.FirstOrDefault(m => m.Name == "ThrowIfCoyoteRuntimeException");
             handlerMethod = this.Method.Module.ImportReference(handlerMethod);
 
             var processor = this.Method.Body.GetILProcessor();
@@ -159,46 +147,79 @@ namespace Microsoft.Coyote.Rewriting
 
         private void FixupInstructionOffsets()
         {
-            // Now because we have now inserted new code into this method, it is possible some short branch instructions
-            // are now out of range, and need to be switch to long branches.  This fixes that and it also
-            // recomputes instruction indexes which is also needed for valid write assembly operation.
+            // Now because we have now inserted new code into this method, it is possible some
+            // short branch instructions are now out of range, and need to be switch to long
+            // branches. This fixes that and it also recomputes instruction indexes which is
+            // also needed for valid write assembly operation.
             this.Method.Body.SimplifyMacros();
             this.Method.Body.OptimizeMacros();
         }
 
-        private static List<Instruction> GetHandlerInstructions(ExceptionHandler handler)
+        /// <summary>
+        /// Checks if the specified handler is only rethrowing an exception.
+        /// </summary>
+        private static bool IsRethrowHandler(ExceptionHandler handler)
         {
-            if (handler.HandlerStart == null)
+            Code previousOpCode = Code.Nop;
+            bool isRethrowing = false;
+            Instruction instruction = handler.HandlerStart;
+            while (instruction != handler.HandlerEnd)
             {
-                return null;
-            }
-
-            List<Instruction> result = new List<Instruction>();
-            for (var i = handler.HandlerStart; i != handler.HandlerEnd; i = i.Next)
-            {
-                if (i.OpCode.Code != Code.Nop)
+                Code opCode = instruction.OpCode.Code;
+                if (opCode is Code.Throw || opCode is Code.Rethrow)
                 {
-                    result.Add(i);
+                    isRethrowing = true;
+                    break;
                 }
+
+                if (opCode != Code.Nop && opCode != Code.Pop)
+                {
+                    // TODO: optimize for generated async state machine cases.
+                    if (previousOpCode != Code.Nop && !IsStoreLoadOpCodeMatching(previousOpCode, opCode))
+                    {
+                        break;
+                    }
+
+                    previousOpCode = opCode;
+                }
+
+                instruction = instruction.Next;
             }
 
-            return result;
+            return isRethrowing;
         }
 
         /// <summary>
-        /// Checks if the specified instruction executes an async state machine method.
+        /// Checks if the specified store and load op codes are matching.
         /// </summary>
-        private static bool IsAsyncStateMachineInstruction(Instruction instruction)
+        private static bool IsStoreLoadOpCodeMatching(Code storeCode, Code loadCode) =>
+            storeCode == Code.Stloc_0 ? loadCode == Code.Ldloc_0 :
+            storeCode == Code.Stloc_1 ? loadCode == Code.Ldloc_1 :
+            storeCode == Code.Stloc_2 ? loadCode == Code.Ldloc_2 :
+            storeCode == Code.Stloc_3 ? loadCode == Code.Ldloc_3 : false;
+
+        /// <summary>
+        /// Checks if the specified handler is generated for the async state machine.
+        /// </summary>
+        private static bool IsAsyncStateMachineHandler(ExceptionHandler handler)
         {
-            if (instruction.Operand is MethodReference method)
+            Instruction instruction = handler.HandlerStart;
+            while (instruction != handler.HandlerEnd)
             {
-                TypeReference type = method.DeclaringType;
-                if ((type.FullName == typeof(AsyncTaskMethodBuilder).FullName ||
-                    type.FullName == typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName) &&
-                    method.Name == nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
+                if (instruction.Operand is MethodReference method)
                 {
-                    return true;
+                    TypeReference type = method.DeclaringType;
+                    if ((type.Namespace == CachedNameProvider.SystematicTestingNamespace ||
+                        type.Namespace == CachedNameProvider.SystemCompilerNamespace) &&
+                        (type.Name == CachedNameProvider.AsyncTaskMethodBuilderName ||
+                        type.Name.StartsWith("AsyncTaskMethodBuilder`")) &&
+                        method.Name == nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
+                    {
+                        return true;
+                    }
                 }
+
+                instruction = instruction.Next;
             }
 
             return false;

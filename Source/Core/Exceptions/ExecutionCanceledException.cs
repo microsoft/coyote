@@ -14,7 +14,7 @@ namespace Microsoft.Coyote
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionCanceledException"/> class.
         /// </summary>
-        public ExecutionCanceledException()
+        internal ExecutionCanceledException()
         {
         }
     }

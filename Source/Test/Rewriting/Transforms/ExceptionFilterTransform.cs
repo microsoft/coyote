@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Is part of an async state machine.
         /// </summary>
-        private bool IsStateMachine;
+        private bool IsAsyncStateMachineType;
 
         /// <summary>
         /// The current method being transformed.
@@ -44,8 +44,8 @@ namespace Microsoft.Coyote.Rewriting
         internal override void VisitType(TypeDefinition typeDef)
         {
             this.TypeDef = typeDef;
-            this.IsStateMachine = typeDef.Interfaces.Any(
-                i => i.InterfaceType.FullName == typeof(System.Runtime.CompilerServices.IAsyncStateMachine).FullName);
+            this.IsAsyncStateMachineType = typeDef.Interfaces.Any(
+                i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
         }
 
         /// <inheritdoc/>
@@ -88,7 +88,8 @@ namespace Microsoft.Coyote.Rewriting
                 return;
             }
 
-            if (this.IsStateMachine && handlerInstructions.Any(instruction => IsAsyncStateMachineInstruction(instruction)))
+            if (this.IsAsyncStateMachineType &&
+                handlerInstructions.Any(instruction => IsAsyncStateMachineInstruction(instruction)))
             {
                 // We do not want to instrument the compiler generated
                 // catch block of an async state machine.

@@ -4,9 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -20,7 +22,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Is part of an async state machine.
         /// </summary>
-        private bool IsStateMachine;
+        private bool IsAsyncStateMachineType;
 
         /// <summary>
         /// The current method being transformed.
@@ -42,7 +44,8 @@ namespace Microsoft.Coyote.Rewriting
         internal override void VisitType(TypeDefinition typeDef)
         {
             this.TypeDef = typeDef;
-            this.IsStateMachine = (from i in typeDef.Interfaces where i.InterfaceType.FullName == "System.Runtime.CompilerServices.IAsyncStateMachine" select i).Any();
+            this.IsAsyncStateMachineType = typeDef.Interfaces.Any(
+                i => i.InterfaceType.FullName == typeof(SystemCompiler.IAsyncStateMachine).FullName);
         }
 
         /// <inheritdoc/>
@@ -77,19 +80,19 @@ namespace Microsoft.Coyote.Rewriting
         /// </remarks>
         internal void VisitExceptionHandler(ExceptionHandler handler)
         {
-            if (this.IsStateMachine)
-            {
-                // these have try catch blocks that forward the caught exception over to the AsyncTaskMethodBuilder.SetException
-                // and these are ok, Coyote knows about this.
-                return;
-            }
-
-            // Trivial case, if the exception handler is just a rethrow!
             var handlerInstructions = GetHandlerInstructions(handler);
             if (handlerInstructions.Count == 2 && handlerInstructions[0].OpCode.Code == Code.Pop &&
                 handlerInstructions[1].OpCode.Code == Code.Rethrow)
             {
-                // ok then, doesn't matter what the filter is doing since it is just rethrowing anyway.
+                // Trivial case, the exception handler is just a rethrow.
+                return;
+            }
+
+            if (this.IsAsyncStateMachineType &&
+                handlerInstructions.Any(instruction => IsAsyncStateMachineInstruction(instruction)))
+            {
+                // We do not want to instrument the compiler generated
+                // catch block of an async state machine.
                 return;
             }
 
@@ -180,6 +183,25 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Checks if the specified instruction executes an async state machine method.
+        /// </summary>
+        private static bool IsAsyncStateMachineInstruction(Instruction instruction)
+        {
+            if (instruction.Operand is MethodReference method)
+            {
+                TypeReference type = method.DeclaringType;
+                if ((type.FullName == typeof(AsyncTaskMethodBuilder).FullName ||
+                    type.FullName == typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName) &&
+                    method.Name == nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

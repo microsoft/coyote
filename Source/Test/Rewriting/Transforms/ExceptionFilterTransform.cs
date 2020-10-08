@@ -147,10 +147,10 @@ namespace Microsoft.Coyote.Rewriting
 
         private void FixupInstructionOffsets()
         {
-            // Now because we have now inserted new code into this method, it is possible some
-            // short branch instructions are now out of range, and need to be switch to long
-            // branches. This fixes that and it also recomputes instruction indexes which is
-            // also needed for valid write assembly operation.
+            // By inserting new code into the visited method, it is possible some short branch
+            // instructions are now out of range, and need to be switch to long branches. This
+            // fixes that and it also recomputes instruction indexes which is also needed for
+            // valid write assembly operation.
             this.Method.Body.SimplifyMacros();
             this.Method.Body.OptimizeMacros();
         }

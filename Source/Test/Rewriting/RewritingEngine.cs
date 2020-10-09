@@ -21,7 +21,7 @@ using Mono.Cecil.Cil;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewriting engine that can rewrite a set of assemblies for systematic testing.
+    /// Engine that can rewrite a set of assemblies for systematic testing.
     /// </summary>
     /// <remarks>
     /// See <see href="/coyote/learn/tools/rewriting">Coyote rewriting tool</see> for more information.

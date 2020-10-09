@@ -1,3 +1,6 @@
+## v1.1.3
+- Optimizations and fixes in binary rewriting.
+
 ## v1.1.2
 - Added basic support for the `System.Threading.Tasks.Parallel` type during rewriting.
 - Fixed a bug in `coyote rewrite` that was incorrectly copying dependencies after rewriting.

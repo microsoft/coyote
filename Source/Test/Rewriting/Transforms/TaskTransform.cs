@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -10,7 +9,6 @@ using ControlledTasks = Microsoft.Coyote.SystematicTesting.Interception;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
-using SystemThreading = System.Threading;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -256,11 +254,11 @@ namespace Microsoft.Coyote.Rewriting
                 TypeReference elementType = this.RewriteTaskType(genericType.ElementType, false);
                 result = this.RewriteCompilerType(genericType, elementType);
             }
-            else if (fullName == KnownSystemTypes.TaskFullName)
+            else if (fullName == CachedNameProvider.TaskFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask));
             }
-            else if (fullName == KnownSystemTypes.GenericTaskFullName)
+            else if (fullName == CachedNameProvider.GenericTaskFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask<>), type);
             }
@@ -299,47 +297,47 @@ namespace Microsoft.Coyote.Rewriting
                 result = this.RewriteCompilerType(genericType, elementType);
                 result = this.Module.ImportReference(result);
             }
-            else if (fullName == KnownSystemTypes.AsyncTaskMethodBuilderFullName)
+            else if (fullName == CachedNameProvider.AsyncTaskMethodBuilderFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder));
             }
-            else if (fullName == KnownSystemTypes.GenericAsyncTaskMethodBuilderFullName)
+            else if (fullName == CachedNameProvider.GenericAsyncTaskMethodBuilderFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.AsyncTaskMethodBuilder<>), type);
             }
-            else if (fullName == KnownSystemTypes.TaskAwaiterFullName)
+            else if (fullName == CachedNameProvider.TaskAwaiterFullName)
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter));
             }
-            else if (fullName == KnownSystemTypes.GenericTaskAwaiterFullName)
+            else if (fullName == CachedNameProvider.GenericTaskAwaiterFullName)
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter<>), type);
             }
-            else if (fullName == KnownSystemTypes.YieldAwaitableFullName)
+            else if (fullName == CachedNameProvider.YieldAwaitableFullName)
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable));
             }
-            else if (fullName == KnownSystemTypes.YieldAwaiterFullName)
+            else if (fullName == CachedNameProvider.YieldAwaiterFullName)
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable.YieldAwaiter));
             }
-            else if (fullName == KnownSystemTypes.TaskExtensionsFullName)
+            else if (fullName == CachedNameProvider.TaskExtensionsFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.TaskExtensions), type);
             }
-            else if (fullName == KnownSystemTypes.TaskFactoryFullName)
+            else if (fullName == CachedNameProvider.TaskFactoryFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory));
             }
-            else if (fullName == KnownSystemTypes.GenericTaskFactoryFullName)
+            else if (fullName == CachedNameProvider.GenericTaskFactoryFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.TaskFactory<>), type);
             }
-            else if (fullName == KnownSystemTypes.TaskParallelFullName)
+            else if (fullName == CachedNameProvider.TaskParallelFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.Parallel));
             }
-            else if (fullName == KnownSystemTypes.ThreadPoolFullName)
+            else if (fullName == CachedNameProvider.ThreadPoolFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ThreadPool));
             }
@@ -376,7 +374,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Checks if the specified type is the <see cref="SystemTasks.Task"/> type.
         /// </summary>
-        private static bool IsSystemTaskType(TypeReference type) => type.Namespace == KnownNamespaces.SystemTasksName &&
+        private static bool IsSystemTaskType(TypeReference type) => type.Namespace == CachedNameProvider.SystemTasksNamespace &&
             (type.Name == typeof(SystemTasks.Task).Name || type.Name.StartsWith("Task`"));
 
         /// <summary>
@@ -394,36 +392,5 @@ namespace Microsoft.Coyote.Rewriting
             name == nameof(ControlledTasks.ControlledTask.Wait) ||
             name == nameof(ControlledTasks.ControlledTask.Yield) ||
             name == nameof(ControlledTasks.ControlledTask.GetAwaiter);
-
-        /// <summary>
-        /// Cache of known <see cref="SystemCompiler"/> type names.
-        /// </summary>
-        private static class KnownSystemTypes
-        {
-            internal static string TaskFullName { get; } = typeof(SystemTasks.Task).FullName;
-            internal static string GenericTaskFullName { get; } = typeof(SystemTasks.Task<>).FullName;
-            internal static string AsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder).FullName;
-            internal static string GenericAsyncTaskMethodBuilderName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).Name;
-            internal static string GenericAsyncTaskMethodBuilderFullName { get; } = typeof(SystemCompiler.AsyncTaskMethodBuilder<>).FullName;
-            internal static string TaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;
-            internal static string GenericTaskAwaiterName { get; } = typeof(SystemCompiler.TaskAwaiter<>).Name;
-            internal static string GenericTaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
-            internal static string YieldAwaitableFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName;
-            internal static string YieldAwaiterFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
-            internal static string TaskExtensionsFullName { get; } = typeof(SystemTasks.TaskExtensions).FullName;
-            internal static string TaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory).FullName;
-            internal static string GenericTaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
-            internal static string TaskParallelFullName { get; } = typeof(SystemTasks.Parallel).FullName;
-            internal static string ThreadPoolFullName { get; } = typeof(SystemThreading.ThreadPool).FullName;
-        }
-
-        /// <summary>
-        /// Cache of known namespace names.
-        /// </summary>
-        private static class KnownNamespaces
-        {
-            internal static string ControlledTasksName { get; } = typeof(ControlledTasks.ControlledTask).Namespace;
-            internal static string SystemTasksName { get; } = typeof(SystemTasks.Task).Namespace;
-        }
     }
 }

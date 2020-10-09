@@ -10,8 +10,8 @@ permalink: /learn/ref/MicrosoftCoyoteTestAssembly
 
 | public type | description |
 | --- | --- |
-| class [AssemblyRewriter](Microsoft.Coyote.Rewriting/AssemblyRewriterType) | Rewrites an assembly for systematic testing. |
 | class [IsAssemblyRewrittenAttribute](Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttributeType) | Attribute for checking if an assembly has been rewritten by Coyote. If this attribute is applied to an assembly, it denotes that the assembly has been rewritten. |
+| class [RewritingEngine](Microsoft.Coyote.Rewriting/RewritingEngineType) | Engine that can rewrite a set of assemblies for systematic testing. |
 | class [RewritingOptions](Microsoft.Coyote.Rewriting/RewritingOptionsType) | Options for rewriting binaries. |
 
 ## Microsoft.Coyote.SystematicTesting namespace

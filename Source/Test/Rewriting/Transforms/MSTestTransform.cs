@@ -27,8 +27,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="MSTestTransform"/> class.
         /// </summary>
-        internal MSTestTransform(Configuration configuration, ILogger log)
-            : base(log)
+        internal MSTestTransform(Configuration configuration, ILogger logger)
+            : base(logger)
         {
             this.Configuration = configuration;
         }

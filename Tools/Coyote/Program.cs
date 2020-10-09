@@ -238,8 +238,7 @@ namespace Microsoft.Coyote
                     }
                 }
 
-                AssemblyRewriter.Rewrite(configuration, config);
-                Console.WriteLine($". Done rewriting");
+                RewritingEngine.Run(configuration, config);
             }
             catch (Exception ex)
             {

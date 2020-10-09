@@ -1,16 +1,20 @@
 ---
 layout: reference
 section: learn
-title: Log
-permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Log
+title: Logger
+permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger
 ---
-# RewritingOptions.Log property
+# RewritingOptions.Logger property
 
-Log output from rewriter (default is Console output).
+The logger used for rewriting.
 
 ```csharp
-public ILogger Log { get; set; }
+public ILogger Logger { get; set; }
 ```
+
+## Remarks
+
+By default the logger write to Console.
 
 ## See Also
 

@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.Production.Tests
             get
             {
                 var assembly = this.GetType().Assembly;
-                bool result = AssemblyRewriter.IsAssemblyRewritten(assembly);
+                bool result = RewritingEngine.IsAssemblyRewritten(assembly);
 #if BINARY_REWRITE
                 Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
 #endif

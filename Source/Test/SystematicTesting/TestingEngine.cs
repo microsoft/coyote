@@ -65,19 +65,6 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly IRandomValueGenerator RandomValueGenerator;
 
         /// <summary>
-        /// The installed logger.
-        /// </summary>
-        /// <remarks>
-        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
-        /// </remarks>
-        private ILogger Log;
-
-        /// <summary>
-        /// The default logger that is used during testing.
-        /// </summary>
-        private readonly ILogger DefaultLogger;
-
-        /// <summary>
         /// The profiler.
         /// </summary>
         private readonly Profiler Profiler;
@@ -97,6 +84,48 @@ namespace Microsoft.Coyote.SystematicTesting
         /// gathered during testing.
         /// </summary>
         public TestReport TestReport { get; set; }
+
+        /// <summary>
+        /// The installed logger.
+        /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
+        /// </remarks>
+        private ILogger InstalledLogger;
+
+        /// <summary>
+        /// The default logger that is used during testing.
+        /// </summary>
+        private readonly ILogger DefaultLogger;
+
+        /// <summary>
+        /// Get or set the <see cref="ILogger"/> used to log messages during testing.
+        /// </summary>
+        /// <remarks>
+        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
+        /// </remarks>
+        public ILogger Logger
+        {
+            get
+            {
+                return this.InstalledLogger;
+            }
+
+            set
+            {
+                var old = this.InstalledLogger;
+                if (value is null)
+                {
+                    this.InstalledLogger = new NullLogger();
+                }
+                else
+                {
+                    this.InstalledLogger = value;
+                }
+
+                using var v = old;
+            }
+        }
 
         /// <summary>
         /// A graph of the actors, state machines and events of a single test iteration.
@@ -1008,39 +1037,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Checks if the test executed by the testing engine has been rewritten.
         /// </summary>
         /// <returns>True if the test has been rewritten, else false.</returns>
-        public bool IsTestRewritten() => AssemblyRewriter.IsAssemblyRewritten(this.TestMethodInfo.Assembly);
+        public bool IsTestRewritten() => RewritingEngine.IsAssemblyRewritten(this.TestMethodInfo.Assembly);
 
         /// <summary>
-        /// Get or set the <see cref="ILogger"/> used to log messages during testing.
-        /// </summary>
-        /// <remarks>
-        /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
-        /// </remarks>
-        public ILogger Logger
-        {
-            get
-            {
-                return this.Log;
-            }
-
-            set
-            {
-                var old = this.Log;
-                if (value is null)
-                {
-                    this.Log = new NullLogger();
-                }
-                else
-                {
-                    this.Log = value;
-                }
-
-                using var v = old;
-            }
-        }
-
-        /// <summary>
-        /// Teh old way of installing a TextWriter for logging.
+        /// Installs the specified TextWriter for logging.
         /// </summary>
         /// <remarks>
         /// This writer will be wrapped in an object that implements the <see cref="ILogger"/> interface which

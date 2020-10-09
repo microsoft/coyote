@@ -24,7 +24,7 @@ public class RewritingOptions
 | [IsRewritingDependencies](RewritingOptions/IsRewritingDependencies) { get; set; } | Whether to also rewrite dependent assemblies that are found in the same location. |
 | [IsRewritingThreads](RewritingOptions/IsRewritingThreads) { get; } | True if rewriting Threads as controlled tasks. |
 | [IsRewritingUnitTests](RewritingOptions/IsRewritingUnitTests) { get; } | True if rewriting of unit test methods is enabled, else false. |
-| [Log](RewritingOptions/Log) { get; set; } | Log output from rewriter (default is Console output). |
+| [Logger](RewritingOptions/Logger) { get; set; } | The logger used for rewriting. |
 | [LogLevel](RewritingOptions/LogLevel) { get; set; } | The amount of log output to produce. |
 | [OutputDirectory](RewritingOptions/OutputDirectory) { get; set; } | The output directory where rewritten assemblies are placed. If this is the same as the [`AssembliesDirectory`](RewritingOptions/AssembliesDirectory) then the rewritten assemblies will replace the original assemblies. |
 | [StrongNameKeyFile](RewritingOptions/StrongNameKeyFile) { get; set; } | Path of strong name key to use for signing rewritten assemblies. |

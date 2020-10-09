@@ -12,27 +12,27 @@ namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
     /// An abstract interface for transforming code using a visitor pattern.
-    /// This is used by the <see cref="AssemblyRewriter"/> to manage multiple different
+    /// This is used by the <see cref="RewritingEngine"/> to manage multiple different
     /// transforms in a single pass over an assembly.
     /// </summary>
     internal abstract class AssemblyTransform
     {
         /// <summary>
-        /// Console output writer.
+        /// The installed logger.
         /// </summary>
-        protected readonly ILogger Log;
+        protected readonly ILogger Logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyTransform"/> class.
         /// </summary>
-        protected AssemblyTransform(ILogger log)
+        protected AssemblyTransform(ILogger logger)
         {
-            this.Log = log;
+            this.Logger = logger;
         }
 
         /// <summary>
         /// Visits the specified <see cref="ModuleDefinition"/> inside the <see cref="AssemblyDefinition"/>
-        /// that was visited by the <see cref="AssemblyRewriter"/>.
+        /// that was visited by the <see cref="RewritingEngine"/>.
         /// </summary>
         /// <param name="module">The module definition to visit.</param>
         internal virtual void VisitModule(ModuleDefinition module)
@@ -382,8 +382,9 @@ namespace Microsoft.Coyote.Rewriting
             resolved = method.Resolve();
             if (resolved is null)
             {
-                this.Log.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. The method is either unsupported by Coyote, " +
-                    "or a user-defined extension method, or the .NET platform of Coyote and the target assembly do not match.");
+                this.Logger.WriteLine(LogSeverity.Warning, $"Unable to resolve '{method.FullName}' method. " +
+                    "The method is either unsupported by Coyote, or a user-defined extension method, or the " +
+                    ".NET platform of Coyote and the target assembly do not match.");
                 return false;
             }
 

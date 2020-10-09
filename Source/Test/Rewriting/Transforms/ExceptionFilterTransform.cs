@@ -33,9 +33,8 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private bool ModifiedHandlers;
 
-        internal ExceptionFilterTransform(ILogger log)
-
-            : base(log)
+        internal ExceptionFilterTransform(ILogger logger)
+            : base(logger)
         {
         }
 

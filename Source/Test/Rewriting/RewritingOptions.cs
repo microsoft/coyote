@@ -73,9 +73,12 @@ namespace Microsoft.Coyote.Rewriting
         public bool IsRewritingDependencies { get; set; }
 
         /// <summary>
-        /// Log output from rewriter (default is Console output).
+        /// The logger used for rewriting.
         /// </summary>
-        public ILogger Log { get; set; }
+        /// <remarks>
+        /// By default the logger write to Console.
+        /// </remarks>
+        public ILogger Logger { get; set; }
 
         /// <summary>
         /// The amount of log output to produce.

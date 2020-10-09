@@ -1172,13 +1172,6 @@ learn-toc:
     - name: Microsoft.Coyote.Rewriting
       link: /learn/ref/MicrosoftCoyoteRewritingNamespace
       subfolderitems:
-      - name: AssemblyRewriter
-        link: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriterType
-        subfolderitems:
-        - name: Rewrite
-          link: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriter/Rewrite
-        - name: IsAssemblyRewritten
-          link: /learn/ref/Microsoft.Coyote.Rewriting/AssemblyRewriter/IsAssemblyRewritten
       - name: IsAssemblyRewrittenAttribute
         link: /learn/ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttributeType
         subfolderitems:
@@ -1186,6 +1179,13 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/IsAssemblyRewrittenAttribute
         - name: Version
           link: /learn/ref/Microsoft.Coyote.Rewriting/IsAssemblyRewrittenAttribute/Version
+      - name: RewritingEngine
+        link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingEngineType
+        subfolderitems:
+        - name: Run
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingEngine/Run
+        - name: IsAssemblyRewritten
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingEngine/IsAssemblyRewritten
       - name: RewritingOptions
         link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptionsType
         subfolderitems:
@@ -1205,8 +1205,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
         - name: IsRewritingDependencies
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IsRewritingDependencies
-        - name: Log
-          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Log
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/Logger
         - name: LogLevel
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/LogLevel
         - name: IsRewritingUnitTests
@@ -1257,12 +1257,12 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/IsTestRewritten
         - name: TestReport
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/TestReport
+        - name: Logger
+          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger
         - name: ReadableTrace
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReadableTrace
         - name: ReproducibleTrace
           link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/ReproducibleTrace
-        - name: Logger
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestingEngine/Logger
       - name: TestReport
         link: /learn/ref/Microsoft.Coyote.SystematicTesting/TestReportType
         subfolderitems:

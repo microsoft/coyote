@@ -15,11 +15,6 @@ namespace Microsoft.Coyote.Rewriting
     internal class TaskTransform : AssemblyTransform
     {
         /// <summary>
-        /// Cache from member names to rewritten member references.
-        /// </summary>
-        private readonly Dictionary<string, MethodReference> RewrittenMethodCache;
-
-        /// <summary>
         /// The current module being transformed.
         /// </summary>
         private ModuleDefinition Module;
@@ -42,17 +37,15 @@ namespace Microsoft.Coyote.Rewriting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskTransform"/> class.
         /// </summary>
-        internal TaskTransform(ILogger log)
-            : base(log)
+        internal TaskTransform(ILogger logger)
+            : base(logger)
         {
-            this.RewrittenMethodCache = new Dictionary<string, MethodReference>();
         }
 
         /// <inheritdoc/>
         internal override void VisitModule(ModuleDefinition module)
         {
             this.Module = module;
-            this.RewrittenMethodCache.Clear();
         }
 
         /// <inheritdoc/>
@@ -189,13 +182,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <returns>The unmodified instruction, or the newly replaced instruction.</returns>
         private Instruction VisitCallInstruction(Instruction instruction, MethodReference method)
         {
-            if (!this.RewrittenMethodCache.TryGetValue(method.FullName, out MethodReference newMethod))
-            {
-                // Not found in the cache, try to rewrite it.
-                newMethod = this.RewriteMethodReference(method, this.Module);
-                this.RewrittenMethodCache[method.FullName] = newMethod;
-            }
-
+            MethodReference newMethod = this.RewriteMethodReference(method, this.Module);
             if (method.FullName == newMethod.FullName ||
                 !this.TryResolve(method, out MethodDefinition resolvedMethod))
             {

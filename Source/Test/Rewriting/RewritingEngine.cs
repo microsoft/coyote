@@ -21,12 +21,12 @@ using Mono.Cecil.Cil;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewrites an assembly for systematic testing.
+    /// Rewriting engine that can rewrite a set of assemblies for systematic testing.
     /// </summary>
     /// <remarks>
     /// See <see href="/coyote/learn/tools/rewriting">Coyote rewriting tool</see> for more information.
     /// </remarks>
-    public class AssemblyRewriter
+    public class RewritingEngine
     {
         /// <summary>
         /// Temporary directory that is used to write the rewritten assemblies
@@ -74,25 +74,32 @@ namespace Microsoft.Coyote.Rewriting
         private readonly Dictionary<string, AssemblyNameDefinition> RewrittenAssemblies;
 
         /// <summary>
-        /// The output log.
-        /// </summary>
-        private readonly ILogger Log;
-
-        /// <summary>
         /// List of assemblies to be rewritten.
         /// </summary>
         private Queue<string> Pending = new Queue<string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssemblyRewriter"/> class.
+        /// The installed logger.
+        /// </summary>
+        private readonly ILogger Logger;
+
+        /// <summary>
+        /// The profiler.
+        /// </summary>
+        private readonly Profiler Profiler;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RewritingEngine"/> class.
         /// </summary>
         /// <param name="configuration">The test configuration to use when rewriting unit tests.</param>
         /// <param name="options">The <see cref="RewritingOptions"/> for this rewriter.</param>
-        private AssemblyRewriter(Configuration configuration, RewritingOptions options)
+        private RewritingEngine(Configuration configuration, RewritingOptions options)
         {
             this.Configuration = configuration;
-            this.Log = options.Log ?? new ConsoleLogger() { LogLevel = options.LogLevel };
             this.Options = options;
+            this.Logger = options.Logger ?? new ConsoleLogger() { LogLevel = options.LogLevel };
+            this.Profiler = new Profiler();
+
             this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
             var userList = options.DisallowedAssemblies ?? Array.Empty<string>();
             StringBuilder combined = new StringBuilder();
@@ -114,21 +121,21 @@ namespace Microsoft.Coyote.Rewriting
 
             this.Transforms = new List<AssemblyTransform>()
             {
-                 new TaskTransform(this.Log),
-                 new MonitorTransform(this.Log),
-                 new ExceptionFilterTransform(this.Log)
+                 new TaskTransform(this.Logger),
+                 // new MonitorTransform(this.Logger),
+                 // new ExceptionFilterTransform(this.Logger)
             };
 
             if (this.Options.IsRewritingThreads)
             {
-                this.Transforms.Add(new ThreadTransform(this.Log));
+                this.Transforms.Add(new ThreadTransform(this.Logger));
             }
 
             if (this.Options.IsRewritingUnitTests)
             {
                 // We are running this pass last, as we are rewriting the original method, and
                 // we need the other rewriting passes to happen before this pass.
-                this.Transforms.Add(new MSTestTransform(this.Configuration, this.Log));
+                this.Transforms.Add(new MSTestTransform(this.Configuration, this.Logger));
             }
 
             // expand folder
@@ -150,9 +157,9 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Rewrites the assemblies specified in the rewriting options.
+        /// Runs the engine using the specified rewriting options.
         /// </summary>
-        public static void Rewrite(Configuration configuration, RewritingOptions options)
+        public static void Run(Configuration configuration, RewritingOptions options)
         {
             if (string.IsNullOrEmpty(options.AssembliesDirectory))
             {
@@ -169,8 +176,10 @@ namespace Microsoft.Coyote.Rewriting
                 throw new Exception("Please provide RewritingOptions.AssemblyPaths");
             }
 
-            var binaryRewriter = new AssemblyRewriter(configuration, options);
+            var binaryRewriter = new RewritingEngine(configuration, options);
             binaryRewriter.Rewrite();
+
+            Console.WriteLine($". Done rewriting in {binaryRewriter.Profiler.Results()} sec");
         }
 
         /// <summary>
@@ -178,6 +187,8 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private void Rewrite()
         {
+            this.Profiler.StartMeasuringExecutionTime();
+
             // Create the output directory and copy any necessary files.
             string outputDirectory = this.CreateOutputDirectoryAndCopyFiles();
 
@@ -208,11 +219,11 @@ namespace Microsoft.Coyote.Rewriting
 
                     if (ex is AggregateException ae && ae.InnerException != null)
                     {
-                        this.Log.WriteLine(LogSeverity.Error, ae.InnerException.Message);
+                        this.Logger.WriteLine(LogSeverity.Error, ae.InnerException.Message);
                     }
                     else
                     {
-                        this.Log.WriteLine(LogSeverity.Error, ex.Message);
+                        this.Logger.WriteLine(LogSeverity.Error, ex.Message);
                     }
 
                     errors++;
@@ -224,6 +235,8 @@ namespace Microsoft.Coyote.Rewriting
                 // If we are replacing the original assemblies, then delete the temporary output directory.
                 Directory.Delete(outputDirectory, true);
             }
+
+            this.Profiler.StopMeasuringExecutionTime();
         }
 
         /// <summary>
@@ -253,7 +266,7 @@ namespace Microsoft.Coyote.Rewriting
                     throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
                 }
 
-                this.Log.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
+                this.Logger.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
                 if (this.Options.IsRewritingDependencies)
                 {
                     // Check for dependencies and if those are found in the same folder then rewrite them also,
@@ -266,13 +279,13 @@ namespace Microsoft.Coyote.Rewriting
                 if (IsAssemblyRewritten(assembly))
                 {
                     // The assembly has been already rewritten by this version of Coyote, so skip it.
-                    this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
                     return;
                 }
                 else if (IsMixedModeAssembly(assembly))
                 {
                     // Mono.Cecil does not support writing mixed-mode assemblies.
-                    this.Log.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: rewriting a mixed-mode assembly is not supported)");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: rewriting a mixed-mode assembly is not supported)");
                     return;
                 }
 
@@ -290,7 +303,7 @@ namespace Microsoft.Coyote.Rewriting
                 }
 
                 // Write the binary in the output path with portable symbols enabled.
-                this.Log.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
+                this.Logger.WriteLine($"... Writing the modified '{assemblyName}' assembly to " +
                     $"{(this.Options.IsReplacingAssemblies ? assemblyPath : outputPath)}");
 
                 var writeParams = new WriterParameters()
@@ -342,7 +355,7 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     await Task.Delay(100);
-                    this.Log.WriteLine(LogSeverity.Warning, $"... Retrying write to {targetFile}");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"... Retrying write to {targetFile}");
                 }
             }
         }
@@ -470,7 +483,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if (!this.Options.IsReplacingAssemblies)
             {
-                this.Log.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
+                this.Logger.WriteLine($"... Copying all files to the '{outputDirectory}' directory");
 
                 // Copy all files to the output directory, skipping any nested directory files.
                 foreach (string filePath in Directory.GetFiles(sourceDirectory, "*"))
@@ -501,7 +514,7 @@ namespace Microsoft.Coyote.Rewriting
             foreach (var type in new Type[]
                 {
                     typeof(ControlledTask),
-                    typeof(AssemblyRewriter),
+                    typeof(RewritingEngine),
                     typeof(TelemetryConfiguration),
                     typeof(EventTelemetry),
                     typeof(ITelemetry),
@@ -607,7 +620,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
         {
-            this.Log.WriteLine(LogSeverity.Warning, "Error resolving assembly: " + reference.FullName);
+            this.Logger.WriteLine(LogSeverity.Warning, "Error resolving assembly: " + reference.FullName);
             return null;
         }
     }

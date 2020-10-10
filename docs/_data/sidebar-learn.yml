@@ -88,8 +88,6 @@ learn-toc:
       link: /learn/tutorials/raft-azure
     - name: Raft actor service (mocked)
       link: /learn/tutorials/raft-mocking
-    - name: Image gallery in ASP.NET (tasks)
-      link: /learn/tutorials/image-gallery-aspnet
 - title: Tools
   subfolderitems:
     - name: Testing

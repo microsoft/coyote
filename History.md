@@ -1,3 +1,6 @@
+## v1.1.4
+- Added missing `coyote rewrite` dependencies in the `Microsoft.Coyote.Test` package.
+
 ## v1.1.3
 - Optimizations and fixes in binary rewriting.
 

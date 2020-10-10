@@ -142,7 +142,7 @@ Another example: your code may be using a `Timer` to register a periodic callbac
 `TimerMachine` that either invokes the callback periodically (or non-deterministically using
 Coyote's `Random`) or sends an event to the `Task` (now a `StateMachine`) that created the `Timer`.
 Sample code is
-[here](https://github.com/p-org/coyote/tree/master/Samples/Raft/Raft.CoyoteLibrary/Timers).
+[here](https://github.com/p-org/coyote/tree/main/Samples/Raft/Raft.CoyoteLibrary/Timers).
 
 Once the `Task` creation is eliminated, the next item of focus is the use of synchronization. When
 multiple `Tasks` can share a reference to the same object, they will use synchronization in the form

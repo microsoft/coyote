@@ -7,7 +7,7 @@ permalink: /learn/tutorials/raft-azure
 
 ## Raft consensus protocol on Azure
 
-The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/master/CloudMessaging) sample
+The [CloudMessaging](https://github.com/microsoft/coyote-samples/tree/main/CloudMessaging) sample
 implements the [Raft consensus algorithm](https://raft.github.io/) as an Azure Service built on the
 [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/). See [animating state
 machine demo](/coyote/learn/programming-models/actors/state-machine-demo) which shows the Coyote

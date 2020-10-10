@@ -129,13 +129,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         {
             internal class SetupEvent : Event
             {
-                public ActorId Master;
+                public ActorId Main;
                 public List<ActorId> Servers;
 
-                public SetupEvent(ActorId master, List<ActorId> servers)
+                public SetupEvent(ActorId main, List<ActorId> servers)
                     : base()
                 {
-                    this.Master = master;
+                    this.Main = main;
                     this.Servers = servers;
                 }
             }
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
             }
 
-            private ActorId Master;
+            private ActorId Main;
             private List<ActorId> Servers;
 
             private int CheckNodeIdx;
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void InitOnEntry(Event e)
             {
-                this.Master = (e as SetupEvent).Master;
+                this.Main = (e as SetupEvent).Main;
                 this.Servers = (e as SetupEvent).Servers;
 
                 this.CheckNodeIdx = 0;
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void HandleFailureOnEntry()
             {
-                this.SendEvent(this.Master, new FailureDetected(this.Servers[this.CheckNodeIdx]));
+                this.SendEvent(this.Main, new FailureDetected(this.Servers[this.CheckNodeIdx]));
             }
 
             private void ProcessFailureCorrected(Event e)
@@ -580,29 +580,29 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             internal class NewPredecessor : Event
             {
-                public ActorId Master;
+                public ActorId Main;
                 public ActorId Predecessor;
 
-                public NewPredecessor(ActorId master, ActorId pred)
+                public NewPredecessor(ActorId main, ActorId pred)
                     : base()
                 {
-                    this.Master = master;
+                    this.Main = main;
                     this.Predecessor = pred;
                 }
             }
 
             internal class NewSuccessor : Event
             {
-                public ActorId Master;
+                public ActorId Main;
                 public ActorId Successor;
                 public int LastUpdateReceivedSucc;
                 public int LastAckSent;
 
-                public NewSuccessor(ActorId master, ActorId succ,
+                public NewSuccessor(ActorId main, ActorId succ,
                     int lastUpdateReceivedSucc, int lastAckSent)
                     : base()
                 {
-                    this.Master = master;
+                    this.Main = main;
                     this.Successor = succ;
                     this.LastUpdateReceivedSucc = lastUpdateReceivedSucc;
                     this.LastAckSent = lastAckSent;
@@ -758,20 +758,20 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void UpdatePredecessor(Event e)
             {
-                var master = (e as NewPredecessor).Master;
+                var main = (e as NewPredecessor).Main;
                 this.Predecessor = (e as NewPredecessor).Predecessor;
 
                 if (this.History.Count > 0)
                 {
                     if (this.SentHistory.Count > 0)
                     {
-                        this.SendEvent(master, new NewSuccInfo(
+                        this.SendEvent(main, new NewSuccInfo(
                             this.History[this.History.Count - 1],
                             this.SentHistory[0].NextSeqId));
                     }
                     else
                     {
-                        this.SendEvent(master, new NewSuccInfo(
+                        this.SendEvent(main, new NewSuccInfo(
                             this.History[this.History.Count - 1],
                             this.History[this.History.Count - 1]));
                     }
@@ -780,7 +780,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 
             private void UpdateSuccessor(Event e)
             {
-                var master = (e as NewSuccessor).Master;
+                var main = (e as NewSuccessor).Main;
                 this.Successor = (e as NewSuccessor).Successor;
                 var lastUpdateReceivedSucc = (e as NewSuccessor).LastUpdateReceivedSucc;
                 var lastAckSent = (e as NewSuccessor).LastAckSent;
@@ -812,7 +812,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
                     }
                 }
 
-                this.SendEvent(master, new ChainReplicationMaster.Success());
+                this.SendEvent(main, new ChainReplicationMaster.Success());
             }
 
             [OnEntry(nameof(ProcessUpdateOnEntry))]

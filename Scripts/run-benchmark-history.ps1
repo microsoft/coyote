@@ -61,7 +61,7 @@ function ProcessCommit($commit) {
 
 Set-Location -Path $RootDir
 Invoke-Expression  "git reset --hard"
-Invoke-Expression "git checkout master"
+Invoke-Expression "git checkout main"
 $history = Invoke-Expression "git log --pretty=oneline"
 
 foreach ($line in $history) {

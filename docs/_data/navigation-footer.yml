@@ -33,7 +33,7 @@ footnote:
   link: https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/default.aspx
   external: true
 - name: License
-  link: https://github.com/microsoft/coyote/blob/master/LICENSE
+  link: https://github.com/microsoft/coyote/blob/main/LICENSE
   external: true
 - name: Cookies
   link: javascript:manageCookies()

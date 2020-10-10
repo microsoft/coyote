@@ -30,7 +30,7 @@ version of `coyote` then you simply run `dotnet coyote.dll ...` instead.
 
 ### Example usage
 
-The [BoundedBuffer example](https://github.com/microsoft/coyote-samples/tree/master/BoundedBuffer)
+The [BoundedBuffer example](https://github.com/microsoft/coyote-samples/tree/main/BoundedBuffer)
 is written with `System.Threading.Tasks.Task`. It does not start with `using
 Microsoft.Coyote.Tasks`. So `BoundedBuffer.cs` is pure .NET C# code that knows nothing about Coyote
 types.

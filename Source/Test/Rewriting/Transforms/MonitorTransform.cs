@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -38,6 +37,9 @@ namespace Microsoft.Coyote.Rewriting
 
         private const string MonitorClassName = "System.Threading.Monitor";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MonitorTransform"/> class.
+        /// </summary>
         internal MonitorTransform(ILogger logger)
             : base(logger)
         {
@@ -65,7 +67,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override Instruction VisitInstruction(Instruction instruction)
+        protected override Instruction VisitInstruction(Instruction instruction)
         {
             if (this.Method == null)
             {

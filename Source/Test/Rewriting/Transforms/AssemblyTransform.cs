@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace Microsoft.Coyote.Rewriting
 {
@@ -70,7 +71,7 @@ namespace Microsoft.Coyote.Rewriting
         /// If you want to transform individual method variables, then call this method.
         /// </summary>
         /// <param name="method">The method whose variables are being transformed.</param>
-        internal virtual void VisitVariables(MethodDefinition method)
+        protected virtual void VisitVariables(MethodDefinition method)
         {
             foreach (var variable in method.Body.Variables.ToArray())
             {
@@ -83,7 +84,7 @@ namespace Microsoft.Coyote.Rewriting
         /// by the last <see cref="VisitMethod"/>.
         /// </summary>
         /// <param name="variable">The variable definition to visit.</param>
-        internal virtual void VisitVariable(VariableDefinition variable)
+        protected virtual void VisitVariable(VariableDefinition variable)
         {
         }
 
@@ -108,7 +109,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         /// <param name="instruction">The instruction to visit.</param>
         /// <returns>The last modified instruction, or the original if it was not changed.</returns>
-        internal virtual Instruction VisitInstruction(Instruction instruction)
+        protected virtual Instruction VisitInstruction(Instruction instruction)
         {
             return instruction;
         }
@@ -413,7 +414,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="genericType">The generic type to instantiate.</param>
         /// <param name="genericArgs">The generic arguments needed to instantiate the generic type.</param>
         /// <returns>The new generic instance type.</returns>
-        protected static GenericInstanceType ImportGenericTypeInstance(ModuleDefinition module, TypeReference genericType, params TypeReference[] genericArgs)
+        protected static GenericInstanceType ImportGenericTypeInstance(ModuleDefinition module, TypeReference genericType,
+            params TypeReference[] genericArgs)
         {
             TypeReference typeDef = genericType.Resolve();
             if (!typeDef.HasGenericParameters)
@@ -450,7 +452,8 @@ namespace Microsoft.Coyote.Rewriting
         /// <param name="genericMethod">A generic method to instantiate.</param>
         /// <param name="genericArgs">The combined generic arguments for the declaring type (if it is generic) and for the method.</param>
         /// <returns>The new method reference.</returns>
-        internal static MethodReference ImportGenericMethodInstance(ModuleDefinition module, MethodReference genericMethod, params TypeReference[] genericArgs)
+        protected static MethodReference ImportGenericMethodInstance(ModuleDefinition module, MethodReference genericMethod,
+            params TypeReference[] genericArgs)
         {
             var methodDef = genericMethod.Resolve();
 
@@ -521,6 +524,19 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Fixes the instruction offsets of the specified method.
+        /// </summary>
+        protected static void FixInstructionOffsets(MethodDefinition method)
+        {
+            // By inserting new code into the visited method, it is possible some short branch
+            // instructions are now out of range, and need to be switch to long branches. This
+            // fixes that and it also recomputes instruction indexes which is also needed for
+            // valid write assembly operation.
+            method.Body.SimplifyMacros();
+            method.Body.OptimizeMacros();
         }
     }
 }

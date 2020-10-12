@@ -249,7 +249,7 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "Assemblies")]
             public IList<string> Assemblies { get; set; }
 
-            [DataMember(Name = "DisallowedAssemblies")]
+            [DataMember(Name = "IgnoredAssemblies")]
             public IList<string> IgnoredAssemblies { get; set; }
 
             [DataMember(Name = "DependencySearchPaths")]

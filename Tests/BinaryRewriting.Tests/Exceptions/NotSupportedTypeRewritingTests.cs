@@ -27,6 +27,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             configuration: GetConfiguration().WithTestingIterations(1));
         }
 
+#if !NETFRAMEWORK
         [Fact(Timeout = 5000)]
         public void TestNotSupportedValueTaskType()
         {
@@ -37,6 +38,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             },
             configuration: GetConfiguration().WithTestingIterations(1));
         }
+#endif
 
         [Fact(Timeout = 5000)]
         public void TestNotSupportedTimerType()

@@ -50,7 +50,12 @@ namespace Microsoft.Coyote.Rewriting
         /// System\.Private\.CoreLib
         /// mscorlib.
         /// </remarks>
-        public IList<string> DisallowedAssemblies { get; set; }
+        public IList<string> IgnoredAssemblies { get; set; }
+
+        /// <summary>
+        /// The paths to search for resolving dependencies.
+        /// </summary>
+        public IList<string> DependencySearchPaths { get; set; }
 
         /// <summary>
         /// True if the input assemblies are being replaced by the rewritten ones.
@@ -129,54 +134,50 @@ namespace Microsoft.Coyote.Rewriting
 
             var assembliesDirectory = string.Empty;
             var outputDirectory = string.Empty;
+            var assemblyPaths = new HashSet<string>();
+            IList<string> ignoredAssemblies = null;
+            IList<string> dependencySearchPaths = null;
             string strongNameKeyFile = null;
             bool isRewritingDependencies = false;
             bool isRewritingUnitTests = false;
             bool isRewritingThreads = false;
-            var assemblyPaths = new HashSet<string>();
-            IList<string> disallowed = null;
 
             string workingDirectory = Path.GetDirectoryName(Path.GetFullPath(configurationPath)) + Path.DirectorySeparatorChar;
 
             try
             {
-                using (FileStream fs = new FileStream(configurationPath, FileMode.Open, FileAccess.Read))
+                using FileStream fs = new FileStream(configurationPath, FileMode.Open, FileAccess.Read);
+                var serializer = new DataContractJsonSerializer(typeof(JsonConfiguration));
+                JsonConfiguration configuration = (JsonConfiguration)serializer.ReadObject(fs);
+
+                Uri baseUri = new Uri(workingDirectory);
+                Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
+                assembliesDirectory = resolvedUri.LocalPath;
+                strongNameKeyFile = configuration.StrongNameKeyFile;
+                isRewritingDependencies = configuration.IsRewritingDependencies;
+                isRewritingUnitTests = configuration.IsRewritingUnitTests;
+                isRewritingThreads = configuration.IsRewritingThreads;
+                if (string.IsNullOrEmpty(configuration.OutputPath))
                 {
-                    var serializer = new DataContractJsonSerializer(typeof(JsonConfiguration));
-                    JsonConfiguration configuration = (JsonConfiguration)serializer.ReadObject(fs);
+                    outputDirectory = assembliesDirectory;
+                }
+                else
+                {
+                    resolvedUri = new Uri(baseUri, configuration.OutputPath);
+                    outputDirectory = resolvedUri.LocalPath;
+                }
 
-                    Uri baseUri = new Uri(workingDirectory);
-                    Uri resolvedUri = new Uri(baseUri, configuration.AssembliesPath);
-                    assembliesDirectory = resolvedUri.LocalPath;
-                    strongNameKeyFile = configuration.StrongNameKeyFile;
-                    isRewritingDependencies = configuration.IsRewritingDependencies;
-                    isRewritingUnitTests = configuration.IsRewritingUnitTests;
-                    isRewritingThreads = configuration.IsRewritingThreads;
-                    if (string.IsNullOrEmpty(configuration.OutputPath))
+                if (configuration.Assemblies != null)
+                {
+                    foreach (string assembly in configuration.Assemblies)
                     {
-                        outputDirectory = assembliesDirectory;
-                    }
-                    else
-                    {
-                        resolvedUri = new Uri(baseUri, configuration.OutputPath);
-                        outputDirectory = resolvedUri.LocalPath;
-                    }
-
-                    if (configuration.Assemblies != null)
-                    {
-                        foreach (string assembly in configuration.Assemblies)
-                        {
-                            resolvedUri = new Uri(Path.Combine(assembliesDirectory, assembly));
-                            string assemblyFileName = resolvedUri.LocalPath;
-                            assemblyPaths.Add(assemblyFileName);
-                        }
-                    }
-
-                    if (configuration.DisallowedAssemblies != null)
-                    {
-                        disallowed = configuration.DisallowedAssemblies;
+                        resolvedUri = new Uri(Path.Combine(assembliesDirectory, assembly));
+                        assemblyPaths.Add(resolvedUri.LocalPath);
                     }
                 }
+
+                ignoredAssemblies = configuration.IgnoredAssemblies;
+                dependencySearchPaths = configuration.DependencySearchPaths;
             }
             catch (Exception ex)
             {
@@ -189,11 +190,12 @@ namespace Microsoft.Coyote.Rewriting
                 AssembliesDirectory = assembliesDirectory,
                 OutputDirectory = outputDirectory,
                 AssemblyPaths = assemblyPaths,
+                IgnoredAssemblies = ignoredAssemblies,
+                DependencySearchPaths = dependencySearchPaths,
                 StrongNameKeyFile = strongNameKeyFile,
                 IsRewritingDependencies = isRewritingDependencies,
                 IsRewritingUnitTests = isRewritingUnitTests,
-                IsRewritingThreads = isRewritingThreads,
-                DisallowedAssemblies = disallowed
+                IsRewritingThreads = isRewritingThreads
             };
         }
 
@@ -247,6 +249,12 @@ namespace Microsoft.Coyote.Rewriting
             [DataMember(Name = "Assemblies")]
             public IList<string> Assemblies { get; set; }
 
+            [DataMember(Name = "IgnoredAssemblies")]
+            public IList<string> IgnoredAssemblies { get; set; }
+
+            [DataMember(Name = "DependencySearchPaths")]
+            public IList<string> DependencySearchPaths { get; set; }
+
             [DataMember(Name = "StrongNameKeyFile")]
             public string StrongNameKeyFile { get; set; }
 
@@ -258,9 +266,6 @@ namespace Microsoft.Coyote.Rewriting
 
             [DataMember(Name = "IsRewritingThreads")]
             public bool IsRewritingThreads { get; set; }
-
-            [DataMember(Name = "DisallowedAssemblies")]
-            public IList<string> DisallowedAssemblies { get; set; }
         }
     }
 }

@@ -16,11 +16,6 @@ namespace Microsoft.Coyote.Rewriting
         private ModuleDefinition Module;
 
         /// <summary>
-        /// The current type being transformed.
-        /// </summary>
-        private TypeDefinition TypeDef;
-
-        /// <summary>
         /// The current method being transformed.
         /// </summary>
         private MethodDefinition Method;
@@ -53,7 +48,6 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         internal override void VisitType(TypeDefinition type)
         {
-            this.TypeDef = type;
             this.Method = null;
             this.Processor = null;
         }
@@ -75,7 +69,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override Instruction VisitInstruction(Instruction instruction)
+        protected override Instruction VisitInstruction(Instruction instruction)
         {
             if (this.Method is null)
             {

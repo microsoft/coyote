@@ -101,9 +101,9 @@ namespace Microsoft.Coyote.Rewriting
             this.Profiler = new Profiler();
 
             this.RewrittenAssemblies = new Dictionary<string, AssemblyNameDefinition>();
-            var userList = options.DisallowedAssemblies ?? Array.Empty<string>();
+            var ignoredAssemblies = options.IgnoredAssemblies ?? Array.Empty<string>();
             StringBuilder combined = new StringBuilder();
-            foreach (var e in this.DefaultDisallowedList.Concat(userList))
+            foreach (var e in this.DefaultDisallowedList.Concat(ignoredAssemblies))
             {
                 combined.Append(combined.Length is 0 ? "(" : "|");
                 combined.Append(e);
@@ -137,6 +137,8 @@ namespace Microsoft.Coyote.Rewriting
                 // we need the other rewriting passes to happen before this pass.
                 this.Transforms.Add(new MSTestTransform(this.Configuration, this.Logger));
             }
+
+            this.Transforms.Add(new NotSupportedTypesTransform(this.Logger));
 
             // expand folder
             if (this.Options.AssemblyPaths is null || this.Options.AssemblyPaths.Count is 0)
@@ -609,6 +611,13 @@ namespace Microsoft.Coyote.Rewriting
             // Add known search directories for resolving assemblies.
             assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
             assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
+            if (this.Options.DependencySearchPaths != null)
+            {
+                foreach (var path in this.Options.DependencySearchPaths)
+                {
+                    assemblyResolver.AddSearchDirectory(path);
+                }
+            }
 
             // Add the assembly resolution error handler.
             assemblyResolver.ResolveFailure += this.OnResolveAssemblyFailure;
@@ -620,7 +629,7 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private AssemblyDefinition OnResolveAssemblyFailure(object sender, AssemblyNameReference reference)
         {
-            this.Logger.WriteLine(LogSeverity.Warning, "Error resolving assembly: " + reference.FullName);
+            this.Logger.WriteLine(LogSeverity.Warning, "Unable to resolve assembly: " + reference.FullName);
             return null;
         }
     }

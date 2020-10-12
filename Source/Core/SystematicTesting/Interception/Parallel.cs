@@ -42,14 +42,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(params Action[] actions)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                throw new NotSupportedException($"{nameof(SystemTasks.Parallel.Invoke)} is not supported during systematic testing.");
-            }
-            else
-            {
-                SystemTasks.Parallel.Invoke(actions);
-            }
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.Invoke));
+            SystemTasks.Parallel.Invoke(actions);
         }
 
         /// <summary>
@@ -58,14 +52,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(ParallelOptions parallelOptions, params Action[] actions)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                throw new NotSupportedException($"{nameof(SystemTasks.Parallel.Invoke)} is not supported during systematic testing.");
-            }
-            else
-            {
-                SystemTasks.Parallel.Invoke(parallelOptions, actions);
-            }
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.Invoke));
+            SystemTasks.Parallel.Invoke(parallelOptions, actions);
         }
 
         /// <summary>
@@ -132,59 +120,67 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult For(int fromInclusive, int toExclusive, Action<int, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
+        public static ParallelLoopResult For(int fromInclusive, int toExclusive, Action<int, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
+        }
 
         /// <summary>
         /// Executes a for loop in which iterations may run in parallel, loop options can
         /// be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult For(int fromInclusive, int toExclusive, ParallelOptions parallelOptions, Action<int, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
+        public static ParallelLoopResult For(int fromInclusive, int toExclusive, ParallelOptions parallelOptions,
+            Action<int, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
+        public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
+        }
 
         /// <summary>
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel
         /// and loop options can be configured.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions, Action<long> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
+        public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions, Action<long> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel
         /// and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
+        public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
+        }
 
         /// <summary>
         /// Executes a for loop with 64-bit indexes in which iterations may run in parallel, loop
         /// options can be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions, Action<long, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
+        public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
+            Action<long, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a for loop with thread-local data in which iterations may run in parallel,
@@ -220,10 +216,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, Func<TLocal> localInit,
-            Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
+            Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a for loop with 64-bit indexes and thread-local data in which iterations
@@ -232,10 +229,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
-            Func<TLocal> localInit, Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.For)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
+            Func<TLocal> localInit, Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="System.Collections.IEnumerable"/>
@@ -302,30 +300,33 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run in parallel.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, body);
+        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run
         /// in parallel and loop options can be configured.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="System.Collections.IEnumerable"/> in which iterations
         /// may run in parallel, and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, body);
+        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="System.Collections.IEnumerable"/> in which iterations
@@ -333,10 +334,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions, Action<TSource, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
+            Action<TSource, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run in parallel,
@@ -344,30 +347,34 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, body);
+        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="Partitioner"/> in which iterations may run in parallel,
         /// loop options can be configured, and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource, ParallelLoopState> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions,
+            Action<TSource, ParallelLoopState> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation with 64-bit indexes on a <see cref="System.Collections.IEnumerable"/>
         /// in which iterations may run in parallel, and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState, long> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, body);
+        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState, long> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation with 64-bit indexes on a <see cref="System.Collections.IEnumerable"/>
@@ -375,20 +382,23 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions, Action<TSource, ParallelLoopState, long> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
+            Action<TSource, ParallelLoopState, long> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="OrderablePartitioner{TSource}"/> in which iterations
         /// may run in parallel and the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, Action<TSource, ParallelLoopState, long> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, body);
+        public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, Action<TSource, ParallelLoopState, long> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation on a <see cref="OrderablePartitioner{TSource}"/>
@@ -396,10 +406,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// the state of the loop can be monitored and manipulated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource, ParallelLoopState, long> body) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
+            Action<TSource, ParallelLoopState, long> body)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data on a <see cref="System.Collections.IEnumerable"/>
@@ -407,10 +419,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
-            Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+            Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data on a <see cref="System.Collections.IEnumerable"/>
@@ -419,10 +432,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
-            Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+            Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data on a <see cref="Partitioner"/> in which iterations may run in
@@ -430,10 +444,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, Func<TLocal> localInit,
-            Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+            Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data on a <see cref="Partitioner"/> in which iterations may run in
@@ -442,10 +457,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, ParallelOptions parallelOptions,
-            Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+            Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data on a <see cref="System.Collections.IEnumerable"/>
@@ -453,10 +469,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
-            Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+            Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data and 64-bit indexes on a <see cref="System.Collections.IEnumerable"/>
@@ -465,10 +482,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
-            Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+            Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with thread-local data on a <see cref="OrderablePartitioner{TSource}"/>
@@ -477,10 +495,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, Func<TLocal> localInit,
-            Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+            Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Executes a foreach operation with 64-bit indexes and with thread-local data on
@@ -490,10 +509,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
-            Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemTasks.Parallel.ForEach)} is not supported during systematic testing.") :
-            SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+            Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
+        }
 
         /// <summary>
         /// Returns a completed <see cref="ParallelLoopResult"/>.

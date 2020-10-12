@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.Coyote.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -99,7 +98,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override void VisitVariable(VariableDefinition variable)
+        protected override void VisitVariable(VariableDefinition variable)
         {
             if (this.Method is null)
             {
@@ -115,7 +114,7 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <inheritdoc/>
-        internal override Instruction VisitInstruction(Instruction instruction)
+        protected override Instruction VisitInstruction(Instruction instruction)
         {
             if (this.Method is null)
             {

@@ -6,11 +6,13 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Rewriting
 {
+    /// <summary>
+    /// Rewriting pass that ensures user defined try/catch blocks do not consume runtime exceptions.
+    /// </summary>
     internal class ExceptionFilterTransform : AssemblyTransform
     {
         /// <summary>
@@ -33,6 +35,9 @@ namespace Microsoft.Coyote.Rewriting
         /// </summary>
         private bool ModifiedHandlers;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionFilterTransform"/> class.
+        /// </summary>
         internal ExceptionFilterTransform(ILogger logger)
             : base(logger)
         {
@@ -62,7 +67,7 @@ namespace Microsoft.Coyote.Rewriting
 
             if (this.ModifiedHandlers)
             {
-                this.FixupInstructionOffsets();
+                FixInstructionOffsets(method);
             }
         }
 
@@ -83,24 +88,23 @@ namespace Microsoft.Coyote.Rewriting
                 return;
             }
 
-            if (handler.FilterStart == null)
+            if (handler.FilterStart is null)
             {
-                if (handler.CatchType == null)
+                if (handler.CatchType is null)
                 {
-                    // then this is a finally block, which is ok...
+                    // This is a finally block, which we can skip.
                     return;
                 }
 
                 var name = handler.CatchType.FullName;
-                if (name == "System.Object" || name == "System.Exception" || name == "Microsoft.Coyote.RuntimeException")
+                if (name is "System.Object" || name is "System.Exception" || name is "Microsoft.Coyote.RuntimeException")
                 {
                     this.AddThrowIfExecutionCanceledException(handler);
                 }
             }
             else
             {
-                // Oh, it has a filter, then we don't care what it is we can insert a check for
-                // ExecutionCanceledException at the top of this handler.
+                // If there is an existing filter, then just insert a check.
                 this.AddThrowIfExecutionCanceledException(handler);
             }
         }
@@ -111,27 +115,27 @@ namespace Microsoft.Coyote.Rewriting
             {
                 // A previous transform may have replaced some instructions, and if so, we need to recompute
                 // the instruction indexes before we operate on the try catch.
-                this.FixupInstructionOffsets();
+                FixInstructionOffsets(this.Method);
                 this.ModifiedHandlers = true;
             }
 
             Debug.WriteLine($"............. [+] rewriting catch block to rethrow an ExecutionCanceledException");
 
-            var handlerType = this.Method.Module.ImportReference(typeof(ExceptionHandlers)).Resolve();
-            MethodReference handlerMethod = handlerType.Methods.FirstOrDefault(m => m.Name == "ThrowIfCoyoteRuntimeException");
-            handlerMethod = this.Method.Module.ImportReference(handlerMethod);
+            var helperType = this.Method.Module.ImportReference(typeof(ExceptionHelpers)).Resolve();
+            MethodReference helperMethod = helperType.Methods.FirstOrDefault(m => m.Name is "ThrowIfCoyoteRuntimeException");
+            helperMethod = this.Method.Module.ImportReference(helperMethod);
 
             var processor = this.Method.Body.GetILProcessor();
             var newStart = Instruction.Create(OpCodes.Dup);
             var previousStart = handler.HandlerStart;
             processor.InsertBefore(handler.HandlerStart, newStart);
-            processor.InsertBefore(handler.HandlerStart, Instruction.Create(OpCodes.Call, handlerMethod));
+            processor.InsertBefore(handler.HandlerStart, Instruction.Create(OpCodes.Call, helperMethod));
             handler.HandlerStart = newStart;
 
-            // fix up any other handler end position that points to previousStart instruction.
+            // Fix up any other handler end position that points to previousStart instruction.
             foreach (var other in this.Method.Body.ExceptionHandlers)
             {
-                // we are the first (or most nested) try/catch
+                // The first (or most nested) try/catch block.
                 if (other.TryEnd == previousStart)
                 {
                     other.TryEnd = newStart;
@@ -142,16 +146,6 @@ namespace Microsoft.Coyote.Rewriting
                     other.HandlerEnd = newStart;
                 }
             }
-        }
-
-        private void FixupInstructionOffsets()
-        {
-            // By inserting new code into the visited method, it is possible some short branch
-            // instructions are now out of range, and need to be switch to long branches. This
-            // fixes that and it also recomputes instruction indexes which is also needed for
-            // valid write assembly operation.
-            this.Method.Body.SimplifyMacros();
-            this.Method.Body.OptimizeMacros();
         }
 
         /// <summary>
@@ -192,10 +186,10 @@ namespace Microsoft.Coyote.Rewriting
         /// Checks if the specified store and load op codes are matching.
         /// </summary>
         private static bool IsStoreLoadOpCodeMatching(Code storeCode, Code loadCode) =>
-            storeCode == Code.Stloc_0 ? loadCode == Code.Ldloc_0 :
-            storeCode == Code.Stloc_1 ? loadCode == Code.Ldloc_1 :
-            storeCode == Code.Stloc_2 ? loadCode == Code.Ldloc_2 :
-            storeCode == Code.Stloc_3 ? loadCode == Code.Ldloc_3 : false;
+            storeCode is Code.Stloc_0 ? loadCode is Code.Ldloc_0 :
+            storeCode is Code.Stloc_1 ? loadCode is Code.Ldloc_1 :
+            storeCode is Code.Stloc_2 ? loadCode is Code.Ldloc_2 :
+            storeCode is Code.Stloc_3 && loadCode is Code.Ldloc_3;
 
         /// <summary>
         /// Checks if the specified handler is generated for the async state machine.
@@ -212,7 +206,7 @@ namespace Microsoft.Coyote.Rewriting
                         type.Namespace == CachedNameProvider.SystemCompilerNamespace) &&
                         (type.Name == CachedNameProvider.AsyncTaskMethodBuilderName ||
                         type.Name.StartsWith("AsyncTaskMethodBuilder`")) &&
-                        method.Name == nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
+                        method.Name is nameof(SystemCompiler.AsyncTaskMethodBuilder.SetException))
                     {
                         return true;
                     }

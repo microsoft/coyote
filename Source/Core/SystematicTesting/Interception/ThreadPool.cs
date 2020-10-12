@@ -171,10 +171,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Binds an operating system handle to the <see cref="ThreadPool"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool BindHandle(SafeHandle osHandle) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.BindHandle)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.BindHandle(osHandle);
+        public static bool BindHandle(SafeHandle osHandle)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.BindHandle));
+            return SystemThreading.ThreadPool.BindHandle(osHandle);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a <see cref="TimeSpan"/> for
@@ -182,10 +183,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, TimeSpan timeout, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state, timeout, executeOnlyOnce);
+            object state, TimeSpan timeout, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state, timeout, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit signed integer for
@@ -193,10 +195,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, int millisecondsTimeOutInterval, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state, millisecondsTimeOutInterval, executeOnlyOnce);
+            object state, int millisecondsTimeOutInterval, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state,
+                millisecondsTimeOutInterval, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 64-bit signed integer for
@@ -204,10 +208,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, long millisecondsTimeOutInterval, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state, millisecondsTimeOutInterval, executeOnlyOnce);
+            object state, long millisecondsTimeOutInterval, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state,
+                millisecondsTimeOutInterval, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit unsigned integer for
@@ -215,10 +221,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state, millisecondsTimeOutInterval, executeOnlyOnce);
+            object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state,
+                millisecondsTimeOutInterval, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a <see cref="TimeSpan"/> for
@@ -226,10 +234,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, TimeSpan timeout, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state, timeout, executeOnlyOnce);
+            object state, TimeSpan timeout, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state, timeout, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit signed integer for
@@ -237,10 +246,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, int millisecondsTimeOutInterval, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state, millisecondsTimeOutInterval, executeOnlyOnce);
+            object state, int millisecondsTimeOutInterval, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state,
+                millisecondsTimeOutInterval, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 64-bit signed integer for
@@ -248,10 +259,12 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, long millisecondsTimeOutInterval, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state, millisecondsTimeOutInterval, executeOnlyOnce);
+            object state, long millisecondsTimeOutInterval, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state,
+                millisecondsTimeOutInterval, executeOnlyOnce);
+        }
 
         /// <summary>
         /// Registers a delegate to wait for a <see cref="WaitHandle"/>, specifying a 32-bit unsigned integer for
@@ -259,9 +272,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
-            object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject)} is not supported during systematic testing.") :
-            SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state, millisecondsTimeOutInterval, executeOnlyOnce);
+            object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state,
+                millisecondsTimeOutInterval, executeOnlyOnce);
+        }
     }
 }

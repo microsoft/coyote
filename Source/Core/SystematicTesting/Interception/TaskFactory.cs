@@ -71,10 +71,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Creates and starts a <see cref="Task"/>.
         /// </summary>
-        public Task StartNew(Action action, CancellationToken cancellationToken, TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.StartNew)} is not supported during systematic testing.") :
-            Task.Factory.StartNew(action, cancellationToken, creationOptions, scheduler);
+        public Task StartNew(Action action, CancellationToken cancellationToken, TaskCreationOptions creationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            return Task.Factory.StartNew(action, cancellationToken, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates and starts a <see cref="Task"/>.
@@ -98,10 +99,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates and starts a <see cref="Task"/>.
         /// </summary>
         public Task StartNew(Action<object> action, object state, CancellationToken cancellationToken,
-            TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.StartNew)} is not supported during systematic testing.") :
-            Task.Factory.StartNew(action, state, cancellationToken, creationOptions, scheduler);
+            TaskCreationOptions creationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            return Task.Factory.StartNew(action, state, cancellationToken, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates and starts a <see cref="Task{TResult}"/>.
@@ -148,10 +150,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates and starts a <see cref="Task{TResult}"/>.
         /// </summary>
         public Task<TResult> StartNew<TResult>(Func<TResult> function, CancellationToken cancellationToken,
-            TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.StartNew)} is not supported during systematic testing.") :
-            Task.Factory.StartNew(function, cancellationToken, creationOptions, scheduler);
+            TaskCreationOptions creationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            return Task.Factory.StartNew(function, cancellationToken, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates and starts a <see cref="Task{TResult}"/>.
@@ -175,10 +178,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates and starts a <see cref="Task{TResult}"/>.
         /// </summary>
         public Task<TResult> StartNew<TResult>(Func<object, TResult> function, object state, CancellationToken cancellationToken,
-            TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.StartNew)} is not supported during systematic testing.") :
-            Task.Factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
+            TaskCreationOptions creationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            return Task.Factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that starts when a set of specified tasks has completed.
@@ -202,10 +206,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a continuation task that starts when a set of specified tasks has completed.
         /// </summary>
         public Task ContinueWhenAll(Task[] tasks, Action<Task[]> continuationAction, CancellationToken cancellationToken,
-            TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAll)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAll(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+            TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            return Task.Factory.ContinueWhenAll(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that starts when a set of specified tasks has completed.
@@ -231,10 +236,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a continuation task that starts when a set of specified tasks has completed.
         /// </summary>
         public Task ContinueWhenAll<TAntecedentResult>(Task<TAntecedentResult>[] tasks, Action<Task<TAntecedentResult>[]> continuationAction,
-            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAll)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAll(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            return Task.Factory.ContinueWhenAll(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that starts when a set of specified tasks has completed.
@@ -260,10 +266,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a continuation task that starts when a set of specified tasks has completed.
         /// </summary>
         public Task<TResult> ContinueWhenAll<TResult>(Task[] tasks, Func<Task[], TResult> continuationFunction,
-            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAll)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            return Task.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that starts when a set of specified tasks has completed.
@@ -291,10 +298,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult>(Task<TAntecedentResult>[] tasks,
             Func<Task<TAntecedentResult>[], TResult> continuationFunction, CancellationToken cancellationToken,
-            TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAll)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+            TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            return Task.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
@@ -318,10 +326,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
         /// </summary>
         public Task ContinueWhenAny(Task[] tasks, Action<Task> continuationAction, CancellationToken cancellationToken,
-            TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAny)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAny(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+            TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            return Task.Factory.ContinueWhenAny(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
@@ -347,10 +356,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
         /// </summary>
         public Task ContinueWhenAny<TAntecedentResult>(Task<TAntecedentResult>[] tasks, Action<Task<TAntecedentResult>> continuationAction,
-            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAny)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAny(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            return Task.Factory.ContinueWhenAny(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
@@ -376,10 +386,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
         /// </summary>
         public Task<TResult> ContinueWhenAny<TResult>(Task[] tasks, Func<Task, TResult> continuationFunction,
-            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAny)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+            CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            return Task.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a continuation task that will be started upon the completion of any task in the provided set.
@@ -407,10 +418,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         public Task<TResult> ContinueWhenAny<TAntecedentResult, TResult>(Task<TAntecedentResult>[] tasks,
             Func<Task<TAntecedentResult>, TResult> continuationFunction, CancellationToken cancellationToken,
-            TaskContinuationOptions continuationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.ContinueWhenAny)} is not supported during systematic testing.") :
-            Task.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+            TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            return Task.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -424,10 +436,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task FromAsync(Func<AsyncCallback, object, IAsyncResult> beginMethod, Action<IAsyncResult> endMethod, object state,
-            TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
+            TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -442,10 +455,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task<TResult> FromAsync<TResult>(Func<AsyncCallback, object, IAsyncResult> beginMethod,
-            Func<IAsyncResult, TResult> endMethod, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
+            Func<IAsyncResult, TResult> endMethod, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -460,10 +474,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task FromAsync<TArg1>(Func<TArg1, AsyncCallback, object, IAsyncResult> beginMethod, Action<IAsyncResult> endMethod,
-            TArg1 arg1, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
+            TArg1 arg1, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -478,10 +493,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task FromAsync<TArg1, TArg2>(Func<TArg1, TArg2, AsyncCallback, object, IAsyncResult> beginMethod,
-            Action<IAsyncResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
+            Action<IAsyncResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -496,10 +512,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task FromAsync<TArg1, TArg2, TArg3>(Func<TArg1, TArg2, TArg3, AsyncCallback, object, IAsyncResult> beginMethod,
-            Action<IAsyncResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
+            Action<IAsyncResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -514,10 +531,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task<TResult> FromAsync<TArg1, TResult>(Func<TArg1, AsyncCallback, object, IAsyncResult> beginMethod,
-            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -532,10 +550,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task<TResult> FromAsync<TArg1, TArg2, TResult>(Func<TArg1, TArg2, AsyncCallback, object, IAsyncResult> beginMethod,
-            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that represents a pair of begin and end methods that conform
@@ -550,10 +569,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// to the Asynchronous Programming Model pattern.
         /// </summary>
         public Task<TResult> FromAsync<TArg1, TArg2, TArg3, TResult>(Func<TArg1, TArg2, TArg3, AsyncCallback, object, IAsyncResult> beginMethod,
-            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
+            Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
+        }
 
         /// <summary>
         /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
@@ -571,10 +591,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
         /// </summary>
         public Task FromAsync(IAsyncResult asyncResult, Action<IAsyncResult> endMethod, TaskCreationOptions creationOptions,
-            TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
+            TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
+        }
 
         /// <summary>
         /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
@@ -593,10 +614,11 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates a task that executes an end method action when a specified <see cref="IAsyncResult"/> completes.
         /// </summary>
         public Task<TResult> FromAsync<TResult>(IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod,
-            TaskCreationOptions creationOptions, TaskScheduler scheduler) =>
-            CoyoteRuntime.IsExecutionControlled ?
-            throw new NotSupportedException($"{nameof(Task.Factory.FromAsync)} is not supported during systematic testing.") :
-            Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
+            TaskCreationOptions creationOptions, TaskScheduler scheduler)
+        {
+            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            return Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
+        }
     }
 
     /// <summary>

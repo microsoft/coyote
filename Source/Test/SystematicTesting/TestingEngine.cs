@@ -270,6 +270,11 @@ namespace Microsoft.Coyote.SystematicTesting
             this.CancellationTokenSource = new CancellationTokenSource();
             this.PrintGuard = 1;
 
+            if (configuration.IsDebugVerbosityEnabled)
+            {
+                IO.Debug.IsEnabled = true;
+            }
+
             if (!configuration.UserExplicitlySetLivenessTemperatureThreshold &&
                 configuration.MaxFairSchedulingSteps > 0)
             {

@@ -208,6 +208,12 @@ namespace Microsoft.Coyote
         public bool IsVerbose { get; internal set; }
 
         /// <summary>
+        /// If true, then debug verbosity is enabled.
+        /// </summary>
+        [DataMember]
+        internal bool IsDebugVerbosityEnabled;
+
+        /// <summary>
         /// The level of detail to provide in verbose logging.
         /// </summary>
         [DataMember]
@@ -256,12 +262,6 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         internal string CustomActorRuntimeLogType;
-
-        /// <summary>
-        /// Enables debugging.
-        /// </summary>
-        [DataMember]
-        internal bool EnableDebugging;
 
         /// <summary>
         /// Number of parallel systematic testing tasks.
@@ -388,8 +388,8 @@ namespace Microsoft.Coyote
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
+            this.IsDebugVerbosityEnabled = false;
             this.LogLevel = LogSeverity.Informational;
-            this.EnableDebugging = false;
 
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
@@ -572,6 +572,17 @@ namespace Microsoft.Coyote
         {
             this.IsVerbose = isVerbose;
             this.LogLevel = logLevel;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with debug logging enabled or disabled.
+        /// </summary>
+        /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = false)
+        {
+            this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;
             return this;
         }
 

@@ -165,7 +165,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.OutputFilePath = (string)option.Value;
                     break;
                 case "debug":
-                    configuration.EnableDebugging = true;
+                    configuration.IsDebugVerbosityEnabled = true;
                     Debug.IsEnabled = true;
                     break;
                 case "verbosity":

@@ -647,7 +647,7 @@ namespace Microsoft.Coyote.SystematicTesting
             string[] lines = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             foreach (var line in lines)
             {
-                // if (!line.StartsWith("   at Microsoft.Coyote.SystematicTesting"))
+                if (!line.Contains("at Microsoft.Coyote.SystematicTesting"))
                 {
                     sb.AppendLine(line);
                 }

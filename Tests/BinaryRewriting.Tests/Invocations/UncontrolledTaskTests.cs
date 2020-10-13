@@ -15,6 +15,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         {
         }
 
+#if !NETFRAMEWORK
         [Fact(Timeout = 5000)]
         public void TestUncontrolledReadAllBytesAsync()
         {
@@ -31,5 +32,6 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
             },
             replay: true);
         }
+#endif
     }
 }

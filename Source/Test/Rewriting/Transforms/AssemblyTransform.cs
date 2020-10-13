@@ -19,6 +19,11 @@ namespace Microsoft.Coyote.Rewriting
     internal abstract class AssemblyTransform
     {
         /// <summary>
+        /// Cache of qualified names.
+        /// </summary>
+        private static readonly Dictionary<string, string> CachedQualifiedNames = new Dictionary<string, string>();
+
+        /// <summary>
         /// The installed logger.
         /// </summary>
         protected readonly ILogger Logger;
@@ -537,6 +542,43 @@ namespace Microsoft.Coyote.Rewriting
             // valid write assembly operation.
             method.Body.SimplifyMacros();
             method.Body.OptimizeMacros();
+        }
+
+        /// <summary>
+        /// Gets the fully qualified name of the specified type.
+        /// </summary>
+        protected static string GetFullyQualifiedTypeName(TypeReference type)
+        {
+            if (!CachedQualifiedNames.TryGetValue(type.FullName, out string name))
+            {
+                if (type is GenericInstanceType genericType)
+                {
+                    name = $"{genericType.ElementType.FullName.Split('`')[0]}";
+                }
+                else
+                {
+                    name = type.FullName;
+                }
+
+                CachedQualifiedNames.Add(type.FullName, name);
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Gets the fully qualified name of the specified method.
+        /// </summary>
+        protected static string GetFullyQualifiedMethodName(MethodReference method)
+        {
+            if (!CachedQualifiedNames.TryGetValue(method.FullName, out string name))
+            {
+                string typeName = GetFullyQualifiedTypeName(method.DeclaringType);
+                name = $"{typeName}.{method.Name}";
+                CachedQualifiedNames.Add(method.FullName, name);
+            }
+
+            return name;
         }
     }
 }

@@ -40,12 +40,26 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Throws a <see cref="NotSupportedException"/> for the specified unsupported method.
         /// </summary>
-        /// <param name="name">The name of the invoked method that is not supported.</param>
-        public static void ThrowNotSupportedInvocationException(string name)
+        /// <param name="methodName">The name of the invoked method that is not supported.</param>
+        public static void ThrowNotSupportedInvocationException(string methodName)
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                throw new NotSupportedException($"Invoking '{name}' is not supported during systematic testing.");
+                throw new NotSupportedException($"Invoking '{methodName}' is not supported during systematic testing.");
+            }
+        }
+
+        /// <summary>
+        /// Throws an exception if the task returned by the method with the specified name
+        /// is not controlled during systematic testing.
+        /// </summary>
+        /// <param name="task">The task to check if it is controlled or not.</param>
+        /// <param name="methodName">The name of the method returning the task.</param>
+        public static void ThrowIfReturnedTaskNotControlled(Task task, string methodName)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                ControlledRuntime.Current.TaskController.AssertIsReturnedTaskControlled(task, methodName);
             }
         }
     }

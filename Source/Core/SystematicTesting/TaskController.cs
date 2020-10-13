@@ -1089,6 +1089,19 @@ namespace Microsoft.Coyote.SystematicTesting
             }
         }
 
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal void AssertIsReturnedTaskControlled(Task task, string methodName)
+        {
+            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
+                !this.Runtime.Configuration.IsPartiallyControlledTestingEnabled)
+            {
+                this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
+                    "which is not allowed: either mock the method, or rewrite the method's assembly.");
+            }
+        }
+
         /// <summary>
         /// Checks that the executing task is controlled.
         /// </summary>

@@ -138,7 +138,8 @@ namespace Microsoft.Coyote.Rewriting
                 this.Transforms.Add(new MSTestTransform(this.Configuration, this.Logger));
             }
 
-            this.Transforms.Add(new NotSupportedTypesTransform(this.Logger));
+            this.Transforms.Add(new AssertionInjectionTransform(this.Logger));
+            this.Transforms.Add(new NotSupportedInvocationTransform(this.Logger));
 
             // expand folder
             if (this.Options.AssemblyPaths is null || this.Options.AssemblyPaths.Count is 0)
@@ -178,16 +179,14 @@ namespace Microsoft.Coyote.Rewriting
                 throw new Exception("Please provide RewritingOptions.AssemblyPaths");
             }
 
-            var binaryRewriter = new RewritingEngine(configuration, options);
-            binaryRewriter.Rewrite();
-
-            Console.WriteLine($". Done rewriting in {binaryRewriter.Profiler.Results()} sec");
+            var engine = new RewritingEngine(configuration, options);
+            engine.Run();
         }
 
         /// <summary>
-        /// Performs the assembly rewriting.
+        /// Runs the engine.
         /// </summary>
-        private void Rewrite()
+        private void Run()
         {
             this.Profiler.StartMeasuringExecutionTime();
 
@@ -239,6 +238,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             this.Profiler.StopMeasuringExecutionTime();
+            Console.WriteLine($". Done rewriting in {this.Profiler.Results()} sec");
         }
 
         /// <summary>
@@ -254,11 +254,12 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             string outputPath = Path.Combine(outputDirectory, assemblyName);
-            var isSymbolFileAvailable = IsSymbolFileAvailable(assemblyPath);
+
+            using var assemblyResolver = this.GetAssemblyResolver();
             var readParams = new ReaderParameters()
             {
-                AssemblyResolver = this.GetAssemblyResolver(),
-                ReadSymbols = isSymbolFileAvailable
+                AssemblyResolver = assemblyResolver,
+                ReadSymbols = IsSymbolFileAvailable(assemblyPath)
             };
 
             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
@@ -310,29 +311,24 @@ namespace Microsoft.Coyote.Rewriting
 
                 var writeParams = new WriterParameters()
                 {
-                    WriteSymbols = isSymbolFileAvailable,
+                    WriteSymbols = readParams.ReadSymbols,
                     SymbolWriterProvider = new PortablePdbWriterProvider()
                 };
 
                 if (!string.IsNullOrEmpty(this.Options.StrongNameKeyFile))
                 {
-                    using (FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open))
-                    {
-                        writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
-                    }
+                    using FileStream fs = File.Open(this.Options.StrongNameKeyFile, FileMode.Open);
+                    writeParams.StrongNameKeyPair = new StrongNameKeyPair(fs);
                 }
 
                 assembly.Write(outputPath, writeParams);
             }
 
-            // dispose any resolved assemblies also!
-            using var r = readParams.AssemblyResolver;
-
             if (this.Options.IsReplacingAssemblies)
             {
                 string targetPath = Path.Combine(this.Options.AssembliesDirectory, assemblyName);
                 this.CopyWithRetriesAsync(outputPath, assemblyPath).Wait();
-                if (isSymbolFileAvailable)
+                if (readParams.ReadSymbols)
                 {
                     string pdbFile = Path.ChangeExtension(outputPath, "pdb");
                     string targetPdbFile = Path.ChangeExtension(targetPath, "pdb");

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.SystematicTesting.Interception;
+using Microsoft.Coyote.SystematicTesting;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -99,12 +99,13 @@ namespace Microsoft.Coyote.Rewriting
                 {
                     Debug.WriteLine($"............. [+] throw exception on unsupported '{invocationName}' invocation");
 
-                    var helperType = this.Method.Module.ImportReference(typeof(ExceptionHelpers)).Resolve();
-                    MethodReference helperMethod = helperType.Methods.FirstOrDefault(m => m.Name is "ThrowNotSupportedException");
-                    helperMethod = this.Method.Module.ImportReference(helperMethod);
+                    var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
+                        m => m.Name is nameof(ExceptionProvider.ThrowNotSupportedInvocationException));
+                    providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));
-                    this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, helperMethod));
+                    this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, providerMethod));
 
                     FixInstructionOffsets(this.Method);
                 }

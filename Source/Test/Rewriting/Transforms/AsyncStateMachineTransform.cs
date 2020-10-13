@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.SystematicTesting;
 using Microsoft.Coyote.SystematicTesting.Interception;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -83,12 +84,13 @@ namespace Microsoft.Coyote.Rewriting
                     {
                         Debug.WriteLine($"............. [+] insert check for uncontrolled tasks");
 
-                        var helperType = this.Method.Module.ImportReference(typeof(ExceptionHelpers)).Resolve();
-                        MethodReference helperMethod = helperType.Methods.FirstOrDefault(m => m.Name is "ThrowIfTaskNotControlled");
-                        helperMethod = this.Method.Module.ImportReference(helperMethod);
+                        var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+                        MethodReference providerMethod = providerType.Methods.FirstOrDefault(
+                            m => m.Name is nameof(ExceptionProvider.ThrowIfAwaitedTaskNotControlled));
+                        providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                         this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Dup));
-                        this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, helperMethod));
+                        this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, providerMethod));
 
                         FixInstructionOffsets(this.Method);
                     }

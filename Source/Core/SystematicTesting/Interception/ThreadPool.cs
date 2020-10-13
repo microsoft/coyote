@@ -173,7 +173,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool BindHandle(SafeHandle osHandle)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.BindHandle));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.BindHandle));
             return SystemThreading.ThreadPool.BindHandle(osHandle);
         }
 
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, TimeSpan timeout, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state, timeout, executeOnlyOnce);
         }
 
@@ -197,7 +197,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, int millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state,
                 millisecondsTimeOutInterval, executeOnlyOnce);
         }
@@ -210,7 +210,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, long millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state,
                 millisecondsTimeOutInterval, executeOnlyOnce);
         }
@@ -223,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle RegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.RegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.RegisterWaitForSingleObject(waitObject, callBack, state,
                 millisecondsTimeOutInterval, executeOnlyOnce);
         }
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, TimeSpan timeout, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state, timeout, executeOnlyOnce);
         }
 
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, int millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state,
                 millisecondsTimeOutInterval, executeOnlyOnce);
         }
@@ -261,7 +261,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, long millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state,
                 millisecondsTimeOutInterval, executeOnlyOnce);
         }
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static RegisteredWaitHandle UnsafeRegisterWaitForSingleObject(WaitHandle waitObject, WaitOrTimerCallback callBack,
             object state, uint millisecondsTimeOutInterval, bool executeOnlyOnce)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject));
             return SystemThreading.ThreadPool.UnsafeRegisterWaitForSingleObject(waitObject, callBack, state,
                 millisecondsTimeOutInterval, executeOnlyOnce);
         }

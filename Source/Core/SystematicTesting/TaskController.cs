@@ -395,9 +395,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // TODO: cache the dummy delay action to optimize memory.
-            var x = this.ScheduleAction(() => { }, null, false, false, cancellationToken);
-            this.Runtime.Logger.WriteLine($"D: {x.Id}");
-            return x;
+            return this.ScheduleAction(() => { }, null, false, false, cancellationToken);
         }
 
         /// <summary>

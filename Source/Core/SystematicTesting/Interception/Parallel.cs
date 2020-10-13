@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(params Action[] actions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.Invoke));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.Invoke));
             SystemTasks.Parallel.Invoke(actions);
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(ParallelOptions parallelOptions, params Action[] actions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.Invoke));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.Invoke));
             SystemTasks.Parallel.Invoke(parallelOptions, actions);
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, Action<int, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
         }
 
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult For(int fromInclusive, int toExclusive, ParallelOptions parallelOptions,
             Action<int, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
         }
 
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
         }
 
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions, Action<long> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
         }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, Action<long, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, body);
         }
 
@@ -178,7 +178,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult For(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
             Action<long, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, body);
         }
 
@@ -218,7 +218,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, Func<TLocal> localInit,
             Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, localInit, body, localFinally);
         }
 
@@ -231,7 +231,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult For<TLocal>(long fromInclusive, long toExclusive, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<long, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.For));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.For));
             return SystemTasks.Parallel.For(fromInclusive, toExclusive, parallelOptions, localInit, body, localFinally);
         }
 
@@ -302,7 +302,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions, Action<TSource> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -324,7 +324,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -337,7 +337,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -349,7 +349,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, Action<TSource, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -361,7 +361,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource>(Partitioner<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -372,7 +372,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -385,7 +385,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -396,7 +396,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, body);
         }
 
@@ -409,7 +409,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
             Action<TSource, ParallelLoopState, long> body)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, body);
         }
 
@@ -421,7 +421,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -434,7 +434,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 
@@ -446,7 +446,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -459,7 +459,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(Partitioner<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 
@@ -471,7 +471,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -484,7 +484,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(IEnumerable<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 
@@ -497,7 +497,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, Func<TLocal> localInit,
             Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, localInit, body, localFinally);
         }
 
@@ -511,7 +511,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static ParallelLoopResult ForEach<TSource, TLocal>(OrderablePartitioner<TSource> source, ParallelOptions parallelOptions,
             Func<TLocal> localInit, Func<TSource, ParallelLoopState, long, TLocal, TLocal> body, Action<TLocal> localFinally)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(SystemTasks.Parallel.ForEach));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemTasks.Parallel.ForEach));
             return SystemTasks.Parallel.ForEach(source, parallelOptions, localInit, body, localFinally);
         }
 

@@ -146,7 +146,16 @@ namespace Microsoft.Coyote
         internal int SafetyPrefixBound;
 
         /// <summary>
-        /// If this option is enabled, liveness checking is enabled during bug-finding.
+        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// </summary>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        [DataMember]
+        internal bool IsPartiallyControlledTestingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
@@ -255,7 +264,7 @@ namespace Microsoft.Coyote
         internal bool EnableDebugging;
 
         /// <summary>
-        /// Number of parallel bug-finding tasks.
+        /// Number of parallel systematic testing tasks.
         /// By default it is 1 task.
         /// </summary>
         [DataMember]
@@ -281,7 +290,7 @@ namespace Microsoft.Coyote
         internal bool WaitForTestingProcesses;
 
         /// <summary>
-        /// Runs this process as a parallel bug-finding task.
+        /// Runs this process as a parallel systematic testing task.
         /// </summary>
         [DataMember]
         internal bool RunAsParallelBugFindingTask;
@@ -363,6 +372,7 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 10;
             this.SafetyPrefixBound = 0;
 
+            this.IsPartiallyControlledTestingEnabled = false;
             this.IsLivenessCheckingEnabled = true;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -501,6 +511,19 @@ namespace Microsoft.Coyote
             this.MaxUnfairSchedulingSteps = (int)maxUnfairSteps;
             this.MaxFairSchedulingSteps = (int)maxFairSteps;
             this.UserExplicitlySetMaxFairSchedulingSteps = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with partially controlled testing enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then partially controlled testing is enabled.</param>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        public Configuration WithPartiallyControlledTestingEnabled(bool isEnabled = true)
+        {
+            this.IsPartiallyControlledTestingEnabled = isEnabled;
             return this;
         }
 

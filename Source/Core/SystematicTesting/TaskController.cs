@@ -1054,6 +1054,19 @@ namespace Microsoft.Coyote.SystematicTesting
             return result;
         }
 
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal void AssertIsAwaitedTaskControlled(Task task)
+        {
+            if (!this.Runtime.Configuration.IsPartiallyControlledTestingEnabled &&
+                !(task.AsyncState is OperationContext))
+            {
+                this.Assert(false, "Awaiting an uncontrolled task '{0}' is not allowed: if this task originates " +
+                    "in a non-rewritten assembly, then either rewrite the assembly or mock the call.", task.Id);
+            }
+        }
+
         /// <summary>
         /// Checks that the executing task is controlled.
         /// </summary>

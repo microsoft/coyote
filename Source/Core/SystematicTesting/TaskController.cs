@@ -32,7 +32,8 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
-        /// Map from controlled tasks to task operations.
+        /// Map from controlled tasks to their corresponding operations,
+        /// if such an operation exists.
         /// </summary>
         private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
 
@@ -115,8 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<CoyoteTasks.Task>, Task, Task>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<Task>(this.ExecuteOperation<Func<CoyoteTasks.Task>, Task, Task>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return new CoyoteTasks.Task(this, context.ResultSource.Task);
+            return new CoyoteTasks.Task(this, this.ScheduleTaskOperation(op, task, context.ResultSource));
         }
 
         /// <summary>
@@ -135,8 +135,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return new CoyoteTasks.Task<TResult>(this, context.ResultSource.Task);
+            return new CoyoteTasks.Task<TResult>(this, this.ScheduleTaskOperation(op, task, context.ResultSource));
         }
 
         /// <summary>
@@ -975,8 +974,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal void OnAsyncTaskMethodBuilderGetTask(Task task)
         {
-            this.LatestMethodBuilderTask.Value = task;
-            this.Runtime.Logger.WriteLine($"1: {this.LatestMethodBuilderTask.Value?.Id}");
+            this.CheckExecutingOperationIsControlled();
+            this.TaskMap.TryAdd(task, null);
         }
 
         /// <summary>
@@ -1075,9 +1074,8 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal void AssertIsAwaitedTaskControlled(Task task)
         {
-            this.Runtime.Logger.WriteLine($"2: {this.LatestMethodBuilderTask.Value?.Id}");
-            if (!task.IsCompleted && !this.Runtime.Configuration.IsPartiallyControlledTestingEnabled &&
-                !(task.AsyncState is OperationContext || this.LatestMethodBuilderTask.Value == task))
+            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
+                !this.Runtime.Configuration.IsPartiallyControlledTestingEnabled)
             {
                 this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
                     "either mock the method that created the task, or rewrite the method's assembly.");
@@ -1101,7 +1099,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void ReportThrownException(Exception exception)
         {
-            if (!(exception is ExecutionCanceledException) && !(exception is TaskCanceledException) && !(exception is OperationCanceledException))
+            if (!(exception is ExecutionCanceledException) &&
+                !(exception is TaskCanceledException) &&
+                !(exception is OperationCanceledException))
             {
                 string message = string.Format(CultureInfo.InvariantCulture,
                     $"Exception '{exception.GetType()}' was thrown in task '{Task.CurrentId}', " +

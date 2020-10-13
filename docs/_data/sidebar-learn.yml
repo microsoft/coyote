@@ -131,6 +131,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/WithTestingIterations
         - name: WithMaxSchedulingSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps
+        - name: WithPartiallyControlledTestingEnabled
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithPartiallyControlledTestingEnabled
         - name: WithLivenessTemperatureThreshold
           link: /learn/ref/Microsoft.Coyote/Configuration/WithLivenessTemperatureThreshold
         - name: WithTimeoutDelay
@@ -1007,18 +1009,6 @@ learn-toc:
         subfolderitems:
         - name: HotAttribute
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor.State.HotAttribute/HotAttribute
-    - name: Microsoft.Coyote.SystematicTesting.Interception
-      link: /learn/ref/MicrosoftCoyoteSystematicTestingInterceptionNamespace
-      subfolderitems:
-      - name: ControlledTask<TResult>
-        link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1Type
-        subfolderitems:
-        - name: get_Result
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1/get_Result
-        - name: GetAwaiter
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1/GetAwaiter
-        - name: Factory
-          link: /learn/ref/Microsoft.Coyote.SystematicTesting.Interception/ControlledTask-1/Factory
     - name: Microsoft.Coyote.Tasks
       link: /learn/ref/MicrosoftCoyoteTasksNamespace
       subfolderitems:
@@ -1197,8 +1187,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/OutputDirectory
         - name: AssemblyPaths
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/AssemblyPaths
-        - name: DisallowedAssemblies
-          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/DisallowedAssemblies
+        - name: IgnoredAssemblies
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IgnoredAssemblies
+        - name: DependencySearchPaths
+          link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/DependencySearchPaths
         - name: StrongNameKeyFile
           link: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/StrongNameKeyFile
         - name: IsRewritingDependencies

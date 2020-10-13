@@ -48,17 +48,5 @@ namespace Microsoft.Coyote.SystematicTesting
                 throw new NotSupportedException($"Invoking '{name}' is not supported during systematic testing.");
             }
         }
-
-        /// <summary>
-        /// Throws an exception if the specified awaited task is not controlled during systematic testing.
-        /// </summary>
-        /// <param name="task">The task to check if it is controlled or not.</param>
-        public static void ThrowIfAwaitedTaskNotControlled(Task task)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                ControlledRuntime.Current.TaskController.AssertIsAwaitedTaskControlled(task);
-            }
-        }
     }
 }

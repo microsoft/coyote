@@ -122,7 +122,6 @@ namespace Microsoft.Coyote.Rewriting
             this.Transforms = new List<AssemblyTransform>()
             {
                 new TaskTransform(this.Logger),
-                new AsyncStateMachineTransform(this.Logger),
                 new MonitorTransform(this.Logger),
                 new ExceptionFilterTransform(this.Logger)
             };

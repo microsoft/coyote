@@ -1106,9 +1106,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void ReportThrownException(Exception exception)
         {
-            if (!(exception is ExecutionCanceledException) &&
-                !(exception is TaskCanceledException) &&
-                !(exception is OperationCanceledException))
+            if (!(exception is ExecutionCanceledException || exception is TaskCanceledException ||
+                exception is OperationCanceledException))
             {
                 string message = string.Format(CultureInfo.InvariantCulture,
                     $"Exception '{exception.GetType()}' was thrown in task '{Task.CurrentId}', " +

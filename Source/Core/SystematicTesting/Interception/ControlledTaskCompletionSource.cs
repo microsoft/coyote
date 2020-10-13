@@ -10,8 +10,8 @@ using Microsoft.Coyote.Runtime;
 namespace Microsoft.Coyote.SystematicTesting.Interception
 {
     /// <summary>
-    /// Represents the producer side of a controlled <see cref="Task{TResult}"/> unbound to a delegate,
-    /// providing access to the consumer side through the task property.
+    /// Represents the producer side of a controlled <see cref="Task{TResult}"/> unbound to a delegate, providing
+    /// access to the consumer side through the <see cref="TaskCompletionSource{TResult}.Task"/> property.
     /// </summary>
     /// <typeparam name="TResult">The type of the result value.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>

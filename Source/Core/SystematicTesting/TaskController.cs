@@ -958,14 +958,24 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Unwraps the specified task.
         /// </summary>
-        internal Task UnwrapTask(Task<Task> task) =>
-            task.AsyncState is TaskCompletionSource<Task> tcs ? tcs.Task : task.Unwrap();
+        internal Task UnwrapTask(Task<Task> task)
+        {
+            var unwrappedTask = task.AsyncState is TaskCompletionSource<Task> tcs ? tcs.Task : task.Unwrap();
+            this.TaskMap.TryGetValue(task, out TaskOperation op);
+            this.TaskMap.TryAdd(unwrappedTask, op);
+            return unwrappedTask;
+        }
 
         /// <summary>
         /// Unwraps the specified task.
         /// </summary>
-        internal Task<TResult> UnwrapTask<TResult>(Task<Task<TResult>> task) =>
-            task.AsyncState is TaskCompletionSource<TResult> tcs ? tcs.Task : task.Unwrap();
+        internal Task<TResult> UnwrapTask<TResult>(Task<Task<TResult>> task)
+        {
+            var unwrappedTask = task.AsyncState is TaskCompletionSource<TResult> tcs ? tcs.Task : task.Unwrap();
+            this.TaskMap.TryGetValue(task, out TaskOperation op);
+            this.TaskMap.TryAdd(unwrappedTask, op);
+            return unwrappedTask;
+        }
 
         /// <summary>
         /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.

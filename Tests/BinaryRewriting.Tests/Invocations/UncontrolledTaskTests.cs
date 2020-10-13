@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedContinueWithTaskInvocation()
+        public void TestUncontrolledReadAllBytesAsync()
         {
             this.TestWithError(async () =>
             {

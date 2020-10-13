@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
+using Microsoft.Coyote.SystematicTesting;
 using Mono.Reflection;
 using Xunit;
 using Xunit.Abstractions;
@@ -223,7 +224,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         {
             var instructions = methodInfo.GetInstructions();
             int count = instructions.Count(i => i.OpCode == OpCodes.Call &&
-                i.Operand.ToString().Contains("ThrowIfCoyoteRuntimeException"));
+                i.Operand.ToString().Contains(nameof(ExceptionProvider.ThrowIfExecutionCanceledException)));
             Specification.Assert(count == expectedCount, $"Rewrote {count} catch blocks (expected {expectedCount}).");
         }
     }

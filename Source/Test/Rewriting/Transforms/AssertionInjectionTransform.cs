@@ -11,7 +11,7 @@ using Mono.Cecil.Cil;
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewriting pass that fails invocations of not supported types.
+    /// Rewriting pass that injects assertions.
     /// </summary>
     internal class AssertionInjectionTransform : AssemblyTransform
     {

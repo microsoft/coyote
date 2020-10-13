@@ -504,6 +504,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class ControlledTask<TResult>
     {
 #pragma warning disable CA1000 // Do not declare static members on generic types

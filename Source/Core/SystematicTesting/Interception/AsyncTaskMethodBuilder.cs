@@ -42,7 +42,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.OnAsyncTaskMethodBuilderGetTask(this.MethodBuilder.Task);
+                this.TaskController?.CheckExecutingOperationIsControlled();
+                this.TaskController?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
         }
@@ -153,7 +154,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, System.Threading.Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.OnAsyncTaskMethodBuilderGetTask(this.MethodBuilder.Task);
+                this.TaskController?.CheckExecutingOperationIsControlled();
+                this.TaskController?.OnTaskCompletionSourceGetTask(this.MethodBuilder.Task);
                 return this.MethodBuilder.Task;
             }
         }

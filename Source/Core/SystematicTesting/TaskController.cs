@@ -978,11 +978,10 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
+        /// Callback invoked when the task of a task completion source is accessed.
         /// </summary>
-        internal void OnAsyncTaskMethodBuilderGetTask(Task task)
+        internal void OnTaskCompletionSourceGetTask(Task task)
         {
-            this.CheckExecutingOperationIsControlled();
             this.TaskMap.TryAdd(task, null);
         }
 

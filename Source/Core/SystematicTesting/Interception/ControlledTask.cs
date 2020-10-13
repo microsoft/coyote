@@ -477,18 +477,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         /// <param name="task">The task associated with the task awaiter.</param>
         /// <returns>The task awaiter.</returns>
-        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: perhaps we can optimize this check via rewriting.
-                var controller = ControlledRuntime.Current.TaskController;
-                controller.AssertIsAwaitedTaskControlled(task);
-                return new CoyoteTasks.TaskAwaiter(controller, task);
-            }
-
-            return new CoyoteTasks.TaskAwaiter(null, task);
-        }
+        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task) => new CoyoteTasks.TaskAwaiter(
+            CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
 
         /// <summary>
         /// Creates an awaitable that asynchronously yields back to the current context when awaited.
@@ -542,18 +532,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         /// <param name="task">The task associated with the task awaiter.</param>
         /// <returns>The task awaiter.</returns>
-        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                // TODO: perhaps we can optimize this check via rewriting.
-                var controller = ControlledRuntime.Current.TaskController;
-                controller.AssertIsAwaitedTaskControlled(task);
-                return new CoyoteTasks.TaskAwaiter<TResult>(controller, task);
-            }
-
-            return new CoyoteTasks.TaskAwaiter<TResult>(null, task);
-        }
+        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) => new CoyoteTasks.TaskAwaiter<TResult>(
+            CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

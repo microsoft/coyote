@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -31,12 +32,18 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
+        /// Map from controlled tasks to task operations.
+        /// </summary>
+        private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TaskController"/> class.
         /// </summary>
         internal TaskController(ControlledRuntime runtime, OperationScheduler scheduler)
         {
             this.Runtime = runtime;
             this.Scheduler = scheduler;
+            this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
             Interception.ControlledThread.ClearCache();
         }
 
@@ -54,8 +61,7 @@ namespace Microsoft.Coyote.SystematicTesting
             OperationExecutionOptions options = OperationContext.CreateOperationExecutionOptions(failException, isYield);
             var context = new OperationContext<Action, object>(op, action, predecessor, options, cancellationToken);
             var task = new Task(this.ExecuteOperation, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ResultSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ResultSource);
         }
 
         /// <summary>
@@ -73,8 +79,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<Task>, Task, Task>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<Task>(this.ExecuteOperation<Func<Task>, Task, Task>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ExecutorSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ExecutorSource);
         }
 
         /// <summary>
@@ -92,8 +97,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ExecutorSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ExecutorSource);
         }
 
         /// <summary>
@@ -149,19 +153,20 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new OperationContext<Func<TResult>, TResult>(op, function, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             var task = new Task<TResult>(this.ExecuteOperation<Func<TResult>, TResult, TResult>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ResultSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ResultSource);
         }
 
         /// <summary>
         /// Schedules the specified task operation for execution.
         /// </summary>
-        internal void ScheduleTaskOperation(TaskOperation op, Task task)
+        private Task<TResult> ScheduleTaskOperation<TResult>(TaskOperation op, Task task, TaskCompletionSource<TResult> tcs)
         {
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
+            this.TaskMap.TryAdd(tcs.Task, op);
+            return tcs.Task;
         }
 
         /// <summary>
@@ -391,7 +396,9 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // TODO: cache the dummy delay action to optimize memory.
-            return this.ScheduleAction(() => { }, null, false, false, cancellationToken);
+            var x = this.ScheduleAction(() => { }, null, false, false, cancellationToken);
+            this.Runtime.Logger.WriteLine($"D: {x.Id}");
+            return x;
         }
 
         /// <summary>
@@ -966,6 +973,15 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
         /// </summary>
+        internal void OnAsyncTaskMethodBuilderGetTask(Task task)
+        {
+            this.LatestMethodBuilderTask.Value = task;
+            this.Runtime.Logger.WriteLine($"1: {this.LatestMethodBuilderTask.Value?.Id}");
+        }
+
+        /// <summary>
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.SetException"/> is accessed.
+        /// </summary>
         internal void OnAsyncTaskMethodBuilderSetException(Exception exception)
         {
             var op = this.Scheduler.GetExecutingOperation<TaskOperation>();
@@ -1059,11 +1075,12 @@ namespace Microsoft.Coyote.SystematicTesting
 #endif
         internal void AssertIsAwaitedTaskControlled(Task task)
         {
-            if (!this.Runtime.Configuration.IsPartiallyControlledTestingEnabled &&
-                !(task.AsyncState is OperationContext))
+            this.Runtime.Logger.WriteLine($"2: {this.LatestMethodBuilderTask.Value?.Id}");
+            if (!task.IsCompleted && !this.Runtime.Configuration.IsPartiallyControlledTestingEnabled &&
+                !(task.AsyncState is OperationContext || this.LatestMethodBuilderTask.Value == task))
             {
-                this.Assert(false, "Awaiting an uncontrolled task '{0}' is not allowed: if this task originates " +
-                    "in a non-rewritten assembly, then either rewrite the assembly or mock the call.", task.Id);
+                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
+                    "either mock the method that created the task, or rewrite the method's assembly.");
             }
         }
 

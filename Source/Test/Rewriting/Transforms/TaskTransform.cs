@@ -361,7 +361,7 @@ namespace Microsoft.Coyote.Rewriting
         /// Checks if the specified type is the <see cref="SystemTasks.Task"/> type.
         /// </summary>
         private static bool IsSystemTaskType(TypeReference type) => type.Namespace == CachedNameProvider.SystemTasksNamespace &&
-            (type.Name == typeof(SystemTasks.Task).Name || type.Name.StartsWith("Task`"));
+            (type.Name == CachedNameProvider.TaskName || type.Name.StartsWith("Task`"));
 
         /// <summary>
         /// Checks if the <see cref="SystemTasks.Task"/> method with the specified name is supported.

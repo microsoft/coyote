@@ -1,3 +1,7 @@
+## v1.1.5
+- Improved detection of uncontrolled tasks during systematic testing.
+- Added detection of invoking unsupported APIs during systematic testing.
+
 ## v1.1.4
 - Added missing `coyote rewrite` dependencies in the `Microsoft.Coyote.Test` package.
 

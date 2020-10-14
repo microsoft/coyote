@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Reflection;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -15,23 +14,20 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
         {
         }
 
-#if !NETFRAMEWORK
         [Fact(Timeout = 5000)]
-        public void TestUncontrolledReadAllBytesAsync()
+        public void TestDetectedUncontrolledDelay()
         {
             this.TestWithError(async () =>
             {
-                string path = Assembly.GetExecutingAssembly().Location;
-                await File.ReadAllBytesAsync(path);
+                await AsyncProvider.DelayAsync();
             },
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Method 'System.IO.File.ReadAllBytesAsync' returned an uncontrolled task"),
+                Assert.True(e.StartsWith("Method 'Microsoft.Coyote.Tests.Common.Tasks.AsyncProvider.DelayAsync' returned an uncontrolled task"),
                     "Expected uncontrolled task from invoking the async method.");
             },
             replay: true);
         }
-#endif
     }
 }

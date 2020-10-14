@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             arguments.Append($"test {configuration.AssemblyToBeAnalyzed} ");
 
-            if (configuration.EnableDebugging)
+            if (configuration.IsDebugVerbosityEnabled)
             {
                 arguments.Append("--debug ");
             }
@@ -82,6 +82,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 configuration.SchedulingStrategy is "portfolio")
             {
                 arguments.Append($"--sch-{configuration.SchedulingStrategy} ");
+            }
+
+            if (configuration.IsPartiallyControlledTestingEnabled)
+            {
+                arguments.Append("--partially-controlled-testing ");
             }
 
             if (configuration.RandomGeneratorSeed.HasValue)

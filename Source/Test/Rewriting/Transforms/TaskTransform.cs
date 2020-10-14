@@ -206,21 +206,23 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         protected override TypeReference RewriteDeclaringTypeReference(MethodReference method)
         {
-            TypeReference result = method.DeclaringType;
-            if (IsSystemTaskType(result))
+            TypeReference type = method.DeclaringType;
+            if (IsSupportedTaskType(type))
             {
-                // Special rules apply for `Task` methods, which are replaced with their `ControlledTask` counterparts.
-                if (IsSupportedTaskMethod(method.Name))
+                // Special rules apply for `Task` and `TaskCompletionSource` methods, which are replaced
+                // with their `ControlledTask` and `ControlledTaskCompletionSource` counterparts.
+                if (IsSupportedTaskMethod(type.Name, method.Name) ||
+                    type.Name.StartsWith(CachedNameProvider.GenericTaskCompletionSourceName))
                 {
-                    result = this.RewriteTaskType(result);
+                    type = this.RewriteTaskType(type);
                 }
             }
             else
             {
-                result = this.RewriteCompilerType(result);
+                type = this.RewriteCompilerType(type);
             }
 
-            return result;
+            return type;
         }
 
         /// <inheritdoc/>
@@ -247,6 +249,10 @@ namespace Microsoft.Coyote.Rewriting
             else if (fullName == CachedNameProvider.GenericTaskFullName)
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTask<>), type);
+            }
+            else if (fullName == CachedNameProvider.GenericTaskCompletionSourceFullName)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.ControlledTaskCompletionSource<>), type);
             }
 
             if (isRoot && result != type)
@@ -358,25 +364,28 @@ namespace Microsoft.Coyote.Rewriting
         }
 
         /// <summary>
-        /// Checks if the specified type is the <see cref="SystemTasks.Task"/> type.
+        /// Checks if the specified type is a supported task type.
         /// </summary>
-        private static bool IsSystemTaskType(TypeReference type) => type.Namespace == CachedNameProvider.SystemTasksNamespace &&
-            (type.Name == typeof(SystemTasks.Task).Name || type.Name.StartsWith("Task`"));
+        private static bool IsSupportedTaskType(TypeReference type) =>
+            type.Namespace == CachedNameProvider.SystemTasksNamespace &&
+            (type.Name == CachedNameProvider.TaskName || type.Name.StartsWith("Task`") ||
+            type.Name.StartsWith("TaskCompletionSource`"));
 
         /// <summary>
         /// Checks if the <see cref="SystemTasks.Task"/> method with the specified name is supported.
         /// </summary>
-        private static bool IsSupportedTaskMethod(string name) =>
-            name == "get_Factory" ||
-            name == "get_Result" ||
-            name == nameof(ControlledTasks.ControlledTask.Run) ||
-            name == nameof(ControlledTasks.ControlledTask.Delay) ||
-            name == nameof(ControlledTasks.ControlledTask.WhenAll) ||
-            name == nameof(ControlledTasks.ControlledTask.WhenAny) ||
-            name == nameof(ControlledTasks.ControlledTask.WaitAll) ||
-            name == nameof(ControlledTasks.ControlledTask.WaitAny) ||
-            name == nameof(ControlledTasks.ControlledTask.Wait) ||
-            name == nameof(ControlledTasks.ControlledTask.Yield) ||
-            name == nameof(ControlledTasks.ControlledTask.GetAwaiter);
+        private static bool IsSupportedTaskMethod(string typeName, string methodName) =>
+            typeName.StartsWith(CachedNameProvider.TaskName) &&
+            (methodName == "get_Factory" ||
+            methodName == "get_Result" ||
+            methodName == nameof(ControlledTasks.ControlledTask.Run) ||
+            methodName == nameof(ControlledTasks.ControlledTask.Delay) ||
+            methodName == nameof(ControlledTasks.ControlledTask.WhenAll) ||
+            methodName == nameof(ControlledTasks.ControlledTask.WhenAny) ||
+            methodName == nameof(ControlledTasks.ControlledTask.WaitAll) ||
+            methodName == nameof(ControlledTasks.ControlledTask.WaitAny) ||
+            methodName == nameof(ControlledTasks.ControlledTask.Wait) ||
+            methodName == nameof(ControlledTasks.ControlledTask.Yield) ||
+            methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter));
     }
 }

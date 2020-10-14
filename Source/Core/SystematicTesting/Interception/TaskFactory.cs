@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         public Task StartNew(Action action, CancellationToken cancellationToken, TaskCreationOptions creationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.StartNew));
             return Task.Factory.StartNew(action, cancellationToken, creationOptions, scheduler);
         }
 
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task StartNew(Action<object> action, object state, CancellationToken cancellationToken,
             TaskCreationOptions creationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.StartNew));
             return Task.Factory.StartNew(action, state, cancellationToken, creationOptions, scheduler);
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> StartNew<TResult>(Func<TResult> function, CancellationToken cancellationToken,
             TaskCreationOptions creationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.StartNew));
             return Task.Factory.StartNew(function, cancellationToken, creationOptions, scheduler);
         }
 
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> StartNew<TResult>(Func<object, TResult> function, object state, CancellationToken cancellationToken,
             TaskCreationOptions creationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.StartNew));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.StartNew));
             return Task.Factory.StartNew(function, state, cancellationToken, creationOptions, scheduler);
         }
 
@@ -208,7 +208,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task ContinueWhenAll(Task[] tasks, Action<Task[]> continuationAction, CancellationToken cancellationToken,
             TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAll));
             return Task.Factory.ContinueWhenAll(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task ContinueWhenAll<TAntecedentResult>(Task<TAntecedentResult>[] tasks, Action<Task<TAntecedentResult>[]> continuationAction,
             CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAll));
             return Task.Factory.ContinueWhenAll(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -268,7 +268,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> ContinueWhenAll<TResult>(Task[] tasks, Func<Task[], TResult> continuationFunction,
             CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAll));
             return Task.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -300,7 +300,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             Func<Task<TAntecedentResult>[], TResult> continuationFunction, CancellationToken cancellationToken,
             TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAll));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAll));
             return Task.Factory.ContinueWhenAll(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -328,7 +328,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task ContinueWhenAny(Task[] tasks, Action<Task> continuationAction, CancellationToken cancellationToken,
             TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAny));
             return Task.Factory.ContinueWhenAny(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -358,7 +358,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task ContinueWhenAny<TAntecedentResult>(Task<TAntecedentResult>[] tasks, Action<Task<TAntecedentResult>> continuationAction,
             CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAny));
             return Task.Factory.ContinueWhenAny(tasks, continuationAction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -388,7 +388,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> ContinueWhenAny<TResult>(Task[] tasks, Func<Task, TResult> continuationFunction,
             CancellationToken cancellationToken, TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAny));
             return Task.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -420,7 +420,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             Func<Task<TAntecedentResult>, TResult> continuationFunction, CancellationToken cancellationToken,
             TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.ContinueWhenAny));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.ContinueWhenAny));
             return Task.Factory.ContinueWhenAny(tasks, continuationFunction, cancellationToken, continuationOptions, scheduler);
         }
 
@@ -438,7 +438,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task FromAsync(Func<AsyncCallback, object, IAsyncResult> beginMethod, Action<IAsyncResult> endMethod, object state,
             TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
         }
 
@@ -457,7 +457,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> FromAsync<TResult>(Func<AsyncCallback, object, IAsyncResult> beginMethod,
             Func<IAsyncResult, TResult> endMethod, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, state, creationOptions);
         }
 
@@ -476,7 +476,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task FromAsync<TArg1>(Func<TArg1, AsyncCallback, object, IAsyncResult> beginMethod, Action<IAsyncResult> endMethod,
             TArg1 arg1, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
         }
 
@@ -495,7 +495,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task FromAsync<TArg1, TArg2>(Func<TArg1, TArg2, AsyncCallback, object, IAsyncResult> beginMethod,
             Action<IAsyncResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
         }
 
@@ -514,7 +514,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task FromAsync<TArg1, TArg2, TArg3>(Func<TArg1, TArg2, TArg3, AsyncCallback, object, IAsyncResult> beginMethod,
             Action<IAsyncResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
         }
 
@@ -533,7 +533,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> FromAsync<TArg1, TResult>(Func<TArg1, AsyncCallback, object, IAsyncResult> beginMethod,
             Func<IAsyncResult, TResult> endMethod, TArg1 arg1, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, arg1, state, creationOptions);
         }
 
@@ -552,7 +552,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> FromAsync<TArg1, TArg2, TResult>(Func<TArg1, TArg2, AsyncCallback, object, IAsyncResult> beginMethod,
             Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, state, creationOptions);
         }
 
@@ -571,7 +571,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> FromAsync<TArg1, TArg2, TArg3, TResult>(Func<TArg1, TArg2, TArg3, AsyncCallback, object, IAsyncResult> beginMethod,
             Func<IAsyncResult, TResult> endMethod, TArg1 arg1, TArg2 arg2, TArg3 arg3, object state, TaskCreationOptions creationOptions)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(beginMethod, endMethod, arg1, arg2, arg3, state, creationOptions);
         }
 
@@ -593,7 +593,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task FromAsync(IAsyncResult asyncResult, Action<IAsyncResult> endMethod, TaskCreationOptions creationOptions,
             TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
         }
 
@@ -616,7 +616,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public Task<TResult> FromAsync<TResult>(IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod,
             TaskCreationOptions creationOptions, TaskScheduler scheduler)
         {
-            ExceptionHelpers.ThrowNotSupportedException(nameof(Task.Factory.FromAsync));
+            ExceptionProvider.ThrowNotSupportedInvocationException(nameof(Task.Factory.FromAsync));
             return Task.Factory.FromAsync(asyncResult, endMethod, creationOptions, scheduler);
         }
     }

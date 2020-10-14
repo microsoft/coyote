@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.SystematicTesting.Interception;
+using Microsoft.Coyote.SystematicTesting;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SystemCompiler = System.Runtime.CompilerServices;
@@ -121,15 +121,16 @@ namespace Microsoft.Coyote.Rewriting
 
             Debug.WriteLine($"............. [+] rewriting catch block to rethrow an ExecutionCanceledException");
 
-            var helperType = this.Method.Module.ImportReference(typeof(ExceptionHelpers)).Resolve();
-            MethodReference helperMethod = helperType.Methods.FirstOrDefault(m => m.Name is "ThrowIfCoyoteRuntimeException");
-            helperMethod = this.Method.Module.ImportReference(helperMethod);
+            var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+            MethodReference providerMethod = providerType.Methods.FirstOrDefault(
+                m => m.Name is nameof(ExceptionProvider.ThrowIfExecutionCanceledException));
+            providerMethod = this.Method.Module.ImportReference(providerMethod);
 
             var processor = this.Method.Body.GetILProcessor();
             var newStart = Instruction.Create(OpCodes.Dup);
             var previousStart = handler.HandlerStart;
             processor.InsertBefore(handler.HandlerStart, newStart);
-            processor.InsertBefore(handler.HandlerStart, Instruction.Create(OpCodes.Call, helperMethod));
+            processor.InsertBefore(handler.HandlerStart, Instruction.Create(OpCodes.Call, providerMethod));
             handler.HandlerStart = newStart;
 
             // Fix up any other handler end position that points to previousStart instruction.

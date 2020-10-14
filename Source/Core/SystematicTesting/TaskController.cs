@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -31,12 +32,19 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
+        /// Map from controlled tasks to their corresponding operations,
+        /// if such an operation exists.
+        /// </summary>
+        private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TaskController"/> class.
         /// </summary>
         internal TaskController(ControlledRuntime runtime, OperationScheduler scheduler)
         {
             this.Runtime = runtime;
             this.Scheduler = scheduler;
+            this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
             Interception.ControlledThread.ClearCache();
         }
 
@@ -54,8 +62,7 @@ namespace Microsoft.Coyote.SystematicTesting
             OperationExecutionOptions options = OperationContext.CreateOperationExecutionOptions(failException, isYield);
             var context = new OperationContext<Action, object>(op, action, predecessor, options, cancellationToken);
             var task = new Task(this.ExecuteOperation, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ResultSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ResultSource);
         }
 
         /// <summary>
@@ -73,8 +80,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<Task>, Task, Task>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<Task>(this.ExecuteOperation<Func<Task>, Task, Task>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ExecutorSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ExecutorSource);
         }
 
         /// <summary>
@@ -92,8 +98,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ExecutorSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ExecutorSource);
         }
 
         /// <summary>
@@ -111,8 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<CoyoteTasks.Task>, Task, Task>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<Task>(this.ExecuteOperation<Func<CoyoteTasks.Task>, Task, Task>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return new CoyoteTasks.Task(this, context.ResultSource.Task);
+            return new CoyoteTasks.Task(this, this.ScheduleTaskOperation(op, task, context.ResultSource));
         }
 
         /// <summary>
@@ -131,8 +135,7 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new AsyncOperationContext<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>(op, function, task, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             task = new Task<TResult>(this.ExecuteOperation<Func<CoyoteTasks.Task<TResult>>, Task<TResult>, TResult>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return new CoyoteTasks.Task<TResult>(this, context.ResultSource.Task);
+            return new CoyoteTasks.Task<TResult>(this, this.ScheduleTaskOperation(op, task, context.ResultSource));
         }
 
         /// <summary>
@@ -149,19 +152,20 @@ namespace Microsoft.Coyote.SystematicTesting
             var context = new OperationContext<Func<TResult>, TResult>(op, function, predecessor,
                 OperationExecutionOptions.None, cancellationToken);
             var task = new Task<TResult>(this.ExecuteOperation<Func<TResult>, TResult, TResult>, context, cancellationToken);
-            this.ScheduleTaskOperation(op, task);
-            return context.ResultSource.Task;
+            return this.ScheduleTaskOperation(op, task, context.ResultSource);
         }
 
         /// <summary>
         /// Schedules the specified task operation for execution.
         /// </summary>
-        internal void ScheduleTaskOperation(TaskOperation op, Task task)
+        private Task<TResult> ScheduleTaskOperation<TResult>(TaskOperation op, Task task, TaskCompletionSource<TResult> tcs)
         {
             IO.Debug.WriteLine("<CreateLog> Operation '{0}' was created to execute task '{1}'.", op.Name, task.Id);
             task.Start();
             this.Scheduler.WaitOperationStart(op);
             this.Scheduler.ScheduleNextOperation();
+            this.TaskMap.TryAdd(tcs.Task, op);
+            return tcs.Task;
         }
 
         /// <summary>
@@ -954,17 +958,35 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Unwraps the specified task.
         /// </summary>
-        internal Task UnwrapTask(Task<Task> task) =>
-            task.AsyncState is TaskCompletionSource<Task> tcs ? tcs.Task : task.Unwrap();
+        internal Task UnwrapTask(Task<Task> task)
+        {
+            var unwrappedTask = task.AsyncState is TaskCompletionSource<Task> tcs ? tcs.Task : task.Unwrap();
+            this.TaskMap.TryGetValue(task, out TaskOperation op);
+            this.TaskMap.TryAdd(unwrappedTask, op);
+            return unwrappedTask;
+        }
 
         /// <summary>
         /// Unwraps the specified task.
         /// </summary>
-        internal Task<TResult> UnwrapTask<TResult>(Task<Task<TResult>> task) =>
-            task.AsyncState is TaskCompletionSource<TResult> tcs ? tcs.Task : task.Unwrap();
+        internal Task<TResult> UnwrapTask<TResult>(Task<Task<TResult>> task)
+        {
+            var unwrappedTask = task.AsyncState is TaskCompletionSource<TResult> tcs ? tcs.Task : task.Unwrap();
+            this.TaskMap.TryGetValue(task, out TaskOperation op);
+            this.TaskMap.TryAdd(unwrappedTask, op);
+            return unwrappedTask;
+        }
 
         /// <summary>
-        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.Task"/> is accessed.
+        /// Callback invoked when the task of a task completion source is accessed.
+        /// </summary>
+        internal void OnTaskCompletionSourceGetTask(Task task)
+        {
+            this.TaskMap.TryAdd(task, null);
+        }
+
+        /// <summary>
+        /// Callback invoked when the <see cref="AsyncTaskMethodBuilder.SetException"/> is accessed.
         /// </summary>
         internal void OnAsyncTaskMethodBuilderSetException(Exception exception)
         {
@@ -1054,6 +1076,32 @@ namespace Microsoft.Coyote.SystematicTesting
             return result;
         }
 
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal void AssertIsAwaitedTaskControlled(Task task)
+        {
+            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
+                !this.Runtime.Configuration.IsPartiallyControlledTestingEnabled)
+            {
+                this.Assert(false, $"Awaiting uncontrolled task with id '{task.Id}' is not allowed: " +
+                    "either mock the method that created the task, or rewrite the method's assembly.");
+            }
+        }
+
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal void AssertIsReturnedTaskControlled(Task task, string methodName)
+        {
+            if (!task.IsCompleted && !this.TaskMap.ContainsKey(task) &&
+                !this.Runtime.Configuration.IsPartiallyControlledTestingEnabled)
+            {
+                this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
+                    "which is not allowed: either mock the method, or rewrite the method's assembly.");
+            }
+        }
+
         /// <summary>
         /// Checks that the executing task is controlled.
         /// </summary>
@@ -1071,7 +1119,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         private void ReportThrownException(Exception exception)
         {
-            if (!(exception is ExecutionCanceledException) && !(exception is TaskCanceledException) && !(exception is OperationCanceledException))
+            if (!(exception is ExecutionCanceledException || exception is TaskCanceledException ||
+                exception is OperationCanceledException))
             {
                 string message = string.Format(CultureInfo.InvariantCulture,
                     $"Exception '{exception.GetType()}' was thrown in task '{Task.CurrentId}', " +

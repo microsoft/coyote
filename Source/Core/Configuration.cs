@@ -146,7 +146,16 @@ namespace Microsoft.Coyote
         internal int SafetyPrefixBound;
 
         /// <summary>
-        /// If this option is enabled, liveness checking is enabled during bug-finding.
+        /// If this option is enabled, systematic testing supports partially controlled executions.
+        /// </summary>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        [DataMember]
+        internal bool IsPartiallyControlledTestingEnabled;
+
+        /// <summary>
+        /// If this option is enabled, liveness checking is enabled during systematic testing.
         /// </summary>
         [DataMember]
         internal bool IsLivenessCheckingEnabled;
@@ -199,6 +208,12 @@ namespace Microsoft.Coyote
         public bool IsVerbose { get; internal set; }
 
         /// <summary>
+        /// If true, then debug verbosity is enabled.
+        /// </summary>
+        [DataMember]
+        internal bool IsDebugVerbosityEnabled;
+
+        /// <summary>
         /// The level of detail to provide in verbose logging.
         /// </summary>
         [DataMember]
@@ -249,13 +264,7 @@ namespace Microsoft.Coyote
         internal string CustomActorRuntimeLogType;
 
         /// <summary>
-        /// Enables debugging.
-        /// </summary>
-        [DataMember]
-        internal bool EnableDebugging;
-
-        /// <summary>
-        /// Number of parallel bug-finding tasks.
+        /// Number of parallel systematic testing tasks.
         /// By default it is 1 task.
         /// </summary>
         [DataMember]
@@ -281,7 +290,7 @@ namespace Microsoft.Coyote
         internal bool WaitForTestingProcesses;
 
         /// <summary>
-        /// Runs this process as a parallel bug-finding task.
+        /// Runs this process as a parallel systematic testing task.
         /// </summary>
         [DataMember]
         internal bool RunAsParallelBugFindingTask;
@@ -363,6 +372,7 @@ namespace Microsoft.Coyote
             this.TimeoutDelay = 10;
             this.SafetyPrefixBound = 0;
 
+            this.IsPartiallyControlledTestingEnabled = false;
             this.IsLivenessCheckingEnabled = true;
             this.LivenessTemperatureThreshold = 50000;
             this.UserExplicitlySetLivenessTemperatureThreshold = false;
@@ -378,8 +388,8 @@ namespace Microsoft.Coyote
             this.DebugActivityCoverage = false;
 
             this.IsVerbose = false;
+            this.IsDebugVerbosityEnabled = false;
             this.LogLevel = LogSeverity.Informational;
-            this.EnableDebugging = false;
 
             this.AdditionalCodeCoverageAssemblies = new Dictionary<string, bool>();
 
@@ -505,6 +515,19 @@ namespace Microsoft.Coyote
         }
 
         /// <summary>
+        /// Updates the configuration with partially controlled testing enabled or disabled.
+        /// </summary>
+        /// <param name="isEnabled">If true, then partially controlled testing is enabled.</param>
+        /// <remarks>
+        /// This is an experimental feature.
+        /// </remarks>
+        public Configuration WithPartiallyControlledTestingEnabled(bool isEnabled = true)
+        {
+            this.IsPartiallyControlledTestingEnabled = isEnabled;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the configuration with the specified liveness temperature threshold during
         /// systematic testing. If this value is 0 it disables liveness checking. It is not
         /// recommended to explicitly set this value, instead use the default value which is
@@ -549,6 +572,17 @@ namespace Microsoft.Coyote
         {
             this.IsVerbose = isVerbose;
             this.LogLevel = logLevel;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with debug logging enabled or disabled.
+        /// </summary>
+        /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = false)
+        {
+            this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;
             return this;
         }
 

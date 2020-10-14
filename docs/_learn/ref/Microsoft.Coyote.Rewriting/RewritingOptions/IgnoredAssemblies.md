@@ -1,15 +1,15 @@
 ---
 layout: reference
 section: learn
-title: DisallowedAssemblies
-permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/DisallowedAssemblies
+title: IgnoredAssemblies
+permalink: /learn/ref/Microsoft.Coyote.Rewriting/RewritingOptions/IgnoredAssemblies
 ---
-# RewritingOptions.DisallowedAssemblies property
+# RewritingOptions.IgnoredAssemblies property
 
 The regular expressions used to match against assembly names to determine which assemblies to ignore when rewriting dependencies or a whole directory.
 
 ```csharp
-public IList<string> DisallowedAssemblies { get; set; }
+public IList<string> IgnoredAssemblies { get; set; }
 ```
 
 ## Remarks

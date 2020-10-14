@@ -9,15 +9,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 {
-    public class NotSupportedTypeRewritingTests : BaseProductionTest
+    public class NotSupportedInvocationsTests : BaseProductionTest
     {
-        public NotSupportedTypeRewritingTests(ITestOutputHelper output)
+        public NotSupportedInvocationsTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedTaskTypeInvokingContinueWith()
+        public void TestNotSupportedContinueWithTaskInvocation()
         {
             this.TestWithException<NotSupportedException>(() =>
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 
 #if !NETFRAMEWORK
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedValueTaskType()
+        public void TestNotSupportedValueTaskInvocation()
         {
             this.TestWithException<NotSupportedException>(async () =>
             {
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
 #endif
 
         [Fact(Timeout = 5000)]
-        public void TestNotSupportedTimerType()
+        public void TestNotSupportedTimerInvocation()
         {
             this.TestWithException<NotSupportedException>(() =>
             {

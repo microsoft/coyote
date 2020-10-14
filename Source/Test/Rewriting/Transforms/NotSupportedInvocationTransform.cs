@@ -1,26 +1,20 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Coyote.IO;
-using Microsoft.Coyote.SystematicTesting.Interception;
+using Microsoft.Coyote.SystematicTesting;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Microsoft.Coyote.Rewriting
 {
     /// <summary>
-    /// Rewriting pass that inserts checks for invocations of not supported types.
+    /// Rewriting pass that fails invocations of not supported types.
     /// </summary>
-    internal class NotSupportedTypesTransform : AssemblyTransform
+    internal class NotSupportedInvocationTransform : AssemblyTransform
     {
-        /// <summary>
-        /// Cache of qualified names.
-        /// </summary>
-        private static readonly Dictionary<string, string> CachedQualifiedNames = new Dictionary<string, string>();
-
         /// <summary>
         /// The current method being transformed.
         /// </summary>
@@ -32,9 +26,9 @@ namespace Microsoft.Coyote.Rewriting
         private ILProcessor Processor;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotSupportedTypesTransform"/> class.
+        /// Initializes a new instance of the <see cref="NotSupportedInvocationTransform"/> class.
         /// </summary>
-        internal NotSupportedTypesTransform(ILogger log)
+        internal NotSupportedInvocationTransform(ILogger log)
             : base(log)
         {
         }
@@ -97,14 +91,15 @@ namespace Microsoft.Coyote.Rewriting
 
                 if (isUnsupportedType)
                 {
-                    Debug.WriteLine($"............. [+] throw exception on unsupported '{invocationName}' invocation");
+                    Debug.WriteLine($"............. [+] injected unsupported '{invocationName}' invocation exception");
 
-                    var helperType = this.Method.Module.ImportReference(typeof(ExceptionHelpers)).Resolve();
-                    MethodReference helperMethod = helperType.Methods.FirstOrDefault(m => m.Name is "ThrowNotSupportedException");
-                    helperMethod = this.Method.Module.ImportReference(helperMethod);
+                    var providerType = this.Method.Module.ImportReference(typeof(ExceptionProvider)).Resolve();
+                    MethodReference providerMethod = providerType.Methods.FirstOrDefault(
+                        m => m.Name is nameof(ExceptionProvider.ThrowNotSupportedInvocationException));
+                    providerMethod = this.Method.Module.ImportReference(providerMethod);
 
                     this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Ldstr, invocationName));
-                    this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, helperMethod));
+                    this.Processor.InsertBefore(instruction, Instruction.Create(OpCodes.Call, providerMethod));
 
                     FixInstructionOffsets(this.Method);
                 }
@@ -224,37 +219,6 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             return false;
-        }
-
-        private static string GetFullyQualifiedMethodName(MethodReference method)
-        {
-            if (!CachedQualifiedNames.TryGetValue(method.FullName, out string name))
-            {
-                string typeName = GetFullyQualifiedTypeName(method.DeclaringType);
-                name = $"{typeName}.{method.Name}";
-                CachedQualifiedNames.Add(method.FullName, name);
-            }
-
-            return name;
-        }
-
-        private static string GetFullyQualifiedTypeName(TypeReference type)
-        {
-            if (!CachedQualifiedNames.TryGetValue(type.FullName, out string name))
-            {
-                if (type is GenericInstanceType genericType)
-                {
-                    name = $"{genericType.ElementType.FullName.Split('`')[0]}";
-                }
-                else
-                {
-                    name = type.FullName;
-                }
-
-                CachedQualifiedNames.Add(type.FullName, name);
-            }
-
-            return name;
         }
     }
 }

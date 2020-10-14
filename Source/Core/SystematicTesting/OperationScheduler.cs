@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -211,6 +212,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.Strategy.GetNextOperation(ops, current, isYielding, out next) &&
+                    this.Configuration.IsPartiallyControlledTestingEnabled &&
                     ops.Any(op => op.IsBlockedOnUncontrolledDependency()))
                 {
                     // At least one operation is blocked due to uncontrolled concurrency. To try defend against
@@ -619,8 +621,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.BugReport = text;
 
                     this.Runtime.LogWriter.LogAssertionFailure($"<ErrorLog> {text}");
-                    StackTrace trace = new StackTrace();
-                    this.Runtime.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", trace.ToString()));
+                    this.Runtime.LogWriter.LogAssertionFailure(string.Format("<StackTrace> {0}", ConstructStackTrace()));
                     this.Runtime.RaiseOnFailureEvent(new AssertionFailureException(text));
                     this.Runtime.LogWriter.LogStrategyDescription(this.Configuration.SchedulingStrategy,
                         this.Strategy.GetDescription());
@@ -638,6 +639,21 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Detach(cancelExecution);
                 }
             }
+        }
+
+        private static string ConstructStackTrace()
+        {
+            StringBuilder sb = new StringBuilder();
+            string[] lines = new StackTrace().ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                if (!line.Contains("at Microsoft.Coyote.SystematicTesting"))
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

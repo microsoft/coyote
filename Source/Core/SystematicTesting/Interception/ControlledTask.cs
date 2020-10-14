@@ -477,8 +477,17 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         /// <param name="task">The task associated with the task awaiter.</param>
         /// <returns>The task awaiter.</returns>
-        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task) => new CoyoteTasks.TaskAwaiter(
-            CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
+        public static CoyoteTasks.TaskAwaiter GetAwaiter(Task task)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var controller = ControlledRuntime.Current.TaskController;
+                controller.AssertIsAwaitedTaskControlled(task);
+                return new CoyoteTasks.TaskAwaiter(controller, task);
+            }
+
+            return new CoyoteTasks.TaskAwaiter(null, task);
+        }
 
         /// <summary>
         /// Creates an awaitable that asynchronously yields back to the current context when awaited.
@@ -504,6 +513,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
     /// </summary>
     /// <typeparam name="TResult">The type of the produced result.</typeparam>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static class ControlledTask<TResult>
     {
 #pragma warning disable CA1000 // Do not declare static members on generic types
@@ -532,8 +542,17 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         /// <param name="task">The task associated with the task awaiter.</param>
         /// <returns>The task awaiter.</returns>
-        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task) => new CoyoteTasks.TaskAwaiter<TResult>(
-            CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null, task);
+        public static CoyoteTasks.TaskAwaiter<TResult> GetAwaiter(Task<TResult> task)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var controller = ControlledRuntime.Current.TaskController;
+                controller.AssertIsAwaitedTaskControlled(task);
+                return new CoyoteTasks.TaskAwaiter<TResult>(controller, task);
+            }
+
+            return new CoyoteTasks.TaskAwaiter<TResult>(null, task);
+        }
 #pragma warning restore CA1000 // Do not declare static members on generic types
     }
 }

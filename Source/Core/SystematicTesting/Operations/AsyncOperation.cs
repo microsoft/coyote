@@ -1,10 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if !DEBUG
-using System.Diagnostics;
-#endif
-
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Coyote.Actors;
 
 namespace Microsoft.Coyote.SystematicTesting

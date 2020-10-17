@@ -605,12 +605,16 @@ namespace Microsoft.Coyote.Rewriting
             var assemblyResolver = new DefaultAssemblyResolver();
 
             // Add known search directories for resolving assemblies.
+            Console.WriteLine($"SEARCH PATH: {Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location)}");
+            Console.WriteLine($"SEARCH PATH: {this.Options.AssembliesDirectory}");
+
             assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
             assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
             if (this.Options.DependencySearchPaths != null)
             {
                 foreach (var path in this.Options.DependencySearchPaths)
                 {
+                    Console.WriteLine($"SEARCH PATH: {path}");
                     assemblyResolver.AddSearchDirectory(path);
                 }
             }

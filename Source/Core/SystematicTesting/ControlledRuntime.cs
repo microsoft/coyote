@@ -237,7 +237,7 @@ namespace Microsoft.Coyote.SystematicTesting
         internal TaskOperation CreateTaskOperation()
         {
             ulong operationId = this.GetNextOperationId();
-            var op = new TaskOperation(operationId, this.Scheduler);
+            var op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
             this.Scheduler.RegisterOperation(op);
             return op;
         }
@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ReportActivityCoverageOfActor(actor);
             }
 
-            bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor));
+            bool result = this.Scheduler.RegisterOperation(new ActorOperation(actor, this.Scheduler));
             this.Assert(result, "Actor id '{0}' is used by an existing or previously halted actor.", id.Value);
             if (actor is StateMachine)
             {

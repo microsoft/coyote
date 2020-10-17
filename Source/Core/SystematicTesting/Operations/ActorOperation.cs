@@ -12,23 +12,12 @@ namespace Microsoft.Coyote.SystematicTesting
     /// Contains information about an asynchronous actor operation
     /// that can be controlled during testing.
     /// </summary>
-    [DebuggerStepThrough]
-    internal sealed class ActorOperation : AsyncOperation
+    internal sealed class ActorOperation : TaskOperation
     {
         /// <summary>
         /// The actor that executes this operation.
         /// </summary>
         internal readonly Actor Actor;
-
-        /// <summary>
-        /// Unique id of the operation.
-        /// </summary>
-        internal override ulong Id => this.Actor.Id.Value;
-
-        /// <summary>
-        /// Unique name of the operation.
-        /// </summary>
-        internal override string Name => this.Actor.Id.Name;
 
         /// <summary>
         /// Set of events that this operation is waiting to receive. Receiving
@@ -46,8 +35,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorOperation"/> class.
         /// </summary>
-        internal ActorOperation(Actor actor)
-            : base()
+        internal ActorOperation(Actor actor, OperationScheduler scheduler)
+            : base(actor.Id.Value, actor.Id.Name, scheduler)
         {
             this.Actor = actor;
             this.EventDependencies = new HashSet<Type>();

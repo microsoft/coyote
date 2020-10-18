@@ -333,6 +333,10 @@ namespace Microsoft.Coyote.Rewriting
             {
                 result = this.Module.ImportReference(typeof(ControlledTasks.ThreadPool));
             }
+            else if (fullName == CachedNameProvider.ThreadInterlocked)
+            {
+                result = this.Module.ImportReference(typeof(ControlledTasks.Interlocked));
+            }
 
             if (isRoot && result != type)
             {

@@ -40,5 +40,6 @@ namespace Microsoft.Coyote.Rewriting
         internal static string GenericTaskFactoryFullName { get; } = typeof(SystemTasks.TaskFactory<>).FullName;
         internal static string TaskParallelFullName { get; } = typeof(SystemTasks.Parallel).FullName;
         internal static string ThreadPoolFullName { get; } = typeof(SystemThreading.ThreadPool).FullName;
+        internal static string ThreadInterlocked { get; } = typeof(SystemThreading.Interlocked).FullName;
     }
 }

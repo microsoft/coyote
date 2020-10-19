@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             var task = tcs.Task;
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.TaskController.OnTaskCompletionSourceGetTask(task);
+                ControlledRuntime.Current.OnTaskCompletionSourceGetTask(task);
             }
 
             return task;

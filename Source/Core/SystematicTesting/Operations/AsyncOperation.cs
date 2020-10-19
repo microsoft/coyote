@@ -1,18 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if !DEBUG
-using System.Diagnostics;
-#endif
-
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
     /// An abstract asynchronous operation that can be controlled during testing.
     /// </summary>
-#if !DEBUG
-    [DebuggerStepThrough]
-#endif
     internal abstract class AsyncOperation
     {
         /// <summary>

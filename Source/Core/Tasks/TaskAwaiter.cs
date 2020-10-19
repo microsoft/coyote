@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// The task being awaited.
@@ -42,9 +42,9 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        internal TaskAwaiter(TaskController taskController, SystemTasks.Task awaitedTask)
+        internal TaskAwaiter(ControlledRuntime runtime, SystemTasks.Task awaitedTask)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Tasks
         {
             if (!this.IsCompleted)
             {
-                this.TaskController?.OnWaitTask(this.AwaitedTask);
+                this.Runtime?.OnWaitTask(this.AwaitedTask);
             }
 
             this.Awaiter.GetResult();
@@ -69,13 +69,13 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Action continuation)
         {
-            if (this.TaskController is null)
+            if (this.Runtime is null)
             {
                 this.Awaiter.OnCompleted(continuation);
             }
             else
             {
-                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
             }
         }
 
@@ -85,13 +85,13 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (this.TaskController is null)
+            if (this.Runtime is null)
             {
                 this.Awaiter.UnsafeOnCompleted(continuation);
             }
             else
             {
-                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
             }
         }
     }
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// The task being awaited.
@@ -130,9 +130,9 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal TaskAwaiter(TaskController taskController, SystemTasks.Task<TResult> awaitedTask)
+        internal TaskAwaiter(ControlledRuntime runtime, SystemTasks.Task<TResult> awaitedTask)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
             this.Awaiter = awaitedTask.GetAwaiter();
         }
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Tasks
         {
             if (!this.IsCompleted)
             {
-                this.TaskController?.OnWaitTask(this.AwaitedTask);
+                this.Runtime?.OnWaitTask(this.AwaitedTask);
             }
 
             return this.Awaiter.GetResult();
@@ -157,13 +157,13 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Action continuation)
         {
-            if (this.TaskController is null)
+            if (this.Runtime is null)
             {
                 this.Awaiter.OnCompleted(continuation);
             }
             else
             {
-                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
             }
         }
 
@@ -173,13 +173,13 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnsafeOnCompleted(Action continuation)
         {
-            if (this.TaskController is null)
+            if (this.Runtime is null)
             {
                 this.Awaiter.UnsafeOnCompleted(continuation);
             }
             else
             {
-                this.TaskController.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
+                this.Runtime.ScheduleTaskAwaiterContinuation(this.AwaitedTask, continuation);
             }
         }
     }

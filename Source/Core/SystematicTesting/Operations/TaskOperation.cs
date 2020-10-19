@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CoyoteTasks = Microsoft.Coyote.Tasks;
@@ -14,8 +13,7 @@ namespace Microsoft.Coyote.SystematicTesting
     /// Contains information about an asynchronous task operation
     /// that can be controlled during testing.
     /// </summary>
-    [DebuggerStepThrough]
-    internal sealed class TaskOperation : AsyncOperation
+    internal class TaskOperation : AsyncOperation
     {
         /// <summary>
         /// The scheduler executing this operation.
@@ -52,12 +50,12 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
-        internal TaskOperation(ulong operationId, OperationScheduler scheduler)
+        internal TaskOperation(ulong operationId, string name, OperationScheduler scheduler)
             : base()
         {
             this.Scheduler = scheduler;
             this.Id = operationId;
-            this.Name = $"Task({operationId})";
+            this.Name = name;
             this.JoinDependencies = new HashSet<Task>();
         }
 

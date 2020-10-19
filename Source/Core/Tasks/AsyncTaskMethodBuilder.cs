@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// The task builder to which most operations are delegated.
@@ -42,17 +42,17 @@ namespace Microsoft.Coyote.Tasks
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.CheckExecutingOperationIsControlled();
-                return new Task(this.TaskController, this.MethodBuilder.Task);
+                this.Runtime?.CheckExecutingOperationIsControlled();
+                return new Task(this.Runtime, this.MethodBuilder.Task);
             }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(TaskController taskController)
+        private AsyncTaskMethodBuilder(ControlledRuntime runtime)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
             this.MethodBuilder = default;
         }
 
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.Tasks
         /// </summary>
         [DebuggerHidden]
         public static AsyncTaskMethodBuilder Create() =>
-            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
+            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current : null);
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly TaskController TaskController;
+        private readonly ControlledRuntime Runtime;
 
         /// <summary>
         /// The task builder to which most operations are delegated.
@@ -149,17 +149,17 @@ namespace Microsoft.Coyote.Tasks
             {
                 IO.Debug.WriteLine("<AsyncBuilder> Creating builder task '{0}' from task '{1}' (isCompleted {2}).",
                     this.MethodBuilder.Task.Id, Tasks.Task.CurrentId, this.MethodBuilder.Task.IsCompleted);
-                this.TaskController?.CheckExecutingOperationIsControlled();
-                return new Task<TResult>(this.TaskController, this.MethodBuilder.Task);
+                this.Runtime?.CheckExecutingOperationIsControlled();
+                return new Task<TResult>(this.Runtime, this.MethodBuilder.Task);
             }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(TaskController taskController)
+        private AsyncTaskMethodBuilder(ControlledRuntime runtime)
         {
-            this.TaskController = taskController;
+            this.Runtime = runtime;
             this.MethodBuilder = default;
         }
 
@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Tasks
 #pragma warning disable CA1000 // Do not declare static members on generic types
         [DebuggerHidden]
         public static AsyncTaskMethodBuilder<TResult> Create() =>
-            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current.TaskController : null);
+            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current : null);
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>

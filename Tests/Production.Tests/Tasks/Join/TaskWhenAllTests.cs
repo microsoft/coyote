@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
                 Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
                 Specification.Assert(false, "Reached test assertion.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: GetConfiguration().WithTestingIterations(300),
             expectedError: "Reached test assertion.",
             replay: true);
         }

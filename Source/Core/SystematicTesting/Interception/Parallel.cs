@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 ValidateParallelOptions(parallelOptions);
 
-                var controller = ControlledRuntime.Current.TaskController;
+                var runtime = ControlledRuntime.Current;
 
                 int numIterations = toExclusive - fromInclusive;
                 int numTasks = Math.Min(numIterations, parallelOptions.MaxDegreeOfParallelism);
@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 Task[] tasks = new Task[numTasks];
                 foreach (var group in groups)
                 {
-                    tasks[index] = controller.ScheduleAction(() =>
+                    tasks[index] = runtime.ScheduleAction(() =>
                     {
                         foreach (var iteration in group)
                         {
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                     index++;
                 }
 
-                controller.WaitAllTasksComplete(tasks);
+                runtime.WaitAllTasksComplete(tasks);
                 return CompletedResult;
             }
 
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 ValidateParallelOptions(parallelOptions);
 
-                var controller = ControlledRuntime.Current.TaskController;
+                var runtime = ControlledRuntime.Current;
                 var sourceList = source.ToList();
 
                 int numIterations = sourceList.Count;
@@ -279,7 +279,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 Task[] tasks = new Task[numTasks];
                 foreach (var group in groups)
                 {
-                    tasks[index] = controller.ScheduleAction(() =>
+                    tasks[index] = runtime.ScheduleAction(() =>
                     {
                         foreach (var iteration in group)
                         {
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                     index++;
                 }
 
-                controller.WaitAllTasksComplete(tasks);
+                runtime.WaitAllTasksComplete(tasks);
                 return CompletedResult;
             }
 

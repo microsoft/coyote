@@ -17,7 +17,7 @@ public interface ICoyoteRuntime : IDisposable
 | name | description |
 | --- | --- |
 | [Logger](ICoyoteRuntime/Logger) { get; set; } | Get or set the [`ILogger`](../Microsoft.Coyote.IO/ILoggerType) used to log messages. |
-| event [OnFailure](ICoyoteRuntime/OnFailure) | Callback that is fired when the runtime throws an exception which includes failed assertions. |
+| event [OnFailure](ICoyoteRuntime/OnFailure) | Callback that is fired when an exception is thrown that includes failed assertions. |
 | [Assert](ICoyoteRuntime/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [Monitor&lt;T&gt;](ICoyoteRuntime/Monitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
 | [RandomBoolean](ICoyoteRuntime/RandomBoolean)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |

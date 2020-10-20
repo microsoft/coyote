@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote.Coverage/CoverageInfoType
 ---
 # CoverageInfo class
 
-Class for storing coverage-specific data across multiple testing iterations.
+Class for storing actor coverage-specific data across multiple testing iterations.
 
 ```csharp
 public class CoverageInfo

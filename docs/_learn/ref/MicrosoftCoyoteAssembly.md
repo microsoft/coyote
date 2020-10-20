@@ -58,7 +58,7 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | public type | description |
 | --- | --- |
 | class [ActorRuntimeLogGraphBuilder](Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType) | Implements the [`IActorRuntimeLog`](Microsoft.Coyote.Actors/IActorRuntimeLogType) and builds a directed graph from the recorded events and state transitions. |
-| class [CoverageInfo](Microsoft.Coyote.Coverage/CoverageInfoType) | Class for storing coverage-specific data across multiple testing iterations. |
+| class [CoverageInfo](Microsoft.Coyote.Coverage/CoverageInfoType) | Class for storing actor coverage-specific data across multiple testing iterations. |
 | class [EventCoverage](Microsoft.Coyote.Coverage/EventCoverageType) | This class maintains information about events received and sent from each state of each actor. |
 | class [Graph](Microsoft.Coyote.Coverage/GraphType) | A directed graph made up of Nodes and Links. |
 | class [GraphLink](Microsoft.Coyote.Coverage/GraphLinkType) | A Link represents a directed graph connection between two Nodes. |

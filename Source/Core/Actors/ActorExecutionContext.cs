@@ -21,6 +21,7 @@ using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting;
+using IODebug = Microsoft.Coyote.IO.Debug;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -1183,7 +1184,7 @@ namespace Microsoft.Coyote.Actors
                             this.ResetProgramCounter(actor);
                         }
 
-                        Debug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", actor.Id, Task.CurrentId);
+                        IODebug.WriteLine("<ScheduleDebug> Completed operation {0} on task '{1}'.", actor.Id, Task.CurrentId);
                         op.OnCompleted();
 
                         // The actor is inactive or halted, schedule the next enabled operation.
@@ -1437,7 +1438,7 @@ namespace Microsoft.Coyote.Actors
 
             /// <inheritdoc/>
 #if !DEBUG
-        [DebuggerHidden]
+            [DebuggerHidden]
 #endif
             internal override void AssertExpectedCallerActor(Actor caller, string calledAPI)
             {
@@ -1465,11 +1466,12 @@ namespace Microsoft.Coyote.Actors
                 Exception exception = UnwrapException(ex);
                 if (exception is ExecutionCanceledException || exception is TaskSchedulerException)
                 {
-                    Debug.WriteLine("<Exception> {0} was thrown from operation '{1}'.", exception.GetType().Name, op.Name);
+                    IODebug.WriteLine("<Exception> {0} was thrown from operation '{1}'.",
+                        exception.GetType().Name, op.Name);
                 }
                 else if (exception is ObjectDisposedException)
                 {
-                    Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
+                    IODebug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
                         exception.GetType().Name, op.Name, ex.Message);
                 }
                 else if (op is ActorOperation actorOp)

@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/SendEvent
 Sends an asynchronous [`Event`](../../Microsoft.Coyote/EventType) to an actor.
 
 ```csharp
-public void SendEvent(ActorId targetId, Event e, EventGroup group = null, 
+public void SendEvent(ActorId targetId, Event e, EventGroup eventGroup = null, 
     SendOptions options = null)
 ```
 
@@ -17,7 +17,7 @@ public void SendEvent(ActorId targetId, Event e, EventGroup group = null,
 | --- | --- |
 | targetId | The id of the target. |
 | e | The event to send. |
-| group | An optional event group associated with this Actor. |
+| eventGroup | An optional event group associated with this Actor. |
 | options | Optional configuration of a send operation. |
 
 ## See Also

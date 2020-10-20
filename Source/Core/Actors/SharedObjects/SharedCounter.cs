@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         /// <param name="value">The initial value.</param>
         public static SharedCounter Create(IActorRuntime runtime, int value = 0)
         {
-            if (runtime is TestingExecutionContext executionContext)
+            if (runtime is ActorExecutionContext.Mock executionContext)
             {
                 return new Mock(value, executionContext);
             }
@@ -94,12 +94,12 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// <summary>
             /// The execution context associated with this shared counter.
             /// </summary>
-            private readonly TestingExecutionContext Context;
+            private readonly ActorExecutionContext.Mock Context;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
-            internal Mock(int value, TestingExecutionContext context)
+            internal Mock(int value, ActorExecutionContext.Mock context)
                 : base(value)
             {
                 this.Context = context;

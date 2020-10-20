@@ -9,14 +9,14 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/IActorRuntime/CreateActor
 Creates a new actor of the specified Type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This event is given to the Event) method on the new actor.
 
 ```csharp
-public ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null)
+public ActorId CreateActor(Type type, Event initialEvent = null, EventGroup eventGroup = null)
 ```
 
 | parameter | description |
 | --- | --- |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| group | An optional event group associated with the new Actor. |
+| eventGroup | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -39,7 +39,7 @@ Creates a new actor of the specified type, using the specified [`ActorId`](../Ac
 
 ```csharp
 public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, 
-    EventGroup group = null)
+    EventGroup eventGroup = null)
 ```
 
 | parameter | description |
@@ -47,7 +47,7 @@ public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null,
 | id | Unbound actor id. |
 | type | Type of the actor. |
 | initialEvent | Optional event used during initialization. |
-| group | An optional event group associated with the new Actor. |
+| eventGroup | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -70,7 +70,7 @@ Creates a new actor of the specified Type and name, and with the specified optio
 
 ```csharp
 public ActorId CreateActor(Type type, string name, Event initialEvent = null, 
-    EventGroup group = null)
+    EventGroup eventGroup = null)
 ```
 
 | parameter | description |
@@ -78,7 +78,7 @@ public ActorId CreateActor(Type type, string name, Event initialEvent = null,
 | type | Type of the actor. |
 | name | Optional name used for logging. |
 | initialEvent | Optional event used during initialization. |
-| group | An optional event group associated with the new Actor. |
+| eventGroup | An optional event group associated with the new Actor. |
 
 ## Return Value
 

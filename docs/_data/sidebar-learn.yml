@@ -296,6 +296,11 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsCanceled
         - name: IsFaulted
           link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1/IsFaulted
+      - name: DefaultEvent
+        link: /learn/ref/Microsoft.Coyote.Actors/DefaultEventType
+        subfolderitems:
+        - name: Instance
+          link: /learn/ref/Microsoft.Coyote.Actors/DefaultEvent/Instance
       - name: EventGroup
         link: /learn/ref/Microsoft.Coyote.Actors/EventGroupType
         subfolderitems:
@@ -305,13 +310,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Id
         - name: Name
           link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Name
-        - name: NullEventGroup
-          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/NullEventGroup
-      - name: DefaultEvent
-        link: /learn/ref/Microsoft.Coyote.Actors/DefaultEventType
-        subfolderitems:
-        - name: Instance
-          link: /learn/ref/Microsoft.Coyote.Actors/DefaultEvent/Instance
+        - name: Null
+          link: /learn/ref/Microsoft.Coyote.Actors/EventGroup/Null
       - name: HaltEvent
         link: /learn/ref/Microsoft.Coyote.Actors/HaltEventType
         subfolderitems:
@@ -942,8 +942,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/ToString
         - name: Monitor
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Monitor
-        - name: Name
-          link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Name
         - name: Logger
           link: /learn/ref/Microsoft.Coyote.Specifications/Monitor/Logger
         - name: CurrentState

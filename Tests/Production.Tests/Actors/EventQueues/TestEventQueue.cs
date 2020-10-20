@@ -27,6 +27,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         private readonly bool IsDefaultHandlerInstalled;
         private readonly ILogger Logger;
 
+        protected override bool IsEventHandlerRunning { get; set; }
+
         internal TestEventQueue(ILogger logger, Action<Notification, Event, EventInfo> notify,
             Type[] ignoredEvents = null, Type[] deferredEvents = null, bool isDefaultHandlerInstalled = false)
             : base(null)

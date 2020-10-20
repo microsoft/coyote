@@ -18,9 +18,10 @@ namespace Microsoft.Coyote.Actors
     {
         /// <summary>
         /// A special null event group that can be used to stop the <see cref="Actor.CurrentEventGroup"/> from
-        /// being passed along in a CreateActor or SendEvent call.
+        /// being passed along when <see cref="Actor.CreateActor(ActorId, Type, string, Event, EventGroup)"/>
+        /// or <see cref="Actor.SendEvent(ActorId, Event, EventGroup, SendOptions)"/> is invoked.
         /// </summary>
-        public static EventGroup NullEventGroup = new EventGroup();
+        public static EventGroup Null = new EventGroup();
 
         /// <summary>
         /// The unique id of this `EventGroup`, initialized with Guid.Empty.

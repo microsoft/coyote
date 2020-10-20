@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event e)
             {
                 var target = this.CreateActor(typeof(M5B), e);
-                this.SendEvent(target, new E(), EventGroup.NullEventGroup);
+                this.SendEvent(target, new E(), EventGroup.Null);
                 return base.OnInitializeAsync(e);
             }
         }
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var e = new SetupEvent();
                 var a = r.CreateActor(typeof(M6A), e, new EventGroup(name: EventGroup1));
-                r.SendEvent(a, new E(), EventGroup.NullEventGroup); // clear the event group!
+                r.SendEvent(a, new E(), EventGroup.Null); // clear the event group!
                 var result = await this.GetResultAsync(e.Tcs);
                 Assert.True(result == "ok", string.Format("result is {0}", result));
             });
@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         {
             private void CheckEvent(Event e)
             {
-                this.SendEvent((e as E).Id, new E(), EventGroup.NullEventGroup);
+                this.SendEvent((e as E).Id, new E(), EventGroup.Null);
             }
         }
 

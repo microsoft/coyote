@@ -370,7 +370,7 @@ namespace Microsoft.Coyote.Actors
                     else if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate handler))
                     {
                         // Allow StateMachine to have class level OnEventDoActions the same way Actor allows.
-                        this.Manager.LogInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName);
+                        this.Context.LogInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName);
                         await this.InvokeActionAsync(handler, e);
                         await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
                     }
@@ -380,7 +380,7 @@ namespace Microsoft.Coyote.Actors
                         await this.ExecuteCurrentStateOnExitAsync(null, e);
                         if (this.CurrentStatus is Status.Active)
                         {
-                            this.Manager.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
+                            this.Context.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
                             this.DoStatePop();
                             continue;
                         }
@@ -397,7 +397,7 @@ namespace Microsoft.Coyote.Actors
             if (eventHandler is ActionEventHandlerDeclaration actionEventHandler)
             {
                 CachedDelegate cachedAction = this.StateMachineActionMap[actionEventHandler.Name];
-                this.Manager.LogInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName);
+                this.Context.LogInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName);
                 await this.InvokeActionAsync(cachedAction, e);
                 await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
             }
@@ -416,7 +416,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task ExecuteCurrentStateOnEntryAsync(Event e)
         {
-            this.Manager.LogEnteredState(this);
+            this.Context.LogEnteredState(this);
 
             CachedDelegate entryAction = null;
             if (this.StateStack.Peek().EntryAction != null)
@@ -427,7 +427,7 @@ namespace Microsoft.Coyote.Actors
             // Invokes the entry action of the new state, if there is one available.
             if (entryAction != null)
             {
-                this.Manager.LogInvokedOnEntryAction(this, entryAction.MethodInfo);
+                this.Context.LogInvokedOnEntryAction(this, entryAction.MethodInfo);
                 await this.InvokeActionAsync(entryAction, e);
             }
 
@@ -439,7 +439,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName, Event e)
         {
-            this.Manager.LogExitedState(this);
+            this.Context.LogExitedState(this);
 
             CachedDelegate exitAction = null;
             if (this.StateStack.Peek().ExitAction != null)
@@ -451,7 +451,7 @@ namespace Microsoft.Coyote.Actors
             // if there is one available.
             if (exitAction != null)
             {
-                this.Manager.LogInvokedOnExitAction(this, exitAction.MethodInfo);
+                this.Context.LogInvokedOnExitAction(this, exitAction.MethodInfo);
                 await this.InvokeActionAsync(exitAction, e);
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None ||
@@ -466,7 +466,7 @@ namespace Microsoft.Coyote.Actors
             if (eventHandlerExitActionName != null && this.CurrentStatus is Status.Active)
             {
                 CachedDelegate eventHandlerExitAction = this.StateMachineActionMap[eventHandlerExitActionName];
-                this.Manager.LogInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo);
+                this.Context.LogInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo);
                 await this.InvokeActionAsync(eventHandlerExitAction, e);
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None ||
@@ -489,30 +489,30 @@ namespace Microsoft.Coyote.Actors
             else if (transition.TypeValue is Transition.Type.RaiseEvent)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(transition.Event, this.Manager.CurrentEventGroup);
+                this.Inbox.RaiseEvent(transition.Event, this.EventGroup);
             }
             else if (transition.TypeValue is Transition.Type.GotoState)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.Manager.CurrentEventGroup);
+                this.Inbox.RaiseEvent(new GotoStateEvent(transition.State), this.EventGroup);
             }
             else if (transition.TypeValue is Transition.Type.PushState)
             {
                 this.PendingTransition = default;
-                this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.Manager.CurrentEventGroup);
+                this.Inbox.RaiseEvent(new PushStateEvent(transition.State), this.EventGroup);
             }
             else if (transition.TypeValue is Transition.Type.PopState)
             {
                 this.PendingTransition = default;
                 var prevStateName = this.CurrentStateName;
-                this.Manager.LogPopState(this);
+                this.Context.LogPopState(this);
 
                 // The state machine performs the on exit action of the current state.
                 await this.ExecuteCurrentStateOnExitAsync(null, e);
                 if (this.CurrentStatus is Status.Active)
                 {
                     this.DoStatePop();
-                    this.Manager.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
+                    this.Context.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
                     this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
                 }
             }
@@ -564,7 +564,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task GotoStateAsync(Type s, string onExitActionName, Event e)
         {
-            this.Manager.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
+            this.Context.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
@@ -587,7 +587,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task PushStateAsync(Type s, Event e)
         {
-            this.Manager.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
+            this.Context.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);
@@ -714,10 +714,8 @@ namespace Microsoft.Coyote.Actors
             return false;
         }
 
-        /// <summary>
-        /// Checks if the specified event is ignored in the current state.
-        /// </summary>
-        internal bool IsEventIgnoredInCurrentState(Event e)
+        /// <inheritdoc/>
+        internal override bool IsEventIgnored(Event e)
         {
             if (e is TimerElapsedEvent timeoutEvent && !this.Timers.ContainsKey(timeoutEvent.Info))
             {
@@ -743,10 +741,8 @@ namespace Microsoft.Coyote.Actors
             return false;
         }
 
-        /// <summary>
-        /// Checks if the specified event is deferred in the current state.
-        /// </summary>
-        internal bool IsEventDeferredInCurrentState(Event e)
+        /// <inheritdoc/>
+        internal override bool IsEventDeferred(Event e)
         {
             Type eventType = e.GetType();
 
@@ -765,10 +761,8 @@ namespace Microsoft.Coyote.Actors
             return false;
         }
 
-        /// <summary>
-        /// Checks if a default handler is installed in current state.
-        /// </summary>
-        internal bool IsDefaultHandlerInstalledInCurrentState() =>
+        /// <inheritdoc/>
+        internal override bool IsDefaultHandlerInstalled() =>
             this.EventHandlerMap.ContainsKey(typeof(DefaultEvent)) ||
             this.TryGetInheritedHandler(typeof(DefaultEvent), out _);
 
@@ -783,8 +777,8 @@ namespace Microsoft.Coyote.Actors
                 hash = (hash * 31) + this.GetType().GetHashCode();
                 hash = (hash * 31) + this.Id.Value.GetHashCode();
                 hash = (hash * 31) + this.IsHalted.GetHashCode();
-
-                hash = (hash * 31) + this.Manager.GetCachedState();
+                hash = (hash * 31) + this.IsEventHandlerRunning.GetHashCode();
+                hash = (hash * 31) + this.Context.GetActorProgramCounter(this.Id);
 
                 foreach (var state in this.StateStack)
                 {
@@ -1062,7 +1056,7 @@ namespace Microsoft.Coyote.Actors
         private protected override void ReportUnhandledException(Exception ex, string actionName)
         {
             var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
-            this.Manager.SpecificationEngine.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')", this.Id, state, actionName);
+            this.Context.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')", this.Id, state, actionName);
         }
 
         /// <summary>

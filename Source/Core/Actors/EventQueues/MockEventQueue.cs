@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.Mocks
@@ -11,27 +12,22 @@ namespace Microsoft.Coyote.Actors.Mocks
     /// <summary>
     /// Implements a queue of events that is used during testing.
     /// </summary>
-    internal sealed class MockEventQueue : IEventQueue
+    internal class MockEventQueue : IEventQueue
     {
-        /// <summary>
-        /// Manages the actor that owns this queue.
-        /// </summary>
-        private readonly ActorManager ActorManager;
-
         /// <summary>
         /// The actor that owns this queue.
         /// </summary>
-        private readonly Actor Actor;
+        private readonly Actor Owner;
 
         /// <summary>
-        /// The internal queue that contains events with their metadata.
+        /// The backing queue that contains events with their metadata.
         /// </summary>
-        private readonly LinkedList<(Event e, EventGroup group, EventInfo info)> Queue;
+        private readonly LinkedList<(Event e, EventGroup eventGroup, EventInfo info)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, EventGroup group, EventInfo info) RaisedEvent;
+        private (Event e, EventGroup eventGroup, EventInfo info) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -62,19 +58,31 @@ namespace Microsoft.Coyote.Actors.Mocks
         public bool IsEventRaised => this.RaisedEvent != default;
 
         /// <summary>
+        /// True if the event handler is currently running, else false.
+        /// </summary>
+        protected virtual bool IsEventHandlerRunning
+        {
+            get => this.Owner.IsEventHandlerRunning;
+
+            set
+            {
+                this.Owner.IsEventHandlerRunning = value;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MockEventQueue"/> class.
         /// </summary>
-        internal MockEventQueue(ActorManager actorManager, Actor actor)
+        internal MockEventQueue(Actor owner)
         {
-            this.ActorManager = actorManager;
-            this.Actor = actor;
+            this.Owner = owner;
             this.Queue = new LinkedList<(Event, EventGroup, EventInfo)>();
             this.EventWaitTypes = new Dictionary<Type, Func<Event, bool>>();
             this.IsClosed = false;
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info)
         {
             if (this.IsClosed)
             {
@@ -85,23 +93,23 @@ namespace Microsoft.Coyote.Actors.Mocks
                 (predicate is null || predicate(e)))
             {
                 this.EventWaitTypes.Clear();
-                this.ActorManager.OnReceiveEvent(e, group, info);
+                this.OnReceiveEvent(e, eventGroup, info);
                 this.ReceiveCompletionSource.SetResult(e);
                 return EnqueueStatus.EventHandlerRunning;
             }
 
-            this.ActorManager.OnEnqueueEvent(e, group, info);
-            this.Queue.AddLast((e, group, info));
+            this.OnEnqueueEvent(e, eventGroup, info);
+            this.Queue.AddLast((e, eventGroup, info));
 
             if (info.Assert >= 0)
             {
                 var eventCount = this.Queue.Count(val => val.e.GetType().Equals(e.GetType()));
-                this.ActorManager.Assert(eventCount <= info.Assert,
+                this.Assert(eventCount <= info.Assert,
                     "There are more than {0} instances of '{1}' in the input queue of {2}.",
-                    info.Assert, info.EventName, this.Actor.Id);
+                    info.Assert, info.EventName, this.Owner.Id);
             }
 
-            if (!this.ActorManager.IsEventHandlerRunning)
+            if (!this.IsEventHandlerRunning)
             {
                 if (this.TryDequeueEvent(true).e is null)
                 {
@@ -109,7 +117,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 }
                 else
                 {
-                    this.ActorManager.IsEventHandlerRunning = true;
+                    this.IsEventHandlerRunning = true;
                     return EnqueueStatus.EventHandlerNotRunning;
                 }
             }
@@ -118,13 +126,13 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, EventGroup group, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
             if (this.RaisedEvent != default)
             {
-                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e))
+                if (this.IsEventIgnored(this.RaisedEvent.e))
                 {
                     // TODO: should the user be able to raise an ignored event?
                     // The raised event is ignored in the current state.
@@ -132,46 +140,43 @@ namespace Microsoft.Coyote.Actors.Mocks
                 }
                 else
                 {
-                    (Event e, EventGroup group, EventInfo info) raisedEvent = this.RaisedEvent;
+                    (Event e, EventGroup eventGroup, EventInfo info) raisedEvent = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.Raised, raisedEvent.e, raisedEvent.group, raisedEvent.info);
+                    return (DequeueStatus.Raised, raisedEvent.e, raisedEvent.eventGroup, raisedEvent.info);
                 }
             }
 
-            var hasDefaultHandler = this.ActorManager.IsDefaultHandlerAvailable();
-            if (hasDefaultHandler)
-            {
-                this.ActorManager.LogDefaultEventHandlerCheck(this.Actor);
-            }
+            // Make sure this happens before a potential dequeue.
+            var hasDefaultHandler = this.IsDefaultHandlerAvailable();
 
             // Try to dequeue the next event, if there is one.
-            var (e, group, info) = this.TryDequeueEvent();
+            var (e, eventGroup, info) = this.TryDequeueEvent();
             if (e != null)
             {
                 // Found next event that can be dequeued.
-                return (DequeueStatus.Success, e, group, info);
+                return (DequeueStatus.Success, e, eventGroup, info);
             }
 
             // No event can be dequeued, so check if there is a default event handler.
             if (!hasDefaultHandler)
             {
                 // There is no default event handler installed, so do not return an event.
-                this.ActorManager.IsEventHandlerRunning = false;
+                this.IsEventHandlerRunning = false;
                 return (DequeueStatus.NotAvailable, null, null, null);
             }
 
             // TODO: check op-id of default event.
             // A default event handler exists.
-            string stateName = this.Actor is StateMachine stateMachine ?
+            string stateName = this.Owner is StateMachine stateMachine ?
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
-            var eventOrigin = new EventOriginInfo(this.Actor.Id, this.Actor.GetType().FullName, stateName);
+            var eventOrigin = new EventOriginInfo(this.Owner.Id, this.Owner.GetType().FullName, stateName);
             return (DequeueStatus.Default, DefaultEvent.Instance, null, new EventInfo(DefaultEvent.Instance, eventOrigin));
         }
 
         /// <summary>
         /// Dequeues the next event and its metadata, if there is one available, else returns null.
         /// </summary>
-        private (Event e, EventGroup group, EventInfo info) TryDequeueEvent(bool checkOnly = false)
+        private (Event e, EventGroup eventGroup, EventInfo info) TryDequeueEvent(bool checkOnly = false)
         {
             (Event, EventGroup, EventInfo) nextAvailableEvent = default;
 
@@ -182,7 +187,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 var nextNode = node.Next;
                 var currentEvent = node.Value;
 
-                if (this.ActorManager.IsEventIgnored(currentEvent.e))
+                if (this.IsEventIgnored(currentEvent.e))
                 {
                     if (!checkOnly)
                     {
@@ -195,7 +200,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 }
 
                 // Skips a deferred event.
-                if (!this.ActorManager.IsEventDeferred(currentEvent.e))
+                if (!this.IsEventDeferred(currentEvent.e))
                 {
                     nextAvailableEvent = currentEvent;
                     if (!checkOnly)
@@ -213,14 +218,14 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <inheritdoc/>
-        public void RaiseEvent(Event e, EventGroup group)
+        public void RaiseEvent(Event e, EventGroup eventGroup)
         {
-            string stateName = this.Actor is StateMachine stateMachine ?
+            string stateName = this.Owner is StateMachine stateMachine ?
                 NameResolver.GetStateNameForLogging(stateMachine.CurrentState) : string.Empty;
-            var eventOrigin = new EventOriginInfo(this.Actor.Id, this.Actor.GetType().FullName, stateName);
+            var eventOrigin = new EventOriginInfo(this.Owner.Id, this.Owner.GetType().FullName, stateName);
             var info = new EventInfo(e, eventOrigin);
-            this.RaisedEvent = (e, group, info);
-            this.ActorManager.OnRaiseEvent(e, group, info);
+            this.RaisedEvent = (e, eventGroup, info);
+            this.OnRaiseEvent(e, eventGroup, info);
         }
 
         /// <inheritdoc/>
@@ -263,9 +268,9 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
-            this.ActorManager.LogReceiveCalled(this.Actor);
+            this.OnReceiveInvoked();
 
-            (Event e, EventGroup group, EventInfo info) receivedEvent = default;
+            (Event e, EventGroup eventGroup, EventInfo info) receivedEvent = default;
             var node = this.Queue.First;
             while (node != null)
             {
@@ -285,13 +290,95 @@ namespace Microsoft.Coyote.Actors.Mocks
             {
                 this.ReceiveCompletionSource = new TaskCompletionSource<Event>();
                 this.EventWaitTypes = eventWaitTypes;
-                this.ActorManager.OnWaitEvent(this.EventWaitTypes.Keys);
+                this.OnWaitEvent(this.EventWaitTypes.Keys);
                 return this.ReceiveCompletionSource.Task;
             }
 
-            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.group, receivedEvent.info);
+            this.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.eventGroup, receivedEvent.info);
             return Task.FromResult(receivedEvent.e);
         }
+
+        /// <summary>
+        /// Checks if the specified event is currently ignored.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool IsEventIgnored(Event e) => this.Owner.IsEventIgnored(e);
+
+        /// <summary>
+        /// Checks if the specified event is currently deferred.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool IsEventDeferred(Event e) => this.Owner.IsEventDeferred(e);
+
+        /// <summary>
+        /// Checks if a default handler is currently available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool IsDefaultHandlerAvailable()
+        {
+            bool result = this.Owner.IsDefaultHandlerInstalled();
+            if (result)
+            {
+                this.Owner.Context.Scheduler.ScheduleNextOperation();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Notifies the actor that an event has been enqueued.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnEnqueueEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that an event has been raised.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnRaiseEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that it is waiting to receive an event of one of the specified types.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnWaitEvent(IEnumerable<Type> eventTypes) => this.Owner.OnWaitEvent(eventTypes);
+
+        /// <summary>
+        /// Notifies the actor that an event it was waiting to receive has been enqueued.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnReceiveEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that an event it was waiting to receive was already in the
+        /// event queue when the actor invoked the receive statement.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnReceiveEventWithoutWaiting(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that <see cref="ReceiveEventAsync(Type[])"/> or one of its overloaded methods was invoked.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnReceiveInvoked() => this.Owner.OnReceiveInvoked();
+
+        /// <summary>
+        /// Notifies the actor that an event has been dropped.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnDropEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
+            this.Owner.Context.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <inheritdoc/>
         public int GetCachedState()
@@ -331,7 +418,7 @@ namespace Microsoft.Coyote.Actors.Mocks
 
             foreach (var (e, g, info) in this.Queue)
             {
-                this.ActorManager.OnDropEvent(e, g, info);
+                this.OnDropEvent(e, g, info);
             }
 
             this.Queue.Clear();

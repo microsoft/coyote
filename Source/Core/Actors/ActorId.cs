@@ -64,12 +64,12 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, ulong value, string name, ActorManager manager, bool useNameForHashing = false)
+        internal ActorId(Type type, ulong value, string name, ExecutionContext context, bool useNameForHashing = false)
         {
-            this.Runtime = manager;
+            this.Runtime = context;
             this.Type = type.FullName;
             this.Value = value;
-            this.Generation = manager.Configuration.RuntimeGeneration;
+            this.Generation = context.Configuration.RuntimeGeneration;
             this.Endpoint = string.Empty;
 
             if (useNameForHashing)
@@ -90,9 +90,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Bind the actor id.
         /// </summary>
-        internal void Bind(ActorManager manager)
+        internal void Bind(ExecutionContext context)
         {
-            this.Runtime = manager;
+            this.Runtime = context;
         }
 
         /// <summary>

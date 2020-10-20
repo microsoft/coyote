@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Actors.SharedObjects
@@ -25,9 +24,9 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         /// <param name="runtime">The actor runtime.</param>
         public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IActorRuntime runtime)
         {
-            if (runtime is MockActorManager actorManager)
+            if (runtime is TestingExecutionContext executionContext)
             {
-                return new Mock<TKey, TValue>(actorManager, null);
+                return new Mock<TKey, TValue>(executionContext, null);
             }
 
             return new SharedDictionary<TKey, TValue>(new ConcurrentDictionary<TKey, TValue>());
@@ -42,9 +41,9 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         /// <param name="runtime">The actor runtime.</param>
         public static SharedDictionary<TKey, TValue> Create<TKey, TValue>(IEqualityComparer<TKey> comparer, IActorRuntime runtime)
         {
-            if (runtime is MockActorManager actorManager)
+            if (runtime is TestingExecutionContext executionContext)
             {
-                return new Mock<TKey, TValue>(actorManager, comparer);
+                return new Mock<TKey, TValue>(executionContext, comparer);
             }
 
             return new SharedDictionary<TKey, TValue>(new ConcurrentDictionary<TKey, TValue>(comparer));
@@ -63,26 +62,26 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             private readonly ActorId DictionaryActor;
 
             /// <summary>
-            /// The controlled runtime hosting this shared dictionary.
+            /// The execution context associated with this shared dictionary.
             /// </summary>
-            private readonly MockActorManager Manager;
+            private readonly TestingExecutionContext Context;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock{TKey, TValue}"/> class.
             /// </summary>
-            internal Mock(MockActorManager manager, IEqualityComparer<TKey> comparer)
+            internal Mock(TestingExecutionContext context, IEqualityComparer<TKey> comparer)
                 : base(null)
             {
-                this.Manager = manager;
+                this.Context = context;
                 if (comparer != null)
                 {
-                    this.DictionaryActor = manager.CreateActor(
+                    this.DictionaryActor = context.CreateActor(
                         typeof(SharedDictionaryActor<TKey, TValue>),
                         SharedDictionaryEvent.InitializeEvent(comparer));
                 }
                 else
                 {
-                    this.DictionaryActor = manager.CreateActor(typeof(SharedDictionaryActor<TKey, TValue>));
+                    this.DictionaryActor = context.CreateActor(typeof(SharedDictionaryActor<TKey, TValue>));
                 }
             }
 
@@ -91,8 +90,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override bool TryAdd(TKey key, TValue value)
             {
-                var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
-                this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryAddEvent(key, value, op.Actor.Id));
+                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryAddEvent(key, value, op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
                 return e.Value;
             }
@@ -102,8 +101,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue)
             {
-                var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
-                this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryUpdateEvent(key, newValue, comparisonValue, op.Actor.Id));
+                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryUpdateEvent(key, newValue, comparisonValue, op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<bool>)).Result as SharedDictionaryResponseEvent<bool>;
                 return e.Value;
             }
@@ -113,8 +112,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override bool TryGetValue(TKey key, out TValue value)
             {
-                var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
-                this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryGetEvent(key, op.Actor.Id));
+                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryGetEvent(key, op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
                     as SharedDictionaryResponseEvent<Tuple<bool, TValue>>;
                 value = e.Value.Item2;
@@ -128,15 +127,15 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             {
                 get
                 {
-                    var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
-                    this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.GetEvent(key, op.Actor.Id));
+                    var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                    this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.GetEvent(key, op.Actor.Id));
                     var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<TValue>)).Result as SharedDictionaryResponseEvent<TValue>;
                     return e.Value;
                 }
 
                 set
                 {
-                    this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.SetEvent(key, value));
+                    this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.SetEvent(key, value));
                 }
             }
 
@@ -145,8 +144,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override bool TryRemove(TKey key, out TValue value)
             {
-                var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
-                this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryRemoveEvent(key, op.Actor.Id));
+                var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.TryRemoveEvent(key, op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<Tuple<bool, TValue>>)).Result
                     as SharedDictionaryResponseEvent<Tuple<bool, TValue>>;
                 value = e.Value.Item2;
@@ -160,8 +159,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             {
                 get
                 {
-                    var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
-                    this.Manager.SendEvent(this.DictionaryActor, SharedDictionaryEvent.CountEvent(op.Actor.Id));
+                    var op = this.Context.Scheduler.GetExecutingOperation<ActorOperation>();
+                    this.Context.SendEvent(this.DictionaryActor, SharedDictionaryEvent.CountEvent(op.Actor.Id));
                     var e = op.Actor.ReceiveEventAsync(typeof(SharedDictionaryResponseEvent<int>)).Result as SharedDictionaryResponseEvent<int>;
                     return e.Value;
                 }

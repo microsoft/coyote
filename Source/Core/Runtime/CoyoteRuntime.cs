@@ -6,15 +6,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
@@ -28,7 +25,7 @@ namespace Microsoft.Coyote.Runtime
     /// <summary>
     /// Runtime for executing and controlling asynchronous operations.
     /// </summary>
-    internal sealed class CoyoteRuntime : ICoyoteRuntime
+    internal sealed class CoyoteRuntime : IDisposable
     {
         /// <summary>
         /// Provides access to the runtime associated with each asynchronous control flow.
@@ -80,22 +77,12 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default actor execution context.
         /// </summary>
-        private readonly ActorExecutionContext DefaultActorExecutionContext;
-
-        /// <summary>
-        /// The default actor runtime.
-        /// </summary>
-        internal readonly ActorManager DefaultActorManager;
+        internal readonly Actors.ExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
         /// Responsible for generating random values.
         /// </summary>
         private readonly IRandomValueGenerator ValueGenerator;
-
-        /// <summary>
-        /// Data structure containing information regarding testing coverage.
-        /// </summary>
-        internal CoverageInfo CoverageInfo;
 
         /// <summary>
         /// Map from controlled tasks to their corresponding operations,
@@ -132,7 +119,7 @@ namespace Microsoft.Coyote.Runtime
         /// Used to log text messages. Use <see cref="ICoyoteRuntime.SetLogger"/>
         /// to replace the logger with a custom one.
         /// </summary>
-        public ILogger Logger
+        internal ILogger Logger
         {
             get { return this.LogWriter.Logger; }
             set { using var v = this.LogWriter.SetLogger(value); }
@@ -141,7 +128,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Callback that is fired when an exception is thrown that includes failed assertions.
         /// </summary>
-        public event OnFailureHandler OnFailure;
+        internal event OnFailureHandler OnFailure;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
@@ -169,7 +156,6 @@ namespace Microsoft.Coyote.Runtime
             this.RootTaskId = Task.CurrentId;
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
 
-            this.CoverageInfo = new CoverageInfo();
             this.LogWriter = new LogWriter(configuration);
 
             var monitors = new List<Monitor>();
@@ -183,11 +169,12 @@ namespace Microsoft.Coyote.Runtime
             this.SpecificationEngine = new SpecificationEngine(this.Configuration, this.Scheduler, monitors);
             this.ValueGenerator = valueGenerator;
 
-            this.DefaultActorExecutionContext = new ActorExecutionContext(this.Configuration, this, this.Scheduler,
-                this.SpecificationEngine, this.CoverageInfo, this.ValueGenerator, this.LogWriter);
-            this.DefaultActorManager = this.IsControlled ?
-                new MockActorManager(this.DefaultActorExecutionContext, null, null) :
-                new ActorManager(this.DefaultActorExecutionContext, null, null);
+            var coverageInfo = new CoverageInfo();
+            this.DefaultActorExecutionContext = this.IsControlled ?
+                new Actors.ExecutionContext(this.Configuration, this, this.Scheduler,
+                this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter) :
+                new TestingExecutionContext(this.Configuration, this, this.Scheduler,
+                this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter);
 
             SystematicTesting.Interception.ControlledThread.ClearCache();
         }
@@ -219,7 +206,7 @@ namespace Microsoft.Coyote.Runtime
                     Task testMethodTask = null;
                     if (testMethod is Action<IActorRuntime> actionWithRuntime)
                     {
-                        actionWithRuntime(this.DefaultActorManager);
+                        actionWithRuntime(this.DefaultActorExecutionContext);
                     }
                     else if (testMethod is Action action)
                     {
@@ -227,7 +214,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (testMethod is Func<IActorRuntime, Task> functionWithRuntime)
                     {
-                        testMethodTask = functionWithRuntime(this.DefaultActorManager);
+                        testMethodTask = functionWithRuntime(this.DefaultActorExecutionContext);
                     }
                     else if (testMethod is Func<Task> function)
                     {
@@ -235,7 +222,7 @@ namespace Microsoft.Coyote.Runtime
                     }
                     else if (testMethod is Func<IActorRuntime, CoyoteTasks.Task> functionWithRuntime2)
                     {
-                        testMethodTask = functionWithRuntime2(this.DefaultActorManager).UncontrolledTask;
+                        testMethodTask = functionWithRuntime2(this.DefaultActorExecutionContext).UncontrolledTask;
                     }
                     else if (testMethod is Func<CoyoteTasks.Task> function2)
                     {
@@ -1375,58 +1362,41 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Registers a new specification monitor of the specified <see cref="Type"/>.
         /// </summary>
-        public void RegisterMonitor<T>()
-            where T : Monitor =>
-            this.TryCreateMonitor(typeof(T));
+        internal void RegisterMonitor<T>()
+            where T : Monitor => this.DefaultActorExecutionContext.RegisterMonitor<T>();
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
         /// </summary>
-        public void Monitor<T>(Event e)
-            where T : Monitor
-        {
-            // If the event is null then report an error and exit.
-            this.Assert(e != null, "Cannot monitor a null event.");
-            this.InvokeMonitor(typeof(T), e, null, null, null);
-        }
-
-        /// <summary>
-        /// Tries to create a new <see cref="Specifications.Monitor"/> of the specified <see cref="Type"/>.
-        /// </summary>
-        internal bool TryCreateMonitor(Type type) => this.SpecificationEngine.TryCreateMonitor(type, this.CoverageInfo, this.LogWriter);
-
-        /// <summary>
-        /// Invokes the specified <see cref="Specifications.Monitor"/> with the specified <see cref="Event"/>.
-        /// </summary>
-        internal void InvokeMonitor(Type type, Event e, string senderName, string senderType, string senderStateName) =>
-            this.SpecificationEngine.InvokeMonitor(type, e, senderName, senderType, senderStateName);
+        internal void Monitor<T>(Event e)
+            where T : Monitor => this.DefaultActorExecutionContext.Monitor<T>(e);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        public void Assert(bool predicate) => this.SpecificationEngine.Assert(predicate);
+        internal void Assert(bool predicate) => this.SpecificationEngine.Assert(predicate);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        public void Assert(bool predicate, string s, object arg0) => this.SpecificationEngine.Assert(predicate, s, arg0);
+        internal void Assert(bool predicate, string s, object arg0) => this.SpecificationEngine.Assert(predicate, s, arg0);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        public void Assert(bool predicate, string s, object arg0, object arg1) =>
+        internal void Assert(bool predicate, string s, object arg0, object arg1) =>
             this.SpecificationEngine.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        public void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
+        internal void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
             this.SpecificationEngine.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        public void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
+        internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
 
 #if !DEBUG
         [DebuggerStepThrough]
@@ -1479,79 +1449,16 @@ namespace Microsoft.Coyote.Runtime
             this.SpecificationEngine.AssertNoMonitorInHotStateAtTermination();
 
         /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be controlled
-        /// during analysis or testing.
-        /// </summary>
-        public bool RandomBoolean() => this.GetNondeterministicBooleanChoice(2, null, null);
-
-        /// <summary>
-        /// Returns a nondeterministic boolean choice, that can be controlled
-        /// during analysis or testing. The value is used to generate a number
-        /// in the range [0..maxValue), where 0 triggers true.
-        /// </summary>
-        public bool RandomBoolean(int maxValue) => this.GetNondeterministicBooleanChoice(maxValue, null, null);
-
-        /// <summary>
         /// Returns a controlled nondeterministic boolean choice.
         /// </summary>
-        internal bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
-        {
-            if (this.IsControlled)
-            {
-                var caller = this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
-                if (caller is Actor callerActor)
-                {
-                    (callerActor.Manager as MockActorManager).ProgramCounter++;
-                }
-
-                var choice = this.Scheduler.GetNextNondeterministicBooleanChoice(maxValue);
-                this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
-                return choice;
-            }
-            else
-            {
-                bool result = false;
-                if (this.ValueGenerator.Next(maxValue) == 0)
-                {
-                    result = true;
-                }
-
-                this.LogWriter.LogRandom(result, callerName, callerType);
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Returns a nondeterministic integer, that can be controlled during
-        /// analysis or testing. The value is used to generate an integer in
-        /// the range [0..maxValue).
-        /// </summary>
-        public int RandomInteger(int maxValue) => this.GetNondeterministicIntegerChoice(maxValue, null, null);
+        internal bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType) =>
+            this.DefaultActorExecutionContext.GetNondeterministicBooleanChoice(maxValue, callerName, callerType);
 
         /// <summary>
         /// Returns a controlled nondeterministic integer choice.
         /// </summary>
-        internal int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType)
-        {
-            if (this.IsControlled)
-            {
-                var caller = this.Scheduler.GetExecutingOperation<ActorOperation>()?.Actor;
-                if (caller is Actor callerActor)
-                {
-                    (callerActor.Manager as MockActorManager).ProgramCounter++;
-                }
-
-                var choice = this.Scheduler.GetNextNondeterministicIntegerChoice(maxValue);
-                this.LogWriter.LogRandom(choice, callerName ?? caller?.Id.Name, callerType ?? caller?.Id.Type);
-                return choice;
-            }
-            else
-            {
-                var result = this.ValueGenerator.Next(maxValue);
-                this.LogWriter.LogRandom(result, callerName, callerType);
-                return result;
-            }
-        }
+        internal int GetNondeterministicIntegerChoice(int maxValue, string callerName, string callerType) =>
+            this.DefaultActorExecutionContext.GetNondeterministicIntegerChoice(maxValue, callerName, callerType);
 
         /// <summary>
         /// Returns the next available unique operation id.
@@ -1650,24 +1557,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
 
-        /// <inheritdoc/>
-        [Obsolete("Please set the Logger property directory instead of calling this method.")]
-        public TextWriter SetLogger(TextWriter logger)
-        {
-            var result = this.LogWriter.SetLogger(new TextWriterLogger(logger));
-            if (result != null)
-            {
-                return result.TextWriter;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Terminates the runtime.
-        /// </summary>
-        public void Stop() => this.Scheduler.ForceStop();
-
         /// <summary>
         /// Disposes runtime resources.
         /// </summary>
@@ -1675,6 +1564,8 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
+                this.OperationIdCounter = 0;
+                this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();
 
                 if (this.IsControlled)
@@ -1685,7 +1576,6 @@ namespace Microsoft.Coyote.Runtime
                     Interlocked.Decrement(ref ExecutionControlledUseCount);
                 }
 
-                this.OperationIdCounter = 0;
                 AssignAsyncControlFlowRuntime(null);
             }
         }

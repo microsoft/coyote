@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Actors
 
             // Assign the runtime to the currently executing asynchronous control flow.
             CoyoteRuntime.AssignAsyncControlFlowRuntime(runtime);
-            return runtime.DefaultActorManager;
+            return runtime.DefaultActorExecutionContext;
         }
     }
 }

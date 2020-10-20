@@ -118,18 +118,12 @@ namespace Microsoft.Coyote.Actors.Timers.Mocks
         /// to the current <see cref="ActorId"/>.
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
-        /// <returns>true if the current object is equal to the other parameter; otherwise, false.</returns>
-        public bool Equals(ActorTimer other)
-        {
-            return this.Equals((object)other);
-        }
+        /// <returns>True if the current object is equal to the other parameter; otherwise, false.</returns>
+        public bool Equals(ActorTimer other) => this.Equals((object)other);
 
         /// <summary>
         /// Disposes the resources held by this timer.
         /// </summary>
-        public void Dispose()
-        {
-            this.Manager.SendEvent(this.Id, HaltEvent.Instance);
-        }
+        public void Dispose() => this.Owner.Context.SendEvent(this.Id, HaltEvent.Instance);
     }
 }

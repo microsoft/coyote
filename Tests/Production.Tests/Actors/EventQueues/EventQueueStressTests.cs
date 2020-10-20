@@ -6,7 +6,6 @@ using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Production.Tests.Actors
 {
@@ -30,14 +29,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestEnqueueDequeueEvents()
+        public async Task TestEnqueueDequeueEvents()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockActorManager(logger,
-                (notification, evt, _) => { });
-
-            var queue = new EventQueue(machineStateManager);
             int numMessages = 10000;
+            var logger = new TestOutputLogger(this.TestOutput, false);
+
+            using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
             var enqueueTask = Task.Run(() =>
             {
@@ -65,14 +62,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestEnqueueReceiveEvents()
+        public async Task TestEnqueueReceiveEvents()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockActorManager(logger,
-                (notification, evt, _) => { });
-
-            var queue = new EventQueue(machineStateManager);
             int numMessages = 10000;
+            var logger = new TestOutputLogger(this.TestOutput, false);
+
+            using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
             var enqueueTask = Task.Run(() =>
             {
@@ -96,14 +91,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         }
 
         [Fact(Timeout = 5000)]
-        public async SystemTasks.Task TestEnqueueReceiveEventsAlternateType()
+        public async Task TestEnqueueReceiveEventsAlternateType()
         {
-            var logger = new TestOutputLogger(this.TestOutput, false);
-            var machineStateManager = new MockActorManager(logger,
-                (notification, evt, _) => { });
-
-            var queue = new EventQueue(machineStateManager);
             int numMessages = 10000;
+            var logger = new TestOutputLogger(this.TestOutput, false);
+
+            using var queue = new TestEventQueue(logger, (notification, evt, _) => { });
 
             var enqueueTask = Task.Run(() =>
             {

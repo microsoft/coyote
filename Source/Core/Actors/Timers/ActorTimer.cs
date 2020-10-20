@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Actors.Timers
             }
 
             // Send a timeout event.
-            this.Owner.Manager.SendEvent(this.Owner.Id, this.TimeoutEvent);
+            this.Owner.Context.SendEvent(this.Owner.Id, this.TimeoutEvent);
 
             if (this.Info.Period.TotalMilliseconds >= 0)
             {

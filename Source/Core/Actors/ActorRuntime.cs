@@ -137,35 +137,35 @@
 //        public ActorId CreateActorIdFromName(Type type, string name) => this.DefaultActorManager.CreateActorIdFromName(type, name);
 
 //        /// <inheritdoc/>
-//        public ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
+//        public ActorId CreateActor(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
 //            this.DefaultActorManager.CreateActor(type, initialEvent, group);
 
 //        /// <inheritdoc/>
-//        public ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+//        public ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup eventGroup = null) =>
 //            this.DefaultActorManager.CreateActor(type, name, initialEvent, group);
 
 //        /// <inheritdoc/>
-//        public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, EventGroup group = null) =>
+//        public ActorId CreateActor(ActorId id, Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
 //            this.DefaultActorManager.CreateActor(id, type, initialEvent, group);
 
 //        /// <inheritdoc/>
-//        public Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup group = null) =>
+//        public Task<ActorId> CreateActorAndExecuteAsync(Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
 //            this.DefaultActorManager.CreateActorAndExecuteAsync(type, initialEvent, group);
 
 //        /// <inheritdoc/>
-//        public Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
+//        public Task<ActorId> CreateActorAndExecuteAsync(Type type, string name, Event initialEvent = null, EventGroup eventGroup = null) =>
 //            this.DefaultActorManager.CreateActorAndExecuteAsync(type, name, initialEvent, group);
 
 //        /// <inheritdoc/>
-//        public Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null, EventGroup group = null) =>
+//        public Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, Event initialEvent = null, EventGroup eventGroup = null) =>
 //            this.DefaultActorManager.CreateActorAndExecuteAsync(id, type, initialEvent, group);
 
 //        /// <inheritdoc/>
-//        public void SendEvent(ActorId targetId, Event initialEvent, EventGroup group = default, SendOptions options = null) =>
+//        public void SendEvent(ActorId targetId, Event initialEvent, EventGroup eventGroup = default, SendOptions options = null) =>
 //            this.DefaultActorManager.SendEvent(targetId, initialEvent, group, options);
 
 //        /// <inheritdoc/>
-//        public Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent, EventGroup group = null, SendOptions options = null) =>
+//        public Task<bool> SendEventAndExecuteAsync(ActorId targetId, Event initialEvent, EventGroup eventGroup = null, SendOptions options = null) =>
 //            this.DefaultActorManager.SendEventAndExecuteAsync(targetId, initialEvent, group, options);
 
 //        /// <inheritdoc/>

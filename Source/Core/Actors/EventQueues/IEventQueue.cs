@@ -24,17 +24,17 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Enqueues the specified event and its optional metadata.
         /// </summary>
-        EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info);
+        EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info);
 
         /// <summary>
         /// Dequeues the next event, if there is one available.
         /// </summary>
-        (DequeueStatus status, Event e, EventGroup group, EventInfo info) Dequeue();
+        (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) Dequeue();
 
         /// <summary>
         /// Enqueues the specified raised event.
         /// </summary>
-        void RaiseEvent(Event e, EventGroup group);
+        void RaiseEvent(Event e, EventGroup eventGroup);
 
         /// <summary>
         /// Waits to receive an event of the specified type that satisfies an optional predicate.

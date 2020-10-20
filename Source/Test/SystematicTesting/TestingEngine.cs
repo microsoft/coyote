@@ -586,7 +586,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     runtime.Logger = this.Logger;
                 }
 
-                this.InitializeCustomActorLogging(runtime.DefaultActorManager);
+                this.InitializeCustomActorLogging(runtime.DefaultActorExecutionContext);
 
                 // Runs the test and waits for it to terminate.
                 runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
@@ -866,7 +866,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 report.CoverageInfo.CoverageGraph = this.Graph;
             }
 
-            var coverageInfo = runtime.DefaultActorManager.GetCoverageInfo();
+            var coverageInfo = runtime.DefaultActorExecutionContext.BuildCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 

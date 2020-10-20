@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 using SystemCompiler = System.Runtime.CompilerServices;
 
 namespace Microsoft.Coyote.Tasks

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 #if BINARY_REWRITE
 using System.Threading.Tasks;
 #else

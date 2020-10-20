@@ -316,14 +316,14 @@ namespace Microsoft.Coyote.Actors.Mocks
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, groupId, isTargetHalted: true);
                 this.Assert(options is null || !options.MustHandle,
                     "A must-handle event '{0}' was sent to {1} which has halted.", e.GetType().FullName, targetId);
-                this.TryHandleDroppedEvent(e, targetId);
+                this.Context.HandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
 
             EnqueueStatus enqueueStatus = this.EnqueueEvent(target, e, sender, group, options);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
-                this.TryHandleDroppedEvent(e, targetId);
+                this.Context.HandleDroppedEvent(e, targetId);
             }
 
             return enqueueStatus;
@@ -466,7 +466,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         {
             this.Assert(!eventInfo.MustHandle, "{0} halted before dequeueing must-handle event '{1}'.",
                 this.Instance.Id, e.GetType().FullName);
-            this.TryHandleDroppedEvent(e, this.Instance.Id);
+            this.Context.HandleDroppedEvent(e, this.Instance.Id);
         }
 
         /// <summary>

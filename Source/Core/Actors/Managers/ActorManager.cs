@@ -86,12 +86,46 @@ namespace Microsoft.Coyote.Actors
         /// <see cref="IActorRuntime.SendEvent"/> is called with an ActorId that has no matching
         /// actor defined or the actor is halted.
         /// </summary>
-        public event OnEventDroppedHandler OnEventDropped;
+        public event OnEventDroppedHandler OnEventDropped
+        {
+            add
+            {
+                lock (this.Context)
+                {
+                    this.Context.OnEventDropped += value;
+                }
+            }
+
+            remove
+            {
+                lock (this.Context)
+                {
+                    this.Context.OnEventDropped -= value;
+                }
+            }
+        }
 
         /// <summary>
         /// Callback that is fired when an exception is thrown that includes failed assertions.
         /// </summary>
-        public event OnFailureHandler OnFailure;
+        public event OnFailureHandler OnFailure
+        {
+            add
+            {
+                lock (this.Context)
+                {
+                    this.Context.Runtime.OnFailure += value;
+                }
+            }
+
+            remove
+            {
+                lock (this.Context)
+                {
+                    this.Context.Runtime.OnFailure -= value;
+                }
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorManager"/> class.
@@ -351,7 +385,7 @@ namespace Microsoft.Coyote.Actors
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                     (sender as StateMachine)?.CurrentStateName ?? string.Empty, e, opId, isTargetHalted: true);
-                this.TryHandleDroppedEvent(e, targetId);
+                this.Context.HandleDroppedEvent(e, targetId);
                 return EnqueueStatus.Dropped;
             }
 
@@ -361,7 +395,7 @@ namespace Microsoft.Coyote.Actors
             EnqueueStatus enqueueStatus = target.Enqueue(e, group, null);
             if (enqueueStatus == EnqueueStatus.Dropped)
             {
-                this.TryHandleDroppedEvent(e, targetId);
+                this.Context.HandleDroppedEvent(e, targetId);
             }
 
             return enqueueStatus;
@@ -556,7 +590,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void OnDropEvent(Event e, EventGroup group, EventInfo eventInfo) =>
-            this.TryHandleDroppedEvent(e, this.Instance.Id);
+            this.Context.HandleDroppedEvent(e, this.Instance.Id);
 
         /// <summary>
         /// Logs that the invoked an action.
@@ -810,29 +844,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Raises the <see cref="OnFailure"/> event with the specified <see cref="Exception"/>.
         /// </summary>
-        internal void RaiseOnFailureEvent(Exception exception)
-        {
-            if (this.IsExecutionControlled &&
-                (exception is ExecutionCanceledException ||
-                (exception is ActionExceptionFilterException ae && ae.InnerException is ExecutionCanceledException)))
-            {
-                // Internal exception used during systematic testing.
-                return;
-            }
-
-            if (this.Configuration.AttachDebugger)
-            {
-                Debugger.Break();
-                this.Configuration.AttachDebugger = false;
-            }
-
-            this.OnFailure?.Invoke(exception);
-        }
-
-        /// <summary>
-        /// Tries to handle the specified dropped <see cref="Event"/>.
-        /// </summary>
-        protected void TryHandleDroppedEvent(Event e, ActorId id) => this.OnEventDropped?.Invoke(e, id);
+        internal void RaiseOnFailureEvent(Exception exception) => this.Context.Runtime.RaiseOnFailureEvent(exception);
 
         /// <inheritdoc/>
         [Obsolete("Please set the Logger property directory instead of calling this method.")]

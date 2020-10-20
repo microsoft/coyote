@@ -62,6 +62,13 @@ namespace Microsoft.Coyote.Actors
         internal readonly LogWriter LogWriter;
 
         /// <summary>
+        /// Callback that is fired when a Coyote event is dropped. This happens when
+        /// <see cref="IActorRuntime.SendEvent"/> is called with an ActorId that has no matching
+        /// actor defined or the actor is halted.
+        /// </summary>
+        internal event OnEventDroppedHandler OnEventDropped;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
         internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
@@ -119,6 +126,11 @@ namespace Microsoft.Coyote.Actors
 
             return result;
         }
+
+        /// <summary>
+        /// Handle the specified dropped <see cref="Event"/>.
+        /// </summary>
+        internal void HandleDroppedEvent(Event e, ActorId id) => this.OnEventDropped?.Invoke(e, id);
 
         /// <summary>
         /// Disposes runtime resources.

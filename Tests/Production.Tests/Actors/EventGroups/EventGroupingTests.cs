@@ -58,7 +58,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M3 : Actor
         {
@@ -101,7 +100,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         private class M4A : Actor
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
@@ -134,7 +132,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         private class M5A : Actor
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
@@ -173,8 +170,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                 Assert.True(result == null);
             });
         }
-
-        //----------------------------------------------------------------------------------------------------
 
         [OnEventDoAction(typeof(E), nameof(HandleEvent))]
         private class M6A : Actor
@@ -230,7 +225,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M7A : Actor
         {
@@ -272,7 +266,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         [OnEventDoAction(typeof(E), nameof(CheckEvent))]
         private class M8A : Actor
         {
@@ -314,7 +307,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         private class M9A : Actor
         {
             protected override SystemTasks.Task OnInitializeAsync(Event e)
@@ -366,7 +358,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             });
         }
 
-        //----------------------------------------------------------------------------------------------------
         private class F : Event
         {
         }
@@ -390,8 +381,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private async SystemTasks.Task HandleE()
             {
                 this.Assert(this.CurrentEventGroup == null, "CurrentEventGroup should be null");
-                var e = await this.ReceiveEventAsync(typeof(F));
-
+                await this.ReceiveEventAsync(typeof(F));
                 var op = this.CurrentEventGroup as AwaitableEventGroup<bool>;
                 this.Assert(op != null, "CurrentEventGroup should now be set!");
                 op.SetResult(true);

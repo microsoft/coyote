@@ -71,8 +71,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             });
         }
 
-        //------------------------------------------------------------------------------------------------------------
-
         private class M2 : TraceableStateMachine
         {
             [Start]
@@ -113,7 +111,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             });
         }
 
-        //------------------------------------------------------------------------------------------------------------
         private class M3 : TraceableStateMachine
         {
             [Start]
@@ -155,7 +152,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             });
         }
 
-        //------------------------------------------------------------------------------------------------------------
         private class M4 : TraceableStateMachine
         {
             [Start]
@@ -200,8 +196,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
                 Assert.Contains("InitOnEntry, CurrentState=Final, Pop", actual);
             });
         }
-
-        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test that Defer, Ignore and DoAction can be inherited.
@@ -251,8 +245,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             });
         }
 
-        //------------------------------------------------------------------------------------------------------------
-
         /// <summary>
         /// Test you cannot have duplicated handlers for the same event.
         /// </summary>
@@ -277,8 +269,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             },
             expectedError: "M6(0) declared multiple handlers for event 'E2' in state 'M6+Init'.");
         }
-
-        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test you cannot have duplicated handlers for the same event.
@@ -308,8 +298,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             },
             expectedError: "M7(0) declared multiple handlers for event 'E2' in state 'M7+Init'.");
         }
-
-        //------------------------------------------------------------------------------------------------------------
 
         /// <summary>
         /// Test if you have duplicate handlers for the same event on inherited State class then the
@@ -353,8 +341,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
             },
             expectedError: "M8(0) inherited multiple handlers for event 'E1' from state 'BaseState' in state 'M8+Init'.");
         }
-
-        //------------------------------------------------------------------------------------------------------------
 
         private class M9 : TraceableStateMachine
         {

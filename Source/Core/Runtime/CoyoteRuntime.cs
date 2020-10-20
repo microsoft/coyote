@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The default actor execution context.
         /// </summary>
-        internal readonly Actors.ExecutionContext DefaultActorExecutionContext;
+        internal readonly ActorExecutionContext DefaultActorExecutionContext;
 
         /// <summary>
         /// Responsible for generating random values.
@@ -171,9 +171,9 @@ namespace Microsoft.Coyote.Runtime
 
             var coverageInfo = new CoverageInfo();
             this.DefaultActorExecutionContext = this.IsControlled ?
-                new TestingExecutionContext(this.Configuration, this, this.Scheduler,
+                new ActorExecutionContext.Mock(this.Configuration, this, this.Scheduler,
                 this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter) :
-                new Actors.ExecutionContext(this.Configuration, this, this.Scheduler,
+                new ActorExecutionContext(this.Configuration, this, this.Scheduler,
                 this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter);
 
             SystematicTesting.Interception.ControlledThread.ClearCache();

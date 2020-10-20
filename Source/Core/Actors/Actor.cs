@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The actor execution context.
         /// </summary>
-        internal ExecutionContext Context { get; private set; }
+        internal ActorExecutionContext Context { get; private set; }
 
         /// <summary>
         /// Unique id that identifies this actor.
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Configures the actor.
         /// </summary>
-        internal void Configure(ExecutionContext context, ActorId id, IEventQueue inbox, EventGroup eventGroup)
+        internal void Configure(ActorExecutionContext context, ActorId id, IEventQueue inbox, EventGroup eventGroup)
         {
             this.Context = context;
             this.Id = id;

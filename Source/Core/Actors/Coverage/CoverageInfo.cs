@@ -153,16 +153,15 @@ namespace Microsoft.Coyote.Coverage
         /// <returns>The deserialized coverage info.</returns>
         public static CoverageInfo Load(string filename)
         {
-            using (var fs = new FileStream(filename, FileMode.Open))
+            using var fs = new FileStream(filename, FileMode.Open);
+            using var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas());
+            DataContractSerializerSettings settings = new DataContractSerializerSettings
             {
-                using (var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas()))
-                {
-                    DataContractSerializerSettings settings = new DataContractSerializerSettings();
-                    settings.PreserveObjectReferences = true;
-                    var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
-                    return (CoverageInfo)ser.ReadObject(reader, true);
-                }
-            }
+                PreserveObjectReferences = true
+            };
+
+            var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
+            return (CoverageInfo)ser.ReadObject(reader, true);
         }
 
         /// <summary>
@@ -171,13 +170,14 @@ namespace Microsoft.Coyote.Coverage
         /// <param name="serFilePath">The path to the file to create.</param>
         public void Save(string serFilePath)
         {
-            using (var fs = new FileStream(serFilePath, FileMode.Create))
+            using var fs = new FileStream(serFilePath, FileMode.Create);
+            DataContractSerializerSettings settings = new DataContractSerializerSettings
             {
-                DataContractSerializerSettings settings = new DataContractSerializerSettings();
-                settings.PreserveObjectReferences = true;
-                var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
-                ser.WriteObject(fs, this);
-            }
+                PreserveObjectReferences = true
+            };
+
+            var ser = new DataContractSerializer(typeof(CoverageInfo), settings);
+            ser.WriteObject(fs, this);
         }
     }
 }

@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, ulong value, string name, ExecutionContext context, bool useNameForHashing = false)
+        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, bool useNameForHashing = false)
         {
             this.Runtime = context;
             this.Type = type.FullName;
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Bind the actor id.
         /// </summary>
-        internal void Bind(ExecutionContext context)
+        internal void Bind(ActorExecutionContext context)
         {
             this.Runtime = context;
         }

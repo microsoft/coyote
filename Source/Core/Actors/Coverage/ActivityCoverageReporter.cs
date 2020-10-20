@@ -10,7 +10,7 @@ using Microsoft.Coyote.Actors;
 namespace Microsoft.Coyote.Coverage
 {
     /// <summary>
-    /// The Coyote code coverage reporter.
+    /// Reports actor activity coverage.
     /// </summary>
     internal class ActivityCoverageReporter
     {
@@ -52,10 +52,8 @@ namespace Microsoft.Coyote.Coverage
         /// </summary>
         public void EmitCoverageReport(string coverageFile)
         {
-            using (var writer = new StreamWriter(coverageFile))
-            {
-                this.WriteCoverageText(writer);
-            }
+            using var writer = new StreamWriter(coverageFile);
+            this.WriteCoverageText(writer);
         }
 
         /// <summary>
@@ -256,9 +254,6 @@ namespace Microsoft.Coyote.Coverage
 
         private void RemoveBuiltInEvents(HashSet<string> eventList)
         {
-            var gotoState = typeof(GotoStateEvent).FullName;
-            var defaultEvent = typeof(DefaultEvent).FullName;
-
             foreach (var name in eventList.ToArray())
             {
                 if (this.BuiltInEvents.Contains(name))
@@ -284,33 +279,6 @@ namespace Microsoft.Coyote.Coverage
                     eventSet.Remove(e);
                 }
             }
-        }
-
-        private IEnumerable<string> GetPushedStates(string stateId)
-        {
-            Stack<string> pushed = new Stack<string>();
-            HashSet<string> result = new HashSet<string>();
-            pushed.Push(stateId);
-            while (pushed.Count > 0)
-            {
-                string id = pushed.Pop();
-                GraphNode source = this.CoverageInfo.CoverageGraph.GetNode(stateId);
-                foreach (var link in this.CoverageInfo.CoverageGraph.Links)
-                {
-                    if (link.Category == "push")
-                    {
-                        string srcId = link.Source.Id;
-                        string targetId = link.Target.Id;
-                        if (srcId == id && !result.Contains(targetId))
-                        {
-                            result.Add(targetId);
-                            pushed.Push(targetId);
-                        }
-                    }
-                }
-            }
-
-            return result;
         }
 
         private static List<string> SortHashSet(HashSet<string> items)
@@ -347,8 +315,5 @@ namespace Microsoft.Coyote.Coverage
 
             return nodeId;
         }
-
-        private static string GetStateId(string machineName, string stateName) =>
-            string.Format("{0}::{1}", stateName, machineName);
     }
 }

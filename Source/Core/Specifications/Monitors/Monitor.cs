@@ -115,15 +115,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         protected internal Type CurrentState
         {
-            get
-            {
-                if (this.ActiveState is null)
-                {
-                    return null;
-                }
-
-                return this.ActiveState.GetType();
-            }
+            get => this.ActiveState?.GetType();
         }
 
         /// <summary>
@@ -137,7 +129,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Gets the current state name with temperature.
         /// </summary>
-        internal string CurrentStateNameWithTemperature
+        private string CurrentStateNameWithTemperature
         {
             get
             {
@@ -624,7 +616,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Returns true if the monitor is in a hot state.
         /// </summary>
-        internal bool IsInHotState() => this.ActiveState.IsHot;
+        private bool IsInHotState() => this.ActiveState?.IsHot ?? false;
 
         /// <summary>
         /// Returns true if the monitor is in a hot state. Also outputs
@@ -633,33 +625,18 @@ namespace Microsoft.Coyote.Specifications
         internal bool IsInHotState(out string stateName)
         {
             stateName = this.CurrentStateName;
-            return this.ActiveState.IsHot;
+            return this.IsInHotState();
         }
 
         /// <summary>
         /// Returns true if the monitor is in a cold state.
         /// </summary>
-        internal bool IsInColdState() => this.ActiveState.IsCold;
-
-        /// <summary>
-        /// Returns true if the monitor is in a cold state. Also outputs
-        /// the name of the current state.
-        /// </summary>
-        internal bool IsInColdState(out string stateName)
-        {
-            stateName = this.CurrentStateName;
-            return this.ActiveState.IsCold;
-        }
+        private bool IsInColdState() => this.ActiveState?.IsCold ?? false;
 
         /// <summary>
         /// Returns a nullable boolean indicating liveness temperature: true for hot, false for cold, else null.
         /// </summary>
-        internal bool? GetHotState()
-        {
-            return this.IsInHotState() ? true :
-                this.IsInColdState() ? (bool?)false :
-                null;
-        }
+        internal bool? GetHotState() => this.IsInHotState() ? true : this.IsInColdState() ? (bool?)false : null;
 
         /// <summary>
         /// Returns the hashed state of this monitor.
@@ -932,7 +909,7 @@ namespace Microsoft.Coyote.Specifications
         {
             if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
             {
-                string monitorState = monitor.CurrentStateNameWithTemperature;
+                string monitorState = monitor.CurrentStateName;
                 this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, true, monitor.GetHotState());
             }
         }
@@ -944,7 +921,7 @@ namespace Microsoft.Coyote.Specifications
         {
             if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
             {
-                string monitorState = monitor.CurrentStateNameWithTemperature;
+                string monitorState = monitor.CurrentStateName;
                 this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, false, monitor.GetHotState());
             }
         }
@@ -979,7 +956,7 @@ namespace Microsoft.Coyote.Specifications
         {
             if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
             {
-                string monitorState = monitor.CurrentStateNameWithTemperature;
+                string monitorState = monitor.CurrentStateName;
                 this.LogWriter.LogMonitorError(monitor.GetType().FullName, monitorState, monitor.GetHotState());
             }
         }

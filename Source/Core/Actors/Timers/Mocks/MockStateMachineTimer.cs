@@ -93,15 +93,7 @@ namespace Microsoft.Coyote.Actors.Timers.Mocks
         /// Determines whether the specified System.Object is equal
         /// to the current System.Object.
         /// </summary>
-        public override bool Equals(object obj)
-        {
-            if (obj is MockStateMachineTimer timer)
-            {
-                return this.Id == timer.Id;
-            }
-
-            return false;
-        }
+        public override bool Equals(object obj) => obj is MockStateMachineTimer timer && this.Id == timer.Id;
 
         /// <summary>
         /// Returns the hash code for this instance.
@@ -124,6 +116,6 @@ namespace Microsoft.Coyote.Actors.Timers.Mocks
         /// <summary>
         /// Disposes the resources held by this timer.
         /// </summary>
-        public void Dispose() => this.Owner.Context.SendEvent(this.Id, HaltEvent.Instance);
+        public void Dispose() => this.Context.SendEvent(this.Id, HaltEvent.Instance);
     }
 }

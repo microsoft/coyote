@@ -11,8 +11,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -44,11 +46,6 @@ namespace Microsoft.Coyote.Actors
         private static readonly Type[] SingleEventTypeArray = new Type[] { typeof(Event) };
 
         /// <summary>
-        /// The runtime that executes this actor.
-        /// </summary>
-        internal ActorRuntime Runtime { get; private set; }
-
-        /// <summary>
         /// Unique id that identifies this actor.
         /// </summary>
         protected internal ActorId Id { get; private set; }
@@ -56,7 +53,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Manages the actor.
         /// </summary>
-        internal IActorManager Manager { get; private set; }
+        internal ActorManager Manager { get; private set; }
 
         /// <summary>
         /// The inbox of the actor. Incoming events are enqueued here.
@@ -117,13 +114,12 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// The installed runtime logger as an <see cref="ILogger"/>.  If you need a TextWriter
-        /// then use Logger.TextWriter.
+        /// The logger installed to the runtime.
         /// </summary>
         /// <remarks>
         /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
-        protected ILogger Logger => this.Runtime.Logger;
+        protected ILogger Logger => this.Manager.Logger;
 
         /// <summary>
         /// User-defined hashed state of the actor. Override to improve the
@@ -146,11 +142,10 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Configures the actor.
         /// </summary>
-        internal void Configure(ActorRuntime runtime, ActorId id, IActorManager manager, IEventQueue inbox)
+        internal void Configure(ActorManager manager, ActorId id, IEventQueue inbox)
         {
-            this.Runtime = runtime;
-            this.Id = id;
             this.Manager = manager;
+            this.Id = id;
             this.Inbox = inbox;
         }
 
@@ -178,7 +173,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
         protected ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null) =>
-            this.Runtime.CreateActor(null, type, null, initialEvent, this, group);
+            this.Manager.CreateActor(null, type, null, initialEvent, this, group);
 
         /// <summary>
         /// Creates a new actor of the specified type and name, and with the specified
@@ -191,7 +186,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="group">An optional event group associated with the new Actor.</param>
         /// <returns>The unique actor id.</returns>
         protected ActorId CreateActor(Type type, string name, Event initialEvent = null, EventGroup group = null) =>
-            this.Runtime.CreateActor(null, type, name, initialEvent, this, group);
+            this.Manager.CreateActor(null, type, name, initialEvent, this, group);
 
         /// <summary>
         /// Creates a new actor of the specified <see cref="Type"/> and name, using the specified
@@ -204,7 +199,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="initialEvent">Optional initialization event.</param>
         /// <param name="group">An optional event group associated with the new Actor.</param>
         protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, EventGroup group = null) =>
-            this.Runtime.CreateActor(id, type, name, initialEvent, this, group);
+            this.Manager.CreateActor(id, type, name, initialEvent, this, group);
 
         /// <summary>
         /// Sends an asynchronous <see cref="Event"/> to a target.
@@ -214,7 +209,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="group">An optional event group associated with this Actor.</param>
         /// <param name="options">Optional configuration of a send operation.</param>
         protected void SendEvent(ActorId id, Event e, EventGroup group = null, SendOptions options = null) =>
-            this.Runtime.SendEvent(id, e, this, group, options);
+            this.Manager.SendEvent(id, e, this, group, options);
 
         /// <summary>
         /// Waits to receive an <see cref="Event"/> of the specified type
@@ -226,7 +221,7 @@ namespace Microsoft.Coyote.Actors
         protected internal Task<Event> ReceiveEventAsync(Type eventType, Func<Event, bool> predicate = null)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
-            this.Runtime.NotifyReceiveCalled(this);
+            this.Manager.LogReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(eventType, predicate);
         }
 
@@ -238,7 +233,7 @@ namespace Microsoft.Coyote.Actors
         protected internal Task<Event> ReceiveEventAsync(params Type[] eventTypes)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
-            this.Runtime.NotifyReceiveCalled(this);
+            this.Manager.LogReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(eventTypes);
         }
 
@@ -251,7 +246,7 @@ namespace Microsoft.Coyote.Actors
         protected internal Task<Event> ReceiveEventAsync(params Tuple<Type, Func<Event, bool>>[] events)
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked ReceiveEventAsync while halting.", this.Id);
-            this.Runtime.NotifyReceiveCalled(this);
+            this.Manager.LogReceiveCalled(this);
             return this.Inbox.ReceiveEventAsync(events);
         }
 
@@ -314,7 +309,7 @@ namespace Microsoft.Coyote.Actors
         /// controlled during analysis or testing.
         /// </summary>
         /// <returns>The controlled nondeterministic choice.</returns>
-        protected bool RandomBoolean() => this.Runtime.GetNondeterministicBooleanChoice(2, this.Id.Name, this.Id.Type);
+        protected bool RandomBoolean() => this.Manager.GetNondeterministicBooleanChoice(2, this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Returns a nondeterministic boolean choice, that can be
@@ -325,7 +320,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic choice.</returns>
         protected bool RandomBoolean(int maxValue) =>
-            this.Runtime.GetNondeterministicBooleanChoice(maxValue, this.Id.Name, this.Id.Type);
+            this.Manager.GetNondeterministicBooleanChoice(maxValue, this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Returns a nondeterministic integer, that can be controlled during
@@ -335,7 +330,7 @@ namespace Microsoft.Coyote.Actors
         /// <param name="maxValue">The max value.</param>
         /// <returns>The controlled nondeterministic integer.</returns>
         protected int RandomInteger(int maxValue) =>
-            this.Runtime.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
+            this.Manager.GetNondeterministicIntegerChoice(maxValue, this.Id.Name, this.Id.Type);
 
         /// <summary>
         /// Invokes the specified monitor with the specified <see cref="Event"/>.
@@ -352,37 +347,36 @@ namespace Microsoft.Coyote.Actors
         protected void Monitor(Type type, Event e)
         {
             this.Assert(e != null, "{0} is sending a null event.", this.Id);
-            this.Runtime.Monitor(type, e, this.Id.Name, this.Id.Type, this.CurrentStateName);
+            this.Manager.InvokeMonitor(type, e, this.Id.Name, this.Id.Type, this.CurrentStateName);
         }
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate) => this.Runtime.Assert(predicate);
+        protected void Assert(bool predicate) => this.Manager.Assert(predicate);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
-        protected void Assert(bool predicate, string s, object arg0) =>
-            this.Runtime.Assert(predicate, s, arg0);
+        protected void Assert(bool predicate, string s, object arg0) => this.Manager.Assert(predicate, s, arg0);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, object arg0, object arg1) =>
-            this.Runtime.Assert(predicate, s, arg0, arg1);
+            this.Manager.Assert(predicate, s, arg0, arg1);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, object arg0, object arg1, object arg2) =>
-            this.Runtime.Assert(predicate, s, arg0, arg1, arg2);
+            this.Manager.Assert(predicate, s, arg0, arg1, arg2);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
         protected void Assert(bool predicate, string s, params object[] args) =>
-            this.Runtime.Assert(predicate, s, args);
+            this.Manager.Assert(predicate, s, args);
 
         /// <summary>
         /// Raises a <see cref='HaltEvent'/> to halt the actor at the end of the current action.
@@ -461,7 +455,7 @@ namespace Microsoft.Coyote.Actors
         internal async Task RunEventHandlerAsync()
         {
             Event lastDequeuedEvent = null;
-            while (this.CurrentStatus != Status.Halted && this.Runtime.IsRunning)
+            while (this.CurrentStatus != Status.Halted && this.Manager.IsRunning)
             {
                 (DequeueStatus status, Event e, EventGroup group, EventInfo info) = this.Inbox.Dequeue();
 
@@ -475,7 +469,7 @@ namespace Microsoft.Coyote.Actors
                     // Notify the runtime for a new event to handle. This is only used
                     // during bug-finding and operation bounding, because the runtime
                     // has to schedule an actor when a new operation is dequeued.
-                    this.Runtime.NotifyDequeuedEvent(this, e, info);
+                    this.Manager.LogDequeuedEvent(this, e, info);
                     await this.InvokeUserCallbackAsync(UserCallbackType.OnEventDequeued, e);
                     lastDequeuedEvent = e;
                 }
@@ -483,16 +477,16 @@ namespace Microsoft.Coyote.Actors
                 {
                     // Only supported by types (e.g. StateMachine) that allow
                     // the user to explicitly raise events.
-                    this.Runtime.NotifyHandleRaisedEvent(this, e);
+                    this.Manager.LogHandleRaisedEvent(this, e);
                 }
                 else if (status is DequeueStatus.Default)
                 {
-                    this.Runtime.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
+                    this.Manager.LogWriter.LogDefaultEventHandler(this.Id, this.CurrentStateName);
 
                     // If the default event was dequeued, then notify the runtime.
                     // This is only used during bug-finding, because the runtime must
                     // instrument a scheduling point between default event handlers.
-                    this.Runtime.NotifyDefaultEventDequeued(this);
+                    this.Manager.LogDefaultEventDequeued(this);
                 }
                 else if (status is DequeueStatus.NotAvailable)
                 {
@@ -536,7 +530,7 @@ namespace Microsoft.Coyote.Actors
             if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate cachedAction) ||
                 this.ActionMap.TryGetValue(typeof(WildCardEvent), out cachedAction))
             {
-                this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, null, null, e);
+                this.Manager.LogInvokedAction(this, cachedAction.MethodInfo, null, null);
                 await this.InvokeActionAsync(cachedAction, e);
             }
             else if (e is HaltEvent)
@@ -577,7 +571,7 @@ namespace Microsoft.Coyote.Actors
                         task = taskFunc();
                     }
 
-                    this.Runtime.NotifyWaitTask(this, task);
+                    this.Manager.LogWaitTask(this, task);
 
                     // We have no reliable stack for awaited operations.
                     await task;
@@ -633,7 +627,7 @@ namespace Microsoft.Coyote.Actors
                     task = this.OnEventUnhandledAsync(e, currentState);
                 }
 
-                this.Runtime.NotifyWaitTask(this, task);
+                this.Manager.LogWaitTask(this, task);
                 await task;
             }
             catch (Exception ex) when (this.OnExceptionHandler(ex, callbackType, e))
@@ -658,7 +652,7 @@ namespace Microsoft.Coyote.Actors
         {
             // This is called within the exception filter so the stack has not yet been unwound.
             // If the call does not fail-fast, return false to process the exception normally.
-            this.Runtime.RaiseOnFailureEvent(new ActionExceptionFilterException(action.MethodInfo.Name, ex));
+            this.Manager.RaiseOnFailureEvent(new ActionExceptionFilterException(action.MethodInfo.Name, ex));
             return false;
         }
 
@@ -734,8 +728,8 @@ namespace Microsoft.Coyote.Actors
         private protected TimerInfo RegisterTimer(TimeSpan dueTime, TimeSpan period, TimerElapsedEvent customEvent)
         {
             var info = new TimerInfo(this.Id, dueTime, period, customEvent);
-            var timer = this.Runtime.CreateActorTimer(info, this);
-            this.Runtime.LogWriter.LogCreateTimer(info);
+            var timer = this.Manager.CreateActorTimer(info, this);
+            this.Manager.LogWriter.LogCreateTimer(info);
             this.Timers.Add(info, timer);
             return info;
         }
@@ -750,7 +744,7 @@ namespace Microsoft.Coyote.Actors
                 this.Assert(info.OwnerId == this.Id, "Timer '{0}' is already disposed.", info);
             }
 
-            this.Runtime.LogWriter.LogStopTimer(info);
+            this.Manager.LogWriter.LogStopTimer(info);
             this.Timers.Remove(info);
             using (timer)
             {
@@ -847,15 +841,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Returns the set of all registered events (for code coverage).
-        /// It does not include events that are deferred or ignored.
-        /// </summary>
-        internal HashSet<string> GetAllRegisteredEvents()
-        {
-            return new HashSet<string>(from key in this.ActionMap.Keys select key.FullName);
-        }
-
-        /// <summary>
         /// Returns the action with the specified name.
         /// </summary>
         private protected MethodInfo GetActionWithName(string actionName)
@@ -880,6 +865,27 @@ namespace Microsoft.Coyote.Actors
             this.Assert(action != null, "Cannot detect action declaration '{0}' in '{1}'.", actionName, this.GetType().FullName);
             this.AssertActionValidity(action);
             return action;
+        }
+
+        /// <summary>
+        /// Reports the activity coverage of this actor.
+        /// </summary>
+        internal virtual void ReportActivityCoverage(CoverageInfo coverageInfo)
+        {
+            var name = this.GetType().FullName;
+            if (coverageInfo.IsMachineDeclared(name))
+            {
+                return;
+            }
+
+            var fakeStateName = this.GetType().Name;
+            coverageInfo.DeclareMachineState(name, fakeStateName);
+
+            var registeredEvents = new HashSet<string>(from key in this.ActionMap.Keys select key.FullName);
+            foreach (var eventId in registeredEvents)
+            {
+                coverageInfo.DeclareStateEvent(name, fakeStateName, eventId);
+            }
         }
 
         /// <summary>
@@ -922,7 +928,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private protected virtual void ReportUnhandledException(Exception ex, string actionName)
         {
-            this.Runtime.WrapAndThrowException(ex, $"{0} (action '{1}')", this.Id, actionName);
+            this.Manager.SpecificationEngine.WrapAndThrowException(ex, $"{0} (action '{1}')", this.Id, actionName);
         }
 
         /// <summary>
@@ -940,7 +946,7 @@ namespace Microsoft.Coyote.Actors
                 return false;
             }
 
-            this.Runtime.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
+            this.Manager.LogWriter.LogExceptionThrown(this.Id, this.CurrentStateName, methodName, ex);
 
             OnExceptionOutcome outcome = this.OnException(ex, methodName, e);
             if (outcome is OnExceptionOutcome.ThrowException)
@@ -952,7 +958,7 @@ namespace Microsoft.Coyote.Actors
                 this.CurrentStatus = Status.Halting;
             }
 
-            this.Runtime.LogWriter.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
+            this.Manager.LogWriter.LogExceptionHandled(this.Id, this.CurrentStateName, methodName, ex);
             return true;
         }
 
@@ -965,7 +971,7 @@ namespace Microsoft.Coyote.Actors
         /// should continue to get thrown.</returns>
         private protected bool OnUnhandledEventExceptionHandler(UnhandledEventException ex, Event e)
         {
-            this.Runtime.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
+            this.Manager.LogWriter.LogExceptionThrown(this.Id, ex.CurrentStateName, string.Empty, ex);
 
             OnExceptionOutcome outcome = this.OnException(ex, string.Empty, e);
             if (outcome is OnExceptionOutcome.ThrowException)
@@ -974,7 +980,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             this.CurrentStatus = Status.Halting;
-            this.Runtime.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
+            this.Manager.LogWriter.LogExceptionHandled(this.Id, ex.CurrentStateName, string.Empty, ex);
             return true;
         }
 
@@ -1002,7 +1008,7 @@ namespace Microsoft.Coyote.Actors
             // Close the inbox, which will stop any subsequent enqueues.
             this.Inbox.Close();
 
-            this.Runtime.LogWriter.LogHalt(this.Id, this.Inbox.Size);
+            this.Manager.LogWriter.LogHalt(this.Id, this.Inbox.Size);
 
             // Dispose any held resources.
             this.Inbox.Dispose();

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -35,9 +36,9 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The controlled runtime.
+        /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The scheduling strategy used for program exploration.
@@ -63,6 +64,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The scheduler completion source.
         /// </summary>
         private readonly TaskCompletionSource<bool> CompletionSource;
+
+        /// <summary>
+        /// True if the user program is executing, else false.
+        /// </summary>
+        internal volatile bool IsProgramExecuting;
 
         /// <summary>
         /// True if the scheduler is attached to the executing program, else false.
@@ -102,7 +108,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal OperationScheduler(ControlledRuntime runtime, ISchedulingStrategy strategy,
+        internal OperationScheduler(CoyoteRuntime runtime, ISchedulingStrategy strategy,
             ScheduleTrace trace, Configuration configuration)
         {
             this.Configuration = configuration;
@@ -112,6 +118,7 @@ namespace Microsoft.Coyote.SystematicTesting
             this.ScheduleTrace = trace;
             this.SyncObject = new object();
             this.CompletionSource = new TaskCompletionSource<bool>();
+            this.IsProgramExecuting = true;
             this.IsAttached = true;
             this.BugFound = false;
             this.HasFullyExploredSchedule = false;
@@ -167,7 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    current.HashedProgramState = this.Runtime.GetProgramState();
+                    current.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
                 // Choose the next operation to schedule, if there is one enabled.
@@ -264,7 +271,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetProgramState();
+                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
                 if (!this.Strategy.GetNextBooleanChoice(this.ScheduledOperation, maxValue, out bool choice))
@@ -296,7 +303,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (this.Configuration.IsProgramStateHashingEnabled)
                 {
                     // Update the current operation with the hashed program state.
-                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetProgramState();
+                    this.ScheduledOperation.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
                 if (!this.Strategy.GetNextIntegerChoice(this.ScheduledOperation, maxValue, out int choice))
@@ -659,7 +666,11 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Waits until the scheduler terminates.
         /// </summary>
-        internal Task WaitAsync() => this.CompletionSource.Task;
+        internal async Task WaitAsync()
+        {
+            await this.CompletionSource.Task;
+            this.IsProgramExecuting = false;
+        }
 
         /// <summary>
         /// Detaches the scheduler releasing all controlled operations.
@@ -691,6 +702,11 @@ namespace Microsoft.Coyote.SystematicTesting
                 throw new ExecutionCanceledException();
             }
         }
+
+        /// <summary>
+        /// Forces the scheduler to terminate.
+        /// </summary>
+        public void ForceStop() => this.IsProgramExecuting = false;
 
         /// <summary>
         /// If scheduler is detached, throw exception to force terminate the caller.

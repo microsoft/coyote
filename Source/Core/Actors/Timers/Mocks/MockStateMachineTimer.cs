@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Actors.Timers.Mocks
         /// </summary>
         public void Dispose()
         {
-            this.Runtime.SendEvent(this.Id, HaltEvent.Instance);
+            this.Manager.SendEvent(this.Id, HaltEvent.Instance);
         }
     }
 }

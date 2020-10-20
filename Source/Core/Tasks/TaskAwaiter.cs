@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task being awaited.
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter"/> struct.
         /// </summary>
-        internal TaskAwaiter(ControlledRuntime runtime, SystemTasks.Task awaitedTask)
+        internal TaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task awaitedTask)
         {
             this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task being awaited.
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskAwaiter{TResult}"/> struct.
         /// </summary>
-        internal TaskAwaiter(ControlledRuntime runtime, SystemTasks.Task<TResult> awaitedTask)
+        internal TaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask)
         {
             this.Runtime = runtime;
             this.AwaitedTask = awaitedTask;

@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the work to run asynchronously.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleAction(action, null, false, false, cancellationToken) :
+            CoyoteRuntime.Current.ScheduleAction(action, null, false, false, cancellationToken) :
             Task.Run(action, cancellationToken);
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 var task = runtime.ScheduleFunction(function, null, cancellationToken);
                 return runtime.UnwrapTask(task);
             }
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 var task = runtime.ScheduleFunction(function, null, cancellationToken);
                 return runtime.UnwrapTask(task);
             }
@@ -130,7 +130,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleFunction(function, null, cancellationToken) :
+            CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken) :
             Task.Run(function, cancellationToken);
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(int millisecondsDelay) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
+            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), default) :
             Task.Delay(millisecondsDelay);
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(int millisecondsDelay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken) :
+            CoyoteRuntime.Current.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsDelay), cancellationToken) :
             Task.Delay(millisecondsDelay, cancellationToken);
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(TimeSpan delay) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleDelay(delay, default) : Task.Delay(delay);
+            CoyoteRuntime.Current.ScheduleDelay(delay, default) : Task.Delay(delay);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that completes after a specified time interval.
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the time delay.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Delay(TimeSpan delay, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleDelay(delay, cancellationToken) : Task.Delay(delay, cancellationToken);
+            CoyoteRuntime.Current.ScheduleDelay(delay, cancellationToken) : Task.Delay(delay, cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WhenAll(params Task[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
@@ -201,7 +201,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WhenAll(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
+            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult[]> WhenAll<TResult>(params Task<TResult>[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
+            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks) : Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when all tasks
@@ -223,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <returns>Task that represents the completion of all of the specified tasks.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
+            CoyoteRuntime.Current.WhenAllTasksCompleteAsync(tasks.ToArray()) : Task.WhenAll(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
@@ -232,7 +232,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task> WhenAny(params Task[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task> WhenAny(IEnumerable<Task> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
+            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
 
 #if NET5_0
         /// <summary>
@@ -252,7 +252,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="t2">The second task to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task> WhenAny(Task t1, Task t2) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAnyTaskCompletesAsync(new Task[] { t1, t2 }) : Task.WhenAny(t1, t2);
+            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(new Task[] { t1, t2 }) : Task.WhenAny(t1, t2);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when either of the
@@ -262,7 +262,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="t2">The second task to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task<TResult>> WhenAny<TResult>(Task<TResult> t1, Task<TResult> t2) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAnyTaskCompletesAsync(new Task<TResult>[] { t1, t2 }) : Task.WhenAny(t1, t2);
+            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(new Task<TResult>[] { t1, t2 }) : Task.WhenAny(t1, t2);
 #endif
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task<TResult>> WhenAny<TResult>(params Task<TResult>[] tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
+            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks) : Task.WhenAny(tasks);
 
         /// <summary>
         /// Creates a <see cref="Task"/> that will complete when any task
@@ -281,7 +281,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <param name="tasks">The tasks to wait for completion.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<Task<TResult>> WhenAny<TResult>(IEnumerable<Task<TResult>> tasks) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
+            CoyoteRuntime.Current.WhenAnyTaskCompletesAsync(tasks.ToArray()) : Task.WhenAny(tasks);
 
         /// <summary>
         /// Waits for all of the provided <see cref="Task"/> objects to complete execution.
@@ -344,7 +344,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool WaitAll(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WaitAllTasksComplete(tasks) :
+            CoyoteRuntime.Current.WaitAllTasksComplete(tasks) :
             Task.WaitAll(tasks, millisecondsTimeout, cancellationToken);
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WaitAny(Task[] tasks, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WaitAnyTaskCompletes(tasks) :
+            CoyoteRuntime.Current.WaitAnyTaskCompletes(tasks) :
             Task.WaitAny(tasks, millisecondsTimeout, cancellationToken);
 
         /// <summary>
@@ -469,7 +469,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Wait(Task task, int millisecondsTimeout, CancellationToken cancellationToken) =>
             CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WaitTaskCompletes(task) :
+            CoyoteRuntime.Current.WaitTaskCompletes(task) :
             task.Wait(millisecondsTimeout, cancellationToken);
 
         /// <summary>
@@ -481,7 +481,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 runtime.AssertIsAwaitedTaskControlled(task);
                 return new CoyoteTasks.TaskAwaiter(runtime, task);
             }
@@ -499,13 +499,13 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// as a hint on how to better prioritize this work relative to other work that may be pending.
         /// </remarks>
         public static CoyoteTasks.YieldAwaitable Yield() =>
-            new CoyoteTasks.YieldAwaitable(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current : null);
+            new CoyoteTasks.YieldAwaitable(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
 
         /// <summary>
         /// Injects a context switch point that can be systematically explored during testing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExploreContextSwitch() => ControlledRuntime.Current.ScheduleNextOperation();
+        public static void ExploreContextSwitch() => CoyoteRuntime.Current.ScheduleNextOperation();
     }
 
     /// <summary>
@@ -532,7 +532,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 #pragma warning disable SA1300 // Element should begin with an uppercase letter
 #pragma warning disable IDE1006 // Naming Styles
         public static TResult get_Result(Task<TResult> task) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.WaitTaskCompletes(task) : task.Result;
+            CoyoteRuntime.Current.WaitTaskCompletes(task) : task.Result;
 #pragma warning restore CA1707 // Remove the underscores from member name
 #pragma warning restore SA1300 // Element should begin with an uppercase letter
 #pragma warning restore IDE1006 // Naming Styles
@@ -546,7 +546,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 runtime.AssertIsAwaitedTaskControlled(task);
                 return new CoyoteTasks.TaskAwaiter<TResult>(runtime, task);
             }

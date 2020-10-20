@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Actors;
-
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -65,7 +63,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var valueGenerator = new RandomValueGenerator(configuration);
-            return new ActorRuntime(configuration, valueGenerator);
+            return new CoyoteRuntime(configuration, valueGenerator);
         }
     }
 }

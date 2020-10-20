@@ -16,7 +16,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Manages the actor that owns this queue.
         /// </summary>
-        private readonly IActorManager ActorManager;
+        private readonly ActorManager ActorManager;
 
         /// <summary>
         /// The actor that owns this queue.
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Initializes a new instance of the <see cref="MockEventQueue"/> class.
         /// </summary>
-        internal MockEventQueue(IActorManager actorManager, Actor actor)
+        internal MockEventQueue(ActorManager actorManager, Actor actor)
         {
             this.ActorManager = actorManager;
             this.Actor = actor;
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             // have priority over the events in the inbox.
             if (this.RaisedEvent != default)
             {
-                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e, this.RaisedEvent.info))
+                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e))
                 {
                     // TODO: should the user be able to raise an ignored event?
                     // The raised event is ignored in the current state.
@@ -141,7 +141,7 @@ namespace Microsoft.Coyote.Actors.Mocks
             var hasDefaultHandler = this.ActorManager.IsDefaultHandlerAvailable();
             if (hasDefaultHandler)
             {
-                this.Actor.Runtime.NotifyDefaultEventHandlerCheck(this.Actor);
+                this.ActorManager.LogDefaultEventHandlerCheck(this.Actor);
             }
 
             // Try to dequeue the next event, if there is one.
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 var nextNode = node.Next;
                 var currentEvent = node.Value;
 
-                if (this.ActorManager.IsEventIgnored(currentEvent.e, currentEvent.info))
+                if (this.ActorManager.IsEventIgnored(currentEvent.e))
                 {
                     if (!checkOnly)
                     {
@@ -195,7 +195,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 }
 
                 // Skips a deferred event.
-                if (!this.ActorManager.IsEventDeferred(currentEvent.e, currentEvent.info))
+                if (!this.ActorManager.IsEventDeferred(currentEvent.e))
                 {
                     nextAvailableEvent = currentEvent;
                     if (!checkOnly)
@@ -263,7 +263,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
-            this.Actor.Runtime.NotifyReceiveCalled(this.Actor);
+            this.ActorManager.LogReceiveCalled(this.Actor);
 
             (Event e, EventGroup group, EventInfo info) receivedEvent = default;
             var node = this.Queue.First;

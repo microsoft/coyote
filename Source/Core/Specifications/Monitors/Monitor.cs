@@ -9,7 +9,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -53,9 +55,14 @@ namespace Microsoft.Coyote.Specifications
         private static readonly Type[] SingleEventTypeArray = new Type[] { typeof(Event) };
 
         /// <summary>
-        /// The runtime that executes this monitor.
+        /// The configuration used by the runtime.
         /// </summary>
-        private ActorRuntime Runtime;
+        private Configuration Configuration;
+
+        /// <summary>
+        /// Responsible for checking specifications.
+        /// </summary>
+        private SpecificationEngine SpecificationEngine;
 
         /// <summary>
         /// The active monitor state.
@@ -88,7 +95,12 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Gets the name of this monitor.
         /// </summary>
-        protected internal string Name => this.GetType().FullName;
+        private string Name => this.GetType().FullName;
+
+        /// <summary>
+        /// Responsible for logging.
+        /// </summary>
+        private LogWriter LogWriter;
 
         /// <summary>
         /// The logger installed to the runtime.
@@ -96,7 +108,7 @@ namespace Microsoft.Coyote.Specifications
         /// <remarks>
         /// See <see href="/coyote/learn/core/logging" >Logging</see> for more information.
         /// </remarks>
-        protected ILogger Logger => this.Runtime.Logger;
+        protected ILogger Logger => this.LogWriter.Logger;
 
         /// <summary>
         /// Gets the current state.
@@ -160,10 +172,11 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Initializes this monitor.
         /// </summary>
-        /// <param name="runtime">The runtime that executes this monitor.</param>
-        internal void Initialize(ActorRuntime runtime)
+        internal void Initialize(Configuration configuration, SpecificationEngine specificationEngine, LogWriter logWriter)
         {
-            this.Runtime = runtime;
+            this.Configuration = configuration;
+            this.SpecificationEngine = specificationEngine;
+            this.LogWriter = logWriter;
         }
 
         /// <summary>
@@ -179,7 +192,7 @@ namespace Microsoft.Coyote.Specifications
         /// <param name="e">The event to raise.</param>
         protected void RaiseEvent(Event e)
         {
-            this.Assert(e != null, "{0} is raising a null event.", this.GetType().FullName);
+            this.Assert(e != null, "{0} is raising a null event.", this.Name);
             this.CheckDanglingTransition();
             this.PendingTransition = new Transition(Transition.Type.Raise, default, e);
         }
@@ -230,7 +243,7 @@ namespace Microsoft.Coyote.Specifications
         {
             // If the state is not a state of the monitor, then report an error and exit.
             this.Assert(StateTypeMap[this.GetType()].Any(val => val.DeclaringType.Equals(state.DeclaringType) && val.Name.Equals(state.Name)),
-                "{0} is trying to transition to non-existing state '{1}'.", this.GetType().FullName, state.Name);
+                "{0} is trying to transition to non-existing state '{1}'.", this.Name, state.Name);
             this.CheckDanglingTransition();
             this.PendingTransition = new Transition(Transition.Type.Goto, state, default);
         }
@@ -242,8 +255,8 @@ namespace Microsoft.Coyote.Specifications
         {
             if (!predicate)
             {
-                this.Runtime.NotifyMonitorError(this);
-                this.Runtime.Assert(false);
+                this.LogMonitorError(this);
+                this.SpecificationEngine.Assert(false);
             }
         }
 
@@ -254,8 +267,8 @@ namespace Microsoft.Coyote.Specifications
         {
             if (!predicate)
             {
-                this.Runtime.NotifyMonitorError(this);
-                this.Runtime.Assert(false, s, args);
+                this.LogMonitorError(this);
+                this.SpecificationEngine.Assert(false, s, args);
             }
         }
 
@@ -264,8 +277,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void MonitorEvent(Event e, string senderName, string senderType, string senderState)
         {
-            this.Runtime.LogWriter.LogMonitorProcessEvent(this.GetType().FullName, this.CurrentStateName,
-                senderName, senderType, senderState, e);
+            this.LogWriter.LogMonitorProcessEvent(this.Name, this.CurrentStateName, senderName, senderType, senderState, e);
             this.HandleEvent(e);
         }
 
@@ -286,13 +298,13 @@ namespace Microsoft.Coyote.Specifications
                 {
                     // If the event cannot be handled, then report an error and exit.
                     this.Assert(false, "{0} received event '{1}' that cannot be handled.",
-                        this.GetType().FullName, e.GetType().FullName);
+                        this.Name, e.GetType().FullName);
                 }
 
                 // If current state cannot handle the event then null the state.
                 if (!this.CanHandleEvent(e.GetType()))
                 {
-                    this.Runtime.NotifyExitedState(this);
+                    this.LogExitedState(this);
                     this.ActiveState = null;
                     continue;
                 }
@@ -357,7 +369,7 @@ namespace Microsoft.Coyote.Specifications
         private void Do(string actionName, Event e)
         {
             CachedDelegate cachedAction = this.ActionMap[actionName];
-            this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, this.CurrentStateNameWithTemperature, e);
+            this.LogInvokedAction(this, cachedAction.MethodInfo, this.CurrentStateNameWithTemperature);
             this.ExecuteAction(cachedAction, e);
             this.ApplyEventHandlerTransition(this.PendingTransition);
         }
@@ -370,7 +382,7 @@ namespace Microsoft.Coyote.Specifications
 #endif
         private void ExecuteCurrentStateOnEntry(Event e)
         {
-            this.Runtime.NotifyEnteredState(this);
+            this.LogEnteredState(this);
 
             CachedDelegate entryAction = null;
             if (this.ActiveState.EntryAction != null)
@@ -395,7 +407,7 @@ namespace Microsoft.Coyote.Specifications
 #endif
         private void ExecuteCurrentStateOnExit(string eventHandlerExitActionName, Event e)
         {
-            this.Runtime.NotifyExitedState(this);
+            this.LogExitedState(this);
 
             CachedDelegate exitAction = null;
             if (this.ActiveState.ExitAction != null)
@@ -411,7 +423,7 @@ namespace Microsoft.Coyote.Specifications
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None,
                     "{0} has performed a '{1}' transition from an OnExit action.",
-                    this.GetType().FullName, transition.TypeValue);
+                    this.Name, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
             }
 
@@ -424,7 +436,7 @@ namespace Microsoft.Coyote.Specifications
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None,
                     "{0} has performed a '{1}' transition from an OnExit action.",
-                    this.GetType().FullName, transition.TypeValue);
+                    this.Name, transition.TypeValue);
                 this.ApplyEventHandlerTransition(transition);
             }
         }
@@ -487,14 +499,14 @@ namespace Microsoft.Coyote.Specifications
             {
                 this.PendingTransition = default;
                 var e = transition.Event;
-                this.Runtime.NotifyRaisedEvent(this, e);
+                this.LogRaisedEvent(this, e);
                 this.HandleEvent(e);
             }
             else if (transition.TypeValue is Transition.Type.Goto)
             {
                 this.PendingTransition = default;
                 var e = new GotoStateEvent(transition.State);
-                this.Runtime.NotifyRaisedEvent(this, e);
+                this.LogRaisedEvent(this, e);
                 this.HandleEvent(e);
             }
             else
@@ -514,7 +526,7 @@ namespace Microsoft.Coyote.Specifications
             if (transition.TypeValue != Transition.Type.None)
             {
                 string prefix = string.Format("{0} Transition created by {1} in state {2} was not processed",
-                    transition.TypeValue, this.GetType().FullName, this.CurrentStateName);
+                    transition.TypeValue, this.Name, this.CurrentStateName);
                 string suffix = null;
 
                 if (transition.State != null && transition.Event != null)
@@ -582,16 +594,14 @@ namespace Microsoft.Coyote.Specifications
         internal void CheckLivenessTemperature()
         {
             if (this.ActiveState.IsHot &&
-                this.Runtime.Configuration.LivenessTemperatureThreshold > 0)
+                this.Configuration.LivenessTemperatureThreshold > 0)
             {
                 this.LivenessTemperature++;
-                if (this.LivenessTemperature > this.Runtime.
-                    Configuration.LivenessTemperatureThreshold)
+                if (this.LivenessTemperature > this.Configuration.LivenessTemperatureThreshold)
                 {
-                    this.Runtime.NotifyMonitorError(this);
-                    this.Runtime.Assert(false,
-                        "{0} detected potential liveness bug in hot state '{1}'.",
-                        this.GetType().FullName, this.CurrentStateName);
+                    this.LogMonitorError(this);
+                    this.SpecificationEngine.Assert(false,
+                        $"{this.Name} detected potential liveness bug in hot state '{this.CurrentStateName}'.");
                 }
             }
         }
@@ -603,11 +613,11 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void CheckLivenessTemperature(int livenessTemperature)
         {
-            if (livenessTemperature > this.Runtime.Configuration.LivenessTemperatureThreshold)
+            if (livenessTemperature > this.Configuration.LivenessTemperatureThreshold)
             {
-                this.Runtime.Assert(
-                    livenessTemperature <= this.Runtime.Configuration.LivenessTemperatureThreshold,
-                    $"{this.GetType().FullName} detected infinite execution that violates a liveness property.");
+                this.SpecificationEngine.Assert(
+                    livenessTemperature <= this.Configuration.LivenessTemperatureThreshold,
+                    $"{this.Name} detected infinite execution that violates a liveness property.");
             }
         }
 
@@ -673,7 +683,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Returns a string that represents the current monitor.
         /// </summary>
-        public override string ToString() => this.GetType().FullName;
+        public override string ToString() => this.Name;
 
         /// <summary>
         /// Transitions to the start state, and executes the
@@ -681,6 +691,7 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void GotoStartState()
         {
+            this.LogWriter.LogCreateMonitor(this.Name);
             this.ExecuteCurrentStateOnEntry(DefaultEvent.Instance);
         }
 
@@ -769,7 +780,7 @@ namespace Microsoft.Coyote.Specifications
                                     (state.IsCold && !state.IsHot) ||
                                     (!state.IsCold && state.IsHot) ||
                                     (!state.IsCold && !state.IsHot),
-                                    "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.GetType().FullName);
+                                    "State '{0}' of {1} cannot be both cold and hot.", type.FullName, this.Name);
 
                                 StateMap[monitorType].Add(state);
                             }
@@ -827,8 +838,8 @@ namespace Microsoft.Coyote.Specifications
             }
 
             var initialStates = StateMap[monitorType].Where(state => state.IsStart).ToList();
-            this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.GetType().FullName);
-            this.Assert(initialStates.Count == 1, "{0} can not declare more than one start states.", this.GetType().FullName);
+            this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.Name);
+            this.Assert(initialStates.Count == 1, "{0} can not declare more than one start states.", this.Name);
 
             this.ConfigureStateTransitions(initialStates.Single());
             this.ActiveState = initialStates.Single();
@@ -899,64 +910,106 @@ namespace Microsoft.Coyote.Specifications
             while (action is null && monitorType != typeof(Monitor));
 
             this.Assert(action != null, "Cannot detect action declaration '{0}' in {1}.",
-                actionName, this.GetType().FullName);
+                actionName, this.Name);
 
             ParameterInfo[] parameters = action.GetParameters();
             this.Assert(parameters.Length is 0 ||
                 (parameters.Length is 1 && parameters[0].ParameterType == typeof(Event)),
                 "Action '{0}' in {1} must either accept no parameters or a single parameter of type 'Event'.",
-                action.Name, this.GetType().FullName);
+                action.Name, this.Name);
 
             this.Assert(action.ReturnType == typeof(void) || action.ReturnType == typeof(Transition),
                 "Action '{0}' in {1} must have 'void' or 'Transition' return type.",
-                action.Name, this.GetType().FullName);
+                action.Name, this.Name);
 
             return action;
         }
 
         /// <summary>
-        /// Check monitor for state related errors.
+        /// Logs that the monitor entered a state.
         /// </summary>
-        private void AssertStateValidity()
+        private void LogEnteredState(Monitor monitor)
         {
-            this.Assert(StateTypeMap[this.GetType()].Count > 0, "{0} must have one or more states.", this.GetType().FullName);
-            this.Assert(this.ActiveState != null, "{0} must not have a null current state.", this.GetType().FullName);
-        }
-
-        /// <summary>
-        /// Wraps the unhandled exception inside an <see cref="AssertionFailureException"/>
-        /// exception, and throws it to the user.
-        /// </summary>
-        private void ReportUnhandledException(Exception ex, string actionName)
-        {
-            var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
-            this.Runtime.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')",
-                this.GetType().FullName, state, actionName);
-        }
-
-        /// <summary>
-        /// Returns the set of all states in the monitor (for code coverage).
-        /// </summary>
-        internal HashSet<string> GetAllStates()
-        {
-            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().FullName);
-
-            var allStates = new HashSet<string>();
-            foreach (var state in StateMap[this.GetType()])
+            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
             {
-                allStates.Add(NameResolver.GetQualifiedStateName(state.GetType()));
+                string monitorState = monitor.CurrentStateNameWithTemperature;
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, true, monitor.GetHotState());
+            }
+        }
+
+        /// <summary>
+        /// Logs that the monitor exited a state.
+        /// </summary>
+        private void LogExitedState(Monitor monitor)
+        {
+            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
+            {
+                string monitorState = monitor.CurrentStateNameWithTemperature;
+                this.LogWriter.LogMonitorStateTransition(monitor.GetType().FullName, monitorState, false, monitor.GetHotState());
+            }
+        }
+
+        /// <summary>
+        /// Logs that the monitor invoked an action.
+        /// </summary>
+        private void LogInvokedAction(Monitor monitor, MethodInfo action, string stateName)
+        {
+            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
+            {
+                this.LogWriter.LogMonitorExecuteAction(monitor.GetType().FullName, stateName, action.Name);
+            }
+        }
+
+        /// <summary>
+        /// Logs that the monitor raised an <see cref="Event"/>.
+        /// </summary>
+        private void LogRaisedEvent(Monitor monitor, Event e)
+        {
+            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
+            {
+                string monitorState = monitor.CurrentStateNameWithTemperature;
+                this.LogWriter.LogMonitorRaiseEvent(monitor.GetType().FullName, monitorState, e);
+            }
+        }
+
+        /// <summary>
+        /// Logs that the monitor found an error.
+        /// </summary>
+        private void LogMonitorError(Monitor monitor)
+        {
+            if (this.Configuration.IsVerbose || CoyoteRuntime.IsExecutionControlled)
+            {
+                string monitorState = monitor.CurrentStateNameWithTemperature;
+                this.LogWriter.LogMonitorError(monitor.GetType().FullName, monitorState, monitor.GetHotState());
+            }
+        }
+
+        /// <summary>
+        /// Reports the activity coverage of this monitor.
+        /// </summary>
+        internal void ReportActivityCoverage(CoverageInfo coverageInfo)
+        {
+            var monitorName = this.Name;
+            if (coverageInfo.IsMachineDeclared(monitorName))
+            {
+                return;
             }
 
-            return allStates;
-        }
+            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Name);
 
-        /// <summary>
-        /// Returns the set of all (states, registered event) pairs in the monitor (for code coverage).
-        /// </summary>
-        internal HashSet<Tuple<string, string>> GetAllStateEventPairs()
-        {
-            this.Assert(StateMap.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.GetType().FullName);
+            // Fetch states.
+            var states = new HashSet<string>();
+            foreach (var state in StateMap[this.GetType()])
+            {
+                states.Add(NameResolver.GetQualifiedStateName(state.GetType()));
+            }
 
+            foreach (var state in states)
+            {
+                coverageInfo.DeclareMachineState(monitorName, state);
+            }
+
+            // Fetch registered events.
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateMap[this.GetType()])
             {
@@ -966,7 +1019,30 @@ namespace Microsoft.Coyote.Specifications
                 }
             }
 
-            return pairs;
+            foreach (var tup in pairs)
+            {
+                coverageInfo.DeclareStateEvent(monitorName, tup.Item1, tup.Item2);
+            }
+        }
+
+        /// <summary>
+        /// Check monitor for state related errors.
+        /// </summary>
+        private void AssertStateValidity()
+        {
+            this.Assert(StateTypeMap[this.GetType()].Count > 0, "{0} must have one or more states.", this.Name);
+            this.Assert(this.ActiveState != null, "{0} must not have a null current state.", this.Name);
+        }
+
+        /// <summary>
+        /// Wraps the unhandled exception inside an <see cref="AssertionFailureException"/>
+        /// exception, and throws it to the user.
+        /// </summary>
+        private void ReportUnhandledException(Exception ex, string actionName)
+        {
+            var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
+            this.SpecificationEngine.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')",
+                this.Name, state, actionName);
         }
 
         /// <summary>

@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
                 return true;
             }
 
@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
                 return true;
             }
 
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
                 return true;
             }
 
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.ScheduleAction(() => callBack.Execute(), null, false, true, default);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack.Execute(), null, false, true, default);
                 return true;
             }
 
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 // We set `failException` to true to mimic the production behavior of treating an unhandled
                 // exception as an error that crashes the application.
-                ControlledRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
+                CoyoteRuntime.Current.ScheduleAction(() => callBack(state), null, false, true, default);
                 return true;
             }
 

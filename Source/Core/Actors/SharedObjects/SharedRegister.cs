@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Actors.SharedObjects
@@ -23,9 +24,9 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         public static SharedRegister<T> Create<T>(IActorRuntime runtime, T value = default)
             where T : struct
         {
-            if (runtime is ControlledRuntime controlledRuntime)
+            if (runtime is MockActorManager actorManager)
             {
-                return new Mock<T>(controlledRuntime, value);
+                return new Mock<T>(actorManager, value);
             }
 
             return new SharedRegister<T>(value);
@@ -47,17 +48,17 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// <summary>
             /// The controlled runtime hosting this shared register.
             /// </summary>
-            private readonly ControlledRuntime Runtime;
+            private readonly MockActorManager Manager;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Mock{T}"/> class.
             /// </summary>
-            internal Mock(ControlledRuntime runtime, T value)
+            internal Mock(MockActorManager manager, T value)
                 : base(value)
             {
-                this.Runtime = runtime;
-                this.RegisterActor = this.Runtime.CreateActor(typeof(SharedRegisterActor<T>));
-                this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.SetEvent(value));
+                this.Manager = manager;
+                this.RegisterActor = manager.CreateActor(typeof(SharedRegisterActor<T>));
+                manager.SendEvent(this.RegisterActor, SharedRegisterEvent.SetEvent(value));
             }
 
             /// <summary>
@@ -65,8 +66,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override T Update(Func<T, T> func)
             {
-                var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
-                this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.UpdateEvent(func, op.Actor.Id));
+                var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Manager.SendEvent(this.RegisterActor, SharedRegisterEvent.UpdateEvent(func, op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
                 return e.Value;
             }
@@ -76,8 +77,8 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override T GetValue()
             {
-                var op = this.Runtime.Scheduler.GetExecutingOperation<ActorOperation>();
-                this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.GetEvent(op.Actor.Id));
+                var op = this.Manager.Scheduler.GetExecutingOperation<ActorOperation>();
+                this.Manager.SendEvent(this.RegisterActor, SharedRegisterEvent.GetEvent(op.Actor.Id));
                 var e = op.Actor.ReceiveEventAsync(typeof(SharedRegisterResponseEvent<T>)).Result as SharedRegisterResponseEvent<T>;
                 return e.Value;
             }
@@ -87,7 +88,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
             /// </summary>
             public override void SetValue(T value)
             {
-                this.Runtime.SendEvent(this.RegisterActor, SharedRegisterEvent.SetEvent(value));
+                this.Manager.SendEvent(this.RegisterActor, SharedRegisterEvent.SetEvent(value));
             }
         }
     }

@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Runtime;
 using SystemCompiler = System.Runtime.CompilerServices;
 using SystemTasks = System.Threading.Tasks;
 
@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredTaskAwaitable"/> struct.
         /// </summary>
-        internal ConfiguredTaskAwaitable(ControlledRuntime runtime, SystemTasks.Task awaitedTask,
+        internal ConfiguredTaskAwaitable(CoyoteRuntime runtime, SystemTasks.Task awaitedTask,
             bool continueOnCapturedContext)
         {
             this.Awaiter = new ConfiguredTaskAwaiter(runtime, awaitedTask, continueOnCapturedContext);
@@ -46,7 +46,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Responsible for controlling the execution of tasks during systematic testing.
             /// </summary>
-            private readonly ControlledRuntime Runtime;
+            private readonly CoyoteRuntime Runtime;
 
             /// <summary>
             /// The task being awaited.
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredTaskAwaiter(ControlledRuntime runtime, SystemTasks.Task awaitedTask,
+            internal ConfiguredTaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task awaitedTask,
                 bool continueOnCapturedContext)
             {
                 this.Runtime = runtime;
@@ -133,7 +133,7 @@ namespace Microsoft.Coyote.Tasks
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfiguredTaskAwaitable{TResult}"/> struct.
         /// </summary>
-        internal ConfiguredTaskAwaitable(ControlledRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
+        internal ConfiguredTaskAwaitable(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
             bool continueOnCapturedContext)
         {
             this.Awaiter = new ConfiguredTaskAwaiter(runtime, awaitedTask, continueOnCapturedContext);
@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Responsible for controlling the execution of tasks during systematic testing.
             /// </summary>
-            private readonly ControlledRuntime Runtime;
+            private readonly CoyoteRuntime Runtime;
 
             /// <summary>
             /// The task being awaited.
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.Tasks
             /// <summary>
             /// Initializes a new instance of the <see cref="ConfiguredTaskAwaiter"/> struct.
             /// </summary>
-            internal ConfiguredTaskAwaiter(ControlledRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
+            internal ConfiguredTaskAwaiter(CoyoteRuntime runtime, SystemTasks.Task<TResult> awaitedTask,
                 bool continueOnCapturedContext)
             {
                 this.Runtime = runtime;

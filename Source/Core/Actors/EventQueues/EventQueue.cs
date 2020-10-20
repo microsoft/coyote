@@ -15,7 +15,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Manages the actor that owns this queue.
         /// </summary>
-        private readonly IActorManager ActorManager;
+        private readonly ActorManager ActorManager;
 
         /// <summary>
         /// The internal queue.
@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="EventQueue"/> class.
         /// </summary>
-        internal EventQueue(IActorManager actorManager)
+        internal EventQueue(ActorManager actorManager)
         {
             this.ActorManager = actorManager;
             this.Queue = new LinkedList<(Event, EventGroup)>();
@@ -111,7 +111,7 @@ namespace Microsoft.Coyote.Actors
             // have priority over the events in the inbox.
             if (this.RaisedEvent != default)
             {
-                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e, null))
+                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e))
                 {
                     // TODO: should the user be able to raise an ignored event?
                     // The raised event is ignored in the current state.
@@ -132,7 +132,7 @@ namespace Microsoft.Coyote.Actors
                 while (node != null)
                 {
                     // Iterates through the events in the inbox.
-                    if (this.ActorManager.IsEventIgnored(node.Value.e, null))
+                    if (this.ActorManager.IsEventIgnored(node.Value.e))
                     {
                         // Removes an ignored event.
                         var nextNode = node.Next;
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.Actors
                         node = nextNode;
                         continue;
                     }
-                    else if (this.ActorManager.IsEventDeferred(node.Value.e, null))
+                    else if (this.ActorManager.IsEventDeferred(node.Value.e))
                     {
                         // Skips a deferred event.
                         node = node.Next;

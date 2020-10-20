@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.SystematicTesting
 {
@@ -13,7 +14,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The runtime associated with this resource.
         /// </summary>
-        internal readonly ControlledRuntime Runtime;
+        internal readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// Set of asynchronous operations that are waiting on the resource to be released.
@@ -25,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal Resource()
         {
-            this.Runtime = ControlledRuntime.Current;
+            this.Runtime = CoyoteRuntime.Current;
             this.AwaitingOperations = new HashSet<AsyncOperation>();
         }
 

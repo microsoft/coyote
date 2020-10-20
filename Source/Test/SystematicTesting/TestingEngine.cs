@@ -550,7 +550,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             // Runtime used to serialize and test the program in this iteration.
-            ControlledRuntime runtime = null;
+            CoyoteRuntime runtime = null;
 
             // Logger used to intercept the program output if no custom logger
             // is installed and if verbosity is turned off.
@@ -563,7 +563,7 @@ namespace Microsoft.Coyote.SystematicTesting
             try
             {
                 // Creates a new instance of the controlled runtime.
-                runtime = new ControlledRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
+                runtime = new CoyoteRuntime(this.Configuration, this.Strategy, this.RandomValueGenerator);
 
                 // If verbosity is turned off, then intercept the program log, and also redirect
                 // the standard output and error streams to a nul logger.
@@ -586,7 +586,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     runtime.Logger = this.Logger;
                 }
 
-                this.InitializeCustomLogging(runtime);
+                this.InitializeCustomActorLogging(runtime.DefaultActorManager);
 
                 // Runs the test and waits for it to terminate.
                 runtime.RunTest(this.TestMethodInfo.Method, this.TestMethodInfo.Name);
@@ -605,7 +605,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 // checked if no safety property violations have been found.
                 if (!runtime.Scheduler.BugFound)
                 {
-                    runtime.CheckNoMonitorInHotStateAtTermination();
+                    runtime.AssertNoMonitorInHotStateAtTermination();
                 }
 
                 if (runtime.Scheduler.BugFound)
@@ -782,9 +782,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Take care of handling the <see cref="Configuration"/> settings for <see cref="Configuration.CustomActorRuntimeLogType"/>,
         /// <see cref="Configuration.IsDgmlGraphEnabled"/>, and <see cref="Configuration.ReportActivityCoverage"/> by setting up the
-        /// LogWriters on the given <see cref="ControlledRuntime"/> object.
+        /// LogWriters on the given <see cref="IActorRuntime"/> object.
         /// </summary>
-        private void InitializeCustomLogging(ControlledRuntime runtime)
+        private void InitializeCustomActorLogging(IActorRuntime runtime)
         {
             if (!string.IsNullOrEmpty(this.Configuration.CustomActorRuntimeLogType))
             {
@@ -858,7 +858,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Gathers the exploration strategy statistics from the specified runtimne.
         /// </summary>
-        private void GatherTestingStatistics(ControlledRuntime runtime)
+        private void GatherTestingStatistics(CoyoteRuntime runtime)
         {
             TestReport report = this.GetSchedulerReport(runtime.Scheduler);
             if (this.Configuration.ReportActivityCoverage)
@@ -866,7 +866,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 report.CoverageInfo.CoverageGraph = this.Graph;
             }
 
-            var coverageInfo = runtime.GetCoverageInfo();
+            var coverageInfo = runtime.DefaultActorManager.GetCoverageInfo();
             report.CoverageInfo.Merge(coverageInfo);
             this.TestReport.Merge(report);
 
@@ -933,7 +933,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Constructs a reproducable trace.
         /// </summary>
-        private void ConstructReproducibleTrace(ControlledRuntime runtime)
+        private void ConstructReproducibleTrace(CoyoteRuntime runtime)
         {
             StringBuilder stringBuilder = new StringBuilder();
 

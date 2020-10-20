@@ -296,7 +296,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private void InitOnEntry()
             {
-                var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
+                var m = this.Manager.CreateActorIdFromName(typeof(M4), "M4");
                 this.CreateActor(m, typeof(M4), "friendly");
             }
         }
@@ -311,9 +311,9 @@ namespace Microsoft.Coyote.Production.Tests.Actors
 
             private async SystemTask InitOnEntry()
             {
-                await this.Runtime.CreateActorAndExecuteAsync(typeof(M6));
-                var m = this.Runtime.CreateActorIdFromName(typeof(M4), "M4");
-                this.Runtime.SendEvent(m, UnitEvent.Instance);
+                await this.Manager.CreateActorAndExecuteAsync(typeof(M6));
+                var m = this.Manager.CreateActorIdFromName(typeof(M4), "M4");
+                this.Manager.SendEvent(m, UnitEvent.Instance);
             }
         }
 

@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors.Timers;
+using Microsoft.Coyote.Coverage;
 
 namespace Microsoft.Coyote.Actors
 {
@@ -369,7 +370,7 @@ namespace Microsoft.Coyote.Actors
                     else if (this.ActionMap.TryGetValue(e.GetType(), out CachedDelegate handler))
                     {
                         // Allow StateMachine to have class level OnEventDoActions the same way Actor allows.
-                        this.Runtime.NotifyInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName, e);
+                        this.Manager.LogInvokedAction(this, handler.MethodInfo, this.CurrentStateName, this.CurrentStateName);
                         await this.InvokeActionAsync(handler, e);
                         await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
                     }
@@ -379,7 +380,7 @@ namespace Microsoft.Coyote.Actors
                         await this.ExecuteCurrentStateOnExitAsync(null, e);
                         if (this.CurrentStatus is Status.Active)
                         {
-                            this.Runtime.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
+                            this.Manager.LogWriter.LogPopStateUnhandledEvent(this.Id, this.CurrentStateName, e);
                             this.DoStatePop();
                             continue;
                         }
@@ -396,7 +397,7 @@ namespace Microsoft.Coyote.Actors
             if (eventHandler is ActionEventHandlerDeclaration actionEventHandler)
             {
                 CachedDelegate cachedAction = this.StateMachineActionMap[actionEventHandler.Name];
-                this.Runtime.NotifyInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName, e);
+                this.Manager.LogInvokedAction(this, cachedAction.MethodInfo, handlingStateName, this.CurrentStateName);
                 await this.InvokeActionAsync(cachedAction, e);
                 await this.ApplyEventHandlerTransitionAsync(this.PendingTransition, e);
             }
@@ -415,7 +416,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task ExecuteCurrentStateOnEntryAsync(Event e)
         {
-            this.Runtime.NotifyEnteredState(this);
+            this.Manager.LogEnteredState(this);
 
             CachedDelegate entryAction = null;
             if (this.StateStack.Peek().EntryAction != null)
@@ -426,7 +427,7 @@ namespace Microsoft.Coyote.Actors
             // Invokes the entry action of the new state, if there is one available.
             if (entryAction != null)
             {
-                this.Runtime.NotifyInvokedOnEntryAction(this, entryAction.MethodInfo, e);
+                this.Manager.LogInvokedOnEntryAction(this, entryAction.MethodInfo);
                 await this.InvokeActionAsync(entryAction, e);
             }
 
@@ -438,7 +439,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task ExecuteCurrentStateOnExitAsync(string eventHandlerExitActionName, Event e)
         {
-            this.Runtime.NotifyExitedState(this);
+            this.Manager.LogExitedState(this);
 
             CachedDelegate exitAction = null;
             if (this.StateStack.Peek().ExitAction != null)
@@ -450,7 +451,7 @@ namespace Microsoft.Coyote.Actors
             // if there is one available.
             if (exitAction != null)
             {
-                this.Runtime.NotifyInvokedOnExitAction(this, exitAction.MethodInfo, e);
+                this.Manager.LogInvokedOnExitAction(this, exitAction.MethodInfo);
                 await this.InvokeActionAsync(exitAction, e);
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None ||
@@ -465,7 +466,7 @@ namespace Microsoft.Coyote.Actors
             if (eventHandlerExitActionName != null && this.CurrentStatus is Status.Active)
             {
                 CachedDelegate eventHandlerExitAction = this.StateMachineActionMap[eventHandlerExitActionName];
-                this.Runtime.NotifyInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo, e);
+                this.Manager.LogInvokedOnExitAction(this, eventHandlerExitAction.MethodInfo);
                 await this.InvokeActionAsync(eventHandlerExitAction, e);
                 Transition transition = this.PendingTransition;
                 this.Assert(transition.TypeValue is Transition.Type.None ||
@@ -504,14 +505,14 @@ namespace Microsoft.Coyote.Actors
             {
                 this.PendingTransition = default;
                 var prevStateName = this.CurrentStateName;
-                this.Runtime.NotifyPopState(this);
+                this.Manager.LogPopState(this);
 
                 // The state machine performs the on exit action of the current state.
                 await this.ExecuteCurrentStateOnExitAsync(null, e);
                 if (this.CurrentStatus is Status.Active)
                 {
                     this.DoStatePop();
-                    this.Runtime.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
+                    this.Manager.LogWriter.LogPopState(this.Id, prevStateName, this.CurrentStateName);
                     this.Assert(this.CurrentState != null, "{0} popped its state with no matching push state.", this.Id);
                 }
             }
@@ -563,7 +564,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task GotoStateAsync(Type s, string onExitActionName, Event e)
         {
-            this.Runtime.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
+            this.Manager.LogWriter.LogGotoState(this.Id, this.CurrentStateName,
                 $"{s.DeclaringType}.{NameResolver.GetStateNameForLogging(s)}");
 
             // The state machine performs the on exit action of the current state.
@@ -586,7 +587,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private async Task PushStateAsync(Type s, Event e)
         {
-            this.Runtime.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
+            this.Manager.LogWriter.LogPushState(this.Id, this.CurrentStateName, s.FullName);
 
             var nextState = StateInstanceCache[this.GetType()].First(val => val.GetType().Equals(s));
             this.DoStatePush(nextState);
@@ -987,40 +988,30 @@ namespace Microsoft.Coyote.Actors
             }
         }
 
-        /// <summary>
-        /// Returns the set of all states in the state machine (for code coverage).
-        /// </summary>
-        internal HashSet<string> GetAllStates()
+        /// <inheritdoc/>
+        internal override void ReportActivityCoverage(CoverageInfo coverageInfo)
         {
+            var name = this.GetType().FullName;
+            if (coverageInfo.IsMachineDeclared(name))
+            {
+                return;
+            }
+
             this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Id);
 
-            var allStates = new HashSet<string>();
+            // Fetch states.
+            var states = new HashSet<string>();
             foreach (var state in StateInstanceCache[this.GetType()])
             {
-                allStates.Add(NameResolver.GetQualifiedStateName(state.GetType()));
+                states.Add(NameResolver.GetQualifiedStateName(state.GetType()));
             }
 
-            return allStates;
-        }
-
-        private static bool IncludeInCoverage(EventHandlerDeclaration handler)
-        {
-            if (handler is DeferEventHandlerDeclaration || handler is IgnoreEventHandlerDeclaration)
+            foreach (var state in states)
             {
-                return false;
+                coverageInfo.DeclareMachineState(name, state);
             }
 
-            return true;
-        }
-
-        /// <summary>
-        /// Returns the set of all (states, registered event) pairs in the state machine (for code coverage).
-        /// It does not include events that are deferred or ignored.
-        /// </summary>
-        internal HashSet<Tuple<string, string>> GetAllStateEventPairs()
-        {
-            this.Assert(StateInstanceCache.ContainsKey(this.GetType()), "{0} has not populated its states yet.", this.Id);
-
+            // Fetch registered events.
             var pairs = new HashSet<Tuple<string, string>>();
             foreach (var state in StateInstanceCache[this.GetType()])
             {
@@ -1032,7 +1023,20 @@ namespace Microsoft.Coyote.Actors
                 }
             }
 
-            return pairs;
+            foreach (var tup in pairs)
+            {
+                coverageInfo.DeclareStateEvent(name, tup.Item1, tup.Item2);
+            }
+        }
+
+        private static bool IncludeInCoverage(EventHandlerDeclaration handler)
+        {
+            if (handler is DeferEventHandlerDeclaration || handler is IgnoreEventHandlerDeclaration)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1058,7 +1062,7 @@ namespace Microsoft.Coyote.Actors
         private protected override void ReportUnhandledException(Exception ex, string actionName)
         {
             var state = this.CurrentState is null ? "<unknown>" : this.CurrentStateName;
-            this.Runtime.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')", this.Id, state, actionName);
+            this.Manager.SpecificationEngine.WrapAndThrowException(ex, "{0} (state '{1}', action '{2}')", this.Id, state, actionName);
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task builder to which most operations are delegated.
@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(ControlledRuntime runtime)
+        private AsyncTaskMethodBuilder(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates an instance of the <see cref="AsyncTaskMethodBuilder"/> struct.
         /// </summary>
         public static AsyncTaskMethodBuilder Create() =>
-            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current : null);
+            new AsyncTaskMethodBuilder(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
 
         /// <summary>
         /// Begins running the builder with the associated state machine.
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Responsible for controlling the execution of tasks during systematic testing.
         /// </summary>
-        private readonly ControlledRuntime Runtime;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The task builder to which most operations are delegated.
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTaskMethodBuilder{TResult}"/> struct.
         /// </summary>
-        private AsyncTaskMethodBuilder(ControlledRuntime runtime)
+        private AsyncTaskMethodBuilder(CoyoteRuntime runtime)
         {
             this.Runtime = runtime;
             this.MethodBuilder = default;
@@ -174,7 +174,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
 #pragma warning disable CA1000 // Do not declare static members on generic types
         public static AsyncTaskMethodBuilder<TResult> Create() =>
-            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? ControlledRuntime.Current : null);
+            new AsyncTaskMethodBuilder<TResult>(CoyoteRuntime.IsExecutionControlled ? CoyoteRuntime.Current : null);
 #pragma warning restore CA1000 // Do not declare static members on generic types
 
         /// <summary>

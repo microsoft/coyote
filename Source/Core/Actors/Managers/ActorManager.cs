@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -647,13 +646,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the is handling a raised <see cref="Event"/>.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void LogHandleRaisedEvent(Actor actor, Event e)
         {
-            if (this.IsExecutionControlled)
-            {
-                string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
-                this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
-            }
         }
 
         /// <summary>
@@ -742,13 +737,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Logs that the state machine invoked pop.
         /// </summary>
-        internal void LogPopState(StateMachine stateMachine)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void LogPopState(StateMachine stateMachine)
         {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                this.SpecificationEngine.AssertExpectedCallerActor(stateMachine, "Pop");
-                this.LogWriter.LogPopState(stateMachine.Id, string.Empty, stateMachine.CurrentStateName);
-            }
         }
 
         /// <summary>

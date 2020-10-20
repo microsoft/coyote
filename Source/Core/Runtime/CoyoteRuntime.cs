@@ -78,6 +78,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly SpecificationEngine SpecificationEngine;
 
         /// <summary>
+        /// The default actor execution context.
+        /// </summary>
+        private readonly ActorExecutionContext DefaultActorExecutionContext;
+
+        /// <summary>
         /// The default actor runtime.
         /// </summary>
         internal readonly ActorManager DefaultActorManager;
@@ -97,11 +102,6 @@ namespace Microsoft.Coyote.Runtime
         /// if such an operation exists.
         /// </summary>
         private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
-
-        /// <summary>
-        /// Map that stores all unique names and their corresponding actor ids.
-        /// </summary>
-        internal readonly ConcurrentDictionary<string, ActorId> NameValueToActorId;
 
         /// <summary>
         /// Monotonically increasing operation id counter.
@@ -168,7 +168,6 @@ namespace Microsoft.Coyote.Runtime
             this.OperationIdCounter = 0;
             this.RootTaskId = Task.CurrentId;
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
-            this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();
 
             this.CoverageInfo = new CoverageInfo();
             this.LogWriter = new LogWriter(configuration);
@@ -184,11 +183,11 @@ namespace Microsoft.Coyote.Runtime
             this.SpecificationEngine = new SpecificationEngine(this.Configuration, this.Scheduler, monitors);
             this.ValueGenerator = valueGenerator;
 
-            ActorExecutionContext actorExecutionContext = new ActorExecutionContext(this.Configuration, this, this.Scheduler,
+            this.DefaultActorExecutionContext = new ActorExecutionContext(this.Configuration, this, this.Scheduler,
                 this.SpecificationEngine, this.CoverageInfo, this.ValueGenerator, this.LogWriter);
             this.DefaultActorManager = this.IsControlled ?
-                new MockActorManager(actorExecutionContext, null, null) :
-                new ActorManager(actorExecutionContext, null, null);
+                new MockActorManager(this.DefaultActorExecutionContext, null, null) :
+                new ActorManager(this.DefaultActorExecutionContext, null, null);
 
             SystematicTesting.Interception.ControlledThread.ClearCache();
         }
@@ -1468,30 +1467,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Asserts that the actor calling an actor method is also
-        /// the actor that is currently executing.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        private void AssertExpectedCallerActor(Actor caller, string calledAPI)
-        {
-            if (caller is null)
-            {
-                return;
-            }
-
-            var op = this.Scheduler.GetExecutingOperation<ActorOperation>();
-            if (op is null)
-            {
-                return;
-            }
-
-            this.Assert(op.Actor.Equals(caller), "{0} invoked {1} on behalf of {2}.",
-                op.Actor.Id, calledAPI, caller.Id);
-        }
-
-        /// <summary>
         /// Asserts that no monitor is in a hot state at test termination.
         /// </summary>
         /// <remarks>
@@ -1619,15 +1594,7 @@ namespace Microsoft.Coyote.Runtime
             unchecked
             {
                 int hash = 19;
-
-                foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
-                {
-                    if (operation is ActorOperation actorOperation)
-                    {
-                        hash *= 31 + actorOperation.Actor.GetHashedState();
-                    }
-                }
-
+                hash = (hash * 397) + this.DefaultActorExecutionContext.GetHashedActorState();
                 hash = (hash * 397) + this.SpecificationEngine.GetHashedMonitorState();
                 return hash;
             }

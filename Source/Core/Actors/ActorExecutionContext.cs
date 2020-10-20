@@ -128,6 +128,30 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
+        /// Returns the current hashed state of the actors.
+        /// </summary>
+        /// <remarks>
+        /// The hash is updated in each execution step.
+        /// </remarks>
+        internal int GetHashedActorState()
+        {
+            unchecked
+            {
+                int hash = 19;
+
+                foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
+                {
+                    if (operation is ActorOperation actorOperation)
+                    {
+                        hash *= 31 + actorOperation.Actor.GetHashedState();
+                    }
+                }
+
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// Handle the specified dropped <see cref="Event"/>.
         /// </summary>
         internal void HandleDroppedEvent(Event e, ActorId id) => this.OnEventDropped?.Invoke(e, id);

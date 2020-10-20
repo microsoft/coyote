@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+#if !DEBUG
+using System.Diagnostics;
+#endif
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -27,16 +30,6 @@ namespace Microsoft.Coyote.Actors.Mocks
         internal int ProgramCounter;
 
         /// <summary>
-        /// True if a transition statement was called in the current action, else false.
-        /// </summary>
-        internal bool IsTransitionStatementCalledInCurrentAction;
-
-        /// <summary>
-        /// True if the actor is executing an on exit action, else false.
-        /// </summary>
-        internal bool IsInsideOnExit;
-
-        /// <summary>
         /// The asynchronous operation scheduler.
         /// </summary>
         internal OperationScheduler Scheduler => this.Context.Scheduler;
@@ -53,8 +46,6 @@ namespace Microsoft.Coyote.Actors.Mocks
             : base(context, instance, group)
         {
             this.ProgramCounter = 0;
-            this.IsTransitionStatementCalledInCurrentAction = false;
-            this.IsInsideOnExit = false;
         }
 
         /// <inheritdoc/>
@@ -62,8 +53,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         {
             // It is important that all actor ids use the monotonically incrementing
             // value as the id during testing, and not the unique name.
-            var id = this.CreateActorId(type, name);
-            return this.Context.NameValueToActorId.GetOrAdd(name, id);
+            return this.Context.NameValueToActorId.GetOrAdd(name, key => this.CreateActorId(type, key));
         }
 
         /// <inheritdoc/>
@@ -137,7 +127,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// </summary>
         internal override ActorId CreateActor(ActorId id, Type type, string name, Event initialEvent, Actor creator, EventGroup group)
         {
-            this.SpecificationEngine.AssertExpectedCallerActor(creator, "CreateActor");
+            this.AssertExpectedCallerActor(creator, "CreateActor");
             Actor actor = this.CreateActor(id, type, name, creator, group);
             this.RunActorEventHandler(actor, initialEvent, true, null);
             return actor.Id;
@@ -164,7 +154,7 @@ namespace Microsoft.Coyote.Actors.Mocks
         internal override async Task<ActorId> CreateActorAndExecuteAsync(ActorId id, Type type, string name, Event initialEvent,
             Actor creator, EventGroup group)
         {
-            this.SpecificationEngine.AssertExpectedCallerActor(creator, "CreateActorAndExecuteAsync");
+            this.AssertExpectedCallerActor(creator, "CreateActorAndExecuteAsync");
             this.Assert(creator != null, "Only an actor can call 'CreateActorAndExecuteAsync': avoid calling " +
                 "it directly from the test method; instead call it through a test driver actor.");
 
@@ -198,7 +188,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 this.Assert(targetId != null, "Cannot send event {1} to a null actor.", e);
             }
 
-            this.SpecificationEngine.AssertExpectedCallerActor(sender, "SendEvent");
+            this.AssertExpectedCallerActor(sender, "SendEvent");
 
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, options, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
@@ -218,7 +208,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 "calling it directly from the test method; instead call it through a test driver actor.");
             this.Assert(e != null, "{0} is sending a null event.", sender.Id);
             this.Assert(targetId != null, "{0} is sending event {1} to a null actor.", sender.Id, e);
-            this.SpecificationEngine.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
+            this.AssertExpectedCallerActor(sender, "SendEventAndExecuteAsync");
             EnqueueStatus enqueueStatus = this.EnqueueEvent(targetId, e, sender, group, options, out Actor target);
             if (enqueueStatus is EnqueueStatus.EventHandlerNotRunning)
             {
@@ -510,11 +500,20 @@ namespace Microsoft.Coyote.Actors.Mocks
         }
 
         /// <summary>
+        /// Logs that the is handling a raised <see cref="Event"/>.
+        /// </summary>
+        internal override void LogHandleRaisedEvent(Actor actor, Event e)
+        {
+            string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
+            this.LogWriter.LogHandleRaisedEvent(actor.Id, stateName, e);
+        }
+
+        /// <summary>
         /// Logs that the called <see cref="Actor.ReceiveEventAsync(Type[])"/> or one of its overloaded methods.
         /// </summary>
         internal override void LogReceiveCalled(Actor actor)
         {
-            this.SpecificationEngine.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
+            this.AssertExpectedCallerActor(actor, "ReceiveEventAsync");
         }
 
         /// <summary>
@@ -582,6 +581,15 @@ namespace Microsoft.Coyote.Actors.Mocks
             ResetProgramCounter(actor);
         }
 
+        /// <summary>
+        /// Logs that the state machine invoked pop.
+        /// </summary>
+        internal override void LogPopState(StateMachine stateMachine)
+        {
+            this.AssertExpectedCallerActor(stateMachine, "Pop");
+            this.LogWriter.LogPopState(stateMachine.Id, string.Empty, stateMachine.CurrentStateName);
+        }
+
         /// <inheritdoc/>
         internal override int GetCachedState()
         {
@@ -597,12 +605,36 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// <summary>
         /// Resets the program counter of the specified actor.
         /// </summary>
-        protected static void ResetProgramCounter(Actor actor)
+        private static void ResetProgramCounter(Actor actor)
         {
             if (actor != null)
             {
                 (actor.Manager as MockActorManager).ProgramCounter = 0;
             }
+        }
+
+        /// <summary>
+        /// Asserts that the actor calling an actor method is also
+        /// the actor that is currently executing.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        private void AssertExpectedCallerActor(Actor caller, string calledAPI)
+        {
+            if (caller is null)
+            {
+                return;
+            }
+
+            var op = this.Scheduler.GetExecutingOperation<ActorOperation>();
+            if (op is null)
+            {
+                return;
+            }
+
+            this.Assert(op.Actor.Equals(caller), "{0} invoked {1} on behalf of {2}.",
+                op.Actor.Id, calledAPI, caller.Id);
         }
 
         /// <summary>

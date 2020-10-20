@@ -280,33 +280,6 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Asserts that the actor calling an actor method is also
-        /// the actor that is currently executing.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void AssertExpectedCallerActor(Actor caller, string calledAPI)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                if (caller is null)
-                {
-                    return;
-                }
-
-                var op = this.Scheduler.GetExecutingOperation<ActorOperation>();
-                if (op is null)
-                {
-                    return;
-                }
-
-                this.Assert(op.Actor.Equals(caller), "{0} invoked {1} on behalf of {2}.",
-                    op.Actor.Id, calledAPI, caller.Id);
-            }
-        }
-
-        /// <summary>
         /// Returns the current hashed state of the monitors.
         /// </summary>
         /// <remarks>

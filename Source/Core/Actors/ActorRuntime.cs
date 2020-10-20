@@ -335,30 +335,6 @@
 //            return result;
 //        }
 
-//        /// <summary>
-//        /// Returns the current hashed state of the actors.
-//        /// </summary>
-//        /// <remarks>
-//        /// The hash is updated in each execution step.
-//        /// </remarks>
-//        [DebuggerStepThrough]
-//        internal int GetHashedActorState()
-//        {
-//            unchecked
-//            {
-//                int hash = 19;
-
-//                foreach (var operation in this.Scheduler.GetRegisteredOperations().OrderBy(op => op.Id))
-//                {
-//                    if (operation is ActorOperation actorOperation)
-//                    {
-//                        hash *= 31 + actorOperation.Actor.GetHashedState();
-//                    }
-//                }
-
-//                return hash;
-//            }
-//        }
 
 //        /// <inheritdoc/>
 //        [Obsolete("Please set the Logger property directory instead of calling this method.")]

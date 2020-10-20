@@ -258,7 +258,7 @@ namespace Microsoft.Coyote.Actors
             // If a group was not provided, inherit the current event group from the creator (if any).
             if (eventGroup == null && creator != null)
             {
-                eventGroup = creator.CurrentEventGroup;
+                eventGroup = creator.EventGroup;
             }
 
             Actor actor = ActorFactory.Create(type);
@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.Actors
             // If no group is provided we default to passing along the group from the sender.
             if (eventGroup == null && sender != null)
             {
-                eventGroup = sender.CurrentEventGroup;
+                eventGroup = sender.EventGroup;
             }
 
             if (target.IsHalted)

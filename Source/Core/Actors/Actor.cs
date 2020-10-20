@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// The <see cref="EventGroup"/> currently associated with the actor, if any.
         /// </summary>
-        private protected EventGroup EventGroup { get; private set; }
+        internal EventGroup EventGroup { get; private set; }
 
         /// <summary>
         /// An optional <see cref="EventGroup"/> associated with the current event being handled.

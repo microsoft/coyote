@@ -171,9 +171,9 @@ namespace Microsoft.Coyote.Runtime
 
             var coverageInfo = new CoverageInfo();
             this.DefaultActorExecutionContext = this.IsControlled ?
-                new Actors.ExecutionContext(this.Configuration, this, this.Scheduler,
-                this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter) :
                 new TestingExecutionContext(this.Configuration, this, this.Scheduler,
+                this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter) :
+                new Actors.ExecutionContext(this.Configuration, this, this.Scheduler,
                 this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter);
 
             SystematicTesting.Interception.ControlledThread.ClearCache();

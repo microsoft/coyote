@@ -16,7 +16,7 @@ $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Na
 
 $targets = [ordered]@{
     "production" = "Production.Tests"
-    "rewriting"  = "BinaryRewriting.Tests"
+    "rewriting"  = "Rewriting.Tests"
     "testing"    = "SystematicTesting.Tests"
     "standalone" = "Standalone.Tests"
 }
@@ -38,7 +38,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
         $rewriting_target = ""
         if ($($kvp.Name) -eq "rewriting") {
-            $rewriting_target = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/BinaryRewritingTests.coyote.json"
+            $rewriting_target = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/RewritingTests.coyote.json"
         }
         elseif ($($kvp.Name) -eq "standalone") {
             $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Standalone.Tests.dll"

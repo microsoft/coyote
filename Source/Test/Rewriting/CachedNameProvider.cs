@@ -31,7 +31,12 @@ namespace Microsoft.Coyote.Rewriting
 
         internal static string TaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter).FullName;
         internal static string GenericTaskAwaiterFullName { get; } = typeof(SystemCompiler.TaskAwaiter<>).FullName;
-
+        internal static string ConfiguredTaskAwaitableFullName { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName;
+        internal static string GenericConfiguredTaskAwaitableFullName { get; } = typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName;
+        internal static string ConfiguredTaskAwaiterFullName { get; } =
+            typeof(SystemCompiler.ConfiguredTaskAwaitable).FullName + "/ConfiguredTaskAwaiter";
+        internal static string GenericConfiguredTaskAwaiterFullName { get; } =
+            typeof(SystemCompiler.ConfiguredTaskAwaitable<>).FullName + "/ConfiguredTaskAwaiter";
         internal static string YieldAwaitableFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName;
         internal static string YieldAwaiterFullName { get; } = typeof(SystemCompiler.YieldAwaitable).FullName + "/YieldAwaiter";
 

@@ -38,7 +38,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(A1));
             },
-            expectedErrors: GetUncontrolledTaskErrorMessages());
+            configuration: GetConfiguration().WithTestingIterations(100),
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Method 'OnInitializeAsync' returned an uncontrolled task"),
+                    "Expected uncontrolled task from invoking the async method.");
+            });
         }
 
         private class M1 : StateMachine
@@ -65,7 +70,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M1));
             },
-            expectedErrors: GetUncontrolledTaskErrorMessages());
+            configuration: GetConfiguration().WithTestingIterations(100),
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Method 'InitOnEntry' returned an uncontrolled task"),
+                    "Expected uncontrolled task from invoking the async method.");
+            });
         }
 
         [OnEventDoAction(typeof(UnitEvent), nameof(IgnoreUnitEvent))]
@@ -90,7 +100,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(A2));
             },
-            expectedErrors: GetUncontrolledTaskErrorMessages());
+            configuration: GetConfiguration().WithTestingIterations(100),
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Method 'OnInitializeAsync' returned an uncontrolled task"),
+                    "Expected uncontrolled task from invoking the async method.");
+            });
         }
 
         private class M2 : StateMachine
@@ -117,7 +132,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M2));
             },
-            expectedErrors: GetUncontrolledTaskErrorMessages());
+            configuration: GetConfiguration().WithTestingIterations(100),
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Method 'InitOnEntry' returned an uncontrolled task"),
+                    "Expected uncontrolled task from invoking the async method.");
+            });
         }
 
         private class A3 : Actor
@@ -147,7 +167,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(A3));
             },
-            expectedErrors: GetUncontrolledTaskErrorMessages());
+            configuration: GetConfiguration().WithTestingIterations(100),
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Method 'OnInitializeAsync' returned an uncontrolled task"),
+                    "Expected uncontrolled task from invoking the async method.");
+            });
         }
 
         private class M3 : StateMachine
@@ -183,7 +208,12 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             {
                 r.CreateActor(typeof(M3));
             },
-            expectedErrors: GetUncontrolledTaskErrorMessages());
+            configuration: GetConfiguration().WithTestingIterations(100),
+            errorChecker: (e) =>
+            {
+                Assert.True(e.StartsWith("Method 'InitOnEntry' returned an uncontrolled task"),
+                    "Expected uncontrolled task from invoking the async method.");
+            });
         }
     }
 }

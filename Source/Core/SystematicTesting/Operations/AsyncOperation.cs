@@ -4,19 +4,19 @@
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// An abstract asynchronous operation that can be controlled during testing.
+    /// Represents an abstract asynchronous operation that can be controlled during systematic testing.
     /// </summary>
     internal abstract class AsyncOperation
     {
         /// <summary>
         /// The unique id of the operation.
         /// </summary>
-        internal abstract ulong Id { get; }
+        internal ulong Id { get; }
 
         /// <summary>
         /// The unique name of the operation.
         /// </summary>
-        internal abstract string Name { get; }
+        internal string Name { get; }
 
         /// <summary>
         /// The status of the operation. An operation can be scheduled only
@@ -33,8 +33,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncOperation"/> class.
         /// </summary>
-        internal AsyncOperation()
+        internal AsyncOperation(ulong operationId, string name)
         {
+            this.Id = operationId;
+            this.Name = name;
             this.Status = AsyncOperationStatus.None;
         }
 

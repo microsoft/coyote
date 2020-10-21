@@ -1,0 +1,8 @@
+{
+    "AssembliesPath": "../../bin/$(Platform)",
+    "OutputPath": "../../bin/$(Platform)",
+    "Assemblies": [
+        "Microsoft.Coyote.Rewriting.Tests.dll"
+    ],
+    "IsRewritingThreads":  true
+}

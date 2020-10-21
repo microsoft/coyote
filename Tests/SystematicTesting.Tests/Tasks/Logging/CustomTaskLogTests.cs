@@ -2,26 +2,17 @@
 // Licensed under the MIT License.
 
 using System;
-#if BINARY_REWRITE
-using System.Threading.Tasks;
-#else
-using Microsoft.Coyote.Tasks;
-#endif
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.SystematicTesting;
+using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
-#if BINARY_REWRITE
-namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
-#else
-namespace Microsoft.Coyote.Production.Tests.Tasks
-#endif
+namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class CustomTaskLogTests : BaseProductionTest
+    public class CustomTaskLogTests : BaseSystematicTest
     {
         public CustomTaskLogTests(ITestOutputHelper output)
             : base(output)
@@ -33,7 +24,7 @@ namespace Microsoft.Coyote.Production.Tests.Tasks
         {
             InMemoryLogger log = new InMemoryLogger();
 
-            var config = Configuration.Create().WithVerbosityEnabled().WithTestingIterations(3);
+            var config = GetConfiguration().WithVerbosityEnabled().WithTestingIterations(3);
             TestingEngine engine = TestingEngine.Create(config, (ICoyoteRuntime runtime) =>
             {
                 runtime.Logger.WriteLine("Hi mom!");

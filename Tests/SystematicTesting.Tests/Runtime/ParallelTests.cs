@@ -156,7 +156,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             {
                 runtime.RegisterMonitor<LivenessMonitor>();
                 ActorId server = runtime.CreateActor(typeof(PingPongServer));
-                runtime.CreateActor(typeof(PingPongClient), new PingPongClient.ConfigEvent() { Server = server });
+                runtime.CreateActor(typeof(PingPongClient), new ConfigEvent() { Server = server });
             }
         }
 

@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors.SharedObjects
             {
                 var flag = (e as Setup).Flag;
 
-                var counter = SharedRegister.Create<int>(this.Id.Runtime, 0);
+                var counter = SharedRegister.Create(this.Id.Runtime, 0);
                 counter.SetValue(5);
 
                 this.CreateActor(typeof(N1), new E<int>(counter));

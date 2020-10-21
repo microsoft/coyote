@@ -553,7 +553,7 @@ namespace Microsoft.Coyote.Utilities
         /// only (e.g. int, float, string, bool).</param>
         /// <param name="required">Whether argument is required.</param>
         /// <param name="defaultValue">The default value to use if no value is provided.</param>
-        /// <returns>The new option or throws <see cref="System.Data.DuplicateNameException"/>.</returns>
+        /// <returns>The new option or throws <see cref="DuplicateNameException"/>.</returns>
         public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false, string defaultValue = null)
         {
             if (this.Arguments.TryGetValue(longName, out CommandLineArgument argument))

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
-using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Rewriting.Tests.Tasks
 {
@@ -25,7 +24,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 var tcs = new TaskCompletionSource<int>();
                 tcs.SetResult(3);
                 int result = await tcs.Task;
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -44,7 +43,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 bool check = tcs.TrySetResult(5);
                 int result = await tcs.Task;
                 Specification.Assert(!check, "Cannot set result again.");
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -70,7 +69,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 });
 
                 int result = await task1;
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
@@ -94,7 +93,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 });
 
                 int result = await task1;
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result is 3, "Found unexpected value {0}.", result);
             },
@@ -121,7 +120,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 await Task.WhenAll(task1, task2);
                 int result1 = task1.Result;
                 int result2 = task2.Result;
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.RanToCompletion,
+                Specification.Assert(tcs.Task.Status is TaskStatus.RanToCompletion,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result1 is 3, "Found unexpected value {0}.", result1);
                 Specification.Assert(result2 is 3, "Found unexpected value {0}.", result2);
@@ -150,7 +149,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
 
                 Specification.Assert(exception is OperationCanceledException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Canceled,
+                Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -182,7 +181,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 Specification.Assert(!check, "Cannot set result again.");
                 Specification.Assert(exception is OperationCanceledException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Canceled,
+                Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -215,7 +214,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
 
                 Specification.Assert(exception is OperationCanceledException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Canceled,
+                Specification.Assert(tcs.Task.Status is TaskStatus.Canceled,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },
@@ -243,7 +242,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -275,7 +274,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
                 Specification.Assert(!check, "Cannot set result again.");
                 Specification.Assert(exception is InvalidOperationException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
                 Specification.Assert(false, "Reached test assertion.");
@@ -308,7 +307,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
 
                 Specification.Assert(exception is InvalidOperationException,
                     "Threw unexpected exception {0}.", exception.GetType());
-                Specification.Assert(tcs.Task.Status is SystemTasks.TaskStatus.Faulted,
+                Specification.Assert(tcs.Task.Status is TaskStatus.Faulted,
                     "Found unexpected status {0}.", tcs.Task.Status);
                 Specification.Assert(result == default, "Found unexpected value {0}.", result);
             },

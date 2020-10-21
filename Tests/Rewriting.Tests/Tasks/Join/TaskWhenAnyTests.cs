@@ -322,14 +322,14 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                Task<int> task1 = Task.Run<int>(async () =>
+                Task<int> task1 = Task.Run(async () =>
                 {
                     await Task.CompletedTask;
                     ThrowException<InvalidOperationException>();
                     return 1;
                 });
 
-                Task<int> task2 = Task.Run<int>(async () =>
+                Task<int> task2 = Task.Run(async () =>
                 {
                     await Task.CompletedTask;
                     ThrowException<NotSupportedException>();

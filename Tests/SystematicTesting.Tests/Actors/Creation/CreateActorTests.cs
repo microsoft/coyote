@@ -5,13 +5,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 {
-    public class CreateActorTests : Microsoft.Coyote.Actors.Tests.Actors.CreateActorTests
+    public class CreateActorTests : Coyote.Actors.Tests.CreateActorTests
     {
         public CreateActorTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        public override bool IsSystematicTest => true;
+        protected override bool IsSystematicTest => true;
     }
 }

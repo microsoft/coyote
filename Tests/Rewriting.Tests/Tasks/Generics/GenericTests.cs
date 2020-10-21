@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks.Generics
                 var t = new GenericNestedMethod<string>();
                 int delay = 12;
                 var today = DateTime.Today;
-                var result = await t.RunTest<DateTime>("Delay is {0} on {1}", delay, today);
+                var result = await t.RunTest("Delay is {0} on {1}", delay, today);
                 var expected = string.Format("Delay is {0} on {1}", delay, today);
                 Specification.Assert(result == expected, "Value is {0} instead of {1}.", result, expected);
             });
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks.Generics
                 var t = new GenericGenericResult<string>();
                 int delay = 12;
                 var today = DateTime.Today;
-                var result = await t.RunTest<DateTime>("Delay is {0} on {1}", delay, today);
+                var result = await t.RunTest("Delay is {0} on {1}", delay, today);
                 var expected = string.Format("Delay is {0} on {1}", delay, today);
                 Specification.Assert(result.Result == expected, "Value is {0} instead of {1}.", result.Result, expected);
             });

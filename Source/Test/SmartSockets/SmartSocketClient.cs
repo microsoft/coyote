@@ -494,9 +494,9 @@ namespace Microsoft.Coyote.SmartSockets
             {
                 this.OnClosed();
             }
-            catch (System.IO.IOException ioe)
+            catch (IOException ioe)
             {
-                System.Net.Sockets.SocketException se = ioe.InnerException as System.Net.Sockets.SocketException;
+                SocketException se = ioe.InnerException as SocketException;
                 if (se.SocketErrorCode == SocketError.ConnectionReset)
                 {
                     this.OnClosed();

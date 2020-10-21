@@ -5,13 +5,13 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
 {
-    public class LargeEventGroupTest : Microsoft.Coyote.Actors.Tests.Actors.LargeEventGroupTest
+    public class LargeEventGroupTest : Coyote.Actors.Tests.LargeEventGroupTest
     {
         public LargeEventGroupTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        public override bool IsSystematicTest => true;
+        protected override bool IsSystematicTest => true;
     }
 }

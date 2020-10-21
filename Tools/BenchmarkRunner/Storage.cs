@@ -91,7 +91,7 @@ namespace Microsoft.Coyote.Benchmarking
                 if (better)
                 {
                     Console.WriteLine("===> Uploading summary for {0}...", s.TestName);
-                    await this.SummaryContainer.UpsertItemAsync<PerfSummary>(s, new PartitionKey(s.PartitionKey));
+                    await this.SummaryContainer.UpsertItemAsync(s, new PartitionKey(s.PartitionKey));
                     count++;
                 }
                 else
@@ -156,7 +156,7 @@ namespace Microsoft.Coyote.Benchmarking
             foreach (var item in log)
             {
                 Console.WriteLine("===> Uploading commit info {0}...", item.Id);
-                await container.UpsertItemAsync<CommitHistoryEntity>(item, new PartitionKey(item.PartitionKey));
+                await container.UpsertItemAsync(item, new PartitionKey(item.PartitionKey));
             }
         }
     }

@@ -176,7 +176,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private async Task ConnectToServer()
         {
             string serviceName = this.Configuration.TestingSchedulerEndPoint;
-            var source = new System.Threading.CancellationTokenSource();
+            var source = new CancellationTokenSource();
 
             var resolver = new SmartSocketTypeResolver(typeof(BugFoundMessage),
                                                        typeof(TestReportMessage),

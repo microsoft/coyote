@@ -22,8 +22,6 @@ namespace Microsoft.Coyote.Rewriting.Tests.Tasks
         {
         }
 
-        public override bool IsSystematicTest => true;
-
         internal class BoundedBuffer
         {
             private readonly bool pulseAll;

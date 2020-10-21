@@ -44,7 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             start();
                         }
-                        catch (Microsoft.Coyote.ExecutionCanceledException)
+                        catch (ExecutionCanceledException)
                         {
                             // this is normal termination of a test iteration, not something to be worried about.
                         }
@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             start();
                         }
-                        catch (Microsoft.Coyote.ExecutionCanceledException)
+                        catch (ExecutionCanceledException)
                         {
                             // this is normal termination of a test iteration, not something to be worried about.
                         }
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             start(parameter);
                         }
-                        catch (Microsoft.Coyote.ExecutionCanceledException)
+                        catch (ExecutionCanceledException)
                         {
                             // this is normal termination of a test iteration, not something to be worried about.
                         }
@@ -144,7 +144,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             start(parameter);
                         }
-                        catch (Microsoft.Coyote.ExecutionCanceledException)
+                        catch (ExecutionCanceledException)
                         {
                             // this is normal termination of a test iteration, not something to be worried about.
                         }

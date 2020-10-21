@@ -86,18 +86,16 @@ namespace Microsoft.Coyote.Tests.Common
         protected string TestCoverage(Action<IActorRuntime> test, Configuration configuration)
         {
             var engine = this.InternalTest(test, configuration);
-            using (var writer = new StringWriter())
-            {
-                var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
-                activityCoverageReporter.WriteCoverageText(writer);
-                string result = writer.ToString().RemoveNamespaceReferences();
-                return result;
-            }
+            using var writer = new StringWriter();
+            var activityCoverageReporter = new ActivityCoverageReporter(engine.TestReport.CoverageInfo);
+            activityCoverageReporter.WriteCoverageText(writer);
+            string result = writer.ToString().RemoveNamespaceReferences();
+            return result;
         }
 
         private TestingEngine InternalTest(Delegate test, Configuration configuration)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
             ILogger logger = this.GetLogger(configuration);
 
             TestingEngine engine = null;
@@ -278,7 +276,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private void TestWithErrors(Delegate test, Configuration configuration, TestErrorChecker errorChecker, bool replay)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
             ILogger logger = this.GetLogger(configuration);
 
             try
@@ -364,7 +362,7 @@ namespace Microsoft.Coyote.Tests.Common
         private void InternalTestWithException<TException>(Delegate test, Configuration configuration = null, bool replay = false)
             where TException : Exception
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             Type exceptionType = typeof(TException);
             Assert.True(exceptionType.IsSubclassOf(typeof(Exception)), "Please configure the test correctly. " +
@@ -402,7 +400,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void Run(Action<IActorRuntime> test, Configuration configuration = null)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             ILogger logger = this.GetLogger(configuration);
 
@@ -428,7 +426,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task RunAsync(Func<IActorRuntime, Task> test, Configuration configuration = null, bool handleFailures = true)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             uint iterations = Math.Max(1, configuration.TestingIterations);
             for (int i = 0; i < iterations; i++)
@@ -509,7 +507,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private void RunWithErrors(Action<IActorRuntime> test, Configuration configuration, TestErrorChecker errorChecker)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             string errorMessage = string.Empty;
             ILogger logger = this.GetLogger(configuration);
@@ -554,7 +552,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         private async Task RunWithErrorsAsync(Func<IActorRuntime, Task> test, Configuration configuration, TestErrorChecker errorChecker)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             string errorMessage = string.Empty;
             ILogger logger = this.GetLogger(configuration);
@@ -599,7 +597,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void RunWithException<TException>(Action<IActorRuntime> test, Configuration configuration = null)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -647,7 +645,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected void RunWithException<TException>(Action test, Configuration configuration = null)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -695,7 +693,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task RunWithExceptionAsync<TException>(Func<IActorRuntime, Task> test, Configuration configuration = null)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -745,7 +743,7 @@ namespace Microsoft.Coyote.Tests.Common
 
         protected async Task RunWithExceptionAsync<TException>(Func<Task> test, Configuration configuration = null)
         {
-            configuration = configuration ?? GetConfiguration();
+            configuration ??= GetConfiguration();
 
             Exception actualException = null;
             Type exceptionType = typeof(TException);
@@ -874,8 +872,11 @@ namespace Microsoft.Coyote.Tests.Common
 
         private static TestingEngine RunTest(Delegate test, Configuration configuration, ILogger logger)
         {
-            var engine = new TestingEngine(configuration, test);
-            engine.Logger = logger;
+            var engine = new TestingEngine(configuration, test)
+            {
+                Logger = logger
+            };
+
             engine.Run();
             return engine;
         }
@@ -917,24 +918,6 @@ namespace Microsoft.Coyote.Tests.Common
         }
 
         /// <summary>
-        /// For tests expecting uncontrolled task assertions, use these as the expectedErrors array.
-        /// </summary>
-        protected static string[] GetUncontrolledTaskErrorMessages()
-        {
-            return new string[]
-            {
-                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
-                "make sure to avoid using concurrency APIs () inside actor handlers. If you are using external " +
-                "libraries that are executing concurrently, you will need to mock them during testing.",
-                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
-                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
-                "concurrently, you will need to mock them during testing.",
-                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
-                "Please make sure to use Coyote APIs to express concurrency ()."
-            };
-        }
-
-        /// <summary>
         /// Throw an exception of the specified type.
         /// </summary>
         /// <typeparam name="T">The type of the exception.</typeparam>
@@ -956,17 +939,6 @@ namespace Microsoft.Coyote.Tests.Common
             }
 
             return report;
-        }
-
-        private static string GetFirstLine(string msg)
-        {
-            if (msg.Contains("\n"))
-            {
-                string[] lines = msg.Split('\n');
-                return lines[0].Trim();
-            }
-
-            return msg;
         }
     }
 }

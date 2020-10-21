@@ -1217,7 +1217,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(79)]
+        [InlineData(1)]
         public void TestMultipleLeadersInRaftProtocol(uint seed)
         {
             var configuration = GetConfiguration();
@@ -1225,7 +1225,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
             configuration.MaxFairSchedulingSteps = 1000;
             configuration.LivenessTemperatureThreshold = 500;
             configuration.RandomGeneratorSeed = seed;
-            configuration.TestingIterations = 1;
+            configuration.IncrementalSchedulingSeed = true;
+            configuration.TestingIterations = 1000;
 
             this.TestWithError(r =>
             {

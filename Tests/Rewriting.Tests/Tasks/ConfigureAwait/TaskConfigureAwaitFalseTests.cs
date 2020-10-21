@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Coyote.Specifications;
-using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 

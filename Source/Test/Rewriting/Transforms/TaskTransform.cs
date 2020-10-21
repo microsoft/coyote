@@ -305,6 +305,22 @@ namespace Microsoft.Coyote.Rewriting
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.TaskAwaiter<>), type);
             }
+            else if (fullName == CachedNameProvider.ConfiguredTaskAwaitableFullName)
+            {
+                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable));
+            }
+            else if (fullName == CachedNameProvider.GenericConfiguredTaskAwaitableFullName)
+            {
+                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable<>), type);
+            }
+            else if (fullName == CachedNameProvider.ConfiguredTaskAwaiterFullName)
+            {
+                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter));
+            }
+            else if (fullName == CachedNameProvider.GenericConfiguredTaskAwaiterFullName)
+            {
+                result = this.Module.ImportReference(typeof(CoyoteTasks.ConfiguredTaskAwaitable<>.ConfiguredTaskAwaiter), type);
+            }
             else if (fullName == CachedNameProvider.YieldAwaitableFullName)
             {
                 result = this.Module.ImportReference(typeof(CoyoteTasks.YieldAwaitable));
@@ -386,6 +402,7 @@ namespace Microsoft.Coyote.Rewriting
             methodName == nameof(ControlledTasks.ControlledTask.WaitAny) ||
             methodName == nameof(ControlledTasks.ControlledTask.Wait) ||
             methodName == nameof(ControlledTasks.ControlledTask.Yield) ||
-            methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter));
+            methodName == nameof(ControlledTasks.ControlledTask.GetAwaiter) ||
+            methodName == nameof(ControlledTasks.ControlledTask.ConfigureAwait));
     }
 }

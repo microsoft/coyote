@@ -464,6 +464,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal async Task RunEventHandlerAsync()
         {
+            bool isFreshDequeue = true;
             Event lastDequeuedEvent = null;
             while (this.CurrentStatus != Status.Halted && this.Context.IsRunning)
             {
@@ -479,7 +480,7 @@ namespace Microsoft.Coyote.Actors
                     // Notify the runtime for a new event to handle. This is only used
                     // during bug-finding and operation bounding, because the runtime
                     // has to schedule an actor when a new operation is dequeued.
-                    this.Context.LogDequeuedEvent(this, e, info);
+                    this.Context.LogDequeuedEvent(this, e, info, isFreshDequeue);
                     await this.InvokeUserCallbackAsync(UserCallbackType.OnEventDequeued, e);
                     lastDequeuedEvent = e;
                 }
@@ -529,6 +530,8 @@ namespace Microsoft.Coyote.Actors
                     // If the current status is halting, then halt the actor.
                     await this.HaltAsync(e);
                 }
+
+                isFreshDequeue = false;
             }
         }
 

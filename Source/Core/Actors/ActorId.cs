@@ -103,12 +103,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
-        public override int GetHashCode()
-        {
-            int hash = 17;
-            hash = (hash * 23) + (this.IsNameUsedForHashing ? this.NameValue.GetHashCode() : this.Value.GetHashCode());
-            return hash;
-        }
+        public override int GetHashCode() =>
+            this.IsNameUsedForHashing ? this.NameValue.GetHashCode() : this.Value.GetHashCode();
 
         /// <summary>
         /// Returns a string that represents the current actor id.

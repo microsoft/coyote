@@ -2,21 +2,20 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Rewriting.Tests
 {
-    public abstract class BaseRewritingTest : BaseTest
+    internal abstract class BaseRewritingTest : BaseTest
     {
-        public BaseRewritingTest(ITestOutputHelper output)
+        internal BaseRewritingTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        public override bool IsSystematicTest
+        protected override bool IsSystematicTest
         {
             get
             {

@@ -1,30 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if BINARY_REWRITE
-using System.Threading.Tasks;
-#else
 using Microsoft.Coyote.Tasks;
-#endif
 using Microsoft.Coyote.Tests.Common;
 using Xunit.Abstractions;
 
-#if BINARY_REWRITE
-namespace Microsoft.Coyote.Rewriting.Tests
-#else
 namespace Microsoft.Coyote.SystematicTesting.Tests
-#endif
 {
-    public abstract class BaseSystematicTest : BaseTest
+    internal abstract class BaseSystematicTest : BaseTest
     {
-        public BaseSystematicTest(ITestOutputHelper output)
+        internal BaseSystematicTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        public override bool IsSystematicTest => true;
+        protected override bool IsSystematicTest => true;
 
-        public class SharedEntry
+        protected class SharedEntry
         {
             public volatile int Value = 0;
 

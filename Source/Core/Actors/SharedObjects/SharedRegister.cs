@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Actors.SharedObjects
 {

@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Production.Tests
 {
-    public abstract class BaseProductionTest : BaseTest
+    internal abstract class BaseProductionTest : BaseTest
     {
-        public BaseProductionTest(ITestOutputHelper output)
+        internal BaseProductionTest(ITestOutputHelper output)
             : base(output)
         {
         }

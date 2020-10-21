@@ -4,7 +4,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Coyote.Rewriting;
 using Xunit;
 using Xunit.Abstractions;
 

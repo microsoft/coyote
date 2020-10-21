@@ -1217,7 +1217,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Actors
         }
 
         [Theory(Timeout = 10000)]
-        [InlineData(79)]
+        [InlineData(361)]
         public void TestMultipleLeadersInRaftProtocol(uint seed)
         {
             var configuration = GetConfiguration();

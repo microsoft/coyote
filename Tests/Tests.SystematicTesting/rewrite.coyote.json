@@ -1,8 +1,8 @@
 {
-    "AssembliesPath": "../../bin/$(Platform)",
-    "OutputPath": "../../bin/$(Platform)",
-    "Assemblies": [
-        "Microsoft.Coyote.Tests.SystematicTesting.dll"
-    ],
-    "IsRewritingThreads":  true
+  "AssembliesPath": "../../bin/$(Platform)",
+  "OutputPath": "../../bin/$(Platform)",
+  "Assemblies": [
+    "Microsoft.Coyote.Tests.SystematicTesting.dll"
+  ],
+  "IsRewritingThreads": true
 }

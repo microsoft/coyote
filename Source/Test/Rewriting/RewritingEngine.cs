@@ -228,6 +228,8 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     errors++;
+
+                    Console.WriteLine(ex.ToString());
                 }
             }
 
@@ -247,7 +249,11 @@ namespace Microsoft.Coyote.Rewriting
         private void RewriteAssembly(string assemblyPath, string outputDirectory)
         {
             string assemblyName = Path.GetFileName(assemblyPath);
-            if (this.RewrittenAssemblies.ContainsKey(Path.GetFileNameWithoutExtension(assemblyPath)))
+            if (this.IsDisallowed(assemblyName))
+            {
+                throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assemblyPath}) is not allowed.");
+            }
+            else if (this.RewrittenAssemblies.ContainsKey(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 // The assembly is already rewritten, so skip it.
                 return;
@@ -264,11 +270,6 @@ namespace Microsoft.Coyote.Rewriting
 
             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath, readParams))
             {
-                if (this.IsDisallowed(assemblyName))
-                {
-                    throw new InvalidOperationException($"Rewriting the '{assemblyName}' assembly ({assembly.FullName}) is not allowed.");
-                }
-
                 this.Logger.WriteLine($"... Rewriting the '{assemblyName}' assembly ({assembly.FullName})");
                 if (this.Options.IsRewritingDependencies)
                 {
@@ -605,16 +606,12 @@ namespace Microsoft.Coyote.Rewriting
             var assemblyResolver = new DefaultAssemblyResolver();
 
             // Add known search directories for resolving assemblies.
-            Console.WriteLine($"SEARCH PATH: {Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location)}");
-            Console.WriteLine($"SEARCH PATH: {this.Options.AssembliesDirectory}");
-
             assemblyResolver.AddSearchDirectory(Path.GetDirectoryName(typeof(ControlledTask).Assembly.Location));
             assemblyResolver.AddSearchDirectory(this.Options.AssembliesDirectory);
             if (this.Options.DependencySearchPaths != null)
             {
                 foreach (var path in this.Options.DependencySearchPaths)
                 {
-                    Console.WriteLine($"SEARCH PATH: {path}");
                     assemblyResolver.AddSearchDirectory(path);
                 }
             }

@@ -39,7 +39,7 @@ foreach ($kvp in $targets.GetEnumerator()) {
 
         $rewriting_target = ""
         if ($($kvp.Name) -eq "systematic") {
-            $rewriting_target = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/rewrite.coyote.json"
+            $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/rewrite.coyote.json"
         }
         elseif ($($kvp.Name) -eq "standalone") {
             $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Tests.Standalone.dll"

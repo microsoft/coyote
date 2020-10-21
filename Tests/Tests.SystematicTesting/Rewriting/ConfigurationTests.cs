@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
         public void TestJsonConfigurationReplacingBinaries()
         {
             string configDirectory = this.GetJsonConfigurationDirectory();
-            string configPath = Path.Combine(configDirectory, "RewritingTests.coyote.json");
+            string configPath = Path.Combine(configDirectory, "rewrite.coyote.json");
             Assert.True(File.Exists(configPath), "File not found: " + configPath);
 
             var options = RewritingOptions.ParseFromJSON(configPath);
@@ -39,8 +39,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
         [Fact(Timeout = 5000)]
         public void TestJsonConfigurationDifferentOutputDirectory()
         {
-            string configDirectory = this.GetJsonConfigurationDirectory("Configuration");
-            string configPath = Path.Combine(configDirectory, "Test.coyote.json");
+            string configDirectory = this.GetJsonConfigurationDirectory("Rewriting");
+            string configPath = Path.Combine(configDirectory, "test.coyote.json");
             Assert.True(File.Exists(configPath));
 
             var options = RewritingOptions.ParseFromJSON(configPath);

@@ -3,7 +3,7 @@
     <Description>Tests for the systematic testing runtime.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.SystematicTesting</AssemblyName>
     <RootNamespace>Microsoft.Coyote.SystematicTesting.Tests</RootNamespace>
-    <OutputPath>.\bin\</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
   </PropertyGroup>
@@ -19,13 +19,13 @@
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Rewriting\Test.coyote.json">
+    <None Update="Rewriting\test.coyote.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="RewritingTests.coyote.json">
+    <None Update="rewrite.coyote.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

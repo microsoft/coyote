@@ -13,7 +13,7 @@ Coyote is a NuGet library and works on .NET Core which means it can be used on W
 macOS.
 
 ### Prerequisites
-- [.NET Core SDK 3.1.300](https://dotnet.microsoft.com/download/dotnet-core)
+- [.NET Core SDK 3.1.403](https://dotnet.microsoft.com/download/dotnet-core)
 
 **Optional:**
 - [Visual Studio 2019](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio)

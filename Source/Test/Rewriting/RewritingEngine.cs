@@ -228,8 +228,6 @@ namespace Microsoft.Coyote.Rewriting
                     }
 
                     errors++;
-
-                    Console.WriteLine(ex.ToString());
                 }
             }
 

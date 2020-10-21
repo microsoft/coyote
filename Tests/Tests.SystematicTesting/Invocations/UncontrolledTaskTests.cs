@@ -19,7 +19,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Invocations
         {
             this.TestWithError(async () =>
             {
-                await AsyncProvider.DelayAsync();
+                await AsyncProvider.DelayAsync(100);
             },
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>

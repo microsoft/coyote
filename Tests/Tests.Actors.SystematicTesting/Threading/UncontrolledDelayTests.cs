@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Tests.Common.Events;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +22,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                await Task.Delay(10);
+                await AsyncProvider.DelayAsync(10);
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
 
@@ -57,7 +58,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private async Task InitOnEntry()
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                await Task.Delay(10);
+                await AsyncProvider.DelayAsync(10);
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
         }
@@ -83,7 +84,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                await Task.Delay(10).ConfigureAwait(false);
+                await AsyncProvider.DelayAsync(10).ConfigureAwait(false);
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
 
@@ -119,7 +120,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private async Task InitOnEntry()
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                await Task.Delay(10).ConfigureAwait(false);
+                await AsyncProvider.DelayAsync(10).ConfigureAwait(false);
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
         }
@@ -154,7 +155,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private async Task DelayedRandomAsync()
             {
-                await Task.Delay(10).ConfigureAwait(false);
+                await AsyncProvider.DelayAsync(10).ConfigureAwait(false);
                 this.RandomBoolean();
             }
         }
@@ -195,7 +196,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private async Task DelayedRandomAsync()
             {
-                await Task.Delay(10).ConfigureAwait(false);
+                await AsyncProvider.DelayAsync(10).ConfigureAwait(false);
                 this.RandomBoolean();
             }
         }

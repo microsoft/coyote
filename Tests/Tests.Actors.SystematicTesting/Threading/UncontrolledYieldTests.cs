@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Tests.Common.Events;
+using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +22,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             protected override async Task OnInitializeAsync(Event initialEvent)
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                await Task.Yield();
+                await AsyncProvider.YieldAsync();
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
 
@@ -57,7 +58,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private async Task InitOnEntry()
             {
                 this.SendEvent(this.Id, UnitEvent.Instance);
-                await Task.Yield();
+                await AsyncProvider.YieldAsync();
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
         }
@@ -92,7 +93,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private async Task YieldedRandomAsync()
             {
-                await Task.Yield();
+                await AsyncProvider.YieldAsync();
                 this.RandomBoolean();
             }
         }
@@ -133,7 +134,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private async Task YieldedRandomAsync()
             {
-                await Task.Yield();
+                await AsyncProvider.YieldAsync();
                 this.RandomBoolean();
             }
         }

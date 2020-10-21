@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
     /// This test contains a bug that leads to duplicate leader election
     /// in the same term.
     /// </summary>
-    public class RaftTests : BaseSystematicActorTest
+    public class RaftTests : BaseActorSystematicTest
     {
         public RaftTests(ITestOutputHelper output)
             : base(output)

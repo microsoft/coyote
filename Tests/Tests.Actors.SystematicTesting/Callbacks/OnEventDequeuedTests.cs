@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class OnEventDequeuedTests : BaseSystematicActorTest
+    public class OnEventDequeuedTests : BaseActorSystematicTest
     {
         public OnEventDequeuedTests(ITestOutputHelper output)
             : base(output)

@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class BubbleSortAlgorithmTests : BaseSystematicActorTest
+    public class BubbleSortAlgorithmTests : BaseActorSystematicTest
     {
         public BubbleSortAlgorithmTests(ITestOutputHelper output)
             : base(output)

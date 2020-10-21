@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class MaxEventInstancesTests : BaseSystematicActorTest
+    public class MaxEventInstancesTests : BaseActorSystematicTest
     {
         public MaxEventInstancesTests(ITestOutputHelper output)
             : base(output)

@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class WildCardEventTests : BaseSystematicActorTest
+    public class WildCardEventTests : BaseActorSystematicTest
     {
         public WildCardEventTests(ITestOutputHelper output)
             : base(output)

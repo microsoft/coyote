@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Coverage
 {
-    public class ActivityCoverageTests : BaseSystematicActorTest
+    public class ActivityCoverageTests : BaseActorSystematicTest
     {
         public ActivityCoverageTests(ITestOutputHelper output)
             : base(output)

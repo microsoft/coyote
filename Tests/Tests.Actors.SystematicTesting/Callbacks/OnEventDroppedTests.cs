@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class OnEventDroppedTests : BaseSystematicActorTest
+    public class OnEventDroppedTests : BaseActorSystematicTest
     {
         public OnEventDroppedTests(ITestOutputHelper output)
             : base(output)

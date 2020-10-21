@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class IdempotentRegisterMonitorTests : BaseSystematicActorTest
+    public class IdempotentRegisterMonitorTests : BaseActorSystematicTest
     {
         public IdempotentRegisterMonitorTests(ITestOutputHelper output)
             : base(output)

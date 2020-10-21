@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 {
-    public class ThrowExceptionFromEntryPointTests : BaseSystematicActorTest
+    public class ThrowExceptionFromEntryPointTests : BaseActorSystematicTest
     {
         public ThrowExceptionFromEntryPointTests(ITestOutputHelper output)
             : base(output)

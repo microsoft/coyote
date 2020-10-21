@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class NameofTests : BaseSystematicActorTest
+    public class NameofTests : BaseActorSystematicTest
     {
         public NameofTests(ITestOutputHelper output)
             : base(output)

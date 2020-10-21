@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class SendInterleavingsTests : BaseSystematicActorTest
+    public class SendInterleavingsTests : BaseActorSystematicTest
     {
         public SendInterleavingsTests(ITestOutputHelper output)
             : base(output)

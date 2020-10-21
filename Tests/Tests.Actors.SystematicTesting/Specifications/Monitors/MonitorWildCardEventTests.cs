@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class MonitorWildCardEventTests : BaseSystematicActorTest
+    public class MonitorWildCardEventTests : BaseActorSystematicTest
     {
         public MonitorWildCardEventTests(ITestOutputHelper output)
             : base(output)

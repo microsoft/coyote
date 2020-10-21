@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
 {
-    public class SharedCounterTests : BaseSystematicActorTest
+    public class SharedCounterTests : BaseActorSystematicTest
     {
         public SharedCounterTests(ITestOutputHelper output)
             : base(output)

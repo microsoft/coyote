@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 {
-    public class ReceivingExternalEventTests : BaseSystematicActorTest
+    public class ReceivingExternalEventTests : BaseActorSystematicTest
     {
         public ReceivingExternalEventTests(ITestOutputHelper output)
             : base(output)

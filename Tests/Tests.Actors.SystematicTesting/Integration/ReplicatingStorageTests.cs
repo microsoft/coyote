@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
     ///
     /// This test contains the liveness bug discussed in the above paper.
     /// </summary>
-    public class ReplicatingStorageTests : BaseSystematicActorTest
+    public class ReplicatingStorageTests : BaseActorSystematicTest
     {
         public ReplicatingStorageTests(ITestOutputHelper output)
             : base(output)

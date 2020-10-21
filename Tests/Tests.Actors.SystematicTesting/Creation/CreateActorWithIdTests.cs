@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class CreateActorWithIdTests : BaseSystematicActorTest
+    public class CreateActorWithIdTests : BaseActorSystematicTest
     {
         public CreateActorWithIdTests(ITestOutputHelper output)
             : base(output)

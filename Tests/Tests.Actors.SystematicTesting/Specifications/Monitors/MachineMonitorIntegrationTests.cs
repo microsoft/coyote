@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class MachineMonitorIntegrationTests : BaseSystematicActorTest
+    public class MachineMonitorIntegrationTests : BaseActorSystematicTest
     {
         public MachineMonitorIntegrationTests(ITestOutputHelper output)
             : base(output)

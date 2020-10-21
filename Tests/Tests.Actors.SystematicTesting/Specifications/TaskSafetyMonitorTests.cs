@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class TaskSafetyMonitorTests : BaseSystematicActorTest
+    public class TaskSafetyMonitorTests : BaseActorSystematicTest
     {
         public TaskSafetyMonitorTests(ITestOutputHelper output)
             : base(output)

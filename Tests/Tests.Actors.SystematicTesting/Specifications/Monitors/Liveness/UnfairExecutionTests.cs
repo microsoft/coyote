@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class UnfairExecutionTests : BaseSystematicActorTest
+    public class UnfairExecutionTests : BaseActorSystematicTest
     {
         public UnfairExecutionTests(ITestOutputHelper output)
             : base(output)

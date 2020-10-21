@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class PushStateTransitionTests : BaseSystematicActorTest
+    public class PushStateTransitionTests : BaseActorSystematicTest
     {
         private class E1 : Event
         {

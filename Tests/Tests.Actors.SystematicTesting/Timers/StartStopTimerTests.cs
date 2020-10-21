@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class StartStopTimerTests : BaseSystematicActorTest
+    public class StartStopTimerTests : BaseActorSystematicTest
     {
         public StartStopTimerTests(ITestOutputHelper output)
             : base(output)

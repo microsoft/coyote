@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
     ///
     /// This test contains a bug that leads to a safety assertion failure.
     /// </summary>
-    public class ChainReplicationTests : BaseSystematicActorTest
+    public class ChainReplicationTests : BaseActorSystematicTest
     {
         public ChainReplicationTests(ITestOutputHelper output)
             : base(output)

@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class UncontrolledYieldTests : BaseSystematicActorTest
+    public class UncontrolledYieldTests : BaseActorSystematicTest
     {
         public UncontrolledYieldTests(ITestOutputHelper output)
             : base(output)

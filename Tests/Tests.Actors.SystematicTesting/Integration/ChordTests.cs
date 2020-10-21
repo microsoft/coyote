@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
     ///
     /// This test contains a bug that leads to a liveness assertion failure.
     /// </summary>
-    public class ChordTests : BaseSystematicActorTest
+    public class ChordTests : BaseActorSystematicTest
     {
         public ChordTests(ITestOutputHelper output)
             : base(output)

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class OnHaltTests : BaseSystematicActorTest
+    public class OnHaltTests : BaseActorSystematicTest
     {
         public OnHaltTests(ITestOutputHelper output)
             : base(output)

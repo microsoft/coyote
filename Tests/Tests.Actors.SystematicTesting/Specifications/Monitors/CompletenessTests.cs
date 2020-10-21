@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class CompletenessTests : BaseSystematicActorTest
+    public class CompletenessTests : BaseActorSystematicTest
     {
         public CompletenessTests(ITestOutputHelper output)
             : base(output)

@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class WarmStateTests : BaseSystematicActorTest
+    public class WarmStateTests : BaseActorSystematicTest
     {
         public WarmStateTests(ITestOutputHelper output)
             : base(output)

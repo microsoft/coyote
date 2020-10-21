@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class PopStateTransitionTests : BaseSystematicActorTest
+    public class PopStateTransitionTests : BaseActorSystematicTest
     {
         public PopStateTransitionTests(ITestOutputHelper output)
             : base(output)

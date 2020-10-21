@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 {
-    public class MonitorStateInheritanceTests : BaseSystematicActorTest
+    public class MonitorStateInheritanceTests : BaseActorSystematicTest
     {
         public MonitorStateInheritanceTests(ITestOutputHelper output)
             : base(output)

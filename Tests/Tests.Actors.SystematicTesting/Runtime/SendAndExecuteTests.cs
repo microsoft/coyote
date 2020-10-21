@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 {
-    public class SendAndExecuteTests : BaseSystematicActorTest
+    public class SendAndExecuteTests : BaseActorSystematicTest
     {
         public SendAndExecuteTests(ITestOutputHelper output)
             : base(output)

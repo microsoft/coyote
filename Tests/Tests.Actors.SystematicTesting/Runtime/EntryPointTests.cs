@@ -13,7 +13,7 @@ using SystemTasks = System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 {
-    public class EntryPointTests : BaseSystematicActorTest
+    public class EntryPointTests : BaseActorSystematicTest
     {
         public EntryPointTests(ITestOutputHelper output)
             : base(output)

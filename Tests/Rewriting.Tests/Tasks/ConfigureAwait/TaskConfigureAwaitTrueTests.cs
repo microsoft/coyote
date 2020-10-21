@@ -6,9 +6,9 @@ using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Production.Tests.Tasks
+namespace Microsoft.Coyote.Rewriting.Tests.Tasks
 {
-    public class TaskConfigureAwaitTrueTests : BaseProductionTest
+    public class TaskConfigureAwaitTrueTests : BaseRewritingTest
     {
         public TaskConfigureAwaitTrueTests(ITestOutputHelper output)
             : base(output)

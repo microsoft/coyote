@@ -7,7 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Monitor = System.Threading.Monitor;
 
-namespace Microsoft.Coyote.Rewriting.Tests.Tasks.Locks
+namespace Microsoft.Coyote.Rewriting.Tests.Threading
 {
     public class LockStatementTests : BaseRewritingTest
     {

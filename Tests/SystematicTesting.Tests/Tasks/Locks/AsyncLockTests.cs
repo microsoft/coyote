@@ -6,9 +6,9 @@ using Microsoft.Coyote.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.Production.Tests.Tasks
+namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class AsyncLockTests : BaseProductionTest
+    public class AsyncLockTests : BaseSystematicTest
     {
         public AsyncLockTests(ITestOutputHelper output)
             : base(output)

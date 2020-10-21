@@ -21,7 +21,7 @@ namespace Microsoft.Coyote.Rewriting.Tests.Configuration
         public void TestJsonConfigurationReplacingBinaries()
         {
             string configDirectory = this.GetJsonConfigurationDirectory();
-            string configPath = Path.Combine(configDirectory, "BinaryRewritingTests.coyote.json");
+            string configPath = Path.Combine(configDirectory, "RewritingTests.coyote.json");
             Assert.True(File.Exists(configPath), "File not found: " + configPath);
 
             var options = RewritingOptions.ParseFromJSON(configPath);

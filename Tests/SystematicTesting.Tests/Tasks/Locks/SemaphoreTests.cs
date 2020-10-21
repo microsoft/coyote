@@ -8,9 +8,9 @@ using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading;
 
-namespace Microsoft.Coyote.Production.Tests.Tasks
+namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class SemaphoreTests : BaseProductionTest
+    public class SemaphoreTests : BaseSystematicTest
     {
         public SemaphoreTests(ITestOutputHelper output)
             : base(output)

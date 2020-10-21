@@ -198,7 +198,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             this.Test(r =>
             {
                 var tcs = new TaskCompletionSource<int>();
-                r.CreateActor(typeof(A4), new SetupEvent(tcs));
+                var id = r.CreateActor(typeof(A4));
+                r.SendEvent(id, new SetupEvent(tcs));
                 tcs.SetResult(3);
             },
             configuration: GetConfiguration().WithTestingIterations(100));
@@ -226,7 +227,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             this.Test(r =>
             {
                 var tcs = new TaskCompletionSource<int>();
-                r.CreateActor(typeof(M3), new SetupEvent(tcs));
+                var id = r.CreateActor(typeof(M4));
+                r.SendEvent(id, new SetupEvent(tcs));
                 tcs.SetResult(3);
             },
             configuration: GetConfiguration().WithTestingIterations(100));

@@ -9,7 +9,7 @@ using Monitor = System.Threading.Monitor;
 
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks.Locks
 {
-    public class LockStatementTests : BaseProductionTest
+    public class LockStatementTests : BaseRewritingTest
     {
         private readonly object SyncObject1 = new object();
         private string Value;
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks.Locks
 
                 Specification.Assert(lockTaken, "lockTaken is false");
             },
-            Configuration.Create());
+            GetConfiguration());
         }
     }
 }

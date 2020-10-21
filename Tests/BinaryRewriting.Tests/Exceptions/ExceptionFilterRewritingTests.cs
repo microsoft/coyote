@@ -12,9 +12,9 @@ using Mono.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Exceptions
 {
-    public class ExceptionFilterRewritingTests : BaseProductionTest
+    public class ExceptionFilterRewritingTests : BaseRewritingTest
     {
         public ExceptionFilterRewritingTests(ITestOutputHelper output)
             : base(output)

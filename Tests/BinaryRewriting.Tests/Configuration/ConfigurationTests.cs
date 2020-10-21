@@ -8,9 +8,9 @@ using Microsoft.Coyote.Rewriting;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Configuration
 {
-    public class ConfigurationTests : BaseProductionTest
+    public class ConfigurationTests : BaseRewritingTest
     {
         public ConfigurationTests(ITestOutputHelper output)
             : base(output)

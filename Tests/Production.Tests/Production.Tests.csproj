@@ -10,7 +10,7 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
+    <ProjectReference Include="..\BinaryRewriting.Tests\BinaryRewriting.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />

@@ -5,9 +5,9 @@ using Microsoft.Coyote.Tests.Common.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Invocations
 {
-    public class UncontrolledTaskTests : BaseProductionTest
+    public class UncontrolledTaskTests : BaseRewritingTest
     {
         public UncontrolledTaskTests(ITestOutputHelper output)
             : base(output)

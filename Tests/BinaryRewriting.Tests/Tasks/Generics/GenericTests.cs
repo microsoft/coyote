@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks.Generics
 {
-    public class GenericTests : BaseProductionTest
+    public class GenericTests : BaseRewritingTest
     {
         public GenericTests(ITestOutputHelper output)
             : base(output)

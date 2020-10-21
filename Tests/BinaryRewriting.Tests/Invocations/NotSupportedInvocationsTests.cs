@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Invocations
 {
-    public class NotSupportedInvocationsTests : BaseProductionTest
+    public class NotSupportedInvocationsTests : BaseRewritingTest
     {
         public NotSupportedInvocationsTests(ITestOutputHelper output)
             : base(output)

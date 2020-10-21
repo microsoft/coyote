@@ -916,6 +916,32 @@ namespace Microsoft.Coyote.Tests.Common
                 engine.TestReport.BugReports.First().Split(new[] { '\r', '\n' }).FirstOrDefault());
         }
 
+        /// <summary>
+        /// For tests expecting uncontrolled task assertions, use these as the expectedErrors array.
+        /// </summary>
+        protected static string[] GetUncontrolledTaskErrorMessages()
+        {
+            return new string[]
+            {
+                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. Please " +
+                "make sure to avoid using concurrency APIs () inside actor handlers. If you are using external " +
+                "libraries that are executing concurrently, you will need to mock them during testing.",
+                "Uncontrolled task '' invoked a runtime method. Please make sure to avoid using concurrency APIs () " +
+                "inside actor handlers or controlled tasks. If you are using external libraries that are executing " +
+                "concurrently, you will need to mock them during testing.",
+                "Controlled task '' is trying to wait for an uncontrolled task or awaiter to complete. " +
+                "Please make sure to use Coyote APIs to express concurrency ()."
+            };
+        }
+
+        /// <summary>
+        /// Throw an exception of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of the exception.</typeparam>
+        protected static void ThrowException<T>()
+            where T : Exception, new() =>
+            throw new T();
+
         protected static Configuration GetConfiguration()
         {
             return Configuration.Create().WithTelemetryEnabled(false);

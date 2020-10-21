@@ -8,9 +8,9 @@ using Microsoft.Coyote.Specifications;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.BinaryRewriting.Tests.Tasks
+namespace Microsoft.Coyote.BinaryRewriting.Tests.Threading
 {
-    public class ThreadTests : BaseProductionTest
+    public class ThreadTests : BaseRewritingTest
     {
         public ThreadTests(ITestOutputHelper output)
             : base(output)

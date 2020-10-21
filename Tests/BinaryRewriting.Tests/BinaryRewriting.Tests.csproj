@@ -11,30 +11,6 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <Compile Include="..\Production.Tests\BaseProductionTest.cs" Link="BaseProductionTest.cs" />
-    <Compile Include="..\Production.Tests\Tasks\CompletedTaskTests.cs" Link="Tasks\CompletedTaskTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskCancellationTests.cs" Link="Tasks\TaskCancellationTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskCompletionSourceTests.cs" Link="Tasks\TaskCompletionSourceTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskDelayTests.cs" Link="Tasks\TaskDelayTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskExceptionTests.cs" Link="Tasks\TaskExceptionTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskFactoryTests.cs" Link="Tasks\TaskFactoryTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskIdTests.cs" Link="Tasks\TaskIdTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskInterfaceTests.cs" Link="Tasks\TaskInterfaceTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskInterleavingsTests.cs" Link="Tasks\TaskInterleavingsTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskParallelTests.cs" Link="Tasks\TaskParallelTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskRunTests.cs" Link="Tasks\TaskRunTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\TaskYieldTests.cs" Link="Tasks\TaskYieldTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskResultTests.cs" Link="Tasks\Join\TaskResultTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitAllTests.cs" Link="Tasks\Join\TaskWaitAllTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitAnyTests.cs" Link="Tasks\Join\TaskWaitAnyTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWaitTests.cs" Link="Tasks\Join\TaskWaitTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAllTests.cs" Link="Tasks\Join\TaskWhenAllTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Join\TaskWhenAnyTests.cs" Link="Tasks\Join\TaskWhenAnyTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Locks\SynchronizedBlockTests.cs" Link="Tasks\Locks\SynchronizedBlockTests.cs" />
-    <Compile Include="..\Production.Tests\Tasks\Scheduling\AsyncCallStackTests.cs" Link="Tasks\Scheduling\AsyncCallStackTests.cs" />
-    <Compile Include="..\SystematicTesting.Tests\Tasks\Logging\CustomTaskLogTests.cs" Link="Tasks\Logging\CustomTaskLogTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="Mono.Reflection" Version="2.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />

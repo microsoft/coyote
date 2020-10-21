@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 await this.WaitAsync(setup.Tcs.Task, 10000);
 
-                (r as ActorRuntime).Stop();
+                r.Stop();
 
                 AssertNoLeaks(setup);
             });
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors.StateMachines
 
                 await this.WaitAsync(setup.Tcs.Task, 10000);
 
-                (r as ActorRuntime).Stop();
+                r.Stop();
 
                 AssertNoLeaks(setup);
             });

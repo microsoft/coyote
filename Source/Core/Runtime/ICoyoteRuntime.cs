@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.Runtime
         ILogger Logger { get; set; }
 
         /// <summary>
-        /// Callback that is fired when the runtime throws an exception which includes failed assertions.
+        /// Callback that is fired when an exception is thrown that includes failed assertions.
         /// </summary>
         event OnFailureHandler OnFailure;
 

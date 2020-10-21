@@ -17,7 +17,7 @@ public class EventGroup
 | name | description |
 | --- | --- |
 | [EventGroup](EventGroup/EventGroup)(…) | Initializes a new instance of the [`EventGroup`](EventGroupType) class. |
-| static [NullEventGroup](EventGroup/NullEventGroup) | A special null event group that can be used to stop the [`CurrentEventGroup`](Actor/CurrentEventGroup) from being passed along in a CreateActor or SendEvent call. |
+| static [Null](EventGroup/Null) | A special null event group that can be used to stop the [`CurrentEventGroup`](Actor/CurrentEventGroup) from being passed along when [`CreateActor`](Actor/CreateActor) or [`SendEvent`](Actor/SendEvent) is invoked. |
 | [Id](EventGroup/Id) { get; } | The unique id of this `EventGroup`, initialized with Guid.Empty. |
 | [Name](EventGroup/Name) { get; } | An optional friendly name for this `EventGroup`. |
 

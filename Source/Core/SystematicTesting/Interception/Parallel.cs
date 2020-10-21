@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 ValidateParallelOptions(parallelOptions);
 
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
 
                 int numIterations = toExclusive - fromInclusive;
                 int numTasks = Math.Min(numIterations, parallelOptions.MaxDegreeOfParallelism);
@@ -264,7 +264,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
             {
                 ValidateParallelOptions(parallelOptions);
 
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 var sourceList = source.ToList();
 
                 int numIterations = sourceList.Count;

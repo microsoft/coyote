@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 runtime.ScheduleDelay(TimeSpan.FromMilliseconds(millisecondsTimeout), CancellationToken.None).Wait();
             }
             else
@@ -202,7 +202,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 runtime.ScheduleDelay(timeout, CancellationToken.None).Wait();
             }
             else
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
+                var runtime = CoyoteRuntime.Current;
                 runtime.ScheduleDelay(TimeSpan.FromMilliseconds(1), CancellationToken.None).Wait();
             }
             else
@@ -263,7 +263,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
                 if (ThreadTasks.TryGetValue(thread, out Task task))
                 {
                     task.Wait(timeout);
@@ -296,7 +295,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
                 if (ThreadTasks.TryGetValue(thread, out Task task))
                 {
                     // TODO: support timeouts and cancellation tokens.
@@ -323,7 +321,6 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                var runtime = ControlledRuntime.Current;
                 if (ThreadTasks.TryGetValue(thread, out Task task))
                 {
                     task.Wait();

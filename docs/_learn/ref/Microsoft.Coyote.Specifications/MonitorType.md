@@ -28,7 +28,6 @@ public abstract class Monitor
 | [CurrentState](Monitor/CurrentState) { get; } | Gets the current state. |
 | virtual [HashedState](Monitor/HashedState) { get; } | User-defined hashed state of the monitor. Override to improve the accuracy of stateful techniques during testing. |
 | [Logger](Monitor/Logger) { get; } | The logger installed to the runtime. |
-| [Name](Monitor/Name) { get; } | Gets the name of this monitor. |
 | [Assert](Monitor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (2 methods) |
 | [RaiseEvent](Monitor/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
 | [RaiseGotoStateEvent](Monitor/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |

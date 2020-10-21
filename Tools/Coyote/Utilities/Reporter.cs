@@ -3,7 +3,7 @@
 
 using System;
 using System.IO;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;
@@ -130,7 +129,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestCustomLogger()
         {
-            Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(async runtime =>
             {
                 using (CustomLogger logger = new CustomLogger())
@@ -172,13 +170,12 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                     expected = expected.SortLines();
                     Assert.Equal(expected, actual);
                 }
-            }, config);
+            }, GetConfiguration());
         }
 
         [Fact(Timeout = 5000)]
         public void TestGraphLogger()
         {
-            Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(async runtime =>
             {
                 using (CustomLogger logger = new CustomLogger())
@@ -224,7 +221,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
                     expected = expected.RemoveNonDeterministicValues();
                     Assert.Equal(expected, actual);
                 }
-            }, config);
+            }, GetConfiguration());
         }
 
         [Fact(Timeout = 5000)]
@@ -262,7 +259,6 @@ namespace Microsoft.Coyote.Production.Tests.Actors
         [Fact(Timeout = 5000)]
         public void TestCustomActorRuntimeLogFormatter()
         {
-            Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(async runtime =>
             {
                 var tcs = TaskCompletionSource.Create<bool>();
@@ -287,7 +283,7 @@ StateTransition";
                 string actual = logger.ToString().RemoveNonDeterministicValues();
                 expected = expected.NormalizeNewLines();
                 Assert.Equal(expected, actual);
-            }, config);
+            }, GetConfiguration());
         }
 
         internal class PingEvent : Event
@@ -379,7 +375,6 @@ StateTransition";
         [Fact(Timeout = 5000)]
         public void TestGraphLoggerInstances()
         {
-            Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(async runtime =>
             {
                 using (CustomLogger logger = new CustomLogger())
@@ -409,13 +404,12 @@ StateTransition";
                     Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server().Complete' Label='Complete'/>", actual);
                     Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+TestMonitor.Init' Label='Init'/>", actual);
                 }
-            }, config);
+            }, GetConfiguration());
         }
 
         [Fact(Timeout = 5000)]
         public void TestGraphLoggerCollapsed()
         {
-            Configuration config = Configuration.Create().WithVerbosityEnabled();
             this.Test(async runtime =>
             {
                 using (CustomLogger logger = new CustomLogger())
@@ -446,7 +440,7 @@ StateTransition";
                     Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Client.Client' Label='Client'/>", actual);
                     Assert.Contains("<Node Id='Microsoft.Coyote.Production.Tests.Actors.CustomActorRuntimeLogTests+Server.Complete' Label='Complete'/>", actual);
                 }
-            }, config);
+            }, GetConfiguration());
         }
     }
 }

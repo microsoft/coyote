@@ -84,8 +84,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             {
                 var tcs = (e as Config1).Tcs;
                 var e1 = new E1();
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N1));
-                await this.Runtime.SendEventAndExecuteAsync(m, e1);
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(N1));
+                await this.Context.SendEventAndExecuteAsync(m, e1);
                 this.Assert(e1.Value == 1);
                 tcs.SetResult(true);
             }
@@ -153,8 +153,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N2), new E2(this.Id));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(N2), new E2(this.Id));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.SetResult(true);
             }
@@ -211,8 +211,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N3));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(N3));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E3());
                 this.Monitor<SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
@@ -302,8 +302,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config2).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N4), e);
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(N4), e);
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
             }
@@ -404,8 +404,8 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             private async SystemTasks.Task InitOnEntry(Event e)
             {
                 var tcs = (e as Config1).Tcs;
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(N5));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E3());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(N5));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E3());
                 this.Assert(handled);
                 tcs.TrySetResult(true);
             }

@@ -9,14 +9,15 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/SendEvent
 Sends an asynchronous [`Event`](../../Microsoft.Coyote/EventType) to a target.
 
 ```csharp
-protected void SendEvent(ActorId id, Event e, EventGroup group = null, SendOptions options = null)
+protected void SendEvent(ActorId id, Event e, EventGroup eventGroup = null, 
+    SendOptions options = null)
 ```
 
 | parameter | description |
 | --- | --- |
 | id | The id of the target. |
 | e | The event to send. |
-| group | An optional event group associated with this Actor. |
+| eventGroup | An optional event group associated with this Actor. |
 | options | Optional configuration of a send operation. |
 
 ## See Also

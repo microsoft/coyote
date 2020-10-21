@@ -16,7 +16,7 @@ public abstract class Actor
 
 | name | description |
 | --- | --- |
-| [CurrentEventGroup](Actor/CurrentEventGroup) { get; set; } | An optional [`EventGroup`](EventGroupType) associated with the current event being handled. This is an optional argument provided to CreateActor or SendEvent. |
+| [CurrentEventGroup](Actor/CurrentEventGroup) { get; set; } | An optional EventGroup associated with the current event being handled. |
 | override [Equals](Actor/Equals)(…) | Determines whether the specified object is equal to the current object. |
 | override [GetHashCode](Actor/GetHashCode)() | Returns the hash code for this instance. |
 | override [ToString](Actor/ToString)() | Returns a string that represents the current actor. |
@@ -28,7 +28,7 @@ public abstract class Actor
 | [Actor](Actor/Actor)() | Initializes a new instance of the [`Actor`](ActorType) class. |
 | virtual [HashedState](Actor/HashedState) { get; } | User-defined hashed state of the actor. Override to improve the accuracy of stateful techniques during testing. |
 | [Id](Actor/Id) { get; } | Unique id that identifies this actor. |
-| [Logger](Actor/Logger) { get; } | The installed runtime logger as an [`ILogger`](../Microsoft.Coyote.IO/ILoggerType). If you need a TextWriter then use Logger.TextWriter. |
+| [Logger](Actor/Logger) { get; } | The logger installed to the runtime. |
 | [Assert](Actor/Assert)(…) | Checks if the assertion holds, and if not, throws an AssertionFailureException exception. (5 methods) |
 | [CreateActor](Actor/CreateActor)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This [`Event`](../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled. (3 methods) |
 | [Monitor](Actor/Monitor)(…) | Invokes the specified monitor with the specified event. |

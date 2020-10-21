@@ -58,11 +58,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
                 ActorId b;
                 if ((e as ExecuteSynchronouslySetupEvent).ExecuteSynchronously)
                 {
-                    b = await this.Runtime.CreateActorAndExecuteAsync(typeof(M1B));
+                    b = await this.Context.CreateActorAndExecuteAsync(typeof(M1B));
                 }
                 else
                 {
-                    b = this.Runtime.CreateActor(typeof(M1B));
+                    b = this.Context.CreateActor(typeof(M1B));
                 }
 
                 this.SendEvent(b, new E1());
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 var b = this.CreateActor(typeof(M2B));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(b, new E1());
+                var handled = await this.Context.SendEventAndExecuteAsync(b, new E1());
                 this.Assert(!handled);
             }
         }
@@ -146,7 +146,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 var d = this.CreateActor(typeof(M2D));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(d, new E1());
+                var handled = await this.Context.SendEventAndExecuteAsync(d, new E1());
                 this.Assert(handled);
             }
         }
@@ -213,8 +213,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
             private async Task InitOnEntry()
             {
                 var e = new E4();
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M3B));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, e);
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(M3B));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, e);
                 this.Assert(handled);
                 this.Assert(e.X == 1);
             }
@@ -270,8 +270,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M4B), new E2(this.Id));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(M4B), new E2(this.Id));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }
@@ -315,8 +315,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M5B));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(M5B));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M5SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
@@ -410,8 +410,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry(Event e)
             {
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M6B), e);
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(M6B), e);
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E1());
                 this.Monitor<M6SafetyMonitor>(new SEReturns());
                 this.Assert(handled);
             }
@@ -502,8 +502,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M7B));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(M7B));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }
@@ -537,8 +537,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private async Task InitOnEntry()
             {
-                var m = await this.Runtime.CreateActorAndExecuteAsync(typeof(M8B));
-                var handled = await this.Runtime.SendEventAndExecuteAsync(m, new E1());
+                var m = await this.Context.CreateActorAndExecuteAsync(typeof(M8B));
+                var handled = await this.Context.SendEventAndExecuteAsync(m, new E1());
                 this.Assert(handled);
             }
         }

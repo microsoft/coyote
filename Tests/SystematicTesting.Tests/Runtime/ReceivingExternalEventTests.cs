@@ -43,7 +43,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Runtime
 
             private void InitOnEntry()
             {
-                Engine.Send(this.Runtime, this.Id);
+                Engine.Send(this.Context, this.Id);
             }
 
             private void HandleEvent(Event e)

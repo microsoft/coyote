@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.AssertIsReturnedTaskControlled(task, methodName);
+                CoyoteRuntime.Current.AssertIsReturnedTaskControlled(task, methodName);
             }
         }
     }

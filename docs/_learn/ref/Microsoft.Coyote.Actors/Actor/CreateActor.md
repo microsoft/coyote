@@ -9,14 +9,14 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/Actor/CreateActor
 Creates a new actor of the specified type and with the specified optional [`Event`](../../Microsoft.Coyote/EventType). This [`Event`](../../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled.
 
 ```csharp
-protected ActorId CreateActor(Type type, Event initialEvent = null, EventGroup group = null)
+protected ActorId CreateActor(Type type, Event initialEvent = null, EventGroup eventGroup = null)
 ```
 
 | parameter | description |
 | --- | --- |
 | type | Type of the actor. |
 | initialEvent | Optional initialization event. |
-| group | An optional event group associated with the new Actor. |
+| eventGroup | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -39,7 +39,7 @@ Creates a new actor of the specified type and name, and with the specified optio
 
 ```csharp
 protected ActorId CreateActor(Type type, string name, Event initialEvent = null, 
-    EventGroup group = null)
+    EventGroup eventGroup = null)
 ```
 
 | parameter | description |
@@ -47,7 +47,7 @@ protected ActorId CreateActor(Type type, string name, Event initialEvent = null,
 | type | Type of the actor. |
 | name | Optional name used for logging. |
 | initialEvent | Optional initialization event. |
-| group | An optional event group associated with the new Actor. |
+| eventGroup | An optional event group associated with the new Actor. |
 
 ## Return Value
 
@@ -70,7 +70,7 @@ Creates a new actor of the specified Type and name, using the specified unbound 
 
 ```csharp
 protected void CreateActor(ActorId id, Type type, string name, Event initialEvent = null, 
-    EventGroup group = null)
+    EventGroup eventGroup = null)
 ```
 
 | parameter | description |
@@ -79,7 +79,7 @@ protected void CreateActor(ActorId id, Type type, string name, Event initialEven
 | type | Type of the actor. |
 | name | Optional name used for logging. |
 | initialEvent | Optional initialization event. |
-| group | An optional event group associated with the new Actor. |
+| eventGroup | An optional event group associated with the new Actor. |
 
 ## See Also
 

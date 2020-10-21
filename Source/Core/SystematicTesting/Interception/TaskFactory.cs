@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates and starts a <see cref="Task"/>.
         /// </summary>
         public Task StartNew(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            ControlledRuntime.Current.ScheduleAction(action, null, false, false, cancellationToken) :
+            CoyoteRuntime.Current.ScheduleAction(action, null, false, false, cancellationToken) :
             Task.Factory.StartNew(action, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
 
         /// <summary>
@@ -124,17 +124,17 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                     // binary rewriting to an instantiated override of this method, but that will make rewriting much more
                     // complex, which is not currently worth it as this is a non-typical method invocation.
                     MethodInfo method = this.MethodCache.GetOrAdd(resultType,
-                        type => typeof(ControlledRuntime).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
+                        type => typeof(CoyoteRuntime).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
                         First(m => m.IsGenericMethodDefinition && m.Name is "ScheduleFunction").
                         MakeGenericMethod(type.GetGenericArguments()));
-                    return (Task<TResult>)method.Invoke(ControlledRuntime.Current, new object[] { function, null, cancellationToken });
+                    return (Task<TResult>)method.Invoke(CoyoteRuntime.Current, new object[] { function, null, cancellationToken });
                 }
                 else if (!resultType.IsGenericType && function is Func<Task> taskFunction)
                 {
-                    return ControlledRuntime.Current.ScheduleFunction(taskFunction, null, cancellationToken) as Task<TResult>;
+                    return CoyoteRuntime.Current.ScheduleFunction(taskFunction, null, cancellationToken) as Task<TResult>;
                 }
 
-                return ControlledRuntime.Current.ScheduleFunction(function, null, cancellationToken);
+                return CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken);
             }
 
             return Task.Factory.StartNew(function, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);

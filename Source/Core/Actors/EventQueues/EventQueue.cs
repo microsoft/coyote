@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Microsoft.Coyote.Actors
@@ -10,22 +11,22 @@ namespace Microsoft.Coyote.Actors
     /// <summary>
     /// Implements a queue of events.
     /// </summary>
-    internal sealed class EventQueue : IEventQueue
+    internal class EventQueue : IEventQueue
     {
         /// <summary>
-        /// Manages the actor that owns this queue.
+        /// The actor that owns this queue.
         /// </summary>
-        private readonly IActorManager ActorManager;
+        private readonly Actor Owner;
 
         /// <summary>
-        /// The internal queue.
+        /// The backing queue.
         /// </summary>
-        private readonly LinkedList<(Event e, EventGroup group)> Queue;
+        private readonly LinkedList<(Event e, EventGroup eventGroup)> Queue;
 
         /// <summary>
         /// The raised event and its metadata, or null if no event has been raised.
         /// </summary>
-        private (Event e, EventGroup group) RaisedEvent;
+        private (Event e, EventGroup eventGroup) RaisedEvent;
 
         /// <summary>
         /// Map from the types of events that the owner of the queue is waiting to receive
@@ -52,17 +53,30 @@ namespace Microsoft.Coyote.Actors
         public bool IsEventRaised => this.RaisedEvent != default;
 
         /// <summary>
+        /// True if the event handler is currently running, else false.
+        /// </summary>
+        protected virtual bool IsEventHandlerRunning
+        {
+            get => this.Owner.IsEventHandlerRunning;
+
+            set
+            {
+                this.Owner.IsEventHandlerRunning = value;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EventQueue"/> class.
         /// </summary>
-        internal EventQueue(IActorManager actorManager)
+        internal EventQueue(Actor owner)
         {
-            this.ActorManager = actorManager;
+            this.Owner = owner;
             this.Queue = new LinkedList<(Event, EventGroup)>();
             this.IsClosed = false;
         }
 
         /// <inheritdoc/>
-        public EnqueueStatus Enqueue(Event e, EventGroup group, EventInfo info)
+        public EnqueueStatus Enqueue(Event e, EventGroup eventGroup, EventInfo info)
         {
             EnqueueStatus enqueueStatus = EnqueueStatus.EventHandlerRunning;
             lock (this.Queue)
@@ -81,10 +95,10 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    this.Queue.AddLast((e, group));
-                    if (!this.ActorManager.IsEventHandlerRunning)
+                    this.Queue.AddLast((e, eventGroup));
+                    if (!this.IsEventHandlerRunning)
                     {
-                        this.ActorManager.IsEventHandlerRunning = true;
+                        this.IsEventHandlerRunning = true;
                         enqueueStatus = EnqueueStatus.EventHandlerNotRunning;
                     }
                 }
@@ -92,26 +106,26 @@ namespace Microsoft.Coyote.Actors
 
             if (enqueueStatus is EnqueueStatus.Received)
             {
-                this.ActorManager.OnReceiveEvent(e, group, info);
+                this.OnReceiveEvent(e, eventGroup, info);
                 this.ReceiveCompletionSource.SetResult(e);
                 return enqueueStatus;
             }
             else
             {
-                this.ActorManager.OnEnqueueEvent(e, group, info);
+                this.OnEnqueueEvent(e, eventGroup, info);
             }
 
             return enqueueStatus;
         }
 
         /// <inheritdoc/>
-        public (DequeueStatus status, Event e, EventGroup group, EventInfo info) Dequeue()
+        public (DequeueStatus status, Event e, EventGroup eventGroup, EventInfo info) Dequeue()
         {
             // Try to get the raised event, if there is one. Raised events
             // have priority over the events in the inbox.
             if (this.RaisedEvent != default)
             {
-                if (this.ActorManager.IsEventIgnored(this.RaisedEvent.e, null))
+                if (this.IsEventIgnored(this.RaisedEvent.e))
                 {
                     // TODO: should the user be able to raise an ignored event?
                     // The raised event is ignored in the current state.
@@ -119,9 +133,9 @@ namespace Microsoft.Coyote.Actors
                 }
                 else
                 {
-                    (Event e, EventGroup group) = this.RaisedEvent;
+                    (Event e, EventGroup eventGroup) = this.RaisedEvent;
                     this.RaisedEvent = default;
-                    return (DequeueStatus.Raised, e, group, null);
+                    return (DequeueStatus.Raised, e, eventGroup, null);
                 }
             }
 
@@ -132,7 +146,7 @@ namespace Microsoft.Coyote.Actors
                 while (node != null)
                 {
                     // Iterates through the events in the inbox.
-                    if (this.ActorManager.IsEventIgnored(node.Value.e, null))
+                    if (this.IsEventIgnored(node.Value.e))
                     {
                         // Removes an ignored event.
                         var nextNode = node.Next;
@@ -140,7 +154,7 @@ namespace Microsoft.Coyote.Actors
                         node = nextNode;
                         continue;
                     }
-                    else if (this.ActorManager.IsEventDeferred(node.Value.e, null))
+                    else if (this.IsEventDeferred(node.Value.e))
                     {
                         // Skips a deferred event.
                         node = node.Next;
@@ -149,16 +163,16 @@ namespace Microsoft.Coyote.Actors
 
                     // Found next event that can be dequeued.
                     this.Queue.Remove(node);
-                    return (DequeueStatus.Success, node.Value.e, node.Value.group, null);
+                    return (DequeueStatus.Success, node.Value.e, node.Value.eventGroup, null);
                 }
 
                 // No event can be dequeued, so check if there is a default event handler.
-                if (!this.ActorManager.IsDefaultHandlerAvailable())
+                if (!this.IsDefaultHandlerAvailable())
                 {
                     // There is no default event handler installed, so do not return an event.
                     // Setting IsEventHandlerRunning must happen inside the lock as it needs
                     // to be synchronized with the enqueue and starting a new event handler.
-                    this.ActorManager.IsEventHandlerRunning = false;
+                    this.IsEventHandlerRunning = false;
                     return (DequeueStatus.NotAvailable, null, null, null);
                 }
             }
@@ -169,10 +183,10 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <inheritdoc/>
-        public void RaiseEvent(Event e, EventGroup group = null)
+        public void RaiseEvent(Event e, EventGroup eventGroup = null)
         {
-            this.RaisedEvent = (e, group);
-            this.ActorManager.OnRaiseEvent(e, group, null);
+            this.RaisedEvent = (e, eventGroup);
+            this.OnRaiseEvent(e, eventGroup, null);
         }
 
         //// <inheritdoc/>
@@ -215,7 +229,7 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private Task<Event> ReceiveEventAsync(Dictionary<Type, Func<Event, bool>> eventWaitTypes)
         {
-            (Event e, EventGroup group) receivedEvent = default;
+            (Event e, EventGroup eventGroup) receivedEvent = default;
             lock (this.Queue)
             {
                 var node = this.Queue.First;
@@ -244,13 +258,73 @@ namespace Microsoft.Coyote.Actors
             {
                 // Note that EventWaitTypes is racy, so should not be accessed outside
                 // the lock, this is why we access eventWaitTypes instead.
-                this.ActorManager.OnWaitEvent(eventWaitTypes.Keys);
+                this.OnWaitEvent(eventWaitTypes.Keys);
                 return this.ReceiveCompletionSource.Task;
             }
 
-            this.ActorManager.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.group, null);
+            this.OnReceiveEventWithoutWaiting(receivedEvent.e, receivedEvent.eventGroup, null);
             return Task.FromResult(receivedEvent.e);
         }
+
+        /// <summary>
+        /// Checks if the specified event is currently ignored.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool IsEventIgnored(Event e) => this.Owner.IsEventIgnored(e);
+
+        /// <summary>
+        /// Checks if the specified event is currently deferred.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool IsEventDeferred(Event e) => this.Owner.IsEventDeferred(e);
+
+        /// <summary>
+        /// Checks if a default handler is currently available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool IsDefaultHandlerAvailable() => this.Owner.IsDefaultHandlerInstalled();
+
+        /// <summary>
+        /// Notifies the actor that an event has been enqueued.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnEnqueueEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that an event has been raised.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnRaiseEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that it is waiting to receive an event of one of the specified types.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnWaitEvent(IEnumerable<Type> eventTypes) => this.Owner.OnWaitEvent(eventTypes);
+
+        /// <summary>
+        /// Notifies the actor that an event it was waiting to receive has been enqueued.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnReceiveEvent(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that an event it was waiting to receive was already in the
+        /// event queue when the actor invoked the receive statement.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnReceiveEventWithoutWaiting(e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Notifies the actor that an event has been dropped.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Owner.OnDropEvent(e, eventGroup, eventInfo);
 
         //// <inheritdoc/>
         public int GetCachedState() => 0;
@@ -276,7 +350,7 @@ namespace Microsoft.Coyote.Actors
 
             foreach (var (e, g) in this.Queue)
             {
-                this.ActorManager.OnDropEvent(e, g, null);
+                this.OnDropEvent(e, g, null);
             }
 
             this.Queue.Clear();

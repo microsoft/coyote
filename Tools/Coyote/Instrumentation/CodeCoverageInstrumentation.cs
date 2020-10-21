@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+#if NETFRAMEWORK
 using System.Configuration;
+#endif
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Coyote.IO;

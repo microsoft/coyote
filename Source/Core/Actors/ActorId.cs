@@ -45,18 +45,6 @@ namespace Microsoft.Coyote.Actors
         public readonly string Name;
 
         /// <summary>
-        /// Generation of the runtime that created this actor id.
-        /// </summary>
-        [DataMember]
-        public readonly ulong Generation;
-
-        /// <summary>
-        /// Endpoint.
-        /// </summary>
-        [DataMember]
-        public readonly string Endpoint;
-
-        /// <summary>
         /// True if <see cref="NameValue"/> is used as the unique id, else false.
         /// </summary>
         public bool IsNameUsedForHashing => this.NameValue.Length > 0;
@@ -64,35 +52,22 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorId"/> class.
         /// </summary>
-        internal ActorId(Type type, string name, ActorRuntime runtime, bool useNameForHashing = false)
+        internal ActorId(Type type, ulong value, string name, ActorExecutionContext context, bool useNameForHashing = false)
         {
-            this.Runtime = runtime;
-            this.Endpoint = string.Empty;
+            this.Runtime = context;
+            this.Type = type.FullName;
+            this.Value = value;
 
             if (useNameForHashing)
             {
-                this.Value = 0;
                 this.NameValue = name;
                 this.Runtime.Assert(!string.IsNullOrEmpty(this.NameValue), "The actor name cannot be null when used as id.");
-            }
-            else
-            {
-                this.Value = runtime.GetNextOperationId();
-                this.NameValue = string.Empty;
-
-                // Checks for overflow.
-                this.Runtime.Assert(this.Value != ulong.MaxValue, "Detected actor id overflow.");
-            }
-
-            this.Generation = runtime.Configuration.RuntimeGeneration;
-
-            this.Type = type.FullName;
-            if (this.IsNameUsedForHashing)
-            {
                 this.Name = this.NameValue;
             }
             else
             {
+                this.NameValue = string.Empty;
+                this.Runtime.Assert(this.Value != ulong.MaxValue, "Detected actor id overflow.");
                 this.Name = string.Format(CultureInfo.InvariantCulture, "{0}({1})",
                     string.IsNullOrEmpty(name) ? this.Type : name, this.Value.ToString());
             }
@@ -101,9 +76,9 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Bind the actor id.
         /// </summary>
-        internal void Bind(ActorRuntime runtime)
+        internal void Bind(ActorExecutionContext context)
         {
-            this.Runtime = runtime;
+            this.Runtime = context;
         }
 
         /// <summary>
@@ -119,9 +94,7 @@ namespace Microsoft.Coyote.Actors
                     return false;
                 }
 
-                return this.IsNameUsedForHashing ?
-                    this.NameValue.Equals(id.NameValue) && this.Generation == id.Generation :
-                    this.Value == id.Value && this.Generation == id.Generation;
+                return this.IsNameUsedForHashing ? this.NameValue.Equals(id.NameValue) : this.Value == id.Value;
             }
 
             return false;
@@ -130,13 +103,8 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
-        public override int GetHashCode()
-        {
-            int hash = 17;
-            hash = (hash * 23) + (this.IsNameUsedForHashing ? this.NameValue.GetHashCode() : this.Value.GetHashCode());
-            hash = (hash * 23) + this.Generation.GetHashCode();
-            return hash;
-        }
+        public override int GetHashCode() =>
+            this.IsNameUsedForHashing ? this.NameValue.GetHashCode() : this.Value.GetHashCode();
 
         /// <summary>
         /// Returns a string that represents the current actor id.

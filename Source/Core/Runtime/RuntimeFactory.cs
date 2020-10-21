@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Coyote.Actors;
-
 namespace Microsoft.Coyote.Runtime
 {
     /// <summary>
@@ -28,7 +26,7 @@ namespace Microsoft.Coyote.Runtime
         /// Only one task runtime can be created per process. If you create a new task
         /// runtime it replaces the previously installed one.
         /// </remarks>
-        public static ICoyoteRuntime Create() => CreateAndInstall(default);
+        public static ICoyoteRuntime Create() => CreateAndInstall(default).DefaultActorExecutionContext;
 
         /// <summary>
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/>.
@@ -39,7 +37,8 @@ namespace Microsoft.Coyote.Runtime
         /// Only one task runtime can be created per process. If you create a new task
         /// runtime it replaces the previously installed one.
         /// </remarks>
-        public static ICoyoteRuntime Create(Configuration configuration) => CreateAndInstall(configuration);
+        public static ICoyoteRuntime Create(Configuration configuration) =>
+            CreateAndInstall(configuration).DefaultActorExecutionContext;
 
         /// <summary>
         /// Creates a new Coyote runtime with the specified <see cref="Configuration"/> and sets
@@ -65,7 +64,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var valueGenerator = new RandomValueGenerator(configuration);
-            return new ActorRuntime(configuration, valueGenerator);
+            return new CoyoteRuntime(configuration, valueGenerator);
         }
     }
 }

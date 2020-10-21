@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
             {
                 this.Tcs = (initialEvent as SetupEvent).Tcs;
-                this.Runtime.SendEvent(this.Id, new E(this.Id), new EventGroup(name: EventGroupId));
+                this.Context.SendEvent(this.Id, new E(this.Id), new EventGroup(name: EventGroupId));
                 return base.OnInitializeAsync(initialEvent);
             }
 

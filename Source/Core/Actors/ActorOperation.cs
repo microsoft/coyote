@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Coyote.Actors;
+using Microsoft.Coyote.SystematicTesting;
 
-namespace Microsoft.Coyote.SystematicTesting
+namespace Microsoft.Coyote.Actors
 {
     /// <summary>
     /// Contains information about an asynchronous actor operation

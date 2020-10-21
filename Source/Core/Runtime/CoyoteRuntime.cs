@@ -1318,14 +1318,6 @@ namespace Microsoft.Coyote.Runtime
                 IO.Debug.WriteLine("<Exception> {0} was thrown from operation '{1}' with reason '{2}'.",
                     exception.GetType().Name, op.Name, ex.Message);
             }
-            else if (op is ActorOperation actorOp)
-            {
-                message = string.Format(CultureInfo.InvariantCulture,
-                    $"Unhandled exception. {exception.GetType()} was thrown in actor {actorOp.Name}, " +
-                    $"'{exception.Source}':\n" +
-                    $"   {exception.Message}\n" +
-                    $"The stack trace is:\n{exception.StackTrace}");
-            }
             else
             {
                 message = string.Format(CultureInfo.InvariantCulture, $"Unhandled exception. {exception}");

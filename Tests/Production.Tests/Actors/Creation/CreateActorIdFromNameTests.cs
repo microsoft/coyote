@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             expectedErrors: new string[]
             {
                 "Actor id '' is used by an existing or previously halted actor.",
-                "An actor with id '0' was already created in generation '0'. This typically occurs if either the actor id was created by another runtime instance, or if a actor id from a previous runtime generation was deserialized, but the current runtime has not increased its generation value."
+                "An actor with id '0' was already created by another runtime instance."
             },
             replay: true);
         }
@@ -209,7 +209,7 @@ namespace Microsoft.Coyote.Production.Tests.Actors
             expectedErrors: new string[]
             {
                 "Actor id '' is used by an existing or previously halted actor.",
-                "An actor with id '0' was already created in generation '0'. This typically occurs if either the actor id was created by another runtime instance, or if a actor id from a previous runtime generation was deserialized, but the current runtime has not increased its generation value."
+                "An actor with id '0' was already created by another runtime instance."
             },
             replay: true);
         }

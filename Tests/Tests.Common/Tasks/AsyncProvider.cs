@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace Microsoft.Coyote.Tests.Common
+namespace Microsoft.Coyote.Tests.Common.Tasks
 {
     /// <summary>
     /// Helper class for task rewriting tests.

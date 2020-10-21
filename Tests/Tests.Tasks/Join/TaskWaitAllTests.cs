@@ -212,7 +212,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             },
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }
@@ -236,7 +236,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             },
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }

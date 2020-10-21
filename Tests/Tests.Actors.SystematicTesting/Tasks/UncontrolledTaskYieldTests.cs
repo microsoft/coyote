@@ -9,9 +9,11 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class UncontrolledYieldTests : BaseActorSystematicTest
+    public class UncontrolledTaskYieldTests : BaseActorSystematicTest
     {
-        public UncontrolledYieldTests(ITestOutputHelper output)
+        private static string ExpectedMethodName { get; } = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.YieldAsync)}";
+
+        public UncontrolledTaskYieldTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -41,8 +43,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Method 'OnInitializeAsync' returned an uncontrolled task"),
-                    "Expected uncontrolled task from invoking the async method.");
+                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
             });
         }
 
@@ -73,8 +74,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Method 'InitOnEntry' returned an uncontrolled task"),
-                    "Expected uncontrolled task from invoking the async method.");
+                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
             });
         }
 
@@ -108,8 +108,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Method 'OnInitializeAsync' returned an uncontrolled task"),
-                    "Expected uncontrolled task from invoking the async method.");
+                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
             });
         }
 
@@ -149,8 +148,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Method 'InitOnEntry' returned an uncontrolled task"),
-                    "Expected uncontrolled task from invoking the async method.");
+                Assert.StartsWith($"Method '{ExpectedMethodName}' returned an uncontrolled task", e);
             });
         }
     }

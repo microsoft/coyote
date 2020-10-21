@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }

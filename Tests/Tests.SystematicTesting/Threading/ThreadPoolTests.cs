@@ -88,8 +88,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
             configuration: GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Unhandled exception. System.InvalidOperationException"),
-                    "Expected 'InvalidOperationException', but found error: " + e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException", e);
             },
             replay: true);
         }
@@ -171,8 +170,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
             configuration: GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Unhandled exception. System.InvalidOperationException"),
-                    "Expected 'InvalidOperationException', but found error: " + e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException", e);
             },
             replay: true);
         }

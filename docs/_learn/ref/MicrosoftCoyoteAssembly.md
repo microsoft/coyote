@@ -36,6 +36,18 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | class [UnhandledEventException](Microsoft.Coyote.Actors/UnhandledEventExceptionType) | Signals that an [`Actor`](Microsoft.Coyote.Actors/ActorType) received an unhandled event. |
 | class [WildCardEvent](Microsoft.Coyote.Actors/WildCardEventType) | The wild card event. |
 
+## Microsoft.Coyote.Actors.Coverage namespace
+
+| public type | description |
+| --- | --- |
+| class [ActorRuntimeLogGraphBuilder](Microsoft.Coyote.Actors.Coverage/ActorRuntimeLogGraphBuilderType) | Implements the [`IActorRuntimeLog`](Microsoft.Coyote.Actors/IActorRuntimeLogType) and builds a directed graph from the recorded events and state transitions. |
+| class [CoverageInfo](Microsoft.Coyote.Actors.Coverage/CoverageInfoType) | Class for storing actor coverage-specific data across multiple testing iterations. |
+| class [EventCoverage](Microsoft.Coyote.Actors.Coverage/EventCoverageType) | This class maintains information about events received and sent from each state of each actor. |
+| class [Graph](Microsoft.Coyote.Actors.Coverage/GraphType) | A directed graph made up of Nodes and Links. |
+| class [GraphLink](Microsoft.Coyote.Actors.Coverage/GraphLinkType) | A Link represents a directed graph connection between two Nodes. |
+| class [GraphNode](Microsoft.Coyote.Actors.Coverage/GraphNodeType) | A Node of a Graph. |
+| class [GraphObject](Microsoft.Coyote.Actors.Coverage/GraphObjectType) | A Node of a Graph. |
+
 ## Microsoft.Coyote.Actors.SharedObjects namespace
 
 | public type | description |
@@ -52,18 +64,6 @@ permalink: /learn/ref/MicrosoftCoyoteAssembly
 | --- | --- |
 | class [TimerElapsedEvent](Microsoft.Coyote.Actors.Timers/TimerElapsedEventType) | Defines a timer elapsed event that is sent from a timer to the actor that owns the timer. |
 | class [TimerInfo](Microsoft.Coyote.Actors.Timers/TimerInfoType) | Stores information about a timer that can send timeout events to its owner actor. |
-
-## Microsoft.Coyote.Coverage namespace
-
-| public type | description |
-| --- | --- |
-| class [ActorRuntimeLogGraphBuilder](Microsoft.Coyote.Coverage/ActorRuntimeLogGraphBuilderType) | Implements the [`IActorRuntimeLog`](Microsoft.Coyote.Actors/IActorRuntimeLogType) and builds a directed graph from the recorded events and state transitions. |
-| class [CoverageInfo](Microsoft.Coyote.Coverage/CoverageInfoType) | Class for storing actor coverage-specific data across multiple testing iterations. |
-| class [EventCoverage](Microsoft.Coyote.Coverage/EventCoverageType) | This class maintains information about events received and sent from each state of each actor. |
-| class [Graph](Microsoft.Coyote.Coverage/GraphType) | A directed graph made up of Nodes and Links. |
-| class [GraphLink](Microsoft.Coyote.Coverage/GraphLinkType) | A Link represents a directed graph connection between two Nodes. |
-| class [GraphNode](Microsoft.Coyote.Coverage/GraphNodeType) | A Node of a Graph. |
-| class [GraphObject](Microsoft.Coyote.Coverage/GraphObjectType) | A Node of a Graph. |
 
 ## Microsoft.Coyote.IO namespace
 

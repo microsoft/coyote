@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace Microsoft.Coyote.Coverage
+namespace Microsoft.Coyote.Actors.Coverage
 {
     /// <summary>
     /// Class for storing actor coverage-specific data across multiple testing iterations.

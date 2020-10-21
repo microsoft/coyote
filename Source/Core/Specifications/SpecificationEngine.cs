@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.SystematicTesting;
 

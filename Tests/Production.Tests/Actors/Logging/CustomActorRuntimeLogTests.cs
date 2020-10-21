@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tasks;

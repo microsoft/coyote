@@ -5,9 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Coyote.Actors;
 
-namespace Microsoft.Coyote.Coverage
+namespace Microsoft.Coyote.Actors.Coverage
 {
     /// <summary>
     /// Reports actor activity coverage.

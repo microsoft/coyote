@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 
 namespace Microsoft.Coyote.SystematicTesting
 {

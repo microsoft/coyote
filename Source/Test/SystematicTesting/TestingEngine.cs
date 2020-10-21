@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Runtime;

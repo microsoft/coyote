@@ -12,7 +12,6 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.SystematicTesting;
@@ -169,12 +168,11 @@ namespace Microsoft.Coyote.Runtime
             this.SpecificationEngine = new SpecificationEngine(this.Configuration, this.Scheduler, monitors);
             this.ValueGenerator = valueGenerator;
 
-            var coverageInfo = new CoverageInfo();
             this.DefaultActorExecutionContext = this.IsControlled ?
                 new ActorExecutionContext.Mock(this.Configuration, this, this.Scheduler,
-                this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter) :
+                this.SpecificationEngine, this.ValueGenerator, this.LogWriter) :
                 new ActorExecutionContext(this.Configuration, this, this.Scheduler,
-                this.SpecificationEngine, coverageInfo, this.ValueGenerator, this.LogWriter);
+                this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
 
             SystematicTesting.Interception.ControlledThread.ClearCache();
         }

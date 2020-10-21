@@ -10,8 +10,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Timers;
-using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 

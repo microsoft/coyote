@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Xunit;
 using Xunit.Abstractions;
 using SystemTasks = System.Threading.Tasks;

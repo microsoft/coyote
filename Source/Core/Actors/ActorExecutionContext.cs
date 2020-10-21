@@ -13,10 +13,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Actors.Mocks;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
-using Microsoft.Coyote.Coverage;
 using Microsoft.Coyote.IO;
 using Microsoft.Coyote.Runtime;
 using Microsoft.Coyote.Specifications;
@@ -123,15 +123,14 @@ namespace Microsoft.Coyote.Actors
         /// Initializes a new instance of the <see cref="ActorExecutionContext"/> class.
         /// </summary>
         internal ActorExecutionContext(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
-            SpecificationEngine specificationEngine, CoverageInfo coverageInfo, IRandomValueGenerator valueGenerator,
-            LogWriter logWriter)
+            SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
         {
             this.Configuration = configuration;
             this.Runtime = runtime;
             this.Scheduler = scheduler;
             this.SpecificationEngine = specificationEngine;
             this.ActorMap = new ConcurrentDictionary<ActorId, Actor>();
-            this.CoverageInfo = coverageInfo;
+            this.CoverageInfo = new CoverageInfo();
             this.ValueGenerator = valueGenerator;
             this.LogWriter = logWriter;
         }
@@ -834,9 +833,8 @@ namespace Microsoft.Coyote.Actors
             /// Initializes a new instance of the <see cref="Mock"/> class.
             /// </summary>
             internal Mock(Configuration configuration, CoyoteRuntime runtime, OperationScheduler scheduler,
-                SpecificationEngine specificationEngine, CoverageInfo coverageInfo, IRandomValueGenerator valueGenerator,
-                LogWriter logWriter)
-                : base(configuration, runtime, scheduler, specificationEngine, coverageInfo, valueGenerator, logWriter)
+                SpecificationEngine specificationEngine, IRandomValueGenerator valueGenerator, LogWriter logWriter)
+                : base(configuration, runtime, scheduler, specificationEngine, valueGenerator, logWriter)
             {
                 this.ProgramCounterMap = new ConcurrentDictionary<ActorId, int>();
                 this.NameValueToActorId = new ConcurrentDictionary<string, ActorId>();

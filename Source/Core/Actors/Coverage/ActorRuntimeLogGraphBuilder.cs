@@ -7,11 +7,10 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
-using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Timers;
 using Microsoft.Coyote.Actors.Timers.Mocks;
 
-namespace Microsoft.Coyote.Coverage
+namespace Microsoft.Coyote.Actors.Coverage
 {
     /// <summary>
     /// Implements the <see cref="IActorRuntimeLog"/> and builds a directed graph

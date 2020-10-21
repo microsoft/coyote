@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Coyote.Coverage;
+using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.SmartSockets;
 using Microsoft.Coyote.SystematicTesting.Interfaces;
 using Microsoft.Coyote.Telemetry;

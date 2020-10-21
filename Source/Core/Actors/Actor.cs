@@ -55,6 +55,14 @@ namespace Microsoft.Coyote.Actors
         protected internal ActorId Id { get; private set; }
 
         /// <summary>
+        /// Unique operation that is used to control the actor execution during systematic testing.
+        /// </summary>
+        /// <remarks>
+        /// This is null in production.
+        /// </remarks>
+        internal ActorOperation Operation { get; private set; }
+
+        /// <summary>
         /// The inbox of the actor. Incoming events are enqueued here.
         /// Events are dequeued to be processed.
         /// </summary>
@@ -142,10 +150,11 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Configures the actor.
         /// </summary>
-        internal void Configure(ActorExecutionContext context, ActorId id, IEventQueue inbox, EventGroup eventGroup)
+        internal void Configure(ActorExecutionContext context, ActorId id, ActorOperation op, IEventQueue inbox, EventGroup eventGroup)
         {
             this.Context = context;
             this.Id = id;
+            this.Operation = op;
             this.Inbox = inbox;
             this.EventGroup = eventGroup;
         }
@@ -572,9 +581,7 @@ namespace Microsoft.Coyote.Actors
                         task = taskFunc();
                     }
 
-                    this.Context.LogWaitTask(this, task);
-
-                    // We have no reliable stack for awaited operations.
+                    this.OnWaitTask(task, cachedAction.MethodInfo.Name);
                     await task;
                 }
                 else if (cachedAction.Handler is Action<Event> actionWithEvent)
@@ -628,7 +635,7 @@ namespace Microsoft.Coyote.Actors
                     task = this.OnEventUnhandledAsync(e, currentState);
                 }
 
-                this.Context.LogWaitTask(this, task);
+                this.OnWaitTask(task, callbackType);
                 await task;
             }
             catch (Exception ex) when (this.OnExceptionHandler(ex, callbackType, e))
@@ -871,75 +878,6 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Invoked when an event has been enqueued.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Context.LogEnqueuedEvent(this, e, eventGroup, eventInfo);
-
-        /// <summary>
-        /// Invoked when an event has been raised.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Context.LogRaisedEvent(this, e, eventGroup, eventInfo);
-
-        /// <summary>
-        /// Invoked when the actor is waiting to receive an event of one of the specified types.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void OnWaitEvent(IEnumerable<Type> eventTypes) => this.Context.LogWaitEvent(this, eventTypes);
-
-        /// <summary>
-        /// Invoked when an event that the actor is waiting to receive has been enqueued.
-        /// </summary>
-        internal virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
-        {
-            if (eventGroup != null)
-            {
-                // Inherit the event group of the receive operation, if it is non-null.
-                this.CurrentEventGroup = eventGroup;
-            }
-
-            this.Context.LogReceivedEvent(this, e, eventInfo);
-        }
-
-        /// <summary>
-        /// Invoked when an event that the actor is waiting to receive has already been in the
-        /// event queue when the actor invoked the receive statement.
-        /// </summary>
-        internal virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo)
-        {
-            if (eventGroup != null)
-            {
-                // Inherit the event group id of the receive operation, if it is non-null.
-                this.CurrentEventGroup = eventGroup;
-            }
-
-            this.Context.LogReceivedEventWithoutWaiting(this, e, eventInfo);
-        }
-
-        /// <summary>
-        /// Invoked when <see cref="ReceiveEventAsync(Type[])"/> or one of its overloaded methods was called.
-        /// </summary>
-        internal virtual void OnReceiveInvoked() => this.Context.AssertExpectedCallerActor(this, "ReceiveEventAsync");
-
-        /// <summary>
-        /// Invoked when an event has been dropped.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
-        {
-            if (this.Context.IsExecutionControlled)
-            {
-                this.Assert(!eventInfo.MustHandle, "{0} halted before dequeueing must-handle event '{1}'.",
-                    this.Id, e.GetType().FullName);
-            }
-
-            this.Context.HandleDroppedEvent(e, this.Id);
-        }
-
-        /// <summary>
         /// Reports the activity coverage of this actor.
         /// </summary>
         internal virtual void ReportActivityCoverage(CoverageInfo coverageInfo)
@@ -1000,6 +938,100 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         private protected virtual void ReportUnhandledException(Exception ex, string actionName) =>
             this.Context.WrapAndThrowException(ex, $"{0} (action '{1}')", this.Id, actionName);
+
+        /// <summary>
+        /// Invoked when an event has been enqueued.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void OnEnqueueEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Context.LogEnqueuedEvent(this, e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Invoked when an event has been raised.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void OnRaiseEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
+            this.Context.LogRaisedEvent(this, e, eventGroup, eventInfo);
+
+        /// <summary>
+        /// Invoked when the actor is waiting for the specified task to complete.
+        /// </summary>
+        internal void OnWaitTask(Task task, string methodName)
+        {
+            if (this.Context.IsExecutionControlled)
+            {
+                this.Context.Runtime.AssertIsReturnedTaskControlled(task, methodName);
+                this.Operation.OnWaitTask(task);
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the actor is waiting to receive an event of one of the specified types.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void OnWaitEvent(IEnumerable<Type> eventTypes)
+        {
+            if (this.Context.IsExecutionControlled)
+            {
+                this.Operation.OnWaitEvent();
+            }
+
+            this.Context.LogWaitEvent(this, eventTypes);
+        }
+
+        /// <summary>
+        /// Invoked when an event that the actor is waiting to receive has been enqueued.
+        /// </summary>
+        internal virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        {
+            if (eventGroup != null)
+            {
+                // Inherit the event group of the receive operation, if it is non-null.
+                this.CurrentEventGroup = eventGroup;
+            }
+
+            this.Context.LogReceivedEvent(this, e, eventInfo);
+
+            if (this.Context.IsExecutionControlled)
+            {
+                this.Operation.OnReceivedEvent();
+            }
+        }
+
+        /// <summary>
+        /// Invoked when an event that the actor is waiting to receive has already been in the
+        /// event queue when the actor invoked the receive statement.
+        /// </summary>
+        internal virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        {
+            if (eventGroup != null)
+            {
+                // Inherit the event group id of the receive operation, if it is non-null.
+                this.CurrentEventGroup = eventGroup;
+            }
+
+            this.Context.LogReceivedEventWithoutWaiting(this, e, eventInfo);
+        }
+
+        /// <summary>
+        /// Invoked when <see cref="ReceiveEventAsync(Type[])"/> or one of its overloaded methods was called.
+        /// </summary>
+        internal virtual void OnReceiveInvoked() => this.Context.AssertExpectedCallerActor(this, "ReceiveEventAsync");
+
+        /// <summary>
+        /// Invoked when an event has been dropped.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        {
+            if (this.Context.IsExecutionControlled)
+            {
+                this.Assert(!eventInfo.MustHandle, "{0} halted before dequeueing must-handle event '{1}'.",
+                    this.Id, e.GetType().FullName);
+            }
+
+            this.Context.HandleDroppedEvent(e, this.Id);
+        }
 
         /// <summary>
         /// Invokes user callback when the actor throws an exception.

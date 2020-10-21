@@ -10,8 +10,7 @@ using CoyoteTasks = Microsoft.Coyote.Tasks;
 namespace Microsoft.Coyote.SystematicTesting
 {
     /// <summary>
-    /// Contains information about an asynchronous task operation
-    /// that can be controlled during testing.
+    /// Represents an asynchronous task operation that can be controlled during systematic testing.
     /// </summary>
     internal class TaskOperation : AsyncOperation
     {
@@ -19,16 +18,6 @@ namespace Microsoft.Coyote.SystematicTesting
         /// The scheduler executing this operation.
         /// </summary>
         private readonly OperationScheduler Scheduler;
-
-        /// <summary>
-        /// The unique id of the operation.
-        /// </summary>
-        internal override ulong Id { get; }
-
-        /// <summary>
-        /// The unique name of the operation.
-        /// </summary>
-        internal override string Name { get; }
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -51,11 +40,9 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Initializes a new instance of the <see cref="TaskOperation"/> class.
         /// </summary>
         internal TaskOperation(ulong operationId, string name, OperationScheduler scheduler)
-            : base()
+            : base(operationId, name)
         {
             this.Scheduler = scheduler;
-            this.Id = operationId;
-            this.Name = name;
             this.JoinDependencies = new HashSet<Task>();
         }
 

@@ -40,12 +40,6 @@ namespace Microsoft.Coyote
         internal int Timeout;
 
         /// <summary>
-        /// The current runtime generation.
-        /// </summary>
-        [DataMember]
-        internal ulong RuntimeGeneration;
-
-        /// <summary>
         /// The assembly to be analyzed for bugs.
         /// </summary>
         [DataMember]
@@ -346,14 +340,12 @@ namespace Microsoft.Coyote
         {
             this.OutputFilePath = string.Empty;
 
-            this.Timeout = 0;
-            this.RuntimeGeneration = 0;
-
             this.AssemblyToBeAnalyzed = string.Empty;
             this.RewritingOptionsPath = string.Empty;
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
+            this.Timeout = 0;
             this.TestingIterations = 1;
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;

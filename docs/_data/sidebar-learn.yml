@@ -265,10 +265,6 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Type
         - name: Name
           link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Name
-        - name: Generation
-          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Generation
-        - name: Endpoint
-          link: /learn/ref/Microsoft.Coyote.Actors/ActorId/Endpoint
       - name: AwaitableEventGroup<T>
         link: /learn/ref/Microsoft.Coyote.Actors/AwaitableEventGroup-1Type
         subfolderitems:

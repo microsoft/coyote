@@ -292,10 +292,7 @@ namespace Microsoft.Coyote.Actors
 
             if (!this.ActorMap.TryAdd(id, actor))
             {
-                string info = "This typically occurs if either the actor id was created by another runtime instance, " +
-                    "or if a actor id from a previous runtime generation was deserialized, but the current runtime " +
-                    "has not increased its generation value.";
-                this.Assert(false, "An actor with id '{0}' was already created in generation '{1}'. {2}", id.Value, id.Generation, info);
+                this.Assert(false, $"An actor with id '{id.Value}' was already created by another runtime instance.");
             }
 
             return actor;

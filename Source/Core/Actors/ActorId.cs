@@ -45,18 +45,6 @@ namespace Microsoft.Coyote.Actors
         public readonly string Name;
 
         /// <summary>
-        /// Generation of the runtime that created this actor id.
-        /// </summary>
-        [DataMember]
-        public readonly ulong Generation;
-
-        /// <summary>
-        /// Endpoint.
-        /// </summary>
-        [DataMember]
-        public readonly string Endpoint;
-
-        /// <summary>
         /// True if <see cref="NameValue"/> is used as the unique id, else false.
         /// </summary>
         public bool IsNameUsedForHashing => this.NameValue.Length > 0;
@@ -69,8 +57,6 @@ namespace Microsoft.Coyote.Actors
             this.Runtime = context;
             this.Type = type.FullName;
             this.Value = value;
-            this.Generation = context.Configuration.RuntimeGeneration;
-            this.Endpoint = string.Empty;
 
             if (useNameForHashing)
             {
@@ -108,9 +94,7 @@ namespace Microsoft.Coyote.Actors
                     return false;
                 }
 
-                return this.IsNameUsedForHashing ?
-                    this.NameValue.Equals(id.NameValue) && this.Generation == id.Generation :
-                    this.Value == id.Value && this.Generation == id.Generation;
+                return this.IsNameUsedForHashing ? this.NameValue.Equals(id.NameValue) : this.Value == id.Value;
             }
 
             return false;
@@ -123,7 +107,6 @@ namespace Microsoft.Coyote.Actors
         {
             int hash = 17;
             hash = (hash * 23) + (this.IsNameUsedForHashing ? this.NameValue.GetHashCode() : this.Value.GetHashCode());
-            hash = (hash * 23) + this.Generation.GetHashCode();
             return hash;
         }
 

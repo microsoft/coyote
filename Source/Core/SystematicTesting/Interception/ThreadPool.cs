@@ -24,7 +24,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
         /// <summary>
         /// Retrieves the difference between the maximum number of thread pool threads returned by the
-        /// <see cref="ThreadPool.GetMaxThreads"/> method, and the number currently active.
+        /// <see cref="GetMaxThreads"/> method, and the number currently active.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetAvailableThreads(out int workerThreads, out int completionPortThreads) =>

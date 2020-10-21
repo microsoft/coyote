@@ -87,7 +87,7 @@ namespace Microsoft.Coyote.Telemetry
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
             configuration.InstrumentationKey = "17a6badb-bf2d-4f5d-959b-6843b8bb1f7f";
             this.Telemetry = new TelemetryClient(configuration);
-            string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
+            string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
             this.Telemetry.Context.GlobalProperties["coyote"] = version;
             this.Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.Platform.ToString();
             this.Telemetry.Context.Session.Id = Guid.NewGuid().ToString();

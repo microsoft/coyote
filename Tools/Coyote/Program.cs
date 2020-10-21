@@ -59,7 +59,7 @@ namespace Microsoft.Coyote
             {
                 if (firstTime)
                 {
-                    string version = typeof(Microsoft.Coyote.Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
+                    string version = typeof(Runtime.CoyoteRuntime).Assembly.GetName().Version.ToString();
                     Console.WriteLine("Welcome to Microsoft Coyote {0}", version);
                     Console.WriteLine("----------------------------{0}", new string('-', version.Length));
                     if (configuration.EnableTelemetry)

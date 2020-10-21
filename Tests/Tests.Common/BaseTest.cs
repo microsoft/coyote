@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Tests.Common
         /// Override to true to run a systematic test under the <see cref="TestingEngine"/>.
         /// By default this value is false.
         /// </summary>
-        public virtual bool IsSystematicTest => false;
+        protected virtual bool IsSystematicTest => false;
 
         protected void Test(Action test, Configuration configuration = null)
         {

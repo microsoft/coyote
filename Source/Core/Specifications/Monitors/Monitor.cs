@@ -178,7 +178,7 @@ namespace Microsoft.Coyote.Specifications
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <param name="e">The event to raise.</param>
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.Specifications
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <typeparam name="TState">Type of the state.</typeparam>
@@ -227,7 +227,7 @@ namespace Microsoft.Coyote.Specifications
         /// This event is not handled until the action that calls this method returns control back
         /// to the Coyote runtime.  It is handled before any other events are dequeued from the inbox.
         /// Only one of the following can be called per action:
-        /// <see cref="Monitor.RaiseEvent"/>, <see cref="Monitor.RaiseGotoStateEvent{T}"/>.
+        /// <see cref="RaiseEvent"/>, <see cref="RaiseGotoStateEvent{T}"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
         /// <param name="state">Type of the state.</param>
@@ -1025,7 +1025,7 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Defines the <see cref="Monitor"/> transition that is the
         /// result of executing an event handler.  Transitions are created by using
-        /// <see cref="Monitor.RaiseGotoStateEvent{T}"/>, or <see cref="Monitor.RaiseEvent"/>.
+        /// <see cref="RaiseGotoStateEvent{T}"/>, or <see cref="RaiseEvent"/>.
         /// The Transition is processed by the Coyote runtime when
         /// an event handling method returns a Transition object.
         /// This means such a method can only do one such Transition per method call.
@@ -1079,13 +1079,13 @@ namespace Microsoft.Coyote.Specifications
                 None = 0,
 
                 /// <summary>
-                /// A transition created by <see cref="Monitor.RaiseEvent(Event)"/> that raises an <see cref="Event"/> bypassing
+                /// A transition created by <see cref="RaiseEvent(Event)"/> that raises an <see cref="Event"/> bypassing
                 /// the <see cref="Monitor.State"/> inbox.
                 /// </summary>
                 Raise,
 
                 /// <summary>
-                /// A transition created by <see cref="Monitor.RaiseGotoStateEvent{S}"/> from the current <see cref="Monitor.State"/>
+                /// A transition created by <see cref="RaiseGotoStateEvent{S}"/> from the current <see cref="Monitor.State"/>
                 /// to the specified <see cref="Monitor.State"/>.
                 /// </summary>
                 Goto

@@ -2,7 +2,7 @@ param(
     [string]$dotnet = "dotnet",
     [ValidateSet("all", "netcoreapp3.1", "net47", "net48", "net5.0")]
     [string]$framework = "all",
-    [ValidateSet("all", "production", "rewriting", "testing", "standalone")]
+    [ValidateSet("all", "actors", "actors-systematic", "systematic", "tasks", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -15,10 +15,11 @@ Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
 
 $targets = [ordered]@{
-    "production" = "Production.Tests"
-    "rewriting"  = "Rewriting.Tests"
-    "testing"    = "SystematicTesting.Tests"
-    "standalone" = "Standalone.Tests"
+    "actors" = "Tests.Actors"
+    "actors-systematic" = "Tests.Actors.SystematicTesting"
+    "systematic" = "Tests.SystematicTesting"
+    "tasks" = "Tests.Tasks"
+    "standalone" = "Tests.Standalone"
 }
 
 $key_file = "$PSScriptRoot/../Common/Key.snk"
@@ -37,11 +38,11 @@ foreach ($kvp in $targets.GetEnumerator()) {
         }
 
         $rewriting_target = ""
-        if ($($kvp.Name) -eq "rewriting") {
-            $rewriting_target = "$PSScriptRoot/../Tests/$($kvp.Value)/bin/$f/RewritingTests.coyote.json"
+        if ($($kvp.Name) -eq "systematic") {
+            $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/rewrite.coyote.json"
         }
         elseif ($($kvp.Name) -eq "standalone") {
-            $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Standalone.Tests.dll"
+            $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Tests.Standalone.dll"
         }
 
         if ($rewriting_target -ne "") {

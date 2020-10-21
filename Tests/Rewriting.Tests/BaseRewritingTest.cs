@@ -1,30 +1,33 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if BINARY_REWRITE
 using System.Threading.Tasks;
-#else
-using Microsoft.Coyote.Tasks;
-#endif
+using Microsoft.Coyote.Rewriting;
 using Microsoft.Coyote.Tests.Common;
+using Xunit;
 using Xunit.Abstractions;
 
-#if BINARY_REWRITE
 namespace Microsoft.Coyote.Rewriting.Tests
-#else
-namespace Microsoft.Coyote.SystematicTesting.Tests
-#endif
 {
-    public abstract class BaseSystematicTest : BaseTest
+    public abstract class BaseRewritingTest : BaseTest
     {
-        public BaseSystematicTest(ITestOutputHelper output)
+        public BaseRewritingTest(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        public override bool IsSystematicTest => true;
+        public override bool IsSystematicTest
+        {
+            get
+            {
+                var assembly = this.GetType().Assembly;
+                bool result = RewritingEngine.IsAssemblyRewritten(assembly);
+                Assert.True(result, $"Expected the '{assembly}' assembly to be rewritten.");
+                return result;
+            }
+        }
 
-        public class SharedEntry
+        protected class SharedEntry
         {
             public volatile int Value = 0;
 
@@ -38,7 +41,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
             public async Task<int> GetWriteResultWithDelayAsync(int value)
             {
                 this.Value = value;
-                await Task.Delay(1);
+                await Task.Delay(5);
                 return this.Value;
             }
         }

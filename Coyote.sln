@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Source\Test\Test.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Coyote.Performance.Tests", "Tests\Performance.Tests\Microsoft.Coyote.Performance.Tests.csproj", "{1F4FD737-FEEF-47B0-86DC-3ED72596870B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryRewriting.Tests", "Tests\BinaryRewriting.Tests\BinaryRewriting.Tests.csproj", "{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rewriting.Tests", "Tests\Rewriting.Tests\Rewriting.Tests.csproj", "{A643CBC2-24DF-4B93-AD7F-84EF329D3AAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standalone.Tests", "Tests\Standalone.Tests\Standalone.Tests.csproj", "{E719FD60-9CDE-4DE9-BD2C-5DB1053AC552}"
 EndProject

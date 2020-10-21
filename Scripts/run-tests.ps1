@@ -16,7 +16,7 @@ $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Na
 
 $targets = [ordered]@{
     "production" = "Production.Tests"
-    "rewriting"  = "BinaryRewriting.Tests"
+    "rewriting"  = "Rewriting.Tests"
     "testing"    = "SystematicTesting.Tests"
     "standalone" = "Standalone.Tests"
 }

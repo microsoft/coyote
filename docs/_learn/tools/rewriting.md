@@ -91,7 +91,7 @@ original build. This can be done using the `--strong-name-key-file` command line
 For example, from your `coyote` repo:
 
 ```
-bin\net48\coyote rewrite d:\git\foundry99\Coyote\Tests\BinaryRewriting.Tests\bin\net48\BinaryRewritingTests.coyote.json --strong-name-key-file Common\Key.snk
+bin\net48\coyote rewrite d:\git\foundry99\Coyote\Tests\Rewriting.Tests\bin\net48\RewritingTests.coyote.json --strong-name-key-file Common\Key.snk
 ```
 
 You can also provide this key in the JSON file using the `StrongNameKeyFile` property.

@@ -1,8 +1,0 @@
-{
-    "AssembliesPath": "../../bin/$(Platform)",
-    "OutputPath": "../../bin/$(Platform)",
-    "Assemblies": [
-        "Microsoft.Coyote.BinaryRewriting.Tests.dll"
-    ],
-    "IsRewritingThreads":  true
-}

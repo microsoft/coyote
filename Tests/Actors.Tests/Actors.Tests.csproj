@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for the systematic testing runtime.</Description>
-    <AssemblyName>Microsoft.Coyote.SystematicTesting.Tests</AssemblyName>
-    <RootNamespace>Microsoft.Coyote.SystematicTesting.Tests</RootNamespace>
+    <Description>Tests for the production runtime.</Description>
+    <AssemblyName>Microsoft.Coyote.Actors.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.Actors.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>
@@ -10,7 +10,7 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <ProjectReference Include="..\Actors.Tests\Actors.Tests.csproj" />
+    <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />

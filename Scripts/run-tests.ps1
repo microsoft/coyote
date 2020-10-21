@@ -15,7 +15,7 @@ Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
 
 $targets = [ordered]@{
-    "production" = "Production.Tests"
+    "actors" = "Actors.Tests"
     "rewriting"  = "Rewriting.Tests"
     "testing"    = "SystematicTesting.Tests"
     "standalone" = "Standalone.Tests"

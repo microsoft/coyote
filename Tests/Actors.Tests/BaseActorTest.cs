@@ -5,16 +5,14 @@ using Microsoft.Coyote.Tasks;
 using Microsoft.Coyote.Tests.Common;
 using Xunit.Abstractions;
 
-namespace Microsoft.Coyote.SystematicTesting.Tests
+namespace Microsoft.Coyote.Actors.Tests
 {
-    public abstract class BaseSystematicTest : BaseTest
+    public abstract class BaseActorTest : BaseTest
     {
-        public BaseSystematicTest(ITestOutputHelper output)
+        public BaseActorTest(ITestOutputHelper output)
             : base(output)
         {
         }
-
-        protected override bool IsSystematicTest => true;
 
         protected class SharedEntry
         {
@@ -30,7 +28,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
             public async Task<int> GetWriteResultWithDelayAsync(int value)
             {
                 this.Value = value;
-                await Task.Delay(1);
+                await Task.Delay(5);
                 return this.Value;
             }
         }

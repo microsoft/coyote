@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2012300C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Source\Core\Core.csproj", "{E75DB9C9-7842-4AE4-A29D-624F6B49F607}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Production.Tests", "Tests\Production.Tests\Production.Tests.csproj", "{911F1779-3558-4590-836C-C75112D65FD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Actors.Tests", "Tests\Actors.Tests\Actors.Tests.csproj", "{911F1779-3558-4590-836C-C75112D65FD8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystematicTesting.Tests", "Tests\SystematicTesting.Tests\SystematicTesting.Tests.csproj", "{DABC68C1-79D3-4324-A750-7CF72E0A0ACF}"
 EndProject

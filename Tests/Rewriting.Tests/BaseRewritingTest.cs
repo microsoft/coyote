@@ -8,9 +8,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Rewriting.Tests
 {
-    internal abstract class BaseRewritingTest : BaseTest
+    public abstract class BaseRewritingTest : BaseTest
     {
-        internal BaseRewritingTest(ITestOutputHelper output)
+        public BaseRewritingTest(ITestOutputHelper output)
             : base(output)
         {
         }

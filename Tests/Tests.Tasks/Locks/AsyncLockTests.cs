@@ -31,12 +31,6 @@ namespace Microsoft.Coyote.Tasks.Tests
         [Fact(Timeout = 5000)]
         public void TestAcquireTwice()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET cannot detect these deadlocks.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 AsyncLock mutex = AsyncLock.Create();
@@ -71,7 +65,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = WriteAsync(3);
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
-                Specification.Assert(entry.Value == 5, "Value is '{0}' instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -79,12 +73,6 @@ namespace Microsoft.Coyote.Tasks.Tests
         [Fact(Timeout = 5000)]
         public void TestSynchronizeTwoParallelTasks()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET cannot guarantee it will find this condition even with 200 iterations.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();
@@ -109,7 +97,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 });
 
                 await Task.WhenAll(task1, task2);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",

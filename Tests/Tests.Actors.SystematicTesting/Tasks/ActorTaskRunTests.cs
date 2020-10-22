@@ -2,15 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using Microsoft.Coyote.Tests.Common.Events;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class TaskRunTests : BaseActorSystematicTest
+    public class ActorTaskRunTests : BaseActorSystematicTest
     {
-        public TaskRunTests(ITestOutputHelper output)
+        public ActorTaskRunTests(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -25,7 +24,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     entry.Value = 5;
                 });
 
-                this.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             }
         }
 
@@ -55,7 +54,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     entry.Value = 5;
                 });
 
-                this.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             }
         }
 
@@ -80,7 +79,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     entry.Value = 5;
                 });
 
-                this.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             }
         }
 
@@ -111,7 +110,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     entry.Value = 5;
                 });
 
-                this.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             }
         }
 
@@ -141,7 +140,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     entry.Value = 5;
                 });
 
-                this.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             }
         }
 
@@ -177,7 +176,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     entry.Value = 5;
                 });
 
-                this.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             }
         }
 

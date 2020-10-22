@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class TaskCompletionSourceTests : BaseActorSystematicTest
+    public class ActorTaskCompletionSourceTests : BaseActorSystematicTest
     {
-        public TaskCompletionSourceTests(ITestOutputHelper output)
+        public ActorTaskCompletionSourceTests(ITestOutputHelper output)
             : base(output)
         {
         }

@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -113,7 +113,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -159,7 +159,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -183,7 +183,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",

@@ -88,10 +88,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 {
                     await Task.Yield();
                     entry = value;
-                    if (this.IsSystematicTest)
-                    {
-                        Specification.Assert(entry == value, "Value is {0} instead of '{1}'.", entry, value);
-                    }
+                    Specification.Assert(entry == value, "Value is {0} instead of '{1}'.", entry, value);
                 }
 
                 Task task1 = Task.Run(async () =>
@@ -149,7 +146,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = WriteAsync(3);
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -176,7 +173,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task = InvokeWriteWithYieldAsync(entry, 3);
                 entry.Value = 5;
                 await task;
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -192,7 +189,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = InvokeWriteWithYieldAsync(entry, 3);
                 Task task2 = InvokeWriteWithYieldAsync(entry, 5);
                 await Task.WhenAll(task1, task2);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -215,24 +212,11 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = invokeWriteWithYieldAsync(3);
                 Task task2 = invokeWriteWithYieldAsync(5);
                 await Task.WhenAll(task1, task2);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
-        }
-
-        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
-        {
-            if (this.IsSystematicTest)
-            {
-                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
-            }
-            else
-            {
-                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
-                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
-            }
         }
 
         [Fact(Timeout = 5000)]
@@ -249,7 +233,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = InvokeWriteWithYieldAsync(3);
                 Task task2 = InvokeWriteWithYieldAsync(5);
                 await Task.WhenAll(task1, task2);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(300),
             expectedError: "Value is 3 instead of 5.",
@@ -273,7 +257,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await InvokeParallelWriteWithYieldAsync(entry);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",

@@ -139,12 +139,6 @@ Actual value was 2."
         [Fact(Timeout = 5000)]
         public void TestWaitTwiceWithOneMaxRequest()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET semaphores cannot detect deadlocks, that's why you need Coyote test :-)
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 Semaphore semaphore = Semaphore.Create(1, 1);
@@ -192,7 +186,7 @@ Actual value was 2."
                 Task task1 = WriteAsync(3);
                 Task task2 = WriteAsync(5);
                 await Task.WhenAll(task1, task2);
-                Specification.Assert(entry.Value is 5, "Value is '{0}' instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -200,12 +194,6 @@ Actual value was 2."
         [Fact(Timeout = 5000)]
         public void TestSynchronizeTwoParallelTasksAndOneMaxRequest()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET semaphores cannot detect deadlocks, that's why you need Coyote test :-)
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 SharedEntry entry = new SharedEntry();

@@ -37,7 +37,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 }
 
                 await WriteAsync();
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 }
 
                 await WriteWithDelayAsync();
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     }
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     }
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -149,7 +149,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     }
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     });
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",

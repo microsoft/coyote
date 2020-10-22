@@ -68,14 +68,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
         [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItemWithException()
         {
-            if (!this.IsSystematicTest)
-            {
-                // production version of this test results in an unhandled exception.
-                // bugbug: can we rewrite this test so it works both in production and systematic testing modes?
-                // TestQueueUserWorkItemWithAsyncException makes a lot more sense to me.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 ThreadPool.QueueUserWorkItem(_ =>
@@ -152,14 +144,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
         [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItemWithException()
         {
-            if (!this.IsSystematicTest)
-            {
-                // production version of this test results in an unhandled exception.
-                // bugbug: can we rewrite this test so it works both in production and systematic testing modes?
-                // TestUnsafeQueueUserWorkItemWithAsyncException makes a lot more sense to me.
-                return;
-            }
-
             this.TestWithError(() =>
             {
                 ThreadPool.UnsafeQueueUserWorkItem(_ =>

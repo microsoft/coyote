@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             get
             {
-                if (this.CurrentGraph == null)
+                if (this.CurrentGraph is null)
                 {
                     this.CurrentGraph = new Graph();
                 }
@@ -446,7 +446,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                         string suffix = string.Empty;
                         if (isInHotState.HasValue)
                         {
-                            suffix = (isInHotState == true) ? "[hot]" : "[cold]";
+                            suffix = (isInHotState is true) ? "[hot]" : "[cold]";
                             shortStateName += suffix;
                         }
 
@@ -509,7 +509,7 @@ namespace Microsoft.Coyote.Actors.Coverage
 
         private string GetResolveActorId(string name, string type)
         {
-            if (type == null)
+            if (type is null)
             {
                 // The sender id can be null if an event is fired from non-actor code.
                 return ExternalCodeName;
@@ -574,7 +574,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                     // Then this is a goto or push and we can draw that link also.
                     var source = this.GetOrCreateChild(name, type, currentStateName);
                     var target = this.GetOrCreateChild(name, type, newStateName);
-                    if (info == null)
+                    if (info is null)
                     {
                         info = new EventInfo { Event = transitionType.FullName };
                     }
@@ -670,7 +670,7 @@ namespace Microsoft.Coyote.Actors.Coverage
 
         private string GetLabel(string name, string type, string fullyQualifiedName)
         {
-            if (type == null)
+            if (type is null)
             {
                 // external code
                 return fullyQualifiedName;
@@ -765,7 +765,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         {
             get
             {
-                if (this.InternalLinks == null)
+                if (this.InternalLinks is null)
                 {
                     return Array.Empty<GraphLink>();
                 }
@@ -1090,7 +1090,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// </summary>
         public void AddAttribute(string name, string value)
         {
-            if (this.Attributes == null)
+            if (this.Attributes is null)
             {
                 this.Attributes = new Dictionary<string, string>();
             }
@@ -1105,7 +1105,7 @@ namespace Microsoft.Coyote.Actors.Coverage
         /// <param name="value">The new value to add to the unique list.</param>
         public int AddListAttribute(string key, string value)
         {
-            if (this.AttributeLists == null)
+            if (this.AttributeLists is null)
             {
                 this.AttributeLists = new Dictionary<string, HashSet<string>>();
             }

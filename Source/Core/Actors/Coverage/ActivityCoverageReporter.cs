@@ -125,7 +125,7 @@ namespace Microsoft.Coyote.Actors.Coverage
 
             int totalUncoveredEvents = (from h in uncoveredEvents select h.Value.Count).Sum();
 
-            string eventCoverage = totalEvents == 0 ? "100.0" : ((totalEvents - totalUncoveredEvents) * 100.0 / totalEvents).ToString("F1");
+            string eventCoverage = totalEvents is 0 ? "100.0" : ((totalEvents - totalUncoveredEvents) * 100.0 / totalEvents).ToString("F1");
 
             WriteHeader(writer, string.Format("Total event coverage: {0}%", eventCoverage));
 
@@ -155,7 +155,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                 int totalMachineEvents = (from h in allMachineEvents select h.Value.Count).Sum();
                 var totalUncoveredMachineEvents = (from h in uncoveredMachineEvents select h.Value.Count).Sum();
 
-                eventCoverage = totalMachineEvents == 0 ? "100.0" : ((totalMachineEvents - totalUncoveredMachineEvents) * 100.0 / totalMachineEvents).ToString("F1");
+                eventCoverage = totalMachineEvents is 0 ? "100.0" : ((totalMachineEvents - totalUncoveredMachineEvents) * 100.0 / totalMachineEvents).ToString("F1");
                 writer.WriteLine("Event coverage: {0}%", eventCoverage);
 
                 if (!this.CoverageInfo.MachinesToStates.ContainsKey(machine))
@@ -172,13 +172,13 @@ namespace Microsoft.Coyote.Actors.Coverage
 
                     writer.WriteLine();
                     writer.WriteLine("\tState: {0}{1}", state, totalStateEvents > 0 && totalStateEvents == uncoveredStateEvents ? " is uncovered" : string.Empty);
-                    if (totalStateEvents == 0)
+                    if (totalStateEvents is 0)
                     {
                         writer.WriteLine("\t\tState has no expected events, so coverage is 100%");
                     }
                     else if (totalStateEvents != uncoveredStateEvents)
                     {
-                        eventCoverage = totalStateEvents == 0 ? "100.0" : ((totalStateEvents - uncoveredStateEvents) * 100.0 / totalStateEvents).ToString("F1");
+                        eventCoverage = totalStateEvents is 0 ? "100.0" : ((totalStateEvents - uncoveredStateEvents) * 100.0 / totalStateEvents).ToString("F1");
                         writer.WriteLine("\t\tState event coverage: {0}%", eventCoverage);
                     }
 

@@ -271,7 +271,7 @@ namespace Microsoft.Coyote.Actors.Coverage
             string id = ResolveActorTypeName(actorType);
             if (string.IsNullOrEmpty(stateName))
             {
-                if (actorType == null)
+                if (actorType is null)
                 {
                     stateName = "ExternalState";
                 }
@@ -286,7 +286,7 @@ namespace Microsoft.Coyote.Actors.Coverage
 
         private static string ResolveActorTypeName(string actorType)
         {
-            if (actorType == null)
+            if (actorType is null)
             {
                 // The sender id can be null if an event is fired from non-actor code.
                 return "ExternalCode";
@@ -297,7 +297,7 @@ namespace Microsoft.Coyote.Actors.Coverage
 
         private static string GetLabel(string actorId, string fullyQualifiedName)
         {
-            if (fullyQualifiedName == null)
+            if (fullyQualifiedName is null)
             {
                 // then this is probably an Actor, not a StateMachine.  For Actors we can invent a state
                 // name equal to the short name of the class, this then looks like a Constructor which is fine.

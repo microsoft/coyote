@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                 }
             }
 
-            if (this.CoverageGraph == null)
+            if (this.CoverageGraph is null)
             {
                 this.CoverageGraph = coverageInfo.CoverageGraph;
             }
@@ -121,7 +121,7 @@ namespace Microsoft.Coyote.Actors.Coverage
                 this.CoverageGraph.Merge(coverageInfo.CoverageGraph);
             }
 
-            if (this.EventInfo == null)
+            if (this.EventInfo is null)
             {
                 this.EventInfo = coverageInfo.EventInfo;
             }

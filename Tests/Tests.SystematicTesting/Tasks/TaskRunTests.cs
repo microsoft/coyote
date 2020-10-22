@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 5;
                 });
 
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 3;
                 });
 
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 3;
                     });
 
@@ -199,7 +199,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 5;
                     });
 
@@ -295,7 +295,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 5;
                     return entry.Value;
                 });
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 3;
                     return entry.Value;
                 });
@@ -379,7 +379,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     return await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 5;
                         return entry.Value;
                     });
@@ -400,7 +400,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     return await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 3;
                         return entry.Value;
                     });

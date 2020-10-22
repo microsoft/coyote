@@ -33,7 +33,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await WriteAsync(entry, 5).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -45,7 +45,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await WriteAsync(entry, 3).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await WriteWithDelayAsync(entry, 5).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -71,7 +71,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await WriteWithDelayAsync(entry, 3).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await NestedWriteAsync(entry, 5).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -109,7 +109,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await NestedWriteAsync(entry, 3).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await NestedWriteWithDelayAsync(entry, 5).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             {
                 SharedEntry entry = new SharedEntry();
                 await NestedWriteWithDelayAsync(entry, 3).ConfigureAwait(false);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",

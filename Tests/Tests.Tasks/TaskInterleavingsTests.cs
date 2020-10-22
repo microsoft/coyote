@@ -29,19 +29,6 @@ namespace Microsoft.Coyote.Tasks.Tests
             entry.Value = value;
         }
 
-        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
-        {
-            if (this.IsSystematicTest)
-            {
-                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
-            }
-            else
-            {
-                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
-                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
-            }
-        }
-
         [Fact(Timeout = 5000)]
         public void TestInterleavingsWithOneSynchronousTask()
         {
@@ -51,7 +38,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task = WriteAsync(entry, 3);
                 entry.Value = 5;
                 await task;
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of {1}.", entry.Value, 5);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -67,7 +54,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 entry.Value = 5;
                 await task;
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of {1}.", entry.Value, 5);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -88,7 +75,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 await WriteAsync(entry, 5);
                 await task;
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -107,7 +94,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 await task1;
                 await task2;
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -124,7 +111,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 await task1;
                 await task2;
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -150,7 +137,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 await task1;
                 await task2;
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -176,7 +163,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 });
 
                 await task1;
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(500),
             expectedError: "Value is 3 instead of 5.",
@@ -186,12 +173,6 @@ namespace Microsoft.Coyote.Tasks.Tests
         [Fact(Timeout = 5000)]
         public void TestExploreAllInterleavings()
         {
-            if (!this.IsSystematicTest)
-            {
-                // production version cannot always find all combinations.
-                return;
-            }
-
             SortedSet<string> results = new SortedSet<string>();
 
             string success = "Explored interleavings.";

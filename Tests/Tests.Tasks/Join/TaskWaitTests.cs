@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 task.Wait();
                 entry.Value = 5;
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -52,7 +52,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 entry.Value = 5;
                 task.Wait();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 entry.Value = 5;
                 task.Wait();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 entry.Value = 5;
                 task.Wait();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -135,7 +135,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 task.Wait(10);
                 await task;
 
-                Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
+                AssertSharedEntryValue(entry, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -161,7 +161,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 task.Wait(tokenSource.Token);
                 await task;
 
-                Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
+                AssertSharedEntryValue(entry, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 task.Wait(10, tokenSource.Token);
                 await task;
 
-                Specification.Assert(entry.Value == 3, "Value is {0} instead of 3.", entry.Value);
+                AssertSharedEntryValue(entry, 3);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }

@@ -68,14 +68,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
         [Fact(Timeout = 5000)]
         public void TestQueueUserWorkItemWithException()
         {
-            if (!this.IsSystematicTest)
-            {
-                // production version of this test results in an unhandled exception.
-                // bugbug: can we rewrite this test so it works both in production and systematic testing modes?
-                // TestQueueUserWorkItemWithAsyncException makes a lot more sense to me.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 ThreadPool.QueueUserWorkItem(_ =>
@@ -88,8 +80,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
             configuration: GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Unhandled exception. System.InvalidOperationException"),
-                    "Expected 'InvalidOperationException', but found error: " + e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException", e);
             },
             replay: true);
         }
@@ -153,14 +144,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
         [Fact(Timeout = 5000)]
         public void TestUnsafeQueueUserWorkItemWithException()
         {
-            if (!this.IsSystematicTest)
-            {
-                // production version of this test results in an unhandled exception.
-                // bugbug: can we rewrite this test so it works both in production and systematic testing modes?
-                // TestUnsafeQueueUserWorkItemWithAsyncException makes a lot more sense to me.
-                return;
-            }
-
             this.TestWithError(() =>
             {
                 ThreadPool.UnsafeQueueUserWorkItem(_ =>
@@ -171,8 +154,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Threading
             configuration: GetConfiguration().WithTestingIterations(10),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Unhandled exception. System.InvalidOperationException"),
-                    "Expected 'InvalidOperationException', but found error: " + e);
+                Assert.StartsWith("Unhandled exception. System.InvalidOperationException", e);
             },
             replay: true);
         }

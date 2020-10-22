@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.Coyote.Rewriting;
+using Microsoft.Coyote.Specifications;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -26,6 +27,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests
                 return result;
             }
         }
+
+        protected static void AssertSharedEntryValue(SharedEntry entry, int expected) =>
+            Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
 
         protected class SharedEntry
         {

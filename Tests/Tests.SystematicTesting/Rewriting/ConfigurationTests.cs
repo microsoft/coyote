@@ -32,8 +32,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
             Assert.Equal(Path.Combine(configDirectory), options.OutputDirectory);
             Assert.True(options.IsReplacingAssemblies);
 
-            Assert.Single(options.AssemblyPaths);
-            Assert.Equal(Path.Combine(options.AssembliesDirectory, "Microsoft.Coyote.Tests.SystematicTesting.dll"), options.AssemblyPaths.First());
+            Assert.Equal(2, options.AssemblyPaths.Count());
+            Assert.Equal(Path.Combine(options.AssembliesDirectory, "Microsoft.Coyote.Tests.SystematicTesting.dll"),
+                options.AssemblyPaths.First());
         }
 
         [Fact(Timeout = 5000)]

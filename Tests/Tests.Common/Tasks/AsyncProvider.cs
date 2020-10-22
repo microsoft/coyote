@@ -13,6 +13,8 @@ namespace Microsoft.Coyote.Tests.Common.Tasks
     /// </remarks>
     public static class AsyncProvider
     {
-        public static Task DelayAsync() => Task.Delay(100);
+        public static Task DelayAsync(int duration) => Task.Delay(duration);
+
+        public static async Task YieldAsync() => await Task.Yield();
     }
 }

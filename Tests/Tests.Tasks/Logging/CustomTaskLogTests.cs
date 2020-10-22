@@ -73,12 +73,6 @@ Hi mom!
         [Fact(Timeout = 5000)]
         public void TestCustomTaskRuntimeLog()
         {
-            if (!this.IsSystematicTest)
-            {
-                // assembly has not been rewritten, so skip this test.
-                return;
-            }
-
             var config = GetConfiguration().WithRandomGeneratorSeed(0);
             TestingEngine engine = TestingEngine.Create(config, this.RunAsync);
 

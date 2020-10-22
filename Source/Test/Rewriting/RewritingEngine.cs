@@ -281,13 +281,13 @@ namespace Microsoft.Coyote.Rewriting
                 if (IsAssemblyRewritten(assembly))
                 {
                     // The assembly has been already rewritten by this version of Coyote, so skip it.
-                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()})");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly with reason: already rewritten by Coyote v{GetAssemblyRewritterVersion()}");
                     return;
                 }
                 else if (IsMixedModeAssembly(assembly))
                 {
                     // Mono.Cecil does not support writing mixed-mode assemblies.
-                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly (reason: rewriting a mixed-mode assembly is not supported)");
+                    this.Logger.WriteLine(LogSeverity.Warning, $"..... Skipping assembly with reason: rewriting a mixed-mode assembly is not supported");
                     return;
                 }
 

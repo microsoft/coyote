@@ -26,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -42,7 +42,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -61,7 +61,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -93,11 +93,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -110,11 +110,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -138,7 +138,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -160,7 +160,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -177,14 +177,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 3;
                     });
 
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -199,14 +199,14 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 5;
                     });
 
                     entry.Value = 3;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -295,7 +295,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 5;
                     return entry.Value;
                 });
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 SharedEntry entry = new SharedEntry();
                 int value = await Task.Run(async () =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(100);
                     entry.Value = 3;
                     return entry.Value;
                 });
@@ -379,7 +379,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     return await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 5;
                         return entry.Value;
                     });
@@ -400,7 +400,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     return await Task.Run(async () =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(100);
                         entry.Value = 3;
                         return entry.Value;
                     });

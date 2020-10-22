@@ -19,13 +19,13 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Invocations
         {
             this.TestWithError(async () =>
             {
-                await AsyncProvider.DelayAsync();
+                await AsyncProvider.DelayAsync(100);
             },
             configuration: GetConfiguration().WithTestingIterations(100),
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Method 'Microsoft.Coyote.Tests.Common.Tasks.AsyncProvider.DelayAsync' returned an uncontrolled task"),
-                    "Expected uncontrolled task from invoking the async method.");
+                string expectedMethodName = $"{typeof(AsyncProvider).FullName}.{nameof(AsyncProvider.DelayAsync)}";
+                Assert.StartsWith($"Method '{expectedMethodName}' returned an uncontrolled task", e);
             },
             replay: true);
         }

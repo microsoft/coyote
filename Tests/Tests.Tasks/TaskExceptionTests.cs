@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -75,7 +75,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(task.Status == TaskStatus.RanToCompletion,
                     $"Status is '{task.Status}' instead of 'RanToCompletion'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -158,7 +158,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
                 Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -185,7 +185,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
                 Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -216,7 +216,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
                 Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -248,7 +248,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
                 Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                     $"Exception is not '{typeof(InvalidOperationException)}'.");
                 Specification.Assert(task.Status == TaskStatus.Faulted,
                     $"Status is '{task.Status}' instead of 'Faulted'.");
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200));
         }

@@ -29,19 +29,6 @@ namespace Microsoft.Coyote.Tasks.Tests
             entry.Value = value;
         }
 
-        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
-        {
-            if (this.IsSystematicTest)
-            {
-                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
-            }
-            else
-            {
-                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
-                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
-            }
-        }
-
         [Fact(Timeout = 5000)]
         public void TestWhenAllWithTwoSynchronousTasks()
         {
@@ -51,7 +38,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = WriteAsync(entry, 5);
                 Task task2 = WriteAsync(entry, 3);
                 await Task.WhenAll(task1, task2);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -67,7 +54,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 Task task1 = WriteWithDelayAsync(entry, 3);
                 Task task2 = WriteWithDelayAsync(entry, 5);
                 await Task.WhenAll(task1, task2);
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -93,7 +80,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 await Task.WhenAll(task1, task2);
 
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -211,7 +198,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 };
 
                 var task = whenAll();
-                this.AssertSharedEntryValue(entry, 1, 3);
+                AssertSharedEntryValue(entry, 1);
                 await task;
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -239,7 +226,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 };
 
                 var task = whenAll();
-                this.AssertSharedEntryValue(entry, 1, 3);
+                AssertSharedEntryValue(entry, 1);
                 await task;
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -360,12 +347,6 @@ namespace Microsoft.Coyote.Tasks.Tests
         [Fact(Timeout = 5000)]
         public void TestWhenAllDeadlock()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET cannot detect these deadlocks.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 // Test that `WhenAll` deadlocks because one of the tasks cannot complete until later.
@@ -376,7 +357,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             },
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }
@@ -384,12 +365,6 @@ namespace Microsoft.Coyote.Tasks.Tests
         [Fact(Timeout = 5000)]
         public void TestWhenAllWithResultsAndDeadlock()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET cannot detect these deadlocks.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 // Test that `WhenAll` deadlocks because one of the tasks cannot complete until later.
@@ -400,7 +375,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             },
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }

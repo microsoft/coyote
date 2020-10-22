@@ -37,17 +37,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception.
-                TestFilterMethod();
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestFilterMethod);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestFilterMethod);
         }
 
         private static void TestFilterMethod2()
@@ -66,17 +58,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter2()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception..
-                TestFilterMethod2();
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestFilterMethod2);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestFilterMethod2);
         }
 
         private static void TestFilterMethod3()
@@ -95,17 +79,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestAddExceptionFilter3()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception.
-                TestFilterMethod3();
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestFilterMethod3);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestFilterMethod3);
         }
 
         private static void TestFilterMethod4()
@@ -191,17 +167,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception..
-                this.Test(TestComplexFilterMethod);
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod);
         }
 
         private static void TestComplexFilterMethod2()
@@ -223,17 +191,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter2()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception..
-                this.Test(TestComplexFilterMethod2);
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod2);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod2);
         }
 
         private static void TestComplexFilterMethod3()
@@ -251,17 +211,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter3()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception..
-                this.Test(TestComplexFilterMethod3);
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod3);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod3);
         }
 
         private static void TestComplexFilterMethod4()
@@ -285,17 +237,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Exceptions
         [Fact(Timeout = 5000)]
         public void TestEditComplexFilter4()
         {
-            if (!this.IsSystematicTest)
-            {
-                // The non-rewritten code should catch the coyote exception.
-                this.Test(TestComplexFilterMethod4);
-            }
-            else
-            {
-                // The rewritten code should add a !(e is ExecutionCanceledException) filter
-                // which should allow this exception to escape the catch block.
-                this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod4);
-            }
+            // The rewritten code should add a !(e is ExecutionCanceledException) filter
+            // which should allow this exception to escape the catch block.
+            this.RunWithException<ExecutionCanceledException>(TestComplexFilterMethod4);
         }
 
         private static void TestRethrowMethod()

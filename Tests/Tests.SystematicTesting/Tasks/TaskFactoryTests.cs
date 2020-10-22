@@ -29,7 +29,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 });
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -49,7 +49,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 }).Unwrap();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 }).Unwrap();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 }).Unwrap();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -119,7 +119,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     entry.Value = 5;
                 }).Unwrap();
 
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),

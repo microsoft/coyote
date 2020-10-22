@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 {
-    public class GetEventGroupIdTests : Coyote.Actors.Tests.GetEventGroupIdTests
+    public class GetEventGroupIdTests : Actors.Tests.GetEventGroupIdTests
     {
         public GetEventGroupIdTests(ITestOutputHelper output)
             : base(output)

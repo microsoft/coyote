@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task task1 = WriteAsync(entry, 5);
                 Task task2 = WriteAsync(entry, 3);
                 Task.WaitAll(task1, task2);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -52,24 +52,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task task1 = WriteWithDelayAsync(entry, 3);
                 Task task2 = WriteWithDelayAsync(entry, 5);
                 Task.WaitAll(task1, task2);
-                Specification.Assert(entry.Value == 5, "Value is {0} instead of 5.", entry.Value);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
             replay: true);
-        }
-
-        private void AssertSharedEntryValue(SharedEntry entry, int expected, int other)
-        {
-            if (this.IsSystematicTest)
-            {
-                Specification.Assert(entry.Value == expected, "Value is {0} instead of {1}.", entry.Value, expected);
-            }
-            else
-            {
-                Specification.Assert(entry.Value == expected || entry.Value == other, "Unexpected value {0} in SharedEntry", entry.Value);
-                Specification.Assert(false, "Value is {0} instead of {1}.", other, expected);
-            }
         }
 
         [Fact(Timeout = 5000)]
@@ -90,8 +77,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 });
 
                 Task.WaitAll(task1, task2);
-
-                this.AssertSharedEntryValue(entry, 5, 3);
+                AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 3 instead of 5.",
@@ -150,18 +136,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Task.WaitAll(task1, task2);
 
-                if (this.IsSystematicTest)
-                {
-                    Specification.Assert(task1.Result == 5, $"The first task result is {task1.Result} instead of 5.");
-                    Specification.Assert(task2.Result == 3, $"The second task result is {task2.Result} instead of 3.");
-                    Specification.Assert(task1.Result == task2.Result, "Results are not equal.");
-                }
-                else
-                {
-                    // production version of this test we don't know which order the tasks execute and
-                    // with statement level interleaving we can even end up with duplicate values.
-                    Specification.Assert(false, "Results are not equal.");
-                }
+                Specification.Assert(task1.Result == 5, $"The first task result is {task1.Result} instead of 5.");
+                Specification.Assert(task2.Result == 3, $"The second task result is {task2.Result} instead of 3.");
+                Specification.Assert(task1.Result == task2.Result, "Results are not equal.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Results are not equal.",
@@ -197,12 +174,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestWaitAllDeadlock()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET cannot detect these deadlocks.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 // Test that `WaitAll` deadlocks because one of the tasks cannot complete until later.
@@ -213,7 +184,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }
@@ -221,12 +192,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         [Fact(Timeout = 5000)]
         public void TestWaitAllWithResultsAndDeadlock()
         {
-            if (!this.IsSystematicTest)
-            {
-                // .NET cannot detect these deadlocks.
-                return;
-            }
-
             this.TestWithError(async () =>
             {
                 // Test that `WaitAll` deadlocks because one of the tasks cannot complete until later.
@@ -237,7 +202,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
             },
             errorChecker: (e) =>
             {
-                Assert.True(e.StartsWith("Deadlock detected."), "Expected 'Deadlock detected', but found error: " + e);
+                Assert.StartsWith("Deadlock detected.", e);
             },
             replay: true);
         }

@@ -217,17 +217,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             configuration: GetConfiguration().WithTestingIterations(200));
         }
 
-        private void AssertCompleted(Task task1, Task task2)
-        {
-            if (this.IsSystematicTest)
-            {
-                Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
-            }
-            else
-            {
-                // production cannot guarantee this.
-                Specification.Assert(false, "One task has not completed.");
-            }
-        }
+        private void AssertCompleted(Task task1, Task task2) =>
+            Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
     }
 }

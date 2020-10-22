@@ -481,12 +481,14 @@ namespace Microsoft.Coyote.SystematicTesting
                 var op = ExecutingOperation.Value;
                 if (op is null)
                 {
-                    this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
-                        "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
-                        "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
-                        "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
-                        "you will need to mock them during testing.",
-                        Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
+                    // TODO: figure out if there is a way to get more information about the creator of the
+                    // uncontrolled task to ease the user debugging experience.
+                    // Report the invalid operation and then throw it to fail the uncontrolled task.
+                    // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
+                    string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
+                    throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
+                        "which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
+                        "of the uncontrolled task, or rewrite its assembly.");
                 }
             }
         }

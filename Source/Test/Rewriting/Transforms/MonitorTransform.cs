@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Rewriting
         /// <inheritdoc/>
         protected override Instruction VisitInstruction(Instruction instruction)
         {
-            if (this.Method == null)
+            if (this.Method is null)
             {
                 return instruction;
             }
@@ -96,11 +96,11 @@ namespace Microsoft.Coyote.Rewriting
 
         private MethodReference GetControlledMonitorMethod(MethodReference monitorMethod)
         {
-            if (this.ControlledMonitorType == null)
+            if (this.ControlledMonitorType is null)
             {
                 var tr = this.Module.ImportReference(typeof(SystematicTesting.Interception.ControlledMonitor));
                 this.ControlledMonitorType = tr.Resolve();
-                if (this.ControlledMonitorType == null)
+                if (this.ControlledMonitorType is null)
                 {
                     throw new InvalidOperationException("The rewriter is not finding the right version of Microsoft.Coyote.");
                 }

@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.SmartSockets
             return await Task.Run(async () =>
             {
                 string localHost = FindLocalHostName();
-                if (localHost == null)
+                if (localHost is null)
                 {
                     return null;
                 }
@@ -97,7 +97,7 @@ namespace Microsoft.Coyote.SmartSockets
                             int len = reader.ReadInt32();
                             string addr = reader.ReadString();
                             string[] parts = addr.Split(':');
-                            if (parts.Length == 2)
+                            if (parts.Length is 2)
                             {
                                 var a = IPAddress.Parse(parts[0]);
                                 SmartSocketClient client = await ConnectAsync(new IPEndPoint(a, int.Parse(parts[1])), clientName, resolver);
@@ -513,7 +513,7 @@ namespace Microsoft.Coyote.SmartSockets
         private async Task HandleBackchannelRequest(SocketMessage msg)
         {
             string[] parts = msg.Sender.Split(':');
-            if (parts.Length == 2)
+            if (parts.Length is 2)
             {
                 if (int.TryParse(parts[1], out int port))
                 {

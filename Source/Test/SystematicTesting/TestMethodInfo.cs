@@ -254,7 +254,7 @@ namespace Microsoft.Coyote.SystematicTesting
             BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.InvokeMethod;
             List<MethodInfo> testMethods = FindTestMethodsWithAttribute(attribute, flags, assembly);
 
-            if (testMethods.Count == 0)
+            if (testMethods.Count is 0)
             {
                 return null;
             }

@@ -235,7 +235,7 @@ namespace Microsoft.Coyote.Actors
             }
 
             // If no event group is provided then inherit the current group from the creator.
-            if (eventGroup == null && creator != null)
+            if (eventGroup is null && creator != null)
             {
                 eventGroup = creator.EventGroup;
             }
@@ -316,12 +316,12 @@ namespace Microsoft.Coyote.Actors
             target = this.GetActorWithId<Actor>(targetId);
 
             // If no group is provided we default to passing along the group from the sender.
-            if (eventGroup == null && sender != null)
+            if (eventGroup is null && sender != null)
             {
                 eventGroup = sender.EventGroup;
             }
 
-            Guid opId = eventGroup == null ? Guid.Empty : eventGroup.Id;
+            Guid opId = eventGroup is null ? Guid.Empty : eventGroup.Id;
             if (target is null || target.IsHalted)
             {
                 this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
@@ -435,7 +435,7 @@ namespace Microsoft.Coyote.Actors
         internal virtual bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType)
         {
             bool result = false;
-            if (this.ValueGenerator.Next(maxValue) == 0)
+            if (this.ValueGenerator.Next(maxValue) is 0)
             {
                 result = true;
             }
@@ -571,7 +571,7 @@ namespace Microsoft.Coyote.Actors
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : default;
                 var eventWaitTypesArray = eventTypes.ToArray();
-                if (eventWaitTypesArray.Length == 1)
+                if (eventWaitTypesArray.Length is 1)
                 {
                     this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
                 }
@@ -939,7 +939,7 @@ namespace Microsoft.Coyote.Actors
                 }
 
                 // If a group was not provided, inherit the current event group from the creator (if any).
-                if (eventGroup == null && creator != null)
+                if (eventGroup is null && creator != null)
                 {
                     eventGroup = creator.EventGroup;
                 }
@@ -1057,14 +1057,14 @@ namespace Microsoft.Coyote.Actors
                 this.ResetProgramCounter(sender as StateMachine);
 
                 // If no group is provided we default to passing along the group from the sender.
-                if (eventGroup == null && sender != null)
+                if (eventGroup is null && sender != null)
                 {
                     eventGroup = sender.EventGroup;
                 }
 
                 if (target.IsHalted)
                 {
-                    Guid groupId = eventGroup == null ? Guid.Empty : eventGroup.Id;
+                    Guid groupId = eventGroup is null ? Guid.Empty : eventGroup.Id;
                     this.LogWriter.LogSendEvent(targetId, sender?.Id.Name, sender?.Id.Type,
                         (sender as StateMachine)?.CurrentStateName ?? default, e, groupId, isTargetHalted: true);
                     this.Assert(options is null || !options.MustHandle,
@@ -1112,7 +1112,7 @@ namespace Microsoft.Coyote.Actors
                     Assert = options?.Assert ?? -1
                 };
 
-                Guid opId = eventGroup == null ? Guid.Empty : eventGroup.Id;
+                Guid opId = eventGroup is null ? Guid.Empty : eventGroup.Id;
                 this.LogWriter.LogSendEvent(actor.Id, sender?.Id.Name, sender?.Id.Type, stateName,
                     e, opId, isTargetHalted: false);
                 return actor.Enqueue(e, eventGroup, eventInfo);
@@ -1297,7 +1297,7 @@ namespace Microsoft.Coyote.Actors
             {
                 string stateName = actor is StateMachine stateMachine ? stateMachine.CurrentStateName : null;
                 var eventWaitTypesArray = eventTypes.ToArray();
-                if (eventWaitTypesArray.Length == 1)
+                if (eventWaitTypesArray.Length is 1)
                 {
                     this.LogWriter.LogWaitEvent(actor.Id, stateName, eventWaitTypesArray[0]);
                 }

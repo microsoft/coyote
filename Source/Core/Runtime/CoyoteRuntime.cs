@@ -611,7 +611,7 @@ namespace Microsoft.Coyote.Runtime
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
-            if (delay.TotalMilliseconds == 0)
+            if (delay.TotalMilliseconds is 0)
             {
                 // If the delay is 0, then complete synchronously.
                 return Task.CompletedTask;
@@ -631,19 +631,7 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                var callerOp = this.Scheduler?.GetExecutingOperation<TaskOperation>();
-                if (callerOp is null)
-                {
-                    // TODO: figure out if there is a way to get more information about the creator of the
-                    // uncontrolled task to ease the user debugging experience.
-                    // Report the invalid operation and then throw it to fail the uncontrolled task.
-                    // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
-                    string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
-                    throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
-                        "which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
-                        "of the uncontrolled task, or rewrite its assembly.");
-                }
-
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 if (IsCurrentOperationExecutingAsynchronously())
                 {
                     IO.Debug.WriteLine("<Task> '{0}' is dispatching continuation of task '{1}'.", callerOp.Name, task.Id);
@@ -676,7 +664,6 @@ namespace Microsoft.Coyote.Runtime
             try
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "Yield");
                 IO.Debug.WriteLine("<Task> '{0}' is executing a yield operation.", callerOp.Id);
                 this.ScheduleAction(continuation, null, true, false, default);
             }
@@ -707,7 +694,6 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleAction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -748,7 +734,6 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleAction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -789,7 +774,6 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -840,7 +824,6 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
@@ -891,7 +874,6 @@ namespace Microsoft.Coyote.Runtime
             var task = this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 Task result = null;
@@ -931,7 +913,6 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 CoyoteTasks.Task result = null;
@@ -969,7 +950,6 @@ namespace Microsoft.Coyote.Runtime
             var task = this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 Task<TResult> result = null;
@@ -1009,7 +989,6 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 CoyoteTasks.Task<TResult> result = null;
@@ -1043,7 +1022,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAll");
             callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
@@ -1067,7 +1045,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAll");
             callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
@@ -1094,8 +1071,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAny");
-
             callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
             int result = -1;
@@ -1132,7 +1107,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAny");
             callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
             int result = -1;
@@ -1241,15 +1215,8 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void CheckExecutingOperationIsControlled()
-        {
-            if (!this.Scheduler.IsAttached)
-            {
-                throw new ExecutionCanceledException();
-            }
-
-            this.Scheduler.CheckExecutingOperationIsControlled();
-        }
+        internal void CheckExecutingOperationIsControlled() =>
+            this.Scheduler.GetExecutingOperation<AsyncOperation>();
 
         /// <summary>
         /// Callback invoked when the <see cref="CoyoteTasks.YieldAwaitable.YieldAwaiter.GetResult"/> is called.
@@ -1414,18 +1381,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
                     "which is not allowed: either mock the method, or rewrite the method's assembly.");
-            }
-        }
-
-        /// <summary>
-        /// Checks that the executing task is controlled.
-        /// </summary>
-        private void AssertIsTaskControlled(TaskOperation callerOp, string opName)
-        {
-            if (callerOp == null)
-            {
-                this.Assert(false, "Uncontrolled task '{0}' invoked a {1} operation.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", opName);
             }
         }
 

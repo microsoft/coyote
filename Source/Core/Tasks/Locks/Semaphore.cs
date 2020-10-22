@@ -279,7 +279,7 @@ namespace Microsoft.Coyote.Tasks
 
                 // We need this loop, because when a resource gets released it notifies all asynchronous
                 // operations waiting to acquire it, even if such an operation is still blocked.
-                while (this.CurrentCount == 0)
+                while (this.CurrentCount is 0)
                 {
                     // The resource is not available yet, notify the scheduler that the executing
                     // asynchronous operation is blocked, so that it cannot be scheduled during

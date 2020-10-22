@@ -47,23 +47,35 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to join the specified task.
+        /// Blocks the operation until the specified tasks completes.
         /// </summary>
-        internal void OnWaitTask(Task task)
+        internal void BlockUntilTaskCompletes(Task task)
         {
-            if (!task.IsCompleted)
-            {
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
-                this.JoinDependencies.Add(task);
-                this.Status = AsyncOperationStatus.BlockedOnWaitAll;
-                this.Scheduler.ScheduleNextOperation();
-            }
+            IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is waiting for task '{1}'.", this.Id, task.Id);
+            this.JoinDependencies.Add(task);
+            this.Status = AsyncOperationStatus.BlockedOnWaitAll;
+            this.Scheduler.ScheduleNextOperation();
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to join the specified tasks.
+        /// Tries to blocks the operation until the specified tasks completes,
+        /// if the task has not already completed.
         /// </summary>
-        internal void OnWaitTasks(Task[] tasks, bool waitAll)
+        internal bool TryBlockUntilTaskCompletes(Task task)
+        {
+            if (!task.IsCompleted)
+            {
+                this.BlockUntilTaskCompletes(task);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Blocks the operation until all or any of the specified tasks complete.
+        /// </summary>
+        internal void BlockUntilTasksComplete(Task[] tasks, bool waitAll)
         {
             // In the case where `waitAll` is false (e.g. for `Task.WhenAny` or `Task.WaitAny`), we check if all
             // tasks are not completed. If that is the case, then we add all tasks to `JoinDependencies` and wait
@@ -89,9 +101,9 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to join the specified tasks.
+        /// Blocks the operation until all or any of the specified tasks complete.
         /// </summary>
-        internal void OnWaitTasks(CoyoteTasks.Task[] tasks, bool waitAll)
+        internal void BlockUntilTasksComplete(CoyoteTasks.Task[] tasks, bool waitAll)
         {
             if (waitAll || tasks.All(task => !task.IsCompleted))
             {

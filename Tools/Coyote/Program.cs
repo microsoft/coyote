@@ -213,7 +213,7 @@ namespace Microsoft.Coyote
                 {
                     // Load options from JSON file.
                     config = RewritingOptions.ParseFromJSON(configuration.RewritingOptionsPath);
-                    Console.WriteLine($". Rewriting the assemblies specified in {config}");
+                    Console.WriteLine($". Rewriting the assemblies specified in {configuration.RewritingOptionsPath}");
                     config.PlatformVersion = configuration.PlatformVersion;
 
                     // allow command line options to override the json file.

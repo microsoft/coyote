@@ -25,13 +25,13 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Invoked when the operation is waiting to receive an event.
+        /// Blocks the operation until the event the actor is waiting for has been received.
         /// </summary>
-        internal void OnWaitEvent() => this.Status = AsyncOperationStatus.BlockedOnReceive;
+        internal void BlockUntilEventReceived() => this.Status = AsyncOperationStatus.BlockedOnReceive;
 
         /// <summary>
-        /// Invoked when the operation dequeued an event it was waiting to receive.
+        /// Enables the operation due to the received event.
         /// </summary>
-        internal void OnReceivedEvent() => this.Status = AsyncOperationStatus.Enabled;
+        internal void EnableDueToReceivedEvent() => this.Status = AsyncOperationStatus.Enabled;
     }
 }

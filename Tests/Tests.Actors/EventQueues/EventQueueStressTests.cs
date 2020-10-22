@@ -101,7 +101,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
                 for (int i = 0; i < numMessages; i++)
                 {
-                    if (i % 2 == 0)
+                    if (i % 2 is 0)
                     {
                         queue.Enqueue(new E1(), null, null);
                     }
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
                 for (int i = 0; i < numMessages; i++)
                 {
-                    if (i % 2 == 0)
+                    if (i % 2 is 0)
                     {
                         var e = await queue.ReceiveEventAsync(typeof(E1));
                         Assert.IsType<E1>(e);

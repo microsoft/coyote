@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var e1 = new E1();
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(N1));
                 await this.Context.SendEventAndExecuteAsync(m, e1);
-                this.Assert(e1.Value == 1);
+                this.Assert(e1.Value is 1);
                 tcs.SetResult(true);
             }
         }
@@ -255,7 +255,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void OnMHalts()
             {
-                this.Assert(this.SEReturned == false);
+                this.Assert(this.SEReturned is false);
                 this.MHalted = true;
             }
 

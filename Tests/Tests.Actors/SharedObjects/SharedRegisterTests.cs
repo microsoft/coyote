@@ -45,12 +45,12 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                     counter.Update(x => x + 5);
 
                     var v1 = counter.GetValue();
-                    this.Assert(v1 == 10 || v1 == 15);
+                    this.Assert(v1 is 10 || v1 is 15);
 
                     counter.Update(x => x - 5);
 
                     var v2 = counter.GetValue();
-                    this.Assert(v2 == 5 || v2 == 10);
+                    this.Assert(v2 is 5 || v2 is 10);
                 }
 
                 tcs.SetResult(true);

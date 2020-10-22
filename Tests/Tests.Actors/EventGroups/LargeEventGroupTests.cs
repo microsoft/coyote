@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.Actors.Tests
             {
                 if (this.Running.TryUpdate(owner, false, true))
                 {
-                    if (Interlocked.Decrement(ref this.RunningCount) == 0)
+                    if (Interlocked.Decrement(ref this.RunningCount) is 0)
                     {
                         // all known actors have halted so we are done!
                         this.SetResult(true);

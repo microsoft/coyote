@@ -39,7 +39,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private void HandleTimeout()
             {
                 this.Config.Count++;
-                this.Assert(this.Config.Count == 1);
+                this.Assert(this.Config.Count is 1);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private void HandleTimeout()
             {
                 this.Config.Count++;
-                this.Assert(this.Config.Count == 1);
+                this.Assert(this.Config.Count is 1);
             }
         }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 if (e is MyTimeoutEvent)
                 {
                     this.Config.Count++;
-                    this.Assert(this.Config.Count == 1 || this.Config.Test == TestType.CustomPeriodicTimer);
+                    this.Assert(this.Config.Count is 1 || this.Config.Test == TestType.CustomPeriodicTimer);
                 }
                 else
                 {

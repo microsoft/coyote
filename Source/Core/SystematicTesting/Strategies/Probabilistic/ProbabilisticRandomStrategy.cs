@@ -30,7 +30,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         public override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count == 0)
+            if (enabledOps.Count is 0)
             {
                 next = null;
                 return false;
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         {
             for (int idx = 0; idx < this.NumberOfCoinFlips; idx++)
             {
-                if (this.RandomValueGenerator.Next(2) == 1)
+                if (this.RandomValueGenerator.Next(2) is 1)
                 {
                     return false;
                 }

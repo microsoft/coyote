@@ -96,7 +96,7 @@ namespace Microsoft.Coyote.Actors.Tests
             private void HandleTimeout()
             {
                 this.Counter++;
-                if (this.Counter == 10)
+                if (this.Counter is 10)
                 {
                     this.Tcs.SetResult(true);
                     this.RaiseHaltEvent();

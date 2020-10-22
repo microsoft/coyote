@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
                 _ = counter[1];
                 var c = counter.Count;
 
-                this.Assert(c == 1);
+                this.Assert(c is 1);
             }
         }
 
@@ -175,8 +175,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
 
                 var b = counter.TryRemove(1, out string v);
 
-                this.Assert(b == false || v == "M");
-                this.Assert(counter.Count == 0);
+                this.Assert(b is false || v == "M");
+                this.Assert(counter.Count is 0);
             }
         }
 
@@ -193,7 +193,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
                 var counter = (e as E1).Counter;
                 var b = counter.TryRemove(1, out string v);
 
-                this.Assert(b == false || v == "M");
+                this.Assert(b is false || v == "M");
             }
         }
 

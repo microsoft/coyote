@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                 for (int i = 0; i < 100; i++)
                 {
                     var b = dictionary.TryRemove(i, out string v);
-                    this.Assert(b == false || v == i.ToString());
+                    this.Assert(b is false || v == i.ToString());
 
                     if (b)
                     {
@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                 }
 
                 var c = dictionary.Count;
-                this.Assert(c == 0);
+                this.Assert(c is 0);
                 tcs.TrySetResult(true);
             }
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                 for (int i = 0; i < 100; i++)
                 {
                     var b = dictionary.TryRemove(i, out string v);
-                    this.Assert(b == false || v == i.ToString());
+                    this.Assert(b is false || v == i.ToString());
 
                     if (b)
                     {
@@ -116,7 +116,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
 
             Task.WaitAll(tcs1.Task, tcs2.Task);
             Assert.False(failed);
-            Assert.True(counter.GetValue() == 100);
+            Assert.True(counter.GetValue() is 100);
         }
     }
 }

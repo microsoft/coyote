@@ -301,7 +301,7 @@ namespace Microsoft.Coyote.Rewriting
             }
 
             var method = FindMatchingMethod(typedef, methodName, typeRefs.ToArray());
-            if (method == null)
+            if (method is null)
             {
                 throw new Exception(string.Format("Internal error looking for method '{0}' on type '{1}'", methodName, typedef.FullName));
             }

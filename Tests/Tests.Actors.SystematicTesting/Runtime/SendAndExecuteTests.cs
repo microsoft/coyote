@@ -215,7 +215,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
                 var m = await this.Context.CreateActorAndExecuteAsync(typeof(M3B));
                 var handled = await this.Context.SendEventAndExecuteAsync(m, e);
                 this.Assert(handled);
-                this.Assert(e.X == 1);
+                this.Assert(e.X is 1);
             }
         }
 
@@ -366,7 +366,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 
             private void OnMHalts()
             {
-                this.Assert(this.SEReturned == false);
+                this.Assert(this.SEReturned is false);
                 this.MHalted = true;
             }
 

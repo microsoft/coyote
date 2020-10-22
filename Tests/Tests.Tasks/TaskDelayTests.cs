@@ -59,7 +59,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 await Task.WhenAll(tasks);
 
-                Specification.Assert(entry.Value == 2, "Value is {0} instead of 2.", entry.Value);
+                Specification.Assert(entry.Value is 2, "Value is {0} instead of 2.", entry.Value);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Value is 1 instead of 2.",

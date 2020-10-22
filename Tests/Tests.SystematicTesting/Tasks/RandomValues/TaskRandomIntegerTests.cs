@@ -27,7 +27,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 async Task WriteAsync()
                 {
                     await Task.CompletedTask;
-                    if (generator.NextInteger(5) == 0)
+                    if (generator.NextInteger(5) is 0)
                     {
                         entry.Value = 3;
                     }
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 async Task WriteWithDelayAsync()
                 {
                     await Task.Delay(1);
-                    if (generator.NextInteger(5) == 0)
+                    if (generator.NextInteger(5) is 0)
                     {
                         entry.Value = 3;
                     }
@@ -84,7 +84,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 await Task.Run(() =>
                 {
-                    if (generator.NextInteger(5) == 0)
+                    if (generator.NextInteger(5) is 0)
                     {
                         entry.Value = 3;
                     }
@@ -112,7 +112,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.Run(async () =>
                 {
                     await Task.CompletedTask;
-                    if (generator.NextInteger(5) == 0)
+                    if (generator.NextInteger(5) is 0)
                     {
                         entry.Value = 3;
                     }
@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 await Task.Run(async () =>
                 {
                     await Task.Delay(1);
-                    if (generator.NextInteger(5) == 0)
+                    if (generator.NextInteger(5) is 0)
                     {
                         entry.Value = 3;
                     }
@@ -170,7 +170,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     await Task.Run(async () =>
                     {
                         await Task.CompletedTask;
-                        if (generator.NextInteger(5) == 0)
+                        if (generator.NextInteger(5) is 0)
                         {
                             entry.Value = 3;
                         }

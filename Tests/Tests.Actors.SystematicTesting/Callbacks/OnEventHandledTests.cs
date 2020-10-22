@@ -73,19 +73,19 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 //   OnEventHandledAsync(UnitEvent)
                 //   OnEventDequeueAsync(E1)
                 //   OnEventHandledAsync(E1)
-                if (this.Counter == 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
+                if (this.Counter is 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
                 {
                     this.Counter++;
                 }
-                else if (this.Counter == 1 && e is End endE1 && endE1.Event is UnitEvent)
+                else if (this.Counter is 1 && e is End endE1 && endE1.Event is UnitEvent)
                 {
                     this.Counter++;
                 }
-                else if (this.Counter == 2 && e is Begin beginE2 && beginE2.Event is E1)
+                else if (this.Counter is 2 && e is Begin beginE2 && beginE2.Event is E1)
                 {
                     this.Counter++;
                 }
-                else if (this.Counter == 3 && e is End endE2 && endE2.Event is E1)
+                else if (this.Counter is 3 && e is End endE2 && endE2.Event is E1)
                 {
                     this.Counter++;
                 }
@@ -94,7 +94,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     this.Assert(false);
                 }
 
-                if (this.Counter == 4)
+                if (this.Counter is 4)
                 {
                     this.RaiseGotoStateEvent<S2>();
                 }
@@ -167,11 +167,11 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 // Asserts that the following calls are seen in-order:
                 //   OnEventDequeueAsync(UnitEvent)
                 //   OnEventHandledAsync(UnitEvent)
-                if (this.Counter == 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
+                if (this.Counter is 0 && e is Begin beginE1 && beginE1.Event is UnitEvent)
                 {
                     this.Counter++;
                 }
-                else if (this.Counter == 1 && e is End endE1 && endE1.Event is UnitEvent)
+                else if (this.Counter is 1 && e is End endE1 && endE1.Event is UnitEvent)
                 {
                     this.Counter++;
                 }
@@ -180,7 +180,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     this.Assert(false);
                 }
 
-                if (this.Counter == 2)
+                if (this.Counter is 2)
                 {
                     this.RaiseGotoStateEvent<S2>();
                 }

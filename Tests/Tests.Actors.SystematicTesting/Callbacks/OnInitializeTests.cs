@@ -38,7 +38,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Process()
             {
-                this.Assert(this.Value == 0, $"Value is {this.Value}.");
+                this.Assert(this.Value is 0, $"Value is {this.Value}.");
             }
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Process()
             {
-                this.Assert(this.Value == 0, $"Value is {this.Value}.");
+                this.Assert(this.Value is 0, $"Value is {this.Value}.");
             }
         }
 
@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Process()
             {
-                this.Assert(this.Value == 0, $"Value is {this.Value}.");
+                this.Assert(this.Value is 0, $"Value is {this.Value}.");
             }
         }
 
@@ -139,7 +139,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Process()
             {
-                this.Assert(this.Value == 0, $"Value is {this.Value}.");
+                this.Assert(this.Value is 0, $"Value is {this.Value}.");
             }
         }
 
@@ -181,7 +181,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Process()
             {
-                this.Assert(this.Value == 0 || this.Value == 1, $"Value is {this.Value}.");
+                this.Assert(this.Value is 0 || this.Value is 1, $"Value is {this.Value}.");
             }
         }
 

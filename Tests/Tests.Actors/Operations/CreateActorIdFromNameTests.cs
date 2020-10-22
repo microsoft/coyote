@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Actors.Tests
             private void OnCompleted()
             {
                 this.Setup.Count--;
-                if (this.Setup.Count == 0)
+                if (this.Setup.Count is 0)
                 {
                     this.Setup.Completed.SetResult(true);
                 }

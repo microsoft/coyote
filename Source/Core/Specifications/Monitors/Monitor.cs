@@ -816,7 +816,7 @@ namespace Microsoft.Coyote.Specifications
 
             var initialStates = StateMap[monitorType].Where(state => state.IsStart).ToList();
             this.Assert(initialStates.Count != 0, "{0} must declare a start state.", this.Name);
-            this.Assert(initialStates.Count == 1, "{0} can not declare more than one start states.", this.Name);
+            this.Assert(initialStates.Count is 1, "{0} can not declare more than one start states.", this.Name);
 
             this.ConfigureStateTransitions(initialStates.Single());
             this.ActiveState = initialStates.Single();

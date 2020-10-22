@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         {
             next = null;
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count == 0)
+            if (enabledOps.Count is 0)
             {
                 return false;
             }
@@ -118,7 +118,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// </summary>
         private void SetNewOperationPriorities(List<AsyncOperation> ops, AsyncOperation current)
         {
-            if (this.PrioritizedOperations.Count == 0)
+            if (this.PrioritizedOperations.Count is 0)
             {
                 this.PrioritizedOperations.Add(current);
             }
@@ -187,7 +187,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            if (this.RandomValueGenerator.Next(maxValue) == 0)
+            if (this.RandomValueGenerator.Next(maxValue) is 0)
             {
                 next = true;
             }
@@ -210,7 +210,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <inheritdoc/>
         public bool HasReachedMaxSchedulingSteps()
         {
-            if (this.MaxScheduledSteps == 0)
+            if (this.MaxScheduledSteps is 0)
             {
                 return false;
             }

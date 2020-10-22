@@ -47,7 +47,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
 
             private void HandleEvent(Event e)
             {
-                this.Assert((e as E).Value == 2);
+                this.Assert((e as E).Value is 2);
             }
         }
 

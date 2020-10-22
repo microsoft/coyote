@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             if (this.IsReplaying)
             {
                 var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-                if (enabledOps.Count == 0)
+                if (enabledOps.Count is 0)
                 {
                     next = null;
                     return false;

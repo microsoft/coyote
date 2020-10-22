@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
             {
                 Counter counter = new Counter();
                 this.Monitor(typeof(M), new E(counter));
-                this.Assert(counter.Value == 1, "Monitor created more than once.");
+                this.Assert(counter.Value is 1, "Monitor created more than once.");
             }
         }
 

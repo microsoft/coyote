@@ -25,7 +25,7 @@ namespace Microsoft.Coyote
                 return;
             }
 
-            if (inputFiles.Count == 0)
+            if (inputFiles.Count is 0)
             {
                 Console.WriteLine("Error: No input files provided");
                 return;
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote
             inputFiles = new List<CoverageInfo>();
             OutputFilePrefix = "merged";
 
-            if (args.Length == 0)
+            if (args.Length is 0)
             {
                 Console.WriteLine("Usage: CoyoteMergeCoverageReports.exe file1.sci file2.sci ... [/output:prefix]");
                 return false;

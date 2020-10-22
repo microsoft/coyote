@@ -60,7 +60,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 object result = null;
                 lock (this.syncObject)
                 {
-                    while (this.occupied == 0)
+                    while (this.occupied is 0)
                     {
                         Monitor.Wait(this.syncObject);
                     }

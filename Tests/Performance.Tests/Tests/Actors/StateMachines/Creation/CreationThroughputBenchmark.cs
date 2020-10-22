@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         [IterationSetup]
         public void IterationSetup()
         {
-            if (this.Runtime == null)
+            if (this.Runtime is null)
             {
                 var configuration = Configuration.Create();
                 this.Runtime = RuntimeFactory.Create(configuration);

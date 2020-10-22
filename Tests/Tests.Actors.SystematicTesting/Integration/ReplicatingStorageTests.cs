@@ -115,8 +115,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void InjectFault()
             {
-                if (this.NumberOfFaults == 0 ||
-                    this.AliveNodes.Count == 0)
+                if (this.NumberOfFaults is 0 ||
+                    this.AliveNodes.Count is 0)
                 {
                     return;
                 }
@@ -129,7 +129,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.AliveNodes.Remove(node);
 
                 this.NumberOfFaults--;
-                if (this.NumberOfFaults == 0)
+                if (this.NumberOfFaults is 0)
                 {
                     this.SendEvent(this.FailureTimer, HaltEvent.Instance);
                 }
@@ -238,7 +238,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void RepairNodes()
             {
-                if (this.DataMap.Count == 0)
+                if (this.DataMap.Count is 0)
                 {
                     return;
                 }
@@ -712,7 +712,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
                 this.SendEvent(this.NodeManager, new Request(this.Id, command));
 
-                if (this.Counter == 1)
+                if (this.Counter is 1)
                 {
                     this.RaiseHaltEvent();
                 }

@@ -305,7 +305,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
             else if (configuration.SchedulingStrategy is "fairpct")
             {
-                var prefixLength = configuration.SafetyPrefixBound == 0 ?
+                var prefixLength = configuration.SafetyPrefixBound is 0 ?
                     configuration.MaxUnfairSchedulingSteps : configuration.SafetyPrefixBound;
                 var prefixStrategy = new PCTStrategy(prefixLength, configuration.StrategyBound, this.RandomValueGenerator);
                 var suffixStrategy = new RandomStrategy(configuration.MaxFairSchedulingSteps, this.RandomValueGenerator);
@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.Strategy = new ReplayStrategy(configuration, schedule, isFair, this.Strategy);
             }
 
-            if (TelemetryClient == null)
+            if (TelemetryClient is null)
             {
                 TelemetryClient = new CoyoteTelemetryClient(this.Configuration);
             }
@@ -496,7 +496,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
                         // Increases iterations if there is a specified timeout
                         // and the default iteration given.
-                        if (this.Configuration.TestingIterations == 1 &&
+                        if (this.Configuration.TestingIterations is 1 &&
                             this.Configuration.Timeout > 0)
                         {
                             maxIterations++;
@@ -675,7 +675,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 StringBuilder report = new StringBuilder();
                 report.AppendFormat("... Reproduced {0} bug{1}{2}.", this.TestReport.NumOfFoundBugs,
-                    this.TestReport.NumOfFoundBugs == 1 ? string.Empty : "s",
+                    this.TestReport.NumOfFoundBugs is 1 ? string.Empty : "s",
                     this.Configuration.AttachDebugger ? string.Empty : " (use --break to attach the debugger)");
                 report.AppendLine();
                 report.Append($"... Elapsed {this.Profiler.Results()} sec.");
@@ -1035,7 +1035,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.PrintGuard = int.Parse(guard);
             }
 
-            return iteration % this.PrintGuard == 0;
+            return iteration % this.PrintGuard is 0;
         }
 
         /// <summary>

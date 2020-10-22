@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void InitOnEntry()
             {
-                this.Assert(this.cnt == 0); // called once
+                this.Assert(this.cnt is 0); // called once
                 this.cnt++;
                 this.RaisePushStateEvent<Done>();
             }

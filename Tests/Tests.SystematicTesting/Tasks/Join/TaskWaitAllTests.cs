@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task<int> task1 = entry.GetWriteResultAsync(5);
                 Task<int> task2 = entry.GetWriteResultAsync(3);
                 Task.WaitAll(task1, task2);
-                Specification.Assert(task1.Result == 5 && task2.Result == 3, "Found unexpected value.");
+                Specification.Assert(task1.Result == 5 && task2.Result is 3, "Found unexpected value.");
                 Specification.Assert(task1.Result == task2.Result, "Results are not equal.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -110,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task<int> task1 = entry.GetWriteResultWithDelayAsync(5);
                 Task<int> task2 = entry.GetWriteResultWithDelayAsync(3);
                 Task.WaitAll(task1, task2);
-                Specification.Assert(task1.Result == 5 && task2.Result == 3, "Found unexpected value.");
+                Specification.Assert(task1.Result == 5 && task2.Result is 3, "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
@@ -137,7 +137,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task.WaitAll(task1, task2);
 
                 Specification.Assert(task1.Result == 5, $"The first task result is {task1.Result} instead of 5.");
-                Specification.Assert(task2.Result == 3, $"The second task result is {task2.Result} instead of 3.");
+                Specification.Assert(task2.Result is 3, $"The second task result is {task2.Result} instead of 3.");
                 Specification.Assert(task1.Result == task2.Result, "Results are not equal.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -164,7 +164,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Task.WaitAll(task1, task2);
 
-                Specification.Assert(task1.Result == 5 && task2.Result == 3, "Found unexpected value.");
+                Specification.Assert(task1.Result == 5 && task2.Result is 3, "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",

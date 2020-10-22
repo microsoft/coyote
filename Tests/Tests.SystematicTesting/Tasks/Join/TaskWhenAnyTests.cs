@@ -102,7 +102,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert(
                     (result.Id == task1.Id && result.Result == 5) ||
-                    (result.Id == task2.Id && result.Result == 3),
+                    (result.Id == task2.Id && result.Result is 3),
                     "Found unexpected value.");
                 AssertSharedEntryValue(entry, 5);
             },
@@ -122,7 +122,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task<int> result = await Task.WhenAny(task1, task2);
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert((result.Id == task1.Id && result.Result == 5) ||
-                    (result.Id == task2.Id && result.Result == 3), "Found unexpected value.");
+                    (result.Id == task2.Id && result.Result is 3), "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
@@ -150,7 +150,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert((result.Id == task1.Id && result.Result == 5) ||
-                    (result.Id == task2.Id && result.Result == 3), "Found unexpected value.");
+                    (result.Id == task2.Id && result.Result is 3), "Found unexpected value.");
                 AssertSharedEntryValue(entry, 5);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -179,7 +179,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(result.IsCompleted, "One task has not completed.");
                 Specification.Assert((result.Id == task1.Id && result.Result == 5) ||
-                    (result.Id == task2.Id && result.Result == 3), "Found unexpected value.");
+                    (result.Id == task2.Id && result.Result is 3), "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",

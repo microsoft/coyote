@@ -34,7 +34,7 @@ namespace Microsoft.Coyote.Telemetry
                 if (string.IsNullOrEmpty(configuration.TelemetryServerPath))
                 {
                     // then server is running in-proc (as we do for unit testing)
-                    if (InProcServer == null)
+                    if (InProcServer is null)
                     {
                         InProcServer = new CoyoteTelemetryServer(false);
                     }
@@ -152,7 +152,7 @@ namespace Microsoft.Coyote.Telemetry
                 }
             }
 
-            if (client == null)
+            if (client is null)
             {
                 try
                 {
@@ -200,7 +200,7 @@ namespace Microsoft.Coyote.Telemetry
             string ext = Path.GetExtension(assembly);
             string program = assembly;
             string args = "telemetry server";
-            if (string.Compare(ext, ".dll", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(ext, ".dll", StringComparison.OrdinalIgnoreCase) is 0)
             {
                 args = "\"" + assembly + "\" telemetry server";
                 program = "dotnet";
@@ -320,7 +320,7 @@ namespace Microsoft.Coyote.Telemetry
                 }
             }
 
-            if (MachineId == null)
+            if (MachineId is null)
             {
                 // hmmm, something is horribly wrong with the file system, so just invent a new guid for now.
                 MachineId = Guid.NewGuid().ToString();

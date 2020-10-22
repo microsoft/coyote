@@ -81,7 +81,7 @@ Hi mom!
                 engine.Run();
 
                 var numErrors = engine.TestReport.NumOfFoundBugs;
-                Assert.True(numErrors == 1, GetBugReport(engine));
+                Assert.True(numErrors is 1, GetBugReport(engine));
                 Assert.True(engine.ReadableTrace != null, "Readable trace is null.");
                 Assert.True(engine.ReadableTrace.Length > 0, "Readable trace is empty.");
 

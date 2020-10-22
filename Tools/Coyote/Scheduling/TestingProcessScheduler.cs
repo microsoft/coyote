@@ -622,7 +622,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
             }
 
-            if (this.TestReports.Count == 0)
+            if (this.TestReports.Count is 0)
             {
                 Environment.ExitCode = (int)ExitCode.InternalError;
                 return;

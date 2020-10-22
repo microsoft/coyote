@@ -353,7 +353,7 @@ StateTransition";
                 this.Logger.WriteLine("Server sending pong back to caller");
                 this.SendEvent(ping.Caller, new PongEvent());
 
-                if (this.Count == 3)
+                if (this.Count is 3)
                 {
                     this.RaiseGotoStateEvent<Complete>();
                 }

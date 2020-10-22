@@ -97,8 +97,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task<int> task1 = entry.GetWriteResultAsync(5);
                 Task<int> task2 = entry.GetWriteResultAsync(3);
                 int[] results = await Task.WhenAll(task1, task2);
-                Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
+                Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
+                Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
                 Specification.Assert(results[0] == results[1], "Results are equal.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
@@ -115,8 +115,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 Task<int> task1 = entry.GetWriteResultWithDelayAsync(5);
                 Task<int> task2 = entry.GetWriteResultWithDelayAsync(3);
                 int[] results = await Task.WhenAll(task1, task2);
-                Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
+                Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
+                Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",
@@ -142,9 +142,9 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 int[] results = await Task.WhenAll(task1, task2);
 
-                Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
+                Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
                 Specification.Assert(results[0] == 5, $"The first task result is {results[0]} instead of 5.");
-                Specification.Assert(results[1] == 3, $"The second task result is {results[1]} instead of 3.");
+                Specification.Assert(results[1] is 3, $"The second task result is {results[1]} instead of 3.");
                 Specification.Assert(false, "Reached test assertion.");
             },
             configuration: GetConfiguration().WithTestingIterations(300),
@@ -171,8 +171,8 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 int[] results = await Task.WhenAll(task1, task2);
 
-                Specification.Assert(results.Length == 2, "Result count is '{0}' instead of 2.", results.Length);
-                Specification.Assert(results[0] == 5 && results[1] == 3, "Found unexpected value.");
+                Specification.Assert(results.Length is 2, "Result count is '{0}' instead of 2.", results.Length);
+                Specification.Assert(results[0] == 5 && results[1] is 3, "Found unexpected value.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "Found unexpected value.",

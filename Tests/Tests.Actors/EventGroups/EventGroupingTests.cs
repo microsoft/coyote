@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var e = new SetupEvent();
                 r.CreateActor(typeof(M1), e);
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.True(result == null);
+                Assert.True(result is null);
             });
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var e = new SetupEvent();
                 r.CreateActor(typeof(M4A), e, new EventGroup(name: EventGroup1));
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.True(result == null);
+                Assert.True(result is null);
             });
         }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var e = new SetupEvent();
                 r.CreateActor(typeof(M5A), e, new EventGroup(name: EventGroup1));
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.True(result == null);
+                Assert.True(result is null);
             });
         }
 
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void HandleEvent()
             {
-                this.Assert(this.CurrentEventGroup == null, "M6A event group is not null");
+                this.Assert(this.CurrentEventGroup is null, "M6A event group is not null");
                 // propagate the null event group.
                 this.SendEvent(this.Child, new E(this.Id));
             }
@@ -206,7 +206,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void HandleEvent()
             {
-                this.Assert(this.CurrentEventGroup == null, "M6B event group is not null");
+                this.Assert(this.CurrentEventGroup is null, "M6B event group is not null");
                 this.Setup.Tcs.SetResult("ok");
             }
         }
@@ -220,7 +220,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var a = r.CreateActor(typeof(M6A), e, new EventGroup(name: EventGroup1));
                 r.SendEvent(a, new E(), EventGroup.Null); // clear the event group!
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.True(result == "ok", string.Format("result is {0}", result));
+                Assert.True(result is "ok", string.Format("result is {0}", result));
             });
         }
 
@@ -302,7 +302,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 r.CreateActor(typeof(M8A), e, new EventGroup(name: EventGroup1));
 
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.True(result == null);
+                Assert.True(result is null);
             });
         }
 
@@ -365,7 +365,7 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             protected override SystemTasks.Task OnInitializeAsync(Event initialEvent)
             {
-                this.Assert(this.CurrentEventGroup == null, "CurrentEventGroup should be null");
+                this.Assert(this.CurrentEventGroup is null, "CurrentEventGroup should be null");
                 this.RaiseEvent(new E());
                 return base.OnInitializeAsync(initialEvent);
             }
@@ -379,7 +379,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private async SystemTasks.Task HandleE()
             {
-                this.Assert(this.CurrentEventGroup == null, "CurrentEventGroup should be null");
+                this.Assert(this.CurrentEventGroup is null, "CurrentEventGroup should be null");
                 await this.ReceiveEventAsync(typeof(F));
                 var op = this.CurrentEventGroup as AwaitableEventGroup<bool>;
                 this.Assert(op != null, "CurrentEventGroup should now be set!");

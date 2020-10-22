@@ -104,7 +104,7 @@ namespace Microsoft.Coyote.Tests.Common
             {
                 engine = RunTest(test, configuration, logger);
                 var numErrors = engine.TestReport.NumOfFoundBugs;
-                Assert.True(numErrors == 0, GetBugReport(engine));
+                Assert.True(numErrors is 0, GetBugReport(engine));
             }
             catch (Exception ex)
             {
@@ -291,7 +291,7 @@ namespace Microsoft.Coyote.Tests.Common
                     engine = RunTest(test, configuration, logger);
 
                     string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
-                    Assert.True(replayError.Length == 0, replayError);
+                    Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(engine, errorChecker);
                 }
             }
@@ -384,7 +384,7 @@ namespace Microsoft.Coyote.Tests.Common
                     engine = RunTest(test, configuration, logger);
 
                     string replayError = (engine.Strategy as ReplayStrategy).ErrorText;
-                    Assert.True(replayError.Length == 0, replayError);
+                    Assert.True(replayError.Length is 0, replayError);
                     CheckErrors(engine, exceptionType);
                 }
             }
@@ -526,7 +526,7 @@ namespace Microsoft.Coyote.Tests.Common
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
-                    if (configuration.TestingIterations == 1)
+                    if (configuration.TestingIterations is 1)
                     {
                         Assert.True(errorTask.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
                         errorMessage = ExtractErrorMessage(errorTask.Task.Result);
@@ -571,7 +571,7 @@ namespace Microsoft.Coyote.Tests.Common
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     await test(runtime);
-                    if (configuration.TestingIterations == 1)
+                    if (configuration.TestingIterations is 1)
                     {
                         Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
                         errorMessage = ExtractErrorMessage(errorCompletion.Task.Result);
@@ -619,7 +619,7 @@ namespace Microsoft.Coyote.Tests.Common
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test(runtime);
-                    if (configuration.TestingIterations == 1)
+                    if (configuration.TestingIterations is 1)
                     {
                         Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
@@ -635,7 +635,7 @@ namespace Microsoft.Coyote.Tests.Common
                 logger.Dispose();
             }
 
-            if (actualException == null)
+            if (actualException is null)
             {
                 Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
@@ -667,7 +667,7 @@ namespace Microsoft.Coyote.Tests.Common
                 for (int i = 0; i < configuration.TestingIterations; i++)
                 {
                     test();
-                    if (configuration.TestingIterations == 1)
+                    if (configuration.TestingIterations is 1)
                     {
                         Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
@@ -683,7 +683,7 @@ namespace Microsoft.Coyote.Tests.Common
                 logger.Dispose();
             }
 
-            if (actualException == null)
+            if (actualException is null)
             {
                 Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
@@ -717,7 +717,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     await test(runtime);
 
-                    if (configuration.TestingIterations == 1)
+                    if (configuration.TestingIterations is 1)
                     {
                         Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
@@ -733,7 +733,7 @@ namespace Microsoft.Coyote.Tests.Common
                 logger.Dispose();
             }
 
-            if (actualException == null)
+            if (actualException is null)
             {
                 Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }
@@ -767,7 +767,7 @@ namespace Microsoft.Coyote.Tests.Common
                 {
                     await test();
 
-                    if (configuration.TestingIterations == 1)
+                    if (configuration.TestingIterations is 1)
                     {
                         Assert.True(errorCompletion.Task.Wait(GetExceptionTimeout()), "Timeout waiting for error");
                         actualException = errorCompletion.Task.Result;
@@ -783,7 +783,7 @@ namespace Microsoft.Coyote.Tests.Common
                 logger.Dispose();
             }
 
-            if (actualException == null)
+            if (actualException is null)
             {
                 Assert.True(false, string.Format("Error not found after all {0} test iterations", configuration.TestingIterations));
             }

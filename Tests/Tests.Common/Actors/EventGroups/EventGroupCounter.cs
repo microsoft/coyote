@@ -18,7 +18,7 @@ namespace Microsoft.Coyote.Tests.Common.Actors
         public override void SetResult(bool result)
         {
             var count = Interlocked.Decrement(ref this.ExpectedCount);
-            if (count == 0)
+            if (count is 0)
             {
                 base.SetResult(result);
             }

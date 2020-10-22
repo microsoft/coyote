@@ -347,19 +347,19 @@ namespace Microsoft.Coyote.Actors
         {
             string text;
             string eventNames;
-            if (eventTypes.Length == 0)
+            if (eventTypes.Length is 0)
             {
                 eventNames = "'<missing>'";
             }
-            else if (eventTypes.Length == 1)
+            else if (eventTypes.Length is 1)
             {
                 eventNames = "'" + eventTypes[0].FullName + "'";
             }
-            else if (eventTypes.Length == 2)
+            else if (eventTypes.Length is 2)
             {
                 eventNames = "'" + eventTypes[0].FullName + "' or '" + eventTypes[1].FullName + "'";
             }
-            else if (eventTypes.Length == 3)
+            else if (eventTypes.Length is 3)
             {
                 eventNames = "'" + eventTypes[0].FullName + "', '" + eventTypes[1].FullName + "' or '" + eventTypes[2].FullName + "'";
             }

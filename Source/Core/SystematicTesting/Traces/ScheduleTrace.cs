@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.SystematicTesting
 
             foreach (var step in traceDump)
             {
-                if (step.StartsWith("--") || step.Length == 0)
+                if (step.StartsWith("--") || step.Length is 0)
                 {
                     continue;
                 }

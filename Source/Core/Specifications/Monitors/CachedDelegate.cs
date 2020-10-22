@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.Specifications
         internal CachedDelegate(MethodInfo method, object caller)
         {
             ParameterInfo[] parameters = method.GetParameters();
-            if (parameters.Length == 1 && method.ReturnType == typeof(void))
+            if (parameters.Length is 1 && method.ReturnType == typeof(void))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Action<Event>), caller, method);
             }
@@ -25,7 +25,7 @@ namespace Microsoft.Coyote.Specifications
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Action), caller, method);
             }
-            else if (parameters.Length == 1 && method.ReturnType == typeof(Monitor.Transition))
+            else if (parameters.Length is 1 && method.ReturnType == typeof(Monitor.Transition))
             {
                 this.Handler = Delegate.CreateDelegate(typeof(Func<Event, Monitor.Transition>), caller, method);
             }

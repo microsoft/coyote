@@ -513,7 +513,7 @@ namespace Microsoft.Coyote.Actors
             this.Writer.WriteAttributeString("monitorType", monitorType);
             this.Writer.WriteAttributeString("state", stateName);
             this.Writer.WriteAttributeString("isEntry", isEntry.ToString());
-            bool hot = isInHotState == true;
+            bool hot = isInHotState is true;
             this.Writer.WriteAttributeString("isInHotState", hot.ToString());
             this.Writer.WriteEndElement();
         }

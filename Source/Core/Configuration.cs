@@ -391,7 +391,7 @@ namespace Microsoft.Coyote
             this.PlatformVersion = GetPlatformVersion();
 
             string optout = Environment.GetEnvironmentVariable("COYOTE_CLI_TELEMETRY_OPTOUT");
-            if (optout == "1" || optout == "true")
+            if (optout is "1" || optout is "true")
             {
                 this.EnableTelemetry = false;
             }

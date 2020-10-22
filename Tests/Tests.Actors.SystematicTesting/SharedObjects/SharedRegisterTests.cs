@@ -79,7 +79,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
                 if (flag)
                 {
                     // Succeeds.
-                    this.Assert(v == 2 || v == 6);
+                    this.Assert(v is 2 || v == 6);
                 }
                 else
                 {
@@ -156,12 +156,12 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
                 if (flag)
                 {
                     // Succeeds.
-                    this.Assert(v.Value1 == 2 || v.Value1 == 5 || v.Value1 == 6);
+                    this.Assert(v.Value1 is 2 || v.Value1 == 5 || v.Value1 == 6);
                 }
                 else
                 {
                     // Fails.
-                    this.Assert(v.Value1 == 2 || v.Value1 == 6, "Reached test assertion.");
+                    this.Assert(v.Value1 is 2 || v.Value1 == 6, "Reached test assertion.");
                 }
             }
         }

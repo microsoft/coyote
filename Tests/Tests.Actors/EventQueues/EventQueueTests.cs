@@ -140,7 +140,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 2)
+                if (notificationCount is 2)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEvent, notification);
                     tcs.SetResult(true);
@@ -175,7 +175,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 3)
+                if (notificationCount is 3)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEvent, notification);
                     tcs.SetResult(true);
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 3)
+                if (notificationCount is 3)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEventWithoutWaiting, notification);
                     tcs.SetResult(true);
@@ -265,7 +265,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 2)
+                if (notificationCount is 2)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEventWithoutWaiting, notification);
                     tcs.SetResult(true);
@@ -298,7 +298,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 2)
+                if (notificationCount is 2)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEvent, notification);
                     tcs.SetResult(true);
@@ -333,7 +333,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 4)
+                if (notificationCount is 4)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEvent, notification);
                     tcs.SetResult(true);
@@ -382,7 +382,7 @@ namespace Microsoft.Coyote.Actors.Tests
             using var queue = new TestEventQueue(logger, (notification, evt, _) =>
             {
                 notificationCount++;
-                if (notificationCount == 4)
+                if (notificationCount is 4)
                 {
                     Assert.Equal(TestEventQueue.Notification.ReceiveEventWithoutWaiting, notification);
                     tcs.SetResult(true);

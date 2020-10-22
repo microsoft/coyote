@@ -154,7 +154,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
             {
                 this.Workers.RemoveAt(0);
 
-                if (this.Workers.Count == 0)
+                if (this.Workers.Count is 0)
                 {
                     this.RaiseEvent(UnitEvent.Instance);
                 }

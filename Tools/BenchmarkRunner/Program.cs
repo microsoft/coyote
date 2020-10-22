@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.Benchmarking
 
                     foreach (var summary in await storage.DownloadAsync(this.DownloadPartition, rowKeys))
                     {
-                        if (summary == null)
+                        if (summary is null)
                         {
                             Console.WriteLine("Summary missing for {0}", b.Name);
                         }
@@ -253,7 +253,7 @@ namespace Microsoft.Coyote.Benchmarking
                 }
             }
 
-            if (matching == 0)
+            if (matching is 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("No benchmarks matching given filter: {0}", string.Join(",", this.Filters));
@@ -370,7 +370,7 @@ namespace Microsoft.Coyote.Benchmarking
 
         private static bool FilterMatches(string name, List<string> filters)
         {
-            if (filters.Count == 0)
+            if (filters.Count is 0)
             {
                 return true;
             }

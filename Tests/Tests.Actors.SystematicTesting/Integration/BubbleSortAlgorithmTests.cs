@@ -29,17 +29,17 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                     sorted.Add(i);
                 }
 
-                this.Assert(rev.Count == 10);
+                this.Assert(rev.Count is 10);
 
                 // Assert that simply reversing the list produces a sorted list.
                 sorted = Reverse(rev);
-                this.Assert(sorted.Count == 10);
+                this.Assert(sorted.Count is 10);
                 this.Assert(IsSorted(sorted));
                 this.Assert(!IsSorted(rev));
 
                 // Assert that the algorithm returns the sorted list.
                 sorted = Sort(rev);
-                this.Assert(sorted.Count == 10);
+                this.Assert(sorted.Count is 10);
                 this.Assert(IsSorted(sorted));
                 this.Assert(!IsSorted(rev));
 

@@ -191,10 +191,10 @@ namespace Microsoft.Coyote.SystematicTesting
             if (!string.IsNullOrEmpty(this.Configuration.TestingSchedulerIpAddress))
             {
                 string[] parts = this.Configuration.TestingSchedulerIpAddress.Split(':');
-                if (parts.Length == 2)
+                if (parts.Length is 2)
                 {
                     var endPoint = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
-                    while (!source.IsCancellationRequested && client == null)
+                    while (!source.IsCancellationRequested && client is null)
                     {
                         client = await SmartSocketClient.ConnectAsync(endPoint, this.Name, resolver);
                     }
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 client = await SmartSocketClient.FindServerAsync(serviceName, this.Name, resolver, source.Token);
             }
 
-            if (client == null)
+            if (client is null)
             {
                 throw new Exception("Failed to connect to server");
             }

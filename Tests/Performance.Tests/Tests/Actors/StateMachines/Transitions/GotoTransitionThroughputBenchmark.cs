@@ -77,7 +77,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
                 {
                     this.RaiseGotoStateEvent(typeof(Ping));
                 }
-                else if (this.NumTransitions == 0)
+                else if (this.NumTransitions is 0)
                 {
                     this.RaiseHaltEvent();
                     this.Tcs.TrySetResult(true);
@@ -95,7 +95,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
 
         public void IterationSetup()
         {
-            if (this.Runtime == null)
+            if (this.Runtime is null)
             {
                 var configuration = Configuration.Create();
                 this.Runtime = RuntimeFactory.Create(configuration);

@@ -81,7 +81,7 @@ namespace Microsoft.Coyote.Actors.Tests.StateMachines
             private void InitOnEntry(Event e)
             {
                 this.tcs = (e as ConfigEvent).Tcs;
-                this.tcs.SetResult(this.RandomInteger(10) == 5);
+                this.tcs.SetResult(this.RandomInteger(10) is 5);
             }
         }
 

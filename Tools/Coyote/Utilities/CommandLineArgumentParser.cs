@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.Utilities
         internal object ParseValue(string value)
         {
             Type type = this.DataType;
-            if (value == null)
+            if (value is null)
             {
                 if (type == typeof(bool))
                 {
@@ -204,7 +204,7 @@ namespace Microsoft.Coyote.Utilities
             }
 
             object result;
-            if (type == null || type == typeof(string))
+            if (type is null || type == typeof(string))
             {
                 result = value;
             }
@@ -251,7 +251,7 @@ namespace Microsoft.Coyote.Utilities
 
             if (this.AllowedValues.Count > 0)
             {
-                if (result == null)
+                if (result is null)
                 {
                     result = string.Empty;
                 }
@@ -333,7 +333,7 @@ namespace Microsoft.Coyote.Utilities
 
         private T[] Append<T>(object value1, object value2)
         {
-            if (value1 == null)
+            if (value1 is null)
             {
                 return new T[1] { (T)value2 };
             }
@@ -353,7 +353,7 @@ namespace Microsoft.Coyote.Utilities
 
         internal void CheckDefaultValue()
         {
-            if (this.Value == null && !string.IsNullOrEmpty(this.DefaultValue))
+            if (this.Value is null && !string.IsNullOrEmpty(this.DefaultValue))
             {
                 this.AddParsedValue(this.DefaultValue);
             }
@@ -433,7 +433,7 @@ namespace Microsoft.Coyote.Utilities
         /// <returns>The new <see cref="CommandLineArgument"/> object.</returns>
         public CommandLineArgument AddArgument(string longName, string shortName, string description = null, Type dataType = null, bool required = false, string defaultValue = null)
         {
-            if (dataType == null)
+            if (dataType is null)
             {
                 dataType = typeof(string);
             }
@@ -683,7 +683,7 @@ namespace Microsoft.Coyote.Utilities
                             }
                         }
 
-                        if (current == null)
+                        if (current is null)
                         {
                             // See if there's a matching long name with no short name defined.
                             foreach (var s in this.Arguments.Values)
@@ -697,7 +697,7 @@ namespace Microsoft.Coyote.Utilities
                         }
                     }
 
-                    if (current == null)
+                    if (current is null)
                     {
                         throw new CommandLineException(string.Format("Unexpected argument: '{0}'", arg), result);
                     }
@@ -759,7 +759,7 @@ namespace Microsoft.Coyote.Utilities
 
             foreach (var arg in result)
             {
-                if (!arg.IsPositional && arg.Value == null && string.IsNullOrEmpty(arg.DefaultValue) && arg.DataType != typeof(bool) && !arg.AllowedValues.Contains(string.Empty))
+                if (!arg.IsPositional && arg.Value is null && string.IsNullOrEmpty(arg.DefaultValue) && arg.DataType != typeof(bool) && !arg.AllowedValues.Contains(string.Empty))
                 {
                     throw new CommandLineException(string.Format("Missing value for argument: '--{0}'", arg.LongName), result);
                 }
@@ -775,7 +775,7 @@ namespace Microsoft.Coyote.Utilities
                 if (argument.DependsOn != null)
                 {
                     var dependent = (from r in this.ParsedArguments where r.LongName == argument.DependsOn.Name select r).FirstOrDefault();
-                    if (dependent != null && string.Compare(dependent.Value.ToString(), argument.DependsOn.Value, StringComparison.OrdinalIgnoreCase) == 0)
+                    if (dependent != null && string.Compare(dependent.Value.ToString(), argument.DependsOn.Value, StringComparison.OrdinalIgnoreCase) is 0)
                     {
                         return true;
                     }
@@ -796,7 +796,7 @@ namespace Microsoft.Coyote.Utilities
             if (g.DependsOn != null)
             {
                 var dependent = (from r in this.ParsedArguments where r.LongName == g.DependsOn.Name select r).FirstOrDefault();
-                return dependent != null && string.Compare(dependent.Value.ToString(), g.DependsOn.Value, StringComparison.OrdinalIgnoreCase) == 0;
+                return dependent != null && string.Compare(dependent.Value.ToString(), g.DependsOn.Value, StringComparison.OrdinalIgnoreCase) is 0;
             }
 
             return false;

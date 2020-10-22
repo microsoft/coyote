@@ -67,7 +67,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 
             private void Check(Event e)
             {
-                this.Assert((e as CheckE).Value == true);
+                this.Assert((e as CheckE).Value is true);
             }
         }
 
@@ -81,7 +81,6 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 
             private void Check()
             {
-                // this.Assert((e as CheckE).Value == true); // passes
             }
         }
 
@@ -95,7 +94,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 
             private void Check(Event e)
             {
-                this.Assert((e as CheckE).Value == false);
+                this.Assert((e as CheckE).Value is false);
             }
         }
 

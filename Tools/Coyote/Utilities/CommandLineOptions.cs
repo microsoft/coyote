@@ -212,12 +212,12 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         else
                         {
                             string extension = Path.GetExtension(filename);
-                            if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) == 0)
+                            if (string.Compare(extension, ".json", StringComparison.OrdinalIgnoreCase) is 0)
                             {
                                 configuration.RewritingOptionsPath = filename;
                             }
-                            else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) == 0 ||
-                                string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) == 0)
+                            else if (string.Compare(extension, ".dll", StringComparison.OrdinalIgnoreCase) is 0 ||
+                                string.Compare(extension, ".exe", StringComparison.OrdinalIgnoreCase) is 0)
                             {
                                 configuration.AssemblyToBeAnalyzed = filename;
                             }
@@ -337,7 +337,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     configuration.PerformFullExploration = true;
                     break;
                 case "coverage":
-                    if (option.Value == null)
+                    if (option.Value is null)
                     {
                         configuration.ReportCodeCoverage = true;
                         configuration.ReportActivityCoverage = true;
@@ -398,7 +398,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                         {
                             uint i = values[0];
                             uint j;
-                            if (values.Length == 2)
+                            if (values.Length is 2)
                             {
                                 j = values[1];
                                 configuration.WithMaxSchedulingSteps(i, j);
@@ -441,7 +441,7 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
         private static void SanitizeConfiguration(Configuration configuration)
         {
             if (string.IsNullOrEmpty(configuration.AssemblyToBeAnalyzed) &&
-                string.Compare(configuration.ToolCommand, "test", StringComparison.OrdinalIgnoreCase) == 0)
+                string.Compare(configuration.ToolCommand, "test", StringComparison.OrdinalIgnoreCase) is 0)
             {
                 Error.ReportAndExit("Please give a valid path to a Coyote program's dll using 'test x'.");
             }

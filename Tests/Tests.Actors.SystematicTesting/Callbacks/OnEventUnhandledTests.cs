@@ -51,7 +51,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             protected override Task OnEventUnhandledAsync(Event e, string currentState)
             {
-                this.Assert(currentState == "S");
+                this.Assert(currentState is "S");
                 this.Assert(e is UnitEvent);
                 this.Assert(false, "Reached test assertion.");
                 return Task.CompletedTask;
@@ -80,14 +80,14 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             protected override Task OnEventUnhandledAsync(Event e, string currentState)
             {
-                this.Assert(this.Value == 0, "The 'OnEventUnhandled' callback was not called first.");
+                this.Assert(this.Value is 0, "The 'OnEventUnhandled' callback was not called first.");
                 this.Value++;
                 return Task.CompletedTask;
             }
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.Assert(this.Value == 1, "The 'OnException' callback was not called second.");
+                this.Assert(this.Value is 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.Halt;
             }
         }
@@ -113,14 +113,14 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             protected override Task OnEventUnhandledAsync(Event e, string currentState)
             {
-                this.Assert(this.Value == 0, "The 'OnEventUnhandled' callback was not called first.");
+                this.Assert(this.Value is 0, "The 'OnEventUnhandled' callback was not called first.");
                 this.Value++;
                 return Task.CompletedTask;
             }
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.Assert(this.Value == 1, "The 'OnException' callback was not called second.");
+                this.Assert(this.Value is 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.Halt;
             }
         }
@@ -141,14 +141,14 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             protected override Task OnEventUnhandledAsync(Event e, string currentState)
             {
-                this.Assert(this.Value == 0, "The 'OnEventUnhandled' callback was not called first.");
+                this.Assert(this.Value is 0, "The 'OnEventUnhandled' callback was not called first.");
                 this.Value++;
                 return Task.CompletedTask;
             }
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.Assert(this.Value == 1, "The 'OnException' callback was not called second.");
+                this.Assert(this.Value is 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.ThrowException;
             }
         }
@@ -175,14 +175,14 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             protected override Task OnEventUnhandledAsync(Event e, string currentState)
             {
-                this.Assert(this.Value == 0, "The 'OnEventUnhandled' callback was not called first.");
+                this.Assert(this.Value is 0, "The 'OnEventUnhandled' callback was not called first.");
                 this.Value++;
                 return Task.CompletedTask;
             }
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {
-                this.Assert(this.Value == 1, "The 'OnException' callback was not called second.");
+                this.Assert(this.Value is 1, "The 'OnException' callback was not called second.");
                 return OnExceptionOutcome.ThrowException;
             }
         }

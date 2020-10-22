@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 {
                     ActorId server;
 
-                    if (i == 0)
+                    if (i is 0)
                     {
                         server = this.CreateActor(
                             typeof(ChainReplicationServer),
@@ -1311,11 +1311,11 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.ClearTempSeq();
                 this.IsSorted(seq1);
 
-                if (seq1.Count == 0)
+                if (seq1.Count is 0)
                 {
                     this.TempSeq = seq2;
                 }
-                else if (seq2.Count == 0)
+                else if (seq2.Count is 0)
                 {
                     this.TempSeq = seq1;
                 }
@@ -1382,7 +1382,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
                 this.Assert(this.TempSeq.Count <= 6, "Temp sequence has more than 6 elements.");
                 this.TempSeq.Clear();
-                this.Assert(this.TempSeq.Count == 0, "Temp sequence is not cleared.");
+                this.Assert(this.TempSeq.Count is 0, "Temp sequence is not cleared.");
             }
 
             private void ProcessUpdateServers(Event e)

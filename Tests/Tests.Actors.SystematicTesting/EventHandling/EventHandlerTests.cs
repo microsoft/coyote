@@ -69,7 +69,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private void HandleE1(Event e)
             {
                 this.Assert(e is Event);
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -157,7 +157,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleE1()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleE1()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -440,7 +440,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleE2()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -492,7 +492,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleE2()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -543,7 +543,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleE2()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -600,7 +600,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void CheckingOnEntry()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -654,7 +654,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void ActiveOnExit()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
 
             private void HandleE2()
@@ -715,7 +715,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleE2()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -841,7 +841,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void HandleUnitEvent()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -888,7 +888,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void ActiveOnEntry()
             {
-                this.Assert(this.Test == false, "Reached test assertion.");
+                this.Assert(this.Test is false, "Reached test assertion.");
             }
         }
 
@@ -920,7 +920,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void ActiveOnEntry()
             {
-                this.Assert(this.Test == true, "Reached test assertion.");
+                this.Assert(this.Test is true, "Reached test assertion.");
             }
         }
 
@@ -966,7 +966,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void ActiveOnEntry()
             {
-                if (this.Value == 0)
+                if (this.Value is 0)
                 {
                     this.RaiseEvent(UnitEvent.Instance);
                 }
@@ -1050,7 +1050,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void EntryS1()
             {
-                this.Assert(this.Test == true); // Holds.
+                this.Assert(this.Test is true);
                 this.RaiseEvent(UnitEvent.Instance);
             }
 

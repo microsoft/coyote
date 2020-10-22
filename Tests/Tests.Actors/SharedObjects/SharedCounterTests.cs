@@ -45,22 +45,22 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                     counter.Increment();
 
                     var v1 = counter.GetValue();
-                    this.Assert(v1 == 1 || v1 == 2);
+                    this.Assert(v1 is 1 || v1 is 2);
 
                     counter.Decrement();
 
                     var v2 = counter.GetValue();
-                    this.Assert(v2 == 0 || v2 == 1);
+                    this.Assert(v2 is 0 || v2 is 1);
 
                     counter.Add(1);
 
                     var v3 = counter.GetValue();
-                    this.Assert(v3 == 1 || v3 == 2);
+                    this.Assert(v3 is 1 || v3 is 2);
 
                     counter.Add(-1);
 
                     var v4 = counter.GetValue();
-                    this.Assert(v4 == 0 || v4 == 1);
+                    this.Assert(v4 is 0 || v4 is 1);
                 }
 
                 tcs.SetResult(true);
@@ -142,7 +142,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
 
             Task.WaitAll(tcs1.Task, tcs2.Task);
             Assert.False(failed);
-            Assert.True(counter.GetValue() == 1000000 * 20);
+            Assert.True(counter.GetValue() is 1000000 * 20);
         }
     }
 }

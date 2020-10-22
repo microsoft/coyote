@@ -80,7 +80,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-                Assert.True(e.X == 1);
+                Assert.True(e.X is 1);
             },
             handleFailures: false);
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
-                Assert.True(e.X == 1);
+                Assert.True(e.X is 1);
             },
             handleFailures: false);
         }
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
                 await this.WaitAsync(tcs.Task);
                 Assert.False(failed);
-                Assert.True(e.X == 1);
+                Assert.True(e.X is 1);
             },
             handleFailures: false);
         }
@@ -221,7 +221,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
                 await this.WaitAsync(tcs.Task);
                 Assert.True(failed);
-                Assert.True(e.X == 1);
+                Assert.True(e.X is 1);
             },
             handleFailures: false);
         }

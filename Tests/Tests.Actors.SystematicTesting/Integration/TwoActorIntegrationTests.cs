@@ -98,7 +98,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Action2(Event e)
             {
-                this.Assert((e as E3).Value == false, "Reached test assertion.");
+                this.Assert((e as E3).Value is false, "Reached test assertion.");
             }
         }
 
@@ -141,12 +141,12 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private void ActiveOnEntry()
             {
                 this.Count += 1;
-                if (this.Count == 1)
+                if (this.Count is 1)
                 {
                     this.SendEvent(this.TargetId, new E4(this.Id), options: new SendOptions(assert: 1));
                 }
 
-                if (this.Count == 2)
+                if (this.Count is 2)
                 {
                     this.SendEvent(this.TargetId, new IgnoredE());
                 }
@@ -230,12 +230,12 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private void ActiveOnEntry()
             {
                 this.Count += 1;
-                if (this.Count == 1)
+                if (this.Count is 1)
                 {
                     this.SendEvent(this.TargetId, new E4(this.Id), options: new SendOptions(assert: 1));
                 }
 
-                if (this.Count == 2)
+                if (this.Count is 2)
                 {
                     this.SendEvent(this.TargetId, HaltEvent.Instance);
                     this.SendEvent(this.TargetId, new IgnoredE());
@@ -353,11 +353,11 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             private void ActiveOnEntry(Event e)
             {
                 this.Count++;
-                if (this.Count == 1)
+                if (this.Count is 1)
                 {
                     this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                 }
-                else if (this.Count == 2)
+                else if (this.Count is 2)
                 {
                     this.SendEvent((e as E4).Id, new E1(), options: new SendOptions(assert: 1));
                     this.RaiseHaltEvent();

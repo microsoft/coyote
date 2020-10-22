@@ -1012,7 +1012,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void ProcessResponse()
             {
-                if (this.Counter == 3)
+                if (this.Counter is 3)
                 {
                     this.SendEvent(this.Cluster, new ClusterManager.ShutDown());
                     this.RaiseHaltEvent();

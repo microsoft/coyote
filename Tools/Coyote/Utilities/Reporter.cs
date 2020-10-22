@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.SystematicTesting
             else
             {
                 var subpath = Path.GetDirectoryName(assemblyPath);
-                if (subpath.Length == 0)
+                if (subpath.Length is 0)
                 {
                     subpath = ".";
                 }

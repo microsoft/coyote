@@ -169,7 +169,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         [IterationSetup]
         public void IterationSetup()
         {
-            if (this.ProducerMachine == null)
+            if (this.ProducerMachine is null)
             {
                 this.Runtime = RuntimeFactory.Create(Configuration.Create());
                 var setuptcs = new TaskCompletionSource<bool>();

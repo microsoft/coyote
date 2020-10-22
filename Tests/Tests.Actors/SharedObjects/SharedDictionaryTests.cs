@@ -42,11 +42,11 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                 this.CreateActor(typeof(N1), e);
 
                 string v;
-                while (counter.TryRemove(1, out v) == false)
+                while (counter.TryRemove(1, out v) is false)
                 {
                 }
 
-                this.Assert(v == "N");
+                this.Assert(v is "N");
 
                 tcs.SetResult(true);
             }
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
             {
                 var counter = (e as E).Counter;
                 var b = counter.TryAdd(1, "N");
-                this.Assert(b == true);
+                this.Assert(b is true);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                 }
 
                 var c = counter.Count;
-                this.Assert(c == 1);
+                this.Assert(c is 1);
                 tcs.SetResult(true);
             }
         }
@@ -186,7 +186,7 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
                 b = counter.TryGetValue(1, out string v);
 
                 this.Assert(b);
-                this.Assert(v == "N");
+                this.Assert(v is "N");
 
                 tcs.SetResult(true);
             }

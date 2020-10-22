@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Action1(Event e)
             {
-                this.Assert((e as E2).Value == 100);
+                this.Assert((e as E2).Value is 100);
                 this.SendEvent(this.N, new E3());
                 this.SendEvent(this.N, new E3());
             }

@@ -65,7 +65,7 @@ namespace Microsoft.Coyote.Actors.Tests
             private void HandleTimeout()
             {
                 this.Count++;
-                if (this.Count == 1)
+                if (this.Count is 1)
                 {
                     this.Tcs.SetResult(true);
                 }
@@ -117,7 +117,7 @@ namespace Microsoft.Coyote.Actors.Tests
             private void HandleTimeout()
             {
                 this.Count++;
-                if (this.Count == 10)
+                if (this.Count is 10)
                 {
                     this.StopTimer(this.Timer);
                     this.Tcs.SetResult(true);
@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 catch (AssertionFailureException ex)
                 {
                     this.Logger.WriteLine(LogSeverity.Error, ex.Message);
-                    ce.Tcs.SetResult(expectError == true);
+                    ce.Tcs.SetResult(expectError is true);
                     this.RaiseHaltEvent();
                 }
             }

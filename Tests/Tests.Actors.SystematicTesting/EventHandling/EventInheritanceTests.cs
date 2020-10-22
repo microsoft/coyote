@@ -24,8 +24,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 public E10(short a10, ushort b10)
                     : base()
                 {
-                    Assert.True(a10 == 1);
-                    Assert.True(b10 == 2);
+                    Assert.True(a10 is 1);
+                    Assert.True(b10 is 2);
                     this.A10 = a10;
                     this.B10 = b10;
                 }
@@ -39,8 +39,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 public E1(short a10, ushort b10, byte a1, bool b1)
                     : base(a10, b10)
                 {
-                    Assert.True(a1 == 30);
-                    Assert.True(b1 == true);
+                    Assert.True(a1 is 30);
+                    Assert.True(b1 is true);
                     this.A1 = a1;
                     this.B1 = b1;
                 }
@@ -54,8 +54,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 public E2(short a10, ushort b10, byte a1, bool b1, int a2, uint b2)
                     : base(a10, b10, a1, b1)
                 {
-                    Assert.True(a2 == 100);
-                    Assert.True(b2 == 101);
+                    Assert.True(a2 is 100);
+                    Assert.True(b2 is 101);
                     this.A2 = a2;
                     this.B2 = b2;
                 }
@@ -83,8 +83,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 public E10(short a10, ushort b10)
                     : base()
                 {
-                    Assert.True(a10 == 1);
-                    Assert.True(b10 == 2);
+                    Assert.True(a10 is 1);
+                    Assert.True(b10 is 2);
                     this.A10 = a10;
                     this.B10 = b10;
                 }
@@ -98,8 +98,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 public E1(short a10, ushort b10, byte a1, bool b1)
                     : base(a10, b10)
                 {
-                    Assert.True(a1 == 30);
-                    Assert.True(b1 == true);
+                    Assert.True(a1 is 30);
+                    Assert.True(b1 is true);
                     this.A1 = a1;
                     this.B1 = b1;
                 }
@@ -113,8 +113,8 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 public E2(short a10, ushort b10, byte a1, bool b1, int a2, uint b2)
                     : base(a10, b10, a1, b1)
                 {
-                    Assert.True(a2 == 100);
-                    Assert.True(b2 == 101);
+                    Assert.True(a2 is 100);
+                    Assert.True(b2 is 101);
                     this.A2 = a2;
                     this.B2 = b2;
                 }
@@ -196,7 +196,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void CheckComplete()
             {
-                if (E1count == 1 && E2count == 1 && E3count == 1)
+                if (E1count is 1 && E2count is 1 && E3count is 1)
                 {
                     this.TCS.SetResult(true);
                 }

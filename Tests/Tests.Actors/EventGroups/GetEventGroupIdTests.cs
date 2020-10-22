@@ -54,7 +54,7 @@ namespace Microsoft.Coyote.Actors.Tests
                 var e = new SetupEvent();
                 r.CreateActor(typeof(M1), e);
                 var result = await this.GetResultAsync(e.Tcs);
-                Assert.True(result == null);
+                Assert.True(result is null);
             });
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Coyote.Actors.Tests
 
             private void CheckEvent()
             {
-                this.Tcs.SetResult(this.CurrentEventGroup == null ? null : this.CurrentEventGroup.Name);
+                this.Tcs.SetResult(this.CurrentEventGroup is null ? null : this.CurrentEventGroup.Name);
             }
         }
 

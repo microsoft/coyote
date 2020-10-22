@@ -53,7 +53,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
 
                 counter.Increment();
                 var v = counter.GetValue();
-                this.Assert(v == 1, "Reached test assertion.");
+                this.Assert(v is 1, "Reached test assertion.");
             }
         }
 
@@ -102,24 +102,24 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
                 int v1 = counter.CompareExchange(10, 0); // if 0 then 10
                 int v2 = counter.GetValue();
 
-                if (flag == 0)
+                if (flag is 0)
                 {
-                    this.Assert((v1 == 5 && v2 == 5) || (v1 == 0 && v2 == 10) ||
-                        (v1 == 0 && v2 == 15));
+                    this.Assert((v1 == 5 && v2 == 5) || (v1 is 0 && v2 == 10) ||
+                        (v1 is 0 && v2 == 15));
                 }
-                else if (flag == 1)
+                else if (flag is 1)
                 {
-                    this.Assert((v1 == 0 && v2 == 10) || (v1 == 0 && v2 == 15),
+                    this.Assert((v1 is 0 && v2 == 10) || (v1 is 0 && v2 == 15),
                         "Reached test assertion.");
                 }
-                else if (flag == 2)
+                else if (flag is 2)
                 {
-                    this.Assert((v1 == 5 && v2 == 5) || (v1 == 0 && v2 == 15),
+                    this.Assert((v1 == 5 && v2 == 5) || (v1 is 0 && v2 == 15),
                         "Reached test assertion.");
                 }
-                else if (flag == 3)
+                else if (flag is 3)
                 {
-                    this.Assert((v1 == 5 && v2 == 5) || (v1 == 0 && v2 == 10),
+                    this.Assert((v1 == 5 && v2 == 5) || (v1 is 0 && v2 == 10),
                         "Reached test assertion.");
                 }
             }
@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
             private void Check()
             {
                 var v = this.Counter.GetValue();
-                this.Assert(v == 0);
+                this.Assert(v is 0);
             }
         }
 
@@ -241,7 +241,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
             private void Check()
             {
                 var v = this.Counter.GetValue();
-                this.Assert(v == 0);
+                this.Assert(v is 0);
             }
         }
 

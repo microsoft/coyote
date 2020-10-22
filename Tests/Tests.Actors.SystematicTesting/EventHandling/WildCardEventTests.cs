@@ -93,7 +93,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             });
 
             string actual = config.ToString();
-            Assert.True(actual == "E2,UnitEvent,E1");
+            Assert.True(actual is "E2,UnitEvent,E1");
         }
 
         private class Ma : StateMachine
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 Ma.RunTest(r, config);
             });
             string actual = config.ToString();
-            Assert.True(actual == "Foo,Enter S1,Bar");
+            Assert.True(actual is "Foo,Enter S1,Bar");
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             });
 
             string actual = config.ToString();
-            Assert.True(actual == "handle E1,catch E2");
+            Assert.True(actual is "handle E1,catch E2");
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             });
 
             string actual = config.ToString();
-            Assert.True(actual == "handle E1,catch E3,catch E2,handle E3,catch E4,catch E3");
+            Assert.True(actual is "handle E1,catch E3,catch E2,handle E3,catch E4,catch E3");
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             });
 
             string actual = config.ToString();
-            Assert.True(actual == "Handling E1 in State Init,Active,Catch E1,Handling E2 in State Active");
+            Assert.True(actual is "Handling E1 in State Init,Active,Catch E1,Handling E2 in State Active");
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             });
 
             string actual = config.ToString();
-            Assert.True(actual == "Init,Active,Catch E1 in State Active");
+            Assert.True(actual is "Init,Active,Catch E1 in State Active");
         }
 
         /// <summary>
@@ -468,7 +468,7 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             });
 
             string actual = config.ToString();
-            Assert.True(actual == "Init,Active,Catch E1 in State Active");
+            Assert.True(actual is "Init,Active,Catch E1 in State Active");
         }
     }
 }

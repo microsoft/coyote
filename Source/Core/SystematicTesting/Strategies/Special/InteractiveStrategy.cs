@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
 
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
 
-            if (enabledOps.Count == 0)
+            if (enabledOps.Count is 0)
             {
                 this.Logger.WriteLine(">> No available machines to schedule ...");
                 return false;
@@ -314,7 +314,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             var bound = this.IsFair() ? this.Configuration.MaxFairSchedulingSteps :
                 this.Configuration.MaxUnfairSchedulingSteps;
 
-            if (bound == 0)
+            if (bound is 0)
             {
                 return false;
             }
@@ -407,7 +407,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             {
                 this.InputCache.RemoveRange(steps, this.InputCache.Count - steps);
             }
-            else if (steps == 0)
+            else if (steps is 0)
             {
                 this.InputCache.Clear();
             }

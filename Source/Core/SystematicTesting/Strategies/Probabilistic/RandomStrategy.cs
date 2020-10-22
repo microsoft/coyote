@@ -48,7 +48,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         public virtual bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
         {
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
-            if (enabledOps.Count == 0)
+            if (enabledOps.Count is 0)
             {
                 next = null;
                 return false;
@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         public virtual bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
-            if (this.RandomValueGenerator.Next(maxValue) == 0)
+            if (this.RandomValueGenerator.Next(maxValue) is 0)
             {
                 next = true;
             }
@@ -90,7 +90,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <inheritdoc/>
         public bool HasReachedMaxSchedulingSteps()
         {
-            if (this.MaxScheduledSteps == 0)
+            if (this.MaxScheduledSteps is 0)
             {
                 return false;
             }

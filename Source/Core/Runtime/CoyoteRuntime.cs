@@ -631,7 +631,12 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var callerOp = this.Scheduler?.GetExecutingOperation<TaskOperation>();
+                if (callerOp is null)
+                {
+                    OperationScheduler.ThrowUncontrolledTaskException();
+                }
+
                 if (IsCurrentOperationExecutingAsynchronously())
                 {
                     IO.Debug.WriteLine("<Task> '{0}' is dispatching continuation of task '{1}'.", callerOp.Name, task.Id);

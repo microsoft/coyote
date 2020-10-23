@@ -31,9 +31,6 @@ using information you provide declaring how various types of events causes those
 
 See also: [how are Coyote Actors different from existing Microsoft Actor frameworks?](why-actors).
 
-[![image](../../../assets/images/channel9_actors.png)](https://channel9.msdn.com/Shows/On-NET/Reliable-Async-Systems-with-Coyote-Part-2)
-
-
 ### Declaring and creating actors
 
 An actor based program in Coyote is a normal .NET program that also uses the `Actor` or

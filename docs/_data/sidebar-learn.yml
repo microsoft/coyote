@@ -10,6 +10,8 @@ learn-toc:
       link: /learn/overview/faq
     - name: How does it work
       link: /learn/overview/how
+    - name: Videos
+      link: /learn/videos
 - title: Get started with Coyote
   subfolderitems:
     - name: Installing Coyote

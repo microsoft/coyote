@@ -4,6 +4,9 @@
 - name: Learn
   link:  /learn/overview/what-is-coyote
   section: learn
+- name: Videos
+  link:  /learn/videos
+  section: videos
 - name: Case studies
   link:  /case-studies/azure-batch-service
   section: case-studies

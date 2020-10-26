@@ -256,11 +256,6 @@ namespace Microsoft.Coyote.Tasks
 
                 // The executing op acquired the lock and can proceed.
                 this.Owner = this.Resource.Runtime.GetExecutingOperation<AsyncOperation>();
-                if (this.Owner is null)
-                {
-                    throw new InvalidOperationException();
-                }
-
                 this.LockCountMap.Add(this.Owner, 1);
                 return this;
             }

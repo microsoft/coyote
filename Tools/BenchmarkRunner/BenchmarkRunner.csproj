@@ -7,6 +7,7 @@
     <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <Framework47Supported>false</Framework47Supported>
+    <Framework48Supported>false</Framework48Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
@@ -17,10 +18,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
   </ItemGroup>
-  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite .\bin\$(TargetFramework)\Tests.Performance.dll" />
-  </Target>
-  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild" Condition="'$(OS)'=='UNIX'">
+  <Target Name="CoyoteRewrite" AfterTargets="AfterBuild">
     <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite ./bin/$(TargetFramework)/Tests.Performance.dll" />
   </Target>
 </Project>

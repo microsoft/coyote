@@ -14,28 +14,12 @@ namespace Microsoft.Coyote.Tests.Performance.SystematicTesting
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class TaskInterleavingsBenchmark
     {
-        private class SetupEvent : Event
-        {
-            public TaskCompletionSource<bool> Tcs;
-            public int NumMachines;
-            public int Counter;
-            public bool DoHalt;
-
-            public SetupEvent(TaskCompletionSource<bool> tcs, int numMachines, bool doHalt)
-            {
-                this.Tcs = tcs;
-                this.NumMachines = numMachines;
-                this.Counter = 0;
-                this.DoHalt = doHalt;
-            }
-        }
-
         private volatile int Counter = 1;
 
         [Params(10)]
         public int NumTasks { get; set; }
 
-        public async Task RunTaskInterleavings()
+        private async Task RunTaskInterleavings()
         {
             var tasks = new Task[this.NumTasks];
             for (int idx = 0; idx < this.NumTasks; idx++)
@@ -58,6 +42,8 @@ namespace Microsoft.Coyote.Tests.Performance.SystematicTesting
         {
             var configuration = Configuration.Create().WithTestingIterations(100);
             var testingEngine = TestingEngine.Create(configuration, this.RunTaskInterleavings);
+            testingEngine.Logger = new IO.NullLogger();
+            testingEngine.Run();
         }
     }
 }

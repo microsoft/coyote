@@ -15,6 +15,6 @@
     <ProjectReference Include="..\..\Tests\Tests.Actors.Performance\Tests.Actors.Performance.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.4" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
   </ItemGroup>
 </Project>

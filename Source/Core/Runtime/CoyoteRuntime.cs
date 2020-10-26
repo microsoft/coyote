@@ -38,12 +38,24 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The currently executing runtime.
         /// </summary>
-        internal static CoyoteRuntime Current => AsyncLocalInstance.Value ??
-            (IsExecutionControlled ? throw new InvalidOperationException(
-                $"Uncontrolled task with id '{(Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>")}' was " +
-                "detected, which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
-                "of the uncontrolled task, or rewrite its assembly.") :
-            RuntimeFactory.InstalledRuntime);
+        internal static CoyoteRuntime Current
+        {
+            get
+            {
+                CoyoteRuntime runtime = AsyncLocalInstance.Value;
+                if (runtime is null)
+                {
+                    if (IsExecutionControlled)
+                    {
+                        OperationScheduler.ThrowUncontrolledTaskException();
+                    }
+
+                    runtime = RuntimeFactory.InstalledRuntime;
+                }
+
+                return runtime;
+            }
+        }
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to

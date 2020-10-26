@@ -12,6 +12,7 @@
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
+    <ProjectReference Include="..\Coyote\Coyote.csproj" />
     <ProjectReference Include="..\..\Tests\Tests.Performance\Tests.Performance.csproj" />
     <ProjectReference Include="..\..\Tests\Tests.Actors.Performance\Tests.Actors.Performance.csproj" />
   </ItemGroup>

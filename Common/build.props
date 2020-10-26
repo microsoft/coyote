@@ -22,6 +22,7 @@
     <Framework47Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7</Framework47Dir>
     <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
     <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>
+    <Framework48Supported Condition="'$(Framework48Supported)'==''">true</Framework48Supported>
     <NetCore21Installed>false</NetCore21Installed>
     <NetCore22Installed>false</NetCore22Installed>
     <NetCore31Installed>false</NetCore31Installed>
@@ -51,7 +52,7 @@
     <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
     <TargetFrameworks Condition="$(Framework47Installed) and $(Framework47Supported)">$(TargetFrameworks);net47</TargetFrameworks>
-    <TargetFrameworks Condition="$(Framework48Installed)">$(TargetFrameworks);net48</TargetFrameworks>
+    <TargetFrameworks Condition="$(Framework48Installed) and $(Framework48Supported)">$(TargetFrameworks);net48</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">
     <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
@@ -59,9 +60,6 @@
     <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
-  <!-- <Target Name="DiscoverFrameworks" BeforeTargets="PrepareForBuild">
-    <Message Text="Building for .NET $(TargetFrameworks) and GlobalVersion=$(GlobalVersion)" Importance="high"/>
-  </Target> -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>

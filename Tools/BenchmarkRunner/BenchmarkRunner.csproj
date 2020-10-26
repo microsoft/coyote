@@ -4,17 +4,20 @@
     <AssemblyName>BenchmarkRunner</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Benchmarking</RootNamespace>
     <OutputType>Exe</OutputType>
-    <OutputPath>..\bin\</OutputPath>
+    <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <Framework47Supported>false</Framework47Supported>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Tests\Tests.Performance\Tests.Performance.csproj" />
     <ProjectReference Include="..\..\Tests\Tests.Actors.Performance\Tests.Actors.Performance.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
   </ItemGroup>
+  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild">
+    <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite .\bin\$(TargetFramework)\Tests.Performance.dll" />
+  </Target>
 </Project>

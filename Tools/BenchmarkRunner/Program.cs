@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Running;
 using StateMachineTests = Microsoft.Coyote.Actors.Tests.Performance.StateMachines;
+using SystematicTestingTests = Microsoft.Coyote.Tests.Performance.SystematicTesting;
 
 namespace Microsoft.Coyote.Benchmarking
 {
@@ -16,6 +17,7 @@ namespace Microsoft.Coyote.Benchmarking
     {
         private static readonly List<Benchmark> Benchmarks = new List<Benchmark>()
         {
+            new Benchmark(nameof(SystematicTestingTests.TaskInterleavingsBenchmark), typeof(SystematicTestingTests.TaskInterleavingsBenchmark)),
             new Benchmark(nameof(StateMachineTests.CreationThroughputBenchmark), typeof(StateMachineTests.CreationThroughputBenchmark)),
             new Benchmark(nameof(StateMachineTests.ExchangeEventLatencyBenchmark), typeof(StateMachineTests.ExchangeEventLatencyBenchmark)),
             new Benchmark(nameof(StateMachineTests.SendEventThroughputBenchmark), typeof(StateMachineTests.SendEventThroughputBenchmark)),

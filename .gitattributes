@@ -21,4 +21,3 @@
 
 # Ignored paths for language reporting
 docs/* linguist-vendored
-Scripts/Notebooks/* linguist-vendored

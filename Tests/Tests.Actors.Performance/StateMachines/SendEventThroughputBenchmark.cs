@@ -3,11 +3,12 @@
 
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Coyote.Actors;
+using BenchmarkDotNet.Jobs;
 
-namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
+namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
-    // [MemoryDiagnoser, ThreadingDiagnoser]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class SendEventThroughputBenchmark
@@ -180,11 +181,11 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         }
 
         [Benchmark]
-        public void MeasureSendEventThroughput()
+        public async Task MeasureSendEventThroughput()
         {
             var tcs = new TaskCompletionSource<bool>();
             this.Runtime.SendEvent(this.ProducerMachine, new StartExperiment(tcs));
-            tcs.Task.Wait();
+            await tcs.Task;
         }
     }
 }

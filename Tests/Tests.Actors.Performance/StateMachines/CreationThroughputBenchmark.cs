@@ -4,11 +4,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Coyote.Actors;
+using BenchmarkDotNet.Jobs;
 
-namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
+namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
-    // [MemoryDiagnoser, ThreadingDiagnoser]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class CreationThroughputBenchmark
@@ -56,12 +57,12 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             }
         }
 
-        public static int NumMachines => 10000;
+        private static int NumMachines => 10000;
+
+        private IActorRuntime Runtime;
 
         [Params(true, false)]
         public bool DoHalt { get; set; }
-
-        private IActorRuntime Runtime;
 
         [IterationSetup]
         public void IterationSetup()
@@ -74,16 +75,17 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
         }
 
         [Benchmark]
-        public void MeasureCreationThroughput()
+        public async Task MeasureCreationThroughput()
         {
             var tcs = new TaskCompletionSource<bool>();
-            var setup = new SetupEvent(tcs, NumMachines, this.DoHalt);
+            var setupEvent = new SetupEvent(tcs, NumMachines, this.DoHalt);
+
             for (int idx = 0; idx < NumMachines; idx++)
             {
-                this.Runtime.CreateActor(typeof(M), null, setup);
+                this.Runtime.CreateActor(typeof(M), null, setupEvent);
             }
 
-            setup.Tcs.Task.Wait();
+            await tcs.Task;
         }
 
         [IterationCleanup]

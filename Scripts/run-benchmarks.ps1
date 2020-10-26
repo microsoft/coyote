@@ -1,7 +1,3 @@
-param(
-    [boolean]$set_vso_result_var = $false
-)
-
 Import-Module $PSScriptRoot\powershell\common.psm1
 
 $current_dir = (Get-Item -Path ".\").FullName
@@ -21,9 +17,5 @@ if (-not (Test-Path $artifacts_dir)) {
 }
 
 Rename-Item -path $artifacts_dir -newName "$results"
-
-if ($set_vso_result_var) {
-    Write-Host "##vso[task.setvariable variable=vso_benchmark_results;]$current_dir\$results"
-}
 
 Write-Comment -prefix "." -text "Done" -color "green"

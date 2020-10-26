@@ -13,9 +13,6 @@
 - name: About
   link:  /about
   section: about
-# - name: Contact us
-#   link:  /contact-us
-#   section: contact-us
 - name: GitHub
   link: https://github.com/microsoft/coyote/
   external: true

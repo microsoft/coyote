@@ -30,8 +30,6 @@ between controlled `Task` objects. In production, a controlled `Task` executes e
 simple wrapper over a native `Task`, with operations being pass-through (Coyote takes control only
 during testing).
 
-[![image](../../../assets/images/channel9_tasks.png)](https://channel9.msdn.com/Shows/On-NET/Reliable-Async-Systems-with-Coyote-Part-1)
-
 ## Overview
 
 The core of the Coyote asynchronous tasks programming model is the controlled `Task` and `Task<T>`

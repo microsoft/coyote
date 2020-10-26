@@ -595,7 +595,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// Checks if the currently executing operation is controlled by the runtime.
         /// </summary>
 #if !DEBUG
-        [DebuggerStepThrough]
+        [DebuggerHidden]
 #endif
         internal static void ThrowUncontrolledTaskException()
         {

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>The Coyote performance tests.</Description>
-    <AssemblyName>Microsoft.Coyote.Tests.Actors.Performance</AssemblyName>
+    <AssemblyName>Tests.Actors.Performance</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.Tests.Performance</RootNamespace>
     <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Library</CoyoteTargetType>

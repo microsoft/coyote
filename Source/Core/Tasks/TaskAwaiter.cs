@@ -55,11 +55,7 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult()
         {
-            if (!this.IsCompleted)
-            {
-                this.Runtime?.OnWaitTask(this.AwaitedTask);
-            }
-
+            this.Runtime?.OnWaitTask(this.AwaitedTask);
             this.Awaiter.GetResult();
         }
 
@@ -143,11 +139,7 @@ namespace Microsoft.Coyote.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TResult GetResult()
         {
-            if (!this.IsCompleted)
-            {
-                this.Runtime?.OnWaitTask(this.AwaitedTask);
-            }
-
+            this.Runtime?.OnWaitTask(this.AwaitedTask);
             return this.Awaiter.GetResult();
         }
 

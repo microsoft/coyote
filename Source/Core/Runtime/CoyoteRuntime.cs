@@ -38,14 +38,24 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The currently executing runtime.
         /// </summary>
-        internal static CoyoteRuntime Current => AsyncLocalInstance.Value ??
-            (IsExecutionControlled ? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
-                "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
-                "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
-                "you will need to mock them during testing.",
-                Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>")) :
-            RuntimeFactory.InstalledRuntime);
+        internal static CoyoteRuntime Current
+        {
+            get
+            {
+                CoyoteRuntime runtime = AsyncLocalInstance.Value;
+                if (runtime is null)
+                {
+                    if (IsExecutionControlled)
+                    {
+                        OperationScheduler.ThrowUncontrolledTaskException();
+                    }
+
+                    runtime = RuntimeFactory.InstalledRuntime;
+                }
+
+                return runtime;
+            }
+        }
 
         /// <summary>
         /// If true, the program execution is controlled by the runtime to
@@ -233,8 +243,8 @@ namespace Microsoft.Coyote.Runtime
 
                     if (testMethodTask != null)
                     {
-                        // The test method is asynchronous, so wait on the task to complete.
-                        op.OnWaitTask(testMethodTask);
+                        // If the test method is asynchronous, then wait until it completes.
+                        op.TryBlockUntilTaskCompletes(testMethodTask);
                         if (testMethodTask.Exception != null)
                         {
                             // The test method failed with an unhandled exception.
@@ -416,9 +426,9 @@ namespace Microsoft.Coyote.Runtime
                 this.Scheduler.StartOperation(op);
                 if (context.Predecessor != null)
                 {
-                    // If there is a predecessor task, then wait until the predecessor completes.
+                    // If the predecessor task is asynchronous, then wait until it completes.
                     ct.ThrowIfCancellationRequested();
-                    op.OnWaitTask(context.Predecessor);
+                    op.TryBlockUntilTaskCompletes(context.Predecessor);
                 }
 
                 if (context.Options.HasFlag(OperationExecutionOptions.YieldAtStart))
@@ -498,9 +508,9 @@ namespace Microsoft.Coyote.Runtime
 
                 if (context.Predecessor != null)
                 {
-                    // If there is a predecessor task, then wait until the predecessor completes.
+                    // If the predecessor task is asynchronous, then wait until it completes.
                     ct.ThrowIfCancellationRequested();
-                    op.OnWaitTask(context.Predecessor);
+                    op.TryBlockUntilTaskCompletes(context.Predecessor);
                 }
 
                 // Check if the operation must be canceled before starting the work.
@@ -537,8 +547,8 @@ namespace Microsoft.Coyote.Runtime
 
                 if (executor != null)
                 {
-                    // If the work is asynchronous, then wait until it completes.
-                    this.OnWaitTask(op.Id, executor);
+                    // If the work task is asynchronous, then wait until it completes.
+                    op.TryBlockUntilTaskCompletes(executor);
                     if (executor.IsFaulted)
                     {
                         // Propagate the failing exception by rethrowing it.
@@ -613,7 +623,7 @@ namespace Microsoft.Coyote.Runtime
         internal Task ScheduleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             // TODO: support cancellations during testing.
-            if (delay.TotalMilliseconds == 0)
+            if (delay.TotalMilliseconds is 0)
             {
                 // If the delay is 0, then complete synchronously.
                 return Task.CompletedTask;
@@ -633,10 +643,11 @@ namespace Microsoft.Coyote.Runtime
         {
             try
             {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.Assert(callerOp != null,
-                    "Task with id '{0}' that is not controlled by the runtime is executing controlled task '{1}'.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", task.Id);
+                var callerOp = this.Scheduler?.GetExecutingOperation<TaskOperation>();
+                if (callerOp is null)
+                {
+                    OperationScheduler.ThrowUncontrolledTaskException();
+                }
 
                 if (IsCurrentOperationExecutingAsynchronously())
                 {
@@ -670,7 +681,6 @@ namespace Microsoft.Coyote.Runtime
             try
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "Yield");
                 IO.Debug.WriteLine("<Task> '{0}' is executing a yield operation.", callerOp.Id);
                 this.ScheduleAction(continuation, null, true, false, default);
             }
@@ -701,8 +711,7 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleAction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
-                callerOp.OnWaitTasks(tasks, waitAll: true);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
                 foreach (var task in tasks)
@@ -742,8 +751,7 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleAction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
-                callerOp.OnWaitTasks(tasks, waitAll: true);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
                 foreach (var task in tasks)
@@ -783,8 +791,7 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
-                callerOp.OnWaitTasks(tasks, waitAll: true);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
                 foreach (var task in tasks)
@@ -834,8 +841,7 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAll");
-                callerOp.OnWaitTasks(tasks, waitAll: true);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
                 List<Exception> exceptions = null;
                 foreach (var task in tasks)
@@ -885,8 +891,7 @@ namespace Microsoft.Coyote.Runtime
             var task = this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
-                callerOp.OnWaitTasks(tasks, waitAll: false);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 Task result = null;
                 foreach (var task in tasks)
@@ -925,8 +930,7 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
-                callerOp.OnWaitTasks(tasks, waitAll: false);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 CoyoteTasks.Task result = null;
                 foreach (var task in tasks)
@@ -963,8 +967,7 @@ namespace Microsoft.Coyote.Runtime
             var task = this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
-                callerOp.OnWaitTasks(tasks, waitAll: false);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 Task<TResult> result = null;
                 foreach (var task in tasks)
@@ -1003,8 +1006,7 @@ namespace Microsoft.Coyote.Runtime
             return this.ScheduleFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                this.AssertIsTaskControlled(callerOp, "WhenAny");
-                callerOp.OnWaitTasks(tasks, waitAll: false);
+                callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
                 CoyoteTasks.Task<TResult> result = null;
                 foreach (var task in tasks)
@@ -1037,8 +1039,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAll");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
+            callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
             return true;
@@ -1061,8 +1062,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAll");
-            callerOp.OnWaitTasks(tasks, waitAll: true);
+            callerOp.BlockUntilTasksComplete(tasks, waitAll: true);
 
             // TODO: support timeouts during testing, this would become false if there is a timeout.
             return true;
@@ -1088,9 +1088,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAny");
-
-            callerOp.OnWaitTasks(tasks, waitAll: false);
+            callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
             int result = -1;
             for (int i = 0; i < tasks.Length; i++)
@@ -1126,8 +1124,7 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            this.AssertIsTaskControlled(callerOp, "WaitAny");
-            callerOp.OnWaitTasks(tasks, waitAll: false);
+            callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
 
             int result = -1;
             for (int i = 0; i < tasks.Length; i++)
@@ -1149,10 +1146,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal bool WaitTaskCompletes(Task task)
         {
+            this.AssertIsAwaitedTaskControlled(task);
+
             // TODO: support timeouts and cancellation tokens.
-            // int millisecondsTimeout, CancellationToken cancellationToken
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.OnWaitTask(task);
+            if (!task.IsCompleted)
+            {
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                callerOp.BlockUntilTaskCompletes(task);
+            }
 
             if (task.IsFaulted)
             {
@@ -1168,8 +1169,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal TResult WaitTaskCompletes<TResult>(Task<TResult> task)
         {
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.OnWaitTask(task);
+            this.AssertIsAwaitedTaskControlled(task);
+
+            // TODO: support timeouts and cancellation tokens.
+            if (!task.IsCompleted)
+            {
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                callerOp.BlockUntilTaskCompletes(task);
+            }
 
             if (task.IsFaulted)
             {
@@ -1225,15 +1232,8 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void CheckExecutingOperationIsControlled()
-        {
-            if (!this.Scheduler.IsAttached)
-            {
-                throw new ExecutionCanceledException();
-            }
-
-            this.Scheduler.CheckExecutingOperationIsControlled();
-        }
+        internal void CheckExecutingOperationIsControlled() =>
+            this.Scheduler.GetExecutingOperation<AsyncOperation>();
 
         /// <summary>
         /// Callback invoked when the <see cref="CoyoteTasks.YieldAwaitable.YieldAwaiter.GetResult"/> is called.
@@ -1251,23 +1251,10 @@ namespace Microsoft.Coyote.Runtime
 #endif
         internal void OnWaitTask(Task task)
         {
-            var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-            callerOp.OnWaitTask(task);
-        }
-
-        /// <summary>
-        /// Callback invoked when the executing task is waiting for the task with the specified operation id to complete.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal void OnWaitTask(ulong operationId, Task task)
-        {
-            this.Assert(task != null, "Task '{0}' is waiting for a null task to complete.", Task.CurrentId);
             if (!task.IsCompleted)
             {
-                var op = this.Scheduler.GetOperationWithId<TaskOperation>(operationId);
-                op.OnWaitTask(task);
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                callerOp.BlockUntilTaskCompletes(task);
             }
         }
 
@@ -1411,18 +1398,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 this.Assert(false, $"Method '{methodName}' returned an uncontrolled task with id '{task.Id}', " +
                     "which is not allowed: either mock the method, or rewrite the method's assembly.");
-            }
-        }
-
-        /// <summary>
-        /// Checks that the executing task is controlled.
-        /// </summary>
-        private void AssertIsTaskControlled(TaskOperation callerOp, string opName)
-        {
-            if (callerOp == null)
-            {
-                this.Assert(false, "Uncontrolled task '{0}' invoked a {1} operation.",
-                    Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>", opName);
             }
         }
 

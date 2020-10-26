@@ -961,10 +961,10 @@ namespace Microsoft.Coyote.Actors
         /// </summary>
         internal void OnWaitTask(Task task, string methodName)
         {
-            if (this.Context.IsExecutionControlled)
+            if (!task.IsCompleted && this.Context.IsExecutionControlled)
             {
                 this.Context.Runtime.AssertIsReturnedTaskControlled(task, methodName);
-                this.Operation.OnWaitTask(task);
+                this.Operation.BlockUntilTaskCompletes(task);
             }
         }
 
@@ -976,7 +976,7 @@ namespace Microsoft.Coyote.Actors
         {
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.OnWaitEvent();
+                this.Operation.BlockUntilEventReceived();
             }
 
             this.Context.LogWaitEvent(this, eventTypes);
@@ -997,7 +997,7 @@ namespace Microsoft.Coyote.Actors
 
             if (this.Context.IsExecutionControlled)
             {
-                this.Operation.OnReceivedEvent();
+                this.Operation.EnableDueToReceivedEvent();
             }
         }
 

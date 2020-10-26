@@ -165,7 +165,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 if (current.Status != AsyncOperationStatus.Completed)
                 {
                     // Checks if the current operation is controlled by the runtime.
-                    this.CheckExecutingOperationIsControlled();
+                    if (ExecutingOperation.Value is null)
+                    {
+                        ThrowUncontrolledTaskException();
+                    }
                 }
 
                 // Checks if the scheduling steps bound has been reached.
@@ -263,7 +266,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if the current operation is controlled by the runtime.
-                this.CheckExecutingOperationIsControlled();
+                if (ExecutingOperation.Value is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -295,7 +301,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
                 // Checks if the current operation is controlled by the runtime.
-                this.CheckExecutingOperationIsControlled();
+                if (ExecutingOperation.Value is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
 
                 // Checks if the scheduling steps bound has been reached.
                 this.CheckIfSchedulingStepsBoundIsReached();
@@ -326,7 +335,7 @@ namespace Microsoft.Coyote.SystematicTesting
         {
             lock (this.SyncObject)
             {
-                if (this.OperationMap.Count == 0)
+                if (this.OperationMap.Count is 0)
                 {
                     this.ScheduledOperation = op;
                 }
@@ -449,7 +458,12 @@ namespace Microsoft.Coyote.SystematicTesting
                 this.ThrowExecutionCanceledExceptionIfDetached();
 
                 var op = ExecutingOperation.Value;
-                return op != null && op == this.ScheduledOperation && op is TAsyncOperation expected ? expected : default;
+                if (op is null)
+                {
+                    ThrowUncontrolledTaskException();
+                }
+
+                return op.Equals(this.ScheduledOperation) && op is TAsyncOperation expected ? expected : default;
             }
         }
 
@@ -469,29 +483,6 @@ namespace Microsoft.Coyote.SystematicTesting
         }
 
         /// <summary>
-        /// Checks if the currently executing operation is controlled by the runtime.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void CheckExecutingOperationIsControlled()
-        {
-            lock (this.SyncObject)
-            {
-                var op = ExecutingOperation.Value;
-                if (op is null)
-                {
-                    this.NotifyAssertionFailure(string.Format(CultureInfo.InvariantCulture,
-                        "Uncontrolled task '{0}' invoked a runtime method. Please make sure to avoid using concurrency APIs " +
-                        "(e.g. 'Task.Run', 'Task.Delay' or 'Task.Yield' from the 'System.Threading.Tasks' namespace) inside " +
-                        "actor handlers or controlled tasks. If you are using external libraries that are executing concurrently, " +
-                        "you will need to mock them during testing.",
-                        Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>"));
-                }
-            }
-        }
-
-        /// <summary>
         /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
         /// but there is one or more blocked operations that are waiting some resource to complete.
         /// </summary>
@@ -504,9 +495,9 @@ namespace Microsoft.Coyote.SystematicTesting
             var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
                 op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
             var blockedOnResourceSynchronization = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
-            if (blockedOnReceiveOperations.Count == 0 &&
-                blockedOnWaitOperations.Count == 0 &&
-                blockedOnResourceSynchronization.Count == 0)
+            if (blockedOnReceiveOperations.Count is 0 &&
+                blockedOnWaitOperations.Count is 0 &&
+                blockedOnResourceSynchronization.Count is 0)
             {
                 return;
             }
@@ -527,7 +518,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                 }
 
-                message += blockedOnReceiveOperations.Count == 1 ? " is " : " are ";
+                message += blockedOnReceiveOperations.Count is 1 ? " is " : " are ";
                 message += "waiting to receive an event, but no other controlled tasks are enabled.";
             }
 
@@ -546,7 +537,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                 }
 
-                message += blockedOnWaitOperations.Count == 1 ? " is " : " are ";
+                message += blockedOnWaitOperations.Count is 1 ? " is " : " are ";
                 message += "waiting for a task to complete, but no other controlled tasks are enabled.";
             }
 
@@ -565,7 +556,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     }
                 }
 
-                message += blockedOnResourceSynchronization.Count == 1 ? " is " : " are ";
+                message += blockedOnResourceSynchronization.Count is 1 ? " is " : " are ";
                 message += "waiting to acquire a resource that is already acquired, ";
                 message += "but no other controlled tasks are enabled.";
             }
@@ -598,6 +589,24 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Detach();
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if the currently executing operation is controlled by the runtime.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal static void ThrowUncontrolledTaskException()
+        {
+            // TODO: figure out if there is a way to get more information about the creator of the
+            // uncontrolled task to ease the user debugging experience.
+            // Report the invalid operation and then throw it to fail the uncontrolled task.
+            // This will most likely crash the program, but we try to fail as cleanly and fast as possible.
+            string uncontrolledTask = Task.CurrentId.HasValue ? Task.CurrentId.Value.ToString() : "<unknown>";
+            throw new InvalidOperationException($"Uncontrolled task with id '{uncontrolledTask}' was detected, " +
+                "which is not allowed as it can lead to race conditions or deadlocks: either mock the creator " +
+                "of the uncontrolled task, or rewrite its assembly.");
         }
 
         internal void NotifyUnhandledException(Exception ex, string message)

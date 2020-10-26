@@ -4,11 +4,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Coyote.Actors;
 
-namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
+namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
-    // [MemoryDiagnoser, ThreadingDiagnoser]
+    [ClrJob(baseline: true), CoreJob]
+    [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class CreationThroughputBenchmark
@@ -56,40 +56,27 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             }
         }
 
-        public static int NumMachines => 10000;
+        [Params(10000, 100000)]
+        public int NumMachines { get; set; }
 
         [Params(true, false)]
         public bool DoHalt { get; set; }
 
-        private IActorRuntime Runtime;
-
-        [IterationSetup]
-        public void IterationSetup()
-        {
-            if (this.Runtime is null)
-            {
-                var configuration = Configuration.Create();
-                this.Runtime = RuntimeFactory.Create(configuration);
-            }
-        }
-
         [Benchmark]
         public void MeasureCreationThroughput()
         {
+            var configuration = Configuration.Create();
+            var runtime = RuntimeFactory.Create(configuration);
+
             var tcs = new TaskCompletionSource<bool>();
-            var setup = new SetupEvent(tcs, NumMachines, this.DoHalt);
-            for (int idx = 0; idx < NumMachines; idx++)
+            var e = new SetupEvent(tcs, this.NumMachines, this.DoHalt);
+
+            for (int idx = 0; idx < this.NumMachines; idx++)
             {
-                this.Runtime.CreateActor(typeof(M), null, setup);
+                runtime.CreateActor(typeof(M), null, e);
             }
 
-            setup.Tcs.Task.Wait();
-        }
-
-        [IterationCleanup]
-        public void IterationClean()
-        {
-            this.Runtime = null;
+            tcs.Task.Wait();
         }
     }
 }

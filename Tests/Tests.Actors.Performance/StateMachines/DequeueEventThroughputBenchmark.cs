@@ -3,11 +3,11 @@
 
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Coyote.Actors;
 
-namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
+namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
-    // [MemoryDiagnoser, ThreadingDiagnoser]
+    [ClrJob(baseline: true), CoreJob]
+    [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class DequeueEventThroughputBenchmark
@@ -55,7 +55,6 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             private TaskCompletionSource<bool> TcsSetup;
             private ActorId Consumer;
             private long NumMessages;
-            private readonly Message MessageInstance = new Message();
 
             [Start]
             [OnEntry(nameof(InitOnEntry))]
@@ -82,7 +81,7 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             {
                 for (int i = 0; i < this.NumMessages; i++)
                 {
-                    this.SendEvent(this.Consumer, this.MessageInstance);
+                    this.SendEvent(this.Consumer, new Message());
                 }
             }
         }
@@ -94,17 +93,16 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             private long Counter = 0;
 
             [Start]
-            [OnEventDoAction(typeof(SetupConsumerEvent), nameof(OnSetup))]
+            [OnEntry(nameof(InitOnEntry))]
             [OnEventDoAction(typeof(Message), nameof(HandleMessage))]
             private class Init : State
             {
             }
 
-            private void OnSetup(Event e)
+            private void InitOnEntry(Event e)
             {
-                var se = (SetupConsumerEvent)e;
-                this.TcsExperiment = se.TcsExperiment;
-                this.NumMessages = se.NumMessages;
+                this.TcsExperiment = (e as SetupConsumerEvent).TcsExperiment;
+                this.NumMessages = (e as SetupConsumerEvent).NumMessages;
             }
 
             private void HandleMessage()
@@ -113,56 +111,59 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
                 if (this.Counter == this.NumMessages)
                 {
                     this.TcsExperiment.SetResult(true);
-                    this.Counter = 0;
                 }
             }
         }
 
-        public static int NumProducers => 1;
+        [Params(10, 100, 1000, 10000)]
+        public int NumProducers { get; set; }
 
-        private static int NumMessages => 100000;
+        private static int NumMessages => 1000000;
 
         private IActorRuntime Runtime;
         private ActorId[] ProducerMachines;
-        private ActorId ConsumerId;
+        private TaskCompletionSource<bool> ExperimentAwaiter;
 
         [IterationSetup]
         public void IterationSetup()
         {
-            if (this.Runtime is null)
+            var configuration = Configuration.Create();
+            this.Runtime = RuntimeFactory.Create(configuration);
+            this.ExperimentAwaiter = new TaskCompletionSource<bool>();
+
+            var consumer = this.Runtime.CreateActor(typeof(Consumer), null,
+                new SetupConsumerEvent(this.ExperimentAwaiter, NumMessages));
+
+            var tasks = new Task[this.NumProducers];
+            this.ProducerMachines = new ActorId[this.NumProducers];
+            for (int i = 0; i < this.NumProducers; i++)
             {
-                var configuration = Configuration.Create();
-                this.Runtime = RuntimeFactory.Create(configuration);
-
-                this.ConsumerId = this.Runtime.CreateActor(typeof(Consumer));
-
-                var tasks = new Task[NumProducers];
-                this.ProducerMachines = new ActorId[NumProducers];
-                for (int i = 0; i < NumProducers; i++)
-                {
-                    var tcs = new TaskCompletionSource<bool>();
-                    this.ProducerMachines[i] = this.Runtime.CreateActor(typeof(Producer), null,
-                        new SetupProducerEvent(tcs, this.ConsumerId, NumMessages));
-                    tasks[i] = tcs.Task;
-                }
-
-                Task.WaitAll(tasks);
+                var tcs = new TaskCompletionSource<bool>();
+                this.ProducerMachines[i] = this.Runtime.CreateActor(typeof(Producer), null,
+                    new SetupProducerEvent(tcs, consumer, NumMessages / this.NumProducers));
+                tasks[i] = tcs.Task;
             }
+
+            Task.WaitAll(tasks);
         }
 
         [Benchmark]
         public void MeasureDequeueEventThroughput()
         {
-            var tcs = new TaskCompletionSource<bool>();
-
-            this.Runtime.SendEvent(this.ConsumerId, new SetupConsumerEvent(tcs, NumMessages));
-
-            for (int i = 0; i < NumProducers; i++)
+            for (int i = 0; i < this.NumProducers; i++)
             {
                 this.Runtime.SendEvent(this.ProducerMachines[i], new StartExperiment());
             }
 
-            tcs.Task.Wait();
+            this.ExperimentAwaiter.Task.Wait();
+        }
+
+        [IterationCleanup]
+        public void IterationCleanup()
+        {
+            this.Runtime = null;
+            this.ProducerMachines = null;
+            this.ExperimentAwaiter = null;
         }
     }
 }

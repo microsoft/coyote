@@ -4,14 +4,14 @@
 using System;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Coyote.Actors;
 
-namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
+namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
-    // [MemoryDiagnoser, ThreadingDiagnoser]
+    [ClrJob(baseline: true), CoreJob]
+    [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
-    public class GotoTransitionThroughputBenchmark
+    public class PushTransitionThroughputBenchmark
     {
         private class SetupEvent : Event
         {
@@ -45,14 +45,20 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             {
             }
 
-            [OnEntry(nameof(PingOnEntry))]
-            [OnEventGotoState(typeof(Trigger), typeof(Pong))]
-            private class Ping : State
+            [OnEntry(nameof(DoBottomTransition))]
+            [OnEventPushState(typeof(Trigger), typeof(Middle))]
+            private class Bottom : State
             {
             }
 
-            [OnEntry(nameof(PongOnEntry))]
-            private class Pong : State
+            [OnEntry(nameof(DoMiddleTransition))]
+            private class Middle : State
+            {
+            }
+
+            [OnEntry(nameof(DoTopTransition))]
+            [OnEventDoAction(typeof(Trigger), nameof(RaisePopStateEvent))]
+            private class Top : State
             {
             }
 
@@ -60,24 +66,31 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             {
                 this.Tcs = (e as SetupEvent).Tcs;
                 this.NumTransitions = (e as SetupEvent).NumTransitions;
-                this.RaiseGotoStateEvent(typeof(Ping));
+                this.RaiseGotoStateEvent(typeof(Bottom));
             }
 
-            private void PingOnEntry() => this.DoTransitionFromState(typeof(Ping));
+            private void DoBottomTransition() => this.DoTransitionFromState(typeof(Bottom));
 
-            private void PongOnEntry() => this.DoTransitionFromState(typeof(Pong));
+            private void DoMiddleTransition() => this.DoTransitionFromState(typeof(Middle));
+
+            private void DoTopTransition() => this.DoTransitionFromState(typeof(Top));
 
             private void DoTransitionFromState(Type fromState)
             {
-                if (this.NumTransitions > 0 && fromState == typeof(Ping))
+                if (this.NumTransitions > 0 && fromState == typeof(Bottom))
                 {
                     this.RaiseEvent(Trigger.Instance);
                 }
-                else if (this.NumTransitions > 0 && fromState == typeof(Pong))
+                else if (this.NumTransitions > 0 && fromState == typeof(Middle))
                 {
-                    this.RaiseGotoStateEvent(typeof(Ping));
+                    this.RaisePushStateEvent(typeof(Top));
                 }
-                else if (this.NumTransitions is 0)
+                else if (this.NumTransitions > 0 && fromState == typeof(Top))
+                {
+                    this.SendEvent(this.Id, Trigger.Instance);
+                    this.RaisePopStateEvent();
+                }
+                else if (this.NumTransitions == 0)
                 {
                     this.RaiseHaltEvent();
                     this.Tcs.TrySetResult(true);
@@ -87,28 +100,18 @@ namespace Microsoft.Coyote.Performance.Tests.Actors.StateMachines
             }
         }
 
-        public static int NumTransitions => 100000;
-
-        private IActorRuntime Runtime;
-
-        [IterationSetup]
-
-        public void IterationSetup()
-        {
-            if (this.Runtime is null)
-            {
-                var configuration = Configuration.Create();
-                this.Runtime = RuntimeFactory.Create(configuration);
-            }
-        }
+        [Params(1000, 10000, 100000)]
+        public int NumTransitions { get; set; }
 
         [Benchmark]
-        public void MeasureGotoTransitionThroughput()
+        public void MeasurePushTransitionThroughput()
         {
+            var configuration = Configuration.Create();
+            var runtime = RuntimeFactory.Create(configuration);
             var tcs = new TaskCompletionSource<bool>();
-            var setup = new SetupEvent(tcs, NumTransitions);
-            this.Runtime.CreateActor(typeof(M), null, setup);
-            setup.Tcs.Task.Wait();
+            var e = new SetupEvent(tcs, this.NumTransitions);
+            runtime.CreateActor(typeof(M), null, e);
+            tcs.Task.Wait();
         }
     }
 }

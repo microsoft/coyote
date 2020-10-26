@@ -17,7 +17,10 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
   </ItemGroup>
-  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild">
+  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild" Condition="'$(OS)'=='Windows_NT'">
     <Exec Command="..\..\bin\$(TargetFramework)\coyote.exe rewrite .\bin\$(TargetFramework)\Tests.Performance.dll" />
+  </Target>
+  <Target Name="CoyoteRewriting" AfterTargets="AfterBuild" Condition="'$(OS)'=='UNIX'">
+    <Exec Command="dotnet ..\..\bin\$(TargetFramework)\coyote rewrite .\bin\$(TargetFramework)\Tests.Performance.dll" />
   </Target>
 </Project>

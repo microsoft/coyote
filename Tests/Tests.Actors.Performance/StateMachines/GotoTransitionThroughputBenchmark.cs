@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
                 {
                     this.RaiseGotoStateEvent(typeof(Ping));
                 }
-                else if (this.NumTransitions == 0)
+                else if (this.NumTransitions is 0)
                 {
                     this.RaiseHaltEvent();
                     this.Tcs.TrySetResult(true);
@@ -88,18 +88,28 @@ namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
             }
         }
 
-        [Params(1000, 10000, 100000)]
-        public int NumTransitions { get; set; }
+        public static int NumTransitions => 100000;
+
+        private IActorRuntime Runtime;
+
+        [IterationSetup]
+
+        public void IterationSetup()
+        {
+            if (this.Runtime is null)
+            {
+                var configuration = Configuration.Create();
+                this.Runtime = RuntimeFactory.Create(configuration);
+            }
+        }
 
         [Benchmark]
-        public void MeasureGotoTransitionThroughput()
+        public async Task MeasureGotoTransitionThroughput()
         {
-            var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.Create(configuration);
             var tcs = new TaskCompletionSource<bool>();
-            var e = new SetupEvent(tcs, this.NumTransitions);
-            runtime.CreateActor(typeof(M), null, e);
-            tcs.Task.Wait();
+            var setup = new SetupEvent(tcs, NumTransitions);
+            this.Runtime.CreateActor(typeof(M), null, setup);
+            await tcs.Task;
         }
     }
 }

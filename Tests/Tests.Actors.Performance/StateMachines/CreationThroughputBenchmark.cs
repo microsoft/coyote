@@ -57,27 +57,41 @@ namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
             }
         }
 
-        [Params(10000, 100000)]
-        public int NumMachines { get; set; }
+        private static int NumMachines => 10000;
+
+        private IActorRuntime Runtime;
 
         [Params(true, false)]
         public bool DoHalt { get; set; }
 
-        [Benchmark]
-        public void MeasureCreationThroughput()
+        [IterationSetup]
+        public void IterationSetup()
         {
-            var configuration = Configuration.Create();
-            var runtime = RuntimeFactory.Create(configuration);
-
-            var tcs = new TaskCompletionSource<bool>();
-            var e = new SetupEvent(tcs, this.NumMachines, this.DoHalt);
-
-            for (int idx = 0; idx < this.NumMachines; idx++)
+            if (this.Runtime is null)
             {
-                runtime.CreateActor(typeof(M), null, e);
+                var configuration = Configuration.Create();
+                this.Runtime = RuntimeFactory.Create(configuration);
+            }
+        }
+
+        [Benchmark]
+        public async Task MeasureCreationThroughput()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            var setupEvent = new SetupEvent(tcs, NumMachines, this.DoHalt);
+
+            for (int idx = 0; idx < NumMachines; idx++)
+            {
+                this.Runtime.CreateActor(typeof(M), null, setupEvent);
             }
 
-            tcs.Task.Wait();
+            await tcs.Task;
+        }
+
+        [IterationCleanup]
+        public void IterationClean()
+        {
+            this.Runtime = null;
         }
     }
 }

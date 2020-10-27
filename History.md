@@ -1,3 +1,7 @@
+## v1.2.0
+- Added support for systematically testing actors and tasks together using rewriting.
+- Hardened the systematic testing runtime.
+
 ## v1.1.5
 - Improved detection of uncontrolled tasks during systematic testing.
 - Added detection of invoking unsupported APIs during systematic testing.

@@ -136,6 +136,7 @@ namespace Microsoft.Coyote.Actors.Mocks
                 {
                     // TODO: should the user be able to raise an ignored event?
                     // The raised event is ignored in the current state.
+                    this.OnIgnoreEvent(this.RaisedEvent.e, this.RaisedEvent.eventGroup, this.RaisedEvent.info);
                     this.RaisedEvent = default;
                 }
                 else
@@ -178,12 +179,11 @@ namespace Microsoft.Coyote.Actors.Mocks
         /// </summary>
         private (Event e, EventGroup eventGroup, EventInfo info) TryDequeueEvent(bool checkOnly = false)
         {
-            (Event, EventGroup, EventInfo) nextAvailableEvent = default;
-
-            // Iterates through the events and metadata in the inbox.
+            // Try to dequeue the next event, if there is one.
             var node = this.Queue.First;
             while (node != null)
             {
+                // Iterates through the events and metadata in the inbox.
                 var nextNode = node.Next;
                 var currentEvent = node.Value;
 
@@ -193,28 +193,29 @@ namespace Microsoft.Coyote.Actors.Mocks
                     {
                         // Removes an ignored event.
                         this.Queue.Remove(node);
+                        this.OnIgnoreEvent(currentEvent.e, currentEvent.eventGroup, currentEvent.info);
                     }
 
                     node = nextNode;
                     continue;
                 }
-
-                // Skips a deferred event.
-                if (!this.IsEventDeferred(currentEvent.e))
+                else if (this.IsEventDeferred(currentEvent.e))
                 {
-                    nextAvailableEvent = currentEvent;
-                    if (!checkOnly)
-                    {
-                        this.Queue.Remove(node);
-                    }
-
-                    break;
+                    // Skips a deferred event.
+                    this.OnDeferEvent(currentEvent.e, currentEvent.eventGroup, currentEvent.info);
+                    node = nextNode;
+                    continue;
                 }
 
-                node = nextNode;
+                if (!checkOnly)
+                {
+                    this.Queue.Remove(node);
+                }
+
+                return currentEvent;
             }
 
-            return nextAvailableEvent;
+            return default;
         }
 
         /// <inheritdoc/>
@@ -367,11 +368,23 @@ namespace Microsoft.Coyote.Actors.Mocks
         protected virtual void OnReceiveInvoked() => this.Owner.OnReceiveInvoked();
 
         /// <summary>
+        /// Notifies the actor that an event has been ignored.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnIgnoreEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) => this.Owner.OnIgnoreEvent(e);
+
+        /// <summary>
+        /// Notifies the actor that an event has been deferred.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void OnDeferEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) => this.Owner.OnDeferEvent(e);
+
+        /// <summary>
         /// Notifies the actor that an event has been dropped.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo) =>
-            this.Owner.OnDropEvent(e, eventGroup, eventInfo);
+            this.Owner.OnDropEvent(e, eventInfo);
 
         /// <summary>
         /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.

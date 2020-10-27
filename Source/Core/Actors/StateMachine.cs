@@ -274,7 +274,7 @@ namespace Microsoft.Coyote.Actors
         /// <see cref="RaisePopStateEvent"/> and <see cref="RaiseHaltEvent"/>.
         /// An Assert is raised if you accidentally try and do two of these operations in a single action.
         /// </remarks>
-        protected override void RaiseHaltEvent()
+        protected new void RaiseHaltEvent()
         {
             base.RaiseHaltEvent();
             this.CheckDanglingTransition();

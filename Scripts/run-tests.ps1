@@ -37,9 +37,6 @@ if (($test -eq "all") -or ($test -eq "systematic") -or ($test -eq "actors-system
     
         $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/rewrite.coyote.json"
         Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
-            
-        # Try rewrite again to make sure we can skip a rewritten assembly and do no damage.
-        Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
     }
 }
 
@@ -51,9 +48,6 @@ if (($test -eq "all") -or ($test -eq "standalone")) {
         }
     
         $rewriting_target = "$PSScriptRoot/../Tests/bin/$f/Microsoft.Coyote.Tests.Standalone.dll"
-        Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
-        
-        # Try rewrite again to make sure we can skip a rewritten assembly and do no damage.
         Invoke-CoyoteTool -cmd "rewrite" -dotnet $dotnet -framework $f -target $rewriting_target -key $key_file
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Tests.Common;
 using Xunit;
@@ -421,6 +422,81 @@ namespace Microsoft.Coyote.Actors.Tests
 
             await Task.WhenAny(tcs.Task, Task.Delay(500));
             Assert.True(tcs.Task.IsCompleted);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestIgnoreEvent()
+        {
+            int notificationCount = 0;
+            var logger = new TestOutputLogger(this.TestOutput, false);
+
+            using var queue = new TestEventQueue(logger, (notification, evt, _) =>
+            {
+                notificationCount++;
+                if (notificationCount is 3)
+                {
+                    Assert.Equal(TestEventQueue.Notification.IgnoreEvent, notification);
+                }
+            }, ignoredEvents: new Type[1] { typeof(E1) });
+
+            var enqueueStatus = queue.Enqueue(new E2(), null, null);
+            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+            Assert.Equal(1, queue.Size);
+
+            enqueueStatus = queue.Enqueue(new E1(), null, null);
+            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+            Assert.Equal(2, queue.Size);
+
+            var (deqeueStatus, e, group, info) = queue.Dequeue();
+            Assert.IsType<E2>(e);
+            Assert.Equal(DequeueStatus.Success, deqeueStatus);
+            Assert.Equal(1, queue.Size);
+
+            (deqeueStatus, e, group, info) = queue.Dequeue();
+            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(0, queue.Size);
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestDeferEvent()
+        {
+            int notificationCount = 0;
+            var logger = new TestOutputLogger(this.TestOutput, false);
+
+            using var queue = new TestEventQueue(logger, (notification, evt, _) =>
+            {
+                notificationCount++;
+                if (notificationCount is 4)
+                {
+                    Assert.Equal(TestEventQueue.Notification.DeferEvent, notification);
+                }
+            }, deferredEvents: new Type[1] { typeof(E1) });
+
+            var enqueueStatus = queue.Enqueue(new E2(), null, null);
+            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+            Assert.Equal(1, queue.Size);
+
+            enqueueStatus = queue.Enqueue(new E1(), null, null);
+            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+            Assert.Equal(2, queue.Size);
+
+            enqueueStatus = queue.Enqueue(new E3(), null, null);
+            Assert.Equal(EnqueueStatus.EventHandlerRunning, enqueueStatus);
+            Assert.Equal(3, queue.Size);
+
+            var (deqeueStatus, e, group, info) = queue.Dequeue();
+            Assert.IsType<E2>(e);
+            Assert.Equal(DequeueStatus.Success, deqeueStatus);
+            Assert.Equal(2, queue.Size);
+
+            (deqeueStatus, e, group, info) = queue.Dequeue();
+            Assert.IsType<E3>(e);
+            Assert.Equal(DequeueStatus.Success, deqeueStatus);
+            Assert.Equal(1, queue.Size);
+
+            (deqeueStatus, e, group, info) = queue.Dequeue();
+            Assert.Equal(DequeueStatus.NotAvailable, deqeueStatus);
+            Assert.Equal(1, queue.Size);
         }
     }
 }

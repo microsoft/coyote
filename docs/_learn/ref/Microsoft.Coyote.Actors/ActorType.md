@@ -33,14 +33,16 @@ public abstract class Actor
 | [CreateActor](Actor/CreateActor)(…) | Creates a new actor of the specified type and with the specified optional [`Event`](../Microsoft.Coyote/EventType). This [`Event`](../Microsoft.Coyote/EventType) can only be used to access its payload, and cannot be handled. (3 methods) |
 | [Monitor](Actor/Monitor)(…) | Invokes the specified monitor with the specified event. |
 | [Monitor&lt;T&gt;](Actor/Monitor)(…) | Invokes the specified monitor with the specified [`Event`](../Microsoft.Coyote/EventType). |
+| virtual [OnEventDeferred](Actor/OnEventDeferred)(…) | Callback that is invoked when the actor defers dequeing an event from its inbox. |
 | virtual [OnEventDequeuedAsync](Actor/OnEventDequeuedAsync)(…) | Asynchronous callback that is invoked when the actor successfully dequeues an event from its inbox. This method is not called when the dequeue happens via a receive statement. |
 | virtual [OnEventHandledAsync](Actor/OnEventHandledAsync)(…) | Asynchronous callback that is invoked when the actor finishes handling a dequeued event, unless the handler of the dequeued event caused the actor to halt (either normally or due to an exception). The actor will either become idle or dequeue the next event from its inbox. |
+| virtual [OnEventIgnored](Actor/OnEventIgnored)(…) | Callback that is invoked when the actor ignores an event and removes it from its inbox. |
 | virtual [OnEventUnhandledAsync](Actor/OnEventUnhandledAsync)(…) | Asynchronous callback that is invoked when the actor receives an event that it is not prepared to handle. The callback is invoked first, after which the actor will necessarily throw an [`UnhandledEventException`](UnhandledEventExceptionType). |
-| virtual [OnException](Actor/OnException)(…) | User callback when the actor throws an exception. By default, the actor throws the exception causing the runtime to fail. |
+| virtual [OnException](Actor/OnException)(…) | Callback that is invoked when the actor throws an exception. By default, the actor throws the exception causing the runtime to fail. |
 | virtual [OnExceptionHandledAsync](Actor/OnExceptionHandledAsync)(…) | Asynchronous callback that is invoked when the actor handles an exception. |
 | virtual [OnHaltAsync](Actor/OnHaltAsync)(…) | Asynchronous callback that is invoked when the actor halts. |
 | virtual [OnInitializeAsync](Actor/OnInitializeAsync)(…) | Asynchronous callback that is invoked when the actor is initialized with an optional event. |
-| virtual [RaiseHaltEvent](Actor/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
+| [RaiseHaltEvent](Actor/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
 | [RandomBoolean](Actor/RandomBoolean)() | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. |
 | [RandomBoolean](Actor/RandomBoolean)(…) | Returns a nondeterministic boolean choice, that can be controlled during analysis or testing. The value is used to generate a number in the range [0..maxValue), where 0 triggers true. |
 | [RandomInteger](Actor/RandomInteger)(…) | Returns a nondeterministic integer, that can be controlled during analysis or testing. The value is used to generate an integer in the range [0..maxValue). |

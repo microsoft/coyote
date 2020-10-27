@@ -29,7 +29,7 @@ public abstract class StateMachine : Actor
 | [RaiseEvent](StateMachine/RaiseEvent)(…) | Raises the specified [`Event`](../Microsoft.Coyote/EventType) at the end of the current action. |
 | [RaiseGotoStateEvent](StateMachine/RaiseGotoStateEvent)(…) | Raise a special event that performs a goto state operation at the end of the current action. |
 | [RaiseGotoStateEvent&lt;TState&gt;](StateMachine/RaiseGotoStateEvent)() | Raise a special event that performs a goto state operation at the end of the current action. |
-| override [RaiseHaltEvent](StateMachine/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
+| [RaiseHaltEvent](StateMachine/RaiseHaltEvent)() | Raises a [`HaltEvent`](HaltEventType) to halt the actor at the end of the current action. |
 | [RaisePopStateEvent](StateMachine/RaisePopStateEvent)() | Raise a special event that performs a pop state operation at the end of the current action. |
 | [RaisePushStateEvent](StateMachine/RaisePushStateEvent)(…) | Raise a special event that performs a push state operation at the end of the current action. |
 | [RaisePushStateEvent&lt;TState&gt;](StateMachine/RaisePushStateEvent)() | Raise a special event that performs a push state operation at the end of the current action. |

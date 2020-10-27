@@ -1,3 +1,6 @@
+## v1.2.1
+- Added the `OnEventIgnored` and `OnEventDeferred` callbacks in the `Actor` type.
+
 ## v1.2.0
 - Added support for systematically testing actors and tasks together using rewriting.
 - Hardened the systematic testing runtime.

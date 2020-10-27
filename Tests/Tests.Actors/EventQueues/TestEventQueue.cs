@@ -17,6 +17,8 @@ namespace Microsoft.Coyote.Actors.Tests
             WaitEvent,
             ReceiveEvent,
             ReceiveEventWithoutWaiting,
+            IgnoreEvent,
+            DeferEvent,
             DropEvent
         }
 
@@ -78,6 +80,18 @@ namespace Microsoft.Coyote.Actors.Tests
         {
             this.Logger.WriteLine("Received event of type '{0}' without waiting.", e.GetType().FullName);
             this.Notify(Notification.ReceiveEventWithoutWaiting, e, eventInfo);
+        }
+
+        protected override void OnIgnoreEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        {
+            this.Logger.WriteLine("Ignored event of type '{0}'.", e.GetType().FullName);
+            this.Notify(Notification.IgnoreEvent, e, eventInfo);
+        }
+
+        protected override void OnDeferEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        {
+            this.Logger.WriteLine("Deferred event of type '{0}'.", e.GetType().FullName);
+            this.Notify(Notification.DeferEvent, e, eventInfo);
         }
 
         protected override void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)

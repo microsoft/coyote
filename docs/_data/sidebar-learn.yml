@@ -216,6 +216,10 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnInitializeAsync
         - name: OnEventDequeuedAsync
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventDequeuedAsync
+        - name: OnEventIgnored
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventIgnored
+        - name: OnEventDeferred
+          link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventDeferred
         - name: OnEventHandledAsync
           link: /learn/ref/Microsoft.Coyote.Actors/Actor/OnEventHandledAsync
         - name: OnEventUnhandledAsync

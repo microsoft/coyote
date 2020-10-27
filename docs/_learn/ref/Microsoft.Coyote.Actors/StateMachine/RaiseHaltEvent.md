@@ -9,7 +9,7 @@ permalink: /learn/ref/Microsoft.Coyote.Actors/StateMachine/RaiseHaltEvent
 Raises a [`HaltEvent`](../HaltEventType) to halt the actor at the end of the current action.
 
 ```csharp
-protected override void RaiseHaltEvent()
+protected void RaiseHaltEvent()
 ```
 
 ## Remarks

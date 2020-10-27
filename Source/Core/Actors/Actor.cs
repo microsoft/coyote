@@ -391,7 +391,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Raises a <see cref='HaltEvent'/> to halt the actor at the end of the current action.
         /// </summary>
-        protected virtual void RaiseHaltEvent()
+        protected void RaiseHaltEvent()
         {
             this.Assert(this.CurrentStatus is Status.Active, "{0} invoked Halt while halting.", this.Id);
             this.CurrentStatus = Status.Halting;
@@ -405,26 +405,40 @@ namespace Microsoft.Coyote.Actors
         protected virtual Task OnInitializeAsync(Event initialEvent) => Task.CompletedTask;
 
         /// <summary>
-        /// Asynchronous callback that is invoked when the actor successfully dequeues
-        /// an event from its inbox. This method is not called when the dequeue happens
-        /// via a receive statement.
+        /// Asynchronous callback that is invoked when the actor successfully dequeues an event from its inbox.
+        /// This method is not called when the dequeue happens via a receive statement.
         /// </summary>
         /// <param name="e">The event that was dequeued.</param>
         protected virtual Task OnEventDequeuedAsync(Event e) => Task.CompletedTask;
 
         /// <summary>
-        /// Asynchronous callback that is invoked when the actor finishes handling a dequeued
-        /// event, unless the handler of the dequeued event caused the actor to halt (either
-        /// normally or due to an exception). The actor will either become idle or dequeue
-        /// the next event from its inbox.
+        /// Callback that is invoked when the actor ignores an event and removes it from its inbox.
+        /// </summary>
+        /// <param name="e">The event that was ignored.</param>
+        protected virtual void OnEventIgnored(Event e)
+        {
+        }
+
+        /// <summary>
+        /// Callback that is invoked when the actor defers dequeing an event from its inbox.
+        /// </summary>
+        /// <param name="e">The event that was deferred.</param>
+        protected virtual void OnEventDeferred(Event e)
+        {
+        }
+
+        /// <summary>
+        /// Asynchronous callback that is invoked when the actor finishes handling a dequeued event, unless
+        /// the handler of the dequeued event caused the actor to halt (either normally or due to an exception).
+        /// The actor will either become idle or dequeue the next event from its inbox.
         /// </summary>
         /// <param name="e">The event that was handled.</param>
         protected virtual Task OnEventHandledAsync(Event e) => Task.CompletedTask;
 
         /// <summary>
-        /// Asynchronous callback that is invoked when the actor receives an event that
-        /// it is not prepared to handle. The callback is invoked first, after which the
-        /// actor will necessarily throw an <see cref="UnhandledEventException"/>.
+        /// Asynchronous callback that is invoked when the actor receives an event that it is not
+        /// prepared to handle. The callback is invoked first, after which the actor will necessarily
+        /// throw an <see cref="UnhandledEventException"/>.
         /// </summary>
         /// <param name="e">The event that was unhandled.</param>
         /// <param name="state">The state when the event was dequeued.</param>
@@ -971,7 +985,6 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when the actor is waiting to receive an event of one of the specified types.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void OnWaitEvent(IEnumerable<Type> eventTypes)
         {
             if (this.Context.IsExecutionControlled)
@@ -985,7 +998,7 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when an event that the actor is waiting to receive has been enqueued.
         /// </summary>
-        internal virtual void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnReceiveEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
         {
             if (eventGroup != null)
             {
@@ -1005,7 +1018,7 @@ namespace Microsoft.Coyote.Actors
         /// Invoked when an event that the actor is waiting to receive has already been in the
         /// event queue when the actor invoked the receive statement.
         /// </summary>
-        internal virtual void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnReceiveEventWithoutWaiting(Event e, EventGroup eventGroup, EventInfo eventInfo)
         {
             if (eventGroup != null)
             {
@@ -1019,13 +1032,24 @@ namespace Microsoft.Coyote.Actors
         /// <summary>
         /// Invoked when <see cref="ReceiveEventAsync(Type[])"/> or one of its overloaded methods was called.
         /// </summary>
-        internal virtual void OnReceiveInvoked() => this.Context.AssertExpectedCallerActor(this, "ReceiveEventAsync");
+        internal void OnReceiveInvoked() => this.Context.AssertExpectedCallerActor(this, "ReceiveEventAsync");
+
+        /// <summary>
+        /// Callback that is invoked when the actor ignores an event and removes it from its inbox.
+        /// </summary>
+        /// <param name="e">The event that was ignored.</param>
+        internal void OnIgnoreEvent(Event e) => this.OnEventIgnored(e);
+
+        /// <summary>
+        /// Callback that is invoked when the actor defers dequeing an event from its inbox.
+        /// </summary>
+        /// <param name="e">The event that was deferred.</param>
+        internal void OnDeferEvent(Event e) => this.OnEventDeferred(e);
 
         /// <summary>
         /// Invoked when an event has been dropped.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void OnDropEvent(Event e, EventGroup eventGroup, EventInfo eventInfo)
+        internal void OnDropEvent(Event e, EventInfo eventInfo)
         {
             if (this.Context.IsExecutionControlled)
             {
@@ -1037,7 +1061,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Invokes user callback when the actor throws an exception.
+        /// Callback that is invoked when the actor throws an exception.
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>
         /// <param name="methodName">The handler (outermost) that threw the exception.</param>
@@ -1068,7 +1092,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// Invokes user callback when the actor receives an event that it cannot handle.
+        /// Callback that is invoked when the actor receives an event that it cannot handle.
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>
         /// <param name="e">The unhandled event.</param>
@@ -1090,7 +1114,7 @@ namespace Microsoft.Coyote.Actors
         }
 
         /// <summary>
-        /// User callback when the actor throws an exception. By default,
+        /// Callback that is invoked when the actor throws an exception. By default,
         /// the actor throws the exception causing the runtime to fail.
         /// </summary>
         /// <param name="ex">The exception thrown by the actor.</param>

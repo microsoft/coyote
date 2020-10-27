@@ -17,9 +17,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
         private class SetupEvent : Event
         {
-            public ActorId Id;
+            internal readonly ActorId Id;
 
-            public SetupEvent(ActorId id)
+            internal SetupEvent(ActorId id)
             {
                 this.Id = id;
             }
@@ -31,11 +31,13 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
         private class E2 : Event
         {
-            public ActorId Id;
+            internal readonly ActorId Id;
+            internal readonly Event IgnoredEvent;
 
-            public E2(ActorId id)
+            internal E2(ActorId id, Event ignoredEvent)
             {
                 this.Id = id;
+                this.IgnoredEvent = ignoredEvent;
             }
         }
 
@@ -51,13 +53,17 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
                 var m = (e as SetupEvent).Id;
                 this.SendEvent(m, new E1());
-                this.SendEvent(m, new E2(this.Id));
-                await this.ReceiveEventAsync(typeof(E2));
+                this.SendEvent(m, new E2(this.Id, null));
+                var receivedEvent = await this.ReceiveEventAsync(typeof(E2));
+                var ignoredEvent = (receivedEvent as E2).IgnoredEvent;
+                this.Assert(ignoredEvent is null, $"Found ignored event of type {ignoredEvent?.GetType().Name}.");
             }
         }
 
         private class M1 : StateMachine
         {
+            private Event IgnoredEvent;
+
             [Start]
             [OnEventDoAction(typeof(E1), nameof(Foo))]
             [IgnoreEvents(typeof(UnitEvent))]
@@ -70,19 +76,61 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void Bar(Event e)
             {
-                this.SendEvent((e as E2).Id, new E2(this.Id));
+                this.SendEvent((e as E2).Id, new E2(this.Id, this.IgnoredEvent));
+            }
+
+            protected override void OnEventIgnored(Event e)
+            {
+                this.IgnoredEvent = e;
             }
         }
 
         [Fact(Timeout = 5000)]
         public void TestIgnoreRaisedEventHandledInStateMachine()
         {
-            this.Test(r =>
+            this.TestWithError(r =>
             {
                 var id = r.CreateActor(typeof(M1));
                 r.CreateActor(typeof(Harness), new SetupEvent(id));
             },
-            configuration: GetConfiguration().WithTestingIterations(5));
+            configuration: GetConfiguration(),
+            expectedError: "Found ignored event of type UnitEvent.",
+            replay: true);
+        }
+
+        private class M2 : StateMachine
+        {
+            private Event IgnoredEvent;
+
+            [Start]
+            [IgnoreEvents(typeof(E1))]
+            [OnEventDoAction(typeof(E2), nameof(Bar))]
+            private class Init : State
+            {
+            }
+
+            private void Bar(Event e)
+            {
+                this.SendEvent((e as E2).Id, new E2(this.Id, this.IgnoredEvent));
+            }
+
+            protected override void OnEventIgnored(Event e)
+            {
+                this.IgnoredEvent = e;
+            }
+        }
+
+        [Fact(Timeout = 5000)]
+        public void TestIgnoreSentEventHandledInStateMachine()
+        {
+            this.TestWithError(r =>
+            {
+                var id = r.CreateActor(typeof(M2));
+                r.CreateActor(typeof(Harness), new SetupEvent(id));
+            },
+            configuration: GetConfiguration(),
+            expectedError: "Found ignored event of type E1.",
+            replay: true);
         }
     }
 }

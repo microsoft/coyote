@@ -87,11 +87,10 @@ studies](../../case-studies/azure-batch-service) for some great customer testimo
 
 ## Supported programming models
 
-Coyote provides two main programming models:
+Coyote supports two main programming models:
 
-- [Asynchronous tasks](../programming-models/async/overview) ![Task programming model is currently
-  in-preview](https://img.shields.io/static/v1?style=flat&color=red&label=&message=preview), which
-  follows the popular [task-based asynchronous
+- [Asynchronous tasks](../programming-models/async/overview), which follows the popular [task-based
+  asynchronous
   pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
   This programming model offers a `Task` type  that serves as a drop-in-replacement type for the
   native .NET `System.Threading.Tasks.Task`. As with the native `Task`, a Coyote `Task` represents
@@ -100,7 +99,10 @@ Coyote provides two main programming models:
   executes with the same semantics of a native `Task`. In fact, it is simply a thin wrapper around a
   native `Task` object. During testing, however, is where the magic happens. Coyote controls the
   execution of each Coyote `Task` so that it can explore various different interleavings to find
-  bugs. Please note that this programming model is currently in preview.
+  bugs. Alternatively, you can use the [binary rewriting](../programming-models/async/rewriting)
+  feature of Coyote to automatically instrument your application, taking control of
+  `System.Threading.Tasks.Task` objects and related concurrency types from the Task Parallel
+  Library, without having to use Coyote's drop-in-replacement library.
 
 - [Asynchronous actors](../programming-models/actors/overview) is an [actor-based programming
   model](https://en.wikipedia.org/wiki/Actor_model) that allows you to express your design and
@@ -111,30 +113,7 @@ Coyote provides two main programming models:
   `StateMachine` type for easy development of event-driven state-machines. A `StateMachine` is
   simply an `Actor` with explicit `States` and event-driven state transitions.
 
-Note that you cannot currently systematically test the above two programming models at the same
-time.
-
-<div class="embed-responsive embed-responsive-16by9">
-{% include architecture.svg %}
-</div>
-
-<script type="text/javascript">
-
-  function click_link(g){
-    var href = g.attributes.href.value;
-    if (href) {
-      window.location.href = href;
-    }
-  }
-
-  $(document).ready(function () {
-      $(".node").on('click', function(e) {
-        click_link(e.target.parentNode);
-      });
-
-      $(".nodetext").on('click', function(e) {
-        click_link(e.target.parentNode);
-      });
-  });
-
-</script>
+Note that you can only systematically test the above two programming models together using Coyote's
+[binary rewriting](../programming-models/async/rewriting) to take control of
+`System.Threading.Tasks.Task` objects. Mixing the Coyote `Actor` type with the custom Coyote `Task`
+type is not supported.

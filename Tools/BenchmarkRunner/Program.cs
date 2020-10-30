@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
-using StateMachineTests = Microsoft.Coyote.Performance.Tests.Actors.StateMachines;
+using PerformanceTests = Microsoft.Coyote.Tests.Performance;
+using StateMachineTests = Microsoft.Coyote.Actors.Tests.Performance.StateMachines;
+using SystematicTestingTests = Microsoft.Coyote.Tests.Performance.SystematicTesting;
 
 #pragma warning disable SA1005 // Single line comments should begin with single space
 
@@ -35,14 +37,15 @@ namespace Microsoft.Coyote.Benchmarking
 
         private static readonly List<BenchmarkTest> Benchmarks = new List<BenchmarkTest>()
         {
+            new BenchmarkTest("MathBenchmark", typeof(PerformanceTests.MathBenchmark)),
+            new BenchmarkTest("MemoryBenchmark", typeof(PerformanceTests.MemoryBenchmark)),
+            new BenchmarkTest("TaskInterleavingsBenchmark", typeof(SystematicTestingTests.TaskInterleavingsBenchmark)),
             new BenchmarkTest("CreationThroughputBenchmark", typeof(StateMachineTests.CreationThroughputBenchmark)),
             new BenchmarkTest("ExchangeEventLatencyBenchmark", typeof(StateMachineTests.ExchangeEventLatencyBenchmark)),
             new BenchmarkTest("SendEventThroughputBenchmark", typeof(StateMachineTests.SendEventThroughputBenchmark)),
             new BenchmarkTest("DequeueEventThroughputBenchmark", typeof(StateMachineTests.DequeueEventThroughputBenchmark)),
             new BenchmarkTest("GotoTransitionThroughputBenchmark", typeof(StateMachineTests.GotoTransitionThroughputBenchmark)),
-            new BenchmarkTest("PushTransitionThroughputBenchmark", typeof(StateMachineTests.PushTransitionThroughputBenchmark)),
-            new BenchmarkTest("MathBenchmark", typeof(StateMachineTests.MathBenchmark)),
-            new BenchmarkTest("MemoryBenchmark", typeof(StateMachineTests.MemoryBenchmark))
+            new BenchmarkTest("PushTransitionThroughputBenchmark", typeof(StateMachineTests.PushTransitionThroughputBenchmark))
         };
 
         private string CommitId;

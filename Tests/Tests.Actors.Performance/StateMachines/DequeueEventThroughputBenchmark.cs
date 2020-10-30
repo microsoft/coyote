@@ -8,7 +8,7 @@ using BenchmarkDotNet.Jobs;
 namespace Microsoft.Coyote.Actors.Tests.Performance.StateMachines
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
-    [MemoryDiagnoser]
+    // [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class DequeueEventThroughputBenchmark

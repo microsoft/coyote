@@ -259,7 +259,7 @@ namespace Microsoft.Coyote.Benchmarking
             if (matching is 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No benchmarks matching given filter: {0}", string.Join(",", this.Filters));
+                Console.WriteLine("No benchmarks matching filter: {0}", string.Join(",", this.Filters));
                 Console.ResetColor();
                 PrintUsage();
                 return 1;
@@ -361,13 +361,13 @@ namespace Microsoft.Coyote.Benchmarking
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Usage: BenchmarkRuner [-outdir name] [-commit id] [-cosmos] [filter] [-upload_commit_log");
-            Console.WriteLine("Runs all benchmarks matching optional filter");
+            Console.WriteLine("Usage: BenchmarkRunner [-outdir name] [-commit id] [-cosmos] [filter] [-upload_commit_log");
+            Console.WriteLine("Runs all benchmarks matching the optional filter");
             Console.WriteLine("Writing output csv files to the specified outdir folder");
             Console.WriteLine("Benchmark names are:");
             foreach (var item in Benchmarks)
             {
-                Console.WriteLine("    {0}", item.Name);
+                Console.WriteLine("  {0}", item.Name);
             }
         }
 

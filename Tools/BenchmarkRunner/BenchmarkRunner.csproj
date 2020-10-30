@@ -7,19 +7,17 @@
     <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <Framework47Supported>false</Framework47Supported>
-    <Framework48Supported>false</Framework48Supported>
+    <NoWarn>$(NoWarn);</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
   <ItemGroup>
-    <ProjectReference Include="..\Coyote\Coyote.csproj" />
-    <ProjectReference Include="..\..\Tests\Tests.Performance\Tests.Performance.csproj" />
-    <ProjectReference Include="..\..\Tests\Tests.Actors.Performance\Tests.Actors.Performance.csproj" />
+    <ProjectReference Include="..\..\Source\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Tests\Performance.Tests\Microsoft.Coyote.Performance.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.10.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
-  <Target Name="CoyoteRewrite" AfterTargets="AfterBuild">
-    <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite ./bin/$(TargetFramework)/Tests.Performance.dll" />
-  </Target>
 </Project>

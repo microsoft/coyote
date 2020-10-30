@@ -8,6 +8,7 @@
     <CoyoteTargetType>Application</CoyoteTargetType>
     <Framework47Supported>false</Framework47Supported>
     <Framework48Supported>false</Framework48Supported>
+    <NoWarn>$(NoWarn);</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />
   <Import Project="..\..\Common\key.props" />
@@ -18,6 +19,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.10.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <Target Name="CoyoteRewrite" AfterTargets="AfterBuild">
     <Exec Command="dotnet ../../bin/$(TargetFramework)/coyote.dll rewrite ./bin/$(TargetFramework)/Tests.Performance.dll" />

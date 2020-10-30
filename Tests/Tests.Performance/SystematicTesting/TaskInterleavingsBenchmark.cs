@@ -9,7 +9,7 @@ using Microsoft.Coyote.SystematicTesting;
 namespace Microsoft.Coyote.Tests.Performance.SystematicTesting
 {
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
-    [MemoryDiagnoser]
+    // [MemoryDiagnoser]
     [MinColumn, MaxColumn, MeanColumn, Q1Column, Q3Column, RankColumn]
     [MarkdownExporter, HtmlExporter, CsvExporter, CsvMeasurementsExporter, RPlotExporter]
     public class TaskInterleavingsBenchmark

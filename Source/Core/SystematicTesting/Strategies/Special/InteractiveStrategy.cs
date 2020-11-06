@@ -9,7 +9,7 @@ using Microsoft.Coyote.IO;
 namespace Microsoft.Coyote.SystematicTesting.Strategies
 {
     /// <summary>
-    /// Class representing an interactive scheduling strategy.
+    /// An interactive scheduling strategy.
     /// </summary>
     internal sealed class InteractiveStrategy : ISchedulingStrategy
     {
@@ -44,11 +44,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
             this.ExploredSteps = 0;
         }
 
-        /// <summary>
-        /// Prepares for the next scheduling iteration. This is invoked
-        /// at the end of a scheduling iteration. It must return false
-        /// if the scheduling strategy should stop exploring.
-        /// </summary>
+        /// <inheritdoc/>
         public bool InitializeNextIteration(uint iteration)
         {
             this.ExploredSteps = 0;
@@ -60,11 +56,15 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         {
             next = null;
 
-            var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
+            var enabledOps = new SortedDictionary<ulong, AsyncOperation>();
+            foreach (var op in ops.Where(op => op.Status is AsyncOperationStatus.Enabled))
+            {
+                enabledOps.Add(op.Id, op);
+            }
 
             if (enabledOps.Count is 0)
             {
-                this.Logger.WriteLine(">> No available machines to schedule ...");
+                this.Logger.WriteLine(">> No available operations to schedule ...");
                 return false;
             }
 
@@ -76,29 +76,28 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 if (this.InputCache.Count >= this.ExploredSteps)
                 {
                     var step = this.InputCache[this.ExploredSteps - 1];
-                    int idx = 0;
+                    ulong operationId = 0;
                     if (step.Length > 0)
                     {
-                        idx = Convert.ToInt32(step);
+                        operationId = Convert.ToUInt64(step);
                     }
                     else
                     {
-                        this.InputCache[this.ExploredSteps - 1] = "0";
+                        this.InputCache[this.ExploredSteps - 1] = $"{operationId}";
                     }
 
-                    next = enabledOps[idx];
+                    next = enabledOps[operationId];
                     parsed = true;
                     break;
                 }
 
-                this.Logger.WriteLine(">> Available machines to schedule ...");
-                for (int idx = 0; idx < enabledOps.Count; idx++)
+                this.Logger.WriteLine(">> Available operations to schedule ...");
+                foreach (var op in enabledOps)
                 {
-                    var op = enabledOps[idx];
-                    this.Logger.WriteLine($">> [{idx}] '{op.Name}'");
+                    this.Logger.WriteLine($">> [{op.Key}] {op.Value.Name}");
                 }
 
-                this.Logger.WriteLine($">> Choose actor to schedule [step '{this.ExploredSteps}']");
+                this.Logger.WriteLine($">> Choose operation to schedule [step '{this.ExploredSteps}']");
 
                 var input = Console.ReadLine();
                 if (input.Equals("replay"))
@@ -127,29 +126,23 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                 {
                     try
                     {
-                        var idx = Convert.ToInt32(input);
-                        if (idx < 0)
+                        var operationId = Convert.ToUInt64(input);
+                        if (!enabledOps.TryGetValue(operationId, out next))
                         {
-                            this.Logger.WriteLine(LogSeverity.Warning, ">> Expected positive integer, please retry ...");
-                            continue;
-                        }
-
-                        next = enabledOps[idx];
-                        if (next is null)
-                        {
-                            this.Logger.WriteLine(LogSeverity.Warning, ">> Unexpected id, please retry ...");
+                            this.Logger.WriteLine(LogSeverity.Warning, ">> Unexpected operation id, please retry ...");
                             continue;
                         }
                     }
                     catch (FormatException)
                     {
-                        this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
+                        this.Logger.WriteLine(LogSeverity.Warning, ">> Expected positive integer, please retry ...");
                         continue;
                     }
                 }
                 else
                 {
-                    next = enabledOps[0];
+                    // If the current operation is enabled, then set it as next, else set the first enabled.
+                    next = enabledOps.TryGetValue(current.Id, out AsyncOperation op) ? op : enabledOps.First().Value;
                 }
 
                 this.InputCache.Add(input);
@@ -216,7 +209,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
                     catch (FormatException)
                     {
-                        this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
+                        this.Logger.WriteLine(LogSeverity.Warning, ">> Expected boolean value, please retry ...");
                         continue;
                     }
                 }
@@ -285,7 +278,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
                     }
                     catch (FormatException)
                     {
-                        this.Logger.WriteLine(LogSeverity.Warning, ">> Wrong format, please retry ...");
+                        this.Logger.WriteLine(LogSeverity.Warning, ">> Expected integer, please retry ...");
                         continue;
                     }
                 }

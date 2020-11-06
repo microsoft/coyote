@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Detach();
                 }
 
-                IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
+                this.Runtime.Logger.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {
@@ -333,6 +333,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <returns>True if the operation was successfully registered, else false if it already exists.</returns>
         internal bool RegisterOperation(AsyncOperation op)
         {
+            this.Runtime.Logger.WriteLine("<ScheduleDebug> Created operation '{0}'.", op.Id);
             lock (this.SyncObject)
             {
                 if (this.OperationMap.Count is 0)

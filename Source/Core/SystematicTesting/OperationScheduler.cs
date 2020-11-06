@@ -188,7 +188,7 @@ namespace Microsoft.Coyote.SystematicTesting
                     this.Detach();
                 }
 
-                IO.Debug.Logger.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
+                IO.Debug.WriteLine($"<ScheduleDebug> Scheduling the next operation of '{next.Name}'.");
                 this.ScheduleTrace.AddSchedulingChoice(next.Id);
                 if (current != next)
                 {

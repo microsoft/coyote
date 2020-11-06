@@ -9,7 +9,7 @@ using Microsoft.Coyote.IO;
 namespace Microsoft.Coyote.SystematicTesting.Strategies
 {
     /// <summary>
-    /// Class representing a replaying scheduling strategy.
+    /// A replaying scheduling strategy.
     /// </summary>
     internal sealed class ReplayStrategy : ISchedulingStrategy
     {

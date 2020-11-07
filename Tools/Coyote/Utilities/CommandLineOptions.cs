@@ -32,7 +32,6 @@ namespace Microsoft.Coyote.Utilities
             commandArg.AllowedValues = new List<string>(new string[] { "test", "replay", "rewrite", "telemetry" });
             basicGroup.AddPositionalArgument("path", "Path to the Coyote program to test");
             basicGroup.AddArgument("method", "m", "Suffix of the test method to execute");
-            basicGroup.AddArgument("timeout", "t", "Timeout in seconds (disabled by default)", typeof(uint));
             basicGroup.AddArgument("outdir", "o", "Dump output to directory x (absolute path or relative to current directory");
             var verbosityArg = basicGroup.AddArgument("verbosity", "v", "Enable verbose log output during testing providing the level of logging you want to see: quiet, minimal, normal, detailed.  Using -v with no argument defaults to 'detailed'", typeof(string), defaultValue: "detailed");
             verbosityArg.AllowedValues = new List<string>(new string[] { "quiet", "minimal", "normal", "detailed" });
@@ -43,6 +42,7 @@ namespace Microsoft.Coyote.Utilities
             var testingGroup = this.Parser.GetOrCreateGroup("testingGroup", "Systematic testing options");
             testingGroup.DependsOn = new CommandLineArgumentDependency() { Name = "command", Value = "test" };
             testingGroup.AddArgument("iterations", "i", "Number of schedules to explore for bugs", typeof(uint));
+            testingGroup.AddArgument("timeout", "t", "Timeout in seconds after which no more testing iterations will run (disabled by default)", typeof(uint));
             testingGroup.AddArgument("max-steps", "ms", @"Max scheduling steps to be explored during systematic testing (by default 10,000 unfair and 100,000 fair steps).
 You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue = true;
             testingGroup.AddArgument("timeout-delay", null, "Controls the frequency of timeouts by built-in timers (not a unit of time)", typeof(uint));
@@ -190,9 +190,6 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     }
 
                     break;
-                case "timeout":
-                    configuration.Timeout = (int)(uint)option.Value;
-                    break;
                 case "path":
                     if (configuration.ToolCommand is "test" || configuration.ToolCommand is "replay")
                     {
@@ -273,6 +270,9 @@ You can provide one or two unsigned integer values", typeof(uint)).IsMultiValue 
                     break;
                 case "iterations":
                     configuration.TestingIterations = (uint)option.Value;
+                    break;
+                case "timeout":
+                    configuration.TestingTimeout = (int)(uint)option.Value;
                     break;
                 case "parallel":
                     configuration.ParallelBugFindingTasks = (uint)option.Value;

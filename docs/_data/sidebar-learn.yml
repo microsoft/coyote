@@ -129,6 +129,8 @@ learn-toc:
           link: /learn/ref/Microsoft.Coyote/Configuration/WithReplayStrategy
         - name: WithTestingIterations
           link: /learn/ref/Microsoft.Coyote/Configuration/WithTestingIterations
+        - name: WithTestingTimeout
+          link: /learn/ref/Microsoft.Coyote/Configuration/WithTestingTimeout
         - name: WithMaxSchedulingSteps
           link: /learn/ref/Microsoft.Coyote/Configuration/WithMaxSchedulingSteps
         - name: WithPartiallyControlledTestingEnabled

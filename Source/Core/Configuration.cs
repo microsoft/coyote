@@ -34,12 +34,6 @@ namespace Microsoft.Coyote
         internal string OutputFilePath;
 
         /// <summary>
-        /// Timeout in seconds.
-        /// </summary>
-        [DataMember]
-        internal int Timeout;
-
-        /// <summary>
         /// The assembly to be analyzed for bugs.
         /// </summary>
         [DataMember]
@@ -68,6 +62,15 @@ namespace Microsoft.Coyote
         /// </summary>
         [DataMember]
         public uint TestingIterations { get; internal set; }
+
+        /// <summary>
+        /// Timeout in seconds after which no more testing iterations will run.
+        /// </summary>
+        /// <remarks>
+        /// Setting this value overrides the <see cref="TestingIterations"/> value.
+        /// </remarks>
+        [DataMember]
+        internal int TestingTimeout;
 
         /// <summary>
         /// Custom seed to be used by the random value generator. By default,
@@ -345,8 +348,8 @@ namespace Microsoft.Coyote
             this.TestMethodName = string.Empty;
 
             this.SchedulingStrategy = "random";
-            this.Timeout = 0;
             this.TestingIterations = 1;
+            this.TestingTimeout = 0;
             this.RandomGeneratorSeed = null;
             this.IncrementalSchedulingSeed = false;
             this.PerformFullExploration = false;
@@ -469,6 +472,19 @@ namespace Microsoft.Coyote
         public Configuration WithTestingIterations(uint iterations)
         {
             this.TestingIterations = iterations;
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the configuration with the specified systematic testing timeout in seconds.
+        /// </summary>
+        /// <param name="timeout">The timeout value in seconds.</param>
+        /// <remarks>
+        /// Setting this value overrides the <see cref="TestingIterations"/> value.
+        /// </remarks>
+        public Configuration WithTestingTimeout(int timeout)
+        {
+            this.TestingTimeout = timeout;
             return this;
         }
 

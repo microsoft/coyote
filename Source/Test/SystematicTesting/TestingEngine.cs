@@ -365,10 +365,10 @@ namespace Microsoft.Coyote.SystematicTesting
                 }
 
                 Task task = this.CreateTestingTask();
-                if (this.Configuration.Timeout > 0)
+                if (this.Configuration.TestingTimeout > 0)
                 {
                     this.CancellationTokenSource.CancelAfter(
-                        this.Configuration.Timeout * 1000);
+                        this.Configuration.TestingTimeout * 1000);
                 }
 
                 this.Profiler.StartMeasuringExecutionTime();
@@ -471,8 +471,8 @@ namespace Microsoft.Coyote.SystematicTesting
                     // Invokes the user-specified initialization method.
                     this.TestMethodInfo.InitializeAllIterations();
 
-                    uint maxIterations = this.IsReplayModeEnabled ? 1 : this.Configuration.TestingIterations;
-                    for (uint iteration = 0; iteration < maxIterations; iteration++)
+                    uint iteration = 0;
+                    while (iteration < this.Configuration.TestingIterations || this.Configuration.TestingTimeout > 0)
                     {
                         if (this.CancellationTokenSource.IsCancellationRequested)
                         {
@@ -494,13 +494,7 @@ namespace Microsoft.Coyote.SystematicTesting
                             this.RandomValueGenerator.Seed += 1;
                         }
 
-                        // Increases iterations if there is a specified timeout
-                        // and the default iteration given.
-                        if (this.Configuration.TestingIterations is 1 &&
-                            this.Configuration.Timeout > 0)
-                        {
-                            maxIterations++;
-                        }
+                        iteration++;
                     }
 
                     // Invokes the user-specified test disposal method.

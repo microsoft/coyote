@@ -55,7 +55,7 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             arguments.Append($"--iterations {configuration.TestingIterations} ");
-            arguments.Append($"--timeout {configuration.Timeout} ");
+            arguments.Append($"--timeout {configuration.TestingTimeout} ");
 
             if (configuration.UserExplicitlySetMaxFairSchedulingSteps)
             {

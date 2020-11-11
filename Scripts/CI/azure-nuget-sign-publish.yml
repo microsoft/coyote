@@ -33,7 +33,7 @@ steps:
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET Standard 2.0'
   inputs:
-    ConnectedServiceName: NuGetCodeSignConnection
+    ConnectedServiceName: CoyoteNugetSign
     FolderPath: bin/netstandard2.0
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -63,7 +63,7 @@ steps:
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET Standard 2.1'
   inputs:
-    ConnectedServiceName: NuGetCodeSignConnection
+    ConnectedServiceName: CoyoteNugetSign
     FolderPath: bin/netstandard2.1
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -93,7 +93,7 @@ steps:
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET 5.0'
   inputs:
-    ConnectedServiceName: NuGetCodeSignConnection
+    ConnectedServiceName: CoyoteNugetSign
     FolderPath: bin/net5.0
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -123,7 +123,7 @@ steps:
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET Core 3.1'
   inputs:
-    ConnectedServiceName: NuGetCodeSignConnection
+    ConnectedServiceName: CoyoteNugetSign
     FolderPath: bin/netcoreapp3.1
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -153,7 +153,7 @@ steps:
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET 4.8'
   inputs:
-    ConnectedServiceName: NuGetCodeSignConnection
+    ConnectedServiceName: CoyoteNugetSign
     FolderPath: bin/net48
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -190,7 +190,7 @@ steps:
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning NuGet package'
   inputs:
-    ConnectedServiceName: NuGetCodeSignConnection
+    ConnectedServiceName: CoyoteNugetSign
     FolderPath: bin/nuget
     Pattern: '*.nupkg'
     signConfigType: inlineSignParams
@@ -211,11 +211,3 @@ steps:
          "toolVersion": "1.0"
        }
      ]
-
-# - task: NuGetCommand@2
-#   displayName: 'Publish NuGet packages'
-#   inputs:
-#     command: push
-#     packagesToPush: 'bin/nuget/*.nupkg'
-#     nuGetFeedType: external
-#     publishFeedCredentials: 'Coyote NuGet.org'

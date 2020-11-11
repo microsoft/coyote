@@ -22,6 +22,11 @@ if ($null -eq $sdk_version) {
     exit 1
 }
 
+$PSVersionTable
+Write-Output "$($IsMacOS)"
+Write-Output "$($IsLinux)"
+Write-Output "$($IsWindows)"
+
 Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "white"
 
 Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"

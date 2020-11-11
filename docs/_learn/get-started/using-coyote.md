@@ -30,7 +30,7 @@ you have installed it correctly.  Now you are ready to run a `coyote` test as fo
 
 ```
 cd coyote-samples
-coyote test ./bin/netcoreapp3.1/Monitors.dll --iterations 1000 --max-steps 200
+coyote test ./bin/net5.0/Monitors.dll --iterations 1000 --max-steps 200
 ```
 
 This also runs perfectly up to 1000 iterations. So this is indeed a hard bug to find. It can be
@@ -39,7 +39,7 @@ found using the `PCT` exploration strategy with a given maximum number of priori
 iterations, typically more than 100,000 of them).
 
 ```
-coyote test ./bin/netcoreapp3.1/Monitors.dll --iterations 1000 --max-steps 200 --sch-pct 10
+coyote test ./bin/net5.0/Monitors.dll --iterations 1000 --max-steps 200 --sch-pct 10
 ```
 
 Even then you might need to run it a few times to catch the bug. Set `--iterations` to a bigger
@@ -62,7 +62,7 @@ Finding a hard to find bug is one thing, but if you can't reproduce this bug whi
 is no point. So the `*.schedule` can be used with the `coyote replay` command as follows:
 
 ```
-coyote replay ./bin/netcoreapp3.1/Monitors.dll .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
+coyote replay ./bin/net5.0/Monitors.dll .\bin\net48\Output\Monitors.exe\CoyoteOutput\Monitors_0_0.schedule
 . Reproducing trace in coyote-samples\./bin/net48/Monitors.exe
 ... Reproduced 1 bug.
 ... Elapsed 0.1724228 sec.
@@ -75,7 +75,7 @@ tool can help you with that also. If you run the following command line it will 
 diagram](../tools/dgml) of the state machines that are being tested:
 
 ```
-coyote test ./bin/netcoreapp3.1/Monitors.dll --iterations 10 --max-steps 20 --graph
+coyote test ./bin/net5.0/Monitors.dll --iterations 10 --max-steps 20 --graph
 ```
 
 You will see the following output:

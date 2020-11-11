@@ -58,10 +58,10 @@ if (Test-Path -Path $target) {
 }
 
 Write-Host "Generating new markdown under $target"
-& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
+& $xmldoc --namespace Microsoft.Coyote "$CoyoteRoot\bin\net5.0\Microsoft.Coyote.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
 $coyotetoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
 
-& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\netcoreapp3.1\Microsoft.Coyote.Test.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
+& $xmldoc --namespace Microsoft.Coyote.Test "$CoyoteRoot\bin\net5.0\Microsoft.Coyote.Test.dll" "$target" --front-matter "$CoyoteRoot\docs\assets\data\_front.md" --visibility protected --toc --toc-prefix /learn/ref --skip-unbrowsable --namespace-pages --permalink pretty
 $newtoc = Get-Content -Path "$CoyoteRoot\docs\_learn\ref\toc.yml"
 $newtoc = [System.Collections.ArrayList]$newtoc
 $newtoc.RemoveRange(0, 4); # remove -toc and assembly header

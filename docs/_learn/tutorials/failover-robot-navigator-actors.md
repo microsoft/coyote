@@ -136,7 +136,7 @@ powershell -f build.ps1
 Now you can run the `DrinksServingRobotActors` application:
 
 ```
-"./bin/netcoreapp3.1/DrinksServingRobotActors.exe"
+"./bin/net5.0/DrinksServingRobotActors.exe"
 ```
 
 When you run the executable like this without using `coyote test` (this is called running in
@@ -250,13 +250,13 @@ You can now use `coyote test` to test the code and see if any bugs can be found.
 `CoyoteSamples` folder enter this command:
 
 ```
-coyote test ./bin/netcoreapp3.1/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/net5.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
 ```
 
 Chances are this will find a bug quickly, and you will see output from the test like this:
 
 ```
-. Testing .\bin\netcoreapp3.1\DrinksServingRobotActors.exe
+. Testing .\bin\net5.0\DrinksServingRobotActors.exe
 Starting TestingProcessScheduler in process 26236
 ... Created '1' testing task.
 ... Task 0 is using 'pct' strategy (seed:324932188).
@@ -274,8 +274,8 @@ Starting TestingProcessScheduler in process 26236
 ..... Iteration #30
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing .\bin\netcoreapp3.1\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.txt
-..... Writing .\bin\netcoreapp3.1\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.schedule
+..... Writing .\bin\net5.0\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.txt
+..... Writing .\bin\net5.0\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.schedule
 ... Elapsed 0.5330326 sec.
 ... Testing statistics:
 ..... Found 1 bug.
@@ -287,7 +287,7 @@ Starting TestingProcessScheduler in process 26236
 ```
 
 Notice that a log file is produced
-`.bin\netcoreapp3.1\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
+`.bin\net5.0\Output\DrinksServingRobot.exe\CoyoteOutput\DrinksServingRobot_0_1.txt`. This log can be
 pretty big, it contains the test iteration that failed, and towards the end of this file you will
 see something like this:
 
@@ -481,13 +481,13 @@ Remember the last lines of the coyote test execution log file:
 If you add to the coyote test command line `--graph-bug`, and test again:
 
 ```
-coyote test .\bin\netcoreapp3.1\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10 --graph-bug
+coyote test .\bin\net5.0\DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10 --graph-bug
 ```
 
 you'll see in the output of the tester that a DGML diagram has been produced:
 
 ```
-..... Writing .\bin\netcoreapp3.1\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.dgml
+..... Writing .\bin\net5.0\Output\DrinksServingRobotActors.exe\CoyoteOutput\DrinksServingRobotActors_0_0.dgml
 ```
 
 Open this with Visual Studio 2019 and you will see a diagram like this.  Here the diagram is also
@@ -647,7 +647,7 @@ After you perform this fix and rebuild the sample, try running coyote test again
 command line which previously reported the liveness bug:
 
 ```
-coyote test ./bin/netcoreapp3.1/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
+coyote test ./bin/net5.0/DrinksServingRobotActors.dll -i 1000 -ms 2000 --sch-pct 10
 ```
 
 And now no bug will be found -- you should get result similar to this:

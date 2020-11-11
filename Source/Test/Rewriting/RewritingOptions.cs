@@ -226,10 +226,10 @@ namespace Microsoft.Coyote.Rewriting
         /// {
         ///     // The directory with the assemblies to rewrite. This path is relative
         ///     // to this configuration file.
-        ///     "AssembliesPath": "./bin/netcoreapp3.1",
+        ///     "AssembliesPath": "./bin/net5.0",
         ///     // The output directory where rewritten assemblies are placed. This path
         ///     // is relative to this configuration file.
-        ///     "OutputPath": "./bin/netcoreapp3.1/RewrittenBinaries",
+        ///     "OutputPath": "./bin/net5.0/RewrittenBinaries",
         ///     // The assemblies to rewrite. The paths are relative to 'AssembliesPath'.
         ///     "Assemblies": [
         ///         "Example.exe"

@@ -33,7 +33,7 @@ powershell -f build.ps1
 Now you can run the HelloWorldTasks application:
 
 ```
-"./bin/netcoreapp3.1/HelloWorldTasks.exe"
+"./bin/net5.0/HelloWorldTasks.exe"
 ```
 
 Note that in the code there is a bug (put intentionally) that should be caught by a Coyote
@@ -80,13 +80,13 @@ significant amount of time.
 The second way to reproduce the bug is to run the code under `coyote test`.  From the command line you enter:
 
 ```
-coyote test ./bin/netcoreapp3.1/HelloWorldTasks.dll --iterations 100
+coyote test ./bin/net5.0/HelloWorldTasks.dll --iterations 100
 ```
 
 You will see output like this:
 
 ```
-. Testing .\bin\netcoreapp3.1\HelloWorldTasks.dll
+. Testing .\bin\net5.0\HelloWorldTasks.dll
 Starting TestingProcessScheduler in process 36352
 ... Created '1' testing task.
 ... Task 0 is using 'random' strategy (seed:914718657).
@@ -101,8 +101,8 @@ Starting TestingProcessScheduler in process 36352
 ..... Iteration #9
 ... Task 0 found a bug.
 ... Emitting task 0 traces:
-..... Writing bin\netcoreapp3.1\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.txt
-..... Writing bin\netcoreapp3.1\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.schedule
+..... Writing bin\net5.0\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.txt
+..... Writing bin\net5.0\Output\HelloWorldTasks.exe\CoyoteOutput\HelloWorldTasks_0_0.schedule
 ... Elapsed 0.07038 sec.
 ... Testing statistics:
 ..... Found 1 bug.

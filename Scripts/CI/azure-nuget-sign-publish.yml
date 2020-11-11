@@ -217,10 +217,10 @@ steps:
        }
      ]
 
-# - task: NuGetCommand@2
-#   displayName: 'Publish NuGet packages'
-#   inputs:
-#     command: push
-#     packagesToPush: 'bin\nuget\*.nupkg'
-#     nuGetFeedType: external
-#     publishFeedCredentials: 'Coyote NuGet.org'
+- task: NuGetCommand@2
+  displayName: 'Publish NuGet packages'
+  inputs:
+    command: push
+    packagesToPush: 'bin\nuget\*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'Coyote NuGet.org'

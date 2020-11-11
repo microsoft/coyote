@@ -1,5 +1,6 @@
 pool:
-  name: Coyote
+  vmImage: 'windows-latest'
+
 steps:
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet.exe'

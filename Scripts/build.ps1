@@ -9,10 +9,16 @@ Import-Module $ScriptDir\powershell\common.psm1 -Force
 
 Write-Comment -prefix "." -text "Building Coyote" -color "yellow"
 
+if ($host.Version.Major -lt 7)
+{
+    Write-Error "Please use PowerShell v7.x or later (see https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-7)."
+    exit 1
+}
+
 # Check that the expected .NET SDK is installed.
 $dotnet = "dotnet"
 $dotnet_path = FindDotNet($dotnet)
-$version_net48 = (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
+$version_net48 = $IsWindows -and (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full").Release -ge 528040
 $version_netcore31 = FindInstalledDotNetSdk -dotnet_path $dotnet_path -major "3.1" -minor 0
 $sdk_version = FindDotNetSdk -dotnet_path $dotnet_path
 
@@ -21,11 +27,6 @@ if ($null -eq $sdk_version) {
     Write-Error "Please install .NET SDK version '$sdk_version' from https://dotnet.microsoft.com/download/dotnet-core."
     exit 1
 }
-
-$PSVersionTable
-Write-Output "$($IsMacOS)"
-Write-Output "$($IsLinux)"
-Write-Output "$($IsWindows)"
 
 Write-Comment -prefix "..." -text "Using .NET SDK version $sdk_version" -color "white"
 

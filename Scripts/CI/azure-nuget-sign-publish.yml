@@ -86,10 +86,10 @@ steps:
      ]
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP CodeSigning .NET Core 3.1'
+  displayName: 'ESRP CodeSigning .NET 5.0'
   inputs:
     ConnectedServiceName: NuGetCodeSignConnection
-    FolderPath: bin/netcoreapp3.1
+    FolderPath: bin/net5.0
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -116,10 +116,10 @@ steps:
      ]
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP CodeSigning .NET 4.7'
+  displayName: 'ESRP CodeSigning .NET Core 3.1'
   inputs:
     ConnectedServiceName: NuGetCodeSignConnection
-    FolderPath: bin/net47
+    FolderPath: bin/netcoreapp3.1
     signConfigType: inlineSignParams
     inlineOperation: |
      [

@@ -19,18 +19,11 @@
     <GlobalVersion>$(GlobalVersion.Substring(10))</GlobalVersion>
     <GlobalVersion>$(GlobalVersion.Trim())</GlobalVersion>
     <GlobalVersion>$(GlobalVersion.Trim('"'))</GlobalVersion>
-    <Framework47Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7</Framework47Dir>
     <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
-    <Framework47Supported Condition="'$(Framework47Supported)'==''">true</Framework47Supported>
     <Framework48Supported Condition="'$(Framework48Supported)'==''">true</Framework48Supported>
-    <NetCore21Installed>false</NetCore21Installed>
-    <NetCore22Installed>false</NetCore22Installed>
     <NetCore31Installed>false</NetCore31Installed>
     <NetCore50Installed>false</NetCore50Installed>
-    <Framework47Installed>false</Framework47Installed>
     <Framework48Installed>false</Framework48Installed>
-    <NetCore21Installed Condition="$(GlobalVersion.StartsWith('2.1'))">true</NetCore21Installed>
-    <NetCore22Installed Condition="$(GlobalVersion.StartsWith('2.2'))">true</NetCore22Installed>
     <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
     <NetCore31Installed Condition="'$(DOTNET31)'=='yes'">true</NetCore31Installed>
     <NetCore50Installed Condition="$(GlobalVersion.StartsWith('5.0'))">true</NetCore50Installed>
@@ -38,7 +31,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(VSAPPIDNAME)'==''">
     <!-- only if we are not building from inside of VS, include legacy frameworks -->
-    <Framework47Installed Condition="Exists($(Framework47Dir))">true</Framework47Installed>
     <Framework48Installed Condition="Exists($(Framework48Dir))">true</Framework48Installed>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
@@ -47,16 +39,11 @@
     <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'=='Windows_NT'">
-    <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
-    <TargetFrameworks Condition='$(NetCore22Installed)'>$(TargetFrameworks);netcoreapp2.2</TargetFrameworks>
     <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(Framework47Installed) and $(Framework47Supported)">$(TargetFrameworks);net47</TargetFrameworks>
     <TargetFrameworks Condition="$(Framework48Installed) and $(Framework48Supported)">$(TargetFrameworks);net48</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Application' and '$(OS)'!='Windows_NT'">
-    <TargetFrameworks Condition='$(NetCore21Installed)'>$(TargetFrameworks);netcoreapp2.1</TargetFrameworks>
-    <TargetFrameworks Condition='$(NetCore22Installed)'>$(TargetFrameworks);netcoreapp2.2</TargetFrameworks>
     <TargetFrameworks Condition='$(NetCore31Installed)'>$(TargetFrameworks);netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(NetCore50Installed)">$(TargetFrameworks);net5.0</TargetFrameworks>
   </PropertyGroup>

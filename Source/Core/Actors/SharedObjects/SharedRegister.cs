@@ -104,11 +104,17 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         private protected T Value;
 
         /// <summary>
+        /// Object used for synchronizing accesses to the register.
+        /// </summary>
+        private readonly object SynchronizationObject;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SharedRegister{T}"/> class.
         /// </summary>
         internal SharedRegister(T value)
         {
             this.Value = value;
+            this.SynchronizationObject = new object();
         }
 
         /// <summary>
@@ -124,7 +130,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
                 oldValue = this.Value;
                 newValue = func(oldValue);
 
-                lock (this)
+                lock (this.SynchronizationObject)
                 {
                     if (oldValue.Equals(this.Value))
                     {
@@ -144,7 +150,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         public virtual T GetValue()
         {
             T currentValue;
-            lock (this)
+            lock (this.SynchronizationObject)
             {
                 currentValue = this.Value;
             }
@@ -157,7 +163,7 @@ namespace Microsoft.Coyote.Actors.SharedObjects
         /// </summary>
         public virtual void SetValue(T value)
         {
-            lock (this)
+            lock (this.SynchronizationObject)
             {
                 this.Value = value;
             }

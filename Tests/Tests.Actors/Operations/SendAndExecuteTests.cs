@@ -330,7 +330,9 @@ namespace Microsoft.Coyote.Actors.Tests
                 this.HandleException = (e as Config2).HandleException;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE() => throw new Exception();
+#pragma warning restore CA1822 // Mark members as static
 
             protected override OnExceptionOutcome OnException(Exception ex, string methodName, Event e)
             {

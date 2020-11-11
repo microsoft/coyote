@@ -28,7 +28,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void IgnoreUnitEvent()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -146,7 +148,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void IgnoreUnitEvent()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }

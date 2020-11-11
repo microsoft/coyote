@@ -302,23 +302,23 @@ namespace Microsoft.Coyote.Utilities
                 var value = this.ParseValue(arg);
                 if (this.DataType == typeof(string))
                 {
-                    this.Value = this.Append<string>(this.Value, value);
+                    this.Value = Append<string>(this.Value, value);
                 }
                 else if (this.DataType == typeof(int))
                 {
-                    this.Value = this.Append<int>(this.Value, value);
+                    this.Value = Append<int>(this.Value, value);
                 }
                 else if (this.DataType == typeof(uint))
                 {
-                    this.Value = this.Append<uint>(this.Value, value);
+                    this.Value = Append<uint>(this.Value, value);
                 }
                 else if (this.DataType == typeof(double))
                 {
-                    this.Value = this.Append<double>(this.Value, value);
+                    this.Value = Append<double>(this.Value, value);
                 }
                 else if (this.DataType == typeof(string))
                 {
-                    this.Value = this.Append<bool>(this.Value, value);
+                    this.Value = Append<bool>(this.Value, value);
                 }
                 else if (this.DataType != null)
                 {
@@ -331,7 +331,7 @@ namespace Microsoft.Coyote.Utilities
             }
         }
 
-        private T[] Append<T>(object value1, object value2)
+        private static T[] Append<T>(object value1, object value2)
         {
             if (value1 is null)
             {

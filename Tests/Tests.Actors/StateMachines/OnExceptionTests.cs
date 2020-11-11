@@ -190,7 +190,9 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async SystemTasks.Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 await Task.CompletedTask;
                 throw new NotImplementedException();

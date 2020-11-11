@@ -57,7 +57,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
                 Task task = WriteAsync(entry, 3);
@@ -111,7 +113,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -172,7 +176,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -232,7 +238,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -290,7 +298,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -357,7 +367,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
 
@@ -431,7 +443,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 SharedEntry entry = new SharedEntry();
 

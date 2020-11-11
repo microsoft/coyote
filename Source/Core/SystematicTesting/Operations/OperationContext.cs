@@ -77,5 +77,24 @@ namespace Microsoft.Coyote.SystematicTesting
 
             return options;
         }
+
+        /// <summary>
+        /// Helper for checking if an object is an instance of the <see cref="OperationContext{TWork, TResult}"/> type.
+        /// </summary>
+        internal static bool IsInstance(object instance)
+        {
+            Type type = instance?.GetType();
+            while (type != null)
+            {
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(OperationContext<,>))
+                {
+                    return true;
+                }
+
+                type = type.BaseType;
+            }
+
+            return false;
+        }
     }
 }

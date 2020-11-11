@@ -24,13 +24,17 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 return Task.CompletedTask;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleUnitEvent()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
 #pragma warning disable CA1801 // Parameter not used
 #pragma warning disable IDE0060 // Parameter not used
+#pragma warning disable CA1822 // Mark members as static
             private void HandleUnitEvent(int k)
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 #pragma warning restore IDE0060 // Parameter not used
@@ -60,13 +64,17 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.SendEvent(this.Id, UnitEvent.Instance);
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleUnitEvent()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
 #pragma warning disable CA1801 // Parameter not used
 #pragma warning disable IDE0060 // Parameter not used
+#pragma warning disable CA1822 // Mark members as static
             private void HandleUnitEvent(int k)
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 #pragma warning restore IDE0060 // Parameter not used

@@ -56,7 +56,9 @@ namespace Microsoft.Coyote.Actors.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var tcs = (e as SetupEvent).Tcs;
                 try

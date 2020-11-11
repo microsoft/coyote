@@ -42,7 +42,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 (e as E).Counter.Value++;
             }

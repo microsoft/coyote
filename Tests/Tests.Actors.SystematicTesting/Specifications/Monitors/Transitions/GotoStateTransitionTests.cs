@@ -31,7 +31,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Specifications
 
             private void Init() => this.RaiseGotoStateEvent<S2>();
 
+#pragma warning disable CA1822 // Mark members as static
             private void IncrementValue()
+#pragma warning restore CA1822 // Mark members as static
             {
                 MonitorValue = 101;
             }

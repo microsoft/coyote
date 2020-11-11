@@ -20,7 +20,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
         [Fact(Timeout = 5000)]
         public void TestJsonConfigurationReplacingBinaries()
         {
-            string configDirectory = this.GetJsonConfigurationDirectory();
+            string configDirectory = GetJsonConfigurationDirectory();
             string configPath = Path.Combine(configDirectory, "rewrite.coyote.json");
             Assert.True(File.Exists(configPath), "File not found: " + configPath);
 
@@ -40,7 +40,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
         [Fact(Timeout = 5000)]
         public void TestJsonConfigurationDifferentOutputDirectory()
         {
-            string configDirectory = this.GetJsonConfigurationDirectory("Rewriting");
+            string configDirectory = GetJsonConfigurationDirectory("Rewriting");
             string configPath = Path.Combine(configDirectory, "test.coyote.json");
             Assert.True(File.Exists(configPath));
 
@@ -56,7 +56,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
             Assert.Equal(Path.Combine(options.AssembliesDirectory, "Test.dll"), options.AssemblyPaths.First());
         }
 
-        private string GetJsonConfigurationDirectory(string subDirectory = null)
+        private static string GetJsonConfigurationDirectory(string subDirectory = null)
         {
             string binaryDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string configDirectory = subDirectory is null ? binaryDirectory : Path.Combine(binaryDirectory, subDirectory);
@@ -73,8 +73,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Configuration
             return "net5.0";
 #elif NET48
             return "net48";
-#elif NET47
-            return "net47";
 #elif NETSTANDARD2_1
             return "netstandard2.1";
 #elif NETSTANDARD2_0

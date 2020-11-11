@@ -6,7 +6,6 @@
     <OutputType>Exe</OutputType>
     <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
-    <Framework47Supported>false</Framework47Supported>
     <Framework48Supported>false</Framework48Supported>
     <NoWarn>$(NoWarn);</NoWarn>
   </PropertyGroup>

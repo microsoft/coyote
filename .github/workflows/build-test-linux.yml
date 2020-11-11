@@ -16,8 +16,13 @@ jobs:
       - name: Setup NuGet.exe
         uses: NuGet/setup-nuget@v1.0.2
       
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v1.6.0
+      - name: Setup .NET 5.x SDK
+        uses: actions/setup-dotnet@v1
+
+      - name: Setup .NET Core 3.1.404 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.404'
       
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -local $false

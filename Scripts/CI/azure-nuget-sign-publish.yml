@@ -21,7 +21,8 @@ steps:
   displayName: 'Build Coyote projects'
   inputs:
     targetType: filePath
-    filePath: '.\Scripts\build.ps1 -local $false'
+    filePath: '.\Scripts\build.ps1'
+    arguments: "-local $false"
     failOnStderr: true
 
 - task: PowerShell@2

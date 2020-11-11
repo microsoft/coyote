@@ -1,0 +1,26 @@
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$url = ""
+)
+
+$ScriptDir = $PSScriptRoot
+
+Import-Module $ScriptDir\powershell\common.psm1 -Force
+
+Write-Comment -prefix "." -text "Encoding NuGet signing certificate" -color "yellow"
+Write-Comment -prefix "..." -text "You might need to run 'az login' first" -color "blue"
+
+$guid = [GUID]::NewGuid().ToString()
+$result_file = "$ScriptDir\$guid"
+Write-Host $result_file
+
+# # The "Secret Identifier" url from the certificate details.
+az keyvault secret download --file $result_file --encoding base64 --id $url
+
+$file_content_bytes = Get-Content $result_file -AsByteStream
+$base64_value = [System.Convert]::ToBase64String($file_content_bytes)
+$base64_value | clip
+
+Remove-Item $result_file
+
+Write-Comment -prefix "." -text "Done" -color "green"

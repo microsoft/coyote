@@ -21,7 +21,7 @@ steps:
   displayName: 'Build Coyote projects'
   inputs:
     targetType: filePath
-    filePath: ./Scripts/build.ps1 -local $false
+    filePath: './Scripts/build.ps1 -local $false'
     failOnStderr: true
 
 - task: PowerShell@2
@@ -212,3 +212,11 @@ steps:
          "toolVersion": "1.0"
        }
      ]
+
+# - task: NuGetCommand@2
+#   displayName: 'Publish NuGet packages'
+#   inputs:
+#     command: push
+#     packagesToPush: 'bin/nuget/*.nupkg'
+#     nuGetFeedType: external
+#     publishFeedCredentials: 'Coyote NuGet.org'

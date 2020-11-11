@@ -19,19 +19,15 @@
     <GlobalVersion>$(GlobalVersion.Substring(10))</GlobalVersion>
     <GlobalVersion>$(GlobalVersion.Trim())</GlobalVersion>
     <GlobalVersion>$(GlobalVersion.Trim('"'))</GlobalVersion>
-    <Framework48Dir>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</Framework48Dir>
     <Framework48Supported Condition="'$(Framework48Supported)'==''">true</Framework48Supported>
-    <NetCore31Installed>false</NetCore31Installed>
-    <NetCore50Installed>false</NetCore50Installed>
     <Framework48Installed>false</Framework48Installed>
+    <Framework48Installed Condition="'$(NET48_EXISTS)'=='yes'">true</Framework48Installed>
+    <NetCore31Installed>false</NetCore31Installed>
     <NetCore31Installed Condition="$(GlobalVersion.StartsWith('3.1'))">true</NetCore31Installed>
-    <NetCore31Installed Condition="'$(DOTNET31)'=='yes'">true</NetCore31Installed>
+    <NetCore31Installed Condition="'$(NETCORE31_EXISTS)'=='yes'">true</NetCore31Installed>
+    <NetCore50Installed>false</NetCore50Installed>
     <NetCore50Installed Condition="$(GlobalVersion.StartsWith('5.0'))">true</NetCore50Installed>
     <TargetFrameworks></TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(VSAPPIDNAME)'==''">
-    <!-- only if we are not building from inside of VS, include legacy frameworks -->
-    <Framework48Installed Condition="Exists($(Framework48Dir))">true</Framework48Installed>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CoyoteTargetType)' == 'Library'">
     <TargetFrameworks>netstandard2.0</TargetFrameworks>

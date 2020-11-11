@@ -46,7 +46,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E1());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             protected void Coyote_Init_on_exit_action()
+#pragma warning restore CA1822 // Mark members as static
             {
                 WithNameofValue += 10;
             }
@@ -57,12 +59,16 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E2());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             protected void Coyote_Init_E1_action()
+#pragma warning restore CA1822 // Mark members as static
             {
                 WithNameofValue += 100;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             protected void Coyote_Next_E2_action()
+#pragma warning restore CA1822 // Mark members as static
             {
                 WithNameofValue += 10000;
             }
@@ -90,7 +96,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E1());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             protected void Coyote_Init_on_exit_action()
+#pragma warning restore CA1822 // Mark members as static
             {
                 WithoutNameofValue += 10;
             }
@@ -101,12 +109,16 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E2());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             protected void Coyote_Init_E1_action()
+#pragma warning restore CA1822 // Mark members as static
             {
                 WithoutNameofValue += 100;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             protected void Coyote_Next_E2_action()
+#pragma warning restore CA1822 // Mark members as static
             {
                 WithoutNameofValue += 10000;
             }

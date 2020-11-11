@@ -1,6 +1,6 @@
 param(
     [string]$dotnet = "dotnet",
-    [ValidateSet("all", "netcoreapp3.1", "net47", "net48", "net5.0")]
+    [ValidateSet("all", "netcoreapp3.1", "net48", "net5.0")]
     [string]$framework = "all",
     [ValidateSet("all", "systematic", "tasks", "actors", "actors-systematic", "standalone")]
     [string]$test = "all",

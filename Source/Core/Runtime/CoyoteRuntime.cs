@@ -463,7 +463,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
-                this.SetTaskCompletionSource(context.ResultSource, null, exception, default);
+                SetTaskCompletionSource(context.ResultSource, null, exception, default);
                 this.Scheduler.ScheduleNextOperation();
             }
         }
@@ -503,7 +503,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // If the operation is asynchronous, then set the executor task completion source, which
                     // can be used by `UnwrapTask` to unwrap and return the task executing this operation.
-                    this.SetTaskCompletionSource(asyncContext.ExecutorSource, asyncContext.Executor, null, ct);
+                    SetTaskCompletionSource(asyncContext.ExecutorSource, asyncContext.Executor, null, ct);
                 }
 
                 if (context.Predecessor != null)
@@ -587,7 +587,7 @@ namespace Microsoft.Coyote.Runtime
 
                 // Set the result task completion source to notify to the awaiters that the operation
                 // has been completed, and schedule the next enabled operation.
-                this.SetTaskCompletionSource(context.ResultSource, result, exception, default);
+                SetTaskCompletionSource(context.ResultSource, result, exception, default);
                 this.Scheduler.ScheduleNextOperation();
             }
 
@@ -597,7 +597,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Sets the specified task completion source with a result, cancelation or exception.
         /// </summary>
-        private void SetTaskCompletionSource<TResult>(TaskCompletionSource<TResult> tcs, TResult result,
+        private static void SetTaskCompletionSource<TResult>(TaskCompletionSource<TResult> tcs, TResult result,
             Exception ex, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)

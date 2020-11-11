@@ -421,7 +421,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(E2), nameof(HandleE2))]
         private class M5b : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE1()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 

@@ -18,11 +18,15 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Check2))]
         private class A1 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Check1()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check2()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -46,11 +50,15 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check1()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check2()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -134,11 +142,15 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check1()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check2()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -235,7 +247,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Check()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }

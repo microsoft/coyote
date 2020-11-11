@@ -174,7 +174,18 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         public static bool BindHandle(SafeHandle osHandle)
         {
             ExceptionProvider.ThrowNotSupportedInvocationException(nameof(SystemThreading.ThreadPool.BindHandle));
+#if NET5_0
+            if (OperatingSystem.IsWindows())
+            {
+                return SystemThreading.ThreadPool.BindHandle(osHandle);
+            }
+            else
+            {
+                throw new NotSupportedException($"Invoking '{nameof(SystemThreading.ThreadPool.BindHandle)}' is only supported on Windows.");
+            }
+#else
             return SystemThreading.ThreadPool.BindHandle(osHandle);
+#endif
         }
 
         /// <summary>

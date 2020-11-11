@@ -657,7 +657,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.Assert(this.Test is false, "Reached test assertion.");
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE2()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -759,7 +761,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
 
             private void ActiveOnEntry() => this.RaiseEvent(UnitEvent.Instance);
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE2()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }

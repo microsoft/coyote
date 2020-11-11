@@ -73,7 +73,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Ex1();
             }
@@ -107,7 +109,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 return Task.CompletedTask;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Act()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Ex1();
             }
@@ -146,7 +150,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E(this.Id));
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Act()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Ex1();
             }
@@ -180,7 +186,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 return Task.CompletedTask;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task Act()
+#pragma warning restore CA1822 // Mark members as static
             {
                 await Task.Delay(0);
                 throw new Ex1();
@@ -220,7 +228,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E(this.Id));
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task Act()
+#pragma warning restore CA1822 // Mark members as static
             {
                 await Task.Delay(0);
                 throw new Ex1();
@@ -261,7 +271,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E(this.Id));
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnExit()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Ex1();
             }
@@ -326,7 +338,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Ex2();
             }
@@ -397,7 +411,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Ex1();
             }
@@ -551,7 +567,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 

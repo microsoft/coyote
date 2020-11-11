@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 int index = Task.WaitAny(task1, task2);
                 Specification.Assert(index is 0 || index is 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
-                this.AssertCompleted(task1, task2);
+                AssertCompleted(task1, task2);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
@@ -85,7 +85,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(index is 0 || index is 1, $"Index is {index}.");
                 Specification.Assert(task1.IsCompleted || task2.IsCompleted, "No task has completed.");
-                this.AssertCompleted(task1, task2);
+                AssertCompleted(task1, task2);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
@@ -124,7 +124,7 @@ namespace Microsoft.Coyote.Tasks.Tests
                 SystemTasks.Task<int> result = index is 0 ? task1.UncontrolledTask : task2.UncontrolledTask;
                 Specification.Assert(index is 0 || index is 1, $"Index is {index}.");
                 Specification.Assert(result.Result is 5 || result.Result is 3, "Found unexpected value.");
-                this.AssertCompleted(task1, task2);
+                AssertCompleted(task1, task2);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
@@ -153,7 +153,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(index is 0 || index is 1, $"Index is {index}.");
                 Specification.Assert(result.Result is 5 || result.Result is 3, "Found unexpected value.");
-                this.AssertCompleted(task1, task2);
+                AssertCompleted(task1, task2);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
@@ -182,7 +182,7 @@ namespace Microsoft.Coyote.Tasks.Tests
 
                 Specification.Assert(index is 0 || index is 1, $"Index is {index}.");
                 Specification.Assert(result.Result is 5 || result.Result is 3, "Found unexpected value.");
-                this.AssertCompleted(task1, task2);
+                AssertCompleted(task1, task2);
             },
             configuration: GetConfiguration().WithTestingIterations(200),
             expectedError: "One task has not completed.",
@@ -217,7 +217,7 @@ namespace Microsoft.Coyote.Tasks.Tests
             configuration: GetConfiguration().WithTestingIterations(200));
         }
 
-        private void AssertCompleted(Task task1, Task task2) =>
+        private static void AssertCompleted(Task task1, Task task2) =>
             Specification.Assert(task1.IsCompleted && task2.IsCompleted, "One task has not completed.");
     }
 }

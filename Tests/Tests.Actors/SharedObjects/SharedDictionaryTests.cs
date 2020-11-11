@@ -90,7 +90,9 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var counter = (e as E).Counter;
                 var tcs = (e as E).Tcs;
@@ -136,7 +138,9 @@ namespace Microsoft.Coyote.Actors.Tests.SharedObjects
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var counter = (e as E).Counter;
                 var tcs = (e as E).Tcs;

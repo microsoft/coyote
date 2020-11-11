@@ -63,7 +63,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A1 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -100,7 +102,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -132,7 +136,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A2 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -171,7 +177,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -205,7 +213,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A3 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -243,7 +253,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 

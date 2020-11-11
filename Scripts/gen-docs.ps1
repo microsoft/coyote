@@ -43,7 +43,7 @@ $installed = InstallToolVersion -name "InheritDocTool" -version "2.5.1"
 # install xmldocmd
 $installed = InstallToolVersion -name "xmldocmd" -version "2.3.0"
 
-$frameworks = Get-ChildItem -Path "$CoyoteRoot/bin" | where Name -ne "nuget" | select -expand Name
+$frameworks = Get-ChildItem -Path "$CoyoteRoot/bin" | Where-Object Name -ne "nuget" | Select-Object -expand Name
 foreach ($name in $frameworks) {
     $target = "$CoyoteRoot\bin\$name"
     Write-Host "processing inherit docs under $target ..." -ForegroundColor Yellow

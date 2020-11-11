@@ -20,7 +20,9 @@ namespace Microsoft.Coyote.Actors.Tests
         [OnEventDoAction(typeof(E), nameof(HandleE))]
         private class A : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             internal void HandleE()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }

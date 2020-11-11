@@ -11,12 +11,18 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <icon>images\icon.png</icon>
-    <tags>asynchrony reliability actors state-machines tasks specifications testing</tags>
+    <tags>asynchrony reliability tasks actors state-machines specifications testing</tags>
     <packageTypes>
       <packageType name="DotnetTool" />
     </packageTypes>
   </metadata>
   <files>
+    <!-- .NET 5.0 -->
+    <file src="..\..\bin\net5.0\*.dll" target="tools\net5.0\any" />
+    <file src="..\..\bin\net5.0\*.xml" target="tools\net5.0\any" />
+    <file src="..\..\bin\net5.0\*.pdb" target="tools\net5.0\any" />
+    <file src="..\..\bin\net5.0\*.config" target="tools\net5.0\any" />
+    <file src="..\..\bin\net5.0\*.runtimeconfig.json" target="tools\net5.0\any" />
     <!-- .NET Core 3.1 -->
     <file src="..\..\bin\netcoreapp3.1\*.dll" target="tools\netcoreapp3.1\any" />
     <file src="..\..\bin\netcoreapp3.1\*.xml" target="tools\netcoreapp3.1\any" />

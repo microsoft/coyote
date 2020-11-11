@@ -97,7 +97,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var counter = (e as E<int>).Counter;
                 counter.SetValue(2);
@@ -174,7 +176,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.SharedObjects
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var counter = (e as E<S>).Counter;
                 counter.SetValue(new S(5, 5));

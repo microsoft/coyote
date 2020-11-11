@@ -145,7 +145,7 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 foreach (var task in this.JoinDependencies)
                 {
-                    if (!(task.AsyncState is OperationContext))
+                    if (!OperationContext.IsInstance(task.AsyncState))
                     {
                         return true;
                     }

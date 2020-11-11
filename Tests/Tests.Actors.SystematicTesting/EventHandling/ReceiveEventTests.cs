@@ -154,7 +154,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.SendEvent(this.Client, new Ping());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void IgnorePongEvent()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }

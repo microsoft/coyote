@@ -387,8 +387,6 @@ namespace Microsoft.Coyote.Benchmarking
             return "net5.0";
 #elif NET48
             return "net48";
-#elif NET47
-            return "net47";
 #elif NETSTANDARD2_1
             return "netstandard2.1";
 #elif NETSTANDARD2_0

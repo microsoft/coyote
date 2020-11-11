@@ -55,7 +55,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task InitOnEntry(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var setupEvent = e as SetupEvent;
                 setupEvent.Tcs.SetResult(3);
@@ -79,7 +81,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(SetupEvent), nameof(HandleSetupEvent))]
         private class A2 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private async Task HandleSetupEvent(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var setupEvent = e as SetupEvent;
                 setupEvent.Tcs.SetResult(3);
@@ -109,7 +113,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private async Task HandleSetupEvent(Event e)
+#pragma warning restore CA1822 // Mark members as static
             {
                 var setupEvent = e as SetupEvent;
                 setupEvent.Tcs.SetResult(3);

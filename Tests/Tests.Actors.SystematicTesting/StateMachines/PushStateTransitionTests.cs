@@ -155,7 +155,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -189,7 +191,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Foo()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 

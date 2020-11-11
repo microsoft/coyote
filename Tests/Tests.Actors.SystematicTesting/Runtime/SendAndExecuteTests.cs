@@ -164,7 +164,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
                 this.SendEvent(this.Id, new E1());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Handle()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -438,7 +440,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Runtime
                 this.HandleException = (e as HandleExceptionSetupEvent).HandleException;
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new InvalidOperationException();
             }

@@ -116,7 +116,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
                 this.RaiseEvent(new E2());
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void ProcessE3()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -271,7 +273,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A3 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -308,7 +312,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -340,7 +346,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A4 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -379,7 +387,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -413,7 +423,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(Process))]
         private class A5 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -451,7 +463,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void Process()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 

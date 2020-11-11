@@ -201,7 +201,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
         [OnEventDoAction(typeof(UnitEvent), nameof(HandleE))]
         private class A4 : Actor
         {
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Exception();
             }
@@ -236,7 +238,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void HandleE()
+#pragma warning restore CA1822 // Mark members as static
             {
                 throw new Exception();
             }

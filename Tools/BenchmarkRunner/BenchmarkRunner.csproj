@@ -6,8 +6,8 @@
     <OutputType>Exe</OutputType>
     <OutputPath>.\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
-    <Framework47Supported>false</Framework47Supported>
     <Framework48Supported>false</Framework48Supported>
+    <NetCore31Supported>false</NetCore31Supported>
     <NoWarn>$(NoWarn);</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\Common\build.props" />

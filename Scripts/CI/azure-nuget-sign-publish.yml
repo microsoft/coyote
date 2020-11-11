@@ -7,15 +7,20 @@ steps:
     versionSpec: 5.4.0
 
 - task: UseDotNet@2
-  displayName: 'Install .NET Core SDK'
+  displayName: 'Install .NET 5.x SDK'
   inputs:
     useGlobalJson: true
+
+- task: UseDotNet@2
+  displayName: 'Install .NET Core 3.1.x SDK'
+  inputs:
+    version: 3.1.x
 
 - task: PowerShell@2
   displayName: 'Build Coyote projects'
   inputs:
     targetType: filePath
-    filePath: ./Scripts/build.ps1
+    filePath: ./Scripts/build.ps1 -local $false
     failOnStderr: true
 
 - task: PowerShell@2
@@ -86,10 +91,10 @@ steps:
      ]
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP CodeSigning .NET Core 3.1'
+  displayName: 'ESRP CodeSigning .NET 5.0'
   inputs:
     ConnectedServiceName: NuGetCodeSignConnection
-    FolderPath: bin/netcoreapp3.1
+    FolderPath: bin/net5.0
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -116,10 +121,10 @@ steps:
      ]
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP CodeSigning .NET 4.7'
+  displayName: 'ESRP CodeSigning .NET Core 3.1'
   inputs:
     ConnectedServiceName: NuGetCodeSignConnection
-    FolderPath: bin/net47
+    FolderPath: bin/netcoreapp3.1
     signConfigType: inlineSignParams
     inlineOperation: |
      [

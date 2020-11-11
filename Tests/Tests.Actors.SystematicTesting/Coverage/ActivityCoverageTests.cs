@@ -35,7 +35,9 @@ namespace Microsoft.Coyote.Actors.SystematicTesting.Tests.Coverage
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void InitOnEntry()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
         }
@@ -180,7 +182,9 @@ Event coverage: 100.0%
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void OnHello()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
@@ -484,7 +488,9 @@ Event coverage: 100.0%
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
             private void OnInit()
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 

@@ -1,7 +1,7 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$configuration = "Release",
-    [bool]$local = $false
+    [bool]$local = $true
 )
 
 $ScriptDir = $PSScriptRoot
@@ -35,21 +35,20 @@ Write-Comment -prefix "..." -text "Configuration: $configuration" -color "white"
 $solution = $ScriptDir + "\..\Coyote.sln"
 $command = "build -c $configuration $solution"
 
-if (-not $local)
-{
-    # Build all supported .NET versions.
-    $command = $command + " /p:BUILD_ALL_SUPPORTED_NET_VERSIONS=yes"
-}
-else {
-    if (-not $version_net48) {
+if ($local) {
+    if ($version_net48) {
         # Build .NET Framework 4.8 as well as the new version.
         $command = $command + " /p:BUILD_NET48=yes"
     }
     
-    if (-not ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version)) {
+    if ($null -ne $version_netcore31 -and $version_netcore31 -ne $sdk_version) {
         # Build .NET Core 3.1 as well as the new version.
         $command = $command + " /p:BUILD_NETCORE31=yes"
     }
+}
+else {
+    # Build all supported .NET versions.
+    $command = $command + " /p:BUILD_ALL_SUPPORTED_NET_VERSIONS=yes"
 }
 
 $error_msg = "Failed to build Coyote"

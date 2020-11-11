@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-dotnet@v1.6.0
       
       - name: Build Coyote projects
-        run: ./Scripts/build.ps1
+        run: ./Scripts/build.ps1 -local $false
         shell: pwsh
       
       - name: Run Coyote Tests

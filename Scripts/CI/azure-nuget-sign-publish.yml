@@ -24,6 +24,7 @@ steps:
     filePath: '.\Scripts\build.ps1'
     arguments: "-local $false"
     failOnStderr: true
+    pwsh: true
 
 - task: PowerShell@2
   displayName: 'Update the XML documentation'
@@ -31,6 +32,7 @@ steps:
     targetType: filePath
     filePath: '.\Scripts\gen-docs.ps1'
     failOnStderr: true
+    pwsh: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET Standard 2.0'
@@ -188,6 +190,7 @@ steps:
     targetType: filePath
     filePath: '.\Scripts\create-nuget-packages.ps1'
     failOnStderr: true
+    pwsh: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning NuGet package'

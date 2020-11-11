@@ -21,21 +21,21 @@ steps:
   displayName: 'Build Coyote projects'
   inputs:
     targetType: filePath
-    filePath: './Scripts/build.ps1 -local $false'
+    filePath: '.\Scripts\build.ps1 -local $false'
     failOnStderr: true
 
 - task: PowerShell@2
   displayName: 'Update the XML documentation'
   inputs:
     targetType: filePath
-    filePath: './Scripts/gen-docs.ps1'
+    filePath: '.\Scripts\gen-docs.ps1'
     failOnStderr: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning .NET Standard 2.0'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
-    FolderPath: bin/netstandard2.0
+    FolderPath: bin\netstandard2.0
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -65,7 +65,7 @@ steps:
   displayName: 'ESRP CodeSigning .NET Standard 2.1'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
-    FolderPath: bin/netstandard2.1
+    FolderPath: bin\netstandard2.1
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -95,7 +95,7 @@ steps:
   displayName: 'ESRP CodeSigning .NET 5.0'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
-    FolderPath: bin/net5.0
+    FolderPath: bin\net5.0
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -125,7 +125,7 @@ steps:
   displayName: 'ESRP CodeSigning .NET Core 3.1'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
-    FolderPath: bin/netcoreapp3.1
+    FolderPath: bin\netcoreapp3.1
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -155,7 +155,7 @@ steps:
   displayName: 'ESRP CodeSigning .NET 4.8'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
-    FolderPath: bin/net48
+    FolderPath: bin\net48
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -185,14 +185,14 @@ steps:
   displayName: 'Create NuGet package'
   inputs:
     targetType: filePath
-    filePath: './Scripts\create-nuget-packages.ps1'
+    filePath: '.\Scripts\create-nuget-packages.ps1'
     failOnStderr: true
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning NuGet package'
   inputs:
     ConnectedServiceName: CoyoteNugetSign
-    FolderPath: bin/nuget
+    FolderPath: bin\nuget
     Pattern: '*.nupkg'
     signConfigType: inlineSignParams
     inlineOperation: |
@@ -217,6 +217,6 @@ steps:
 #   displayName: 'Publish NuGet packages'
 #   inputs:
 #     command: push
-#     packagesToPush: 'bin/nuget/*.nupkg'
+#     packagesToPush: 'bin\nuget\*.nupkg'
 #     nuGetFeedType: external
 #     publishFeedCredentials: 'Coyote NuGet.org'

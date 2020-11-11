@@ -7,9 +7,14 @@ steps:
     versionSpec: 5.4.0
 
 - task: UseDotNet@2
-  displayName: 'Install .NET Core SDK'
+  displayName: 'Install .NET 5.x SDK'
   inputs:
     useGlobalJson: true
+
+- task: UseDotNet@2
+  displayName: 'Install .NET Core 3.1.x SDK'
+  inputs:
+    version: 3.1.x
 
 - task: PowerShell@2
   displayName: 'Build Coyote projects'

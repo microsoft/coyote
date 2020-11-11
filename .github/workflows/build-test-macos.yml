@@ -17,12 +17,12 @@ jobs:
         uses: NuGet/setup-nuget@v1.0.2
       
       - name: Setup .NET 5.x SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v1.7.2
 
-      - name: Setup .NET Core 3.1.404 SDK
-        uses: actions/setup-dotnet@v1
+      - name: Setup .NET Core 3.1.x SDK
+        uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: '3.1.404'
+          dotnet-version: '3.1.x'
       
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -local $false

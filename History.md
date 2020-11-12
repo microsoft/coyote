@@ -1,5 +1,7 @@
 ## v1.2.2
 - Added the `Specification.WhenTrue` API for checking liveness properties in tasks.
+- Added the `Configuration.WithTestingTimeout` API for specifying a systematic testing timeout
+  instead of iterations.
 - Added support for the `net5.0` target.
 - Removed the `net47` target.
 

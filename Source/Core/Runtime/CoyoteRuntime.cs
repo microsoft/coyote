@@ -6,9 +6,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
@@ -100,6 +102,11 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
 
         /// <summary>
+        /// List of liveness monitors in the program.
+        /// </summary>
+        private readonly List<LivenessMonitor> LivenessMonitors;
+
+        /// <summary>
         /// Monotonically increasing operation id counter.
         /// </summary>
         private long OperationIdCounter;
@@ -164,6 +171,7 @@ namespace Microsoft.Coyote.Runtime
             this.OperationIdCounter = 0;
             this.RootTaskId = Task.CurrentId;
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
+            this.LivenessMonitors = new List<LivenessMonitor>();
 
             this.LogWriter = new LogWriter(configuration);
 
@@ -342,7 +350,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task ScheduleFunction(Func<CoyoteTasks.Task> function, Task predecessor, CancellationToken cancellationToken)
+        internal CoyoteTasks.Task ScheduleAsyncFunction(Func<CoyoteTasks.Task> function, Task predecessor, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -360,7 +368,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<TResult> ScheduleFunction<TResult>(Func<CoyoteTasks.Task<TResult>> function, Task predecessor,
+        internal CoyoteTasks.Task<TResult> ScheduleAsyncFunction<TResult>(Func<CoyoteTasks.Task<TResult>> function, Task predecessor,
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -927,7 +935,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            return this.ScheduleFunction(() =>
+            return this.ScheduleAsyncFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
@@ -1003,7 +1011,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            return this.ScheduleFunction(() =>
+            return this.ScheduleAsyncFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
@@ -1375,6 +1383,48 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
 
+        /// <summary>
+        /// Waits until the liveness property is satisfied.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task WaitUntilLivenessPropertyIsSatisfied(Func<Task<bool>> predicate, Func<int> hashingFunction,
+            TimeSpan delay, CancellationToken cancellationToken = default)
+        {
+            if (this.IsControlled)
+            {
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var monitor = new LivenessMonitor(callerOp, predicate, hashingFunction);
+                this.LivenessMonitors.Add(monitor);
+                monitor.Wait();
+                return Task.CompletedTask;
+            }
+
+            return WhenCompletedAsync(predicate, delay, cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when <paramref name="predicate"/> returns true.
+        /// </summary>
+        private static async Task WhenCompletedAsync(Func<Task<bool>> predicate, TimeSpan delay, CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                if (await predicate())
+                {
+                    break;
+                }
+
+                await Task.Delay(delay);
+            }
+        }
+
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -1400,18 +1450,6 @@ namespace Microsoft.Coyote.Runtime
                     "which is not allowed: either mock the method, or rewrite the method's assembly.");
             }
         }
-
-        /// <summary>
-        /// Asserts that no monitor is in a hot state at test termination.
-        /// </summary>
-        /// <remarks>
-        /// If the test is still running, then this method returns without performing a check.
-        /// </remarks>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void AssertNoMonitorInHotStateAtTermination() =>
-            this.SpecificationEngine.AssertNoMonitorInHotStateAtTermination();
 
         /// <summary>
         /// Returns a controlled nondeterministic boolean choice.
@@ -1455,6 +1493,17 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
+        /// Callback that is invoked on each scheduling step.
+        /// </summary>
+        internal void OnNextSchedulingStep()
+        {
+            foreach (var monitor in this.LivenessMonitors)
+            {
+                monitor.CheckProgress();
+            }
+        }
+
+        /// <summary>
         /// Returns the current hashed state of the execution.
         /// </summary>
         /// <remarks>
@@ -1469,6 +1518,129 @@ namespace Microsoft.Coyote.Runtime
                 hash = (hash * 397) + this.DefaultActorExecutionContext.GetHashedActorState();
                 hash = (hash * 397) + this.SpecificationEngine.GetHashedMonitorState();
                 return hash;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
+        /// but there is one or more blocked operations that are waiting some resource to complete.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
+        {
+            var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
+            var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
+                op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
+            var blockedOnResources = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
+            if (blockedOnReceiveOperations.Count is 0 &&
+                blockedOnWaitOperations.Count is 0 &&
+                blockedOnResources.Count is 0)
+            {
+                return;
+            }
+
+            var msg = new StringBuilder("Deadlock detected.");
+
+            int blockedOperations = 0;
+            if (blockedOnReceiveOperations.Count > 0)
+            {
+                for (int idx = 0; idx < blockedOnReceiveOperations.Count; idx++)
+                {
+                    msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnReceiveOperations[idx].Name));
+                    if (idx == blockedOnReceiveOperations.Count - 2)
+                    {
+                        msg.Append(" and");
+                    }
+                    else if (idx < blockedOnReceiveOperations.Count - 1)
+                    {
+                        msg.Append(",");
+                    }
+
+                    blockedOperations++;
+                }
+
+                msg.Append(blockedOnReceiveOperations.Count is 1 ? " is " : " are ");
+                msg.Append("waiting to receive an event, but no other controlled tasks are enabled.");
+            }
+
+            if (blockedOnWaitOperations.Count > 0)
+            {
+                for (int idx = 0; idx < blockedOnWaitOperations.Count; idx++)
+                {
+                    msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnWaitOperations[idx].Name));
+                    if (idx == blockedOnWaitOperations.Count - 2)
+                    {
+                        msg.Append(" and");
+                    }
+                    else if (idx < blockedOnWaitOperations.Count - 1)
+                    {
+                        msg.Append(",");
+                    }
+
+                    blockedOperations++;
+                }
+
+                msg.Append(blockedOnWaitOperations.Count is 1 ? " is " : " are ");
+                msg.Append("waiting for a task to complete, but no other controlled tasks are enabled.");
+            }
+
+            if (blockedOnResources.Count > 0)
+            {
+                for (int idx = 0; idx < blockedOnResources.Count; idx++)
+                {
+                    if (this.LivenessMonitors.Exists(m => !m.IsSatisfied && m.Operation.Id == blockedOnResources[idx].Id))
+                    {
+                        continue;
+                    }
+
+                    msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnResources[idx].Name));
+                    if (idx == blockedOnResources.Count - 2)
+                    {
+                        msg.Append(" and");
+                    }
+                    else if (idx < blockedOnResources.Count - 1)
+                    {
+                        msg.Append(",");
+                    }
+
+                    blockedOperations++;
+                }
+
+                msg.Append(blockedOnResources.Count is 1 ? " is " : " are ");
+                msg.Append("waiting to acquire a resource that is already acquired, ");
+                msg.Append("but no other controlled tasks are enabled.");
+            }
+
+            if (blockedOperations > 0)
+            {
+                this.Scheduler.NotifyAssertionFailure(msg.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Checks for liveness errors.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckLivenessErrors()
+        {
+            if (this.Scheduler.HasFullyExploredSchedule)
+            {
+                foreach (var monitor in this.LivenessMonitors)
+                {
+                    if (!monitor.IsSatisfied)
+                    {
+                        string msg = string.Format(CultureInfo.InvariantCulture,
+                            "Found liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
+                            GetStackTrace(monitor.StackTrace));
+                        this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
+                    }
+                }
+
+                this.SpecificationEngine.AssertMonitorsInColdState();
             }
         }
 
@@ -1488,12 +1660,6 @@ namespace Microsoft.Coyote.Runtime
                 this.Logger.WriteLine(LogSeverity.Warning, $"<ExceptionLog> {message}");
             }
         }
-
-        /// <summary>
-        /// Waits until all actors have finished execution.
-        /// </summary>
-        [DebuggerStepThrough]
-        internal Task WaitAsync() => this.Scheduler.WaitAsync();
 
         /// <summary>
         /// Raises the <see cref="OnFailure"/> event with the specified <see cref="Exception"/>.
@@ -1517,10 +1683,35 @@ namespace Microsoft.Coyote.Runtime
             this.OnFailure?.Invoke(exception);
         }
 
+        private static string GetStackTrace(StackTrace trace)
+        {
+            StringBuilder sb = new StringBuilder();
+            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                if ((line.Contains("at Microsoft.Coyote.Specifications") ||
+                    line.Contains("at Microsoft.Coyote.Runtime")) &&
+                    !line.Contains($"at {typeof(Specification).FullName}.{nameof(Specification.WhenTrue)}"))
+                {
+                    continue;
+                }
+
+                sb.AppendLine(line);
+            }
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// Assigns the specified runtime as the default for the current asynchronous control flow.
         /// </summary>
         internal static void AssignAsyncControlFlowRuntime(CoyoteRuntime runtime) => AsyncLocalInstance.Value = runtime;
+
+        /// <summary>
+        /// Waits until all actors have finished execution.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal Task WaitAsync() => this.Scheduler.WaitAsync();
 
         /// <summary>
         /// Disposes runtime resources.
@@ -1529,6 +1720,7 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
+                this.LivenessMonitors.Clear();
                 this.OperationIdCounter = 0;
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();

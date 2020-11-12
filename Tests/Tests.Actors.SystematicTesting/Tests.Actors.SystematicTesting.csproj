@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for the systematic testing runtime.</Description>
+    <Description>Tests for actor systematic testing.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Actors.SystematicTesting</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.SystematicTesting.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The Coyote performance tests.</Description>
+    <Description>Tests for actor performance.</Description>
     <AssemblyName>Tests.Actors.Performance</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.Tests.Performance</RootNamespace>
     <OutputPath>.\bin\</OutputPath>

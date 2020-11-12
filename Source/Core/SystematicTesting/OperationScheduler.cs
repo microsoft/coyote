@@ -180,6 +180,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     current.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
+                // Notify the runtime about the next scheduling step.
+                this.Runtime.OnNextSchedulingStep();
+
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
@@ -249,7 +252,7 @@ namespace Microsoft.Coyote.SystematicTesting
             if (next is null)
             {
                 // Check if the execution has deadlocked.
-                this.CheckIfExecutionHasDeadlocked(ops);
+                this.Runtime.CheckIfExecutionHasDeadlocked(ops);
                 return false;
             }
 
@@ -480,88 +483,6 @@ namespace Microsoft.Coyote.SystematicTesting
             {
                 return this.OperationMap.Values;
             }
-        }
-
-        /// <summary>
-        /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
-        /// but there is one or more blocked operations that are waiting some resource to complete.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        private void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
-        {
-            var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
-            var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
-                op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
-            var blockedOnResourceSynchronization = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
-            if (blockedOnReceiveOperations.Count is 0 &&
-                blockedOnWaitOperations.Count is 0 &&
-                blockedOnResourceSynchronization.Count is 0)
-            {
-                return;
-            }
-
-            string message = "Deadlock detected.";
-            if (blockedOnReceiveOperations.Count > 0)
-            {
-                for (int i = 0; i < blockedOnReceiveOperations.Count; i++)
-                {
-                    message += string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnReceiveOperations[i].Name);
-                    if (i == blockedOnReceiveOperations.Count - 2)
-                    {
-                        message += " and";
-                    }
-                    else if (i < blockedOnReceiveOperations.Count - 1)
-                    {
-                        message += ",";
-                    }
-                }
-
-                message += blockedOnReceiveOperations.Count is 1 ? " is " : " are ";
-                message += "waiting to receive an event, but no other controlled tasks are enabled.";
-            }
-
-            if (blockedOnWaitOperations.Count > 0)
-            {
-                for (int i = 0; i < blockedOnWaitOperations.Count; i++)
-                {
-                    message += string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnWaitOperations[i].Name);
-                    if (i == blockedOnWaitOperations.Count - 2)
-                    {
-                        message += " and";
-                    }
-                    else if (i < blockedOnWaitOperations.Count - 1)
-                    {
-                        message += ",";
-                    }
-                }
-
-                message += blockedOnWaitOperations.Count is 1 ? " is " : " are ";
-                message += "waiting for a task to complete, but no other controlled tasks are enabled.";
-            }
-
-            if (blockedOnResourceSynchronization.Count > 0)
-            {
-                for (int i = 0; i < blockedOnResourceSynchronization.Count; i++)
-                {
-                    message += string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnResourceSynchronization[i].Name);
-                    if (i == blockedOnResourceSynchronization.Count - 2)
-                    {
-                        message += " and";
-                    }
-                    else if (i < blockedOnResourceSynchronization.Count - 1)
-                    {
-                        message += ",";
-                    }
-                }
-
-                message += blockedOnResourceSynchronization.Count is 1 ? " is " : " are ";
-                message += "waiting to acquire a resource that is already acquired, ";
-                message += "but no other controlled tasks are enabled.";
-            }
-
-            this.NotifyAssertionFailure(message);
         }
 
         /// <summary>

@@ -31,7 +31,7 @@ namespace Microsoft.Coyote.Specifications
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
-        /// List of monitors in the program.
+        /// List of safety and liveness monitors in the program.
         /// </summary>
         private readonly List<Monitor> Monitors;
 
@@ -254,27 +254,22 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Asserts that no monitor is in a hot state at test termination.
+        /// Asserts that all monitors are in a cold state.
         /// </summary>
-        /// <remarks>
-        /// If the test is still running, then this method returns without performing a check.
-        /// </remarks>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void AssertNoMonitorInHotStateAtTermination()
+        internal void AssertMonitorsInColdState()
         {
-            if (this.Scheduler.HasFullyExploredSchedule)
+            // Checks if there is a monitor stuck in a hot state.
+            foreach (var monitor in this.Monitors)
             {
-                foreach (var monitor in this.Monitors)
+                if (monitor.IsInHotState(out string stateName))
                 {
-                    if (monitor.IsInHotState(out string stateName))
-                    {
-                        string msg = string.Format(CultureInfo.InvariantCulture,
-                            "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
-                            monitor.GetType().FullName, stateName);
-                        this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
-                    }
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
+                        monitor.GetType().FullName, stateName);
+                    this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
                 }
             }
         }

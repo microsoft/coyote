@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for actor APIs.</Description>
-    <AssemblyName>Microsoft.Coyote.Tests.Actors</AssemblyName>
-    <RootNamespace>Microsoft.Coyote.Actors.Tests</RootNamespace>
+    <Description>Tests for task systematic testing.</Description>
+    <AssemblyName>Microsoft.Coyote.Tests.Tasks.SystematicTesting</AssemblyName>
+    <RootNamespace>Microsoft.Coyote.Tasks.SystematicTesting.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>
     <CoyoteTargetType>Application</CoyoteTargetType>
     <NoWarn>$(NoWarn),1591</NoWarn>

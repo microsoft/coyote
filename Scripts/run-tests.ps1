@@ -2,7 +2,7 @@ param(
     [string]$dotnet = "dotnet",
     [ValidateSet("all", "netcoreapp3.1", "net48", "net5.0")]
     [string]$framework = "all",
-    [ValidateSet("all", "systematic", "tasks", "actors", "actors-systematic", "standalone")]
+    [ValidateSet("all", "unit", "systematic", "tasks-systematic", "actors", "actors-systematic", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -15,8 +15,9 @@ Import-Module $PSScriptRoot/powershell/common.psm1 -Force
 $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Name -CNotIn "netstandard2.0", "netstandard2.1" | Select-Object -expand Name
 
 $targets = [ordered]@{
+    "unit" = "Tests.Unit"
     "systematic" = "Tests.SystematicTesting"
-    "tasks" = "Tests.Tasks"
+    "tasks-systematic" = "Tests.Tasks.SystematicTesting"
     "actors" = "Tests.Actors"
     "actors-systematic" = "Tests.Actors.SystematicTesting"
     "standalone" = "Tests.Standalone"

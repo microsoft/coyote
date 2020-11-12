@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for the systematic testing runtime.</Description>
+    <Description>Tests for systematic testing.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.SystematicTesting</AssemblyName>
     <RootNamespace>Microsoft.Coyote.SystematicTesting.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>

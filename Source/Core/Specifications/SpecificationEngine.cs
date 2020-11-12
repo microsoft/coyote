@@ -32,14 +32,6 @@ namespace Microsoft.Coyote.Specifications
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
-        /// List of liveness monitors in the program.
-        /// </summary>
-        /// <remarks>
-        /// This is a different type of monitor than the state-machine based <see cref="Monitor"/> one.
-        /// </remarks>
-        private readonly List<LivenessMonitor> LivenessMonitors;
-
-        /// <summary>
         /// List of safety and liveness monitors in the program.
         /// </summary>
         private readonly List<Monitor> Monitors;
@@ -56,62 +48,8 @@ namespace Microsoft.Coyote.Specifications
         {
             this.Configuration = configuration;
             this.Scheduler = scheduler;
-            this.LivenessMonitors = new List<LivenessMonitor>();
             this.Monitors = monitors;
             this.IsMonitoringEnabled = scheduler != null || configuration.IsMonitoringEnabledInInProduction;
-        }
-
-        /// <summary>
-        /// Callback that is invoked on each scheduling step.
-        /// </summary>
-        internal void OnNextSchedulingStep()
-        {
-            foreach (var monitor in this.LivenessMonitors)
-            {
-                monitor.CheckProgress();
-            }
-        }
-
-        /// <summary>
-        /// Waits until the liveness property is satisfied.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal Task WaitUntilLivenessPropertyIsSatisfied(Func<Task<bool>> predicate, Func<int> hashingFunction,
-            TimeSpan delay, CancellationToken cancellationToken = default)
-        {
-            if (CoyoteRuntime.IsExecutionControlled)
-            {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                var monitor = new LivenessMonitor(callerOp, predicate, hashingFunction);
-                this.LivenessMonitors.Add(monitor);
-                monitor.Wait();
-                return Task.CompletedTask;
-            }
-
-            return WhenCompletedAsync(predicate, delay, cancellationToken);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when <paramref name="predicate"/> returns true.
-        /// </summary>
-        private static async Task WhenCompletedAsync(Func<Task<bool>> predicate, TimeSpan delay, CancellationToken cancellationToken)
-        {
-            while (true)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
-
-                if (await predicate())
-                {
-                    break;
-                }
-
-                await Task.Delay(delay);
-            }
         }
 
         /// <summary>
@@ -317,155 +255,24 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
-        /// but there is one or more blocked operations that are waiting to complete.
+        /// Assert that all monitors are in a cold state.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops)
+        internal void AssertMonitorsInColdState()
         {
-            var blockedOnReceiveOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnReceive).ToList();
-            var blockedOnWaitOperations = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnWaitAll ||
-                op.Status is AsyncOperationStatus.BlockedOnWaitAny).ToList();
-            var blockedOnResources = ops.Where(op => op.Status is AsyncOperationStatus.BlockedOnResource).ToList();
-            if (blockedOnReceiveOperations.Count is 0 &&
-                blockedOnWaitOperations.Count is 0 &&
-                blockedOnResources.Count is 0)
+            // Checks if there is a monitor stuck in a hot state.
+            foreach (var monitor in this.Monitors)
             {
-                return;
-            }
-
-            var msg = new StringBuilder("Deadlock detected.");
-
-            int blockedOperations = 0;
-            if (blockedOnReceiveOperations.Count > 0)
-            {
-                for (int idx = 0; idx < blockedOnReceiveOperations.Count; idx++)
+                if (monitor.IsInHotState(out string stateName))
                 {
-                    msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnReceiveOperations[idx].Name));
-                    if (idx == blockedOnReceiveOperations.Count - 2)
-                    {
-                        msg.Append(" and");
-                    }
-                    else if (idx < blockedOnReceiveOperations.Count - 1)
-                    {
-                        msg.Append(",");
-                    }
-
-                    blockedOperations++;
-                }
-
-                msg.Append(blockedOnReceiveOperations.Count is 1 ? " is " : " are ");
-                msg.Append("waiting to receive an event, but no other controlled tasks are enabled.");
-            }
-
-            if (blockedOnWaitOperations.Count > 0)
-            {
-                for (int idx = 0; idx < blockedOnWaitOperations.Count; idx++)
-                {
-                    msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnWaitOperations[idx].Name));
-                    if (idx == blockedOnWaitOperations.Count - 2)
-                    {
-                        msg.Append(" and");
-                    }
-                    else if (idx < blockedOnWaitOperations.Count - 1)
-                    {
-                        msg.Append(",");
-                    }
-
-                    blockedOperations++;
-                }
-
-                msg.Append(blockedOnWaitOperations.Count is 1 ? " is " : " are ");
-                msg.Append("waiting for a task to complete, but no other controlled tasks are enabled.");
-            }
-
-            if (blockedOnResources.Count > 0)
-            {
-                for (int idx = 0; idx < blockedOnResources.Count; idx++)
-                {
-                    if (this.LivenessMonitors.Exists(m => !m.IsSatisfied && m.Operation.Id == blockedOnResources[idx].Id))
-                    {
-                        continue;
-                    }
-
-                    msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnResources[idx].Name));
-                    if (idx == blockedOnResources.Count - 2)
-                    {
-                        msg.Append(" and");
-                    }
-                    else if (idx < blockedOnResources.Count - 1)
-                    {
-                        msg.Append(",");
-                    }
-
-                    blockedOperations++;
-                }
-
-                msg.Append(blockedOnResources.Count is 1 ? " is " : " are ");
-                msg.Append("waiting to acquire a resource that is already acquired, ");
-                msg.Append("but no other controlled tasks are enabled.");
-            }
-
-            if (blockedOperations > 0)
-            {
-                this.Scheduler.NotifyAssertionFailure(msg.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Checks for liveness errors.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void CheckLivenessErrors()
-        {
-            if (this.Scheduler.HasFullyExploredSchedule)
-            {
-                foreach (var monitor in this.LivenessMonitors)
-                {
-                    if (!monitor.IsSatisfied)
-                    {
-                        string msg = string.Format(CultureInfo.InvariantCulture,
-                            "Found liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
-                            GetStackTrace(monitor.StackTrace));
-                        this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
-                    }
-                }
-
-                // Checks if there is a monitor stuck in a hot state.
-                foreach (var monitor in this.Monitors)
-                {
-                    if (monitor.IsInHotState(out string stateName))
-                    {
-                        string msg = string.Format(CultureInfo.InvariantCulture,
-                            "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
-                            monitor.GetType().FullName, stateName);
-                        this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
-                    }
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
+                        monitor.GetType().FullName, stateName);
+                    this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
                 }
             }
-        }
-
-        private static string GetStackTrace(StackTrace trace)
-        {
-            StringBuilder sb = new StringBuilder();
-            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            foreach (var line in lines)
-            {
-                if ((line.Contains("at Microsoft.Coyote.Specifications") ||
-                    line.Contains("at Microsoft.Coyote.Runtime")) &&
-                    !line.Contains($"at {typeof(Specification).FullName}.{nameof(Specification.WhenTrue)}"))
-                {
-                    continue;
-                }
-
-                sb.AppendLine(line);
-            }
-
-            return sb.ToString();
         }
 
         /// <summary>
@@ -499,7 +306,6 @@ namespace Microsoft.Coyote.Specifications
         {
             if (disposing)
             {
-                this.LivenessMonitors.Clear();
                 this.Monitors.Clear();
             }
         }

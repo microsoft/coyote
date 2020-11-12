@@ -66,7 +66,7 @@ namespace Microsoft.Coyote.Specifications
         /// <returns>Task that represents the property to be satisfied asynchronously.</returns>
         public static Task WhenTrue(Func<Task<bool>> predicate, Func<int> getHashCode, TimeSpan delay,
             CancellationToken cancellationToken = default) =>
-            CoyoteRuntime.Current.AssertIsLivenessPropertySatisfied(predicate, getHashCode, delay, cancellationToken);
+            CoyoteRuntime.Current.WaitUntilLivenessPropertyIsSatisfied(predicate, getHashCode, delay, cancellationToken);
 
         /// <summary>
         /// Registers a new safety or liveness monitor.

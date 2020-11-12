@@ -1,3 +1,8 @@
+## v1.2.2
+- Added the `Specification.WhenTrue` API for checking liveness properties in tasks.
+- Added support for the `net5.0` target.
+- Removed the `net47` target.
+
 ## v1.2.1
 - Added the `OnEventIgnored` and `OnEventDeferred` callbacks in the `Actor` type.
 

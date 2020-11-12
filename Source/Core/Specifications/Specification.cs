@@ -58,13 +58,12 @@ namespace Microsoft.Coyote.Specifications
         /// during systematic testing and must be lightweight as it is invoked frequently.
         /// </param>
         /// <param name="delay">
-        /// The amount of time to delay each time func is invoked. This is not used during systematic testing.
+        /// The amount of time to delay between checks. This is not used during systematic testing.
         /// </param>
         /// <param name="cancellationToken">
         /// The cancellation token with which to complete the task. This is not used during systematic testing.
         /// </param>
         /// <returns>Task that represents the property to be satisfied asynchronously.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task WhenTrue(Func<Task<bool>> predicate, Func<int> getHashCode, TimeSpan delay,
             CancellationToken cancellationToken = default) =>
             CoyoteRuntime.Current.AssertIsLivenessPropertySatisfied(predicate, getHashCode, delay, cancellationToken);

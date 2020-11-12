@@ -1412,18 +1412,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Asserts that no monitor is in a hot state at test termination.
-        /// </summary>
-        /// <remarks>
-        /// If the test is still running, then this method returns without performing a check.
-        /// </remarks>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void AssertNoMonitorInHotStateAtTermination() =>
-            this.SpecificationEngine.AssertNoMonitorInHotStateAtTermination();
-
-        /// <summary>
         /// Returns a controlled nondeterministic boolean choice.
         /// </summary>
         internal bool GetNondeterministicBooleanChoice(int maxValue, string callerName, string callerType) =>
@@ -1486,6 +1474,24 @@ namespace Microsoft.Coyote.Runtime
                 return hash;
             }
         }
+
+        /// <summary>
+        /// Checks if the execution has deadlocked. This happens when there are no more enabled operations,
+        /// but there is one or more blocked operations that are waiting some resource to complete.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckIfExecutionHasDeadlocked(IEnumerable<AsyncOperation> ops) =>
+            this.SpecificationEngine.CheckIfExecutionHasDeadlocked(ops);
+
+        /// <summary>
+        /// Checks for liveness errors.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckLivenessErrors() => this.SpecificationEngine.CheckLivenessErrors();
 
         /// <summary>
         /// Reports the specified thrown exception.

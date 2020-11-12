@@ -2,20 +2,21 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Specifications
 {
     /// <summary>
-    /// A monitor that checks if a liveness property has been eventually satisfied.
+    /// A monitor that checks if a liveness property associated with a <see cref="TaskOperation"/> is eventually satisfied.
     /// </summary>
     internal sealed class LivenessMonitor
     {
         /// <summary>
         /// The operation waiting for the liveness property to get satisfied.
         /// </summary>
-        private readonly TaskOperation Operation;
+        internal readonly TaskOperation Operation;
 
         /// <summary>
         /// The resource associated with this property.
@@ -36,6 +37,11 @@ namespace Microsoft.Coyote.Specifications
         /// Hash used to track progress related to the liveness property.
         /// </summary>
         private int Hash;
+
+        /// <summary>
+        /// Trace used for debugging purposes.
+        /// </summary>
+        internal StackTrace StackTrace { get; private set; }
 
         /// <summary>
         /// True if the liveness property is satisfied, else false.
@@ -76,6 +82,7 @@ namespace Microsoft.Coyote.Specifications
         {
             // Get the initial hash.
             this.Hash = this.HashingFunction();
+            this.StackTrace = new StackTrace();
 
             while (true)
             {
@@ -87,6 +94,7 @@ namespace Microsoft.Coyote.Specifications
 
                 if (task.Result)
                 {
+                    this.IsSatisfied = true;
                     break;
                 }
 

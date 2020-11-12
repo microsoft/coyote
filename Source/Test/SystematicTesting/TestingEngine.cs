@@ -595,11 +595,10 @@ namespace Microsoft.Coyote.SystematicTesting
                     callback(iteration);
                 }
 
-                // Checks that no monitor is in a hot state at termination. Only
-                // checked if no safety property violations have been found.
                 if (!runtime.Scheduler.BugFound)
                 {
-                    runtime.AssertNoMonitorInHotStateAtTermination();
+                    // Checks for liveness errors. Only checked if no safety errors have been found.
+                    runtime.CheckLivenessErrors();
                 }
 
                 if (runtime.Scheduler.BugFound)

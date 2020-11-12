@@ -2,7 +2,7 @@ param(
     [string]$dotnet = "dotnet",
     [ValidateSet("all", "netcoreapp3.1", "net48", "net5.0")]
     [string]$framework = "all",
-    [ValidateSet("all", "systematic", "tasks", "actors", "actors-systematic", "standalone")]
+    [ValidateSet("all", "systematic", "tasks-systematic", "actors", "actors-systematic", "standalone")]
     [string]$test = "all",
     [string]$filter = "",
     [string]$logger = "",
@@ -16,7 +16,7 @@ $frameworks = Get-ChildItem -Path "$PSScriptRoot/../Tests/bin" | Where-Object Na
 
 $targets = [ordered]@{
     "systematic" = "Tests.SystematicTesting"
-    "tasks" = "Tests.Tasks"
+    "tasks-systematic" = "Tests.Tasks.SystematicTesting"
     "actors" = "Tests.Actors"
     "actors-systematic" = "Tests.Actors.SystematicTesting"
     "standalone" = "Tests.Standalone"

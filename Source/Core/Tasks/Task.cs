@@ -194,7 +194,7 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken);
+                return CoyoteRuntime.Current.ScheduleAsyncFunction(function, null, cancellationToken);
             }
 
             return new Task(null, SystemTasks.Task.Run(async () => await function(), cancellationToken));
@@ -224,7 +224,7 @@ namespace Microsoft.Coyote.Tasks
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                return CoyoteRuntime.Current.ScheduleFunction(function, null, cancellationToken);
+                return CoyoteRuntime.Current.ScheduleAsyncFunction(function, null, cancellationToken);
             }
 
             return new Task<TResult>(null, SystemTasks.Task.Run(async () => await function(), cancellationToken));

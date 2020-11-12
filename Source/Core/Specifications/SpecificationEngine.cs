@@ -8,6 +8,8 @@ using System.Diagnostics;
 #endif
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Runtime;
@@ -31,9 +33,17 @@ namespace Microsoft.Coyote.Specifications
         private readonly OperationScheduler Scheduler;
 
         /// <summary>
-        /// List of monitors in the program.
+        /// List of safety and liveness monitors in the program.
         /// </summary>
         private readonly List<Monitor> Monitors;
+
+        /// <summary>
+        /// List of liveness monitors in the program.
+        /// </summary>
+        /// <remarks>
+        /// This is a different type of monitor than the state-machine based <see cref="Monitor"/> one.
+        /// </remarks>
+        private readonly List<LivenessMonitor> LivenessMonitors;
 
         /// <summary>
         /// True if monitors are enabled, else false.
@@ -48,7 +58,40 @@ namespace Microsoft.Coyote.Specifications
             this.Configuration = configuration;
             this.Scheduler = scheduler;
             this.Monitors = monitors;
+            this.LivenessMonitors = new List<LivenessMonitor>();
             this.IsMonitoringEnabled = scheduler != null || configuration.IsMonitoringEnabledInInProduction;
+        }
+
+        /// <summary>
+        /// Callback that is invoked on each scheduling step.
+        /// </summary>
+        internal void OnNextSchedulingStep()
+        {
+            foreach (var monitor in this.LivenessMonitors)
+            {
+                monitor.CheckProgress();
+            }
+        }
+
+        /// <summary>
+        /// Waits until the liveness property is satisfied.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task WaitUntilLivenessPropertyIsSatisfied(Func<Task<bool>> predicate, Func<int> hashingFunction,
+            TimeSpan delay, CancellationToken cancellationToken = default)
+        {
+            if (CoyoteRuntime.IsExecutionControlled)
+            {
+                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
+                var monitor = new LivenessMonitor(callerOp, predicate, hashingFunction);
+                this.LivenessMonitors.Add(monitor);
+                monitor.Wait();
+                return Task.CompletedTask;
+            }
+
+            return WhenCompletedAsync(predicate, delay, cancellationToken);
         }
 
         /// <summary>
@@ -148,6 +191,27 @@ namespace Microsoft.Coyote.Specifications
                 }
 
                 this.Scheduler.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Task"/> that will complete when <paramref name="predicate"/> returns true.
+        /// </summary>
+        private static async Task WhenCompletedAsync(Func<Task<bool>> predicate, TimeSpan delay, CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                if (await predicate())
+                {
+                    break;
+                }
+
+                await Task.Delay(delay);
             }
         }
 

@@ -342,7 +342,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task ScheduleFunction(Func<CoyoteTasks.Task> function, Task predecessor, CancellationToken cancellationToken)
+        internal CoyoteTasks.Task ScheduleAsyncFunction(Func<CoyoteTasks.Task> function, Task predecessor, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -360,7 +360,7 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal CoyoteTasks.Task<TResult> ScheduleFunction<TResult>(Func<CoyoteTasks.Task<TResult>> function, Task predecessor,
+        internal CoyoteTasks.Task<TResult> ScheduleAsyncFunction<TResult>(Func<CoyoteTasks.Task<TResult>> function, Task predecessor,
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -927,7 +927,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            return this.ScheduleFunction(() =>
+            return this.ScheduleAsyncFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
@@ -1003,7 +1003,7 @@ namespace Microsoft.Coyote.Runtime
                 throw new ArgumentException("The tasks argument contains no tasks.");
             }
 
-            return this.ScheduleFunction(() =>
+            return this.ScheduleAsyncFunction(() =>
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 callerOp.BlockUntilTasksComplete(tasks, waitAll: false);
@@ -1375,6 +1375,16 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
 
+        /// <summary>
+        /// Waits until the liveness property is satisfied.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal Task AssertIsLivenessPropertySatisfied(Func<Task<bool>> predicate, Func<int> getHashCode,
+            TimeSpan delay, CancellationToken cancellationToken = default) =>
+            this.SpecificationEngine.WaitUntilLivenessPropertyIsSatisfied(predicate, getHashCode, delay, cancellationToken);
+
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -1453,6 +1463,11 @@ namespace Microsoft.Coyote.Runtime
                 this.Scheduler.ScheduleNextOperation();
             }
         }
+
+        /// <summary>
+        /// Callback that is invoked on each scheduling step.
+        /// </summary>
+        internal void OnNextSchedulingStep() => this.SpecificationEngine.OnNextSchedulingStep();
 
         /// <summary>
         /// Returns the current hashed state of the execution.

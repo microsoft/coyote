@@ -180,6 +180,9 @@ namespace Microsoft.Coyote.SystematicTesting
                     current.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
+                // Notify the runtime about the next scheduling step.
+                this.Runtime.OnNextSchedulingStep();
+
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {

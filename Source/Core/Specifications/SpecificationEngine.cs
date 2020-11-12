@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+#if !DEBUG
 using System.Diagnostics;
+#endif
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Runtime;
@@ -255,7 +254,7 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Assert that all monitors are in a cold state.
+        /// Asserts that all monitors are in a cold state.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]

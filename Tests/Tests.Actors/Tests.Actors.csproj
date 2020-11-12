@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for the production runtime.</Description>
+    <Description>Tests for actor APIs.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Actors</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Actors.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>

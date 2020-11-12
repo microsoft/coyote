@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Tests for the systematic testing runtime.</Description>
+    <Description>Tests for task APIs.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Tasks</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Tasks.Tests</RootNamespace>
     <OutputPath>..\bin\</OutputPath>

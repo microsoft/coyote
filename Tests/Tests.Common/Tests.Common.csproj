@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The Coyote test helpers.</Description>
+    <Description>Common test helpers.</Description>
     <AssemblyName>Microsoft.Coyote.Tests.Common</AssemblyName>
     <RootNamespace>Microsoft.Coyote.Tests.Common</RootNamespace>
     <OutputPath>..\bin\</OutputPath>

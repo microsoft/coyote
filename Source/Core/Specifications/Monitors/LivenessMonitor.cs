@@ -39,14 +39,19 @@ namespace Microsoft.Coyote.Specifications
         private int Hash;
 
         /// <summary>
-        /// Trace used for debugging purposes.
+        /// True if the liveness property has been checked since the last time the hash was updated, else false.
         /// </summary>
-        internal StackTrace StackTrace { get; private set; }
+        private bool IsPropertyChecked;
 
         /// <summary>
         /// True if the liveness property is satisfied, else false.
         /// </summary>
         internal bool IsSatisfied { get; private set; }
+
+        /// <summary>
+        /// Trace used for debugging purposes.
+        /// </summary>
+        internal StackTrace StackTrace { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessMonitor"/> class.
@@ -58,6 +63,7 @@ namespace Microsoft.Coyote.Specifications
             this.Predicate = predicate;
             this.HashingFunction = hashingFunction;
             this.Hash = 0;
+            this.IsPropertyChecked = false;
             this.IsSatisfied = false;
         }
 
@@ -66,14 +72,19 @@ namespace Microsoft.Coyote.Specifications
         /// </summary>
         internal void CheckProgress()
         {
-            int hash = this.HashingFunction();
-            if (this.Hash != hash)
+            if (!this.IsPropertyChecked)
             {
-                // There is progress, so unblock the task waiting on the resource.
-                this.Resource.SignalAll();
-                this.Hash = hash;
+                int hash = this.HashingFunction();
+                if (this.Hash != hash)
+                {
+                    // There is progress, so unblock the task waiting on the resource.
+                    this.Resource.SignalAll();
+                    this.Hash = hash;
+                }
             }
         }
+
+        // BUG: Hash resets during a context switch between 1 and 4 below!!!
 
         /// <summary>
         /// Waits until the liveness property gets satisfied.
@@ -86,6 +97,8 @@ namespace Microsoft.Coyote.Specifications
 
             while (true)
             {
+                this.IsPropertyChecked = true;
+
                 Task<bool> task = this.Predicate();
                 if (!task.IsCompleted)
                 {
@@ -99,6 +112,7 @@ namespace Microsoft.Coyote.Specifications
                 }
 
                 // Block on the resource until there is progress.
+                this.IsPropertyChecked = false;
                 this.Resource.Wait();
             }
         }

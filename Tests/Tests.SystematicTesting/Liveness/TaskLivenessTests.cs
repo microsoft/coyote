@@ -36,17 +36,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 });
 
-                await Specification.WhenTrue(() =>
+                while (true)
                 {
                     if (entry.Value is 1)
                     {
-                        return Task.FromResult(true);
+                        break;
                     }
 
-                    return Task.FromResult(false);
-                },
-                () => entry.Value,
-                TimeSpan.FromMilliseconds(10));
+                    await Task.Delay(10);
+                }
 
                 await task;
 
@@ -70,97 +68,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 });
 
-                await Specification.WhenTrue(() =>
+                while (true)
                 {
                     if (entry.Value is 1)
                     {
-                        return Task.FromResult(true);
-                    }
-
-                    return Task.FromResult(false);
-                },
-                () => entry.Value,
-                TimeSpan.FromMilliseconds(10));
-
-                await task;
-
-                Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
-            },
-            configuration: GetConfiguration().WithTestingIterations(200),
-            errorChecker: (e) =>
-            {
-                Assert.StartsWith("Found liveness bug at the end of program execution.", e);
-            },
-            replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyAsync()
-        {
-            this.Test(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-
-                var task = Task.Run(async () =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        if (i is 9)
-                        {
-                            entry.Value = 1;
-                        }
-
-                        await Task.Delay(10);
-                    }
-                });
-
-                await Specification.WhenTrue(async () =>
-                {
-                    if (entry.Value is 1)
-                    {
-                        return true;
+                        break;
                     }
 
                     await Task.Delay(10);
-                    return false;
-                },
-                () => entry.Value,
-                TimeSpan.FromMilliseconds(10));
-
-                await task;
-
-                Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
-            },
-            configuration: GetConfiguration().WithTestingIterations(200));
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyAsyncFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-
-                var task = Task.Run(async () =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        await Task.Delay(10);
-                    }
-                });
-
-                await Specification.WhenTrue(async () =>
-                {
-                    if (entry.Value is 1)
-                    {
-                        return true;
-                    }
-
-                    await Task.Delay(10);
-                    return false;
-                },
-                () => entry.Value,
-                TimeSpan.FromMilliseconds(10));
+                }
 
                 await task;
 
@@ -190,18 +106,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 });
 
-                await Specification.WhenTrue(async () =>
+                while (true)
                 {
                     if (entry.Value is 10)
                     {
-                        return true;
+                        break;
                     }
 
                     await Task.Delay(10);
-                    return false;
-                },
-                () => entry.Value,
-                TimeSpan.FromMilliseconds(10));
+                }
 
                 await task;
 
@@ -226,18 +139,15 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 });
 
-                await Specification.WhenTrue(async () =>
+                while (true)
                 {
                     if (entry.Value is 10)
                     {
-                        return true;
+                        break;
                     }
 
                     await Task.Delay(10);
-                    return false;
-                },
-                () => entry.Value,
-                TimeSpan.FromMilliseconds(10));
+                }
 
                 await task;
 
@@ -252,34 +162,40 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyWithException()
+        public void TestTaskLivenessPropertyLongDelayFailure()
         {
-            this.TestWithException<NotSupportedException>(async () =>
+            this.TestWithError(async () =>
             {
-                await Specification.WhenTrue(() =>
-                {
-                    throw new NotSupportedException();
-                },
-                () => 0,
-                TimeSpan.FromMilliseconds(10));
-            },
-            configuration: GetConfiguration().WithTestingIterations(200),
-            replay: true);
-        }
+                SharedEntry entry = new SharedEntry();
 
-        [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyWithHashMethodException()
-        {
-            this.TestWithException<NotSupportedException>(async () =>
-            {
-                await Specification.WhenTrue(() =>
+                var task = Task.Run(async () =>
                 {
-                    return Task.FromResult(false);
-                },
-                () => throw new NotSupportedException(),
-                TimeSpan.FromMilliseconds(10));
+                    for (int i = 0; i < 10; i++)
+                    {
+                        await Task.Delay(10);
+                        entry.Value--;
+                    }
+                });
+
+                while (true)
+                {
+                    if (entry.Value is 10)
+                    {
+                        break;
+                    }
+
+                    await Task.Delay(500);
+                }
+
+                await task;
+
+                Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
             },
             configuration: GetConfiguration().WithTestingIterations(200),
+            errorChecker: (e) =>
+            {
+                Assert.StartsWith("Found liveness bug at the end of program execution.", e);
+            },
             replay: true);
         }
     }

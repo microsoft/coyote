@@ -32,7 +32,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                             entry.Value = 1;
                         }
 
-                        await Task.Delay(10);
+                        await Task.Yield();
                     }
                 });
 
@@ -54,43 +54,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-
-                var task = Task.Run(async () =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        await Task.Delay(10);
-                    }
-                });
-
-                while (true)
-                {
-                    if (entry.Value is 1)
-                    {
-                        break;
-                    }
-
-                    await Task.Delay(10);
-                }
-
-                await task;
-
-                Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
-            },
-            configuration: GetConfiguration().WithTestingIterations(200),
-            errorChecker: (e) =>
-            {
-                Assert.StartsWith("Found liveness bug at the end of program execution.", e);
-            },
-            replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
         public void TestTaskLivenessPropertyLongRunning()
         {
             this.Test(async () =>
@@ -101,7 +64,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        await Task.Delay(10);
+                        await Task.Yield();
                         entry.Value++;
                     }
                 });
@@ -124,6 +87,43 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
+        public void TestTaskLivenessPropertyWithDoubleDelay()
+        {
+            this.Test(async () =>
+            {
+                SharedEntry entry = new SharedEntry();
+
+                var task = Task.Run(async () =>
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (i is 9)
+                        {
+                            entry.Value = 1;
+                        }
+
+                        await Task.Delay(10);
+                    }
+                });
+
+                while (true)
+                {
+                    if (entry.Value is 1)
+                    {
+                        break;
+                    }
+
+                    await Task.Delay(10);
+                }
+
+                await task;
+
+                Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
+            },
+            configuration: GetConfiguration().WithTestingIterations(200));
+        }
+
+        [Fact(Timeout = 5000)]
         public void TestTaskLivenessPropertyLongRunningFailure()
         {
             this.TestWithError(async () =>
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        await Task.Delay(10);
+                        await Task.Yield();
                         entry.Value--;
                     }
                 });
@@ -162,7 +162,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyLongDelayFailure()
+        public void TestTaskLivenessPropertyFailure()
         {
             this.TestWithError(async () =>
             {
@@ -172,7 +172,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        await Task.Delay(10);
+                        await Task.Yield();
                         entry.Value--;
                     }
                 });

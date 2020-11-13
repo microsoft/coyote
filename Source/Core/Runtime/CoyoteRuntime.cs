@@ -102,11 +102,6 @@ namespace Microsoft.Coyote.Runtime
         private readonly ConcurrentDictionary<Task, TaskOperation> TaskMap;
 
         /// <summary>
-        /// List of liveness monitors in the program.
-        /// </summary>
-        private readonly List<LivenessMonitor> LivenessMonitors;
-
-        /// <summary>
         /// Monotonically increasing operation id counter.
         /// </summary>
         private long OperationIdCounter;
@@ -157,7 +152,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="CoyoteRuntime"/> class.
         /// </summary>
-        internal CoyoteRuntime(Configuration configuration, ISchedulingStrategy strategy,
+        internal CoyoteRuntime(Configuration configuration, SchedulingStrategy strategy,
             IRandomValueGenerator valueGenerator)
         {
             this.Configuration = configuration;
@@ -171,7 +166,6 @@ namespace Microsoft.Coyote.Runtime
             this.OperationIdCounter = 0;
             this.RootTaskId = Task.CurrentId;
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
-            this.LivenessMonitors = new List<LivenessMonitor>();
 
             this.LogWriter = new LogWriter(configuration);
 
@@ -283,10 +277,19 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new task operation.
         /// </summary>
-        internal TaskOperation CreateTaskOperation()
+        internal TaskOperation CreateTaskOperation(TimeSpan delay = default)
         {
             ulong operationId = this.GetNextOperationId();
-            var op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
+            TaskOperation op;
+            if (delay == TimeSpan.Zero)
+            {
+                op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
+            }
+            else
+            {
+                op = new TaskDelayOperation(operationId, $"TaskDelay({operationId})", delay, this.Scheduler);
+            }
+
             this.Scheduler.RegisterOperation(op);
             return op;
         }
@@ -297,12 +300,12 @@ namespace Microsoft.Coyote.Runtime
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
-        internal Task ScheduleAction(Action action, Task predecessor, bool isYield, bool failException, CancellationToken cancellationToken)
+        internal Task ScheduleAction(Action action, Task predecessor, OperationExecutionOptions options,
+            TimeSpan delay = default, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            TaskOperation op = this.CreateTaskOperation();
-            OperationExecutionOptions options = OperationContext.CreateOperationExecutionOptions(failException, isYield);
+            TaskOperation op = this.CreateTaskOperation(delay);
             var context = new OperationContext<Action, object>(op, action, predecessor, options, cancellationToken);
             var task = new Task(this.ExecuteOperation, context, cancellationToken);
             return this.ScheduleTaskOperation(op, task, context.ResultSource);
@@ -443,6 +446,12 @@ namespace Microsoft.Coyote.Runtime
                 {
                     // Try yield execution to the next operation.
                     this.Scheduler.ScheduleNextOperation(true);
+                }
+
+                if (op is TaskDelayOperation delayOp)
+                {
+                    // Try delay scheduling this operation.
+                    delayOp.DelayUntilTimeout();
                 }
 
                 // Check if the operation must be canceled before starting the work.
@@ -638,7 +647,8 @@ namespace Microsoft.Coyote.Runtime
             }
 
             // TODO: cache the dummy delay action to optimize memory.
-            return this.ScheduleAction(() => { }, null, false, false, cancellationToken);
+            var options = OperationContext.CreateOperationExecutionOptions();
+            return this.ScheduleAction(() => { }, null, options, delay, cancellationToken);
         }
 
         /// <summary>
@@ -660,7 +670,8 @@ namespace Microsoft.Coyote.Runtime
                 if (IsCurrentOperationExecutingAsynchronously())
                 {
                     IO.Debug.WriteLine("<Task> '{0}' is dispatching continuation of task '{1}'.", callerOp.Name, task.Id);
-                    this.ScheduleAction(continuation, task, false, false, default);
+                    var options = OperationContext.CreateOperationExecutionOptions();
+                    this.ScheduleAction(continuation, task, options);
                     IO.Debug.WriteLine("<Task> '{0}' dispatched continuation of task '{1}'.", callerOp.Name, task.Id);
                 }
                 else
@@ -690,7 +701,8 @@ namespace Microsoft.Coyote.Runtime
             {
                 var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
                 IO.Debug.WriteLine("<Task> '{0}' is executing a yield operation.", callerOp.Id);
-                this.ScheduleAction(continuation, null, true, false, default);
+                var options = OperationContext.CreateOperationExecutionOptions(yieldAtStart: true);
+                this.ScheduleAction(continuation, null, options);
             }
             catch (ExecutionCanceledException)
             {
@@ -735,7 +747,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     throw new AggregateException(exceptions);
                 }
-            }, null, false, false, default);
+            }, null, OperationContext.CreateOperationExecutionOptions());
         }
 
         /// <summary>
@@ -775,7 +787,7 @@ namespace Microsoft.Coyote.Runtime
                 {
                     throw new AggregateException(exceptions);
                 }
-            }, null, false, false, default);
+            }, null, OperationContext.CreateOperationExecutionOptions());
         }
 
         /// <summary>
@@ -1383,48 +1395,6 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
 
-        /// <summary>
-        /// Waits until the liveness property is satisfied.
-        /// </summary>
-#if !DEBUG
-        [DebuggerStepThrough]
-#endif
-        internal Task WaitUntilLivenessPropertyIsSatisfied(Func<Task<bool>> predicate, Func<int> hashingFunction,
-            TimeSpan delay, CancellationToken cancellationToken = default)
-        {
-            if (this.IsControlled)
-            {
-                var callerOp = this.Scheduler.GetExecutingOperation<TaskOperation>();
-                var monitor = new LivenessMonitor(callerOp, predicate, hashingFunction);
-                this.LivenessMonitors.Add(monitor);
-                monitor.Wait();
-                return Task.CompletedTask;
-            }
-
-            return WhenCompletedAsync(predicate, delay, cancellationToken);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when <paramref name="predicate"/> returns true.
-        /// </summary>
-        private static async Task WhenCompletedAsync(Func<Task<bool>> predicate, TimeSpan delay, CancellationToken cancellationToken)
-        {
-            while (true)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
-
-                if (await predicate())
-                {
-                    break;
-                }
-
-                await Task.Delay(delay);
-            }
-        }
-
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -1493,17 +1463,6 @@ namespace Microsoft.Coyote.Runtime
         }
 
         /// <summary>
-        /// Callback that is invoked on each scheduling step.
-        /// </summary>
-        internal void OnNextSchedulingStep()
-        {
-            foreach (var monitor in this.LivenessMonitors)
-            {
-                monitor.CheckProgress();
-            }
-        }
-
-        /// <summary>
         /// Returns the current hashed state of the execution.
         /// </summary>
         /// <remarks>
@@ -1542,8 +1501,6 @@ namespace Microsoft.Coyote.Runtime
             }
 
             var msg = new StringBuilder("Deadlock detected.");
-
-            int blockedOperations = 0;
             if (blockedOnReceiveOperations.Count > 0)
             {
                 for (int idx = 0; idx < blockedOnReceiveOperations.Count; idx++)
@@ -1557,8 +1514,6 @@ namespace Microsoft.Coyote.Runtime
                     {
                         msg.Append(",");
                     }
-
-                    blockedOperations++;
                 }
 
                 msg.Append(blockedOnReceiveOperations.Count is 1 ? " is " : " are ");
@@ -1578,8 +1533,6 @@ namespace Microsoft.Coyote.Runtime
                     {
                         msg.Append(",");
                     }
-
-                    blockedOperations++;
                 }
 
                 msg.Append(blockedOnWaitOperations.Count is 1 ? " is " : " are ");
@@ -1590,11 +1543,6 @@ namespace Microsoft.Coyote.Runtime
             {
                 for (int idx = 0; idx < blockedOnResources.Count; idx++)
                 {
-                    if (this.LivenessMonitors.Exists(m => !m.IsSatisfied && m.Operation.Id == blockedOnResources[idx].Id))
-                    {
-                        continue;
-                    }
-
                     msg.Append(string.Format(CultureInfo.InvariantCulture, " {0}", blockedOnResources[idx].Name));
                     if (idx == blockedOnResources.Count - 2)
                     {
@@ -1604,8 +1552,6 @@ namespace Microsoft.Coyote.Runtime
                     {
                         msg.Append(",");
                     }
-
-                    blockedOperations++;
                 }
 
                 msg.Append(blockedOnResources.Count is 1 ? " is " : " are ");
@@ -1613,10 +1559,7 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append("but no other controlled tasks are enabled.");
             }
 
-            if (blockedOperations > 0)
-            {
-                this.Scheduler.NotifyAssertionFailure(msg.ToString());
-            }
+            this.Scheduler.NotifyAssertionFailure(msg.ToString());
         }
 
         /// <summary>
@@ -1629,17 +1572,6 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Scheduler.HasFullyExploredSchedule)
             {
-                foreach (var monitor in this.LivenessMonitors)
-                {
-                    if (!monitor.IsSatisfied)
-                    {
-                        string msg = string.Format(CultureInfo.InvariantCulture,
-                            "Found liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
-                            GetStackTrace(monitor.StackTrace));
-                        this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
-                    }
-                }
-
                 this.SpecificationEngine.AssertMonitorsInColdState();
             }
         }
@@ -1683,25 +1615,6 @@ namespace Microsoft.Coyote.Runtime
             this.OnFailure?.Invoke(exception);
         }
 
-        private static string GetStackTrace(StackTrace trace)
-        {
-            StringBuilder sb = new StringBuilder();
-            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            foreach (var line in lines)
-            {
-                if ((line.Contains("at Microsoft.Coyote.Specifications") ||
-                    line.Contains("at Microsoft.Coyote.Runtime")) &&
-                    !line.Contains($"at {typeof(Specification).FullName}.{nameof(Specification.WhenTrue)}"))
-                {
-                    continue;
-                }
-
-                sb.AppendLine(line);
-            }
-
-            return sb.ToString();
-        }
-
         /// <summary>
         /// Assigns the specified runtime as the default for the current asynchronous control flow.
         /// </summary>
@@ -1720,7 +1633,6 @@ namespace Microsoft.Coyote.Runtime
         {
             if (disposing)
             {
-                this.LivenessMonitors.Clear();
                 this.OperationIdCounter = 0;
                 this.DefaultActorExecutionContext.Dispose();
                 this.SpecificationEngine.Dispose();

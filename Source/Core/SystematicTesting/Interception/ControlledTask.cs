@@ -39,7 +39,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task Run(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleAction(action, null, false, false, cancellationToken) :
+            CoyoteRuntime.Current.ScheduleAction(action, null, OperationContext.CreateOperationExecutionOptions(),
+                TimeSpan.Zero, cancellationToken) :
             Task.Run(action, cancellationToken);
 
         /// <summary>

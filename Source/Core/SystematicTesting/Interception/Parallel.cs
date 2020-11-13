@@ -96,6 +96,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 int index = 0;
                 Task[] tasks = new Task[numTasks];
+
+                var options = OperationContext.CreateOperationExecutionOptions();
                 foreach (var group in groups)
                 {
                     tasks[index] = runtime.ScheduleAction(() =>
@@ -104,7 +106,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             body(iteration);
                         }
-                    }, null, false, false, parallelOptions.CancellationToken);
+                    }, null, options, TimeSpan.Zero, parallelOptions.CancellationToken);
                     index++;
                 }
 
@@ -277,6 +279,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
 
                 int index = 0;
                 Task[] tasks = new Task[numTasks];
+
+                var options = OperationContext.CreateOperationExecutionOptions();
                 foreach (var group in groups)
                 {
                     tasks[index] = runtime.ScheduleAction(() =>
@@ -285,7 +289,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             body(sourceList[iteration]);
                         }
-                    }, null, false, false, parallelOptions.CancellationToken);
+                    }, null, options, TimeSpan.Zero, parallelOptions.CancellationToken);
                     index++;
                 }
 

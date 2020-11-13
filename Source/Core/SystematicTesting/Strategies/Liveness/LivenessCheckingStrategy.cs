@@ -8,10 +8,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
 {
     /// <summary>
     /// Abstract strategy for detecting liveness property violations. It
-    /// contains a nested <see cref="ISchedulingStrategy"/> that is used
+    /// contains a nested <see cref="SchedulingStrategy"/> that is used
     /// for scheduling decisions.
     /// </summary>
-    internal abstract class LivenessCheckingStrategy : ISchedulingStrategy
+    internal abstract class LivenessCheckingStrategy : SchedulingStrategy
     {
         /// <summary>
         /// The configuration.
@@ -26,12 +26,12 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Strategy used for scheduling decisions.
         /// </summary>
-        protected ISchedulingStrategy SchedulingStrategy;
+        protected SchedulingStrategy SchedulingStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessCheckingStrategy"/> class.
         /// </summary>
-        internal LivenessCheckingStrategy(Configuration configuration, List<Monitor> monitors, ISchedulingStrategy strategy)
+        internal LivenessCheckingStrategy(Configuration configuration, List<Monitor> monitors, SchedulingStrategy strategy)
         {
             this.Configuration = configuration;
             this.Monitors = monitors;
@@ -39,32 +39,23 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool InitializeNextIteration(uint iteration) =>
+        internal override bool InitializeNextIteration(uint iteration) =>
             this.SchedulingStrategy.InitializeNextIteration(iteration);
 
         /// <inheritdoc/>
-        public abstract bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next);
+        internal override int GetScheduledSteps() => this.SchedulingStrategy.GetScheduledSteps();
 
         /// <inheritdoc/>
-        public abstract bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next);
-
-        /// <inheritdoc/>
-        public abstract bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next);
-
-        /// <inheritdoc/>
-        public virtual int GetScheduledSteps() => this.SchedulingStrategy.GetScheduledSteps();
-
-        /// <inheritdoc/>
-        public virtual bool HasReachedMaxSchedulingSteps() =>
+        internal override bool HasReachedMaxSchedulingSteps() =>
             this.SchedulingStrategy.HasReachedMaxSchedulingSteps();
 
         /// <inheritdoc/>
-        public virtual bool IsFair() => this.SchedulingStrategy.IsFair();
+        internal override bool IsFair() => this.SchedulingStrategy.IsFair();
 
         /// <inheritdoc/>
-        public virtual string GetDescription() => this.SchedulingStrategy.GetDescription();
+        internal override string GetDescription() => this.SchedulingStrategy.GetDescription();
 
         /// <inheritdoc/>
-        public virtual void Reset() => this.SchedulingStrategy.Reset();
+        internal override void Reset() => this.SchedulingStrategy.Reset();
     }
 }

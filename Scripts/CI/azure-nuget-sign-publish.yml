@@ -223,4 +223,4 @@ steps:
     command: push
     packagesToPush: 'bin\nuget\*.nupkg'
     nuGetFeedType: external
-    publishFeedCredentials: 'Coyote NuGet.org'
+    publishFeedCredentials: 'CoyoteNugetPublish'

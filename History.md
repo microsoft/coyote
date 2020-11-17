@@ -1,3 +1,12 @@
+## v1.2.2
+- Added the `Specification.IsEventuallyCompletedSuccessfully` API for checking if a task eventually
+  completes successfully.
+- Added the `Configuration.WithTestingTimeout` API for specifying a systematic testing timeout
+  instead of iterations.
+- Optimized state space exploration in programs using `Task.Delay`.
+- Added support for the `net5.0` target.
+- Removed the `net47` target.
+
 ## v1.2.1
 - Added the `OnEventIgnored` and `OnEventDeferred` callbacks in the `Actor` type.
 

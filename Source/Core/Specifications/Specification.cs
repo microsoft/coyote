@@ -46,13 +46,15 @@ namespace Microsoft.Coyote.Specifications
             CoyoteRuntime.Current.Assert(predicate, s, args);
 
         /// <summary>
-        /// Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
+        /// Creates a monitor that checks if the specified task eventually completes its execution successfully,
+        /// and if not, fails with a liveness property violation.
         /// </summary>
-        /// <param name="task">The task to monitor for liveness.</param>
+        /// <param name="task">The task to monitor.</param>
         /// <remarks>
-        /// The liveness monitor only operates during systematic testing.
+        /// The liveness property is only checked during systematic testing.
         /// </remarks>
-        public static void Monitor(Task task) => CoyoteRuntime.Current.MonitorTaskCompletion(task);
+        public static void IsEventuallyCompletedSuccessfully(Task task) =>
+            CoyoteRuntime.Current.MonitorTaskCompletion(task);
 
         /// <summary>
         /// Registers a new safety or liveness monitor.

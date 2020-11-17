@@ -103,7 +103,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 });
 
-                Specification.Monitor(pollingTask);
+                Specification.IsEventuallyCompletedSuccessfully(pollingTask);
                 await pollingTask;
             },
             configuration: GetConfiguration().WithMaxSchedulingSteps(100),

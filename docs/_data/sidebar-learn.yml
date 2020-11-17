@@ -955,12 +955,10 @@ learn-toc:
         subfolderitems:
         - name: Assert
           link: /learn/ref/Microsoft.Coyote.Specifications/Specification/Assert
-        - name: WhenTrue
-          link: /learn/ref/Microsoft.Coyote.Specifications/Specification/WhenTrue
-        - name: RegisterMonitor
-          link: /learn/ref/Microsoft.Coyote.Specifications/Specification/RegisterMonitor
         - name: Monitor
           link: /learn/ref/Microsoft.Coyote.Specifications/Specification/Monitor
+        - name: RegisterMonitor
+          link: /learn/ref/Microsoft.Coyote.Specifications/Specification/RegisterMonitor
       - name: Monitor.State
         link: /learn/ref/Microsoft.Coyote.Specifications/MonitorStateType
         subfolderitems:

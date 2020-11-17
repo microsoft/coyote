@@ -85,17 +85,16 @@ namespace Microsoft.Coyote.Specifications
         private HashSet<Type> IgnoredEvents;
 
         /// <summary>
-        /// A counter that increases in each step of the execution,
-        /// as long as the monitor remains in a hot state. If the
-        /// temperature reaches the specified limit, then a potential
-        /// liveness bug has been found.
+        /// A counter that increases in each step of the execution, as long as the monitor
+        /// remains in a hot state. If the temperature reaches the specified limit, then
+        /// a potential liveness bug has been found.
         /// </summary>
         private int LivenessTemperature;
 
         /// <summary>
         /// Gets the name of this monitor.
         /// </summary>
-        private string Name => this.GetType().FullName;
+        internal string Name => this.GetType().FullName;
 
         /// <summary>
         /// Responsible for logging.
@@ -579,38 +578,25 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Checks the liveness temperature of the monitor and report
-        /// a potential liveness bug if the temperature passes the
-        /// specified threshold. Only works in a liveness monitor.
+        /// Checks the liveness temperature of the monitor and report a potential liveness bug if the
+        /// the value exceeded the specified threshold.
         /// </summary>
-        internal void CheckLivenessTemperature()
+        /// <remarks>
+        /// This method only works if this is a liveness monitor.
+        /// </remarks>
+        internal bool IsLivenessThresholdExceeded(int threshold)
         {
-            if (this.ActiveState.IsHot &&
-                this.Configuration.LivenessTemperatureThreshold > 0)
+            if (this.ActiveState.IsHot && threshold > 0)
             {
                 this.LivenessTemperature++;
-                if (this.LivenessTemperature > this.Configuration.LivenessTemperatureThreshold)
+                if (this.LivenessTemperature > threshold)
                 {
                     this.LogMonitorError(this);
-                    this.SpecificationEngine.Assert(false,
-                        $"{this.Name} detected potential liveness bug in hot state '{this.CurrentStateName}'.");
+                    return true;
                 }
             }
-        }
 
-        /// <summary>
-        /// Checks the liveness temperature of the monitor and report
-        /// a potential liveness bug if the temperature passes the
-        /// specified threshold. Only works in a liveness monitor.
-        /// </summary>
-        internal void CheckLivenessTemperature(int livenessTemperature)
-        {
-            if (livenessTemperature > this.Configuration.LivenessTemperatureThreshold)
-            {
-                this.SpecificationEngine.Assert(
-                    livenessTemperature <= this.Configuration.LivenessTemperatureThreshold,
-                    $"{this.Name} detected infinite execution that violates a liveness property.");
-            }
+            return false;
         }
 
         /// <summary>

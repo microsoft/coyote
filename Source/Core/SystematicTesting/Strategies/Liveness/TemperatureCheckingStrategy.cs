@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Monitor = Microsoft.Coyote.Specifications.Monitor;
+using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.SystematicTesting.Strategies
 {
@@ -17,8 +17,9 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="TemperatureCheckingStrategy"/> class.
         /// </summary>
-        internal TemperatureCheckingStrategy(Configuration configuration, List<Monitor> monitors, SchedulingStrategy strategy)
-            : base(configuration, monitors, strategy)
+        internal TemperatureCheckingStrategy(Configuration configuration, SpecificationEngine specificationEngine,
+            SchedulingStrategy strategy)
+            : base(configuration, specificationEngine, strategy)
         {
         }
 
@@ -26,38 +27,34 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
             bool isYielding, out AsyncOperation next)
         {
-            this.CheckLivenessTemperature();
+            if (this.IsFair())
+            {
+                this.SpecificationEngine.CheckLivenessThresholdExceeded();
+            }
+
             return this.SchedulingStrategy.GetNextOperation(ops, current, isYielding, out next);
         }
 
         /// <inheritdoc/>
         internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
-            this.CheckLivenessTemperature();
+            if (this.IsFair())
+            {
+                this.SpecificationEngine.CheckLivenessThresholdExceeded();
+            }
+
             return this.SchedulingStrategy.GetNextBooleanChoice(current, maxValue, out next);
         }
 
         /// <inheritdoc/>
         internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
-            this.CheckLivenessTemperature();
-            return this.SchedulingStrategy.GetNextIntegerChoice(current, maxValue, out next);
-        }
-
-        /// <summary>
-        /// Checks the liveness temperature of each monitor, and
-        /// reports an error if one of the liveness monitors has
-        /// passed the temperature threshold.
-        /// </summary>
-        private void CheckLivenessTemperature()
-        {
             if (this.IsFair())
             {
-                foreach (var monitor in this.Monitors)
-                {
-                    monitor.CheckLivenessTemperature();
-                }
+                this.SpecificationEngine.CheckLivenessThresholdExceeded();
             }
+
+            return this.SchedulingStrategy.GetNextIntegerChoice(current, maxValue, out next);
         }
     }
 }

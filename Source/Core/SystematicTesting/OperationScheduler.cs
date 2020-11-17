@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// Responsible for controlling the execution of tasks during systematic testing.
+        /// Responsible for controlling the program execution during systematic testing.
         /// </summary>
         private readonly CoyoteRuntime Runtime;
 

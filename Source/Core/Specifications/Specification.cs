@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
 namespace Microsoft.Coyote.Specifications
@@ -43,6 +44,15 @@ namespace Microsoft.Coyote.Specifications
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Assert(bool predicate, string s, params object[] args) =>
             CoyoteRuntime.Current.Assert(predicate, s, args);
+
+        /// <summary>
+        /// Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
+        /// </summary>
+        /// <param name="task">The task to monitor for liveness.</param>
+        /// <remarks>
+        /// The liveness monitor only operates during systematic testing.
+        /// </remarks>
+        public static void Monitor(Task task) => CoyoteRuntime.Current.MonitorTaskCompletion(task);
 
         /// <summary>
         /// Registers a new safety or liveness monitor.

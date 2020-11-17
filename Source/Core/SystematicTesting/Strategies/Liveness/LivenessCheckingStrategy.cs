@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using Monitor = Microsoft.Coyote.Specifications.Monitor;
+using Microsoft.Coyote.Specifications;
 
 namespace Microsoft.Coyote.SystematicTesting.Strategies
 {
@@ -19,9 +18,9 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         protected Configuration Configuration;
 
         /// <summary>
-        /// List of monitors in the program.
+        /// Responsible for checking specifications.
         /// </summary>
-        protected List<Monitor> Monitors;
+        protected SpecificationEngine SpecificationEngine;
 
         /// <summary>
         /// Strategy used for scheduling decisions.
@@ -31,10 +30,11 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="LivenessCheckingStrategy"/> class.
         /// </summary>
-        internal LivenessCheckingStrategy(Configuration configuration, List<Monitor> monitors, SchedulingStrategy strategy)
+        internal LivenessCheckingStrategy(Configuration configuration, SpecificationEngine specificationEngine,
+            SchedulingStrategy strategy)
         {
             this.Configuration = configuration;
-            this.Monitors = monitors;
+            this.SpecificationEngine = specificationEngine;
             this.SchedulingStrategy = strategy;
         }
 

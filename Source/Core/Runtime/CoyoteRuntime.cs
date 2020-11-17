@@ -73,7 +73,7 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// The configuration used by the runtime.
         /// </summary>
-        internal readonly Configuration Configuration;
+        private readonly Configuration Configuration;
 
         /// <summary>
         /// The asynchronous operation scheduler.
@@ -168,22 +168,21 @@ namespace Microsoft.Coyote.Runtime
             this.TaskMap = new ConcurrentDictionary<Task, TaskOperation>();
 
             this.LogWriter = new LogWriter(configuration);
+            this.SpecificationEngine = new SpecificationEngine(configuration, this);
 
-            var monitors = new List<Monitor>();
             if (configuration.IsLivenessCheckingEnabled)
             {
-                strategy = new TemperatureCheckingStrategy(configuration, monitors, strategy);
+                strategy = new TemperatureCheckingStrategy(configuration, this.SpecificationEngine, strategy);
             }
 
             var scheduleTrace = new ScheduleTrace();
-            this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, this.Configuration);
-            this.SpecificationEngine = new SpecificationEngine(this.Configuration, this.Scheduler, monitors);
+            this.Scheduler = new OperationScheduler(this, strategy, scheduleTrace, configuration);
             this.ValueGenerator = valueGenerator;
 
             this.DefaultActorExecutionContext = this.IsControlled ?
-                new ActorExecutionContext.Mock(this.Configuration, this, this.Scheduler,
+                new ActorExecutionContext.Mock(configuration, this, this.Scheduler,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter) :
-                new ActorExecutionContext(this.Configuration, this, this.Scheduler,
+                new ActorExecutionContext(configuration, this, this.Scheduler,
                 this.SpecificationEngine, this.ValueGenerator, this.LogWriter);
 
             SystematicTesting.Interception.ControlledThread.ClearCache();
@@ -1396,6 +1395,14 @@ namespace Microsoft.Coyote.Runtime
         /// </summary>
         internal void Assert(bool predicate, string s, params object[] args) => this.SpecificationEngine.Assert(predicate, s, args);
 
+        /// <summary>
+        /// Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
+        /// </summary>
+#if !DEBUG
+        [DebuggerStepThrough]
+#endif
+        internal void MonitorTaskCompletion(Task task) => this.SpecificationEngine.MonitorTaskCompletion(task);
+
 #if !DEBUG
         [DebuggerStepThrough]
 #endif
@@ -1560,7 +1567,7 @@ namespace Microsoft.Coyote.Runtime
                 msg.Append("but no other controlled tasks are enabled.");
             }
 
-            this.Scheduler.NotifyAssertionFailure(msg.ToString());
+            this.NotifyAssertionFailure(msg.ToString());
         }
 
         /// <summary>
@@ -1573,9 +1580,18 @@ namespace Microsoft.Coyote.Runtime
         {
             if (this.Scheduler.HasFullyExploredSchedule)
             {
-                this.SpecificationEngine.AssertMonitorsInColdState();
+                this.SpecificationEngine.CheckLivenessErrors();
             }
         }
+
+        /// <summary>
+        /// Notify that an assertion has failed.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void NotifyAssertionFailure(string text, bool killTasks = true, bool cancelExecution = true) =>
+            this.Scheduler.NotifyAssertionFailure(text, killTasks, cancelExecution);
 
         /// <summary>
         /// Reports the specified thrown exception.

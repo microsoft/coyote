@@ -139,24 +139,30 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
                     }
                 });
 
-                while (true)
+                var pollingTask = Task.Run(async () =>
                 {
-                    if (entry.Value is 10)
+                    while (true)
                     {
-                        break;
-                    }
+                        if (entry.Value is 10)
+                        {
+                            break;
+                        }
 
-                    await Task.Delay(500);
-                }
+                        await Task.Delay(500);
+                    }
+                });
+
+                Specification.Monitor(pollingTask);
 
                 await task;
+                await pollingTask;
 
                 Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
             },
             configuration: GetConfiguration().WithMaxSchedulingSteps(1000),
             errorChecker: (e) =>
             {
-                Assert.StartsWith("Found liveness bug at the end of program execution.", e);
+                Assert.StartsWith("Found potential liveness bug at the end of program execution.", e);
             },
             replay: true);
         }

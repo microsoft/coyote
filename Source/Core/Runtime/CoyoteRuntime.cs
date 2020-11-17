@@ -277,17 +277,18 @@ namespace Microsoft.Coyote.Runtime
         /// <summary>
         /// Creates a new task operation.
         /// </summary>
-        internal TaskOperation CreateTaskOperation(TimeSpan delay = default)
+        internal TaskOperation CreateTaskOperation(bool isDelay = false)
         {
             ulong operationId = this.GetNextOperationId();
             TaskOperation op;
-            if (delay == TimeSpan.Zero)
+            if (isDelay)
             {
-                op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
+                op = new TaskDelayOperation(operationId, $"TaskDelay({operationId})", this.Configuration.TimeoutDelay,
+                    this.Scheduler);
             }
             else
             {
-                op = new TaskDelayOperation(operationId, $"TaskDelay({operationId})", delay, this.Scheduler);
+                op = new TaskOperation(operationId, $"Task({operationId})", this.Scheduler);
             }
 
             this.Scheduler.RegisterOperation(op);
@@ -301,11 +302,11 @@ namespace Microsoft.Coyote.Runtime
         [DebuggerStepThrough]
 #endif
         internal Task ScheduleAction(Action action, Task predecessor, OperationExecutionOptions options,
-            TimeSpan delay = default, CancellationToken cancellationToken = default)
+            bool isDelay = false, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            TaskOperation op = this.CreateTaskOperation(delay);
+            TaskOperation op = this.CreateTaskOperation(isDelay);
             var context = new OperationContext<Action, object>(op, action, predecessor, options, cancellationToken);
             var task = new Task(this.ExecuteOperation, context, cancellationToken);
             return this.ScheduleTaskOperation(op, task, context.ResultSource);
@@ -648,7 +649,7 @@ namespace Microsoft.Coyote.Runtime
 
             // TODO: cache the dummy delay action to optimize memory.
             var options = OperationContext.CreateOperationExecutionOptions();
-            return this.ScheduleAction(() => { }, null, options, delay, cancellationToken);
+            return this.ScheduleAction(() => { }, null, options, true, cancellationToken);
         }
 
         /// <summary>

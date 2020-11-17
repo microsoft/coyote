@@ -18,11 +18,10 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskDelayOperation"/> class.
         /// </summary>
-        internal TaskDelayOperation(ulong operationId, string name, TimeSpan delay, OperationScheduler scheduler)
+        internal TaskDelayOperation(ulong operationId, string name, uint delay, OperationScheduler scheduler)
             : base(operationId, name, scheduler)
         {
-            // TODO: do we need some normalization of delay here?
-            this.Timeout = (int)delay.TotalMilliseconds;
+            this.Timeout = delay > int.MaxValue ? int.MaxValue : (int)delay;
         }
 
         /// <summary>
@@ -30,9 +29,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// </summary>
         internal void DelayUntilTimeout()
         {
-            IO.Debug.WriteLine("<ScheduleDebug> Try delay operation '{0}' for '{1}' delay.", this.Id, this.Timeout);
             this.Timeout = this.Scheduler.GetNextNondeterministicIntegerChoice(this.Timeout);
-            IO.Debug.WriteLine("<ScheduleDebug> Try delay operation '{0}' for '{1}' delay.", this.Id, this.Timeout);
             this.Status = AsyncOperationStatus.Delayed;
             this.Scheduler.ScheduleNextOperation();
         }
@@ -48,7 +45,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     return false;
                 }
 
-                IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' is undelayed.", this.Id);
                 this.Status = AsyncOperationStatus.Enabled;
                 return true;
             }

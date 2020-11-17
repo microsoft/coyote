@@ -9,15 +9,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 {
-    public class TaskLivenessTests : BaseSystematicTest
+    public class PollingTaskLivenessTests : BaseSystematicTest
     {
-        public TaskLivenessTests(ITestOutputHelper output)
+        public PollingTaskLivenessTests(ITestOutputHelper output)
             : base(output)
         {
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessProperty()
+        public void TestPollingTaskLivenessProperty()
         {
             this.Test(async () =>
             {
@@ -50,11 +50,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyLongRunning()
+        public void TestPollingTaskLivenessPropertyLongRunning()
         {
             this.Test(async () =>
             {
@@ -83,11 +83,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyWithDoubleDelay()
+        public void TestPollingTaskLivenessPropertyWithDoubleDelay()
         {
             this.Test(async () =>
             {
@@ -120,49 +120,11 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value is 1, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200));
+            configuration: GetConfiguration().WithTestingIterations(10));
         }
 
         [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyLongRunningFailure()
-        {
-            this.TestWithError(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-
-                var task = Task.Run(async () =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        await Task.Yield();
-                        entry.Value--;
-                    }
-                });
-
-                while (true)
-                {
-                    if (entry.Value is 10)
-                    {
-                        break;
-                    }
-
-                    await Task.Delay(10);
-                }
-
-                await task;
-
-                Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
-            },
-            configuration: GetConfiguration().WithTestingIterations(200),
-            errorChecker: (e) =>
-            {
-                Assert.StartsWith("Found liveness bug at the end of program execution.", e);
-            },
-            replay: true);
-        }
-
-        [Fact(Timeout = 5000)]
-        public void TestTaskLivenessPropertyFailure()
+        public void TestPollingTaskLivenessPropertyFailure()
         {
             this.TestWithError(async () =>
             {
@@ -191,7 +153,7 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
 
                 Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithTestingIterations(200),
+            configuration: GetConfiguration().WithMaxSchedulingSteps(1000),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Found liveness bug at the end of program execution.", e);

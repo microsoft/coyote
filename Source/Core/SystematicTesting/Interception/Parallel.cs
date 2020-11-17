@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             body(iteration);
                         }
-                    }, null, options, TimeSpan.Zero, parallelOptions.CancellationToken);
+                    }, null, options, false, parallelOptions.CancellationToken);
                     index++;
                 }
 
@@ -289,7 +289,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                         {
                             body(sourceList[iteration]);
                         }
-                    }, null, options, TimeSpan.Zero, parallelOptions.CancellationToken);
+                    }, null, options, false, parallelOptions.CancellationToken);
                     index++;
                 }
 

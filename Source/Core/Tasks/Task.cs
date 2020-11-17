@@ -168,7 +168,7 @@ namespace Microsoft.Coyote.Tasks
             {
                 var runtime = CoyoteRuntime.Current;
                 var options = OperationContext.CreateOperationExecutionOptions();
-                return new Task(runtime, runtime.ScheduleAction(action, null, options, TimeSpan.Zero, cancellationToken));
+                return new Task(runtime, runtime.ScheduleAction(action, null, options, false, cancellationToken));
             }
 
             return new Task(null, SystemTasks.Task.Run(action, cancellationToken));

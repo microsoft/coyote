@@ -24,6 +24,9 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       
+      - name: Set environment variables
+        run: echo "COYOTE_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
+
       - name: Build Coyote projects
         run: ./Scripts/build.ps1 -local $false
         shell: pwsh
@@ -31,8 +34,6 @@ jobs:
       - name: Run Coyote Tests
         run: ./Scripts/run-tests.ps1
         shell: pwsh
-        env:
-          COYOTE_CLI_TELEMETRY_OPTOUT: 1
       
       - name: Build Coyote NuGet package
         run: dotnet pack ./Tools/Coyote/Coyote.csproj
@@ -41,6 +42,4 @@ jobs:
       - name: Test Coyote.CLI NuGet package
         run: ./Scripts/test-cli-package.ps1
         shell: pwsh
-        env:
-          COYOTE_CLI_TELEMETRY_OPTOUT: 1
       

@@ -6,7 +6,7 @@ permalink: /learn/ref/Microsoft.Coyote/Configuration/WithTimeoutDelay
 ---
 # Configuration.WithTimeoutDelay method
 
-Updates the [`TimeoutDelay`](TimeoutDelay) value that controls the probability of triggering a timeout each time a built-in timer is scheduled during systematic testing. This value is not a unit of time.
+Updates the [`TimeoutDelay`](TimeoutDelay) value that controls the probability of triggering a timeout each time Int32) or a built-in timer is scheduled during systematic testing.
 
 ```csharp
 public Configuration WithTimeoutDelay(uint timeoutDelay)
@@ -15,6 +15,10 @@ public Configuration WithTimeoutDelay(uint timeoutDelay)
 | parameter | description |
 | --- | --- |
 | timeoutDelay | The timeout delay during testing. |
+
+## Remarks
+
+Increase the value to decrease the probability. This value is not a unit of time.
 
 ## See Also
 

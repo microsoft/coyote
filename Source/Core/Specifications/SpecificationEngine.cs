@@ -3,15 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-#if !DEBUG
 using System.Diagnostics;
-#endif
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Coyote.Actors;
 using Microsoft.Coyote.Actors.Coverage;
 using Microsoft.Coyote.Runtime;
-using Microsoft.Coyote.SystematicTesting;
 
 namespace Microsoft.Coyote.Specifications
 {
@@ -26,14 +25,19 @@ namespace Microsoft.Coyote.Specifications
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// The asynchronous operation scheduler, if available.
+        /// Responsible for controlling the program execution during systematic testing.
         /// </summary>
-        private readonly OperationScheduler Scheduler;
+        private readonly CoyoteRuntime Runtime;
 
         /// <summary>
-        /// List of safety and liveness monitors in the program.
+        /// List of liveness monitors in the program.
         /// </summary>
-        private readonly List<Monitor> Monitors;
+        private readonly List<TaskLivenessMonitor> LivenessMonitors;
+
+        /// <summary>
+        /// List of safety and liveness state-machine monitors in the program.
+        /// </summary>
+        private readonly List<Monitor> StateMachineMonitors;
 
         /// <summary>
         /// True if monitors are enabled, else false.
@@ -43,135 +47,28 @@ namespace Microsoft.Coyote.Specifications
         /// <summary>
         /// Initializes a new instance of the <see cref="SpecificationEngine"/> class.
         /// </summary>
-        internal SpecificationEngine(Configuration configuration, OperationScheduler scheduler, List<Monitor> monitors)
+        internal SpecificationEngine(Configuration configuration, CoyoteRuntime runtime)
         {
             this.Configuration = configuration;
-            this.Scheduler = scheduler;
-            this.Monitors = monitors;
-            this.IsMonitoringEnabled = scheduler != null || configuration.IsMonitoringEnabledInInProduction;
+            this.Runtime = runtime;
+            this.LivenessMonitors = new List<TaskLivenessMonitor>();
+            this.StateMachineMonitors = new List<Monitor>();
+            this.IsMonitoringEnabled = runtime.IsControlled || configuration.IsMonitoringEnabledInInProduction;
         }
 
         /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
         /// </summary>
 #if !DEBUG
-        [DebuggerHidden]
+        [DebuggerStepThrough]
 #endif
-        internal void Assert(bool predicate)
+        internal void MonitorTaskCompletion(Task task)
         {
-            if (!predicate)
+            if (this.Runtime.IsControlled && task.Status != TaskStatus.RanToCompletion)
             {
-                string msg = "Detected an assertion failure.";
-                if (!CoyoteRuntime.IsExecutionControlled)
-                {
-                    throw new AssertionFailureException(msg);
-                }
-
-                this.Scheduler.NotifyAssertionFailure(msg);
+                var monitor = new TaskLivenessMonitor(task);
+                this.LivenessMonitors.Add(monitor);
             }
-        }
-
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void Assert(bool predicate, string s, object arg0)
-        {
-            if (!predicate)
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
-                if (!CoyoteRuntime.IsExecutionControlled)
-                {
-                    throw new AssertionFailureException(msg);
-                }
-
-                this.Scheduler.NotifyAssertionFailure(msg);
-            }
-        }
-
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void Assert(bool predicate, string s, object arg0, object arg1)
-        {
-            if (!predicate)
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
-                if (!CoyoteRuntime.IsExecutionControlled)
-                {
-                    throw new AssertionFailureException(msg);
-                }
-
-                this.Scheduler.NotifyAssertionFailure(msg);
-            }
-        }
-
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
-        {
-            if (!predicate)
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
-                if (!CoyoteRuntime.IsExecutionControlled)
-                {
-                    throw new AssertionFailureException(msg);
-                }
-
-                this.Scheduler.NotifyAssertionFailure(msg);
-            }
-        }
-
-        /// <summary>
-        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void Assert(bool predicate, string s, params object[] args)
-        {
-            if (!predicate)
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, s, args);
-                if (!CoyoteRuntime.IsExecutionControlled)
-                {
-                    throw new AssertionFailureException(msg);
-                }
-
-                this.Scheduler.NotifyAssertionFailure(msg);
-            }
-        }
-
-        /// <summary>
-        /// Throws an <see cref="AssertionFailureException"/> exception containing the specified exception.
-        /// </summary>
-#if !DEBUG
-        [DebuggerHidden]
-#endif
-        internal void WrapAndThrowException(Exception exception, string s, params object[] args)
-        {
-            string msg = string.Format(CultureInfo.InvariantCulture, s, args);
-            string message = string.Format(CultureInfo.InvariantCulture,
-                "Exception '{0}' was thrown in {1}: {2}\n" +
-                "from location '{3}':\n" +
-                "The stack trace is:\n{4}",
-                exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
-
-            if (!CoyoteRuntime.IsExecutionControlled)
-            {
-                throw new AssertionFailureException(message, exception);
-            }
-
-            this.Scheduler.NotifyAssertionFailure(message);
         }
 
         /// <summary>
@@ -184,9 +81,9 @@ namespace Microsoft.Coyote.Specifications
                 return false;
             }
 
-            lock (this.Monitors)
+            lock (this.StateMachineMonitors)
             {
-                if (this.Monitors.Any(m => m.GetType() == type))
+                if (this.StateMachineMonitors.Any(m => m.GetType() == type))
                 {
                     // Idempotence: only one monitor per type can exist.
                     return false;
@@ -199,12 +96,12 @@ namespace Microsoft.Coyote.Specifications
             monitor.Initialize(this.Configuration, this, logWriter);
             monitor.InitializeStateInformation();
 
-            lock (this.Monitors)
+            lock (this.StateMachineMonitors)
             {
-                this.Monitors.Add(monitor);
+                this.StateMachineMonitors.Add(monitor);
             }
 
-            if (CoyoteRuntime.IsExecutionControlled && this.Configuration.ReportActivityCoverage)
+            if (this.Runtime.IsControlled && this.Configuration.ReportActivityCoverage)
             {
                 monitor.ReportActivityCoverage(coverageInfo);
             }
@@ -224,9 +121,9 @@ namespace Microsoft.Coyote.Specifications
             }
 
             Monitor monitor = null;
-            lock (this.Monitors)
+            lock (this.StateMachineMonitors)
             {
-                foreach (var m in this.Monitors)
+                foreach (var m in this.StateMachineMonitors)
                 {
                     if (m.GetType() == type)
                     {
@@ -238,7 +135,7 @@ namespace Microsoft.Coyote.Specifications
 
             if (monitor != null)
             {
-                if (!CoyoteRuntime.IsExecutionControlled)
+                if (!this.Runtime.IsControlled)
                 {
                     lock (monitor)
                     {
@@ -254,24 +151,203 @@ namespace Microsoft.Coyote.Specifications
         }
 
         /// <summary>
-        /// Asserts that all monitors are in a cold state.
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
         /// </summary>
 #if !DEBUG
         [DebuggerHidden]
 #endif
-        internal void AssertMonitorsInColdState()
+        internal void Assert(bool predicate)
         {
-            // Checks if there is a monitor stuck in a hot state.
-            foreach (var monitor in this.Monitors)
+            if (!predicate)
+            {
+                string msg = "Detected an assertion failure.";
+                if (!this.Runtime.IsControlled)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.Runtime.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void Assert(bool predicate, string s, object arg0)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString());
+                if (!this.Runtime.IsControlled)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.Runtime.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void Assert(bool predicate, string s, object arg0, object arg1)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString());
+                if (!this.Runtime.IsControlled)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.Runtime.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void Assert(bool predicate, string s, object arg0, object arg1, object arg2)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, arg0?.ToString(), arg1?.ToString(), arg2?.ToString());
+                if (!this.Runtime.IsControlled)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.Runtime.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the assertion holds, and if not, throws an <see cref="AssertionFailureException"/> exception.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void Assert(bool predicate, string s, params object[] args)
+        {
+            if (!predicate)
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, s, args);
+                if (!this.Runtime.IsControlled)
+                {
+                    throw new AssertionFailureException(msg);
+                }
+
+                this.Runtime.NotifyAssertionFailure(msg);
+            }
+        }
+
+        /// <summary>
+        /// Throws an <see cref="AssertionFailureException"/> exception containing the specified exception.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void WrapAndThrowException(Exception exception, string s, params object[] args)
+        {
+            string msg = string.Format(CultureInfo.InvariantCulture, s, args);
+            string message = string.Format(CultureInfo.InvariantCulture,
+                "Exception '{0}' was thrown in {1}: {2}\n" +
+                "from location '{3}':\n" +
+                "The stack trace is:\n{4}",
+                exception.GetType(), msg, exception.Message, exception.Source, exception.StackTrace);
+
+            if (!this.Runtime.IsControlled)
+            {
+                throw new AssertionFailureException(message, exception);
+            }
+
+            this.Runtime.NotifyAssertionFailure(message);
+        }
+
+        /// <summary>
+        /// Checks for liveness errors.
+        /// </summary>
+#if !DEBUG
+        [DebuggerHidden]
+#endif
+        internal void CheckLivenessErrors()
+        {
+            foreach (var monitor in this.LivenessMonitors)
+            {
+                if (!monitor.IsSatisfied)
+                {
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "Found liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
+                        GetStackTrace(monitor.StackTrace));
+                    this.Runtime.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
+                }
+            }
+
+            // Checks if there is a state-machine monitor stuck in a hot state.
+            foreach (var monitor in this.StateMachineMonitors)
             {
                 if (monitor.IsInHotState(out string stateName))
                 {
                     string msg = string.Format(CultureInfo.InvariantCulture,
                         "{0} detected liveness bug in hot state '{1}' at the end of program execution.",
                         monitor.GetType().FullName, stateName);
-                    this.Scheduler.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
+                    this.Runtime.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if a liveness monitor exceeded its threshold, and if yes, it reports an error.
+        /// </summary>
+        internal void CheckLivenessThresholdExceeded()
+        {
+            foreach (var monitor in this.LivenessMonitors)
+            {
+                if (monitor.IsLivenessThresholdExceeded(this.Configuration.LivenessTemperatureThreshold))
+                {
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "Found potential liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
+                        GetStackTrace(monitor.StackTrace));
+                    this.Runtime.NotifyAssertionFailure(msg);
+                }
+            }
+
+            foreach (var monitor in this.StateMachineMonitors)
+            {
+                if (monitor.IsLivenessThresholdExceeded(this.Configuration.LivenessTemperatureThreshold))
+                {
+                    string msg = $"{monitor.Name} detected potential liveness bug in hot state '{monitor.CurrentStateName}'.";
+                    this.Runtime.NotifyAssertionFailure(msg);
+                }
+            }
+        }
+
+        private static string GetStackTrace(StackTrace trace)
+        {
+            StringBuilder sb = new StringBuilder();
+            string[] lines = trace.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                if ((line.Contains("at Microsoft.Coyote.Specifications") ||
+                    line.Contains("at Microsoft.Coyote.Runtime")) &&
+                    !line.Contains($"at {typeof(Specification).FullName}.{nameof(Specification.Monitor)}"))
+                {
+                    continue;
+                }
+
+                sb.AppendLine(line);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -289,7 +365,7 @@ namespace Microsoft.Coyote.Specifications
             {
                 int hash = 19;
 
-                foreach (var monitor in this.Monitors)
+                foreach (var monitor in this.StateMachineMonitors)
                 {
                     hash = (hash * 397) + monitor.GetHashedState();
                 }
@@ -305,7 +381,8 @@ namespace Microsoft.Coyote.Specifications
         {
             if (disposing)
             {
-                this.Monitors.Clear();
+                this.LivenessMonitors.Clear();
+                this.StateMachineMonitors.Clear();
             }
         }
 

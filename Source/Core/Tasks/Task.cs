@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.Coyote.Runtime;
+using Microsoft.Coyote.SystematicTesting;
 using AsyncMethodBuilder = System.Runtime.CompilerServices.AsyncMethodBuilderAttribute;
 using MethodImpl = System.Runtime.CompilerServices.MethodImplAttribute;
 using MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions;
@@ -166,7 +167,8 @@ namespace Microsoft.Coyote.Tasks
             if (CoyoteRuntime.IsExecutionControlled)
             {
                 var runtime = CoyoteRuntime.Current;
-                return new Task(runtime, runtime.ScheduleAction(action, null, false, false, cancellationToken));
+                var options = OperationContext.CreateOperationExecutionOptions();
+                return new Task(runtime, runtime.ScheduleAction(action, null, options, false, cancellationToken));
             }
 
             return new Task(null, SystemTasks.Task.Run(action, cancellationToken));

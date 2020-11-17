@@ -4,7 +4,31 @@ section: learn
 title: Monitor
 permalink: /learn/ref/Microsoft.Coyote.Specifications/Specification/Monitor
 ---
-# Specification.Monitor&lt;T&gt; method
+# Specification.Monitor method (1 of 2)
+
+Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
+
+```csharp
+public static void Monitor(Task task)
+```
+
+| parameter | description |
+| --- | --- |
+| task | The task to monitor for liveness. |
+
+## Remarks
+
+The liveness monitor only operates during systematic testing.
+
+## See Also
+
+* class [Specification](../SpecificationType)
+* namespace [Microsoft.Coyote.Specifications](../SpecificationType)
+* assembly [Microsoft.Coyote](../../MicrosoftCoyoteAssembly)
+
+---
+
+# Specification.Monitor&lt;T&gt; method (2 of 2)
 
 Invokes the specified monitor with the given event.
 

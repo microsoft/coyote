@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
     /// <summary>
     /// A depth-first search scheduling strategy.
     /// </summary>
-    internal class DFSStrategy : ISchedulingStrategy
+    internal class DFSStrategy : SchedulingStrategy
     {
         /// <summary>
         /// The maximum number of steps to schedule.
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="DFSStrategy"/> class.
         /// </summary>
-        public DFSStrategy(int maxSteps)
+        internal DFSStrategy(int maxSteps)
         {
             this.MaxScheduledSteps = maxSteps;
             this.ScheduledSteps = 0;
@@ -62,7 +62,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public virtual bool InitializeNextIteration(uint iteration)
+        internal override bool InitializeNextIteration(uint iteration)
         {
             if (iteration is 0)
             {
@@ -148,7 +148,8 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            bool isYielding, out AsyncOperation next)
         {
             var enabledOps = ops.Where(op => op.Status is AsyncOperationStatus.Enabled).ToList();
             if (enabledOps.Count is 0)
@@ -203,7 +204,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             NondetBooleanChoice nextChoice = null;
             List<NondetBooleanChoice> ncs = null;
@@ -246,7 +247,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             NondetIntegerChoice nextChoice = null;
             List<NondetIntegerChoice> ncs = null;
@@ -289,10 +290,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public int GetScheduledSteps() => this.ScheduledSteps;
+        internal override int GetScheduledSteps() => this.ScheduledSteps;
 
         /// <inheritdoc/>
-        public bool HasReachedMaxSchedulingSteps()
+        internal override bool HasReachedMaxSchedulingSteps()
         {
             if (this.MaxScheduledSteps is 0)
             {
@@ -303,10 +304,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool IsFair() => false;
+        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
-        public string GetDescription() => "dfs";
+        internal override string GetDescription() => "dfs";
 
         /// <summary>
         /// Prints the schedule, if debug is enabled.
@@ -356,7 +357,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public void Reset()
+        internal override void Reset()
         {
             this.ScheduleStack.Clear();
             this.BoolNondetStack.Clear();

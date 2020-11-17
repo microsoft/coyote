@@ -17,9 +17,9 @@ public static class Specification
 | name | description |
 | --- | --- |
 | static [Assert](Specification/Assert)(…) | Checks if the predicate holds, and if not, throws an AssertionFailureException exception. (4 methods) |
+| static [Monitor](Specification/Monitor)(…) | Creates a liveness monitor that checks if the specified task eventually completes execution successfully. |
 | static [Monitor&lt;T&gt;](Specification/Monitor)(…) | Invokes the specified monitor with the given event. |
 | static [RegisterMonitor&lt;T&gt;](Specification/RegisterMonitor)() | Registers a new safety or liveness monitor. |
-| static [WhenTrue](Specification/WhenTrue)(…) | Creates a Task that will complete when *predicate* returns true. Invoking this method specifies a liveness property, which must be eventually satisfied during systematic testing, else the method throws an AssertionFailureException exception. |
 
 ## Remarks
 

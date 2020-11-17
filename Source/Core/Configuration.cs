@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Microsoft.Coyote.IO;
 
 namespace Microsoft.Coyote
@@ -127,11 +128,11 @@ namespace Microsoft.Coyote
         public int StrategyBound { get; internal set; }
 
         /// <summary>
-        /// Value that controls the probability of triggering a timeout each time a built-in timer
-        /// is scheduled during systematic testing. Decrease the value to increase the frequency of
-        /// timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value to
-        /// decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default
-        /// this value is 10.
+        /// Value that controls the probability of triggering a timeout each time <see cref="Task.Delay(int)"/>
+        /// or a built-in timer is scheduled during systematic testing. Decrease the value to increase the
+        /// frequency of timeouts (e.g. a value of 1 corresponds to a 50% probability), or increase the value
+        /// to decrease the frequency (e.g. a value of 10 corresponds to a 10% probability). By default this
+        /// value is 10.
         /// </summary>
         [DataMember]
         public uint TimeoutDelay { get; internal set; }
@@ -551,10 +552,13 @@ namespace Microsoft.Coyote
 
         /// <summary>
         /// Updates the <see cref="TimeoutDelay"/> value that controls the probability of triggering
-        /// a timeout each time a built-in timer is scheduled during systematic testing. This value
-        /// is not a unit of time.
+        /// a timeout each time <see cref="Task.Delay(int)"/> or a built-in timer is scheduled during
+        /// systematic testing.
         /// </summary>
         /// <param name="timeoutDelay">The timeout delay during testing.</param>
+        /// <remarks>
+        /// Increase the value to decrease the probability. This value is not a unit of time.
+        /// </remarks>
         public Configuration WithTimeoutDelay(uint timeoutDelay)
         {
             this.TimeoutDelay = timeoutDelay;
@@ -588,7 +592,7 @@ namespace Microsoft.Coyote
         /// </summary>
         /// <param name="isDebugLoggingEnabled">If true, then debug messages are logged.</param>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = false)
+        public Configuration WithDebugLoggingEnabled(bool isDebugLoggingEnabled = true)
         {
             this.IsDebugVerbosityEnabled = isDebugLoggingEnabled;
             return this;

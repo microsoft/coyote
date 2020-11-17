@@ -62,7 +62,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Helper for creating an <see cref="OperationExecutionOptions"/> enum.
         /// </summary>
-        internal static OperationExecutionOptions CreateOperationExecutionOptions(bool failOnException, bool yieldAtStart)
+        internal static OperationExecutionOptions CreateOperationExecutionOptions(bool failOnException = false,
+            bool yieldAtStart = false)
         {
             OperationExecutionOptions options = OperationExecutionOptions.None;
             if (failOnException)

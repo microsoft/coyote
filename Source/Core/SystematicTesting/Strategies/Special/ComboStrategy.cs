@@ -9,29 +9,29 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
     /// This strategy combines two given strategies, using them to schedule
     /// the prefix and suffix of an execution.
     /// </summary>
-    internal sealed class ComboStrategy : ISchedulingStrategy
+    internal sealed class ComboStrategy : SchedulingStrategy
     {
         /// <summary>
         /// The prefix strategy.
         /// </summary>
-        private readonly ISchedulingStrategy PrefixStrategy;
+        private readonly SchedulingStrategy PrefixStrategy;
 
         /// <summary>
         /// The suffix strategy.
         /// </summary>
-        private readonly ISchedulingStrategy SuffixStrategy;
+        private readonly SchedulingStrategy SuffixStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ComboStrategy"/> class.
         /// </summary>
-        public ComboStrategy(ISchedulingStrategy prefixStrategy, ISchedulingStrategy suffixStrategy)
+        internal ComboStrategy(SchedulingStrategy prefixStrategy, SchedulingStrategy suffixStrategy)
         {
             this.PrefixStrategy = prefixStrategy;
             this.SuffixStrategy = suffixStrategy;
         }
 
         /// <inheritdoc/>
-        public bool InitializeNextIteration(uint iteration)
+        internal override bool InitializeNextIteration(uint iteration)
         {
             bool doNext = this.PrefixStrategy.InitializeNextIteration(iteration);
             doNext |= this.SuffixStrategy.InitializeNextIteration(iteration);
@@ -39,7 +39,8 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            bool isYielding, out AsyncOperation next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
@@ -52,7 +53,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
@@ -65,7 +66,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
@@ -78,7 +79,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public int GetScheduledSteps()
+        internal override int GetScheduledSteps()
         {
             if (this.PrefixStrategy.HasReachedMaxSchedulingSteps())
             {
@@ -91,17 +92,17 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool HasReachedMaxSchedulingSteps() => this.SuffixStrategy.HasReachedMaxSchedulingSteps();
+        internal override bool HasReachedMaxSchedulingSteps() => this.SuffixStrategy.HasReachedMaxSchedulingSteps();
 
         /// <inheritdoc/>
-        public bool IsFair() => this.SuffixStrategy.IsFair();
+        internal override bool IsFair() => this.SuffixStrategy.IsFair();
 
         /// <inheritdoc/>
-        public string GetDescription() =>
+        internal override string GetDescription() =>
             string.Format("combo[{0},{1}]", this.PrefixStrategy.GetDescription(), this.SuffixStrategy.GetDescription());
 
         /// <inheritdoc/>
-        public void Reset()
+        internal override void Reset()
         {
             this.PrefixStrategy.Reset();
             this.SuffixStrategy.Reset();

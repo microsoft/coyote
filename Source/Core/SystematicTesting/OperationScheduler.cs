@@ -36,14 +36,14 @@ namespace Microsoft.Coyote.SystematicTesting
         private readonly Configuration Configuration;
 
         /// <summary>
-        /// Responsible for controlling the execution of tasks during systematic testing.
+        /// Responsible for controlling the program execution during systematic testing.
         /// </summary>
         private readonly CoyoteRuntime Runtime;
 
         /// <summary>
         /// The scheduling strategy used for program exploration.
         /// </summary>
-        internal readonly ISchedulingStrategy Strategy;
+        internal readonly SchedulingStrategy Strategy;
 
         /// <summary>
         /// Map from unique ids to asynchronous operations.
@@ -108,7 +108,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationScheduler"/> class.
         /// </summary>
-        internal OperationScheduler(CoyoteRuntime runtime, ISchedulingStrategy strategy,
+        internal OperationScheduler(CoyoteRuntime runtime, SchedulingStrategy strategy,
             ScheduleTrace trace, Configuration configuration)
         {
             this.Configuration = configuration;
@@ -180,9 +180,6 @@ namespace Microsoft.Coyote.SystematicTesting
                     current.HashedProgramState = this.Runtime.GetHashedProgramState();
                 }
 
-                // Notify the runtime about the next scheduling step.
-                this.Runtime.OnNextSchedulingStep();
-
                 // Choose the next operation to schedule, if there is one enabled.
                 if (!this.TryGetNextEnabledOperation(current, isYielding, out AsyncOperation next))
                 {
@@ -219,7 +216,7 @@ namespace Microsoft.Coyote.SystematicTesting
                 IO.Debug.WriteLine("<ScheduleDebug> Enabling any blocked operation with satisfied dependencies.");
                 foreach (var op in ops)
                 {
-                    op.TryEnable();
+                    this.TryEnableOperation(op);
                     IO.Debug.WriteLine("<ScheduleDebug> Operation '{0}' has status '{1}'.", op.Id, op.Status);
                 }
 
@@ -422,6 +419,27 @@ namespace Microsoft.Coyote.SystematicTesting
             }
 
             this.ThrowExecutionCanceledExceptionIfDetached();
+        }
+
+        /// <summary>
+        /// Tries to enable the specified operation.
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that this method runs in the scope of a 'lock (this.SyncObject)' statement.
+        /// </remarks>
+        private void TryEnableOperation(AsyncOperation op)
+        {
+            if (op.Status is AsyncOperationStatus.Delayed && op is TaskDelayOperation delayOp)
+            {
+                if (!delayOp.TryEnable() && !this.OperationMap.Any(kvp => kvp.Value.Status is AsyncOperationStatus.Enabled))
+                {
+                    op.Status = AsyncOperationStatus.Enabled;
+                }
+            }
+            else if (op.Status != AsyncOperationStatus.Enabled)
+            {
+                op.TryEnable();
+            }
         }
 
         /// <summary>

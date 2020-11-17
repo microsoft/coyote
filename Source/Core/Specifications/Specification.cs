@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Coyote.Runtime;
 
@@ -48,25 +46,13 @@ namespace Microsoft.Coyote.Specifications
             CoyoteRuntime.Current.Assert(predicate, s, args);
 
         /// <summary>
-        /// Creates a <see cref="Task"/> that will complete when <paramref name="predicate"/> returns true. Invoking
-        /// this method specifies a liveness property, which must be eventually satisfied during systematic testing,
-        /// else the method throws an <see cref="AssertionFailureException"/> exception.
+        /// Creates a liveness monitor that checks if the specified task eventually completes execution successfully.
         /// </summary>
-        /// <param name="predicate">Function that specifies a liveness property that must be eventually satisfied.</param>
-        /// <param name="getHashCode">
-        /// Function that returns a hash used to track progress related to the liveness property. This is used only
-        /// during systematic testing and must be lightweight as it is invoked frequently.
-        /// </param>
-        /// <param name="delay">
-        /// The amount of time to delay between checks. This is not used during systematic testing.
-        /// </param>
-        /// <param name="cancellationToken">
-        /// The cancellation token with which to complete the task. This is not used during systematic testing.
-        /// </param>
-        /// <returns>Task that represents the property to be satisfied asynchronously.</returns>
-        public static Task WhenTrue(Func<Task<bool>> predicate, Func<int> getHashCode, TimeSpan delay,
-            CancellationToken cancellationToken = default) =>
-            CoyoteRuntime.Current.WaitUntilLivenessPropertyIsSatisfied(predicate, getHashCode, delay, cancellationToken);
+        /// <param name="task">The task to monitor for liveness.</param>
+        /// <remarks>
+        /// The liveness monitor only operates during systematic testing.
+        /// </remarks>
+        public static void Monitor(Task task) => CoyoteRuntime.Current.MonitorTaskCompletion(task);
 
         /// <summary>
         /// Registers a new safety or liveness monitor.

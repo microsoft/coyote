@@ -59,7 +59,8 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Creates and starts a <see cref="Task"/>.
         /// </summary>
         public Task StartNew(Action action, CancellationToken cancellationToken) => CoyoteRuntime.IsExecutionControlled ?
-            CoyoteRuntime.Current.ScheduleAction(action, null, false, false, cancellationToken) :
+            CoyoteRuntime.Current.ScheduleAction(action, null, OperationContext.CreateOperationExecutionOptions(),
+                false, cancellationToken) :
             Task.Factory.StartNew(action, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
 
         /// <summary>

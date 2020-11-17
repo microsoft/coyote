@@ -57,7 +57,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The program exploration strategy.
         /// </summary>
-        internal readonly ISchedulingStrategy Strategy;
+        internal readonly SchedulingStrategy Strategy;
 
         /// <summary>
         /// Random value generator used by the scheduling strategies.

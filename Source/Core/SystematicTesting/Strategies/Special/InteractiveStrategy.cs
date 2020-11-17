@@ -11,7 +11,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
     /// <summary>
     /// An interactive scheduling strategy.
     /// </summary>
-    internal sealed class InteractiveStrategy : ISchedulingStrategy
+    internal sealed class InteractiveStrategy : SchedulingStrategy
     {
         /// <summary>
         /// The configuration.
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         /// <summary>
         /// Initializes a new instance of the <see cref="InteractiveStrategy"/> class.
         /// </summary>
-        public InteractiveStrategy(Configuration configuration, ILogger logger)
+        internal InteractiveStrategy(Configuration configuration, ILogger logger)
         {
             this.Logger = logger ?? new ConsoleLogger();
             this.Configuration = configuration;
@@ -45,14 +45,15 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool InitializeNextIteration(uint iteration)
+        internal override bool InitializeNextIteration(uint iteration)
         {
             this.ExploredSteps = 0;
             return true;
         }
 
         /// <inheritdoc/>
-        public bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current, bool isYielding, out AsyncOperation next)
+        internal override bool GetNextOperation(IEnumerable<AsyncOperation> ops, AsyncOperation current,
+            bool isYielding, out AsyncOperation next)
         {
             next = null;
 
@@ -153,7 +154,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
+        internal override bool GetNextBooleanChoice(AsyncOperation current, int maxValue, out bool next)
         {
             next = false;
             this.ExploredSteps++;
@@ -222,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
+        internal override bool GetNextIntegerChoice(AsyncOperation current, int maxValue, out int next)
         {
             next = 0;
             this.ExploredSteps++;
@@ -296,13 +297,13 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public int GetScheduledSteps()
+        internal override int GetScheduledSteps()
         {
             return this.ExploredSteps;
         }
 
         /// <inheritdoc/>
-        public bool HasReachedMaxSchedulingSteps()
+        internal override bool HasReachedMaxSchedulingSteps()
         {
             var bound = this.IsFair() ? this.Configuration.MaxFairSchedulingSteps :
                 this.Configuration.MaxUnfairSchedulingSteps;
@@ -316,10 +317,10 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public bool IsFair() => false;
+        internal override bool IsFair() => false;
 
         /// <inheritdoc/>
-        public string GetDescription() => string.Empty;
+        internal override string GetDescription() => string.Empty;
 
         /// <summary>
         /// Replays an earlier point of the execution.
@@ -407,7 +408,7 @@ namespace Microsoft.Coyote.SystematicTesting.Strategies
         }
 
         /// <inheritdoc/>
-        public void Reset()
+        internal override void Reset()
         {
             this.InputCache.Clear();
             this.ExploredSteps = 0;

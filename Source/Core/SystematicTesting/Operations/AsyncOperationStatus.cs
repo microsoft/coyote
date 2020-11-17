@@ -39,6 +39,11 @@ namespace Microsoft.Coyote.SystematicTesting
         BlockedOnResource,
 
         /// <summary>
+        /// The operation is delayed.
+        /// </summary>
+        Delayed,
+
+        /// <summary>
         /// The operation is completed.
         /// </summary>
         Completed,

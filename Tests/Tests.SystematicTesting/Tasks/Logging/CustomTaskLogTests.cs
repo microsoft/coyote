@@ -56,14 +56,14 @@ Hi mom!
             await Task.Run(async () =>
             {
                 r.Logger.WriteLine($"Task '{Task.CurrentId}' is running.");
-                await Task.Delay(10);
+                await Task.Delay(0);
                 r.Logger.WriteLine($"Task '{Task.CurrentId}' completed.");
             });
 
             await Task.Run(async () =>
             {
                 r.Logger.WriteLine($"Task '{Task.CurrentId}' is running.");
-                await Task.Delay(10);
+                await Task.Delay(0);
                 r.Logger.WriteLine($"Task '{Task.CurrentId}' completed.");
             });
 
@@ -98,7 +98,7 @@ Task '' completed.
 <StrategyLog> Scheduling statistics:
 <StrategyLog> Explored 1 schedule: 1 fair and 0 unfair.
 <StrategyLog> Found 100.00% buggy schedules.
-<StrategyLog> Number of scheduling points in fair terminating schedules: 9 (), 9 (), 9 ().";
+<StrategyLog> Number of scheduling points in fair terminating schedules: 4 (), 4 (), 4 ().";
 
                 string actual = engine.ReadableTrace.ToString();
                 actual = actual.RemoveStackTrace("<StrategyLog>");

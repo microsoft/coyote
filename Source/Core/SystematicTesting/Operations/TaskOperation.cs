@@ -17,7 +17,7 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <summary>
         /// The scheduler executing this operation.
         /// </summary>
-        private readonly OperationScheduler Scheduler;
+        protected readonly OperationScheduler Scheduler;
 
         /// <summary>
         /// Set of tasks that this operation is waiting to join. All tasks
@@ -127,8 +127,8 @@ namespace Microsoft.Coyote.SystematicTesting
         /// <inheritdoc/>
         internal override bool TryEnable()
         {
-            if ((this.Status == AsyncOperationStatus.BlockedOnWaitAll && this.JoinDependencies.All(task => task.IsCompleted)) ||
-                (this.Status == AsyncOperationStatus.BlockedOnWaitAny && this.JoinDependencies.Any(task => task.IsCompleted)))
+            if ((this.Status is AsyncOperationStatus.BlockedOnWaitAll && this.JoinDependencies.All(task => task.IsCompleted)) ||
+                (this.Status is AsyncOperationStatus.BlockedOnWaitAny && this.JoinDependencies.Any(task => task.IsCompleted)))
             {
                 this.JoinDependencies.Clear();
                 this.Status = AsyncOperationStatus.Enabled;

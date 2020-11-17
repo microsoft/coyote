@@ -317,7 +317,7 @@ namespace Microsoft.Coyote.Specifications
                     string msg = string.Format(CultureInfo.InvariantCulture,
                         "Found potential liveness bug at the end of program execution.\nThe stack trace is:\n{0}",
                         GetStackTrace(monitor.StackTrace));
-                    this.Runtime.NotifyAssertionFailure(msg, killTasks: false, cancelExecution: false);
+                    this.Runtime.NotifyAssertionFailure(msg);
                 }
             }
 

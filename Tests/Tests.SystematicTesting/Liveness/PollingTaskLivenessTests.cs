@@ -54,39 +54,6 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         }
 
         [Fact(Timeout = 5000)]
-        public void TestPollingTaskLivenessPropertyLongRunning()
-        {
-            this.Test(async () =>
-            {
-                SharedEntry entry = new SharedEntry();
-
-                var task = Task.Run(async () =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        await Task.Yield();
-                        entry.Value++;
-                    }
-                });
-
-                while (true)
-                {
-                    if (entry.Value is 10)
-                    {
-                        break;
-                    }
-
-                    await Task.Delay(10);
-                }
-
-                await task;
-
-                Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
-            },
-            configuration: GetConfiguration().WithTestingIterations(10));
-        }
-
-        [Fact(Timeout = 5000)]
         public void TestPollingTaskLivenessPropertyWithDoubleDelay()
         {
             this.Test(async () =>
@@ -128,38 +95,18 @@ namespace Microsoft.Coyote.SystematicTesting.Tests.Tasks
         {
             this.TestWithError(async () =>
             {
-                SharedEntry entry = new SharedEntry();
-
-                var task = Task.Run(async () =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        await Task.Yield();
-                        entry.Value--;
-                    }
-                });
-
                 var pollingTask = Task.Run(async () =>
                 {
                     while (true)
                     {
-                        if (entry.Value is 10)
-                        {
-                            break;
-                        }
-
-                        await Task.Delay(500);
+                        await Task.Delay(10);
                     }
                 });
 
                 Specification.Monitor(pollingTask);
-
-                await task;
                 await pollingTask;
-
-                Specification.Assert(entry.Value is 10, $"Unexpected value {entry.Value}.");
             },
-            configuration: GetConfiguration().WithMaxSchedulingSteps(1000),
+            configuration: GetConfiguration().WithMaxSchedulingSteps(100),
             errorChecker: (e) =>
             {
                 Assert.StartsWith("Found potential liveness bug at the end of program execution.", e);

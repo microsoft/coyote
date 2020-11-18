@@ -10,7 +10,7 @@ namespace Microsoft.Coyote.IO
     /// Bridges custom user provided TextWriter logger so it can be passed into
     /// Coyote via the <see cref="ILogger"/> interface.
     /// </summary>
-    internal class TextWriterLogger : TextWriter, ILogger
+    public class TextWriterLogger : TextWriter, ILogger
     {
         private readonly TextWriter UserLogger;
 
@@ -68,7 +68,7 @@ namespace Microsoft.Coyote.IO
         /// <inheritdoc/>
         public void WriteLine(LogSeverity severity, string value)
         {
-            this.UserLogger.WriteLine(value);
+            this.WriteLine(value);
         }
 
         /// <inheritdoc/>

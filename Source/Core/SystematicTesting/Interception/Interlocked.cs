@@ -4,11 +4,12 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Coyote.Runtime;
+using SystemInterlocked = System.Threading.Interlocked;
 
 namespace Microsoft.Coyote.SystematicTesting.Interception
 {
     /// <summary>
-    /// Provides atomic operations for variables that are shared by multiple threads/tasks during coyote testing.
+    /// Provides controlled atomic operations for variables that are shared by multiple threads.
     /// </summary>
     /// <remarks>This type is intended for compiler use rather than use directly in code.</remarks>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -25,7 +26,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Increment(ref location);
+            return SystemInterlocked.Increment(ref location);
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Increment(ref location);
+            return SystemInterlocked.Increment(ref location);
         }
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Decrement(ref location);
+            return SystemInterlocked.Decrement(ref location);
         }
 
         /// <summary>
@@ -67,7 +68,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Decrement(ref location);
+            return SystemInterlocked.Decrement(ref location);
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -123,7 +124,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -166,7 +167,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
+            return SystemInterlocked.CompareExchange(ref location1, value, comparand);
         }
 
         /// <summary>
@@ -180,7 +181,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Add(ref location1, value);
+            return SystemInterlocked.Add(ref location1, value);
         }
 
         /// <summary>
@@ -194,7 +195,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Add(ref location1, value);
+            return SystemInterlocked.Add(ref location1, value);
         }
 
         /// <summary>
@@ -208,7 +209,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
@@ -222,7 +223,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
@@ -236,7 +237,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
@@ -250,7 +251,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
@@ -264,7 +265,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
@@ -278,7 +279,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
@@ -293,17 +294,14 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Exchange(ref location1, value);
+            return SystemInterlocked.Exchange(ref location1, value);
         }
 
         /// <summary>
         /// Synchronizes memory access.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MemoryBarrier()
-        {
-            System.Threading.Interlocked.MemoryBarrier();
-        }
+        public static void MemoryBarrier() => SystemInterlocked.MemoryBarrier();
 
         /// <summary>
         /// Returns a 64-bit value, loaded as an atomic operation.
@@ -316,7 +314,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
                 CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
-            return System.Threading.Interlocked.Read(ref location);
+            return SystemInterlocked.Read(ref location);
         }
 
 #if NET5_0 || NETCOREAPP3_1 || NETSTANDARD2_1
@@ -324,10 +322,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         /// Provides a process-wide memory barrier that ensures that reads and writes from any CPU cannot move across the barrier.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MemoryBarrierProcessWide()
-        {
-            System.Threading.Interlocked.MemoryBarrierProcessWide();
-        }
+        public static void MemoryBarrierProcessWide() => SystemInterlocked.MemoryBarrierProcessWide();
 #endif
     }
 }

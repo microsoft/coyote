@@ -22,7 +22,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Increment(ref location);
@@ -36,7 +36,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Increment(ref location);
@@ -50,7 +50,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Decrement(ref location);
@@ -64,7 +64,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Decrement(ref location);
@@ -78,7 +78,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -92,7 +92,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -106,7 +106,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -120,7 +120,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -134,7 +134,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -148,7 +148,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -163,7 +163,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.CompareExchange(ref location1, value, comparand);
@@ -177,7 +177,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Add(ref location1, value);
@@ -191,7 +191,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Add(ref location1, value);
@@ -205,7 +205,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -219,7 +219,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -233,7 +233,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -247,7 +247,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -261,7 +261,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -275,7 +275,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -290,7 +290,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Exchange(ref location1, value);
@@ -313,7 +313,7 @@ namespace Microsoft.Coyote.SystematicTesting.Interception
         {
             if (CoyoteRuntime.IsExecutionControlled)
             {
-                ControlledRuntime.Current.ScheduleNextOperation();
+                CoyoteRuntime.Current.ScheduleNextOperation();
             }
 
             return System.Threading.Interlocked.Read(ref location);
